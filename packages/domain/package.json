@@ -1,0 +1,13 @@
+{
+  "name": "@quiz/domain",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reine Spiellogik: Zustandsmaschine, Scoring, Buzzerregeln, Fragenauswahl, View-Projektion",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@quiz/contracts": "workspace:*"
+  }
+}
