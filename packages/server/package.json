@@ -1,0 +1,20 @@
+{
+  "name": "@quiz/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lokaler Quizserver: Befehlsverarbeitung, Sitzungen, WebSocket-Verteilung, Auslieferung der Clients",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@quiz/content": "workspace:*",
+    "@quiz/contracts": "workspace:*",
+    "@quiz/domain": "workspace:*",
+    "@quiz/persistence": "workspace:*",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13"
+  }
+}
