@@ -53,7 +53,9 @@ test.describe('Vollstaendige Spielablaeufe', () => {
 
     // Nach dem ersten Fehlversuch folgt die zweite Chance - nicht die Loesung.
     await expectPhase(operator, 'second-chance')
-    await expect(operator.locator('.controls__hint')).toContainText('50 Punkte')
+    // Der Punktwert steht oeffentlich auf der Buehne, nicht mehr in einer
+    // Anweisungszeile der Bedienleiste.
+    await expect(operator.locator('.scene__hint')).toContainText('50 Punkte')
 
     await markCorrect(operator)
     await resolveAttempt(operator)
