@@ -1,0 +1,48 @@
+/**
+ * Auftritt einer neuen Frage.
+ *
+ * Betrifft: Wechsel in die Frage-, Video- und Bilderkennen-Szene.
+ * Animiert werden Fragetext (`question-prompt`) und Antwortkacheln (`option-card`);
+ * die Kacheln laufen mit `optionStaggerMs` nacheinander ein.
+ *
+ * Wichtig: Die Buzzer-Freigabe haengt NICHT an dieser Animation. Der Server
+ * entscheidet ueber `OPEN_BUZZER`, wann gebuzzert werden darf.
+ */
+import { easings, presentationTiming } from '../animationPresets.ts'
+import type { PresentationTransitionDefinition } from './types.ts'
+
+export const questionEnter: PresentationTransitionDefinition = {
+  id: 'question-enter',
+  description: 'Frage steigt leicht von unten ein, Antwortoptionen folgen versetzt.',
+  appliesTo: { from: '*', to: 'question' },
+  durationMs: 520,
+  easing: easings.emphasized,
+  reducedMotionDurationMs: 140,
+  soundCueId: 'question-appear',
+  classNames: { active: 'question-enter', to: 'scene-enter' },
+}
+
+export const revealEnter: PresentationTransitionDefinition = {
+  id: 'reveal-enter',
+  description: 'Bilderkennen: unscharfes Bild und Countdown erscheinen gemeinsam.',
+  appliesTo: { from: '*', to: 'reveal' },
+  durationMs: 420,
+  easing: easings.standard,
+  reducedMotionDurationMs: 120,
+  soundCueId: 'question-appear',
+  classNames: { active: 'reveal-enter', to: 'scene-enter' },
+  locked:
+    'Die Einblendung darf laufen, der Enthuellungsfortschritt selbst wird aber ausschliesslich ' +
+    'aus dem Serverzustand berechnet. Countdown und Bildschaerfe duerfen niemals aus dieser ' +
+    'Animation abgeleitet werden.',
+}
+
+export const videoEnter: PresentationTransitionDefinition = {
+  id: 'video-enter',
+  description: 'Videophase: Buehne verdunkelt, Videoflaeche faehrt auf.',
+  appliesTo: { from: '*', to: 'video' },
+  durationMs: presentationTiming.sceneFadeMs,
+  easing: easings.standard,
+  reducedMotionDurationMs: 120,
+  classNames: { active: 'video-enter', to: 'scene-enter' },
+}
