@@ -30,10 +30,16 @@ export const scoringRules = {
  * ob ein Browser ein `animationend`-Event zuverlaessig liefert (Spezifikation 22.1).
  */
 export const gameTiming = {
-  /** Dauer der Richtig-Animation, bevor die Loesung erscheint. */
-  correctFeedbackMs: 1_400,
-  /** Dauer der Falsch-Animation, bevor zweite Chance bzw. Loesung folgt. */
-  incorrectFeedbackMs: 1_200,
+  /**
+   * Dauer der Richtig-Animation, bevor die Loesung erscheint.
+   *
+   * Der Wert richtet sich nach der gelieferten Bewegtgrafik `correct.webm`: Der
+   * Haken ist nach etwa 1,4 Sekunden fertig gezeichnet, das Konfetti danach
+   * ausgelaufen. Eine kuerzere Phase wuerde mitten in die Aussage schneiden.
+   */
+  correctFeedbackMs: 2_000,
+  /** Dauer der Falsch-Animation (Kreuz fertig nach etwa 1,4 Sekunden). */
+  incorrectFeedbackMs: 1_800,
   /** Kurze definierte Pause zwischen Feedback und Loesungsansicht. */
   solutionDelayMs: 250,
   /**

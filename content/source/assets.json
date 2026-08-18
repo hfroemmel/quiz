@@ -25,14 +25,14 @@
     "kind": "image",
     "filename": "branding/start-adults.svg",
     "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+    "credit": "Gelieferte Designvorlage"
   },
   {
     "id": "start-kids",
     "kind": "image",
-    "filename": "branding/start-kids.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+    "filename": "branding/start-kids.png",
+    "mimeType": "image/png",
+    "credit": "Gelieferte Designvorlage"
   },
   {
     "id": "start-regional",

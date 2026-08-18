@@ -22,7 +22,11 @@ schickt anschliessend `ADVANCE_TIMED_PHASE`.
 ## Wo liegt was?
 
 ```text
+apps/web/src/assets/animations/   gelieferte Bewegtgrafiken (WebM mit Alpha, SVG)
+apps/web/src/ui/AnimationClip.tsx Abspielbaustein, kennt keinen Spielzustand
 apps/web/src/presentation/
+  animationAssets.ts       Registry der gelieferten Dateien: Laenge und Zeitpunkt
+                           der vollstaendigen Aussage (`payoffMs`)
   animationPresets.ts      zentrale Timings und Easings
   soundCues.ts             Soundmarken (Web Audio, keine Dateien)
   StageScreen.tsx          waehlt Szene, wendet Uebergang an, spielt Soundmarke
@@ -78,6 +82,7 @@ Easing werden dort **nicht** hart geschrieben, sondern ueber `--transition-durat
 | `correctFeedbackMs`, `incorrectFeedbackMs`, `solutionDelayMs`, `pauseScreenMs` | nur in `gameTiming` (`packages/contracts/src/config.ts`) - der Server beendet die Phase nach genau dieser Zeit |
 | `imageRevealDurationMs` | bestaetigte zehn Sekunden; Aenderung nur nach Ruecksprache |
 | Ableitung der Bildschaerfe aus dem Reveal-Fortschritt | **nicht** aendern - Fairness |
+| `payoffMs` einer gelieferten Bewegtgrafik | nur gemeinsam mit der Datei; die Phase muss mindestens so lang laufen |
 
 Wer eine Feedbackdauer nur in der Animation aendert, laesst Anzeige und Spielzustand
 auseinanderlaufen: Die Loesung erschiene, waehrend die Animation noch laeuft. Deshalb

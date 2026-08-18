@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "1.0.0",
-  "createdAt": "2026-08-18T05:46:06.956Z",
+  "contentVersion": "1.0.1",
+  "createdAt": "2026-08-18T11:38:27.138Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
   "assets": [
@@ -146,16 +146,16 @@
       "kind": "image",
       "filename": "branding/start-adults.svg",
       "mimeType": "image/svg+xml",
-      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-      "checksum": "d12e12c57c79c5f4b55cbba3e0f6feb8"
+      "credit": "Gelieferte Designvorlage",
+      "checksum": "7a0b183757f59169a397aba15816b74d"
     },
     {
       "id": "start-kids",
       "kind": "image",
-      "filename": "branding/start-kids.svg",
-      "mimeType": "image/svg+xml",
-      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-      "checksum": "e2e27ecd43b2ec9d791f0381c1d9965c"
+      "filename": "branding/start-kids.png",
+      "mimeType": "image/png",
+      "credit": "Gelieferte Designvorlage",
+      "checksum": "762a0602f00645ac0edf8a5f98b121b7"
     },
     {
       "id": "start-regional",
@@ -173,5 +173,5 @@
       "credit": "PLATZHALTER - eigenen Videoausschnitt hier ablegen"
     }
   ],
-  "checksum": "1511b452722ec318e949eebfae9a6b59ef5c102b9b0e934e6372e87c10410459"
+  "checksum": "432dd313de08b9a5e52649c5671469e1be9408e06d384f55cff638ef6d4f121c"
 }

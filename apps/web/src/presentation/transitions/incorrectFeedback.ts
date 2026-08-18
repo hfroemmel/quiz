@@ -13,7 +13,7 @@ import type { PresentationTransitionDefinition } from './types.ts'
 
 export const incorrectFeedback: PresentationTransitionDefinition = {
   id: 'incorrect-feedback',
-  description: 'Kurzes rotes Ruetteln, kein Hinweis auf die richtige Antwort.',
+  description: 'Gelieferte Bewegtgrafik: Kreis waechst mit Ringimpuls, zwei Striche drehen sich zum Kreuz.',
   appliesTo: { from: '*', to: 'feedback' },
   durationMs: presentationTiming.incorrectFeedbackMs,
   easing: easings.sharp,

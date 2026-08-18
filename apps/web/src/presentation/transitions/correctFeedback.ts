@@ -15,7 +15,7 @@ import type { PresentationTransitionDefinition } from './types.ts'
 
 export const correctFeedback: PresentationTransitionDefinition = {
   id: 'correct-feedback',
-  description: 'Gruener Impuls, Haken skaliert auf, Punktestand zaehlt hoch.',
+  description: 'Gelieferte Bewegtgrafik: Kreis waechst, Konfetti stiebt aus, Haken zeichnet sich; Punktestand zaehlt hoch.',
   appliesTo: { from: '*', to: 'feedback' },
   durationMs: presentationTiming.correctFeedbackMs,
   easing: easings.emphasized,

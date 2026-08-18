@@ -64,11 +64,11 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
   test('Feedbackszene zeigt Richtig und Falsch unterschiedlich', async ({ page }) => {
     await selectScene(page, 'feedback')
     await expect(page.locator('.scene--feedback-correct')).toBeVisible()
-    await expect(page.locator('.feedback__symbol')).toHaveText('✓')
+    await expect(page.locator('.animation-clip[data-clip="correct"]')).toBeVisible()
 
     await page.locator('.preview__panel select').nth(2).selectOption('incorrect')
     await expect(page.locator('.scene--feedback-incorrect')).toBeVisible()
-    await expect(page.locator('.feedback__symbol')).toHaveText('✗')
+    await expect(page.locator('.animation-clip[data-clip="wrong"]')).toBeVisible()
     // Die Falsch-Animation darf die Loesung nicht vorwegnehmen.
     await expect(page.locator('.solution__answer')).toHaveCount(0)
   })

@@ -54,16 +54,47 @@ erscheinen.
 `score-count-up` laeuft bewusst **waehrend** der Richtig-Animation, damit der
 Punktgewinn und der Haken zusammen gelesen werden (bestaetigt).
 
-## C - Rueckmeldung (fachlich gebundene Dauern)
+## C - Rueckmeldung (gelieferte Bewegtgrafiken)
 
-| ID | Dauer | Reduced | Was sich bewegt | Ton | Bindung |
-|---|---|---|---|---|---|
-| `correct-feedback` | `gameTiming.correctFeedbackMs` = 1400 ms | 200 ms | Kreis skaliert von 0,6 auf 1 mit Ueberschwingen, Haken zeichnet sich in 260 ms, 12 Funken laufen radial aus, Wort blendet 120 ms spaeter ein | `answer-correct` | **locked** |
-| `incorrect-feedback` | `gameTiming.incorrectFeedbackMs` = 1200 ms | 200 ms | Kreis skaliert von 0,8 auf 1, Kreuz zeichnet sich in zwei Strichen zu je 140 ms, kurzer Ruettler von 6 px, keine Funken | `answer-incorrect` | **locked** |
+Richtig und Falsch werden **nicht** im Code gezeichnet, sondern kommen als
+gelieferte Dateien. Sie liegen als VP9-WebM mit Alphakanal vor, 500 x 500 Bildpunkte,
+30 Bilder je Sekunde, ohne Tonspur, und sind ueber
+`apps/web/src/presentation/animationAssets.ts` zentral registriert.
 
-Beide Animationen muessen deutlich vor Ablauf ihrer Phase ausgelaufen sein - die
-letzten 300 ms stehen bewusst still, damit der Wechsel zur Loesung nicht in eine
-laufende Bewegung schneidet.
+| Datei | Laenge | Aussage vollstaendig nach | Verlauf |
+|---|---|---|---|
+| `correct.webm` | 4,0 s | 1,4 s | Kreis waechst ab 0,6 s, Konfetti stiebt aus, Haken zeichnet sich bis 1,2 s, Konfetti laeuft bis 1,9 s aus, danach Standbild |
+| `wrong.webm` | 2,0 s | 1,4 s | Kreis waechst mit Ringimpuls, zwei Striche setzen bei 0,9 s an und drehen sich bis 1,2 s zum Kreuz, Impuls klingt bis 2,0 s aus |
+
+Damit ist der frueher offene Punkt "dem Falsch-Kreis fehlt ein Kreuz" erledigt:
+Das Kreuz ist Teil der gelieferten Grafik.
+
+### Folge fuer die Phasendauern
+
+Eine Phase muss mindestens bis zur vollstaendigen Aussage laufen, sonst schneidet
+der Zustandswechsel mitten in die Bewegung. Deshalb wurden die Werte in
+`gameTiming` an die Dateien angepasst:
+
+| Wert | vorher | jetzt | Begruendung |
+|---|---|---|---|
+| `correctFeedbackMs` | 1400 ms | **2000 ms** | Haken fertig bei 1,4 s, Konfetti danach ausgelaufen |
+| `incorrectFeedbackMs` | 1200 ms | **1800 ms** | Kreuz fertig bei 1,4 s, Ringimpuls klingt aus |
+
+Die Spezifikation nennt diese beiden Zahlen ausdruecklich als Beispielwerte, die
+beim visuellen Feinschliff festgelegt werden; bindend sind allein die zehn
+Sekunden der Bildenthuellung. Beide Uebergaenge bleiben `locked`: Der Server
+beendet die Phase nach genau dieser Zeit.
+
+| ID | Dauer | Reduced | Ton | Bindung |
+|---|---|---|---|---|
+| `correct-feedback` | `gameTiming.correctFeedbackMs` = 2000 ms | Endbild, keine Bewegung | `answer-correct` | **locked** |
+| `incorrect-feedback` | `gameTiming.incorrectFeedbackMs` = 1800 ms | Endbild, keine Bewegung | `answer-incorrect` | **locked** |
+
+Bei `prefers-reduced-motion` wird die Datei nicht weggelassen, sondern auf ihr
+Endbild gesetzt und angehalten: gleiche Aussage, keine Bewegung.
+
+Das Wort `Richtig!` bzw. `Falsch!` steht unter der Grafik. Der Punktestand zaehlt
+zeitgleich in der Kopfzeile hoch (`score-count-up`).
 
 ## D - Enthuellung (Fairness)
 
@@ -77,6 +108,22 @@ laufende Bewegung schneidet.
 Fortschrittsvariablen berechnet und niemals aus einer eigenstaendigen
 CSS-Animation. Am Bild aendert sich ausschliesslich die Schaerfe - kein Zoom,
 keine Bewegung (bestaetigt).
+
+## D2 - Weitere gelieferte Bewegtgrafiken (Einsatz zur Freigabe)
+
+Drei Dateien und ein animiertes SVG wurden mitgeliefert, ohne dass ihr Einsatzort
+festgelegt ist. Vorschlag - bitte bestaetigen oder umwidmen:
+
+| Datei | Laenge | Inhalt | Vorschlag |
+|---|---|---|---|
+| `trophy.webm` | 2,0 s | Pokal, in dem sich eine Medaille bildet | Ergebnisansicht, ueber der Zeile `Spieler 1 hat gewonnen!`; bei Unentschieden **nicht** gezeigt |
+| `stars.webm` | 1,0 s | gelber Impuls, der in Sterne zerfaellt | Kindermodus: zusaetzlich zur Richtig-Grafik hinter der Punktekachel |
+| `question-marks.webm` | 1,5 s | drei Fragezeichen in Blautoenen | Pausenbild zwischen zwei Fragen, statt eines ruhenden Wasserzeichens |
+| `confetti.svg` | Endlosschleife | fallendes Konfetti, 1920 x 976 | Ergebnisansicht, ersetzt das bisher im Code erzeugte Konfetti |
+
+Bis zur Freigabe bleiben `trophy`, `stars` und `question-marks` ungenutzt im
+Bestand; `confetti.svg` ersetzt das bestehende Konfetti erst mit dem Umbau der
+Ergebnisansicht (Arbeitspaket P3).
 
 ## E - Bedienrahmen des Operators
 
@@ -104,3 +151,5 @@ Der Rahmen ist Werkzeug, kein Schauspiel. Er bekommt genau drei Bewegungen:
 | Abschnitte A bis F inhaltlich | offen - bitte freigeben oder aendern |
 | Gesperrte Dauern in C und D | ergeben sich aus der Spezifikation, keine Freigabe noetig |
 | Soundmarken | vorhanden, synthetisch erzeugt; Klangprofil separat justierbar |
+| Einsatzort von `trophy`, `stars`, `question-marks`, `confetti.svg` | offen - Vorschlag in Abschnitt D2 |
+| Angepasste Feedbackdauern (2000 / 1800 ms) | umgesetzt, weil an die gelieferten Dateien gebunden |

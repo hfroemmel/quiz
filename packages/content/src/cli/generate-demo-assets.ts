@@ -10,7 +10,7 @@
  * Die Grafiken werden deterministisch aus der Asset-ID abgeleitet, damit wiederholte
  * Laeufe reproduzierbare Dateien erzeugen.
  */
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { mediaAssetSchema } from '@quiz/contracts'
 import { contentSourceDir } from '../paths.ts'
@@ -90,12 +90,20 @@ const brandingLabels: Record<string, string> = {
 function main(): void {
   const assets = mediaAssetSchema.array().parse(readJson(join(contentSourceDir, 'assets.json')))
   let written = 0
+  let kept = 0
 
   for (const asset of assets) {
     if (asset.kind !== 'image' || !asset.filename.endsWith('.svg')) continue
     const target = resolveAssetPath(contentSourceDir, asset.filename)
     if (!target) {
       throw new Error(`Asset-Pfad "${asset.filename}" liegt ausserhalb des Asset-Verzeichnisses.`)
+    }
+    // Vorhandene Dateien bleiben unangetastet: Sobald freigegebenes Material im
+    // Bestand liegt, darf ein erneuter Lauf es nicht wieder durch einen Platzhalter
+    // ersetzen.
+    if (existsSync(target)) {
+      kept += 1
+      continue
     }
     const label = brandingLabels[asset.id]
     const svg = label ? brandingSvg(asset.id, label) : questionImageSvg(asset.id)
@@ -104,7 +112,8 @@ function main(): void {
     written += 1
   }
 
-  console.log(`${written} Platzhalter-Grafiken erzeugt unter ${join(contentSourceDir, 'assets')}.`)
+  console.log(`${written} Platzhalter-Grafiken erzeugt, ${kept} vorhandene Dateien unveraendert.`)
+  console.log(`Verzeichnis: ${join(contentSourceDir, 'assets')}.`)
   console.log('Hinweis: Vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen.')
 }
 

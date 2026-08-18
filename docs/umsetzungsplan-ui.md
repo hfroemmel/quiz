@@ -184,11 +184,14 @@ ist danach ein reiner Dateitausch ohne Codeaenderung.
 | Zulieferung | Wofuer | Platzhalter bis dahin |
 |---|---|---|
 | Schriftdateien `woff2` samt Name und Lizenz | gesamte Oberflaeche | Systemserifen-Kette |
-| Adler-Wasserzeichen und `?`-Signet | Startbild Erwachsene | Rasterausschnitt aus der Vorlage |
-| Kindergrafik | Startbild Kinder | Rasterausschnitt aus der Vorlage |
-| Symbole Vollbild und Ton | Kopfbereich | nachgezeichnete Inline-SVG |
 | Farbsysteme `Kinder` und `Saarbruecken` | Themes | erben von `Erwachsene` |
-| Startbild `Saarbruecken` | Startansicht | Titelkarte im Stil der Vorlage |
+| Startbild `Saarbruecken` | Startansicht | Platzhaltergrafik im Bestand |
+| 156 Bilddateien des Fragenkatalogs | alle Bild- und Bilderkennen-Fragen | Beispielpaket bleibt in `content/source` (siehe [`docs/inhalte-uebernahme.md`](inhalte-uebernahme.md)) |
+
+Bereits geliefert und eingebaut: Startbilder fuer `Erwachsene` und `Kinder`,
+die Bewegtgrafiken fuer Richtig, Falsch, Pokal, Sterne und Fragezeichen sowie
+das Konfetti-SVG. Die Symbole fuer Vollbild und Ton werden als Inline-SVG
+nachgezeichnet - sie sind reine Bedienelemente und nicht Teil der Buehnenausgabe.
 
 ## Beobachtung ohne Festlegung
 

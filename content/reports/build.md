@@ -1,5 +1,5 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.0
+Inhaltsversion: 1.0.1
 Ergebnis: BESTANDEN (0 Fehler, 27 Warnungen)
 
 ## Gesamtzahlen
@@ -10,6 +10,7 @@ Ergebnis: BESTANDEN (0 Fehler, 27 Warnungen)
 - Nach Schwierigkeit: easy=22, medium=20, hard=11
 - Nach Praesentationstyp: text-choice=38, image-reveal=7, image-choice=7, video-then-question=1
 - Nach Kategorie: geografie=13, kultur=12, saarbruecken=10, natur=8, wissenschaft=6, geschichte=6, allgemeinwissen=5, sport=3
+- Vergleich zu Version 1.0.0: +0 Fragen
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"

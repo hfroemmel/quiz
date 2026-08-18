@@ -233,19 +233,32 @@ Transparenzflaechen**. Abgrenzung entsteht allein ueber Helligkeit.
 |---|---|---|
 | Vollbild | oben rechts | vier Eckwinkel, Strichstaerke 2 px, weiss |
 | Ton aus | oben rechts darunter | Lautsprecher mit Schraegstrich |
-| Haken | Richtig-Rueckmeldung | weisser Haken im Kreis `--correct` |
-| Kreuz | Falsch-Rueckmeldung | weisses Kreuz im Kreis `--incorrect` |
+| Haken | Richtig-Rueckmeldung | gelieferte Bewegtgrafik `correct.webm` |
+| Kreuz | Falsch-Rueckmeldung | gelieferte Bewegtgrafik `wrong.webm` |
 
-Das Kreuz fehlt in den Vorlagen und wird **ergaenzt** - bestaetigt. Es ist
-formgleich zum Haken aufgebaut: gleiche Kreisgroesse, gleiche Strichstaerke,
-gleiche Einblendkurve.
+Das in den Vorlagen fehlende Kreuz ist damit geklaert: Es ist Bestandteil der
+gelieferten Falsch-Grafik.
 
-Alle Symbole werden als Inline-SVG mit `currentColor` gezeichnet. Es gibt keine
-Icon-Schriftart und keine externen Symboldateien.
+Vollbild und Ton werden als Inline-SVG mit `currentColor` gezeichnet. Es gibt
+keine Icon-Schriftart und keine externen Symboldateien.
 
-**Offene Zulieferung:** Adler-Wasserzeichen und `?`-Signet des Startbildes sowie
-die Kindergrafik liegen als Rasterbild in den Vorlagen vor. Fuer den Live-Betrieb
-werden sie als SVG oder als PNG mit mindestens 2560 px Breite benoetigt.
+## Gelieferte Grafiken
+
+| Datei | Ort im Projekt | Verwendung |
+|---|---|---|
+| `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | Startbild Erwachsene: Adler bei 8 % Deckkraft, darueber das `?`. Der Titel ist Text der Anwendung, nicht Teil der Grafik |
+| `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | Startbild Kinder, 1024 x 828, randfuellend |
+| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | Bewegtgrafiken, VP9 mit Alphakanal, 500 x 500, 30 fps, ohne Ton |
+| `confetti.svg` | `apps/web/src/assets/animations/` | animiertes SVG fuer die Ergebnisansicht |
+
+Die Startbilder sind Inhalt des Quizpakets und werden ueber
+`mode.startVisualAssetId` zugeordnet - ein neuer Modus braucht dafuer keine
+Codeaenderung. Die Bewegtgrafiken gehoeren zur Praesentationsschicht und sind in
+`apps/web/src/presentation/animationAssets.ts` mit Laenge und Zeitpunkt der
+vollstaendigen Aussage registriert.
+
+**Offene Zulieferung:** Startbild fuer den Modus `Saarbruecken`; bis dahin bleibt
+die Platzhaltergrafik im Bestand.
 
 ## Barrierefreiheit und Buehnentauglichkeit
 

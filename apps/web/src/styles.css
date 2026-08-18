@@ -416,14 +416,19 @@ textarea {
   gap: 1vh;
 }
 .feedback__symbol {
-  font-size: clamp(5rem, 16vw, 14rem);
+  /*
+   * Die Bewegtgrafik ist quadratisch und transparent. Sie skaliert mit der
+   * Buehnenflaeche, nicht mit der Fensterbreite des Operators.
+   */
+  width: clamp(8rem, 22vh, 22rem);
+  aspect-ratio: 1;
   line-height: 1;
 }
-.scene--feedback-correct .feedback__symbol {
-  color: var(--color-correct);
-}
-.scene--feedback-incorrect .feedback__symbol {
-  color: var(--color-incorrect);
+.animation-clip {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 .feedback__label {
   font-size: clamp(1.4rem, 4vw, 3rem);
