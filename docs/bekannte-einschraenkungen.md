@@ -40,6 +40,13 @@ Nach `pnpm desktop:rebuild-native` (Electron) funktionieren `pnpm server` und
 `pnpm test` erst wieder nach `pnpm server:rebuild-native` (Node). Die Anwendung
 erkennt den Fall und nennt den passenden Befehl im Klartext.
 
+Der Rebuild fuer Electron braucht **Node 22.12 oder neuer**: `@electron/rebuild`
+setzt das ab Version 4 voraus. Server, Web und Tests laufen weiterhin ab Node 20.
+Aeltere Fassungen des Werkzeugs kommen fuer die Installation nicht in Frage - sie
+holen `@electron/node-gyp` per SSH aus einem Git-Repository. Neuere pnpm-Fassungen
+lehnen das mit `ERR_PNPM_EXOTIC_SUBDEP` ab, und ohne hinterlegten SSH-Schluessel
+scheitert es ohnehin.
+
 ## Sicherheit im lokalen Netzwerk
 
 * Die Operatoransicht ist nur ueber Loopback erreichbar; ein Fernzugriff ist nicht

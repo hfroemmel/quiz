@@ -33,3 +33,9 @@ pnpm server:rebuild-native    # SQLite wieder fuer Node (Server und Tests)
 
 `better-sqlite3` passt immer nur zu einer Laufzeit. Die Anwendung erkennt den Fall und
 nennt den passenden Befehl im Klartext.
+
+Der Electron-Rebuild laeuft ueber `@electron/rebuild` ab Version 4 und braucht
+deshalb **Node 22.12 oder neuer**. Die Vorgaengerfassung 3.x holte ihr `node-gyp`
+per SSH aus einem Git-Repository; neuere pnpm-Fassungen lehnen solche Abhaengigkeiten
+mit `ERR_PNPM_EXOTIC_SUBDEP` ab. Seit Version 4 kommt `node-gyp` aus der Registry -
+die Installation braucht weder SSH-Schluessel noch Sonderkonfiguration.
