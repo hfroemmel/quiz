@@ -104,6 +104,7 @@ Abhaengigkeiten.
 | Alle Befehle und Rollenrechte | [docs/befehle.md](docs/befehle.md) |
 | Quizpaket-Schema mit Beispiel | [docs/quizpaket.md](docs/quizpaket.md) |
 | Import und Validierung | [docs/inhalte-import.md](docs/inhalte-import.md) |
+| Uebernahme des Original-Fragenkatalogs | [docs/inhalte-uebernahme.md](docs/inhalte-uebernahme.md) |
 | Neue Quizmodi und Presets | [docs/neue-modi-und-presets.md](docs/neue-modi-und-presets.md) |
 | Neue Fragetypen | [docs/neue-fragetypen.md](docs/neue-fragetypen.md) |
 | Designsystem: Farben, Raster, Typografie | [docs/design-system.md](docs/design-system.md) |

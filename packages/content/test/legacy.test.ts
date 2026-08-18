@@ -129,3 +129,59 @@ describe('Migration ins neue Fragenmodell', () => {
     expect(normalizeId('Groß/Klein')).toBe('gross-klein')
   })
 })
+
+/**
+ * Feldnamen des tatsaechlich gelieferten Katalogs.
+ *
+ * Die Altdaten benennen Schwierigkeit, Bilddatei und Bildnachweis anders als die
+ * frueher angenommenen Namen. Diese Tests halten die Zuordnung fest - sie ist der
+ * Unterschied zwischen "199 Fragen uebernommen" und "alle Fragen mittelschwer".
+ */
+describe('Feldnamen des gelieferten Katalogs', () => {
+  const delivered = `
+    export const questions = [
+      {
+        "id": "0", "playCount": "0", "mode": "adults", "level": "easy", "type": "image",
+        "category": "Ämter", "question": "Welches Land stellt die meisten Abgeordneten?",
+        "option_1": "Deutschland", "option_2": null, "option_3": null, "option_4": null,
+        "img_filename": "europe.jpg", "img_credit": "Pixabay/Greg Montani",
+        "source_reference": null, "info": "Gruendungsmitglied der EU."
+      },
+      {
+        "id": "13", "playCount": "0", "mode": "Kids", "level": "hard", "type": "multiple_choice",
+        "category": "Gebäude", "question": "Wo tagen die Fachausschuesse?",
+        "option_1": "Paul-Loebe-Haus", "option_2": "Reichstagsgebaeude",
+        "option_3": "Jakob-Kaiser-Haus", "option_4": "Marie-Elisabeth-Lueders-Haus",
+        "img_filename": "plh.png", "img_credit": null, "info": null
+      }
+    ];
+  `
+
+  it('liest auch eine mit "export" deklarierte Fragenliste', () => {
+    expect(extractDeclarations(delivered).has('questions')).toBe(true)
+  })
+
+  it('uebernimmt die Schwierigkeit aus dem Feld "level"', () => {
+    const result = migrateLegacy({ questionsSource: delivered })
+    expect(result.questions.map((question) => question.difficultyId)).toEqual(['easy', 'hard'])
+  })
+
+  it('erkennt die Bilddatei im Feld "img_filename" und den Nachweis in "img_credit"', () => {
+    const result = migrateLegacy({ questionsSource: delivered })
+    expect(result.skipped).toHaveLength(0)
+    const asset = result.assets.find((entry) => entry.id === 'img-0')
+    expect(asset?.filename).toBe('images/europe.jpg')
+    expect(asset?.credit).toBe('Pixabay/Greg Montani')
+    expect(result.notes.some((note) => note.code === 'missing-image-credit' && note.questionId === '13')).toBe(true)
+  })
+
+  it('macht aus der einzigen Legacy-Option des Bilderkennens keine sichtbare Antwortleiste', () => {
+    const result = migrateLegacy({ questionsSource: delivered })
+    const reveal = result.questions.find((question) => question.id === '0')
+    expect(reveal?.presentationType).toBe('image-reveal')
+    expect(reveal?.evaluationMode).toBe('manual-correct-incorrect')
+    expect(reveal?.options).toBeUndefined()
+    expect(reveal?.correctOptionId).toBeUndefined()
+    expect(reveal?.acceptedAnswerText).toEqual(['Deutschland'])
+  })
+})

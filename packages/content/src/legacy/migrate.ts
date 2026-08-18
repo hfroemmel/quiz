@@ -119,7 +119,11 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
         message: `Modus "${modeId.original}" zu "${modeId.value}" normalisiert.`,
       })
     }
-    const difficulty = normalizeEnum(asString(pick(record, ['difficulty', 'schwierigkeit'])) ?? 'medium', DIFFICULTY_ALIASES)
+    const difficulty = normalizeEnum(
+      // In den Altdaten heisst das Feld `level`; aeltere Exporte nutzen `difficulty`.
+      asString(pick(record, ['difficulty', 'schwierigkeit', 'level', 'niveau', 'stufe'])) ?? 'medium',
+      DIFFICULTY_ALIASES,
+    )
     if (difficulty.changed) {
       notes.push({
         severity: 'normalized',
@@ -133,7 +137,9 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
     const legacyType = (asString(pick(record, ['type', 'typ'])) ?? 'multiple_choice').toLowerCase()
     const options = collectOptions(record)
     const singleAnswer = asString(pick(record, ['answer', 'antwort', 'loesung', 'solution']))
-    const imageFile = asString(pick(record, ['image', 'bild', 'imageFile', 'picture']))
+    // Die Altdaten fuehren den Dateinamen als `img_filename`; weitere Schreibweisen
+    // kommen aus frueheren Exportstaenden.
+    const imageFile = asString(pick(record, ['img_filename', 'imgFilename', 'image', 'img', 'bild', 'imageFile', 'bilddatei', 'picture']))
 
     // Das Legacy-Feld `type: "image"` ist zu ungenau: eine Bildfrage mit vier
     // Optionen ist bildgestuetztes Multiple Choice, eine mit einer Antwort das
@@ -149,6 +155,20 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
 
     const evaluationMode = presentationType === 'image-reveal' ? 'manual-correct-incorrect' : 'option-comparison'
 
+    // Beim Bilderkennen gibt es keine Auswahl: Die einzige Legacy-Option ist die
+    // erwartete Antwort und wird zur Moderatorhilfe, nicht zu einer sichtbaren
+    // Antwortleiste. Sonst stuende die Loesung von Anfang an auf der Buehne.
+    const expectedAnswers = evaluationMode === 'manual-correct-incorrect'
+      ? [singleAnswer, ...options.map((option) => option.text)].filter((text): text is string => Boolean(text))
+      : singleAnswer
+        ? [singleAnswer]
+        : []
+    const selectableOptions = evaluationMode === 'manual-correct-incorrect' ? [] : options
+
+    if (evaluationMode === 'manual-correct-incorrect' && expectedAnswers.length === 0) {
+      skipped.push({ legacyId, reason: 'Bilderkennen ohne hinterlegte Antwort - die Loesungsansicht waere leer.' })
+      continue
+    }
     if (evaluationMode === 'option-comparison') {
       if (options.length === 0) {
         skipped.push({ legacyId, reason: 'Multiple-Choice-Frage ohne Antwortoptionen - inhaltliche Entscheidung noetig.' })
@@ -172,8 +192,18 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
         kind: 'image',
         filename: `${imageDirectory}/${imageFile}`,
         mimeType: mimeTypeForFile(imageFile),
-        credit: asString(pick(record, ['source_reference', 'sourceReference', 'bildnachweis', 'credit'])),
+        // Bildnachweis und inhaltliche Quellenangabe sind zwei verschiedene Dinge:
+        // der Nachweis gehoert an das Medium, die Quelle an die Erlaeuterung.
+        credit: asString(pick(record, ['img_credit', 'imgCredit', 'bildnachweis', 'credit'])),
         sourceUrl: asString(pick(record, ['source_url', 'sourceUrl', 'quelle'])),
+      })
+    }
+    if (mediaAssetId && !assets.get(mediaAssetId)?.credit) {
+      notes.push({
+        severity: 'needs-review',
+        code: 'missing-image-credit',
+        questionId: id,
+        message: 'Bild ohne Bildnachweis. Vor der Veroeffentlichung klaeren.',
       })
     }
     if ((presentationType === 'image-choice' || presentationType === 'image-reveal') && !mediaAssetId) {
@@ -211,9 +241,9 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       evaluationMode,
       // Die Legacy-Annahme "option_1 ist richtig" wird hier genau einmal in eine
       // explizite `correctOptionId` uebersetzt und danach nie wieder benoetigt.
-      options: options.length ? options : undefined,
-      correctOptionId: options.length ? options[0]!.id : undefined,
-      acceptedAnswerText: singleAnswer ? [singleAnswer] : undefined,
+      options: selectableOptions.length ? selectableOptions : undefined,
+      correctOptionId: selectableOptions.length ? selectableOptions[0]!.id : undefined,
+      acceptedAnswerText: expectedAnswers.length ? expectedAnswers : undefined,
       media: mediaAssetId ? { imageAssetId: mediaAssetId } : undefined,
       explanation: {
         summary: info,
@@ -223,7 +253,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       enabled: true,
     })
 
-    if (options.length) {
+    if (selectableOptions.length) {
       notes.push({
         severity: 'needs-review',
         code: 'implicit-correct-answer',

@@ -243,7 +243,9 @@ function readString(reader: Reader): string {
 export function extractDeclarations(source: string): Map<string, LiteralValue> {
   const result = new Map<string, LiteralValue>()
   const patterns: { regex: RegExp; nameGroup: number }[] = [
-    { regex: /(?:^|[\n;])\s*(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*(?=[[{])/g, nameGroup: 1 },
+    // `export const questions = [...]` kommt in den Altdaten ebenso vor wie die
+    // reine Deklaration ohne `export`.
+    { regex: /(?:^|[\n;])\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*(?=[[{])/g, nameGroup: 1 },
     { regex: /(?:^|[\n;])\s*(?:window|globalThis)\.([A-Za-z0-9_$]+)\s*=\s*(?=[[{])/g, nameGroup: 1 },
     { regex: /(?:^|[\n;])\s*module\.(exports)\s*=\s*(?=[[{])/g, nameGroup: 1 },
     { regex: /(?:^|[\n;])\s*export\s+(default)\s+(?=[[{])/g, nameGroup: 1 },
