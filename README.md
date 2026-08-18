@@ -106,6 +106,11 @@ Abhaengigkeiten.
 | Import und Validierung | [docs/inhalte-import.md](docs/inhalte-import.md) |
 | Neue Quizmodi und Presets | [docs/neue-modi-und-presets.md](docs/neue-modi-und-presets.md) |
 | Neue Fragetypen | [docs/neue-fragetypen.md](docs/neue-fragetypen.md) |
+| Designsystem: Farben, Raster, Typografie | [docs/design-system.md](docs/design-system.md) |
+| Screens Zustand fuer Zustand | [docs/screens.md](docs/screens.md) |
+| Animationskatalog (Freigabe) | [docs/animationskatalog.md](docs/animationskatalog.md) |
+| Ergaenzung der Spezifikation: visuelle Umsetzung | [docs/spezifikation-ergaenzung-design.md](docs/spezifikation-ergaenzung-design.md) |
+| Umsetzungsplan der Oberflaeche | [docs/umsetzungsplan-ui.md](docs/umsetzungsplan-ui.md) |
 | Uebergangsanimationen anpassen und testen | [docs/animationen.md](docs/animationen.md) |
 | Datenbank und Wiederherstellung | [docs/datenbank-und-wiederherstellung.md](docs/datenbank-und-wiederherstellung.md) |
 | Operator-Kurzanleitung fuer den Live-Betrieb | [docs/operator-kurzanleitung.md](docs/operator-kurzanleitung.md) |

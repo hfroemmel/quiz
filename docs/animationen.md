@@ -3,6 +3,10 @@
 Animationen sind austauschbare Praesentation. Sie steuern **nie** die
 Spielzustandsmaschine.
 
+Welche Bewegungen es geben soll, steht in
+[`docs/animationskatalog.md`](animationskatalog.md). Diese Datei beschreibt, wie
+sie technisch angelegt und geaendert werden.
+
 ## Trennung von Zustand und Darstellung
 
 ```text
