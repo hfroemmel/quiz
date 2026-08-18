@@ -169,10 +169,18 @@ traegt deshalb ab sofort den vollstaendigen Tokensatz:
 }
 ```
 
-Der Client setzt daraus die CSS-Variablen auf dem Wurzelelement der
-Buehnenflaeche. Ein neuer Modus braucht damit **keine Codeaenderung**, sondern nur
-einen Eintrag im Quizpaket - genau wie in `docs/neue-modi-und-presets.md`
-beschrieben.
+Der Client setzt daraus die CSS-Variablen (`--color-<token>`) auf dem
+Wurzelelement der Buehnenflaeche. Ein neuer Modus braucht damit **keine
+Codeaenderung**, sondern nur einen Eintrag im Quizpaket - genau wie in
+`docs/neue-modi-und-presets.md` beschrieben.
+
+Die Tokenliste steht als Vertrag in `packages/contracts/src/theme.ts`. Sie gilt
+an drei Stellen zugleich: Das Quizpaket liefert die Werte, die Inhaltsvalidierung
+prueft die Vollstaendigkeit (ein fehlendes Token ist ein **Fehler**), und die
+Oberflaeche macht daraus CSS-Variablen. Zusammengesetzte Werte wie der
+Flaechenverlauf werden bewusst erst an der Verwendungsstelle gebildet - eine
+Variable, die ihre Farben schon am Wurzelelement aufloest, wuerde spaetere
+Theme-Werte ignorieren.
 
 Die drei Modi der Startansicht (`Kinder`, `Erwachsene`, `Saarbruecken`) kommen aus
 `catalog.modes`. Das Layout ist auf drei Eintraege ausgelegt; mehr Eintraege

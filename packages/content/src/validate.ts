@@ -11,6 +11,7 @@
  */
 import {
   contentThresholds,
+  missingColorTokens,
   questionSchema,
   quizConfigSchema,
   type MediaAsset,
@@ -147,6 +148,15 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
   }
   for (const theme of config.themes) {
+    const missingTokens = missingColorTokens(theme.colors)
+    if (missingTokens.length) {
+      add(
+        'error',
+        'theme-tokens',
+        `Theme "${theme.id}" fehlen Farbtoken: ${missingTokens.join(', ')}. Ein unvollstaendiges Theme ergaebe farblose Flaechen auf der Buehne.`,
+        theme.id,
+      )
+    }
     if (theme.logoAssetId && !assetsById.has(theme.logoAssetId)) {
       add('error', 'asset-reference', `Logo "${theme.logoAssetId}" von Theme "${theme.id}" fehlt.`, theme.id)
     }

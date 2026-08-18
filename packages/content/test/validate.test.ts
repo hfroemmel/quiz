@@ -2,17 +2,22 @@
  * Inhaltsvalidierung (Spezifikation 24.4 und 17.5) und Hotfix-Overlay (25).
  */
 import { describe, expect, it } from 'vitest'
-import type { MediaAsset, Question, QuestionPatch } from '@quiz/contracts'
+import { designColorTokens, type MediaAsset, type Question, type QuestionPatch } from '@quiz/contracts'
 import { validateContent } from '../src/validate.ts'
 import { applyPatches, buildChangeReport, findUnreconciledPatches } from '../src/hotfix.ts'
 
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
 
+/** Ein Theme muss alle Farbtoken tragen; die Werte selbst sind hier egal. */
+function fullColorSet(): Record<string, string> {
+  return Object.fromEntries(designColorTokens.map((token) => [token, '#000000']))
+}
+
 const baseConfig = {
   questionsPerGame: 2,
   difficulties: [{ id: 'easy', label: 'Leicht' }],
   categories: [{ id: 'allgemein', label: 'Allgemein' }],
-  themes: [{ id: 'default', label: 'Standard', colors: { background: '#000' } }],
+  themes: [{ id: 'default', label: 'Standard', colors: fullColorSet() }],
   presets: [
     {
       id: 'standard',
@@ -256,5 +261,16 @@ describe('Fehlende Mediendateien', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion, draft])
     expect(result.ok).toBe(true)
     expect(result.warnings.find((issue) => issue.code === 'option-count')?.message).toContain('deaktiviert')
+  })
+})
+
+describe('Themes muessen vollstaendig sein', () => {
+  it('meldet fehlende Farbtoken als Fehler', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      themes: [{ id: 'default', label: 'Standard', colors: { accent: '#3693B3' } }],
+    })
+    const issue = result.errors.find((entry) => entry.code === 'theme-tokens')
+    expect(issue?.message).toContain('pageTop')
+    expect(result.ok).toBe(false)
   })
 })

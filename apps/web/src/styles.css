@@ -13,27 +13,41 @@
  */
 
 :root {
-  --color-background: #0b1020;
-  --color-backgroundAccent: #141d3a;
-  --color-surface: #1b2545;
-  --color-text: #f4f7ff;
-  --color-textMuted: #a8b4d4;
-  --color-accent: #ffc32b;
-  --color-accentText: #221800;
-  --color-correct: #37d67a;
-  --color-incorrect: #ff5c5c;
-  --color-playerOne: #4aa3ff;
-  --color-playerTwo: #ff8a3d;
+  /*
+   * Fallbackwerte des Graustufensystems (docs/design-system.md).
+   *
+   * Im Betrieb ueberschreibt sie das Theme des aktiven Quizmodus. Sie stehen
+   * hier, damit die Oberflaeche auch vor dem ersten Snapshot vollstaendig
+   * gefaerbt ist - eine farblose Flaeche waere auf der Buehne sichtbar.
+   */
+  --color-pageTop: #555555;
+  --color-pageBottom: #6e6e6e;
+  --color-stageTop: #5c5c5c;
+  --color-stageBottom: #757575;
+  --color-controls: #555555;
+  --color-tile: #444444;
+  --color-tileDisabled: #4f4f4f;
+  --color-tileQuiet: #464646;
+  --color-option: #777777;
+  --color-accent: #3693b3;
+  --color-accentQuiet: #4e6a74;
+  --color-primary: #00cc9c;
+  --color-solution: #01a780;
+  --color-solutionChip: #028365;
+  --color-correct: #25a7b0;
+  --color-incorrect: #a62749;
+  --color-text: #ffffff;
+  --color-textMuted: rgba(255, 255, 255, 0.45);
 
-  --font-heading: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-heading);
 
   /* Fallbacks, falls eine Szene ohne registrierten Uebergang gerendert wird. */
   --transition-duration: 400ms;
   --transition-delay: 0ms;
   --transition-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  --radius: 14px;
+  --radius: 6px;
   --gap: 16px;
 }
 
@@ -49,7 +63,13 @@ body,
 }
 
 body {
-  background: var(--color-background);
+  /*
+   * Der Verlauf steht bewusst an der Verwendungsstelle und nicht als eigene
+   * Variable: Eine zusammengesetzte Variable wuerde ihre Farben bereits am
+   * Wurzelelement aufloesen und spaetere Theme-Werte ignorieren.
+   */
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -81,7 +101,7 @@ textarea {
   padding: 10px 16px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-tile);
   color: var(--color-text);
   cursor: pointer;
   transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
@@ -98,7 +118,7 @@ textarea {
 }
 .button--primary {
   background: var(--color-accent);
-  color: var(--color-accentText);
+  color: var(--color-text);
   border-color: transparent;
   font-weight: 700;
 }
@@ -189,7 +209,7 @@ textarea {
 .stage-host {
   position: relative;
   height: 100%;
-  background: var(--color-background);
+  background: var(--color-pageTop);
 }
 .stage-host__offline {
   position: absolute;
@@ -209,7 +229,7 @@ textarea {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 20%, var(--color-backgroundAccent), var(--color-background) 70%);
+  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
   color: var(--color-text);
 }
 .stage--preview {
@@ -311,7 +331,7 @@ textarea {
   gap: 14px;
   padding: 1.6vh 1.6vw;
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-tile);
   border: 2px solid transparent;
   font-size: clamp(0.9rem, 1.6vw, 1.5rem);
   text-align: left;
@@ -333,7 +353,7 @@ textarea {
 }
 .option-card--correct {
   border-color: var(--color-correct);
-  background: color-mix(in srgb, var(--color-correct) 22%, var(--color-surface));
+  background: color-mix(in srgb, var(--color-correct) 22%, var(--color-tile));
 }
 .option-card--chosen-incorrect {
   border-color: var(--color-incorrect);
@@ -490,7 +510,7 @@ textarea {
   gap: 6px;
   padding: 2vh 3vw;
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-tile);
 }
 .result__score--winner {
   outline: 3px solid var(--color-accent);
@@ -688,10 +708,10 @@ textarea {
   border-left: 4px solid transparent;
 }
 .scoreboard__player--player-1 {
-  border-left-color: var(--color-playerOne);
+  border-left-color: var(--color-accent);
 }
 .scoreboard__player--player-2 {
-  border-left-color: var(--color-playerTwo);
+  border-left-color: var(--color-accent);
 }
 .scoreboard__player--active {
   background: rgba(255, 255, 255, 0.14);
@@ -719,10 +739,10 @@ textarea {
   background: rgba(255, 255, 255, 0.12);
 }
 .player-badge--player-1 {
-  box-shadow: inset 0 0 0 2px var(--color-playerOne);
+  box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 .player-badge--player-2 {
-  box-shadow: inset 0 0 0 2px var(--color-playerTwo);
+  box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
 /* ------------------------------------------------------------------ *
@@ -762,7 +782,7 @@ textarea {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: var(--color-background);
+  background: var(--color-pageTop);
 }
 .operator--loading {
   display: grid;
@@ -776,7 +796,7 @@ textarea {
   gap: var(--gap);
   padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  background: var(--color-backgroundAccent);
+  background: var(--color-stageTop);
   position: sticky;
   top: 0;
   z-index: 5;
@@ -796,10 +816,10 @@ textarea {
   border-top: 3px solid transparent;
 }
 .operator__score--player-1 {
-  border-top-color: var(--color-playerOne);
+  border-top-color: var(--color-accent);
 }
 .operator__score--player-2 {
-  border-top-color: var(--color-playerTwo);
+  border-top-color: var(--color-accent);
 }
 .operator__score-label {
   font-size: 0.8rem;
@@ -893,7 +913,7 @@ textarea {
   gap: 14px;
   padding: 16px;
   border-radius: var(--radius);
-  background: var(--color-backgroundAccent);
+  background: var(--color-stageTop);
 }
 .controls__hint {
   margin: 0;
@@ -941,7 +961,7 @@ textarea {
 .private {
   padding: 14px;
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-tile);
   border: 1px dashed var(--color-accent);
 }
 .private__tag {
@@ -949,7 +969,7 @@ textarea {
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--color-accent);
-  color: var(--color-accentText);
+  color: var(--color-text);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -989,7 +1009,7 @@ textarea {
 .resume {
   padding: 18px;
   border-radius: var(--radius);
-  background: var(--color-backgroundAccent);
+  background: var(--color-stageTop);
   margin-bottom: var(--gap);
 }
 .resume {
@@ -1098,7 +1118,7 @@ textarea {
   color: var(--color-accent);
 }
 .audit__entry--buzzer {
-  color: var(--color-playerOne);
+  color: var(--color-accent);
 }
 
 /* ------------------------------------------------------------------ *
@@ -1109,7 +1129,7 @@ textarea {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: var(--color-background);
+  background: var(--color-pageTop);
 }
 .moderator--login {
   display: grid;
@@ -1171,7 +1191,7 @@ textarea {
 .moderator__solution {
   padding: 14px;
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-tile);
   border: 1px dashed var(--color-accent);
 }
 .moderator__answer {
@@ -1197,7 +1217,7 @@ textarea {
   flex-wrap: wrap;
   gap: 10px;
   padding: 14px 16px;
-  background: var(--color-backgroundAccent);
+  background: var(--color-stageTop);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 .moderator__actions .button {
@@ -1223,7 +1243,7 @@ textarea {
 .preview__panel {
   padding: 16px;
   overflow-y: auto;
-  background: var(--color-backgroundAccent);
+  background: var(--color-stageTop);
   border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 .preview__panel h1 {

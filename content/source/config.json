@@ -67,70 +67,91 @@
   "themes": [
     {
       "id": "default",
-      "label": "Abendquiz",
+      "label": "Erwachsene",
       "colors": {
-        "background": "#0b1020",
-        "backgroundAccent": "#141d3a",
-        "surface": "#1b2545",
-        "text": "#f4f7ff",
-        "textMuted": "#a8b4d4",
-        "accent": "#ffc32b",
-        "accentText": "#221800",
-        "correct": "#37d67a",
-        "incorrect": "#ff5c5c",
-        "playerOne": "#4aa3ff",
-        "playerTwo": "#ff8a3d"
+        "pageTop": "#555555",
+        "pageBottom": "#6E6E6E",
+        "stageTop": "#5C5C5C",
+        "stageBottom": "#757575",
+        "controls": "#555555",
+        "tile": "#444444",
+        "tileDisabled": "#4F4F4F",
+        "tileQuiet": "#464646",
+        "option": "#777777",
+        "accent": "#3693B3",
+        "accentQuiet": "#4E6A74",
+        "primary": "#00CC9C",
+        "solution": "#01A780",
+        "solutionChip": "#028365",
+        "correct": "#25A7B0",
+        "incorrect": "#A62749",
+        "text": "#FFFFFF",
+        "textMuted": "rgba(255, 255, 255, 0.45)"
       },
       "logoAssetId": "logo-quiz",
       "typography": {
-        "headingFont": "'Trebuchet MS', 'Segoe UI', sans-serif",
-        "bodyFont": "'Segoe UI', system-ui, sans-serif"
+        "headingFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
+        "bodyFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
       },
       "presentationAnimationSetId": "standard"
     },
     {
       "id": "kids",
-      "label": "Kinderquiz",
+      "label": "Kinder",
       "colors": {
-        "background": "#10233a",
-        "backgroundAccent": "#17466b",
-        "surface": "#1d5580",
-        "text": "#ffffff",
-        "textMuted": "#c8e6ff",
-        "accent": "#ffd93d",
-        "accentText": "#2a2000",
-        "correct": "#4ade80",
-        "incorrect": "#fb7185",
-        "playerOne": "#38bdf8",
-        "playerTwo": "#fb923c"
+        "pageTop": "#555555",
+        "pageBottom": "#6E6E6E",
+        "stageTop": "#5C5C5C",
+        "stageBottom": "#757575",
+        "controls": "#555555",
+        "tile": "#444444",
+        "tileDisabled": "#4F4F4F",
+        "tileQuiet": "#464646",
+        "option": "#777777",
+        "accent": "#3693B3",
+        "accentQuiet": "#4E6A74",
+        "primary": "#00CC9C",
+        "solution": "#01A780",
+        "solutionChip": "#028365",
+        "correct": "#25A7B0",
+        "incorrect": "#A62749",
+        "text": "#FFFFFF",
+        "textMuted": "rgba(255, 255, 255, 0.45)"
       },
       "logoAssetId": "logo-kids",
       "typography": {
-        "headingFont": "'Comic Sans MS', 'Trebuchet MS', sans-serif",
-        "bodyFont": "'Segoe UI', system-ui, sans-serif"
+        "headingFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
+        "bodyFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
       },
       "presentationAnimationSetId": "standard"
     },
     {
       "id": "regional",
-      "label": "Regionalquiz",
+      "label": "Saarbrücken",
       "colors": {
-        "background": "#0d1b16",
-        "backgroundAccent": "#12332a",
-        "surface": "#1a4438",
-        "text": "#f2fbf7",
-        "textMuted": "#a6ccbd",
-        "accent": "#7bd88f",
-        "accentText": "#04200f",
-        "correct": "#37d67a",
-        "incorrect": "#ff6b6b",
-        "playerOne": "#5ad1c8",
-        "playerTwo": "#e8b84b"
+        "pageTop": "#555555",
+        "pageBottom": "#6E6E6E",
+        "stageTop": "#5C5C5C",
+        "stageBottom": "#757575",
+        "controls": "#555555",
+        "tile": "#444444",
+        "tileDisabled": "#4F4F4F",
+        "tileQuiet": "#464646",
+        "option": "#777777",
+        "accent": "#3693B3",
+        "accentQuiet": "#4E6A74",
+        "primary": "#00CC9C",
+        "solution": "#01A780",
+        "solutionChip": "#028365",
+        "correct": "#25A7B0",
+        "incorrect": "#A62749",
+        "text": "#FFFFFF",
+        "textMuted": "rgba(255, 255, 255, 0.45)"
       },
       "logoAssetId": "logo-regional",
       "typography": {
-        "headingFont": "'Trebuchet MS', 'Segoe UI', sans-serif",
-        "bodyFont": "'Segoe UI', system-ui, sans-serif"
+        "headingFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
+        "bodyFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
       },
       "presentationAnimationSetId": "standard"
     }

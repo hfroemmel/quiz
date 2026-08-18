@@ -11,52 +11,25 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
+import { greyDesignColors } from '../../theme/designTokens.ts'
 import type { PublicQuizViewModel, PublicScene } from '@quiz/contracts'
 import { gameTiming } from '@quiz/contracts'
 import { StageScreen } from '../../presentation/StageScreen.tsx'
 import { transitions } from '../../presentation/transitions/registry.ts'
 import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
 
+/**
+ * Themes der Vorschau.
+ *
+ * Alle drei Modi tragen derzeit dasselbe Graustufensystem: Die eigenen
+ * Farbsysteme fuer Kinder und Saarbruecken werden nachgeliefert. Die Auswahl
+ * bleibt trotzdem stehen, damit der Unterschied sofort sichtbar wird, sobald
+ * die Werte im Quizpaket stehen.
+ */
 const THEMES: Record<string, Record<string, string>> = {
-  default: {
-    background: '#0b1020',
-    backgroundAccent: '#141d3a',
-    surface: '#1b2545',
-    text: '#f4f7ff',
-    textMuted: '#a8b4d4',
-    accent: '#ffc32b',
-    accentText: '#221800',
-    correct: '#37d67a',
-    incorrect: '#ff5c5c',
-    playerOne: '#4aa3ff',
-    playerTwo: '#ff8a3d',
-  },
-  kids: {
-    background: '#10233a',
-    backgroundAccent: '#17466b',
-    surface: '#1d5580',
-    text: '#ffffff',
-    textMuted: '#c8e6ff',
-    accent: '#ffd93d',
-    accentText: '#2a2000',
-    correct: '#4ade80',
-    incorrect: '#fb7185',
-    playerOne: '#38bdf8',
-    playerTwo: '#fb923c',
-  },
-  regional: {
-    background: '#0d1b16',
-    backgroundAccent: '#12332a',
-    surface: '#1a4438',
-    text: '#f2fbf7',
-    textMuted: '#a6ccbd',
-    accent: '#7bd88f',
-    accentText: '#04200f',
-    correct: '#37d67a',
-    incorrect: '#ff6b6b',
-    playerOne: '#5ad1c8',
-    playerTwo: '#e8b84b',
-  },
+  default: greyDesignColors,
+  kids: greyDesignColors,
+  regional: greyDesignColors,
 }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
@@ -180,6 +153,23 @@ export function PreviewApp() {
 }
 
 /**
+ * Platzhalterbild der Vorschau.
+ *
+ * Die Vorschau laeuft ohne Server und darf deshalb keine Medienadresse des
+ * Servers benutzen. Das Bild steckt als Daten-URI direkt im Modul.
+ */
+const previewImage =
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480">
+      <rect width="640" height="480" fill="#5C5C5C"/>
+      <rect x="16" y="16" width="608" height="448" fill="none" stroke="#444444" stroke-width="6"/>
+      <circle cx="320" cy="220" r="90" fill="#777777"/>
+      <rect x="180" y="330" width="280" height="26" rx="6" fill="#777777"/>
+    </svg>`,
+  )
+
+/**
  * Beispiel-View-Modelle. Sie haben denselben Aufbau wie die echten Snapshots des
  * Servers, damit die Vorschau nicht an einer eigenen Datenstruktur vorbeientwickelt.
  */
@@ -224,7 +214,7 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'reveal-running',
-        question: { prompt: 'Welches Bauwerk ist hier zu sehen?', presentationType: 'image-reveal', imageUrl: '/media/img-bauwerk-brandenburger-tor' },
+        question: { prompt: 'Welches Bauwerk ist hier zu sehen?', presentationType: 'image-reveal', imageUrl: previewImage },
         reveal: { status: 'paused', durationMs: gameTiming.imageRevealDurationMs, elapsedMs: input.revealElapsedMs },
       }
     case 'video':

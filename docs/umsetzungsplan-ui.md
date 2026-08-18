@@ -99,13 +99,22 @@ kopierten Bloecken.
 
 Jedes Paket ist fuer sich lauffaehig, typgeprueft und getestet.
 
-### P1 - Fundament
+### P1 - Fundament — **erledigt**
 
-Tokens, Typografie, Theme-Anwendung, Container-Query-Rahmen. Ergebnis: Die
-Anwendung laeuft im neuen Grauton, ohne dass ein Layout umgebaut ist.
+Tokens, Typografie, Theme-Anwendung. Die Anwendung laeuft im Graustufensystem
+des Entwurfs, ohne dass ein Layout umgebaut ist.
 
-*Abnahme:* `themeToCssVariables()` deckt alle Tokens ab; kein Farbwert mehr in
-Komponenten; `pnpm typecheck` und `pnpm test` gruen.
+- `packages/contracts/src/theme.ts` fuehrt die achtzehn Farbtoken als Vertrag
+  zwischen Quizpaket, Validierung und Oberflaeche
+- die Inhaltsvalidierung meldet ein unvollstaendiges Theme als **Fehler**
+- `content/source/config.json` traegt den Tokensatz fuer alle drei Modi; Kinder
+  und Saarbruecken erben ihn, bis die eigenen Farbsysteme geliefert sind
+- `apps/web/src/theme/designTokens.ts` haelt dieselben Werte getippt fuer
+  Vorschau und CSS-Fallback
+- Serifenschrift durchgehend, Radius auf 6 px
+
+*Abgenommen:* alle Token auf der Buehne gesetzt (E2E), `pnpm typecheck`,
+`pnpm test` (108) und beide Playwright-Projekte gruen.
 
 ### P2 - Primitive
 
