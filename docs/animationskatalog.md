@@ -1,7 +1,7 @@
-# Animationskatalog (Vorschlag zur Freigabe)
+# Animationskatalog (freigegeben)
 
-Dieser Katalog beschreibt jede Bewegung, die die Anwendung zeigen soll. Er ist
-der Vorschlag zur Freigabe; erst danach wird er eins zu eins in
+Dieser Katalog beschreibt jede Bewegung, die die Anwendung zeigt. Die Abschnitte
+A bis F sind freigegeben und werden eins zu eins in
 `apps/web/src/presentation/transitions/` eingetragen.
 
 Wie Animationen technisch angelegt und geaendert werden, steht in
@@ -48,6 +48,7 @@ erscheinen.
 | `option-clear` | `Zurücksetzen` | 200 ms | 80 ms | Faerbung faellt zurueck auf neutral | - |
 | `options-appear` | `Starten` | 420 ms | 120 ms | Antwortzone klappt auf, danach `options-stagger` | `question-appear` |
 | `score-count-up` | Punktestand aendert sich | 600 ms | 0 ms | Ziffern zaehlen vom alten zum neuen Snapshotwert | `score` |
+| `score-stars` | Punktestand **steigt** | 1000 ms | entfaellt | gelieferte Grafik `stars.webm` laeuft ueber der Punktekachel | - |
 | `second-chance-hint` | Wechsel in `second-chance` | 260 ms | 80 ms | Hinweiszeile faehrt 8 px von oben ein | - |
 | `progress-step` | `Frage x/y` erhoeht sich | 200 ms | 0 ms | Zahl wechselt mit kurzer Aufblende | - |
 
@@ -109,21 +110,21 @@ Fortschrittsvariablen berechnet und niemals aus einer eigenstaendigen
 CSS-Animation. Am Bild aendert sich ausschliesslich die Schaerfe - kein Zoom,
 keine Bewegung (bestaetigt).
 
-## D2 - Weitere gelieferte Bewegtgrafiken (Einsatz zur Freigabe)
+## D2 - Weitere gelieferte Bewegtgrafiken
 
-Drei Dateien und ein animiertes SVG wurden mitgeliefert, ohne dass ihr Einsatzort
-festgelegt ist. Vorschlag - bitte bestaetigen oder umwidmen:
+Freigegeben ist der Einsatz an zwei Stellen:
 
-| Datei | Laenge | Inhalt | Vorschlag |
-|---|---|---|---|
-| `trophy.webm` | 2,0 s | Pokal, in dem sich eine Medaille bildet | Ergebnisansicht, ueber der Zeile `Spieler 1 hat gewonnen!`; bei Unentschieden **nicht** gezeigt |
-| `stars.webm` | 1,0 s | gelber Impuls, der in Sterne zerfaellt | Kindermodus: zusaetzlich zur Richtig-Grafik hinter der Punktekachel |
-| `question-marks.webm` | 1,5 s | drei Fragezeichen in Blautoenen | Pausenbild zwischen zwei Fragen, statt eines ruhenden Wasserzeichens |
-| `confetti.svg` | Endlosschleife | fallendes Konfetti, 1920 x 976 | Ergebnisansicht, ersetzt das bisher im Code erzeugte Konfetti |
+| Datei | Laenge | Einsatz |
+|---|---|---|
+| `trophy.webm` | 2,0 s | Ergebnisansicht, ueber der Zeile `Spieler 1 hat gewonnen!`. Bei Unentschieden **nicht** gezeigt |
+| `stars.webm` | 1,0 s | ueber der Punktekachel, sobald sich der Punktestand erhoeht - in jedem Modus, gemeinsam mit `score-count-up` |
 
-Bis zur Freigabe bleiben `trophy`, `stars` und `question-marks` ungenutzt im
-Bestand; `confetti.svg` ersetzt das bestehende Konfetti erst mit dem Umbau der
-Ergebnisansicht (Arbeitspaket P3).
+Nicht eingesetzt und ohne Verwendung im Bestand:
+
+| Datei | Grund |
+|---|---|
+| `question-marks.webm` | Das Pausenbild bleibt ruhig |
+| `confetti.svg` | Das Konfetti der Ergebnisansicht bleibt wie bisher im Code erzeugt |
 
 ## E - Bedienrahmen des Operators
 
@@ -148,8 +149,8 @@ Der Rahmen ist Werkzeug, kein Schauspiel. Er bekommt genau drei Bewegungen:
 
 | Punkt | Status |
 |---|---|
-| Abschnitte A bis F inhaltlich | offen - bitte freigeben oder aendern |
-| Gesperrte Dauern in C und D | ergeben sich aus der Spezifikation, keine Freigabe noetig |
+| Abschnitte A bis F | **freigegeben** |
+| Einsatz von `trophy` und `stars` | **freigegeben** (siehe D2) |
+| `question-marks`, `confetti.svg` | bleiben ungenutzt |
+| Gesperrte Dauern in C und D | ergeben sich aus der Spezifikation und den gelieferten Dateien |
 | Soundmarken | vorhanden, synthetisch erzeugt; Klangprofil separat justierbar |
-| Einsatzort von `trophy`, `stars`, `question-marks`, `confetti.svg` | offen - Vorschlag in Abschnitt D2 |
-| Angepasste Feedbackdauern (2000 / 1800 ms) | umgesetzt, weil an die gelieferten Dateien gebunden |

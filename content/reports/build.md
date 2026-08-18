@@ -1,113 +1,341 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.1
-Ergebnis: BESTANDEN (0 Fehler, 27 Warnungen)
+Inhaltsversion: 1.0.0
+Ergebnis: BESTANDEN (0 Fehler, 256 Warnungen)
 
 ## Gesamtzahlen
-- Fragen gesamt: 53 (aktiv: 52)
-- Wiederholungsgruppen: 53
-- Medien: 21
-- Nach Modus: adults=39, kids=24
-- Nach Schwierigkeit: easy=22, medium=20, hard=11
-- Nach Praesentationstyp: text-choice=38, image-reveal=7, image-choice=7, video-then-question=1
-- Nach Kategorie: geografie=13, kultur=12, saarbruecken=10, natur=8, wissenschaft=6, geschichte=6, allgemeinwissen=5, sport=3
-- Vergleich zu Version 1.0.0: +0 Fragen
+- Fragen gesamt: 199 (aktiv: 198)
+- Wiederholungsgruppen: 191
+- Medien: 198
+- Nach Modus: adults=143, kids=56
+- Nach Schwierigkeit: medium=85, easy=63, hard=51
+- Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7
+- Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
-Spiele ohne Wiederholung: 5
-- Platz 1 "einstieg": 10 Kandidaten, 10 Wiederholungsgruppen
-- Platz 2 "wissen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 4 "geschichte-kultur": 9 Kandidaten, 9 Wiederholungsgruppen
-- Platz 5 "steigerung": 15 Kandidaten, 15 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 7 "finale": 27 Kandidaten, 27 Wiederholungsgruppen
+Spiele ohne Wiederholung: 19
+- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
+- Platz 2 "wissen": 41 Kandidaten, 41 Wiederholungsgruppen
+- Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
+- Platz 4 "vertiefung": 101 Kandidaten, 100 Wiederholungsgruppen
+- Platz 5 "steigerung": 60 Kandidaten, 59 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 88 Kandidaten, 88 Wiederholungsgruppen
+- Platz 7 "finale": 101 Kandidaten, 100 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "medium"
-Spiele ohne Wiederholung: 5
-- Platz 1 "einstieg": 10 Kandidaten, 10 Wiederholungsgruppen
-- Platz 2 "wissen": 6 Kandidaten, 6 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 4 "geschichte-kultur": 7 Kandidaten, 7 Wiederholungsgruppen
-- Platz 5 "steigerung": 26 Kandidaten, 26 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 7 "finale": 11 Kandidaten, 11 Wiederholungsgruppen
+Spiele ohne Wiederholung: 19
+- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
+- Platz 2 "wissen": 60 Kandidaten, 59 Wiederholungsgruppen
+- Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
+- Platz 4 "parlament": 70 Kandidaten, 69 Wiederholungsgruppen
+- Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 69 Kandidaten, 69 Wiederholungsgruppen
+- Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "hard"
-Spiele ohne Wiederholung: 5
-- Platz 1 "einstieg": 10 Kandidaten, 10 Wiederholungsgruppen
-- Platz 2 "wissen": 6 Kandidaten, 6 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 4 "geschichte-kultur": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 5 "steigerung": 11 Kandidaten, 11 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 7 "regionalfinale": 8 Kandidaten, 8 Wiederholungsgruppen
+Spiele ohne Wiederholung: 13
+- Platz 1 "einstieg": 39 Kandidaten, 39 Wiederholungsgruppen
+- Platz 2 "wissen": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: steigerung, finale
+- Platz 3 "bilderkennen": 25 Kandidaten, 24 Wiederholungsgruppen
+- Platz 4 "parlament": 76 Kandidaten, 75 Wiederholungsgruppen
+- Platz 5 "steigerung": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, finale
+- Platz 6 "bildauswahl": 31 Kandidaten, 31 Wiederholungsgruppen
+- Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, steigerung
 
 ### Modus "adults" / Preset "mixed"
-Spiele ohne Wiederholung: 5
-- Platz 1 "einstieg": 38 Kandidaten, 38 Wiederholungsgruppen
-- Platz 2 "wissen": 8 Kandidaten, 8 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 4 "geschichte-kultur": 14 Kandidaten, 14 Wiederholungsgruppen
-- Platz 5 "welt-und-sport": 16 Kandidaten, 16 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 7 "regionalfinale": 10 Kandidaten, 10 Wiederholungsgruppen
+Spiele ohne Wiederholung: 19
+- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
+- Platz 2 "wissen": 142 Kandidaten, 141 Wiederholungsgruppen | konkurriert mit: finale
+- Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
+- Platz 4 "orte": 59 Kandidaten, 59 Wiederholungsgruppen
+- Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 88 Kandidaten, 88 Wiederholungsgruppen
+- Platz 7 "finale": 142 Kandidaten, 141 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "kids" / Preset "easy"
-Spiele ohne Wiederholung: 5
-- Platz 1 "einstieg": 9 Kandidaten, 9 Wiederholungsgruppen
-- Platz 2 "wissen": 8 Kandidaten, 8 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 4 "geschichte-kultur": 6 Kandidaten, 6 Wiederholungsgruppen
-- Platz 5 "steigerung": 9 Kandidaten, 9 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 7 "finale": 23 Kandidaten, 23 Wiederholungsgruppen
+Spiele ohne Wiederholung: 12
+- Platz 1 "einstieg": 12 Kandidaten, 12 Wiederholungsgruppen
+- Platz 2 "wissen": 21 Kandidaten, 21 Wiederholungsgruppen
+- Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
+- Platz 4 "vertiefung": 46 Kandidaten, 46 Wiederholungsgruppen
+- Platz 5 "steigerung": 25 Kandidaten, 25 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 39 Kandidaten, 39 Wiederholungsgruppen
+- Platz 7 "finale": 35 Kandidaten, 35 Wiederholungsgruppen
 
 ### Modus "kids" / Preset "mixed"
-Spiele ohne Wiederholung: 5
-- Platz 1 "einstieg": 24 Kandidaten, 24 Wiederholungsgruppen
-- Platz 2 "wissen": 7 Kandidaten, 7 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 4 "geschichte-kultur": 6 Kandidaten, 6 Wiederholungsgruppen
-- Platz 5 "welt-und-sport": 11 Kandidaten, 11 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 7 "regionalfinale": 8 Kandidaten, 8 Wiederholungsgruppen
+Spiele ohne Wiederholung: 12
+- Platz 1 "einstieg": 12 Kandidaten, 12 Wiederholungsgruppen
+- Platz 2 "wissen": 56 Kandidaten, 56 Wiederholungsgruppen | konkurriert mit: finale
+- Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
+- Platz 4 "orte": 24 Kandidaten, 24 Wiederholungsgruppen
+- Platz 5 "steigerung": 35 Kandidaten, 35 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 39 Kandidaten, 39 Wiederholungsgruppen
+- Platz 7 "finale": 56 Kandidaten, 56 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "saarbruecken" / Preset "regional"
-Spiele ohne Wiederholung: 2
-- Platz 1 "einstieg": 2 Kandidaten, 2 Wiederholungsgruppen
-- Platz 2 "vertiefung": 5 Kandidaten, 5 Wiederholungsgruppen
-- Platz 3 "bilderkennen": 2 Kandidaten, 2 Wiederholungsgruppen
-- Platz 4 "mittelfeld": 8 Kandidaten, 8 Wiederholungsgruppen
-- Platz 5 "steigerung": 3 Kandidaten, 3 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 2 Kandidaten, 2 Wiederholungsgruppen
-- Platz 7 "finale": 10 Kandidaten, 10 Wiederholungsgruppen
+Spiele ohne Wiederholung: 12
+- Platz 1 "einstieg": 14 Kandidaten, 12 Wiederholungsgruppen
+- Platz 2 "vertiefung": 29 Kandidaten, 28 Wiederholungsgruppen
+- Platz 3 "bilderkennen": 14 Kandidaten, 14 Wiederholungsgruppen
+- Platz 4 "mittelfeld": 39 Kandidaten, 38 Wiederholungsgruppen | konkurriert mit: steigerung
+- Platz 5 "steigerung": 39 Kandidaten, 38 Wiederholungsgruppen | konkurriert mit: mittelfeld
+- Platz 6 "bildauswahl": 42 Kandidaten, 37 Wiederholungsgruppen
+- Platz 7 "finale": 63 Kandidaten, 57 Wiederholungsgruppen
 
 ## Warnungen (bewusste Freigabe erforderlich)
-- [asset-file-missing-disabled] a-video-01: Mediendatei "video/demo-clip.mp4" fehlt. Die Frage ist deaktiviert und wird nicht gespielt.
-- [small-pool] adults/easy/wissen: Modus "adults" / Preset "easy": Fragenplatz 2 ("wissen") hat nur 5 Kandidaten.
-- [small-pool] adults/easy/bilderkennen: Modus "adults" / Preset "easy": Fragenplatz 3 ("bilderkennen") hat nur 5 Kandidaten.
-- [small-pool] adults/easy/bildauswahl: Modus "adults" / Preset "easy": Fragenplatz 6 ("bildauswahl") hat nur 5 Kandidaten.
-- [small-pool] adults/medium/wissen: Modus "adults" / Preset "medium": Fragenplatz 2 ("wissen") hat nur 6 Kandidaten.
-- [small-pool] adults/medium/bilderkennen: Modus "adults" / Preset "medium": Fragenplatz 3 ("bilderkennen") hat nur 5 Kandidaten.
-- [small-pool] adults/medium/geschichte-kultur: Modus "adults" / Preset "medium": Fragenplatz 4 ("geschichte-kultur") hat nur 7 Kandidaten.
-- [small-pool] adults/medium/bildauswahl: Modus "adults" / Preset "medium": Fragenplatz 6 ("bildauswahl") hat nur 5 Kandidaten.
-- [small-pool] adults/hard/wissen: Modus "adults" / Preset "hard": Fragenplatz 2 ("wissen") hat nur 6 Kandidaten.
-- [small-pool] adults/hard/bilderkennen: Modus "adults" / Preset "hard": Fragenplatz 3 ("bilderkennen") hat nur 5 Kandidaten.
-- [small-pool] adults/hard/geschichte-kultur: Modus "adults" / Preset "hard": Fragenplatz 4 ("geschichte-kultur") hat nur 5 Kandidaten.
-- [small-pool] adults/hard/bildauswahl: Modus "adults" / Preset "hard": Fragenplatz 6 ("bildauswahl") hat nur 5 Kandidaten.
-- [small-pool] adults/mixed/bilderkennen: Modus "adults" / Preset "mixed": Fragenplatz 3 ("bilderkennen") hat nur 5 Kandidaten.
-- [small-pool] adults/mixed/bildauswahl: Modus "adults" / Preset "mixed": Fragenplatz 6 ("bildauswahl") hat nur 5 Kandidaten.
-- [small-pool] kids/easy/bilderkennen: Modus "kids" / Preset "easy": Fragenplatz 3 ("bilderkennen") hat nur 5 Kandidaten.
-- [small-pool] kids/easy/geschichte-kultur: Modus "kids" / Preset "easy": Fragenplatz 4 ("geschichte-kultur") hat nur 6 Kandidaten.
-- [small-pool] kids/easy/bildauswahl: Modus "kids" / Preset "easy": Fragenplatz 6 ("bildauswahl") hat nur 5 Kandidaten.
-- [small-pool] kids/mixed/wissen: Modus "kids" / Preset "mixed": Fragenplatz 2 ("wissen") hat nur 7 Kandidaten.
-- [small-pool] kids/mixed/bilderkennen: Modus "kids" / Preset "mixed": Fragenplatz 3 ("bilderkennen") hat nur 5 Kandidaten.
-- [small-pool] kids/mixed/geschichte-kultur: Modus "kids" / Preset "mixed": Fragenplatz 4 ("geschichte-kultur") hat nur 6 Kandidaten.
-- [small-pool] kids/mixed/bildauswahl: Modus "kids" / Preset "mixed": Fragenplatz 6 ("bildauswahl") hat nur 5 Kandidaten.
-- [small-pool] saarbruecken/regional/einstieg: Modus "saarbruecken" / Preset "regional": Fragenplatz 1 ("einstieg") hat nur 2 Kandidaten.
-- [small-pool] saarbruecken/regional/vertiefung: Modus "saarbruecken" / Preset "regional": Fragenplatz 2 ("vertiefung") hat nur 5 Kandidaten.
-- [small-pool] saarbruecken/regional/bilderkennen: Modus "saarbruecken" / Preset "regional": Fragenplatz 3 ("bilderkennen") hat nur 2 Kandidaten.
-- [small-pool] saarbruecken/regional/steigerung: Modus "saarbruecken" / Preset "regional": Fragenplatz 5 ("steigerung") hat nur 3 Kandidaten.
-- [small-pool] saarbruecken/regional/bildauswahl: Modus "saarbruecken" / Preset "regional": Fragenplatz 6 ("bildauswahl") hat nur 2 Kandidaten.
-- [few-games-without-repetition] saarbruecken/regional: Modus "saarbruecken" / Preset "regional": nur 2 Spiele ohne Wiederholung moeglich.
+- [asset-file-missing] 0: Mediendatei "images/europe-1395916_1920.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 1: Mediendatei "images/1.1.reichstagsgebaeude.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 2: Mediendatei "images/2.2.Plenarsaal.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 3: Mediendatei "images/3.1.spree.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 4: Mediendatei "images/l5_banddesbundes.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 5: Mediendatei "images/5.1.kuppel.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 6: Mediendatei "images/6.3.MELH.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 7: Mediendatei "images/3391358.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 8: Mediendatei "images/2.1.Wiedervereinigung_neu.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 9: Mediendatei "images/l16_Reichstagsbrand.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 9: Kein Bildnachweis fuer "img-9".
+- [asset-file-missing] 10: Mediendatei "images/6.2.DeutscherBundestag.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 11: Mediendatei "images/l17_traffic-light-2731969_1280.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 11: Kein Bildnachweis fuer "img-11".
+- [asset-file-missing] 12: Mediendatei "images/7.1.Bundetagssadler.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 13: Mediendatei "images/1.2.PaulLoebeHaus.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 14: Mediendatei "images/l7_Aufgaben_Bundestag.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 15: Mediendatei "images/l10_Partei_DBT.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 16: Mediendatei "images/l14_Bundespraesidialamt.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 16: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 17: Mediendatei "images/l18_gewaltenteilung.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 18: Mediendatei "images/1.6.Ausschusssitzungssaal.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 19: Mediendatei "images/5.5.Aeltestenrat.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 20: Mediendatei "images/s13_2758013.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 21: Mediendatei "images/s15_annemarie_renger.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 22: Mediendatei "images/HenningOtto.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 23: Mediendatei "images/5003844.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 24: Mediendatei "images/s7_kuppel.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 25: Mediendatei "images/s1_volk.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 26: Mediendatei "images/m1_abstimmung.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 27: Mediendatei "images/s4_hammelsprung3.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 28: Mediendatei "images/s5_freieRede.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 29: Mediendatei "images/s8_Grundgesetz.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 30: Mediendatei "images/s11_Schmidt_2928296.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [long-option] 30: Sehr langer Antworttext (97 Zeichen).
+- [long-option] 30: Sehr langer Antworttext (101 Zeichen).
+- [asset-file-missing] 31: Mediendatei "images/s14_bundestag-2337174_1920.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 31: Kein Bildnachweis fuer "img-31".
+- [asset-file-missing] 32: Mediendatei "images/BundesministerinKatherinaReiche.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 33: Mediendatei "images/s17_enquette_2083.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 34: Mediendatei "images/82_SitzverteilungWP21.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 35: Mediendatei "images/m_11_bundestagsblau.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 36: Mediendatei "images/Briefkasten.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 37: Mediendatei "images/s9_Bundesarchiv.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 38: Mediendatei "images/20steWahlperiode.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 38: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 39: Mediendatei "images/502a7526.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 40: Mediendatei "images/4.4.JKH.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [long-prompt] 40: Sehr langer Fragetext (250 Zeichen).
+- [asset-file-missing] 41: Mediendatei "images/m10_Pettion.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 42: Mediendatei "images/1.4NorbertLammert.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 42: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 43: Mediendatei "images/m3_Wolfgang_Schaeuble3.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 44: Mediendatei "images/BaerbelBas.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 44: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 45: Mediendatei "images/46_bundestagspraesidentin_kloeckner_bild.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 45: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 46: Mediendatei "images/47_JensSpahn.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 46: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 47: Mediendatei "images/48_miersch_matthias_gross.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 47: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 48: Mediendatei "images/KatharinaDroege_MdB.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 49: Mediendatei "images/Britta_Hasselmann.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 50: Mediendatei "images/51_reichinnek_heidi.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 50: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 51: Mediendatei "images/52_pellmann_soeren_gross.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 51: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 52: Mediendatei "images/tino-chrupalla.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 53: Mediendatei "images/m25_weidel.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 54: Mediendatei "images/m4_council.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 54: Kein Bildnachweis fuer "img-54".
+- [asset-file-missing] 55: Mediendatei "images/m17_Misstrauensvotum1982_2765912.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 55: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 56: Mediendatei "images/m1_abstimmung.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 57: Mediendatei "images/Fraktionslogos2025.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 58: Mediendatei "images/m12_Steinmeier-download.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 59: Mediendatei "images/l7_Aufgaben_Bundestag.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 60: Mediendatei "images/s14_bundestag-2337174_1920.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 60: Kein Erklaerungstext hinterlegt.
+- [missing-credit] 60: Kein Bildnachweis fuer "img-60".
+- [asset-file-missing] 61: Mediendatei "images/l10_Partei_DBT.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 61: Kein Erklaerungstext hinterlegt.
+- [missing-credit] 61: Kein Bildnachweis fuer "img-61".
+- [asset-file-missing] 62: Mediendatei "images/m21_young-1922398_1920.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 63: Mediendatei "images/9.2.Berlin.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 64: Mediendatei "images/9.1.ReichstagFahne.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 65: Mediendatei "images/7.1.Bundesadler.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 66: Mediendatei "images/m6_bg_start2x.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 66: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 67: Mediendatei "images/l8_karlchen.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 67: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 68: Mediendatei "images/l5_Sonne.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 68: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 69: Mediendatei "images/l6_Adler.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 69: Kein Bildnachweis fuer "img-69".
+- [asset-file-missing] 70: Mediendatei "images/l10_Berlin_skyline_2009w.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 70: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 71: Mediendatei "images/m4_Felix_am_Rednerpult.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 72: Mediendatei "images/l4_schueler.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 72: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 73: Mediendatei "images/3Oktober1990.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 74: Mediendatei "images/s6_kiko.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 75: Mediendatei "images/46_bundestagspraesidentin_kloeckner_bild.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 76: Mediendatei "images/6.2.DeutscherBundestag.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 76: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 77: Mediendatei "images/s2_hammelsprung.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 78: Mediendatei "images/m7_diaet.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 78: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 79: Mediendatei "images/s8_1200px-1895_reichstagsgebaeude.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 79: Kein Bildnachweis fuer "img-79".
+- [asset-file-missing] 80: Mediendatei "images/82_SitzverteilungWP21.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 81: Mediendatei "images/m_11_bundestagsblau.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 82: Mediendatei "images/s8_Grundgesetz.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 82: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 83: Mediendatei "images/m8_Wahllokal.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 83: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 84: Mediendatei "images/m8_Wahllokal.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 84: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 85: Mediendatei "images/m11_Stimmzettel.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 86: Mediendatei "images/82_SitzverteilungWP21.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 86: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 87: Mediendatei "images/m3_volk.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 87: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 88: Mediendatei "images/m1_deutschland.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 88: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 89: Mediendatei "images/m4_Felix_am_Rednerpult.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 90: Mediendatei "images/m6_Parlament.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 90: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 91: Mediendatei "images/l7_Freunde.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 91: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 92: Mediendatei "images/m10_Kinderechte.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 93: Mediendatei "images/Bild1_23.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 94: Mediendatei "images/Bild2_17.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 95: Mediendatei "images/Bild2_12.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 96: Mediendatei "images/Bild2_2.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 97: Mediendatei "images/2_2_koenig_innen.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 98: Mediendatei "images/Bild2_8.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 99: Mediendatei "images/s12_Thierse_Umzug_AP Archiv.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 99: Kein Bildnachweis fuer "img-99".
+- [asset-file-missing] 100: Mediendatei "images/2917446.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 101: Mediendatei "images/2756897.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 102: Mediendatei "images/2708699.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 103: Mediendatei "images/2917446.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 104: Mediendatei "images/GregorGysi_TobiasKoch.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 105: Mediendatei "images/5005975.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 106: Mediendatei "images/82_SitzverteilungWP21.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 107: Mediendatei "images/1924838.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 107: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 109: Mediendatei "images/82_SitzverteilungWP21.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 109: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 110: Mediendatei "images/Julia_Kloeckner_Tobias_Koch.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 110: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 111: Mediendatei "images/loebe_bild.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 111: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 112: Mediendatei "images/2772039.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 112: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 114: Mediendatei "images/3832828.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 114: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 115: Mediendatei "images/5018180.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 116: Mediendatei "images/3856446.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 116: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 117: Mediendatei "images/friedrich-merz.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 118: Mediendatei "images/2484373_DBT-Werner_Schuering.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 118: Kein Erklaerungstext hinterlegt.
+- [duplicate-option-text] 119: Zwei Antwortoptionen sind identisch: "2,30 m".
+- [asset-file-missing] 119: Mediendatei "images/2534419.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 119: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 120: Mediendatei "images/1.19_3082483.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 120: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 121: Mediendatei "images/5009341.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 121: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 122: Mediendatei "images/1.318_5004780.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 122: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 123: Mediendatei "images/2708699.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 123: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 124: Mediendatei "images/banaszak_felix_gross.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 125: Mediendatei "images/reichstag1896.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 126: Mediendatei "images/5008872.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [duplicate-option-text] 127: Zwei Antwortoptionen sind identisch: "Artikel 3 und Artikel 17".
+- [asset-file-missing] 127: Mediendatei "images/2917446.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 128: Mediendatei "images/5019426.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 128: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 129: Mediendatei "images/fcbundestag_web_bild_05_team.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 130: Mediendatei "images/m11_Stimmzettel.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 131: Mediendatei "images/5.1.kuppel.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 132: Mediendatei "images/2.2.Plenarsaal.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 133: Mediendatei "images/1.21_5008701.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 134: Mediendatei "images/1.1.reichstagsgebaeude.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 135: Mediendatei "images/1.1.reichstagsgebaeude.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 136: Mediendatei "images/Langer_Eugen.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 137: Mediendatei "images/Sandra80er.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 138: Mediendatei "images/Rehlinger.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 139: Mediendatei "images/Alte_Bruecke.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 140: Mediendatei "images/Ludwigskirche_bei_Nacht_Haupteingang.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 141: Mediendatei "images/Saarbruecken_St_Johanner_Markt_Brunnen.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 142: Mediendatei "images/Saarbruecken_Halberg.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 143: Mediendatei "images/voelklinger_huette.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 144: Mediendatei "images/Moselgebiet.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 145: Mediendatei "images/Bliesgau_Biosphaerenreservat.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 146: Mediendatei "images/Landtag_Saarbruecken.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 147: Mediendatei "images/Ford_Plant_Saarlouis.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 148: Mediendatei "images/Festival_Perspectives.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 148: Kein Bildnachweis fuer "img-148".
+- [asset-file-missing] 149: Mediendatei "images/Schwarzenbergturm_2015.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 149: Kein Bildnachweis fuer "img-149".
+- [asset-file-missing] 150: Mediendatei "images/Gersweiler.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [option-count] 151: Fragetyp "image-choice" verlangt genau 4 Optionen, gefunden: 3. Die Frage ist deaktiviert und wird nicht gespielt.
+- [asset-file-missing-disabled] 151: Mediendatei "images/Sprachgrenze.jpg" fehlt. Die Frage ist deaktiviert und wird nicht gespielt.
+- [asset-file-missing] 152: Mediendatei "images/Saarschleife.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 153: Mediendatei "images/sm-logo-ohneclaim-quer-png-1.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 153: Kein Bildnachweis fuer "img-153".
+- [asset-file-missing] 154: Mediendatei "images/Locator_map_Saarland_in_Germany.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 154: Kein Bildnachweis fuer "img-154".
+- [asset-file-missing] 155: Mediendatei "images/Landtag_Saarbruecken.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 156: Mediendatei "images/Saarschleife2.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 157: Mediendatei "images/Locator_map_Saarland_in_Germany.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 157: Kein Bildnachweis fuer "img-157".
+- [asset-file-missing] 158: Mediendatei "images/Saarschleife.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 159: Mediendatei "images/Stadtwappen_Saarbruecken.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 160: Mediendatei "images/Saarschleife2.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 161: Mediendatei "images/keramik.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 162: Mediendatei "images/besenginster.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-explanation] 165: Kein Erklaerungstext hinterlegt.
+- [asset-file-missing] 167: Mediendatei "images/Louis_XIV_crosses_the_Rhine_at_Lobith.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 171: Mediendatei "images/maas-heiko_0.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 172: Mediendatei "images/Peter_Altmaier.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 173: Mediendatei "images/Becker.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 174: Mediendatei "images/old-bridge-607907_1280.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 175: Mediendatei "images/Nationalmannschaft2d.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 176: Mediendatei "images/flagge_saarstaat.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 177: Mediendatei "images/OskarLafontaine.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 178: Mediendatei "images/voelkiHuette.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 179: Mediendatei "images/GeometrischerGrundrissL1070581.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 180: Mediendatei "images/alteBruecke_Saarbruecken.JPG" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 181: Mediendatei "images/saarbrucken-5282948_1280.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 182: Mediendatei "images/Stiring-Wendel.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 183: Mediendatei "images/img_abstimmung1955.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 184: Mediendatei "images/Oben-auf-dem-Wall.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 185: Mediendatei "images/Annegret_Kramp-Karrenbauer.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 186: Mediendatei "images/SB-Rathaus.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 187: Mediendatei "images/Gondwana_Park.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 188: Mediendatei "images/Ludwigskirche_bei_Nacht_Haupteingang.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 189: Mediendatei "images/Saarbruecken_St_Johanner_Markt_Brunnen.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 190: Mediendatei "images/Ford_Plant_Saarlouis.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 191: Mediendatei "images/Schwarzenbergturm_2015.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 192: Mediendatei "images/Saarschleife.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 193: Mediendatei "images/Locator_map_Saarland_in_Germany.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 193: Kein Bildnachweis fuer "img-193".
+- [asset-file-missing] 194: Mediendatei "images/Saarschleife2.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 195: Mediendatei "images/Locator_map_Saarland_in_Germany.jpeg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [missing-credit] 195: Kein Bildnachweis fuer "img-195".
+- [asset-file-missing] 196: Mediendatei "images/Stadtwappen_Saarbruecken.png" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 197: Mediendatei "images/1fc_saarbrucken.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 198: Mediendatei "images/Saarschleife.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 199: Mediendatei "images/Luftbild_Bostalsee_09.jpg" fehlt. Es wird ein Ersatzbild gezeigt.
+- [asset-file-missing] 200: Mediendatei "images/Alte_Bruecke.jpg" fehlt. Es wird ein Ersatzbild gezeigt.

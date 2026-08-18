@@ -11,6 +11,7 @@ import { extname, join } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { resolveAssetPath } from '@quiz/content'
 import type { QuizService } from './quizService.ts'
+import { placeholderSvg } from './placeholderMedia.ts'
 import { isLoopback } from './network.ts'
 
 const MIME_TYPES: Record<string, string> = {
@@ -103,8 +104,17 @@ function serveMedia(service: QuizService, assetId: string, response: ServerRespo
 
   const path = resolveAssetPath(service.content.rootDir, filename)
   if (!path || !existsSync(path)) {
-    service.addWarning(`Mediendatei fehlt: ${filename} (Asset ${assetId}). Sichere naechste Aktion: Frage ueberspringen.`)
-    return sendText(response, 404, 'Mediendatei fehlt')
+    // Die Warnung bleibt: Der Operator muss wissen, dass hier kein echtes Bild
+    // haengt. Statt eines kaputten Bildsymbols kommt ein lesbares Ersatzbild,
+    // damit sich die Frage trotzdem spielen laesst.
+    service.addWarning(`Mediendatei fehlt: ${filename} (Asset ${assetId}). Es wird ein Ersatzbild gezeigt.`)
+    const svg = placeholderSvg(filename)
+    response.writeHead(200, {
+      'content-type': 'image/svg+xml; charset=utf-8',
+      'content-length': Buffer.byteLength(svg),
+      'cache-control': 'no-store',
+    })
+    return void response.end(svg)
   }
 
   response.writeHead(200, {

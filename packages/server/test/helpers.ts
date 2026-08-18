@@ -96,7 +96,9 @@ export function playQuestion(
   const state = rig.service.authoritativeState!
   const question = state.currentQuestion!.question
 
-  if (outcome === 'resolve-without-answer' || question.presentationType !== 'text-choice') {
+  // Massgeblich ist die Auswertungsart, nicht der Praesentationstyp: Eine
+  // bildgestuetzte Auswahlfrage wird genauso eingeloggt wie eine reine Textfrage.
+  if (outcome === 'resolve-without-answer' || question.evaluationMode !== 'option-comparison') {
     rig.send({ type: 'RESOLVE_WITHOUT_ANSWER' })
     rig.settle()
     return

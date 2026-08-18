@@ -20,7 +20,7 @@ import {
   type QuizPackage,
   type QuizPackageManifest,
 } from '@quiz/contracts'
-import { validateContent, type ValidationResult } from './validate.ts'
+import { validateContent, type IssueSeverity, type ValidationResult } from './validate.ts'
 
 export const ASSET_DIRECTORY = 'assets'
 export const QUESTIONS_FILE = 'questions.json'
@@ -63,13 +63,20 @@ export function assetFileExists(rootDir: string, asset: MediaAsset): boolean {
   return path !== null && existsSync(path) && statSync(path).isFile()
 }
 
-export function validateSource(source: RawSource, contentVersion?: string): ValidationResult {
+export interface SourceValidationOptions {
+  contentVersion?: string
+  /** Siehe `ValidationInput.missingMediaSeverity`. Standard ist `'error'`. */
+  missingMediaSeverity?: IssueSeverity
+}
+
+export function validateSource(source: RawSource, options: SourceValidationOptions = {}): ValidationResult {
   return validateContent({
     config: source.config,
     questions: source.questions,
     assets: source.assets,
     assetFileExists: (asset) => assetFileExists(source.rootDir, asset),
-    contentVersion,
+    contentVersion: options.contentVersion,
+    missingMediaSeverity: options.missingMediaSeverity,
   })
 }
 
@@ -79,6 +86,8 @@ export interface BuildOptions {
   contentVersion: string
   sourceRevision?: string
   createdAt: string
+  /** Siehe `ValidationInput.missingMediaSeverity`. Standard ist `'error'`. */
+  missingMediaSeverity?: IssueSeverity
 }
 
 export interface BuildResult {
@@ -95,7 +104,10 @@ export interface BuildResult {
  */
 export function buildPackage(options: BuildOptions): BuildResult {
   const source = readSource(options.sourceDir)
-  const validation = validateSource(source, options.contentVersion)
+  const validation = validateSource(source, {
+    contentVersion: options.contentVersion,
+    missingMediaSeverity: options.missingMediaSeverity,
+  })
   if (!validation.ok) {
     return { manifest: emptyManifest(options), validation, outDir: options.outDir, missingAssetFiles: [] }
   }

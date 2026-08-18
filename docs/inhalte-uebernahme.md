@@ -1,6 +1,9 @@
 # Uebernahme des Original-Fragenkatalogs
 
-Stand der Migration des gelieferten Katalogs `questions.js` in das Quizpaket.
+Der gelieferte Katalog ist uebernommen: `content/source` traegt seit dieser
+Fassung die 199 echten Fragen. Das frueher mitgelieferte Beispielpaket ist
+entfallen.
+
 Der Ablauf und die Werkzeuge stehen in [`docs/inhalte-import.md`](inhalte-import.md);
 diese Datei haelt fest, was der konkrete Katalog braucht.
 
@@ -43,50 +46,70 @@ Die Umwandlung der einzigen Legacy-Option ist der wichtigste Punkt: Beim
 Bilderkennen gibt es keine Auswahl. Waere die Option erhalten geblieben, stuende
 die Loesung von der ersten Sekunde an auf der Buehne.
 
-## Was menschliche Entscheidung braucht
+## Fehlende Bilder: Ersatzbild statt Blockade
 
-1. **156 Bilddateien fehlen.** Der Katalog verweist auf `.jpg`, `.jpeg` und `.png`
-   (zum Beispiel `1.1.reichstagsgebaeude.jpg`, `europe-1395916_1920.jpg`). In der
-   gelieferten Bildzulieferung waren nur die beiden Startgrafiken enthalten.
-   Ohne diese Dateien sind 192 der 199 Fragen nicht spielbar; die Validierung
-   meldet fuer aktive Fragen zu Recht einen Fehler.
-   Die vollstaendige Dateiliste erzeugt:
+Die 156 Bilddateien des Katalogs liegen noch nicht vor. Statt darauf zu warten,
+laeuft die Entwicklung mit einem erzeugten Ersatzbild:
 
-   ```bash
-   pnpm content:migrate <pfad>/questions.js
-   node -e "console.log(require('./content/migrated/assets.json').map(a=>a.filename).join('\n'))"
-   ```
+| Ebene | Verhalten |
+|---|---|
+| Validierung | `pnpm content:validate` meldet eine fehlende Datei weiterhin als **Fehler** |
+| Validierung mit `--placeholder-media` | meldet sie als Warnung; dafuer gibt es `pnpm content:validate:dev` und `pnpm content:build:dev` |
+| Server | liefert unter der Asset-Adresse ein erzeugtes SVG mit dem gesuchten Dateinamen aus |
+| Operator | bekommt fuer jede fehlende Datei eine Warnung in der Diagnose |
 
-2. **Richtige Antwort.** In den Altdaten ist `option_1` immer die richtige
+Damit ist die Luecke sichtbar, aber nicht blockierend. Sobald die Bilder unter
+`content/source/assets/images/` liegen, verschwinden Warnung und Ersatzbild ohne
+weitere Aenderung - die Dateinamen stehen bereits in `assets.json`.
+
+Der Livebetrieb bleibt geschuetzt: `pnpm build` verwendet die strenge Pruefung
+und bricht bei fehlenden Medien ab.
+
+## Was noch menschliche Entscheidung braucht
+
+1. **Richtige Antwort.** In den Altdaten ist `option_1` immer die richtige
    Antwort. Die Migration uebersetzt das genau einmal in eine explizite
-   `correctOptionId` und mischt die Optionen danach beim Bau. Eine Stichprobe
+   `correctOptionId`; beim Bau werden die Optionen gemischt. Eine Stichprobe
    sollte das bestaetigen, bevor das Paket in den Livebetrieb geht.
 
-3. **Bildnachweise.** 16 Bilder haben keinen Nachweis. Vor einer Veranstaltung
-   ist zu klaeren, ob sie ohne Nachweis gezeigt werden duerfen.
+2. **16 Bilder ohne Bildnachweis.** Vor einer Veranstaltung ist zu klaeren, ob
+   sie ohne Nachweis gezeigt werden duerfen.
 
-4. **Kategorien im Quizpaket.** Die Konfiguration fuehrt derzeit acht Kategorien
-   des Beispielpakets. Sie wird bei der Uebernahme durch die zwoelf echten
-   Kategorien ersetzt; die Fragenplatzregeln der Presets sind entsprechend
-   nachzuziehen.
+3. **Eine Frage ist deaktiviert.** Frage 151 ("Sprachgrenze im Saarland") hat nur
+   drei statt vier Antwortoptionen. Sie steht als Vorlage im Bestand, ist aber
+   `enabled: false` und wird nicht gespielt. Sobald die vierte Option ergaenzt
+   ist, genuegt das Umschalten des Feldes.
 
-5. **Modus Saarbruecken.** Der Katalog kennt nur `adults` und `kids`. Der dritte
-   Modus entsteht bereits ueber die Konfiguration: `questionFilter` waehlt
-   Fragen der Kategorie `saarbruecken` aus beiden Legacy-Modi. Das sind 64
-   Fragen - genug fuer mehrere Spiele ohne Wiederholung. Es ist keine Aenderung
-   an den Fragen noetig, nur die Bestaetigung, dass diese Auslegung gewuenscht ist.
+4. **Zwei Fragen mit doppeltem Antworttext** und 42 Fragen ohne Erklaerungstext
+   sind als Warnung im Bericht vermerkt - beides ist redaktionell, nicht technisch.
 
-## Warum das Beispielpaket noch im Bestand liegt
+5. **Modus Saarbruecken** - bestaetigt: Der Modus zieht seine Fragen ueber die
+   Kategorie `saarbruecken` aus beiden Legacy-Modi (64 Fragen). An den Fragen ist
+   dafuer nichts zu aendern.
 
-`content/source` traegt weiterhin das Beispielpaket, damit Anwendung und Tests
-lauffaehig bleiben. Die Uebernahme des echten Katalogs erfolgt in einem Zug,
-sobald die Bilddateien vorliegen:
+## Fragenplaetze der Presets
 
-1. Bilddateien nach `content/source/assets/images/` legen
-2. `pnpm content:migrate` erneut ausfuehren und den Bericht durchsehen
-3. `content/migrated/questions.json` und `assets.json` nach `content/source`
-   uebernehmen, Kategorien und Presets in `config.json` nachziehen
-4. `pnpm content:validate` - danach `pnpm content:build`
+Die sieben Plaetze je Spiel sind auf den echten Bestand ausgelegt. Kein Platz
+hat weniger als acht Kandidaten - die Validierung meldet keine knappen Pools.
 
-Der Zwischenstand unter `content/migrated/` wird bewusst nicht eingecheckt: Er
-ist ein Vorschlag, kein freigegebener Inhalt.
+| Preset | Modi | Aufbau der Plaetze |
+|---|---|---|
+| `easy` | Erwachsene, Kinder | Einstieg leicht, Wissen leicht, Bilderkennen, Vertiefung, Steigerung, Bildauswahl, Finale |
+| `medium` | Erwachsene | Einstieg leicht, Wissen mittel, Bilderkennen, Parlament und Personen, Steigerung, Bildauswahl, Finale schwer |
+| `hard` | Erwachsene | wie `medium`, aber durchgehend eine Stufe haerter |
+| `mixed` | Erwachsene, Kinder | ohne Schwierigkeitsfilter, gemischt nach Typ und Kategorie |
+| `regional` | Saarbruecken | sieben Plaetze innerhalb der Kategorie Saarbruecken |
+
+Platz 1 ist immer eine Auswahlfrage und Platz 3 immer eine Bilderkennen-Frage.
+Darauf verlassen sich die End-to-End-Tests; wer die Reihenfolge aendert, zieht
+sie mit.
+
+## Wenn die Bilder eintreffen
+
+1. Dateien nach `content/source/assets/images/` legen - die Namen stehen in
+   `content/source/assets.json`
+2. `pnpm content:validate` (ohne Flag) ausfuehren; die Warnungen zu fehlenden
+   Medien muessen verschwinden
+3. `pnpm content:build`
+
+Ein erneuter Migrationslauf ist dafuer nicht noetig.

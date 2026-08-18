@@ -222,3 +222,39 @@ describe('Hotfix-Overlay', () => {
     expect(findUnreconciledPatches([patch], reconciled)).toHaveLength(0)
   })
 })
+
+/**
+ * Fehlende Mediendateien waehrend der Entwicklung.
+ *
+ * Der freigegebene Bildbestand liegt spaeter vor als der Fragenkatalog. Damit die
+ * Entwicklung nicht blockiert, laesst sich die Meldung zur Warnung herabstufen -
+ * fuer den Livebetrieb bleibt sie ein Fehler.
+ */
+describe('Fehlende Mediendateien', () => {
+  const questions = [question({ id: 'q1' }), revealQuestion]
+
+  it('ist ohne Angabe ein Fehler', () => {
+    const result = validate(questions, {}, false)
+    expect(result.ok).toBe(false)
+    expect(result.errors.some((issue) => issue.code === 'asset-file-missing')).toBe(true)
+  })
+
+  it('wird mit "warning" zur Warnung, ohne die Frage zu deaktivieren', () => {
+    const result = validateContent({
+      config: baseConfig,
+      questions,
+      assets: [asset],
+      assetFileExists: () => false,
+      missingMediaSeverity: 'warning',
+    })
+    expect(result.ok).toBe(true)
+    expect(result.warnings.find((issue) => issue.code === 'asset-file-missing')?.message).toContain('Ersatzbild')
+  })
+
+  it('meldet eine unvollstaendige, deaktivierte Frage als Warnung statt als Fehler', () => {
+    const draft = question({ id: 'entwurf', enabled: false, options: [{ id: 'o1', text: 'A' }] })
+    const result = validate([question({ id: 'q1' }), revealQuestion, draft])
+    expect(result.ok).toBe(true)
+    expect(result.warnings.find((issue) => issue.code === 'option-count')?.message).toContain('deaktiviert')
+  })
+})

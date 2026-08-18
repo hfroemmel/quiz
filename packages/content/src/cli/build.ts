@@ -37,6 +37,9 @@ if (existsSync(previousManifestPath)) {
   }
 }
 
+/** Siehe `pnpm content:validate --placeholder-media`. */
+const placeholderMedia = process.argv.slice(2).includes('--placeholder-media')
+
 const contentVersion = nextContentVersion()
 const result = buildPackage({
   sourceDir: contentSourceDir,
@@ -44,6 +47,7 @@ const result = buildPackage({
   contentVersion,
   sourceRevision: process.env['SOURCE_REVISION'],
   createdAt: new Date().toISOString(),
+  missingMediaSeverity: placeholderMedia ? 'warning' : 'error',
 })
 
 const report = formatValidationReport(result.validation, {
@@ -60,8 +64,9 @@ if (!result.validation.ok) {
   process.exit(1)
 }
 
-for (const filename of result.missingAssetFiles) {
-  console.log(`Hinweis: Mediendatei "${filename}" fehlt. Sie gehoert zu einer deaktivierten Frage und wurde uebersprungen.`)
+if (result.missingAssetFiles.length) {
+  console.log(`Hinweis: ${result.missingAssetFiles.length} Mediendateien fehlen und wurden uebersprungen.`)
+  console.log('Der Server zeigt an ihrer Stelle ein Ersatzbild; die Liste steht im Build-Bericht.')
 }
 console.log(`Quizpaket ${contentVersion} geschrieben nach ${result.outDir}`)
 console.log(`Pruefsumme: ${result.manifest.checksum.slice(0, 16)}...`)

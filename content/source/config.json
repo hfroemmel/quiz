@@ -16,36 +16,52 @@
   ],
   "categories": [
     {
-      "id": "allgemeinwissen",
-      "label": "Allgemeinwissen"
+      "id": "saarbruecken",
+      "label": "Saarbrücken"
+    },
+    {
+      "id": "institution",
+      "label": "Institution"
+    },
+    {
+      "id": "person",
+      "label": "Person"
+    },
+    {
+      "id": "gebaeude",
+      "label": "Gebäude"
     },
     {
       "id": "geschichte",
       "label": "Geschichte"
     },
     {
-      "id": "geografie",
-      "label": "Geografie"
+      "id": "aemter",
+      "label": "Ämter"
     },
     {
-      "id": "natur",
-      "label": "Natur"
+      "id": "recht",
+      "label": "Recht"
     },
     {
-      "id": "wissenschaft",
-      "label": "Wissenschaft"
+      "id": "wahl",
+      "label": "Wahl"
     },
     {
-      "id": "kultur",
-      "label": "Kultur"
+      "id": "begriffe",
+      "label": "Begriffe"
     },
     {
-      "id": "sport",
-      "label": "Sport"
+      "id": "kurioses",
+      "label": "Kurioses"
     },
     {
-      "id": "saarbruecken",
-      "label": "Saarbrücken"
+      "id": "erdkunde",
+      "label": "Erdkunde"
+    },
+    {
+      "id": "fahnen-und-symbole",
+      "label": "Fahnen und Symbole"
     }
   ],
   "themes": [
@@ -132,7 +148,8 @@
               "easy"
             ],
             "presentationTypes": [
-              "text-choice"
+              "text-choice",
+              "image-choice"
             ]
           }
         },
@@ -142,11 +159,6 @@
           "filters": {
             "difficultyIds": [
               "easy"
-            ],
-            "categoryIds": [
-              "allgemeinwissen",
-              "wissenschaft",
-              "natur"
             ]
           }
         },
@@ -160,16 +172,12 @@
           }
         },
         {
-          "id": "geschichte-kultur",
-          "label": "Geschichte und Kultur",
+          "id": "vertiefung",
+          "label": "Vertiefung",
           "filters": {
             "difficultyIds": [
               "easy",
               "medium"
-            ],
-            "categoryIds": [
-              "geschichte",
-              "kultur"
             ]
           }
         },
@@ -196,8 +204,8 @@
           "label": "Finale",
           "filters": {
             "difficultyIds": [
-              "easy",
-              "medium"
+              "medium",
+              "hard"
             ]
           }
         }
@@ -215,7 +223,8 @@
               "easy"
             ],
             "presentationTypes": [
-              "text-choice"
+              "text-choice",
+              "image-choice"
             ]
           }
         },
@@ -225,11 +234,6 @@
           "filters": {
             "difficultyIds": [
               "medium"
-            ],
-            "categoryIds": [
-              "wissenschaft",
-              "natur",
-              "geografie"
             ]
           }
         },
@@ -243,15 +247,15 @@
           }
         },
         {
-          "id": "geschichte-kultur",
-          "label": "Geschichte und Kultur",
+          "id": "parlament",
+          "label": "Parlament und Personen",
           "filters": {
-            "difficultyIds": [
-              "medium"
-            ],
             "categoryIds": [
-              "geschichte",
-              "kultur"
+              "institution",
+              "person",
+              "aemter",
+              "wahl",
+              "recht"
             ]
           }
         },
@@ -271,6 +275,10 @@
           "filters": {
             "presentationTypes": [
               "image-choice"
+            ],
+            "difficultyIds": [
+              "medium",
+              "hard"
             ]
           }
         },
@@ -297,7 +305,8 @@
               "medium"
             ],
             "presentationTypes": [
-              "text-choice"
+              "text-choice",
+              "image-choice"
             ]
           }
         },
@@ -307,11 +316,6 @@
           "filters": {
             "difficultyIds": [
               "hard"
-            ],
-            "categoryIds": [
-              "wissenschaft",
-              "natur",
-              "geografie"
             ]
           }
         },
@@ -321,19 +325,22 @@
           "filters": {
             "presentationTypes": [
               "image-reveal"
+            ],
+            "difficultyIds": [
+              "medium",
+              "hard"
             ]
           }
         },
         {
-          "id": "geschichte-kultur",
-          "label": "Geschichte und Kultur",
+          "id": "parlament",
+          "label": "Parlament und Personen",
           "filters": {
-            "difficultyIds": [
-              "hard"
-            ],
             "categoryIds": [
+              "institution",
+              "person",
               "geschichte",
-              "kultur"
+              "aemter"
             ]
           }
         },
@@ -352,19 +359,18 @@
           "filters": {
             "presentationTypes": [
               "image-choice"
+            ],
+            "difficultyIds": [
+              "hard"
             ]
           }
         },
         {
-          "id": "regionalfinale",
-          "label": "Regionalfinale",
+          "id": "finale",
+          "label": "Finale",
           "filters": {
             "difficultyIds": [
-              "medium",
               "hard"
-            ],
-            "categoryIds": [
-              "saarbruecken"
             ]
           }
         }
@@ -377,17 +383,20 @@
         {
           "id": "einstieg",
           "label": "Einstieg",
-          "filters": {}
+          "filters": {
+            "presentationTypes": [
+              "text-choice",
+              "image-choice"
+            ],
+            "difficultyIds": [
+              "easy"
+            ]
+          }
         },
         {
           "id": "wissen",
           "label": "Wissen",
-          "filters": {
-            "categoryIds": [
-              "wissenschaft",
-              "natur"
-            ]
-          }
+          "filters": {}
         },
         {
           "id": "bilderkennen",
@@ -399,23 +408,23 @@
           }
         },
         {
-          "id": "geschichte-kultur",
-          "label": "Geschichte und Kultur",
+          "id": "orte",
+          "label": "Orte und Gebäude",
           "filters": {
             "categoryIds": [
-              "geschichte",
-              "kultur"
+              "gebaeude",
+              "saarbruecken",
+              "erdkunde"
             ]
           }
         },
         {
-          "id": "welt-und-sport",
-          "label": "Welt und Sport",
+          "id": "steigerung",
+          "label": "Steigerung",
           "filters": {
-            "categoryIds": [
-              "geografie",
-              "sport",
-              "allgemeinwissen"
+            "difficultyIds": [
+              "medium",
+              "hard"
             ]
           }
         },
@@ -429,19 +438,15 @@
           }
         },
         {
-          "id": "regionalfinale",
-          "label": "Regionalfinale",
-          "filters": {
-            "categoryIds": [
-              "saarbruecken"
-            ]
-          }
+          "id": "finale",
+          "label": "Finale",
+          "filters": {}
         }
       ]
     },
     {
       "id": "regional",
-      "label": "Regional",
+      "label": "Saarbrücken",
       "slots": [
         {
           "id": "einstieg",
@@ -449,6 +454,10 @@
           "filters": {
             "difficultyIds": [
               "easy"
+            ],
+            "presentationTypes": [
+              "text-choice",
+              "image-choice"
             ]
           }
         },
@@ -485,6 +494,7 @@
           "label": "Steigerung",
           "filters": {
             "difficultyIds": [
+              "medium",
               "hard"
             ]
           }

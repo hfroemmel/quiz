@@ -10,9 +10,18 @@ import { contentReportDir, contentSourceDir } from '../paths.ts'
 import { readSource, validateSource } from '../package.ts'
 import { formatValidationReport } from '../report.ts'
 
-const sourceDir = process.argv[2] ?? contentSourceDir
+const args = process.argv.slice(2)
+/**
+ * `--placeholder-media` stuft fehlende Mediendateien zur Warnung herab.
+ *
+ * Gedacht fuer die Entwicklung, solange der freigegebene Bildbestand fehlt: Der
+ * Server zeigt dann ein erzeugtes Ersatzbild. Fuer den Livebetrieb bleibt der
+ * Aufruf ohne Flag verbindlich.
+ */
+const placeholderMedia = args.includes('--placeholder-media')
+const sourceDir = args.find((argument) => !argument.startsWith('--')) ?? contentSourceDir
 const source = readSource(sourceDir)
-const result = validateSource(source)
+const result = validateSource(source, { missingMediaSeverity: placeholderMedia ? 'warning' : 'error' })
 
 const report = formatValidationReport(result, { title: 'Validierungsbericht Quizinhalte' })
 mkdirSync(contentReportDir, { recursive: true })

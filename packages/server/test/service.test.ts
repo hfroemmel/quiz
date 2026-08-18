@@ -305,32 +305,44 @@ describe('Wiederholungsvermeidung ueber mehrere Spiele', () => {
 })
 
 describe('Live-Hotfix', () => {
+  /**
+   * Die Frage-IDs kommen aus dem echten Paket statt aus dem Test. So bleibt der
+   * Test gueltig, wenn der Fragenkatalog ausgetauscht wird.
+   */
+  function someQuestionId(target: ReturnType<typeof rig>, index = 0): string {
+    return target.service.content.baseQuestions[index]!.id
+  }
+
   it('legt sich als Overlay ueber das Basispaket, ohne es zu veraendern', () => {
     const target = rig()
-    const original = target.service.content.baseQuestions.find((question) => question.id === 'a-e-01')!
+    const questionId = someQuestionId(target)
+    const original = target.service.content.baseQuestions.find((question) => question.id === questionId)!
     expect(original.prompt).not.toBe('Korrigierter Text')
 
     const result = target.send({
       type: 'APPLY_QUESTION_PATCH',
-      questionId: 'a-e-01',
+      questionId,
       changes: { prompt: 'Korrigierter Text' },
       reason: 'Tippfehler',
       applyMode: 'next-use',
     })
 
     expect(result.ok).toBe(true)
-    expect(target.service.content.findQuestion('a-e-01')!.prompt).toBe('Korrigierter Text')
-    expect(target.service.content.baseQuestions.find((question) => question.id === 'a-e-01')!.prompt).toBe(original.prompt)
+    expect(target.service.content.findQuestion(questionId)!.prompt).toBe('Korrigierter Text')
+    expect(target.service.content.baseQuestions.find((question) => question.id === questionId)!.prompt).toBe(
+      original.prompt,
+    )
 
     const report = target.service.changeReport()
-    expect(report[0]).toMatchObject({ questionId: 'a-e-01', field: 'prompt', newValue: 'Korrigierter Text' })
+    expect(report[0]).toMatchObject({ questionId, field: 'prompt', newValue: 'Korrigierter Text' })
   })
 
   it('haelt Hotfixes ueber einen Neustart hinweg', () => {
     let target = rig()
+    const questionId = someQuestionId(target, 1)
     target.send({
       type: 'APPLY_QUESTION_PATCH',
-      questionId: 'a-e-02',
+      questionId,
       changes: { enabled: false },
       reason: 'Frage fehlerhaft',
       applyMode: 'next-use',
@@ -338,7 +350,7 @@ describe('Live-Hotfix', () => {
 
     target = target.restart()
     rigs.push(target)
-    expect(target.service.content.findQuestion('a-e-02')!.enabled).toBe(false)
+    expect(target.service.content.findQuestion(questionId)!.enabled).toBe(false)
   })
 })
 

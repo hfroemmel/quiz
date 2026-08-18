@@ -75,6 +75,15 @@ export interface ValidationInput {
   /** Existiert die Datei des Assets? Wird vom CLI mit dem Dateisystem verbunden. */
   assetFileExists: (asset: MediaAsset) => boolean
   contentVersion?: string
+  /**
+   * Waehrend der Entwicklung liegt der freigegebene Bildbestand noch nicht vor.
+   * Mit `'warning'` blockiert eine fehlende Mediendatei den Build nicht; der
+   * Server zeigt an ihrer Stelle ein erzeugtes Ersatzbild.
+   *
+   * Fuer den Livebetrieb bleibt der Standardwert `'error'` verbindlich: Eine
+   * Frage ohne Bild ist auf der Buehne unspielbar.
+   */
+  missingMediaSeverity?: IssueSeverity
 }
 
 export function validateContent(input: ValidationInput): ValidationResult {
@@ -187,7 +196,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
 
     validateAnswerModel(question, add)
-    validateMedia(question, assetsById, input.assetFileExists, add)
+    validateMedia(question, assetsById, input.assetFileExists, input.missingMediaSeverity ?? 'error', add)
     validateEditorialWarnings(question, assetsById, add)
 
     if (question.id !== question.id.toLowerCase()) {
@@ -274,35 +283,44 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
   const needsExactlyFour =
     question.presentationType === 'text-choice' || question.presentationType === 'image-choice'
 
+  /*
+   * Eine deaktivierte Frage liegt in keinem Fragenpool und kann die Show nicht
+   * gefaehrden. Sie darf deshalb als unfertige Vorlage im Bestand liegen - genau
+   * wie ein vorbereitetes Medium ohne Datei. Der Mangel wird gemeldet, blockiert
+   * aber den Build nicht.
+   */
+  const structural: IssueSeverity = question.enabled ? 'error' : 'warning'
+  const draftHint = question.enabled ? '' : ' Die Frage ist deaktiviert und wird nicht gespielt.'
+
   if (question.evaluationMode === 'option-comparison') {
     if (options.length === 0) {
-      add('error', 'missing-options', 'Automatische Auswertung ohne Antwortoptionen.', question.id)
+      add(structural, 'missing-options', `Automatische Auswertung ohne Antwortoptionen.${draftHint}`, question.id)
     }
     if (!question.correctOptionId) {
       // Die Legacy-Annahme "option_1 ist richtig" gilt nicht mehr.
-      add('error', 'missing-correct-option', 'Multiple Choice ohne explizite richtige Option.', question.id)
+      add(structural, 'missing-correct-option', `Multiple Choice ohne explizite richtige Option.${draftHint}`, question.id)
     } else if (!options.some((option) => option.id === question.correctOptionId)) {
       add(
-        'error',
+        structural,
         'correct-option-unknown',
-        `"correctOptionId" verweist auf "${question.correctOptionId}", diese Option existiert nicht.`,
+        `"correctOptionId" verweist auf "${question.correctOptionId}", diese Option existiert nicht.${draftHint}`,
         question.id,
       )
     }
   } else if (!question.acceptedAnswerText?.length && !question.correctOptionId) {
     add(
-      'error',
+      structural,
       'missing-answer',
-      'Manuelle Bewertung ohne hinterlegte richtige Antwort - die Loesungsansicht waere leer.',
+      `Manuelle Bewertung ohne hinterlegte richtige Antwort - die Loesungsansicht waere leer.${draftHint}`,
       question.id,
     )
   }
 
   if (needsExactlyFour && options.length !== contentThresholds.requiredChoiceOptionCount) {
     add(
-      'error',
+      structural,
       'option-count',
-      `Fragetyp "${question.presentationType}" verlangt genau ${contentThresholds.requiredChoiceOptionCount} Optionen, gefunden: ${options.length}.`,
+      `Fragetyp "${question.presentationType}" verlangt genau ${contentThresholds.requiredChoiceOptionCount} Optionen, gefunden: ${options.length}.${draftHint}`,
       question.id,
     )
   }
@@ -326,6 +344,7 @@ function validateMedia(
   question: Question,
   assetsById: Map<string, MediaAsset>,
   assetFileExists: (asset: MediaAsset) => boolean,
+  missingMediaSeverity: IssueSeverity,
   add: AddIssue,
 ): void {
   const requiresImage =
@@ -351,7 +370,14 @@ function validateMedia(
       // Eine deaktivierte Frage ist in keinem Pool und kann die Show nicht gefaehrden.
       // Sie darf deshalb als vorbereitete Vorlage ohne Mediendatei im Bestand liegen.
       if (question.enabled) {
-        add('error', 'asset-file-missing', `Mediendatei "${asset.filename}" existiert nicht.`, question.id)
+        add(
+          missingMediaSeverity,
+          'asset-file-missing',
+          missingMediaSeverity === 'error'
+            ? `Mediendatei "${asset.filename}" existiert nicht.`
+            : `Mediendatei "${asset.filename}" fehlt. Es wird ein Ersatzbild gezeigt.`,
+          question.id,
+        )
       } else {
         add(
           'warning',
