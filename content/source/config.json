@@ -549,7 +549,8 @@
         "medium",
         "hard",
         "mixed"
-      ]
+      ],
+      "startTitle": "Bundestags-Quiz"
     },
     {
       "id": "kids",
@@ -578,7 +579,8 @@
       "startVisualAssetId": "start-regional",
       "allowedPresetIds": [
         "regional"
-      ]
+      ],
+      "startTitle": "Bundestags-Quiz"
     }
   ]
 }

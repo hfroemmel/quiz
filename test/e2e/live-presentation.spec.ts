@@ -36,7 +36,7 @@ test('schneller Doppelklick auf "Weiter" ueberspringt keine Frage', async ({ pag
   })
 
   await waitForQuestionReady(operator)
-  await expect(operator.locator('.operator__progress')).toContainText('2/7')
+  await expect(operator.locator('.stage-header__progress .tile__value')).toContainText('2/7')
 })
 
 test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
@@ -62,7 +62,9 @@ test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
   })
 
   await expectPhase(operator, 'solution')
-  const scores = await operator.locator('.operator__score-value').allTextContents()
+  const scores = await operator
+    .locator('.score-tile')
+    .evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).dataset['score'] ?? ''))
   expect(scores[0]).toBe('100')
 })
 
@@ -100,7 +102,7 @@ test('ein neu verbundener Buehnenclient bekommt sofort den vollstaendigen Snapsh
   // Erst jetzt wird der Buehnenscreen geoeffnet - er darf keine Ereignisse nachholen muessen.
   const stage = await openStage(await page.context().newPage())
   await expect(stage.locator('.solution__answer')).toBeVisible()
-  await expect(stage.locator('.scoreboard__value').first()).toHaveText('100')
+  await expect(stage.locator('.score-tile').first()).toHaveAttribute('data-score', '100')
 })
 
 test('das Praesentationsfenster kann geschlossen und neu geoeffnet werden', async ({ page }) => {
@@ -130,5 +132,5 @@ test('der Buehnenscreen erhaelt die Loesung erst in der Loesungsszene', async ({
   expect(stageHtml).not.toContain('private__answer')
 
   await operator.getByRole('button', { name: 'Ohne Antwort aufloesen' }).click()
-  await expect(stage.locator('.solution__answer')).toHaveText(privateAnswer)
+  await expect(stage.locator('.solution__answer .option-bar__text')).toHaveText(privateAnswer)
 })

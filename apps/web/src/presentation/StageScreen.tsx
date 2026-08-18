@@ -26,7 +26,7 @@ import { FeedbackScene } from './scenes/FeedbackScene.tsx'
 import { SolutionScene } from './scenes/SolutionScene.tsx'
 import { ResultScene } from './scenes/ResultScene.tsx'
 import { StartScene } from './scenes/StartScene.tsx'
-import { ScoreBoard } from '../components/ScoreBoard.tsx'
+import { StageHeader, type StageHeaderSlots } from './StageHeader.tsx'
 import type { SceneProps } from './scenes/sceneProps.ts'
 
 export interface StageScreenProps {
@@ -36,11 +36,25 @@ export interface StageScreenProps {
   isAudioMaster: boolean
   /** Der Buehnenclient darf ausschliesslich Medienstatus zurueckmelden. */
   onReport?: (command: Command) => void
-  /** In der Operatorvorschau werden Punktestand und Fortschritt kleiner dargestellt. */
+  /** Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
   variant?: 'stage' | 'preview'
+  /**
+   * Bedienelemente des Operators, die im Entwurf ueber der Flaeche liegen.
+   *
+   * Sie werden hier NUR eingesetzt, damit sie an den Kacheln ausgerichtet sind.
+   * Das Buehnenfenster uebergibt nichts und zeigt sie deshalb nie.
+   */
+  headerSlots?: StageHeaderSlots
 }
 
-export function StageScreen({ view, serverNow, isAudioMaster, onReport, variant = 'stage' }: StageScreenProps) {
+export function StageScreen({
+  view,
+  serverNow,
+  isAudioMaster,
+  onReport,
+  variant = 'stage',
+  headerSlots,
+}: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
   const sceneProps: SceneProps = { view, reveal, serverNow }
 
@@ -85,20 +99,11 @@ export function StageScreen({ view, serverNow, isAudioMaster, onReport, variant 
       data-phase={view.phase}
       data-transition={transition?.id ?? 'none'}
     >
+      <StageHeader view={view} slots={headerSlots} />
+
       <div key={entryKey} className={`scene-root ${activeClass} ${transition?.classNames?.to ?? ''}`}>
         {renderScene(view, sceneProps, isAudioMaster, onReport)}
       </div>
-
-      {showsFooter(view) && (
-        <footer className="stage__footer">
-          <ScoreBoard scores={view.playerScores} compact={variant === 'preview'} />
-          {view.progress.total > 0 && (
-            <span className="stage__progress">
-              Frage {Math.min(view.progress.current, view.progress.total)}/{view.progress.total}
-            </span>
-          )}
-        </footer>
-      )}
     </div>
   )
 }
@@ -127,11 +132,6 @@ function renderScene(
     case 'result':
       return <ResultScene {...props} />
   }
-}
-
-/** Punktestand und Fortschritt sind auf Start und Ergebnis nicht noetig. */
-function showsFooter(view: PublicQuizViewModel): boolean {
-  return view.scene !== 'start' && view.scene !== 'result' && view.playerScores.length > 0
 }
 
 /**

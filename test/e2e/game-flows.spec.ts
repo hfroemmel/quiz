@@ -32,7 +32,7 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     await startGame(operator)
 
     for (let index = 1; index <= 7; index += 1) {
-      await expect(operator.locator('.operator__progress')).toContainText(`${index}/7`)
+      await expect(operator.locator('.stage-header__progress .tile__value')).toContainText(`${index}/7`)
       await playQuestionCorrect(operator, 1)
       await continueGame(operator)
     }

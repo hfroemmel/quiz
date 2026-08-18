@@ -168,7 +168,10 @@ festgelegt hat, aber nicht, ob es stimmt.
 - Die Punktekachel des bewerteten Spielers **zaehlt waehrend der
   Richtig-Animation hoch** (bestaetigt) und ist am Ende der Animation auf dem
   neuen Wert. Der Wert selbst kommt aus dem Snapshot; die Animation
-  interpoliert nur zwischen altem und neuem Snapshotwert.
+  interpoliert nur zwischen altem und neuem Snapshotwert. Bei einem Anstieg
+  laeuft zusaetzlich die gelieferte Sternegrafik ueber der Kachel.
+- Die Kachel traegt den Serverwert als `data-score`. Damit haengt keine
+  Auswertung - weder Test noch Diagnose - am Stand einer laufenden Animation.
 - Die Dauern sind an `gameTiming.correctFeedbackMs` bzw.
   `gameTiming.incorrectFeedbackMs` gebunden und im Animationskatalog als
   `locked` markiert.
@@ -208,6 +211,10 @@ Vorlagenlos, im gezeigten Stil festgelegt; bestaetigt: sichtbar gekennzeichnet.
   Hintergrunds.
 - Bedienleiste: alle Spieltasten gesperrt, rechts `Spiel beenden` in
   `--primary`; die private Antwortzeile zeigt weiterhin die letzte Loesung.
+- Die Ergebniskacheln zaehlen wie die Kopfzeile hoch: Korrigiert der Operator
+  hier noch Punkte, ist das dieselbe Bewegung wie im Spiel.
+- Ueber dem Titel laeuft die gelieferte Pokalgrafik; bei Unentschieden entfaellt
+  sie zusammen mit dem Konfetti.
 
 ## Pausenbild (`pause-screen`) - entworfen
 

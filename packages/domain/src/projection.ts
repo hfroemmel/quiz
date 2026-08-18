@@ -21,6 +21,7 @@ import {
   type PublicSolution,
   type PublicTheme,
   type QuizConfig,
+  type Question,
   type GamePhase,
   type GameState,
   type PrivateSolution,
@@ -113,6 +114,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           presentationType: question.presentationType,
           imageUrl: ctx.assetUrl(question.media?.imageAssetId),
           videoUrl: scene === 'video' ? ctx.assetUrl(question.media?.videoAssetId) : undefined,
+          categoryLabel: categoryLabel(question, ctx),
         }
       : undefined
 
@@ -128,6 +130,14 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     scene,
     phase: state.phase,
     theme,
+    secondChance:
+      state.phase === 'second-chance'
+        ? {
+            pointsIfCorrect: pointsForCorrectAnswer(
+              attemptsForCurrentQuestion(state).filter((entry) => entry.outcome === 'incorrect').length,
+            ),
+          }
+        : undefined,
     question: publicQuestion,
     visibleOptions: showsQuestion ? publicOptions(state, scene) : undefined,
     // Die Loesung wird ausschliesslich in der Loesungsszene uebertragen. Nach einer
@@ -259,6 +269,19 @@ function correctAnswerText(state: GameState): string {
   return question.acceptedAnswerText?.[0] ?? ''
 }
 
+/**
+ * Rubrik ueber dem Fragetext: Label der ERSTEN Kategorie der Frage.
+ *
+ * Die Reihenfolge der Kategorien ist redaktionell gesetzt; die erste ist die
+ * fuehrende. Steht sie nicht in der Konfiguration, bleibt die Zeile leer, statt
+ * eine rohe ID auf die Buehne zu bringen.
+ */
+function categoryLabel(question: Question, ctx: ProjectionContext): string | undefined {
+  const first = question.categoryIds[0]
+  if (!first) return undefined
+  return ctx.config.categories.find((category) => category.id === first)?.label
+}
+
 function publicSolution(state: GameState, ctx: ProjectionContext): PublicSolution {
   const question = state.currentQuestion!.question
   return {
@@ -309,6 +332,7 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
     colors: theme.colors,
     logoUrl: ctx.assetUrl(theme.logoAssetId),
     startVisualUrl: ctx.assetUrl(mode.startVisualAssetId ?? theme.logoAssetId),
+    startTitle: mode.startTitle,
     headingFont: theme.typography?.headingFont,
     bodyFont: theme.typography?.bodyFont,
     presentationAnimationSetId: theme.presentationAnimationSetId,

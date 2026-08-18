@@ -31,29 +31,29 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await selectScene(page, 'start')
     await expect(page.locator('.scene--start')).toBeVisible()
     // Auf dem Startbild darf keine Frage stehen.
-    await expect(page.locator('.question-prompt')).toHaveCount(0)
+    await expect(page.locator('.question-head__prompt')).toHaveCount(0)
   })
 
   test('Pausenscreen zeigt keine Frageninhalte', async ({ page }) => {
     await selectScene(page, 'pause')
     await expect(page.locator('.scene--pause')).toBeVisible()
-    await expect(page.locator('.question-prompt')).toHaveCount(0)
-    await expect(page.locator('.option-card')).toHaveCount(0)
+    await expect(page.locator('.question-head__prompt')).toHaveCount(0)
+    await expect(page.locator('.option-bar')).toHaveCount(0)
   })
 
   test('Frageszene zeigt Frage und vier Optionen ohne Loesungshinweis', async ({ page }) => {
     await selectScene(page, 'question')
-    await expect(page.locator('.question-prompt')).toBeVisible()
-    await expect(page.locator('.option-card')).toHaveCount(4)
+    await expect(page.locator('.question-head__prompt')).toBeVisible()
+    await expect(page.locator('.option-bar')).toHaveCount(4)
     // Kein Zustand an den Optionen: die Loesung ist noch nicht oeffentlich.
-    await expect(page.locator('.option-card--correct')).toHaveCount(0)
-    await expect(page.locator('.option-card--chosen-incorrect')).toHaveCount(0)
+    await expect(page.locator('.option-bar--solution')).toHaveCount(0)
+    await expect(page.locator('.option-bar--chosen')).toHaveCount(0)
   })
 
   test('Bilderkennen zeigt Countdown und unscharfes Bild', async ({ page }) => {
     await selectScene(page, 'reveal')
     await expect(page.locator('.reveal__seconds')).toBeVisible()
-    await expect(page.locator('.reveal__image')).toBeVisible()
+    await expect(page.locator('.media-frame--reveal .media-frame__image')).toBeVisible()
   })
 
   test('Videoszene zeigt die Videoflaeche', async ({ page }) => {
@@ -76,8 +76,8 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
   test('Loesungsszene hebt die richtige Option hervor', async ({ page }) => {
     await selectScene(page, 'solution')
     await expect(page.locator('.solution__answer')).toBeVisible()
-    await expect(page.locator('.option-card--correct')).toHaveCount(1)
-    await expect(page.locator('.option-card--chosen-incorrect')).toHaveCount(1)
+    await expect(page.locator('.option-bar--solution')).toHaveCount(1)
+    await expect(page.locator('.option-bar--chosen')).toHaveCount(1)
   })
 
   test('Ergebnisszene zeigt Konfetti nur bei einem Gewinner', async ({ page }) => {
@@ -127,7 +127,7 @@ test.describe('Enthuellung: Countdown und Bildschaerfe stammen aus derselben Que
     const readState = async () => ({
       seconds: Number(await page.locator('.reveal__seconds').textContent()),
       blur: await page
-        .locator('.reveal__image')
+        .locator('.media-frame--reveal .media-frame__image')
         .evaluate((element) => Number.parseFloat((element as HTMLElement).style.filter.replace(/[^\d.]/g, ''))),
     })
 

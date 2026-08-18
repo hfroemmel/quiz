@@ -166,6 +166,11 @@ export const quizModeSchema = z.object({
     .default({}),
   themeId: idSchema,
   startVisualAssetId: idSchema.optional(),
+  /**
+   * Titel, der auf dem Startbild ueber der Grafik steht. Fehlt er, zeigt die
+   * Startansicht nur die Grafik - etwa wenn diese den Titel schon enthaelt.
+   */
+  startTitle: z.string().min(1).optional(),
   allowedPresetIds: z.array(idSchema).min(1),
 })
 export type QuizMode = z.infer<typeof quizModeSchema>

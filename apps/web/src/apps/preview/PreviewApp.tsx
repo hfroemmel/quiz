@@ -169,6 +169,16 @@ const previewImage =
     </svg>`,
   )
 
+/** Startbild der Vorschau - ebenfalls ohne Serveradresse. */
+const previewStartVisual =
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" width="400" height="320">
+      <circle cx="200" cy="130" r="96" fill="rgba(255,255,255,0.08)"/>
+      <text x="200" y="190" font-size="150" font-family="Georgia, serif" fill="#FFFFFF" text-anchor="middle">?</text>
+    </svg>`,
+  )
+
 /**
  * Beispiel-View-Modelle. Sie haben denselben Aufbau wie die echten Snapshots des
  * Servers, damit die Vorschau nicht an einer eigenen Datenstruktur vorbeientwickelt.
@@ -189,7 +199,12 @@ function buildSampleView(input: {
   const base: PublicQuizViewModel = {
     scene: input.scene,
     phase: 'question-presented',
-    theme: { id: input.themeId, colors: THEMES[input.themeId] ?? THEMES['default']! },
+    theme: {
+      id: input.themeId,
+      colors: THEMES[input.themeId] ?? THEMES['default']!,
+      startVisualUrl: previewStartVisual,
+      startTitle: 'Bundestags-Quiz',
+    },
     playerScores: scores,
     progress: { current: 3, total: 7 },
     soundEnabled: false,
@@ -201,7 +216,7 @@ function buildSampleView(input: {
     case 'question':
       return {
         ...base,
-        question: { prompt: 'Welcher Fluss fliesst durch Koeln?', presentationType: 'text-choice' },
+        question: { prompt: 'Welcher Fluss fliesst durch Koeln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
         visibleOptions: [
           { id: 'o1', text: 'Rhein' },
           { id: 'o2', text: 'Elbe' },
@@ -214,7 +229,12 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'reveal-running',
-        question: { prompt: 'Welches Bauwerk ist hier zu sehen?', presentationType: 'image-reveal', imageUrl: previewImage },
+        question: {
+          prompt: 'Welches Bauwerk ist hier zu sehen?',
+          presentationType: 'image-reveal',
+          imageUrl: previewImage,
+          categoryLabel: 'Gebäude',
+        },
         reveal: { status: 'paused', durationMs: gameTiming.imageRevealDurationMs, elapsedMs: input.revealElapsedMs },
       }
     case 'video':
@@ -238,7 +258,7 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'solution',
-        question: { prompt: 'Welcher Fluss fliesst durch Koeln?', presentationType: 'text-choice' },
+        question: { prompt: 'Welcher Fluss fliesst durch Koeln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
         visibleOptions: [
           { id: 'o1', text: 'Rhein', state: 'correct' },
           { id: 'o2', text: 'Elbe', state: 'chosen-incorrect' },

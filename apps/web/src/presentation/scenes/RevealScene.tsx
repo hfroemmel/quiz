@@ -6,10 +6,16 @@
  * eine eigene CSS-Animation die Unschaerfe steuern - sonst koennten Countdown und
  * Bild auseinanderlaufen und ein Spieler bekaeme einen Informationsvorteil.
  *
+ * Am Bild aendert sich ausschliesslich die Schaerfe: kein Zoom, keine Bewegung
+ * (bestaetigte Designvorgabe).
+ *
  * VERHALTEN BEI PAUSE UND RECONNECT: Pausiert der Server die Enthuellung, friert der
  * Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach einem
  * Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
+import { MediaFrame } from '../../ui/MediaFrame.tsx'
+import { ProgressRing } from '../../ui/ProgressRing.tsx'
+import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
 export function RevealScene({ view, reveal }: SceneProps) {
@@ -21,27 +27,21 @@ export function RevealScene({ view, reveal }: SceneProps) {
 
   return (
     <div className="scene scene--reveal">
-      <h2 className="question-prompt">{question.prompt}</h2>
+      <QuestionHead question={question} />
 
       <div className="reveal__stage">
-        <div className="reveal__frame">
-          {question.imageUrl && (
-            <img
-              className="reveal__image"
-              src={question.imageUrl}
-              alt=""
-              // Einzige Quelle der Unschaerfe: der Reveal-Fortschritt.
-              style={{ filter: `blur(${reveal.blurPx.toFixed(2)}px)` }}
-            />
-          )}
-        </div>
-
         <div className={`reveal__countdown ${paused ? 'reveal__countdown--paused' : ''}`}>
-          <span className="reveal__seconds">{reveal.countdownSeconds}</span>
+          <ProgressRing remaining={1 - reveal.progress} seconds={reveal.countdownSeconds} paused={paused} />
           {paused && <span className="reveal__hint">pausiert</span>}
           {finished && !paused && <span className="reveal__hint">Buzzern weiterhin moeglich</span>}
         </div>
+
+        <MediaFrame src={question.imageUrl} blurPx={reveal.blurPx} variant="reveal" className="reveal__frame" />
       </div>
+
+      {view.secondChance && (
+        <p className="scene__hint">Zweite Chance · {view.secondChance.pointsIfCorrect} Punkte</p>
+      )}
     </div>
   )
 }

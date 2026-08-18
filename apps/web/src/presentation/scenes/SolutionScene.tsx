@@ -1,36 +1,63 @@
 /**
  * Loesungsansicht (Spezifikation 13.2).
  *
- * Enthaelt die richtige Antwort, gegebenenfalls das zugehoerige Bild, die
- * aktualisierten Punktestaende und einen klaren Abschlusszustand. Der Moderator hat
- * jetzt Zeit zu sprechen - die App wechselt NICHT automatisch weiter.
+ * Enthaelt die richtige Antwort, gegebenenfalls das zugehoerige Bild und einen
+ * klaren Abschlusszustand. Der Moderator hat jetzt Zeit zu sprechen - die App
+ * wechselt NICHT automatisch weiter.
+ *
+ * Aufbau nach Entwurf: Kopfzone wie in der Frage, darunter die Zeile
+ * "Richtige Antwort:" und der Loesungsbalken ueber die volle Breite. Bei
+ * Auswahlfragen traegt er den Buchstaben der richtigen Option, bei freien
+ * Antworten steht er ohne Chip.
  *
  * Alle hier sichtbaren Daten kommen aus `visibleSolution` bzw. `visibleOptions`, die
  * der Server ausschliesslich in dieser Szene mitsendet.
  */
+import { MediaFrame } from '../../ui/MediaFrame.tsx'
+import { OptionBar, optionLetter } from '../../ui/OptionBar.tsx'
+import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
 export function SolutionScene({ view }: SceneProps) {
   const solution = view.visibleSolution
   if (!solution) return null
 
+  const options = view.visibleOptions ?? []
+  const correctIndex = options.findIndex((option) => option.state === 'correct')
+  const remaining = options.filter((option) => option.state !== 'correct')
+
   return (
     <div className="scene scene--solution">
-      <p className="solution__label">Richtige Antwort</p>
-      <h2 className="solution__answer">{solution.answerText}</h2>
-
-      {solution.imageUrl && (
-        <div className="solution__media">
-          {/* Beim Bilderkennen ist das Bild jetzt vollstaendig scharf. */}
-          <img src={solution.imageUrl} alt="" />
-        </div>
+      {view.question && (
+        <QuestionHead
+          question={view.question}
+          media={<MediaFrame src={solution.imageUrl ?? view.question.imageUrl} variant="solution" />}
+        />
       )}
 
-      {view.visibleOptions && view.visibleOptions.length > 0 && (
-        <ul className="option-grid option-grid--solution">
-          {view.visibleOptions.map((option) => (
-            <li key={option.id} className={`option-card ${option.state ? `option-card--${option.state}` : ''}`}>
-              <span className="option-card__text">{option.text}</span>
+      <p className="solution__label">Richtige Antwort:</p>
+      <div className="solution__answer">
+        <OptionBar
+          letter={correctIndex >= 0 ? optionLetter(correctIndex) : undefined}
+          text={solution.answerText}
+          tone="solution"
+        />
+      </div>
+
+      {remaining.length > 0 && (
+        <ul className="option-list option-list--solution">
+          {remaining.map((option) => (
+            <li key={option.id}>
+              {/*
+                * Eine falsch gewaehlte Antwort bleibt als solche erkennbar: Der
+                * Saal hat sie vorher blau gesehen und soll den Vergleich ziehen
+                * koennen. Alle uebrigen Optionen treten zurueck.
+                */}
+              <OptionBar
+                letter={optionLetter(options.indexOf(option))}
+                text={option.text}
+                tone={option.state === 'chosen-incorrect' ? 'chosen' : 'muted'}
+              />
             </li>
           ))}
         </ul>

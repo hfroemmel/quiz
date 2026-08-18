@@ -544,6 +544,7 @@
       "questionFilter": {},
       "themeId": "default",
       "startVisualAssetId": "start-adults",
+      "startTitle": "Bundestags-Quiz",
       "allowedPresetIds": [
         "easy",
         "medium",
@@ -576,6 +577,7 @@
       },
       "themeId": "regional",
       "startVisualAssetId": "start-regional",
+      "startTitle": "Bundestags-Quiz",
       "allowedPresetIds": [
         "regional"
       ]

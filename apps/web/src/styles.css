@@ -204,6 +204,11 @@ textarea {
 
 /* ------------------------------------------------------------------ *
  * Buehnenscreen
+ *
+ * Die Buehnenflaeche ist ein CONTAINER: Alle Groessen darin stehen in `cqw`
+ * (Prozent der Flaechenbreite). Dadurch ist die kleine Vorschau im
+ * Operatorfenster dieselbe Komposition wie das Vollbild auf dem Beamer - eine
+ * Zeile Layout, zwei Groessen, keine Geraeteabfragen.
  * ------------------------------------------------------------------ */
 
 .stage-host {
@@ -224,6 +229,8 @@ textarea {
 }
 
 .stage {
+  container-type: size;
+  container-name: stage;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -231,13 +238,11 @@ textarea {
   overflow: hidden;
   background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
   color: var(--color-text);
+  font-family: var(--font-body);
 }
 .stage--preview {
   aspect-ratio: 16 / 9;
   height: auto;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 0.62rem;
 }
 
 .scene-root {
@@ -250,197 +255,338 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 3vh;
-  padding: 4vh 5vw;
+  justify-content: flex-start;
+  gap: 2cqw;
+  padding: 1cqw 4cqw 4cqw;
   text-align: center;
   min-height: 0;
 }
-
-.stage__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gap);
-  padding: 1.6vh 3vw;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.25);
-}
-.stage__progress {
+.scene__hint {
+  margin: 0;
   color: var(--color-textMuted);
+  font-size: 1.4cqw;
+}
+
+/* Kopfzeile: gespiegelte Punktekacheln, Fragezaehler, Slots des Operators */
+.stage-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2cqw;
+  padding: 2cqw 3cqw 0;
+}
+.stage-header__group {
+  display: flex;
+  align-items: flex-start;
+  gap: 1cqw;
+}
+.stage-header__player {
+  display: flex;
+  gap: 0;
+}
+.stage-header__progress {
+  position: absolute;
+  right: 3cqw;
+  top: 2cqw;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5cqw;
+  padding: 0.4cqw 1cqw 0.8cqw;
+  background: var(--color-tile);
+  border-radius: var(--radius);
+  line-height: 1;
+}
+.tile--active {
+  background: var(--color-accent);
+}
+.tile--quiet {
+  background: var(--color-accentQuiet);
+}
+.tile__label {
+  font-size: 0.9cqw;
+  color: var(--color-textMuted);
+}
+.tile__value {
+  font-size: 2.4cqw;
+  font-family: var(--font-heading);
   font-variant-numeric: tabular-nums;
+}
+.tile--score {
+  min-width: 7cqw;
+}
+/* Innen aneinanderstossend, aussen abgerundet - die Gruppe wirkt als ein Block. */
+.stage-header__player > *:first-child .tile,
+.stage-header__player > .tile:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.stage-header__player > *:last-child .tile,
+.stage-header__player > .tile:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.tile--result {
+  min-width: 9cqw;
+  padding: 1cqw 2cqw 1.4cqw;
+}
+.tile--result .tile__label {
+  font-size: 1.2cqw;
+}
+.tile--result .tile__value {
+  font-size: 4cqw;
+}
+
+/* Punktekachel mit Sternen: die Grafik liegt ueber der Kachel, ohne Platz zu nehmen */
+.score-tile {
+  position: relative;
+  display: flex;
+}
+.score-tile__stars {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 9cqw;
+  aspect-ratio: 1;
+  transform: translate(-50%, 25%);
+  pointer-events: none;
+}
+
+/* Punktekorrektur des Operators - liegt ueber der Vorschau, nie auf der Buehne */
+.score-adjust {
+  display: flex;
+  gap: 0.3cqw;
+  align-self: center;
+}
+.score-adjust .button {
+  min-width: 2.2cqw;
+  padding: 0.3cqw 0.6cqw;
+  font-size: 1.2cqw;
+  line-height: 1;
 }
 
 /* Start und Pause */
+.scene--start {
+  justify-content: center;
+  gap: 0;
+}
 .start__visual,
 .pause__logo {
-  max-width: 60%;
-  max-height: 60vh;
+  max-width: 46cqw;
+  max-height: 55cqh;
   object-fit: contain;
 }
 .start__title {
-  font-size: 6vw;
+  margin: 0;
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+.scene--pause {
+  justify-content: center;
+}
+.pause__logo {
+  opacity: 0.35;
 }
 .pause__progress {
-  color: var(--color-textMuted);
-  font-size: 1.4em;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 2.8cqw;
   margin: 0;
 }
 .pause__placeholder {
-  font-size: 5vw;
+  font-size: 3.8cqw;
   font-family: var(--font-heading);
-  color: var(--color-accent);
 }
 
-/* Frage */
-.question-prompt {
-  font-size: clamp(1.4rem, 3.4vw, 3rem);
-  line-height: 1.2;
-  max-width: 22ch;
-  margin: 0 auto;
-}
-.stage--preview .question-prompt {
-  font-size: 1.1rem;
-  max-width: none;
-}
-.question__media {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  width: 100%;
-}
-.question__media img {
-  max-height: 40vh;
-  max-width: 70%;
-  border-radius: var(--radius);
-  object-fit: contain;
-}
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap);
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: min(100%, 1100px);
-}
-.option-card {
+/* Kopfzone einer Frage: Medium, Rubrik, Fragetext */
+.question-head {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 1.6vh 1.6vw;
+  align-items: flex-start;
+  gap: 2cqw;
+  width: 100%;
+  text-align: left;
+}
+.question-head--wide {
+  flex-direction: column;
+}
+.question-head__text {
+  flex: 1;
+  min-width: 0;
+}
+.question-head__category {
+  margin: 0 0 0.4cqw;
+  font-size: 1.6cqw;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+.question-head__prompt {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 400;
+  line-height: 1.25;
+  font-family: var(--font-heading);
+}
+
+.media-frame {
+  flex: 0 0 auto;
+  overflow: hidden;
   border-radius: var(--radius);
   background: var(--color-tile);
-  border: 2px solid transparent;
-  font-size: clamp(0.9rem, 1.6vw, 1.5rem);
-  text-align: left;
-  /* Einlaufanimation; Verzoegerung kommt aus presentationTiming.optionStaggerMs. */
-  animation: option-in var(--transition-duration) var(--transition-easing) backwards;
 }
-.stage--preview .option-card {
-  font-size: 0.7rem;
-  padding: 6px 8px;
+.media-frame__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.option-card__marker {
-  display: inline-grid;
-  place-items: center;
-  min-width: 2em;
-  height: 2em;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  font-weight: 700;
+.media-frame--inline {
+  width: 18cqw;
+  aspect-ratio: 4 / 3;
 }
-.option-card--correct {
-  border-color: var(--color-correct);
-  background: color-mix(in srgb, var(--color-correct) 22%, var(--color-tile));
+.media-frame--solution {
+  width: 18cqw;
+  aspect-ratio: 4 / 3;
 }
-.option-card--chosen-incorrect {
-  border-color: var(--color-incorrect);
-  opacity: 0.75;
+.media-frame--reveal {
+  width: 34cqw;
+  aspect-ratio: 4 / 3;
 }
-.question__active-player {
+
+/* Antwortleisten: gestapelt ueber die volle Breite */
+.option-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8cqw;
+}
+.option-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5cqw;
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: option-enter var(--transition-duration) var(--transition-easing) backwards;
+}
+.option-bar__chip {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  min-width: 3.4cqw;
+  padding: 0.8cqw 0;
+  background: var(--color-tile);
+  border-radius: var(--radius);
+  font-family: var(--font-heading);
+  font-size: 1.9cqw;
+  font-weight: 700;
+}
+.option-bar__text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8cqw 1.2cqw;
+  background: var(--color-option);
+  border-radius: var(--radius);
+  font-size: 1.9cqw;
+  font-family: var(--font-heading);
+}
+.option-bar--chosen .option-bar__text {
+  background: var(--color-accent);
+}
+.option-bar--solution .option-bar__text {
+  background: var(--color-solution);
+}
+.option-bar--solution .option-bar__chip {
+  background: var(--color-solutionChip);
+}
+.option-bar--muted .option-bar__text,
+.option-bar--muted .option-bar__chip {
   color: var(--color-textMuted);
+  background: color-mix(in srgb, var(--color-option) 55%, transparent);
 }
 
 /* Bilderkennen */
 .reveal__stage {
-  flex: 1;
-  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4vw;
+  gap: 4cqw;
   width: 100%;
-}
-.reveal__frame {
   flex: 1;
-  min-width: 0;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border-radius: var(--radius);
-}
-.reveal__image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  /* Die Unschaerfe wird als Inline-Style aus dem Reveal-Fortschritt gesetzt.
-     Hier darf bewusst KEINE eigene Animation stehen - sonst liefen Countdown
-     und Bildschaerfe auseinander. */
-  will-change: filter;
+  min-height: 0;
 }
 .reveal__countdown {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  min-width: 4ch;
+  gap: 1cqw;
 }
-.reveal__seconds {
+.progress-ring {
+  position: relative;
+  width: 18cqw;
+  aspect-ratio: 1;
+}
+.progress-ring__svg {
+  width: 100%;
+  height: 100%;
+}
+.progress-ring__track {
+  stroke: var(--color-tileDisabled);
+}
+.progress-ring__arc {
+  stroke: var(--color-text);
+}
+.progress-ring__seconds {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-heading);
-  font-size: clamp(3rem, 9vw, 9rem);
+  font-size: 4cqw;
   font-variant-numeric: tabular-nums;
-  color: var(--color-accent);
-  line-height: 1;
-}
-.reveal__countdown--paused .reveal__seconds {
-  opacity: 0.55;
 }
 .reveal__hint {
-  font-size: 0.9em;
   color: var(--color-textMuted);
+  font-size: 1.2cqw;
 }
 
 /* Video */
 .scene--video {
-  padding: 0;
+  justify-content: center;
 }
-.video__player {
+.video__frame {
+  width: 70cqw;
+  aspect-ratio: 16 / 9;
+  background: #000000;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.video__frame video {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: #000;
 }
-.video__missing,
 .video__error {
   color: var(--color-textMuted);
+  font-size: 1.6cqw;
 }
 
 /* Feedback */
 .scene--feedback {
-  gap: 1vh;
+  justify-content: center;
+  gap: 1cqw;
 }
 .feedback__symbol {
-  /*
-   * Die Bewegtgrafik ist quadratisch und transparent. Sie skaliert mit der
-   * Buehnenflaeche, nicht mit der Fensterbreite des Operators.
-   */
-  width: clamp(8rem, 22vh, 22rem);
+  width: 16cqw;
   aspect-ratio: 1;
   line-height: 1;
 }
@@ -451,73 +597,69 @@ textarea {
   display: block;
 }
 .feedback__label {
-  font-size: clamp(1.4rem, 4vw, 3rem);
+  margin: 0;
+  font-size: 3.8cqw;
   font-family: var(--font-heading);
-  margin: 0;
-}
-.feedback__player,
-.feedback__points {
-  margin: 0;
-  color: var(--color-textMuted);
-  font-size: 1.4em;
-}
-.feedback__points {
-  color: var(--color-correct);
-  font-weight: 700;
 }
 
 /* Loesung */
 .solution__label {
-  color: var(--color-textMuted);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   margin: 0;
+  align-self: flex-start;
+  font-size: 1.6cqw;
+  color: var(--color-text);
 }
 .solution__answer {
-  font-size: clamp(1.6rem, 5vw, 4rem);
-  color: var(--color-accent);
-}
-.solution__media img {
-  max-height: 34vh;
-  border-radius: var(--radius);
+  width: 100%;
 }
 .solution__note {
+  margin: 0;
   color: var(--color-textMuted);
-  max-width: 60ch;
-}
-.option-grid--solution .option-card {
-  animation: none;
+  font-size: 1.4cqw;
+  text-align: left;
+  align-self: flex-start;
 }
 
 /* Ergebnis */
+.scene--result {
+  justify-content: center;
+  gap: 1.2cqw;
+}
+.result__trophy {
+  width: 12cqw;
+  aspect-ratio: 1;
+}
 .result__label {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--color-textMuted);
-  margin: 0;
+  /* Die Aussage steht in der Ueberschrift; das Etikett bleibt fuer Tests und
+     Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 .result__winner {
-  font-size: clamp(2rem, 7vw, 6rem);
-  color: var(--color-accent);
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 400;
+  font-family: var(--font-heading);
 }
 .result__scores {
   display: flex;
-  gap: 4vw;
+  gap: 1.6cqw;
 }
-.result__score {
+.result__group {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 2vh 3vw;
-  border-radius: var(--radius);
-  background: var(--color-tile);
 }
-.result__score--winner {
-  outline: 3px solid var(--color-accent);
+.result__group > *:first-child .tile,
+.result__group > .tile:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
-.result__score-value {
-  font-size: clamp(1.8rem, 5vw, 4rem);
-  font-variant-numeric: tabular-nums;
+.result__group > *:last-child .tile,
+.result__group > .tile:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 /* Konfetti */
@@ -542,7 +684,7 @@ textarea {
  * Keyframes - Dauer und Easing kommen aus dem Uebergangsregistry
  * ------------------------------------------------------------------ */
 
-@keyframes option-in {
+@keyframes option-enter {
   from {
     opacity: 0;
     transform: translateY(14px);
@@ -678,7 +820,7 @@ textarea {
   .feedback-incorrect,
   .solution-reveal,
   .result-celebration,
-  .option-card {
+  .option-bar {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
   }
@@ -688,61 +830,6 @@ textarea {
   .button {
     transition: none;
   }
-}
-
-/* ------------------------------------------------------------------ *
- * Punktestand und Spielerchips
- * ------------------------------------------------------------------ */
-
-.scoreboard {
-  display: flex;
-  gap: var(--gap);
-}
-.scoreboard__player {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 8px 14px;
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.06);
-  border-left: 4px solid transparent;
-}
-.scoreboard__player--player-1 {
-  border-left-color: var(--color-accent);
-}
-.scoreboard__player--player-2 {
-  border-left-color: var(--color-accent);
-}
-.scoreboard__player--active {
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 0 0 2px var(--color-accent);
-}
-.scoreboard__player--locked {
-  opacity: 0.6;
-}
-.scoreboard__value {
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: 1.4em;
-}
-.scoreboard__flag {
-  font-size: 0.7em;
-  text-transform: uppercase;
-  color: var(--color-textMuted);
-}
-.scoreboard--compact .scoreboard__value {
-  font-size: 1.1em;
-}
-.player-badge {
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-}
-.player-badge--player-1 {
-  box-shadow: inset 0 0 0 2px var(--color-accent);
-}
-.player-badge--player-2 {
-  box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
 /* ------------------------------------------------------------------ *
@@ -801,53 +888,12 @@ textarea {
   top: 0;
   z-index: 5;
 }
-.operator__scores {
-  display: flex;
-  gap: var(--gap);
-}
-.operator__score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.06);
-  border-top: 3px solid transparent;
-}
-.operator__score--player-1 {
-  border-top-color: var(--color-accent);
-}
-.operator__score--player-2 {
-  border-top-color: var(--color-accent);
-}
-.operator__score-label {
-  font-size: 0.8rem;
-  color: var(--color-textMuted);
-}
-.operator__score-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.operator__score-value {
-  min-width: 3ch;
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
 .operator__header-left,
 .operator__header-right {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.operator__progress {
-  color: var(--color-textMuted);
-  font-variant-numeric: tabular-nums;
-}
-
 .operator__main {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
@@ -1148,6 +1194,18 @@ textarea {
   background: rgba(0, 0, 0, 0.3);
   width: min(320px, 80vw);
   margin-bottom: var(--gap);
+}
+.moderator__scores {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.moderator__score {
+  color: var(--color-textMuted);
+  font-variant-numeric: tabular-nums;
+}
+.moderator__score--active {
+  color: var(--color-text);
 }
 .moderator__header {
   display: flex;

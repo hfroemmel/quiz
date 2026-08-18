@@ -28,6 +28,11 @@ export interface PublicTheme {
   colors: Record<string, string>
   logoUrl?: string
   startVisualUrl?: string
+  /**
+   * Titel auf dem Startbild. Faellt weg, wenn die Startgrafik den Titel bereits
+   * enthaelt - so wie beim Kinderquiz.
+   */
+  startTitle?: string
   headingFont?: string
   bodyFont?: string
   presentationAnimationSetId?: string
@@ -45,6 +50,11 @@ export interface PublicQuestion {
   presentationType: QuestionPresentationType
   imageUrl?: string
   videoUrl?: string
+  /**
+   * Rubrik ueber dem Fragetext: das Label der ERSTEN Kategorie der Frage
+   * (Designergaenzung). Reiner Anzeigewert - der Client leitet daraus nichts ab.
+   */
+  categoryLabel?: string
 }
 
 /** Enthaelt bewusst nur das, was oeffentlich sichtbar sein darf. */
@@ -109,6 +119,12 @@ export interface PublicQuizViewModel {
   currentPlayer?: PlayerId
   progress: { current: number; total: number }
   reveal?: PublicRevealState
+  /**
+   * Zweite Chance: Punktwert des laufenden Versuchs fuer den Hinweis auf der
+   * Buehne. Der Wert kommt aus den Punkteregeln, nie aus einer Zeichenkette im
+   * Client.
+   */
+  secondChance?: { pointsIfCorrect: number }
   video?: PublicVideoState
   result?: PublicResult
   soundEnabled: boolean

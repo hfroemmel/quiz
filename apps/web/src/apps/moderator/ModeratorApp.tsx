@@ -17,7 +17,6 @@ import type { ModeratorQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
 import { useRevealClock } from '../../client/useRevealClock.ts'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
-import { ScoreBoard } from '../../components/ScoreBoard.tsx'
 import { themeVariables } from '../../presentation/StageScreen.tsx'
 
 const CODE_STORAGE_KEY = 'quiz.moderator.session-code'
@@ -98,7 +97,21 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
       <ConnectionBanner connected={connected} rejection={lastRejection} onDismiss={clearRejection} />
 
       <header className="moderator__header">
-        <ScoreBoard scores={view.playerScores} compact />
+        {/*
+          * Der Moderator liest, er praesentiert nicht: Der Punktestand steht als
+          * Textzeile, nicht als Buehnenkachel (docs/screens.md).
+          */}
+        <div className="moderator__scores">
+          {view.playerScores.map((score) => (
+            <span
+              key={score.playerId}
+              className={`moderator__score ${score.active ? 'moderator__score--active' : ''}`}
+            >
+              {score.label}: <strong>{score.score}</strong>
+              {score.locked && ' (gesperrt)'}
+            </span>
+          ))}
+        </div>
         {view.progress.total > 0 && (
           <span className="moderator__progress">
             Frage {Math.min(view.progress.current, view.progress.total)}/{view.progress.total}

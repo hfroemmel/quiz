@@ -47,8 +47,14 @@ erscheinen.
 | `option-choose` | Antwort eingeloggt | 200 ms | 80 ms | gewaehlte Leiste faerbt sich nach `--accent` | - |
 | `option-clear` | `Zurücksetzen` | 200 ms | 80 ms | Faerbung faellt zurueck auf neutral | - |
 | `options-appear` | `Starten` | 420 ms | 120 ms | Antwortzone klappt auf, danach `options-stagger` | `question-appear` |
-| `score-count-up` | Punktestand aendert sich | 600 ms | 0 ms | Ziffern zaehlen vom alten zum neuen Snapshotwert | `score` |
+| `score-count-up` | Punktestand aendert sich | 600 ms | entfaellt | Ziffern zaehlen vom alten zum neuen Snapshotwert | `score` |
 | `score-stars` | Punktestand **steigt** | 1000 ms | entfaellt | gelieferte Grafik `stars.webm` laeuft ueber der Punktekachel | - |
+
+Beide sind in `apps/web/src/presentation/ScoreTile.tsx` umgesetzt. Die Animation
+erzeugt keinen eigenen Wert: Sie interpoliert zwischen zwei Snapshotwerten und
+endet immer exakt auf dem Serverwert. Trifft mitten im Zaehlen ein neuer
+Snapshot ein, laeuft sie von der aktuellen Anzeige aus auf den neuen Zielwert.
+Bei reduzierter Bewegung steht der Wert sofort, und die Sterne entfallen.
 | `second-chance-hint` | Wechsel in `second-chance` | 260 ms | 80 ms | Hinweiszeile faehrt 8 px von oben ein | - |
 | `progress-step` | `Frage x/y` erhoeht sich | 200 ms | 0 ms | Zahl wechselt mit kurzer Aufblende | - |
 

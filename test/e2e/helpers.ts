@@ -115,8 +115,16 @@ export async function continueGame(operator: Page): Promise<void> {
 }
 
 export async function scores(operator: Page): Promise<number[]> {
-  const values = await operator.locator('.operator__score-value').allTextContents()
-  return values.map((value) => Number(value))
+  // Der Punktestand steht seit dem Redesign in der Kopfzeile der Buehnenflaeche -
+  // im Operatorfenster dieselbe Komposition wie auf dem Beamer.
+  /*
+   * Gelesen wird `data-score` und nicht der sichtbare Text: Die Kachel zaehlt
+   * zum neuen Wert hoch, der Datenwert steht sofort auf dem Serverstand. Sonst
+   * haenge der Test an der Laufzeit einer Animation.
+   */
+  return operator.locator('.score-tile').evaluateAll((nodes) =>
+    nodes.map((node) => Number((node as HTMLElement).dataset['score'])),
+  )
 }
 
 /** Bringt eine Frage in eine Phase, in der geantwortet werden kann. */

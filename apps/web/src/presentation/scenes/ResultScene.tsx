@@ -4,38 +4,53 @@
  * Der hoehere Punktestand gewinnt, bei Gleichstand erscheint "Unentschieden". Es gibt
  * bewusst keine manuelle Gewinnerauswahl und keine automatische Entscheidungsfrage.
  *
- * Konfetti laeuft nur bei einem Gewinner - und ist reine Darstellung. Korrigiert der
- * Operator danach Punkte, berechnet der Server das Ergebnis deterministisch neu und
- * diese Ansicht folgt einfach dem neuen Snapshot.
+ * Pokal und Konfetti laufen nur bei einem Gewinner - beides ist reine Darstellung.
+ * Korrigiert der Operator danach Punkte, berechnet der Server das Ergebnis
+ * deterministisch neu und diese Ansicht folgt einfach dem neuen Snapshot.
+ *
+ * Die Ergebniskacheln stehen gespiegelt wie in der Kopfzeile: Spieler aussen,
+ * Punkte innen. Sie zaehlen ebenfalls hoch - korrigiert der Operator hier noch
+ * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
 import { Confetti } from '../../components/Confetti.tsx'
+import { AnimationClip } from '../../ui/AnimationClip.tsx'
+import { ScoreTile } from '../ScoreTile.tsx'
+import { Tile } from '../../ui/Tile.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
 export function ResultScene({ view }: SceneProps) {
   const result = view.result
   if (!result) return null
 
+  const winner = result.scores.find((score) => score.playerId === result.winnerPlayerId)
+  const [playerOne, playerTwo] = result.scores
+
   return (
     <div className="scene scene--result">
       {!result.isDraw && <Confetti />}
-      <p className="result__label">{result.isDraw ? 'Unentschieden' : 'Gewinner'}</p>
 
       {!result.isDraw && (
-        <h2 className="result__winner">
-          {result.scores.find((score) => score.playerId === result.winnerPlayerId)?.label}
-        </h2>
+        <div className="result__trophy">
+          <AnimationClip clipId="trophy" restartKey={result.winnerPlayerId ?? 'none'} />
+        </div>
       )}
 
+      <p className="result__label">{result.isDraw ? 'Unentschieden' : 'Gewinner'}</p>
+      <h2 className="result__winner">{result.isDraw ? 'Unentschieden!' : `${winner?.label} hat gewonnen!`}</h2>
+
       <div className="result__scores">
-        {result.scores.map((score) => (
-          <div
-            key={score.playerId}
-            className={`result__score ${score.playerId === result.winnerPlayerId ? 'result__score--winner' : ''}`}
-          >
-            <span className="result__score-label">{score.label}</span>
-            <span className="result__score-value">{score.score}</span>
+        {playerOne && (
+          <div className="result__group">
+            <Tile label="Spieler" value={playerOne.label.replace(/\D+/g, '') || '1'} size="result" />
+            <ScoreTile score={playerOne.score} size="result" />
           </div>
-        ))}
+        )}
+        {playerTwo && (
+          <div className="result__group result__group--mirrored">
+            <ScoreTile score={playerTwo.score} size="result" />
+            <Tile label="Spieler" value={playerTwo.label.replace(/\D+/g, '') || '2'} size="result" />
+          </div>
+        )}
       </div>
     </div>
   )

@@ -54,12 +54,14 @@ apps/web/src/
   theme/
     applyTheme.ts         Theme-Tokens -> CSS-Variablen auf dem Wurzelelement
   ui/
-    Tile.tsx  ActionButton.tsx  OptionBar.tsx  CircleBadge.tsx
-    ProgressRing.tsx  SectionLabel.tsx  MediaFrame.tsx
+    Tile.tsx  OptionBar.tsx  ProgressRing.tsx  MediaFrame.tsx
+    AnimationClip.tsx     spielt eine gelieferte Bewegtgrafik ab
   presentation/
     StageScreen.tsx       Rahmen, Szenenwahl, Uebergang, Soundmarke
     StageHeader.tsx       Punktekacheln, Fragezaehler, Slots fuer Operatortasten
+    animationAssets.ts    Registry der gelieferten Bewegtgrafiken
     scenes/               je Szene eine Datei, nur Anordnung
+    scenes/QuestionHead.tsx  Medium, Rubrik und Fragetext - fuer drei Szenen
     transitions/          unveraendert: Animationsvertrag und Registry
   apps/operator/
     OperatorApp.tsx       Verbindung, Vorschau, Rahmen
@@ -116,22 +118,35 @@ des Entwurfs, ohne dass ein Layout umgebaut ist.
 *Abgenommen:* alle Token auf der Buehne gesetzt (E2E), `pnpm typecheck`,
 `pnpm test` (108) und beide Playwright-Projekte gruen.
 
-### P2 - Primitive
+### P2 - Primitive — **erledigt**
 
-`Tile`, `ActionButton`, `OptionBar`, `CircleBadge`, `ProgressRing`,
-`SectionLabel`, `MediaFrame` samt Zustandsmatrix.
+`Tile`, `OptionBar`, `ProgressRing`, `MediaFrame` unter `apps/web/src/ui/`.
+Jedes Bauteil kennt nur Tokens und seine Varianten; keines liest das
+View-Modell oder sendet Befehle.
 
-*Abnahme:* Alle Varianten in `/preview` sichtbar; Zustandsmatrix vollstaendig.
+Zwei Bauteile aus der urspruenglichen Liste entfallen begruendet:
 
-### P3 - Buehnenflaeche und Kopfzeile
+- `CircleBadge` - Haken und Kreuz kommen als gelieferte Bewegtgrafik, nicht als
+  gezeichnete Form
+- `SectionLabel` - gehoert zur Bedienleiste und kommt mit P4
 
-16:9-Flaeche, gespiegelte Punktekacheln, Fragezaehler, Slots fuer die
-Operatortasten. Szenen `question`, `reveal`, `feedback`, `solution`, `result`
-auf die neue Anordnung umgestellt, inklusive Rubrikzeile und Textfragelayout
-ueber die volle Breite.
+*Abgenommen:* alle Varianten in `/preview` sichtbar, Screenshot-Regression neu
+aufgenommen.
 
-*Abnahme:* Vorschau im Operatorfenster und Buehnenfenster zeigen pixelgleiche
-Kompositionen; `test/e2e/presentation.spec.ts` mit neuen Screenshot-Baselines.
+### P3 - Buehnenflaeche und Kopfzeile — **erledigt**
+
+- `StageHeader` mit gespiegelten Punktekacheln, Fragezaehler und Slots fuer die
+  Bedienelemente des Operators; das Buehnenfenster uebergibt keine Slots
+- `QuestionHead` traegt Medium, Rubrik und Fragetext fuer Frage-, Enthuellungs-
+  und Loesungsszene - einmal statt dreimal
+- Antwortleisten gestapelt ueber die volle Breite, Loesungsbalken mit Chip
+- Enthuellungsring ab 12 Uhr im Uhrzeigersinn, Bildschaerfe unveraendert aus
+  derselben Fortschrittsvariablen
+- Ergebnisansicht mit Pokal, Konfetti und gespiegelten Ergebniskacheln
+- die Buehnenflaeche ist ein Container; alle Groessen darin stehen in `cqw`
+
+*Abgenommen:* Vorschau und Buehnenfenster zeigen dieselbe Komposition,
+`pnpm test` (108) sowie beide Playwright-Projekte gruen.
 
 ### P4 - Bedienrahmen
 
@@ -158,11 +173,14 @@ Verbindungsband, Fehlerhinweise, Moderatoransicht.
 
 *Abnahme:* Jeder Zustand aus `docs/screens.md` ist in `/preview` anwaehlbar.
 
-### P7 - Animationen
+### P7 - Animationen — **teilweise erledigt**
 
-Katalog nach Freigabe in `transitions/` eintragen: Kreuz-Symbol,
-Punkte-Hochzaehlen waehrend der Richtig-Animation, Ringrichtung ab 12 Uhr,
-Einlaufregel der Optionen, Baender.
+Bereits umgesetzt: Richtig und Falsch aus den gelieferten Bewegtgrafiken,
+Ringrichtung ab 12 Uhr, Einlaufregel der Optionen, Punkte-Hochzaehlen mit
+Sternen ueber der Punktekachel, Pokal in der Ergebnisansicht.
+
+Offen: die Baender des Bedienrahmens (mit P4) und die Feinabstimmung der
+Szenenwechsel gegen die neuen Layouts.
 
 *Abnahme:* Jede Zeile des Katalogs hat eine Definition mit
 `reducedMotionDurationMs`; gesperrte Dauern tragen `locked` mit Begruendung;

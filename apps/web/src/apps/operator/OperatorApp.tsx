@@ -17,7 +17,7 @@ import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 import { unlockAudio } from '../../presentation/soundCues.ts'
 import { requestStageFullscreen } from '../../client/desktopBridge.ts'
-import type { OperatorQuizViewModel } from '@quiz/contracts'
+import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
 import { OperatorControls } from './OperatorControls.tsx'
 import { PrivatePanel } from './PrivatePanel.tsx'
 import { StartPanel } from './StartPanel.tsx'
@@ -61,6 +61,35 @@ export function OperatorApp() {
   const isResult = view.phase === 'result'
   const showStartPanel = canStartNewGame && (!isResult || wantsStartPanel)
 
+  /**
+   * Punktekorrektur des Operators.
+   *
+   * Sie liegt im Entwurf neben den Punktekacheln und wird deshalb als Slot in die
+   * Kopfzeile der Buehnenflaeche gegeben. Sie gehoert NICHT zum oeffentlichen
+   * Renderpfad: Das Buehnenfenster uebergibt keine Slots und zeigt sie nie.
+   */
+  const adjust = (playerId: 'player-1' | 'player-2') => (
+    <div className="score-adjust">
+      <button
+        className="button button--tiny"
+        disabled={!view.allowedCommands.includes('ADJUST_SCORE')}
+        onClick={() => send({ type: 'ADJUST_SCORE', playerId, direction: 'increase' })}
+        aria-label={`${playerId === 'player-1' ? 'Spieler 1' : 'Spieler 2'} plus ${scoringRules.manualAdjustmentStep}`}
+      >
+        +
+      </button>
+      <button
+        className="button button--tiny"
+        disabled={!view.allowedCommands.includes('ADJUST_SCORE')}
+        onClick={() => send({ type: 'ADJUST_SCORE', playerId, direction: 'decrease' })}
+        aria-label={`${playerId === 'player-1' ? 'Spieler 1' : 'Spieler 2'} minus ${scoringRules.manualAdjustmentStep}`}
+      >
+        −
+      </button>
+    </div>
+  )
+  const scoreControls = { beforePlayerOne: adjust('player-1'), afterPlayerTwo: adjust('player-2') }
+
   return (
     <div className="operator" style={themeVariables(view)}>
       <header className="operator__header">
@@ -79,39 +108,7 @@ export function OperatorApp() {
           )}
         </div>
 
-        <div className="operator__scores">
-          {view.playerScores.map((score) => (
-            <div key={score.playerId} className={`operator__score operator__score--${score.playerId}`}>
-              <span className="operator__score-label">{score.label}</span>
-              <div className="operator__score-controls">
-                <button
-                  className="button button--tiny"
-                  disabled={!view.allowedCommands.includes('ADJUST_SCORE')}
-                  onClick={() => send({ type: 'ADJUST_SCORE', playerId: score.playerId, direction: 'decrease' })}
-                  aria-label={`${score.label} minus 100`}
-                >
-                  −100
-                </button>
-                <span className="operator__score-value">{score.score}</span>
-                <button
-                  className="button button--tiny"
-                  disabled={!view.allowedCommands.includes('ADJUST_SCORE')}
-                  onClick={() => send({ type: 'ADJUST_SCORE', playerId: score.playerId, direction: 'increase' })}
-                  aria-label={`${score.label} plus 100`}
-                >
-                  +100
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className="operator__header-right">
-          {!showStartPanel && view.progress.total > 0 && (
-            <span className="operator__progress">
-              Frage {Math.min(view.progress.current, view.progress.total)}/{view.progress.total}
-            </span>
-          )}
           {isResult && !wantsStartPanel && (
             <button className="button button--primary button--tiny" onClick={() => setWantsStartPanel(true)}>
               Zurueck zur Startansicht
@@ -137,7 +134,13 @@ export function OperatorApp() {
           <section className="operator__preview" aria-label="Vorschau Buehnenscreen">
             <h2 className="operator__section-title">Das sieht der Saal</h2>
             <div className="operator__preview-frame">
-              <StageScreen view={view} serverNow={serverNow} isAudioMaster={false} variant="preview" />
+              <StageScreen
+                view={view}
+                serverNow={serverNow}
+                isAudioMaster={false}
+                variant="preview"
+                headerSlots={scoreControls}
+              />
             </div>
           </section>
 
@@ -153,7 +156,13 @@ export function OperatorApp() {
           <StartPanel view={view} send={send} />
           <section className="operator__preview" aria-label="Vorschau Buehnenscreen">
             <div className="operator__preview-frame">
-              <StageScreen view={view} serverNow={serverNow} isAudioMaster={false} variant="preview" />
+              <StageScreen
+                view={view}
+                serverNow={serverNow}
+                isAudioMaster={false}
+                variant="preview"
+                headerSlots={scoreControls}
+              />
             </div>
           </section>
         </main>

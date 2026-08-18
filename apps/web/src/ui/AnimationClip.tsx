@@ -10,6 +10,10 @@
  * Endbild gesetzt und angehalten. Der Zuschauer sieht dann dasselbe Ergebnis -
  * nur ohne Bewegung.
  *
+ * GROESSE: Der Clip fuellt immer sein Elternelement. Die Groesse bestimmt also
+ * die Szene, nicht das Bauteil - so bleibt eine Datei an verschiedenen Stellen
+ * unterschiedlich gross, ohne dass es zwei Varianten braucht.
+ *
  * TON: Die Dateien haben keine Tonspur. Klang kommt ausschliesslich ueber die
  * Soundmarken, die nur der Audio-Master abspielt.
  */
