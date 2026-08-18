@@ -1,0 +1,30 @@
+node_modules/
+
+# Build-Artefakte der Anwendungen (werden aus den Quellen erzeugt)
+apps/web/dist/
+apps/desktop/dist/
+dist-electron/
+release/
+*.tsbuildinfo
+
+# Laufzeitdaten des lokalen Servers (SQLite, Logs, Exporte)
+runtime/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Rohdaten aus dem optionalen Sheet-Abruf: noch nicht redaktionell freigegeben
+content/incoming/
+# Migrationsvorschlaege aus den Legacy-Quellen: brauchen menschliche Freigabe
+content/migrated/
+
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/

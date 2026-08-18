@@ -1,0 +1,185 @@
+/**
+ * Autoritatives Laufzeitmodell (Spezifikation 18).
+ *
+ * Dieser Zustand lebt ausschliesslich im lokalen Server. Clients senden Befehle
+ * und rendern gefilterte View-Modelle; sie veraendern diesen Zustand niemals selbst.
+ */
+import type { Question, QuestionPresentationType } from './content.ts'
+
+/**
+ * Phasen des Spielablaufs.
+ *
+ * Unmoegliche Kombinationen werden strukturell verhindert: Die Buzzer-Freigabe
+ * haengt allein an der Phase (siehe `packages/domain/src/buzzer.ts`), deshalb kann
+ * z. B. `video-playing` keine offenen Buzzer besitzen.
+ */
+export const gamePhases = [
+  /** Kein Spiel aktiv. */
+  'idle',
+  /** Neutraler Pausen-/Logoscreen zwischen zwei Fragen (zeitgesteuert). */
+  'pause-screen',
+  /** Frage sichtbar, Buzzer noch gesperrt. */
+  'question-presented',
+  /** Videofrage vorbereitet, Video steht, Buzzer gesperrt. */
+  'video-ready',
+  /** Video laeuft, Buzzer gesperrt. */
+  'video-playing',
+  /** Buzzer offen (normale Frage). */
+  'buzzer-open',
+  /** Ein Spieler hat den Zuschlag, Operator loggt die Antwort ein. */
+  'answer-locked',
+  /** Richtig-/Falsch-Animation laeuft (zeitgesteuert). */
+  'attempt-feedback',
+  /** Zweite Chance des anderen Spielers bei normaler Frage, kein Buzzern noetig. */
+  'second-chance',
+  /** Bilderkennen: Enthuellung laeuft, Buzzer offen. */
+  'reveal-running',
+  /** Bilderkennen: Enthuellung eingefroren, Buzzer weiterhin offen. */
+  'reveal-paused',
+  /** Loesung sichtbar, Frage abgeschlossen. */
+  'solution',
+  /** Ergebnisansicht nach der letzten Frage. */
+  'result',
+  /** Spiel wurde abgebrochen. Es gibt bewusst keine Gewinneransicht. */
+  'aborted',
+] as const
+export type GamePhase = (typeof gamePhases)[number]
+
+export type PlayerId = 'player-1' | 'player-2'
+export const playerIds: readonly PlayerId[] = ['player-1', 'player-2']
+
+export interface PlayerState {
+  id: PlayerId
+  label: string
+  score: number
+  /**
+   * Bei normalen Fragen ist ein Spieler nach einer falschen ersten Antwort fuer
+   * genau diese Frage gesperrt. Beim Bilderkennen wird nie gesperrt.
+   */
+  lockedForCurrentQuestion: boolean
+}
+
+export interface BuzzerState {
+  /** Nimmt der Server aktuell Buzzer-Ereignisse an? */
+  open: boolean
+  /** Spieler, dessen Buzzer als erster gueltig angenommen wurde. */
+  acceptedPlayerId?: PlayerId
+  /** Serverzeit der Annahme; dient der Nachvollziehbarkeit der Reihenfolge. */
+  acceptedAtMs?: number
+  /** Wie der aktive Spieler bestimmt wurde. */
+  acceptedVia?: 'hardware' | 'manual'
+}
+
+export type AttemptOutcome = 'correct' | 'incorrect' | 'passed' | 'no-answer'
+
+export interface AnswerAttempt {
+  id: string
+  questionId: string
+  slotIndex: number
+  /** `null` bei Aufloesen ohne Spielerantwort. */
+  playerId: PlayerId | null
+  /** 1 = erster Versuch dieser Frage, 2 = zweiter usw. Beim Bilderkennen unbegrenzt. */
+  attemptNumber: number
+  /** Vom Operator eingeloggte Option (nur bei `option-comparison`). */
+  loggedOptionId?: string
+  /** Vom Operator eingeloggte manuelle Bewertung (nur bei `manual-correct-incorrect`). */
+  loggedManualVerdict?: 'correct' | 'incorrect'
+  outcome?: AttemptOutcome
+  awardedPoints: number
+  createdAtMs: number
+  resolvedAtMs?: number
+}
+
+/**
+ * Enthuellungsuhr des Bilderkennens (Spezifikation 10.2).
+ *
+ * Countdown und Bildschaerfe werden aus derselben Fortschrittsvariable berechnet.
+ * Der Server haelt nur Startzeit, bereits verstrichene Zeit und Pausezustand;
+ * Clients leiten daraus `progress` ab und rendern fluessig, ohne den Zustand zu aendern.
+ */
+export interface RevealClockState {
+  status: 'idle' | 'running' | 'paused' | 'completed'
+  durationMs: number
+  /** Serverzeit, zu der der aktuelle Laufabschnitt begann. */
+  startedAtServerMs?: number
+  /** Vor dem aktuellen Laufabschnitt bereits verstrichene Zeit. */
+  elapsedBeforeStartMs: number
+}
+
+export interface VideoRuntimeState {
+  status: 'idle' | 'playing' | 'paused' | 'ended'
+  /** Position in Millisekunden zu Beginn des aktuellen Laufabschnitts. */
+  positionMs: number
+  startedAtServerMs?: number
+  /** Vom Client gemeldete Laufzeit, sobald bekannt. Rein informativ. */
+  durationMs?: number
+  /** Verstaendliche Fehlermeldung, falls das Medium nicht geladen werden konnte. */
+  error?: string
+}
+
+/** Eine im Spiel eingesetzte Frage inklusive spielspezifischer Praesentationsdaten. */
+export interface RuntimeQuestion {
+  question: Question
+  /** Fragenplatz, aus dem sie gezogen wurde. */
+  slotId: string
+  slotIndex: number
+  /**
+   * Sichtbare Reihenfolge der Optionen fuer dieses Spiel. Das Mischen veraendert
+   * die Auswertung nicht, weil immer gegen `correctOptionId` verglichen wird.
+   */
+  optionOrder: string[]
+}
+
+/** Zeitgesteuerter Phasenwechsel mit definierter Fallbackzeit. */
+export interface PendingTimedTransition {
+  /** Phase, in die nach Ablauf gewechselt wird. */
+  nextPhase: GamePhase
+  /** Serverzeit, zu der spaetestens gewechselt wird. */
+  endsAtMs: number
+  /** Kennung fuer die Praesentationsschicht, welcher Uebergang gerade laeuft. */
+  transitionId: string
+}
+
+/** Was der Buehnenscreen zuletzt fachlich signalisiert bekommen hat. */
+export interface PresentationTransitionState {
+  transitionId: string
+  startedAtServerMs: number
+  durationMs: number
+}
+
+export interface GameState {
+  gameId: string
+  eventDayId: string
+  status: 'active' | 'completed' | 'aborted'
+  phase: GamePhase
+  /** Wird bei jeder akzeptierten Zustandsaenderung erhoeht (optimistische Nebenlaeufigkeit). */
+  revision: number
+
+  quizModeId: string
+  presetId: string
+  totalQuestions: number
+  currentSlotIndex: number
+  /** Bereits im Spiel eingesetzte Frage-IDs, inklusive der aktuellen. */
+  selectedQuestionIds: string[]
+  /** Wiederholungsgruppen der bereits eingesetzten Fragen. */
+  selectedRepetitionGroupIds: string[]
+  currentQuestion?: RuntimeQuestion
+
+  players: [PlayerState, PlayerState]
+  buzzer: BuzzerState
+  attempts: AnswerAttempt[]
+  reveal?: RevealClockState
+  video?: VideoRuntimeState
+
+  /** Globaler Soundstatus; bleibt waehrend des Spiels erhalten. */
+  soundEnabled: boolean
+
+  pendingTransition?: PendingTimedTransition
+  lastTransition?: PresentationTransitionState
+  updatedAtMs: number
+}
+
+/** Hilfsfunktion: gehoert die Frage zum Bilderkennen mit unbegrenzten Fehlversuchen? */
+export function isImageReveal(type: QuestionPresentationType): boolean {
+  return type === 'image-reveal'
+}

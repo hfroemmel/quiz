@@ -1,0 +1,13 @@
+{
+  "name": "@quiz/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gemeinsame Typen, Laufzeitschemas, Befehle und View-Modelle",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}

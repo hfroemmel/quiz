@@ -1,0 +1,38 @@
+{
+  "name": "live-quiz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live-Quiz-Regiesystem fuer Buehnenveranstaltungen (Operator, Buehnenscreen, Moderator)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc -b --force tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "content:fetch": "tsx packages/content/src/cli/fetch.ts",
+    "content:assets": "tsx packages/content/src/cli/generate-demo-assets.ts",
+    "content:migrate": "tsx packages/content/src/cli/migrate-legacy.ts",
+    "content:validate": "tsx packages/content/src/cli/validate.ts",
+    "content:build": "tsx packages/content/src/cli/build.ts",
+    "server": "tsx packages/server/src/main.ts",
+    "dev": "concurrently -n web,server -c cyan,magenta \"pnpm --filter @quiz/web dev\" \"pnpm server\"",
+    "dev:desktop": "pnpm --filter @quiz/desktop dev",
+    "build": "pnpm content:validate && pnpm --filter @quiz/web build",
+    "build:desktop": "pnpm build && pnpm --filter @quiz/desktop build",
+    "lint": "tsc -b --force tsconfig.json",
+    "desktop:rebuild-native": "pnpm --filter @quiz/desktop rebuild:native",
+    "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.5",
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

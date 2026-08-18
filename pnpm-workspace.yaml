@@ -1,0 +1,9 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+# better-sqlite3 and esbuild need their install scripts to build native/binary artifacts.
+onlyBuiltDependencies:
+  - better-sqlite3
+  - esbuild
+  - electron
