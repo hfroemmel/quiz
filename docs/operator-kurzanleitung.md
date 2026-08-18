@@ -26,7 +26,7 @@
 | 8 | Nach der siebten Frage: `Weiter zum Ergebnis` |
 | 9 | `Zurueck zur Startansicht` fuer das naechste Spielpaar |
 
-Der Bereich „Nur fuer Regie“ zeigt jederzeit die richtige Antwort und die
+Der private Bereich rechts neben der Buehnenflaeche zeigt jederzeit die richtige Antwort und die
 Zusatzinformationen. Der Saal sieht davon nichts.
 
 ## Punkte

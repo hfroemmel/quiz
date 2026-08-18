@@ -403,12 +403,13 @@ describe('Weiter, Ergebnis und Abbruch', () => {
 })
 
 describe('Manuelle Punktkorrektur', () => {
-  it('korrigiert in 100er-Schritten, faellt nicht unter null und wird protokolliert', () => {
+  it('korrigiert in der konfigurierten Schrittweite, faellt nicht unter null und wird protokolliert', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
+    const step = scoringRules.manualAdjustmentStep
 
     harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'increase' })
-    expect(harness.state!.players[1].score).toBe(100)
+    expect(harness.state!.players[1].score).toBe(step)
 
     harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'decrease' })
     expect(harness.state!.players[1].score).toBe(0)
@@ -419,11 +420,11 @@ describe('Manuelle Punktkorrektur', () => {
     )
 
     expect(harness.scoreTransactions).toEqual([
-      expect.objectContaining({ playerId: 'player-2', delta: 100 }),
-      expect.objectContaining({ playerId: 'player-2', delta: -100 }),
+      expect.objectContaining({ playerId: 'player-2', delta: step }),
+      expect.objectContaining({ playerId: 'player-2', delta: -step }),
     ])
     const scoreLog = harness.events.filter((event) => event.category === 'score')
-    expect(scoreLog.at(-1)!.message).toContain('-100')
+    expect(scoreLog.at(-1)!.message).toContain(`-${step}`)
   })
 
   it('bleibt auf der Ergebnisansicht verfuegbar und berechnet das Ergebnis neu', () => {
@@ -434,7 +435,11 @@ describe('Manuelle Punktkorrektur', () => {
     expect(harness.state!.phase).toBe('result')
     expect(determineResult(harness.state!).winnerPlayerId).toBe('player-1')
 
-    harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'increase' })
+    // So viele Korrekturschritte, wie die erste richtige Antwort wert war.
+    const steps = scoringRules.firstAnswerPoints / scoringRules.manualAdjustmentStep
+    for (let index = 0; index < steps; index += 1) {
+      harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'increase' })
+    }
     expect(determineResult(harness.state!)).toEqual({ winnerPlayerId: null, isDraw: true })
     expect(availableCommands(harness.state)).toContain('ADJUST_SCORE')
   })

@@ -5,6 +5,7 @@
  * nach Serverneustart in kritischen Phasen und die Rollentrennung der View-Modelle.
  */
 import { afterEach, describe, expect, it } from 'vitest'
+import { scoringRules } from '@quiz/contracts'
 import { createRig, playQuestion, type TestRig } from './helpers.ts'
 
 const rigs: TestRig[] = []
@@ -211,8 +212,8 @@ describe('Wiederherstellung nach Serverneustart', () => {
     rigs.push(target)
     target.send({ type: 'RESUME_GAME' })
 
-    expect(target.service.authoritativeState!.players[0].score).toBe(100)
-    expect(target.service.authoritativeState!.players[1].score).toBe(100)
+    expect(target.service.authoritativeState!.players[0].score).toBe(scoringRules.firstAnswerPoints)
+    expect(target.service.authoritativeState!.players[1].score).toBe(scoringRules.manualAdjustmentStep)
   })
 
   it('stellt eine laufende Enthuellung als pausiert wieder her', () => {

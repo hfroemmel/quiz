@@ -8,6 +8,7 @@
  * auseinanderlaufen.
  */
 import type { Command, CommandType, OperatorQuizViewModel } from '@quiz/contracts'
+import { optionLetter } from '../../ui/OptionBar.tsx'
 
 interface Props {
   view: OperatorQuizViewModel
@@ -21,12 +22,10 @@ export function OperatorControls({ view, send }: Props) {
 
   return (
     <section className="controls" aria-label="Steuerung">
-      <p className="controls__hint">{view.nextStepHint}</p>
-
       {/* --- Spieler bestimmen --- */}
       {(can('OPEN_BUZZER') || can('SELECT_PLAYER_MANUALLY') || can('RESET_BUZZER')) && (
         <div className="controls__group">
-          <h3 className="controls__title">Spieler</h3>
+          <h3 className="controls__title">Spielerauswahl</h3>
           <div className="controls__row">
             {can('OPEN_BUZZER') && (
               <button className="button button--primary" onClick={() => send({ type: 'OPEN_BUZZER' })}>
@@ -76,9 +75,11 @@ export function OperatorControls({ view, send }: Props) {
                     key={option.id}
                     className={`button button--option ${isLogged ? 'button--selected' : ''} ${isCorrect ? 'button--marks-correct' : ''}`}
                     onClick={() => send({ type: 'LOG_OPTION_ANSWER', optionId: option.id })}
+                    // Der Antworttext steht bereits auf der Buehne. Die Taste traegt
+                    // deshalb nur den Buchstaben; der Volltext bleibt als Tooltip.
+                    title={option.text}
                   >
-                    <span className="button__marker">{String.fromCharCode(65 + index)}</span>
-                    <span>{option.text}</span>
+                    <span className="button__marker">{optionLetter(index)}</span>
                     {/* Nur der Operator sieht, welche Option richtig ist. */}
                     {isCorrect && <span className="button__flag">richtig</span>}
                   </button>

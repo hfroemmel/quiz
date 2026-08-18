@@ -1,45 +1,15 @@
 /**
  * Konfetti der Ergebnisansicht.
  *
- * Bewusst ohne Bibliothek: ein paar absolut positionierte Elemente mit CSS-Animation
- * genuegen. Eine Abhaengigkeit nur fuer diesen Effekt einzufuehren waere nicht
- * gerechtfertigt.
+ * Es kommt als gelieferte Datei `confetti.svg` (freigegeben). Die Bewegung steckt
+ * als CSS-Animation in der Grafik selbst; sie laeuft auch, wenn die Datei als Bild
+ * eingebunden ist. Damit gibt es keine zweite, im Code nachgebaute Fassung.
  *
- * Dauer und Reduced-Motion-Verhalten stehen zentral in den Animationspresets bzw. im
- * Stylesheet; der Effekt beeinflusst keinerlei Spiellogik.
+ * Der Effekt beeinflusst keinerlei Spiellogik. Bei reduzierter Bewegung wird er
+ * im Stylesheet vollstaendig ausgeblendet.
  */
-import { useMemo } from 'react'
-import { confettiDurationMs } from '../presentation/transitions/resultCelebration.ts'
-
-const PIECE_COUNT = 60
+import { confettiOverlayUrl } from '../presentation/animationAssets.ts'
 
 export function Confetti() {
-  // Positionen einmalig bestimmen, damit sie bei jedem Re-Render stabil bleiben.
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: PIECE_COUNT }, (_, index) => ({
-        left: (index * 97) % 100,
-        delayMs: (index * 83) % 1_500,
-        durationMs: 2_600 + ((index * 137) % 1_800),
-        hue: (index * 47) % 360,
-      })),
-    [],
-  )
-
-  return (
-    <div className="confetti" aria-hidden="true" style={{ ['--confetti-total' as string]: `${confettiDurationMs}ms` }}>
-      {pieces.map((piece, index) => (
-        <span
-          key={index}
-          className="confetti__piece"
-          style={{
-            left: `${piece.left}%`,
-            animationDelay: `${piece.delayMs}ms`,
-            animationDuration: `${piece.durationMs}ms`,
-            background: `hsl(${piece.hue} 85% 60%)`,
-          }}
-        />
-      ))}
-    </div>
-  )
+  return <img className="confetti" src={confettiOverlayUrl} alt="" aria-hidden="true" />
 }

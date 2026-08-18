@@ -33,7 +33,7 @@ export function HotfixPanel({
 
   return (
     <section className="hotfix">
-      <button type="button" className="hotfix__toggle" onClick={() => setOpen((value) => !value)}>
+      <button type="button" className="button button--technical" onClick={() => setOpen((value) => !value)}>
         {open ? 'Fragenkorrektur schliessen' : 'Fehlerhafte Frage korrigieren'}
       </button>
 

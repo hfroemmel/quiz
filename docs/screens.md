@@ -48,7 +48,7 @@ Wiederaufnahme nach Neustart, Moderatoransicht.
 - `+`/`-` gehoeren dem Operator und liegen als Overlay ueber der Vorschau. Auf
   dem Beamer erscheinen sie nicht. Sie behalten ihre Position auch dann, wenn
   die Kacheln daneben ausgeblendet sind (Ergebnisansicht).
-- Schrittweite `+`/`-` ist `scoringRules.manualAdjustmentStep`, nicht 1.
+- Schrittweite `+`/`-` ist `scoringRules.manualAdjustmentStep` - derzeit 50 Punkte.
 
 ### Bedienleiste (nur Operator)
 
@@ -70,6 +70,16 @@ Zwei Zeilen:
    | `1. Runde` | `Starten` |
    | `2. Spieler ermitteln` | `Spieler 1`, `Spieler 2` |
    | `3. Antwort auswählen` | `A B C D` bei Wahlfragen, `Richtig`/`Falsch` bei muendlichen Fragen |
+
+   Die Tasten der Antwortgruppe tragen **nur den Buchstaben**. Der Antworttext
+   steht bereits auf der Buehne; ihn zu wiederholen kostet Platz und Blickzeit.
+   Der Volltext bleibt als Tooltip erreichbar, und nur der Operator sieht die
+   Markierung der richtigen Option.
+
+   `Richtig`/`Falsch` erscheinen ausschliesslich bei Fragen mit manueller
+   Bewertung, also beim Bilderkennen. Bei einer Auswahlfrage waeren sie ein
+   zweiter Bewertungsweg neben der eingeloggten Option; die Entscheidung darueber
+   faellt serverseitig in `allowedCommands`, nicht in der Oberflaeche.
    | ohne Nummer | `Auflösen` |
    | ohne Nummer, rechts aussen | `Weiter` bzw. `Spiel beenden` |
 
@@ -83,8 +93,14 @@ bestehen (Spezifikation 6.4).
 
 ### Ausserhalb der Buehnenflaeche
 
-`Beenden` oben links; `Vollbild` und `Ton` als gestapelte Symbolschalter oben
-rechts. In `idle` ist `Beenden` gesperrt.
+`Beenden` oben links; `Vollbild` und `Ton` als reine Symbolschalter oben rechts.
+Sie tragen keine Beschriftung, aber ein verpflichtendes `aria-label` und einen
+Tooltip. In `idle` ist `Beenden` gesperrt.
+
+Die Operatoransicht kommt ohne erklaerende Beschriftungen aus: Es gibt weder eine
+Anweisungszeile ueber der Bedienleiste noch Ueberschriften wie „Das sieht der
+Saal“ oder „Nur fuer Regie“. Der Aufbau selbst sagt, was oeffentlich ist und was
+nicht - die Buehnenflaeche oben, alles Private darunter.
 
 ## Startansicht (`idle`, Szene `start`)
 
