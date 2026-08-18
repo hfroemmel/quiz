@@ -1,0 +1,553 @@
+{
+  "questionsPerGame": 7,
+  "difficulties": [
+    {
+      "id": "easy",
+      "label": "Leicht"
+    },
+    {
+      "id": "medium",
+      "label": "Mittel"
+    },
+    {
+      "id": "hard",
+      "label": "Schwer"
+    }
+  ],
+  "categories": [
+    {
+      "id": "allgemeinwissen",
+      "label": "Allgemeinwissen"
+    },
+    {
+      "id": "geschichte",
+      "label": "Geschichte"
+    },
+    {
+      "id": "geografie",
+      "label": "Geografie"
+    },
+    {
+      "id": "natur",
+      "label": "Natur"
+    },
+    {
+      "id": "wissenschaft",
+      "label": "Wissenschaft"
+    },
+    {
+      "id": "kultur",
+      "label": "Kultur"
+    },
+    {
+      "id": "sport",
+      "label": "Sport"
+    },
+    {
+      "id": "saarbruecken",
+      "label": "Saarbrücken"
+    }
+  ],
+  "themes": [
+    {
+      "id": "default",
+      "label": "Abendquiz",
+      "colors": {
+        "background": "#0b1020",
+        "backgroundAccent": "#141d3a",
+        "surface": "#1b2545",
+        "text": "#f4f7ff",
+        "textMuted": "#a8b4d4",
+        "accent": "#ffc32b",
+        "accentText": "#221800",
+        "correct": "#37d67a",
+        "incorrect": "#ff5c5c",
+        "playerOne": "#4aa3ff",
+        "playerTwo": "#ff8a3d"
+      },
+      "logoAssetId": "logo-quiz",
+      "typography": {
+        "headingFont": "'Trebuchet MS', 'Segoe UI', sans-serif",
+        "bodyFont": "'Segoe UI', system-ui, sans-serif"
+      },
+      "presentationAnimationSetId": "standard"
+    },
+    {
+      "id": "kids",
+      "label": "Kinderquiz",
+      "colors": {
+        "background": "#10233a",
+        "backgroundAccent": "#17466b",
+        "surface": "#1d5580",
+        "text": "#ffffff",
+        "textMuted": "#c8e6ff",
+        "accent": "#ffd93d",
+        "accentText": "#2a2000",
+        "correct": "#4ade80",
+        "incorrect": "#fb7185",
+        "playerOne": "#38bdf8",
+        "playerTwo": "#fb923c"
+      },
+      "logoAssetId": "logo-kids",
+      "typography": {
+        "headingFont": "'Comic Sans MS', 'Trebuchet MS', sans-serif",
+        "bodyFont": "'Segoe UI', system-ui, sans-serif"
+      },
+      "presentationAnimationSetId": "standard"
+    },
+    {
+      "id": "regional",
+      "label": "Regionalquiz",
+      "colors": {
+        "background": "#0d1b16",
+        "backgroundAccent": "#12332a",
+        "surface": "#1a4438",
+        "text": "#f2fbf7",
+        "textMuted": "#a6ccbd",
+        "accent": "#7bd88f",
+        "accentText": "#04200f",
+        "correct": "#37d67a",
+        "incorrect": "#ff6b6b",
+        "playerOne": "#5ad1c8",
+        "playerTwo": "#e8b84b"
+      },
+      "logoAssetId": "logo-regional",
+      "typography": {
+        "headingFont": "'Trebuchet MS', 'Segoe UI', sans-serif",
+        "bodyFont": "'Segoe UI', system-ui, sans-serif"
+      },
+      "presentationAnimationSetId": "standard"
+    }
+  ],
+  "presets": [
+    {
+      "id": "easy",
+      "label": "Leicht",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
+            "presentationTypes": [
+              "text-choice"
+            ]
+          }
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
+            "categoryIds": [
+              "allgemeinwissen",
+              "wissenschaft",
+              "natur"
+            ]
+          }
+        },
+        {
+          "id": "bilderkennen",
+          "label": "Bilderkennen",
+          "filters": {
+            "presentationTypes": [
+              "image-reveal"
+            ]
+          }
+        },
+        {
+          "id": "geschichte-kultur",
+          "label": "Geschichte und Kultur",
+          "filters": {
+            "difficultyIds": [
+              "easy",
+              "medium"
+            ],
+            "categoryIds": [
+              "geschichte",
+              "kultur"
+            ]
+          }
+        },
+        {
+          "id": "steigerung",
+          "label": "Steigerung",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "presentationTypes": [
+              "image-choice"
+            ]
+          }
+        },
+        {
+          "id": "finale",
+          "label": "Finale",
+          "filters": {
+            "difficultyIds": [
+              "easy",
+              "medium"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "medium",
+      "label": "Mittel",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
+            "presentationTypes": [
+              "text-choice"
+            ]
+          }
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "categoryIds": [
+              "wissenschaft",
+              "natur",
+              "geografie"
+            ]
+          }
+        },
+        {
+          "id": "bilderkennen",
+          "label": "Bilderkennen",
+          "filters": {
+            "presentationTypes": [
+              "image-reveal"
+            ]
+          }
+        },
+        {
+          "id": "geschichte-kultur",
+          "label": "Geschichte und Kultur",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "categoryIds": [
+              "geschichte",
+              "kultur"
+            ]
+          }
+        },
+        {
+          "id": "steigerung",
+          "label": "Steigerung",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "presentationTypes": [
+              "image-choice"
+            ]
+          }
+        },
+        {
+          "id": "finale",
+          "label": "Finale",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "hard",
+      "label": "Schwer",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "presentationTypes": [
+              "text-choice"
+            ]
+          }
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ],
+            "categoryIds": [
+              "wissenschaft",
+              "natur",
+              "geografie"
+            ]
+          }
+        },
+        {
+          "id": "bilderkennen",
+          "label": "Bilderkennen",
+          "filters": {
+            "presentationTypes": [
+              "image-reveal"
+            ]
+          }
+        },
+        {
+          "id": "geschichte-kultur",
+          "label": "Geschichte und Kultur",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ],
+            "categoryIds": [
+              "geschichte",
+              "kultur"
+            ]
+          }
+        },
+        {
+          "id": "steigerung",
+          "label": "Steigerung",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "presentationTypes": [
+              "image-choice"
+            ]
+          }
+        },
+        {
+          "id": "regionalfinale",
+          "label": "Regionalfinale",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "categoryIds": [
+              "saarbruecken"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mixed",
+      "label": "Gemischt",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {}
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "categoryIds": [
+              "wissenschaft",
+              "natur"
+            ]
+          }
+        },
+        {
+          "id": "bilderkennen",
+          "label": "Bilderkennen",
+          "filters": {
+            "presentationTypes": [
+              "image-reveal"
+            ]
+          }
+        },
+        {
+          "id": "geschichte-kultur",
+          "label": "Geschichte und Kultur",
+          "filters": {
+            "categoryIds": [
+              "geschichte",
+              "kultur"
+            ]
+          }
+        },
+        {
+          "id": "welt-und-sport",
+          "label": "Welt und Sport",
+          "filters": {
+            "categoryIds": [
+              "geografie",
+              "sport",
+              "allgemeinwissen"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "presentationTypes": [
+              "image-choice"
+            ]
+          }
+        },
+        {
+          "id": "regionalfinale",
+          "label": "Regionalfinale",
+          "filters": {
+            "categoryIds": [
+              "saarbruecken"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "regional",
+      "label": "Regional",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ]
+          }
+        },
+        {
+          "id": "vertiefung",
+          "label": "Vertiefung",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ]
+          }
+        },
+        {
+          "id": "bilderkennen",
+          "label": "Bilderkennen",
+          "filters": {
+            "presentationTypes": [
+              "image-reveal"
+            ]
+          }
+        },
+        {
+          "id": "mittelfeld",
+          "label": "Mittelfeld",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ]
+          }
+        },
+        {
+          "id": "steigerung",
+          "label": "Steigerung",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "presentationTypes": [
+              "image-choice"
+            ]
+          }
+        },
+        {
+          "id": "finale",
+          "label": "Finale",
+          "filters": {}
+        }
+      ]
+    }
+  ],
+  "modes": [
+    {
+      "id": "adults",
+      "label": "Erwachsene",
+      "questionFilter": {},
+      "themeId": "default",
+      "startVisualAssetId": "start-adults",
+      "allowedPresetIds": [
+        "easy",
+        "medium",
+        "hard",
+        "mixed"
+      ]
+    },
+    {
+      "id": "kids",
+      "label": "Kinder",
+      "questionFilter": {},
+      "themeId": "kids",
+      "startVisualAssetId": "start-kids",
+      "allowedPresetIds": [
+        "easy",
+        "mixed"
+      ]
+    },
+    {
+      "id": "saarbruecken",
+      "label": "Saarbrücken",
+      "questionFilter": {
+        "legacyModes": [
+          "adults",
+          "kids"
+        ],
+        "categoryIds": [
+          "saarbruecken"
+        ]
+      },
+      "themeId": "regional",
+      "startVisualAssetId": "start-regional",
+      "allowedPresetIds": [
+        "regional"
+      ]
+    }
+  ]
+}

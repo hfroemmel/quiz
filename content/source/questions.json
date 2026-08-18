@@ -1,0 +1,1948 @@
+[
+  {
+    "id": "a-e-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "allgemeinwissen"
+    ],
+    "tags": [],
+    "prompt": "Welche Farbe entsteht, wenn man Blau und Gelb mischt?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Orange"
+      },
+      {
+        "id": "o2",
+        "text": "Grün"
+      },
+      {
+        "id": "o3",
+        "text": "Violett"
+      },
+      {
+        "id": "o4",
+        "text": "Braun"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Blau und Gelb ergeben in der Farbmischung Grün."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-02",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Welcher Fluss fließt durch Köln?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Rhein"
+      },
+      {
+        "id": "o2",
+        "text": "Elbe"
+      },
+      {
+        "id": "o3",
+        "text": "Donau"
+      },
+      {
+        "id": "o4",
+        "text": "Main"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Köln liegt am Rhein.",
+      "moderatorNotes": "Guter Übergang zu Geografiefragen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-03",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welches ist das größte lebende Landsäugetier?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Nashorn"
+      },
+      {
+        "id": "o2",
+        "text": "Giraffe"
+      },
+      {
+        "id": "o3",
+        "text": "Afrikanischer Elefant"
+      },
+      {
+        "id": "o4",
+        "text": "Flusspferd"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Der Afrikanische Elefant wird bis zu vier Meter hoch."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-04",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "wissenschaft"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Planeten hat unser Sonnensystem?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Sieben"
+      },
+      {
+        "id": "o2",
+        "text": "Acht"
+      },
+      {
+        "id": "o3",
+        "text": "Neun"
+      },
+      {
+        "id": "o4",
+        "text": "Zehn"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Seit 2006 gilt Pluto als Zwergplanet, es bleiben acht Planeten."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-05",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Wer schrieb das Drama \"Faust\"?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Friedrich Schiller"
+      },
+      {
+        "id": "o2",
+        "text": "Gotthold Ephraim Lessing"
+      },
+      {
+        "id": "o3",
+        "text": "Heinrich Heine"
+      },
+      {
+        "id": "o4",
+        "text": "Johann Wolfgang von Goethe"
+      }
+    ],
+    "correctOptionId": "o4",
+    "explanation": {
+      "summary": "Goethe arbeitete über sechzig Jahre an \"Faust\"."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-06",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "sport"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Spieler einer Mannschaft stehen beim Fußball gleichzeitig auf dem Platz?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Neun"
+      },
+      {
+        "id": "o2",
+        "text": "Zehn"
+      },
+      {
+        "id": "o3",
+        "text": "Elf"
+      },
+      {
+        "id": "o4",
+        "text": "Zwölf"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Zehn Feldspieler und ein Torwart."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-07",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "geschichte"
+    ],
+    "tags": [],
+    "prompt": "In welchem Jahr fiel die Berliner Mauer?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "1987"
+      },
+      {
+        "id": "o2",
+        "text": "1989"
+      },
+      {
+        "id": "o3",
+        "text": "1991"
+      },
+      {
+        "id": "o4",
+        "text": "1993"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Die Grenzübergänge öffneten am 9. November 1989."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-e-08",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "allgemeinwissen"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Minuten hat eine Fußballhalbzeit regulär?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "40"
+      },
+      {
+        "id": "o2",
+        "text": "45"
+      },
+      {
+        "id": "o3",
+        "text": "50"
+      },
+      {
+        "id": "o4",
+        "text": "60"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Zweimal 45 Minuten plus Nachspielzeit."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "wissenschaft"
+    ],
+    "tags": [],
+    "prompt": "Welches Element hat das chemische Symbol \"Fe\"?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Fluor"
+      },
+      {
+        "id": "o2",
+        "text": "Francium"
+      },
+      {
+        "id": "o3",
+        "text": "Eisen"
+      },
+      {
+        "id": "o4",
+        "text": "Phosphor"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "\"Fe\" kommt vom lateinischen ferrum."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-02",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Welche Stadt ist die Hauptstadt Australiens?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Sydney"
+      },
+      {
+        "id": "o2",
+        "text": "Melbourne"
+      },
+      {
+        "id": "o3",
+        "text": "Perth"
+      },
+      {
+        "id": "o4",
+        "text": "Canberra"
+      }
+    ],
+    "correctOptionId": "o4",
+    "explanation": {
+      "summary": "Canberra wurde als Kompromiss zwischen Sydney und Melbourne gegründet.",
+      "moderatorNotes": "Klassische Fangfrage, gerne kurz auflösen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-03",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Herzen hat ein Oktopus?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Eins"
+      },
+      {
+        "id": "o2",
+        "text": "Zwei"
+      },
+      {
+        "id": "o3",
+        "text": "Drei"
+      },
+      {
+        "id": "o4",
+        "text": "Vier"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Zwei Kiemenherzen und ein Hauptherz."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-04",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "geschichte"
+    ],
+    "tags": [],
+    "prompt": "Wer war der erste Bundeskanzler der Bundesrepublik Deutschland?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Konrad Adenauer"
+      },
+      {
+        "id": "o2",
+        "text": "Ludwig Erhard"
+      },
+      {
+        "id": "o3",
+        "text": "Willy Brandt"
+      },
+      {
+        "id": "o4",
+        "text": "Kurt Georg Kiesinger"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Adenauer war von 1949 bis 1963 im Amt."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-05",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Welcher Maler schuf das Bild \"Sternennacht\"?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Claude Monet"
+      },
+      {
+        "id": "o2",
+        "text": "Vincent van Gogh"
+      },
+      {
+        "id": "o3",
+        "text": "Paul Cézanne"
+      },
+      {
+        "id": "o4",
+        "text": "Edvard Munch"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Van Gogh malte das Werk 1889 in Saint-Rémy."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-06",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "sport"
+    ],
+    "tags": [],
+    "prompt": "In welchem Abstand finden die Olympischen Sommerspiele üblicherweise statt?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Alle zwei Jahre"
+      },
+      {
+        "id": "o2",
+        "text": "Alle drei Jahre"
+      },
+      {
+        "id": "o3",
+        "text": "Alle vier Jahre"
+      },
+      {
+        "id": "o4",
+        "text": "Alle fünf Jahre"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Der olympische Zyklus umfasst vier Jahre."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-07",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "allgemeinwissen"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Saiten hat eine klassische Gitarre?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Vier"
+      },
+      {
+        "id": "o2",
+        "text": "Fünf"
+      },
+      {
+        "id": "o3",
+        "text": "Sechs"
+      },
+      {
+        "id": "o4",
+        "text": "Sieben"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Standard sind sechs Saiten."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-m-08",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Welches ist das flächengrößte Bundesland Deutschlands?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Niedersachsen"
+      },
+      {
+        "id": "o2",
+        "text": "Bayern"
+      },
+      {
+        "id": "o3",
+        "text": "Baden-Württemberg"
+      },
+      {
+        "id": "o4",
+        "text": "Brandenburg"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Bayern umfasst rund 70.500 Quadratkilometer."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-h-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "wissenschaft"
+    ],
+    "tags": [],
+    "prompt": "Wie heißt der Effekt, bei dem Licht beim Übergang in ein anderes Medium seine Richtung ändert?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Beugung"
+      },
+      {
+        "id": "o2",
+        "text": "Brechung"
+      },
+      {
+        "id": "o3",
+        "text": "Streuung"
+      },
+      {
+        "id": "o4",
+        "text": "Reflexion"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Die Lichtbrechung folgt dem Snelliusschen Brechungsgesetz."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-h-02",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "geschichte"
+    ],
+    "tags": [],
+    "prompt": "In welchem Jahr wurde der Westfälische Friede geschlossen?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "1618"
+      },
+      {
+        "id": "o2",
+        "text": "1648"
+      },
+      {
+        "id": "o3",
+        "text": "1701"
+      },
+      {
+        "id": "o4",
+        "text": "1756"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Er beendete den Dreißigjährigen Krieg."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-h-03",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Welcher ist der tiefste See der Erde?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Kaspisches Meer"
+      },
+      {
+        "id": "o2",
+        "text": "Baikalsee"
+      },
+      {
+        "id": "o3",
+        "text": "Tanganjikasee"
+      },
+      {
+        "id": "o4",
+        "text": "Oberer See"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Der Baikalsee ist über 1.600 Meter tief."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-h-04",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Wer komponierte die Oper \"Der Freischütz\"?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richard Wagner"
+      },
+      {
+        "id": "o2",
+        "text": "Carl Maria von Weber"
+      },
+      {
+        "id": "o3",
+        "text": "Franz Schubert"
+      },
+      {
+        "id": "o4",
+        "text": "Felix Mendelssohn Bartholdy"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Uraufführung 1821 in Berlin."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-h-05",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welche Baumart erreicht das höchste bekannte Alter?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Stieleiche"
+      },
+      {
+        "id": "o2",
+        "text": "Rotbuche"
+      },
+      {
+        "id": "o3",
+        "text": "Grannenkiefer"
+      },
+      {
+        "id": "o4",
+        "text": "Hängebirke"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Grannenkiefern in Kalifornien werden über 4.000 Jahre alt."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-h-06",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "wissenschaft"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Basenpaare umfasst das menschliche Genom ungefähr?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Drei Millionen"
+      },
+      {
+        "id": "o2",
+        "text": "Dreißig Millionen"
+      },
+      {
+        "id": "o3",
+        "text": "Drei Milliarden"
+      },
+      {
+        "id": "o4",
+        "text": "Dreißig Milliarden"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Rund 3,1 Milliarden Basenpaare."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-ir-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Welches Bauwerk ist hier zu sehen?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Brandenburger Tor",
+      "Das Brandenburger Tor in Berlin"
+    ],
+    "media": {
+      "imageAssetId": "img-bauwerk-brandenburger-tor"
+    },
+    "explanation": {
+      "summary": "Das Brandenburger Tor wurde 1791 fertiggestellt.",
+      "moderatorNotes": "Bei Unsicherheit als Hinweis \"Berlin\" nennen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-ir-02",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Welche deutsche Stadt ist auf dieser Karte hervorgehoben?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Hamburg"
+    ],
+    "media": {
+      "imageAssetId": "img-karte-hamburg"
+    },
+    "explanation": {
+      "summary": "Hamburg ist die zweitgrößte Stadt Deutschlands."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-ir-03",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welches Tier ist auf dem Bild zu erkennen?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Rotfuchs",
+      "Fuchs"
+    ],
+    "media": {
+      "imageAssetId": "img-tier-rotfuchs"
+    },
+    "explanation": {
+      "summary": "Der Rotfuchs ist in ganz Europa verbreitet."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-ic-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "geschichte"
+    ],
+    "tags": [
+      "personen-erkennen"
+    ],
+    "prompt": "Welche Person ist auf dem Porträt zu sehen?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Marie Curie"
+      },
+      {
+        "id": "o2",
+        "text": "Rosa Luxemburg"
+      },
+      {
+        "id": "o3",
+        "text": "Hannah Arendt"
+      },
+      {
+        "id": "o4",
+        "text": "Clara Zetkin"
+      }
+    ],
+    "correctOptionId": "o1",
+    "media": {
+      "imageAssetId": "img-portraet-person"
+    },
+    "explanation": {
+      "summary": "Marie Curie erhielt zwei Nobelpreise.",
+      "source": "Platzhaltergrafik, siehe assets.json"
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-ic-02",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Zu welchem Land gehört die abgebildete Flagge?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Belgien"
+      },
+      {
+        "id": "o2",
+        "text": "Deutschland"
+      },
+      {
+        "id": "o3",
+        "text": "Österreich"
+      },
+      {
+        "id": "o4",
+        "text": "Spanien"
+      }
+    ],
+    "correctOptionId": "o2",
+    "media": {
+      "imageAssetId": "img-flagge-land"
+    },
+    "explanation": {
+      "summary": "Schwarz-Rot-Gold in waagerechten Streifen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-ic-03",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Welches Gemälde ist hier abgebildet?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Die Sternennacht"
+      },
+      {
+        "id": "o2",
+        "text": "Der Schrei"
+      },
+      {
+        "id": "o3",
+        "text": "Das Abendmahl"
+      },
+      {
+        "id": "o4",
+        "text": "Der Kuss"
+      }
+    ],
+    "correctOptionId": "o2",
+    "media": {
+      "imageAssetId": "img-gemaelde"
+    },
+    "explanation": {
+      "summary": "Edvard Munch schuf mehrere Fassungen des Motivs."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-01",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welches Tier sagt \"Miau\"?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Hund"
+      },
+      {
+        "id": "o2",
+        "text": "Katze"
+      },
+      {
+        "id": "o3",
+        "text": "Kuh"
+      },
+      {
+        "id": "o4",
+        "text": "Pferd"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Katzen miauen vor allem, um mit Menschen zu sprechen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-02",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "allgemeinwissen"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Beine hat eine Spinne?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Sechs"
+      },
+      {
+        "id": "o2",
+        "text": "Acht"
+      },
+      {
+        "id": "o3",
+        "text": "Zehn"
+      },
+      {
+        "id": "o4",
+        "text": "Zwölf"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Spinnen haben acht Beine, Insekten nur sechs."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-03",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Wie heißt die Hauptstadt von Deutschland?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "München"
+      },
+      {
+        "id": "o2",
+        "text": "Hamburg"
+      },
+      {
+        "id": "o3",
+        "text": "Berlin"
+      },
+      {
+        "id": "o4",
+        "text": "Köln"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Berlin ist seit 1990 wieder Hauptstadt."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-04",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "wissenschaft"
+    ],
+    "tags": [],
+    "prompt": "Welche Farbe hat der Himmel an einem klaren Tag?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Grün"
+      },
+      {
+        "id": "o2",
+        "text": "Rot"
+      },
+      {
+        "id": "o3",
+        "text": "Gelb"
+      },
+      {
+        "id": "o4",
+        "text": "Blau"
+      }
+    ],
+    "correctOptionId": "o4",
+    "explanation": {
+      "summary": "Blaues Licht wird in der Luft am stärksten gestreut."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-05",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "In welchem Märchen trägt ein Mädchen eine rote Kappe?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Schneewittchen"
+      },
+      {
+        "id": "o2",
+        "text": "Rotkäppchen"
+      },
+      {
+        "id": "o3",
+        "text": "Aschenputtel"
+      },
+      {
+        "id": "o4",
+        "text": "Dornröschen"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Das Märchen wurde von den Brüdern Grimm aufgeschrieben."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-06",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "sport"
+    ],
+    "tags": [],
+    "prompt": "Wie viele Ringe hat das olympische Symbol?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Drei"
+      },
+      {
+        "id": "o2",
+        "text": "Vier"
+      },
+      {
+        "id": "o3",
+        "text": "Fünf"
+      },
+      {
+        "id": "o4",
+        "text": "Sechs"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Die fünf Ringe stehen für fünf Kontinente."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-e-07",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welches Tier legt Eier und kann fliegen?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Kuh"
+      },
+      {
+        "id": "o2",
+        "text": "Hund"
+      },
+      {
+        "id": "o3",
+        "text": "Amsel"
+      },
+      {
+        "id": "o4",
+        "text": "Fisch"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Vögel legen Eier und können fliegen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-m-01",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "wissenschaft"
+    ],
+    "tags": [],
+    "prompt": "Welcher Planet ist der Sonne am nächsten?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Venus"
+      },
+      {
+        "id": "o2",
+        "text": "Merkur"
+      },
+      {
+        "id": "o3",
+        "text": "Erde"
+      },
+      {
+        "id": "o4",
+        "text": "Mars"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Merkur umkreist die Sonne in nur 88 Tagen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-m-02",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "geschichte"
+    ],
+    "tags": [],
+    "prompt": "Wie heißt die Bilderschrift der alten Ägypter?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Runen"
+      },
+      {
+        "id": "o2",
+        "text": "Keilschrift"
+      },
+      {
+        "id": "o3",
+        "text": "Hieroglyphen"
+      },
+      {
+        "id": "o4",
+        "text": "Kalligrafie"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Hieroglyphen wurden erst 1822 entschlüsselt."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-m-03",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "geografie"
+    ],
+    "tags": [],
+    "prompt": "Welcher Fluss hat den längsten Verlauf innerhalb Deutschlands?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Rhein"
+      },
+      {
+        "id": "o2",
+        "text": "Elbe"
+      },
+      {
+        "id": "o3",
+        "text": "Donau"
+      },
+      {
+        "id": "o4",
+        "text": "Weser"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Rund 865 Kilometer des Rheins liegen in Deutschland."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-ir-01",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welches Tier ist auf dem Bild zu sehen?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Giraffe"
+    ],
+    "media": {
+      "imageAssetId": "img-tier-giraffe"
+    },
+    "explanation": {
+      "summary": "Giraffen sind die höchsten Landtiere der Welt."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-ir-02",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "allgemeinwissen"
+    ],
+    "tags": [],
+    "prompt": "Welches Fahrzeug ist auf dem Bild zu sehen?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Feuerwehrauto",
+      "Löschfahrzeug"
+    ],
+    "media": {
+      "imageAssetId": "img-fahrzeug-feuerwehr"
+    },
+    "explanation": {
+      "summary": "Feuerwehrfahrzeuge sind in Deutschland tagesleuchtrot."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-ic-01",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "natur"
+    ],
+    "tags": [],
+    "prompt": "Welches Tier ist hier abgebildet?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Elefant"
+      },
+      {
+        "id": "o2",
+        "text": "Nashorn"
+      },
+      {
+        "id": "o3",
+        "text": "Zebra"
+      },
+      {
+        "id": "o4",
+        "text": "Löwe"
+      }
+    ],
+    "correctOptionId": "o3",
+    "media": {
+      "imageAssetId": "img-tier-auswahl"
+    },
+    "explanation": {
+      "summary": "Jedes Zebra hat ein einzigartiges Streifenmuster."
+    },
+    "enabled": true
+  },
+  {
+    "id": "k-ic-02",
+    "modeIds": [
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Welches Musikinstrument ist hier abgebildet?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Geige"
+      },
+      {
+        "id": "o2",
+        "text": "Trompete"
+      },
+      {
+        "id": "o3",
+        "text": "Klavier"
+      },
+      {
+        "id": "o4",
+        "text": "Schlagzeug"
+      }
+    ],
+    "correctOptionId": "o1",
+    "media": {
+      "imageAssetId": "img-instrument"
+    },
+    "explanation": {
+      "summary": "Die Geige hat vier Saiten."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-e-01",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "saarbruecken",
+      "geografie"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "In welchem Bundesland liegt Saarbrücken?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Rheinland-Pfalz"
+      },
+      {
+        "id": "o2",
+        "text": "Saarland"
+      },
+      {
+        "id": "o3",
+        "text": "Hessen"
+      },
+      {
+        "id": "o4",
+        "text": "Baden-Württemberg"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Saarbrücken ist die Landeshauptstadt des Saarlandes."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-e-02",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "saarbruecken",
+      "geografie"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Wie heißt die Landeshauptstadt des Saarlandes?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Neunkirchen"
+      },
+      {
+        "id": "o2",
+        "text": "Homburg"
+      },
+      {
+        "id": "o3",
+        "text": "Saarbrücken"
+      },
+      {
+        "id": "o4",
+        "text": "Saarlouis"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Saarbrücken hat rund 180.000 Einwohner."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-m-01",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "saarbruecken",
+      "geografie"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Welcher Fluss fließt durch Saarbrücken?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Mosel"
+      },
+      {
+        "id": "o2",
+        "text": "Saar"
+      },
+      {
+        "id": "o3",
+        "text": "Nahe"
+      },
+      {
+        "id": "o4",
+        "text": "Blies"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Die Saar mündet bei Konz in die Mosel."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-m-02",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "saarbruecken",
+      "kultur"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Wie heißt die Universität mit Hauptsitz in Saarbrücken?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Universität des Saarlandes"
+      },
+      {
+        "id": "o2",
+        "text": "Saar-Technische Hochschule"
+      },
+      {
+        "id": "o3",
+        "text": "Universität Saarbrücken-Mitte"
+      },
+      {
+        "id": "o4",
+        "text": "Hochschule für Grenzregionen"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Die Universität des Saarlandes wurde 1948 gegründet."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-h-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "saarbruecken",
+      "geschichte"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "In welchem Jahr wurde das Saarland politisch Teil der Bundesrepublik Deutschland?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "1949"
+      },
+      {
+        "id": "o2",
+        "text": "1955"
+      },
+      {
+        "id": "o3",
+        "text": "1957"
+      },
+      {
+        "id": "o4",
+        "text": "1959"
+      }
+    ],
+    "correctOptionId": "o3",
+    "explanation": {
+      "summary": "Der politische Anschluss erfolgte am 1. Januar 1957, die wirtschaftliche Eingliederung 1959.",
+      "moderatorNotes": "Häufige Verwechslung mit 1955 (Volksabstimmung)."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-h-02",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "saarbruecken",
+      "kultur"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Welcher Baumeister prägte das barocke Saarbrücken maßgeblich?",
+    "presentationType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Balthasar Neumann"
+      },
+      {
+        "id": "o2",
+        "text": "Friedrich Joachim Stengel"
+      },
+      {
+        "id": "o3",
+        "text": "Karl Friedrich Schinkel"
+      },
+      {
+        "id": "o4",
+        "text": "Gottfried Semper"
+      }
+    ],
+    "correctOptionId": "o2",
+    "explanation": {
+      "summary": "Stengel entwarf unter anderem die Ludwigskirche."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-ir-01",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "saarbruecken",
+      "kultur"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Welches Bauwerk in Saarbrücken ist hier zu sehen?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Ludwigskirche",
+      "Die Ludwigskirche"
+    ],
+    "media": {
+      "imageAssetId": "img-sb-ludwigskirche"
+    },
+    "explanation": {
+      "summary": "Die Ludwigskirche gilt als eine der bedeutendsten protestantischen Barockkirchen."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-ir-02",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "hard",
+    "categoryIds": [
+      "saarbruecken",
+      "geografie"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Welche Flusslandschaft im Saarland ist hier zu sehen?",
+    "presentationType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Saarschleife"
+    ],
+    "media": {
+      "imageAssetId": "img-sb-saarschleife"
+    },
+    "explanation": {
+      "summary": "Die Saarschleife bei Mettlach ist das bekannteste Wahrzeichen des Saarlandes."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-ic-01",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "saarbruecken",
+      "geografie"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Welches Wahrzeichen des Saarlandes ist abgebildet?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Saarschleife"
+      },
+      {
+        "id": "o2",
+        "text": "Loreley"
+      },
+      {
+        "id": "o3",
+        "text": "Drachenfels"
+      },
+      {
+        "id": "o4",
+        "text": "Externsteine"
+      }
+    ],
+    "correctOptionId": "o1",
+    "media": {
+      "imageAssetId": "img-sb-wahrzeichen"
+    },
+    "explanation": {
+      "summary": "Der Aussichtspunkt Cloef bietet den bekannten Blick."
+    },
+    "enabled": true
+  },
+  {
+    "id": "sb-ic-02",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "saarbruecken",
+      "kultur"
+    ],
+    "tags": [
+      "regional"
+    ],
+    "prompt": "Welches Gebäude im Zentrum von Saarbrücken ist abgebildet?",
+    "presentationType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Saarbrücker Schloss"
+      },
+      {
+        "id": "o2",
+        "text": "Alte Brücke"
+      },
+      {
+        "id": "o3",
+        "text": "Rathaus St. Johann"
+      },
+      {
+        "id": "o4",
+        "text": "Staatstheater"
+      }
+    ],
+    "correctOptionId": "o1",
+    "media": {
+      "imageAssetId": "img-sb-gebaeude"
+    },
+    "explanation": {
+      "summary": "Das Schloss wurde mehrfach zerstört und wieder aufgebaut."
+    },
+    "enabled": true
+  },
+  {
+    "id": "a-video-01",
+    "modeIds": [
+      "adults"
+    ],
+    "difficultyId": "medium",
+    "categoryIds": [
+      "kultur"
+    ],
+    "tags": [],
+    "prompt": "Welches Instrument war im Videoausschnitt fuehrend zu hoeren?",
+    "presentationType": "video-then-question",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Klavier"
+      },
+      {
+        "id": "o2",
+        "text": "Violine"
+      },
+      {
+        "id": "o3",
+        "text": "Querfloete"
+      },
+      {
+        "id": "o4",
+        "text": "Klarinette"
+      }
+    ],
+    "correctOptionId": "o2",
+    "media": {
+      "videoAssetId": "vid-demo-clip"
+    },
+    "explanation": {
+      "summary": "Vorlage fuer Videofragen.",
+      "moderatorNotes": "Beispielfrage: erst Video zeigen, dann Frage einblenden und Buzzer freigeben."
+    },
+    "enabled": false
+  }
+]

@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "1.0.0",
+  "contentVersion": "1.0.0",
+  "createdAt": "2026-08-18T05:46:06.956Z",
+  "questionsFile": "questions.json",
+  "configFile": "config.json",
+  "assets": [
+    {
+      "id": "img-bauwerk-brandenburger-tor",
+      "kind": "image",
+      "filename": "images/img-bauwerk-brandenburger-tor.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "19576b989861a3ef4e7ee1349d42f37a"
+    },
+    {
+      "id": "img-fahrzeug-feuerwehr",
+      "kind": "image",
+      "filename": "images/img-fahrzeug-feuerwehr.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "cc22957d41a770f1c861449d9369a866"
+    },
+    {
+      "id": "img-flagge-land",
+      "kind": "image",
+      "filename": "images/img-flagge-land.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "e26e174cb7619244044fd0071d66924e"
+    },
+    {
+      "id": "img-gemaelde",
+      "kind": "image",
+      "filename": "images/img-gemaelde.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "d1a3466cff13a4e30d817fed385a9993"
+    },
+    {
+      "id": "img-instrument",
+      "kind": "image",
+      "filename": "images/img-instrument.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "9613505c7f6220ff149b7c141a75a4b3"
+    },
+    {
+      "id": "img-karte-hamburg",
+      "kind": "image",
+      "filename": "images/img-karte-hamburg.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "9d3bcb1bb1d59c79e2e0bea7f595c6c0"
+    },
+    {
+      "id": "img-portraet-person",
+      "kind": "image",
+      "filename": "images/img-portraet-person.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "5a0479fefcddb5074e770c273414b30e"
+    },
+    {
+      "id": "img-sb-gebaeude",
+      "kind": "image",
+      "filename": "images/img-sb-gebaeude.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "a5dec4994284b528557529167e5b0cbb"
+    },
+    {
+      "id": "img-sb-ludwigskirche",
+      "kind": "image",
+      "filename": "images/img-sb-ludwigskirche.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "6ded784e78c84b502aa8c6228bf520eb"
+    },
+    {
+      "id": "img-sb-saarschleife",
+      "kind": "image",
+      "filename": "images/img-sb-saarschleife.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "11aca1cecddd0b2a536c3af17597bbe5"
+    },
+    {
+      "id": "img-sb-wahrzeichen",
+      "kind": "image",
+      "filename": "images/img-sb-wahrzeichen.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "e3bf1271d24e37a0687d4cf3666922e8"
+    },
+    {
+      "id": "img-tier-auswahl",
+      "kind": "image",
+      "filename": "images/img-tier-auswahl.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "4dc847937cae01eff233e753f6a5f458"
+    },
+    {
+      "id": "img-tier-giraffe",
+      "kind": "image",
+      "filename": "images/img-tier-giraffe.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "59ca34103e6f5dfd10b3c609ceb6b57c"
+    },
+    {
+      "id": "img-tier-rotfuchs",
+      "kind": "image",
+      "filename": "images/img-tier-rotfuchs.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen",
+      "checksum": "1801c4f80655308f3304f02b3c145801"
+    },
+    {
+      "id": "logo-kids",
+      "kind": "image",
+      "filename": "branding/logo-kids.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
+      "checksum": "82c2793e1f62b54d606a80e2a462e595"
+    },
+    {
+      "id": "logo-quiz",
+      "kind": "image",
+      "filename": "branding/logo-quiz.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
+      "checksum": "712a93e121a3d746ad4897630b1e56b5"
+    },
+    {
+      "id": "logo-regional",
+      "kind": "image",
+      "filename": "branding/logo-regional.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
+      "checksum": "2e85a18e24893c7573bd0e0da6c77fe0"
+    },
+    {
+      "id": "start-adults",
+      "kind": "image",
+      "filename": "branding/start-adults.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
+      "checksum": "d12e12c57c79c5f4b55cbba3e0f6feb8"
+    },
+    {
+      "id": "start-kids",
+      "kind": "image",
+      "filename": "branding/start-kids.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
+      "checksum": "e2e27ecd43b2ec9d791f0381c1d9965c"
+    },
+    {
+      "id": "start-regional",
+      "kind": "image",
+      "filename": "branding/start-regional.svg",
+      "mimeType": "image/svg+xml",
+      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
+      "checksum": "5e4d5e97ca1ede995c077223c25d728d"
+    },
+    {
+      "id": "vid-demo-clip",
+      "kind": "video",
+      "filename": "video/demo-clip.mp4",
+      "mimeType": "video/mp4",
+      "credit": "PLATZHALTER - eigenen Videoausschnitt hier ablegen"
+    }
+  ],
+  "checksum": "1511b452722ec318e949eebfae9a6b59ef5c102b9b0e934e6372e87c10410459"
+}

@@ -1,0 +1,149 @@
+[
+  {
+    "id": "logo-quiz",
+    "kind": "image",
+    "filename": "branding/logo-quiz.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+  },
+  {
+    "id": "logo-kids",
+    "kind": "image",
+    "filename": "branding/logo-kids.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+  },
+  {
+    "id": "logo-regional",
+    "kind": "image",
+    "filename": "branding/logo-regional.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+  },
+  {
+    "id": "start-adults",
+    "kind": "image",
+    "filename": "branding/start-adults.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+  },
+  {
+    "id": "start-kids",
+    "kind": "image",
+    "filename": "branding/start-kids.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+  },
+  {
+    "id": "start-regional",
+    "kind": "image",
+    "filename": "branding/start-regional.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
+  },
+  {
+    "id": "img-bauwerk-brandenburger-tor",
+    "kind": "image",
+    "filename": "images/img-bauwerk-brandenburger-tor.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-karte-hamburg",
+    "kind": "image",
+    "filename": "images/img-karte-hamburg.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-tier-rotfuchs",
+    "kind": "image",
+    "filename": "images/img-tier-rotfuchs.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-portraet-person",
+    "kind": "image",
+    "filename": "images/img-portraet-person.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-flagge-land",
+    "kind": "image",
+    "filename": "images/img-flagge-land.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-gemaelde",
+    "kind": "image",
+    "filename": "images/img-gemaelde.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-tier-giraffe",
+    "kind": "image",
+    "filename": "images/img-tier-giraffe.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-fahrzeug-feuerwehr",
+    "kind": "image",
+    "filename": "images/img-fahrzeug-feuerwehr.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-tier-auswahl",
+    "kind": "image",
+    "filename": "images/img-tier-auswahl.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-instrument",
+    "kind": "image",
+    "filename": "images/img-instrument.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-sb-ludwigskirche",
+    "kind": "image",
+    "filename": "images/img-sb-ludwigskirche.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-sb-saarschleife",
+    "kind": "image",
+    "filename": "images/img-sb-saarschleife.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-sb-wahrzeichen",
+    "kind": "image",
+    "filename": "images/img-sb-wahrzeichen.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "img-sb-gebaeude",
+    "kind": "image",
+    "filename": "images/img-sb-gebaeude.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "PLATZHALTER - vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen"
+  },
+  {
+    "id": "vid-demo-clip",
+    "kind": "video",
+    "filename": "video/demo-clip.mp4",
+    "mimeType": "video/mp4",
+    "credit": "PLATZHALTER - eigenen Videoausschnitt hier ablegen"
+  }
+]

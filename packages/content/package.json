@@ -1,0 +1,15 @@
+{
+  "name": "@quiz/content",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Quizdaten-Pipeline: Legacy-Import, Normalisierung, Validierung, versionierte Pakete, Hotfix-Overlay",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@quiz/contracts": "workspace:*",
+    "@quiz/domain": "workspace:*",
+    "zod": "^3.24.1"
+  }
+}
