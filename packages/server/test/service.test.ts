@@ -25,6 +25,51 @@ function startGame(target: TestRig, presetId = 'medium'): void {
   target.settle()
 }
 
+describe('Spielprotokoll', () => {
+  it('zaehlt gespielte Spiele je Quizmodus und ueberlebt einen Neustart', () => {
+    let target = rig()
+    expect(target.service.snapshotFor('operator').statistics.modes.every((mode) => mode.total === 0)).toBe(true)
+
+    startGame(target)
+    target.send({ type: 'ABORT_GAME' })
+    startGame(target)
+
+    const before = target.service.snapshotFor('operator').statistics
+    const adults = before.modes.find((mode) => mode.quizModeId === 'adults')!
+    expect(adults.label).toBe('Erwachsene')
+    expect(adults.total).toBe(2)
+    expect(adults.aborted).toBe(1)
+    // Jeder konfigurierte Modus erscheint, auch ohne Spiel.
+    expect(before.modes.length).toBeGreaterThan(1)
+    expect(before.modes.some((mode) => mode.quizModeId === 'kids' && mode.total === 0)).toBe(true)
+
+    // Die Zahlen liegen in der Datenbank, nicht im Browser.
+    target = target.restart()
+    rigs.push(target)
+    expect(target.service.snapshotFor('operator').statistics.modes.find((mode) => mode.quizModeId === 'adults')!.total).toBe(2)
+  })
+
+  it('setzt die Zaehlung zurueck, ohne Spiele zu loeschen', () => {
+    const target = rig()
+    startGame(target)
+    target.send({ type: 'ABORT_GAME' })
+    expect(target.store.countRows('games')).toBe(1)
+
+    target.clock.nowMs += 60_000
+    expect(target.send({ type: 'RESET_GAME_STATISTICS' }).ok).toBe(true)
+
+    const after = target.service.snapshotFor('operator').statistics
+    expect(after.modes.every((mode) => mode.total === 0)).toBe(true)
+    expect(after.countingSinceIso).toBeDefined()
+    // Das Spiel selbst bleibt: An ihm haengen Spielstand, Versuche und Auditlog.
+    expect(target.store.countRows('games')).toBe(1)
+
+    // Ab jetzt wird wieder gezaehlt.
+    startGame(target)
+    expect(target.service.snapshotFor('operator').statistics.modes.find((mode) => mode.quizModeId === 'adults')!.total).toBe(1)
+  })
+})
+
 describe('Befehl, Transaktion und Verteilung', () => {
   it('speichert Zustand, Punktebuchung, Nutzung und Auditlog gemeinsam', () => {
     const target = rig()

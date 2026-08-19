@@ -997,6 +997,49 @@ select {
   line-height: 1.5;
   color: var(--color-text);
 }
+.dialog__note {
+  margin: 12px 0 0;
+  color: var(--color-textMuted);
+  font-size: 0.85rem;
+}
+.dialog__note--warning {
+  color: var(--color-text);
+}
+/* Spielprotokoll: eine Zeile je Modus, Zahlen rechtsbuendig und tabellarisch. */
+.game-log {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.game-log th,
+.game-log td {
+  padding: 6px 4px;
+  text-align: left;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+.game-log th {
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-textMuted);
+}
+/* Elementselektor schlaegt Klasse - deshalb hier ausdruecklich mit td/th. */
+.game-log td.game-log__number,
+.game-log th.game-log__number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.game-log td.game-log__when,
+.game-log th.game-log__when {
+  text-align: right;
+  color: var(--color-textMuted);
+  white-space: nowrap;
+}
+.game-log tfoot td {
+  border-bottom: none;
+  font-weight: 700;
+}
 .dialog__actions {
   display: flex;
   justify-content: flex-end;
@@ -1011,9 +1054,16 @@ select {
   margin-top: auto;
   padding: 0 16px;
   background: var(--color-tile);
+  /* Diagnose links, Spielprotokoll rechts aussen. */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
 }
 .app-footer .diagnostics {
   padding: 0;
+  flex: 1;
+  min-width: 0;
 }
 .app-footer .diagnostics summary {
   padding: 10px 0;

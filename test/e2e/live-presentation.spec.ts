@@ -154,3 +154,26 @@ test('ohne Buehnenfenster gibt der Operator den Ton aus und tritt ihn danach ab'
   await stage.close()
   await expect(audioState).toHaveAttribute('data-audio-master', 'true')
 })
+
+test('das Spielprotokoll zaehlt gespielte Spiele und laesst sich zuruecksetzen', async ({ page }) => {
+  const operator = await openOperator(page)
+  await startGame(operator)
+
+  await operator.getByRole('button', { name: 'Spielprotokoll' }).click()
+  const dialog = operator.locator('.dialog')
+  await expect(dialog).toBeVisible()
+
+  // Jeder konfigurierte Modus steht in der Tabelle, auch ohne Spiel.
+  const rows = dialog.locator('.game-log tbody tr')
+  expect(await rows.count()).toBeGreaterThan(1)
+  const adults = rows.filter({ hasText: 'Erwachsene' })
+  expect(Number(await adults.locator('td').nth(1).textContent())).toBeGreaterThan(0)
+
+  // Zuruecksetzen ist zweistufig - in derselben Flaeche, ohne zweites Popup.
+  await dialog.getByRole('button', { name: 'Protokoll zurücksetzen' }).click()
+  await dialog.getByRole('button', { name: 'Wirklich zurücksetzen' }).click()
+  await expect(adults.locator('td').nth(1)).toHaveText('0')
+
+  await dialog.getByRole('button', { name: 'Schließen' }).click()
+  await expect(operator.locator('.dialog')).toHaveCount(0)
+})

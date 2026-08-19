@@ -96,6 +96,8 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('DISCARD_RESUMABLE_GAME') }),
   /** Neuen Veranstaltungstag beginnen (setzt die Wiederholungshistorie zurueck). */
   z.object({ type: z.literal('START_NEW_EVENT_DAY') }),
+  /** Setzt die Zaehlung des Spielprotokolls zurueck. Spiele werden nicht geloescht. */
+  z.object({ type: z.literal('RESET_GAME_STATISTICS') }),
   /** Lokaler Live-Hotfix an einer Frage. Das Basispaket bleibt unveraendert. */
   z.object({
     type: z.literal('APPLY_QUESTION_PATCH'),
@@ -165,6 +167,7 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   DISCARD_RESUMABLE_GAME: ['operator'],
   START_NEW_EVENT_DAY: ['operator'],
   APPLY_QUESTION_PATCH: ['operator'],
+  RESET_GAME_STATISTICS: ['operator'],
 }
 
 export function roleMayIssue(role: ActorRole, type: CommandType): boolean {

@@ -60,6 +60,8 @@ export interface QuizServiceOptions {
 }
 
 const SETTING_SOUND = 'sound-enabled'
+/** Ab wann das Spielprotokoll zaehlt. Fehlt der Wert, zaehlt es seit jeher. */
+const SETTING_STATISTICS_SINCE = 'statistics-since'
 const SETTING_CONTENT_VERSION = 'active-content-version'
 
 export class QuizService {
@@ -291,6 +293,25 @@ export class QuizService {
         return { ok: true, revision: this.currentRevision }
       }
 
+      case 'RESET_GAME_STATISTICS': {
+        /*
+         * Zurueckgesetzt wird die ZAEHLUNG, nicht der Bestand: Spielstaende,
+         * Versuche und Auditlog haengen an denselben Zeilen. Ab jetzt zaehlt das
+         * Protokoll neu.
+         */
+        const sinceIso = new Date(nowMs).toISOString()
+        this.store.setSetting(SETTING_STATISTICS_SINCE, sinceIso)
+        this.store.appendAudit({
+          atMs: nowMs,
+          actorRole: envelope.actor.role,
+          actorClientId: envelope.actor.clientId,
+          category: 'system',
+          message: 'Spielprotokoll zurückgesetzt. Die Zählung beginnt neu.',
+        })
+        this.notify()
+        return { ok: true, revision: this.currentRevision }
+      }
+
       case 'START_NEW_EVENT_DAY': {
         if (this.state?.status === 'active') {
           return this.rejectAndRecord(
@@ -449,7 +470,8 @@ export class QuizService {
   }
 
   private projectionContext(): ProjectionContext {
-    const additional: CommandType[] = ['START_NEW_EVENT_DAY', 'APPLY_QUESTION_PATCH']
+    const additional: CommandType[] = ['START_NEW_EVENT_DAY', 'APPLY_QUESTION_PATCH', 'RESET_GAME_STATISTICS']
+    const statisticsSince = this.store.getSetting(SETTING_STATISTICS_SINCE)
     if (this.resumable) additional.push('RESUME_GAME', 'DISCARD_RESUMABLE_GAME')
 
     return {
@@ -465,6 +487,8 @@ export class QuizService {
       lanUrls: this.lanUrls,
       warnings: this.warnings,
       soundEnabled: this.soundEnabled,
+      gameCounts: this.store.gameCountsByMode(statisticsSince),
+      statisticsSinceIso: statisticsSince ?? undefined,
       additionalOperatorCommands: additional,
       resumable: this.resumable
         ? {
@@ -551,6 +575,7 @@ const serviceCommands = new Set<CommandType>([
   'DISCARD_RESUMABLE_GAME',
   'START_NEW_EVENT_DAY',
   'APPLY_QUESTION_PATCH',
+  'RESET_GAME_STATISTICS',
 ])
 
 function isServiceCommand(type: CommandType): boolean {

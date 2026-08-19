@@ -1,15 +1,11 @@
 /**
  * Rueckfrage vor einer Handlung, die sich nicht zuruecknehmen laesst.
  *
- * Bewusst kein `confirm()` des Browsers: Das steht ausserhalb der Anwendung,
- * traegt deren Gestaltung nicht und sieht auf einem Veranstaltungsrechner aus
- * wie ein Fehler. Dieser Dialog liegt im Fenster, folgt dem Farbsystem und
- * benennt die Folge der Handlung.
- *
- * Bedienung: `Escape` bricht ab, der Fokus liegt beim Oeffnen auf der
- * Abbrechen-Taste - die gefaehrliche Handlung ist nie versehentlich ausloesbar.
+ * Der Fokus liegt beim Oeffnen auf `Abbrechen` - es steht als erste Taste in der
+ * Fussleiste, und `Dialog` fokussiert genau diese. Die gefaehrliche Handlung ist
+ * damit nie versehentlich mit der Eingabetaste ausloesbar.
  */
-import { useEffect, useRef } from 'react'
+import { Dialog } from './Dialog.tsx'
 
 interface ConfirmDialogProps {
   title: string
@@ -29,37 +25,23 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const cancelRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    cancelRef.current?.focus()
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCancel()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onCancel])
-
   return (
-    <div className="dialog-backdrop" role="presentation" onClick={onCancel}>
-      <div
-        className="dialog"
-        role="alertdialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h2 className="dialog__title">{title}</h2>
-        <p className="dialog__message">{message}</p>
-        <div className="dialog__actions">
-          <button ref={cancelRef} className="button" onClick={onCancel}>
+    <Dialog
+      title={title}
+      role="alertdialog"
+      onClose={onCancel}
+      actions={
+        <>
+          <button className="button" onClick={onCancel}>
             {cancelLabel}
           </button>
           <button className="button button--primary" onClick={onConfirm}>
             {confirmLabel}
           </button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <p className="dialog__message">{message}</p>
+    </Dialog>
   )
 }

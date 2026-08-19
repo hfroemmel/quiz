@@ -306,6 +306,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'RESUME_GAME':
     case 'DISCARD_RESUMABLE_GAME':
     case 'START_NEW_EVENT_DAY':
+    case 'RESET_GAME_STATISTICS':
     case 'APPLY_QUESTION_PATCH':
       // Betriebs- und Wiederherstellungsbefehle sind bewusst keine Spielregeln.
       // Sie werden in der Anwendungsschicht (`@quiz/server`) behandelt, weil sie

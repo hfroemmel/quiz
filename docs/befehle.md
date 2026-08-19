@@ -62,6 +62,7 @@ interface CommandEnvelope {
 | `DISCARD_RESUMABLE_GAME` | operator | ja |
 | `START_NEW_EVENT_DAY` | operator | ja |
 | `APPLY_QUESTION_PATCH` | operator | ja |
+| `RESET_GAME_STATISTICS` | operator | ja |
 
 ## Warum manche Befehle ohne Revisionspruefung laufen
 

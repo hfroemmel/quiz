@@ -16,7 +16,7 @@ Die Laufzeitdatenbank ist SQLite und liegt standardmaessig unter
 | `processed_commands` | bereits verarbeitete Command-IDs (Idempotenz) |
 | `question_patches` | lokale Live-Hotfixes mit altem und neuem Wert |
 | `audit_log` | Auditlog aller Ereignisse |
-| `settings` | Soundstatus, aktive Paketversion |
+| `settings` | Soundstatus, aktive Paketversion, Startpunkt des Spielprotokolls |
 | `schema_migrations` | angewendete Migrationen |
 
 ## Transaktionen
@@ -81,6 +81,23 @@ Die Wiederholungshistorie gilt global fuer einen Veranstaltungstag - unabhaengig
 Modus und Preset. Ein Kalendertagwechsel setzt ein **laufendes** Spiel nicht zurueck:
 Der Wechsel erfolgt nur, wenn gerade kein aktives Spiel existiert. Der Operator kann
 ueber „Neuen Veranstaltungstag beginnen“ bewusst neu starten.
+
+## Spielprotokoll
+
+Wie viele Spiele je Quizmodus gelaufen sind, ergibt sich aus der Tabelle `games` -
+es gibt dafuer keine zweite Zaehlung, die auseinanderlaufen koennte. Gezaehlt wird
+ueber Veranstaltungstage hinweg; das Protokoll beantwortet "was haben wir mit
+diesem Aufbau schon gespielt", nicht "was lief heute".
+
+Weil die Zahlen in der Datenbank des Servers stehen und nicht im Browser,
+ueberleben sie das Schliessen des Fensters, einen Neustart der Anwendung und
+einen Wechsel des Bediengeraets.
+
+`RESET_GAME_STATISTICS` setzt die **Zaehlung** zurueck, nicht den Bestand: Der
+Befehl schreibt den aktuellen Zeitpunkt nach `settings.statistics-since`, und die
+Auswertung zaehlt nur noch Spiele ab diesem Zeitpunkt. Zeilen aus `games` zu
+loeschen waere keine Alternative - an ihnen haengen Spielstand, Versuche,
+Punktebuchungen und Auditlog.
 
 ## Sicherung waehrend der Veranstaltung
 
