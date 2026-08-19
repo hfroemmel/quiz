@@ -121,8 +121,8 @@ zuzudecken. Ein Token mit deckender Farbe wuerde die Tiefe sofort zerstoeren.
 ### Unscharfes Fragebild als Hintergrund
 
 Hinter jeder Szene mit Bild liegt dasselbe Bild formatfuellend, stark
-weichgezeichnet (`blur(3cqw)`), abgedunkelt (`brightness(0.5)`) und mit einem
-Farbschleier aus `stageTop`/`stageBottom` bei 82 % Deckkraft ueberzogen. Jede
+weichgezeichnet (`blur(3cqw)`), abgedunkelt (`brightness(0.72)`) und mit einem
+Farbschleier aus `stageTop`/`stageBottom` bei 66 % Deckkraft ueberzogen. Jede
 Frage bekommt damit ihre eigene Atmosphaere, ohne dass Text an Ruhe verliert.
 
 Doppelt abgedunkelt wird bewusst am Bild UND am Schleier: Die Fragenbilder
@@ -130,8 +130,9 @@ reichen von der Nachtaufnahme bis zum wolkenlosen Sommerhimmel, und ein heller
 Himmel wuerde die Buehne sonst ins Milchige kippen.
 
 **Waehrend der Bildenthuellung** ist derselbe Hintergrund viel staerker
-weichgezeichnet (`blur(9cqw)`, `brightness(0.35)`, Schleier 92 %). Die Aufgabe
-ist dort, das Motiv zu erkennen; der Hintergrund darf keine Silhouette verraten.
+weichgezeichnet (`blur(9cqw)`, `brightness(0.5)`, Schleier 84 %). Die Aufgabe
+ist dort, das Motiv zu erkennen; der Hintergrund darf keine Silhouette verraten -
+9 cqw sind auf einem 1920er Beamer rund 170 Pixel Weichzeichnung.
 
 ### Radien und Schatten
 

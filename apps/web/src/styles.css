@@ -370,7 +370,7 @@ select {
    * vom kuehlen Dunkel ins Milchige kippen - gepruefte Fragenbilder reichen von
    * Nachtaufnahme bis Schneelandschaft.
    */
-  filter: blur(3cqw) saturate(0.85) brightness(0.5);
+  filter: blur(3cqw) saturate(1) brightness(0.72);
   pointer-events: none;
 }
 .stage__backdrop::after {
@@ -378,7 +378,7 @@ select {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
-  opacity: 0.82;
+  opacity: 0.66;
 }
 /*
  * Waehrend der Bildenthuellung: viel staerker weichgezeichnet und staerker
@@ -386,10 +386,10 @@ select {
  * dabei keine Silhouette verraten.
  */
 .stage__backdrop--veiled {
-  filter: blur(9cqw) saturate(0.7) brightness(0.35);
+  filter: blur(9cqw) saturate(0.9) brightness(0.5);
 }
 .stage__backdrop--veiled::after {
-  opacity: 0.92;
+  opacity: 0.84;
 }
 /* Alles Inhaltliche liegt ueber dem Hintergrund. */
 .stage-header,
