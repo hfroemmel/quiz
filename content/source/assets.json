@@ -708,9 +708,8 @@
   {
     "id": "img-197",
     "kind": "image",
-    "filename": "questions/1fc_saarbrucken.jpg",
-    "mimeType": "image/jpeg",
-    "credit": "vectorportal.com"
+    "filename": "questions/FCS-Mannschaftsfoto_24_25.jpeg",
+    "mimeType": "image/jpeg"
   },
   {
     "id": "img-198",
@@ -722,7 +721,7 @@
   {
     "id": "img-199",
     "kind": "image",
-    "filename": "questions/Luftbild_Bostalsee_09.jpg",
+    "filename": "questions/Luftbild_Bostalsee_09.jpeg",
     "mimeType": "image/jpeg",
     "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
   },

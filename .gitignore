@@ -18,6 +18,10 @@ runtime/
 content/incoming/
 # Migrationsvorschlaege aus den Legacy-Quellen: brauchen menschliche Freigabe
 content/migrated/
+# Fragenbilder im gebauten Paket: unveraenderte Kopien aus
+# content/source/assets/questions. Sie wuerden das Repository verdoppeln und
+# entstehen bei jedem "pnpm content:build" neu.
+content/dist/assets/questions/
 
 # Playwright
 test-results/

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "1.0.5",
-  "createdAt": "2026-08-19T07:53:01.247Z",
+  "contentVersion": "1.0.6",
+  "createdAt": "2026-08-19T07:59:30.771Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
   "assets": [
@@ -10,1328 +10,1519 @@
       "kind": "image",
       "filename": "questions/europe-1395916_1920.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay/Greg Montani"
+      "credit": "Pixabay/Greg Montani",
+      "checksum": "d55a462963c6153a54ed04e62d06c867"
     },
     {
       "id": "img-1",
       "kind": "image",
       "filename": "questions/1.1.reichstagsgebaeude.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "849a5956836c9bd3017d6e682751f2d4"
     },
     {
       "id": "img-10",
       "kind": "image",
       "filename": "questions/6.2.DeutscherBundestag.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Marc-Steffen Unger"
+      "credit": "Deutscher Bundestag/Marc-Steffen Unger",
+      "checksum": "541f1716a1756d4ddbe914572db0ff85"
     },
     {
       "id": "img-100",
       "kind": "image",
       "filename": "questions/2917446.JPG",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Sylvia Bohn"
+      "credit": "© DBT/Sylvia Bohn",
+      "checksum": "2023ba0fb80525df114c91f967be72ca"
     },
     {
       "id": "img-101",
       "kind": "image",
       "filename": "questions/2756897.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Sylvia Bohn"
+      "credit": "© DBT/Sylvia Bohn",
+      "checksum": "d61d6e40c7590a4f93c2931d83dbbf00"
     },
     {
       "id": "img-102",
       "kind": "image",
       "filename": "questions/2708699.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Sylvia Bohn"
+      "credit": "© DBT/Sylvia Bohn",
+      "checksum": "91dc456dfd6469ec862ec00c26238d71"
     },
     {
       "id": "img-103",
       "kind": "image",
       "filename": "questions/2917446.JPG",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Silvia Bohn"
+      "credit": "© DBT/Silvia Bohn",
+      "checksum": "2023ba0fb80525df114c91f967be72ca"
     },
     {
       "id": "img-104",
       "kind": "image",
       "filename": "questions/GregorGysi_TobiasKoch.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Tobias Koch"
+      "credit": "© DBT/Tobias Koch",
+      "checksum": "b2738bd4362205c1dd40e7ec02ad8485"
     },
     {
       "id": "img-105",
       "kind": "image",
       "filename": "questions/5005975.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Xander Heinl/photothek"
+      "credit": "© DBT/Xander Heinl/photothek",
+      "checksum": "baaa776765b84942e40d8d51640637b5"
     },
     {
       "id": "img-106",
       "kind": "image",
       "filename": "questions/82_SitzverteilungWP21.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "1029ae169d00e8753a21ba9fd5d8aa06"
     },
     {
       "id": "img-107",
       "kind": "image",
       "filename": "questions/1924838.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Slomifoto"
+      "credit": "© Slomifoto",
+      "checksum": "526f197131027fb2973b2bb4e1971e10"
     },
     {
       "id": "img-109",
       "kind": "image",
       "filename": "questions/82_SitzverteilungWP21.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "1029ae169d00e8753a21ba9fd5d8aa06"
     },
     {
       "id": "img-11",
       "kind": "image",
       "filename": "questions/l17_traffic-light-2731969_1280.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "688a6cb81e70911bd7009774294253a3"
     },
     {
       "id": "img-110",
       "kind": "image",
       "filename": "questions/Julia_Kloeckner_Tobias_Koch.JPG",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Tobias Koch"
+      "credit": "© DBT/Tobias Koch",
+      "checksum": "f9a9cb107bf9f1ec3d154fc73daf2a31"
     },
     {
       "id": "img-111",
       "kind": "image",
       "filename": "questions/loebe_bild.jpg",
       "mimeType": "image/jpeg",
-      "credit": "picture-alliance/dpa | Giehr"
+      "credit": "picture-alliance/dpa | Giehr",
+      "checksum": "41bcb411d73b65b66a7de42a456a3804"
     },
     {
       "id": "img-112",
       "kind": "image",
       "filename": "questions/2772039.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/ Presse-Service Steponaitis"
+      "credit": "© DBT/ Presse-Service Steponaitis",
+      "checksum": "51c73587912beaa1e016069f251243c3"
     },
     {
       "id": "img-114",
       "kind": "image",
       "filename": "questions/3832828.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Achim Melde"
+      "credit": "© DBT/Achim Melde",
+      "checksum": "8974ae7c73f86a2f34ce31f98c37b454"
     },
     {
       "id": "img-115",
       "kind": "image",
       "filename": "questions/5018180.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Xander Heinl/photothek"
+      "credit": "© DBT/Xander Heinl/photothek",
+      "checksum": "63cd6a8686801ea7d96da0a0d8480566"
     },
     {
       "id": "img-116",
       "kind": "image",
       "filename": "questions/3856446.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Achim Melde"
+      "credit": "© DBT/Achim Melde",
+      "checksum": "7d16eefe22e7f1952bc164a7e9f8c289"
     },
     {
       "id": "img-117",
       "kind": "image",
       "filename": "questions/friedrich-merz.png",
       "mimeType": "image/png",
-      "credit": "© 2023 CDU Nordrhein-Westfalen"
+      "credit": "© 2023 CDU Nordrhein-Westfalen",
+      "checksum": "f4204ab083925dc12ac01c7496914aaf"
     },
     {
       "id": "img-118",
       "kind": "image",
       "filename": "questions/2484373_DBT-Werner_Schuering.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Werner Schüring"
+      "credit": "© DBT/Werner Schüring",
+      "checksum": "6c63449cb20f77b882f8f83c121fbe3f"
     },
     {
       "id": "img-119",
       "kind": "image",
       "filename": "questions/2534419.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Katrin Neuhauser"
+      "credit": "© DBT/Katrin Neuhauser",
+      "checksum": "a6a8afb69527824fed7008f066878004"
     },
     {
       "id": "img-12",
       "kind": "image",
       "filename": "questions/7.1.Bundetagssadler.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Lichtblick/Achim Melde"
+      "credit": "Deutscher Bundestag/Lichtblick/Achim Melde",
+      "checksum": "f063f953ef831f5233f2621f0bea9998"
     },
     {
       "id": "img-120",
       "kind": "image",
       "filename": "questions/1.19_3082483.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Pixabay"
+      "credit": "© Pixabay",
+      "checksum": "395067e5ec5739a0885a27c4c8c82e87"
     },
     {
       "id": "img-121",
       "kind": "image",
       "filename": "questions/5009341.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Thomas Trutschel/photothek"
+      "credit": "© DBT/Thomas Trutschel/photothek",
+      "checksum": "b9a4e3b76e580bc399bf6f4eb9752dd4"
     },
     {
       "id": "img-122",
       "kind": "image",
       "filename": "questions/1.318_5004780.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Werner Schüring"
+      "credit": "© DBT/Werner Schüring",
+      "checksum": "44f635fece29b2804cb81deb637546af"
     },
     {
       "id": "img-123",
       "kind": "image",
       "filename": "questions/2708699.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Sylvia Bohn"
+      "credit": "© DBT/Sylvia Bohn",
+      "checksum": "91dc456dfd6469ec862ec00c26238d71"
     },
     {
       "id": "img-124",
       "kind": "image",
       "filename": "questions/banaszak_felix_gross.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Bündnis 90/Die Grünen NRW/Cornelis Gollhardt"
+      "credit": "© Bündnis 90/Die Grünen NRW/Cornelis Gollhardt",
+      "checksum": "47574dc03827477d72b33a2137ea9617"
     },
     {
       "id": "img-125",
       "kind": "image",
       "filename": "questions/reichstag1896.jpg",
       "mimeType": "image/jpeg",
-      "credit": "picture-alliance/akg-images"
+      "credit": "picture-alliance/akg-images",
+      "checksum": "10e9c5ce20d7e1dc02808c7ea2ce873a"
     },
     {
       "id": "img-126",
       "kind": "image",
       "filename": "questions/5008872.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Thomas Trutschel/photothek"
+      "credit": "© Thomas Trutschel/photothek",
+      "checksum": "1d6659f64e5f0879c385b062bd74883f"
     },
     {
       "id": "img-127",
       "kind": "image",
       "filename": "questions/2917446.JPG",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Silvia Bohn"
+      "credit": "© DBT/Silvia Bohn",
+      "checksum": "2023ba0fb80525df114c91f967be72ca"
     },
     {
       "id": "img-128",
       "kind": "image",
       "filename": "questions/5019426.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Werner Schüring"
+      "credit": "© DBT/Werner Schüring",
+      "checksum": "078859960549f337d38a3766a355462b"
     },
     {
       "id": "img-129",
       "kind": "image",
       "filename": "questions/fcbundestag_web_bild_05_team.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Studio Kohlmeier"
+      "credit": "© Studio Kohlmeier",
+      "checksum": "5d7bf73808f54f2a4340beb636fae143"
     },
     {
       "id": "img-13",
       "kind": "image",
       "filename": "questions/1.2.PaulLoebeHaus.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Friederike Schleinitz"
+      "credit": "Deutscher Bundestag/Friederike Schleinitz",
+      "checksum": "3006d8b0883ed12ad96e0b1b05d10e49"
     },
     {
       "id": "img-130",
       "kind": "image",
       "filename": "questions/m11_Stimmzettel.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Detlef Surrey"
+      "credit": "© Detlef Surrey",
+      "checksum": "82be86bc50df23309d9a9098791bdb1c"
     },
     {
       "id": "img-131",
       "kind": "image",
       "filename": "questions/5.1.kuppel.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundesta /MELDEPRESS/Michael Ebner"
+      "credit": "© Deutscher Bundesta /MELDEPRESS/Michael Ebner",
+      "checksum": "90d9f49c441817379c24b1b984fb10b4"
     },
     {
       "id": "img-132",
       "kind": "image",
       "filename": "questions/2.2.Plenarsaal.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "65807620e9f7656779959a83bcd75fef"
     },
     {
       "id": "img-133",
       "kind": "image",
       "filename": "questions/1.21_5008701.JPG",
       "mimeType": "image/jpeg",
-      "credit": "© gemeinfrei"
+      "credit": "© gemeinfrei",
+      "checksum": "042d1daf348592167be9de52e8337cd9"
     },
     {
       "id": "img-134",
       "kind": "image",
       "filename": "questions/1.1.reichstagsgebaeude.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "849a5956836c9bd3017d6e682751f2d4"
     },
     {
       "id": "img-135",
       "kind": "image",
       "filename": "questions/1.1.reichstagsgebaeude.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "849a5956836c9bd3017d6e682751f2d4"
     },
     {
       "id": "img-136",
       "kind": "image",
       "filename": "questions/Langer_Eugen.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© CC BY-SA 4.0/Wolkenkratzer"
+      "credit": "© CC BY-SA 4.0/Wolkenkratzer",
+      "checksum": "6132ce0ee115604d8fd4f52d1e3e99cc"
     },
     {
       "id": "img-137",
       "kind": "image",
       "filename": "questions/Sandra80er.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "© Blank & Jones"
+      "credit": "© Blank & Jones",
+      "checksum": "d862ae0d663b5c7518d23e7d3e1c0537"
     },
     {
       "id": "img-138",
       "kind": "image",
       "filename": "questions/Rehlinger.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Raimond Spekking"
+      "credit": "© Raimond Spekking",
+      "checksum": "b5bcff3c365bb2c626cc2436429ea845"
     },
     {
       "id": "img-139",
       "kind": "image",
       "filename": "questions/Alte_Bruecke.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wolfgang Staudt, flickr"
+      "credit": "© Wolfgang Staudt, flickr",
+      "checksum": "dc3de8287fdae5b1119df3a8e7ef68fa"
     },
     {
       "id": "img-14",
       "kind": "image",
       "filename": "questions/l7_Aufgaben_Bundestag.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Achim Melde"
+      "credit": "Deutscher Bundestag/Achim Melde",
+      "checksum": "f2cd28c3d5c77c03d64008fc76cf8caa"
     },
     {
       "id": "img-140",
       "kind": "image",
       "filename": "questions/Ludwigskirche_bei_Nacht_Haupteingang.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Alexander Spät"
+      "credit": "© Alexander Spät",
+      "checksum": "8dd9e4287fc429ee61318f92b0b1b4cc"
     },
     {
       "id": "img-141",
       "kind": "image",
       "filename": "questions/Saarbruecken_St_Johanner_Markt_Brunnen.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "e8ee9d22f777088187d9df5c8139b084"
     },
     {
       "id": "img-142",
       "kind": "image",
       "filename": "questions/Saarbruecken_Halberg.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "ddcae10acf97676e09fe83fe1a7ee93a"
     },
     {
       "id": "img-143",
       "kind": "image",
       "filename": "questions/voelklinger_huette.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© itoldya420.getarchive.net"
+      "credit": "© itoldya420.getarchive.net",
+      "checksum": "5dcf83ba130d42c519e451db526205f5"
     },
     {
       "id": "img-144",
       "kind": "image",
       "filename": "questions/Moselgebiet.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Valentina Patzlaff"
+      "credit": "© Valentina Patzlaff",
+      "checksum": "fa059ac971fd9a3ac1c8791c4d53601a"
     },
     {
       "id": "img-145",
       "kind": "image",
       "filename": "questions/Bliesgau_Biosphaerenreservat.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "dd91eaf2ac8b6e9377a5698cfb00317c"
     },
     {
       "id": "img-146",
       "kind": "image",
       "filename": "questions/Landtag_Saarbruecken.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "44350aac3c2b41779246c84c0c60b3f6"
     },
     {
       "id": "img-147",
       "kind": "image",
       "filename": "questions/Ford_Plant_Saarlouis.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "© Ford_Plant_Saarlouis"
+      "credit": "© Ford_Plant_Saarlouis",
+      "checksum": "c46737abe2370438a32d1ec43ad496e3"
     },
     {
       "id": "img-148",
       "kind": "image",
       "filename": "questions/Festival_Perspectives.png",
-      "mimeType": "image/png"
+      "mimeType": "image/png",
+      "checksum": "6542ac4ef60cf1fd0b268db484680dd2"
     },
     {
       "id": "img-149",
       "kind": "image",
       "filename": "questions/Schwarzenbergturm_2015.jpeg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "d6f9689573a124b46674d58d9a49c2bb"
     },
     {
       "id": "img-15",
       "kind": "image",
       "filename": "questions/l10_Partei_DBT.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "17ba5e7fb8cc4367f9171d4babb200d1"
     },
     {
       "id": "img-150",
       "kind": "image",
       "filename": "questions/Gersweiler.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© David Rasp"
+      "credit": "© David Rasp",
+      "checksum": "75b1ecb5f207a929de7341c4f8f7fc0e"
     },
     {
       "id": "img-151",
       "kind": "image",
       "filename": "questions/Sprachgrenze.jpg",
       "mimeType": "image/jpeg",
-      "credit": "www.saar-nostalgie.de"
+      "credit": "www.saar-nostalgie.de",
+      "checksum": "6706cd61814179b162144c683bce808e"
     },
     {
       "id": "img-152",
       "kind": "image",
       "filename": "questions/Saarschleife.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wolfgang Staudt"
+      "credit": "© Wolfgang Staudt",
+      "checksum": "5fcec9781dc210bcbe0ed21fcc10ffc0"
     },
     {
       "id": "img-153",
       "kind": "image",
       "filename": "questions/sm-logo-ohneclaim-quer-png-1.png",
-      "mimeType": "image/png"
+      "mimeType": "image/png",
+      "checksum": "a90f0f0a758a67f9138e82009de6455a"
     },
     {
       "id": "img-154",
       "kind": "image",
       "filename": "questions/Locator_map_Saarland_in_Germany.jpeg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "b2720da163e0c383e5532bc36ff15b59"
     },
     {
       "id": "img-155",
       "kind": "image",
       "filename": "questions/Landtag_Saarbruecken.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "44350aac3c2b41779246c84c0c60b3f6"
     },
     {
       "id": "img-156",
       "kind": "image",
       "filename": "questions/Saarschleife2.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "b3347c23c2d8e857bdd7816912fead12"
     },
     {
       "id": "img-157",
       "kind": "image",
       "filename": "questions/Locator_map_Saarland_in_Germany.jpeg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "b2720da163e0c383e5532bc36ff15b59"
     },
     {
       "id": "img-158",
       "kind": "image",
       "filename": "questions/Saarschleife.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wolfgang Staudt"
+      "credit": "© Wolfgang Staudt",
+      "checksum": "5fcec9781dc210bcbe0ed21fcc10ffc0"
     },
     {
       "id": "img-159",
       "kind": "image",
       "filename": "questions/Stadtwappen_Saarbruecken.png",
       "mimeType": "image/png",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "b38789825337ea4a4ed896b5c526305b"
     },
     {
       "id": "img-16",
       "kind": "image",
       "filename": "questions/l14_Bundespraesidialamt.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Presse- und Informationsamt der Bundesregierung (BPA)/Guido Bergmann"
+      "credit": "Presse- und Informationsamt der Bundesregierung (BPA)/Guido Bergmann",
+      "checksum": "ab21d118a8c3582b3546cfc2ed0b918a"
     },
     {
       "id": "img-160",
       "kind": "image",
       "filename": "questions/Saarschleife2.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "b3347c23c2d8e857bdd7816912fead12"
     },
     {
       "id": "img-161",
       "kind": "image",
       "filename": "questions/keramik.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "22379715018222ffc603fda8dedd8302"
     },
     {
       "id": "img-162",
       "kind": "image",
       "filename": "questions/besenginster.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "c435c4551ffa0e085777c3ad6ff768ea"
     },
     {
       "id": "img-167",
       "kind": "image",
       "filename": "questions/Louis_XIV_crosses_the_Rhine_at_Lobith.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Adam Frans van der Meulen - Rijksmuseum, Amsterdam. SK-A-3753"
+      "credit": "Adam Frans van der Meulen - Rijksmuseum, Amsterdam. SK-A-3753",
+      "checksum": "56540799510ff47d8173039f9d947af7"
     },
     {
       "id": "img-17",
       "kind": "image",
       "filename": "questions/l18_gewaltenteilung.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "495f99c16f35c7857dcffe85eb99ff93"
     },
     {
       "id": "img-171",
       "kind": "image",
       "filename": "questions/maas-heiko_0.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Photothek"
+      "credit": "© Photothek",
+      "checksum": "235c61f2c69b38d2a907aa5d57ac9e96"
     },
     {
       "id": "img-172",
       "kind": "image",
       "filename": "questions/Peter_Altmaier.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "89b6e464f2483f9bb6c93dfbb9899e6e"
     },
     {
       "id": "img-173",
       "kind": "image",
       "filename": "questions/Becker.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Eckhard Henkel / Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Eckhard Henkel / Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "634f44c1579a174045d719ea7a86a716"
     },
     {
       "id": "img-174",
       "kind": "image",
       "filename": "questions/old-bridge-607907_1280.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Susanna Bur from Pixabay"
+      "credit": "© Susanna Bur from Pixabay",
+      "checksum": "d83c73e8151539923b736833fd1d7006"
     },
     {
       "id": "img-175",
       "kind": "image",
       "filename": "questions/Nationalmannschaft2d.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Ferdi Hartung"
+      "credit": "© Ferdi Hartung",
+      "checksum": "2b77a122c542ffb7a1fe3a28fd499b44"
     },
     {
       "id": "img-176",
       "kind": "image",
       "filename": "questions/flagge_saarstaat.png",
       "mimeType": "image/png",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "d73eba556a1c1ad173fddc8aa588a033"
     },
     {
       "id": "img-177",
       "kind": "image",
       "filename": "questions/OskarLafontaine.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Steffen Prößdorf, CC BY-SA 4.0"
+      "credit": "Steffen Prößdorf, CC BY-SA 4.0",
+      "checksum": "c1666846c10ff63e8b9f21c43cad9916"
     },
     {
       "id": "img-178",
       "kind": "image",
       "filename": "questions/voelkiHuette.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© CC BY-NC-SA 2.0"
+      "credit": "© CC BY-NC-SA 2.0",
+      "checksum": "bd7e196c68d793c4a44bee533f53c5ae"
     },
     {
       "id": "img-179",
       "kind": "image",
       "filename": "questions/GeometrischerGrundrissL1070581.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Stadtarchiv Saarbrücken"
+      "credit": "© Stadtarchiv Saarbrücken",
+      "checksum": "d5ccfe55a9d1886f6fa5ea9665720cdb"
     },
     {
       "id": "img-18",
       "kind": "image",
       "filename": "questions/1.6.Ausschusssitzungssaal.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Thomas Imo/photothek.net"
+      "credit": "Deutscher Bundestag/Thomas Imo/photothek.net",
+      "checksum": "63024268acf2d12e0b9b10dabae06039"
     },
     {
       "id": "img-180",
       "kind": "image",
       "filename": "questions/alteBruecke_Saarbruecken.JPG",
       "mimeType": "image/jpeg",
-      "credit": "gemeinfrei"
+      "credit": "gemeinfrei",
+      "checksum": "8fed44f599cc4b53ac13b8d1705b348e"
     },
     {
       "id": "img-181",
       "kind": "image",
       "filename": "questions/saarbrucken-5282948_1280.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Alexander Fox | PlaNet Fox from Pixabay"
+      "credit": "© Alexander Fox | PlaNet Fox from Pixabay",
+      "checksum": "a5e721cb8434df436c590ad779a06348"
     },
     {
       "id": "img-182",
       "kind": "image",
       "filename": "questions/Stiring-Wendel.png",
       "mimeType": "image/png",
-      "credit": "© Marlboro55"
+      "credit": "© Marlboro55",
+      "checksum": "5d0271fc03c8ffb5390b6ab94fa13198"
     },
     {
       "id": "img-183",
       "kind": "image",
       "filename": "questions/img_abstimmung1955.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© dpa | Göttert"
+      "credit": "© dpa | Göttert",
+      "checksum": "9e00c90430a2022e9eb57225a452aa26"
     },
     {
       "id": "img-184",
       "kind": "image",
       "filename": "questions/Oben-auf-dem-Wall.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© www.dieweltenbummler.de"
+      "credit": "© www.dieweltenbummler.de",
+      "checksum": "7457fa6ddd0ac58607523031d646b6a6"
     },
     {
       "id": "img-185",
       "kind": "image",
       "filename": "questions/Annegret_Kramp-Karrenbauer.png",
       "mimeType": "image/png",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "6d2a19b7ec5a327ab7b23d502a7880ba"
     },
     {
       "id": "img-186",
       "kind": "image",
       "filename": "questions/SB-Rathaus.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "559dc41125a2c119146861bfe2262b28"
     },
     {
       "id": "img-187",
       "kind": "image",
       "filename": "questions/Gondwana_Park.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Gripweed"
+      "credit": "© Gripweed",
+      "checksum": "d8424ced91f1405ba1236e50281edf25"
     },
     {
       "id": "img-188",
       "kind": "image",
       "filename": "questions/Ludwigskirche_bei_Nacht_Haupteingang.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Alexander Spät"
+      "credit": "© Alexander Spät",
+      "checksum": "8dd9e4287fc429ee61318f92b0b1b4cc"
     },
     {
       "id": "img-189",
       "kind": "image",
       "filename": "questions/Saarbruecken_St_Johanner_Markt_Brunnen.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "e8ee9d22f777088187d9df5c8139b084"
     },
     {
       "id": "img-19",
       "kind": "image",
       "filename": "questions/5.5.Aeltestenrat.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Werner Schüring"
+      "credit": "Deutscher Bundestag/Werner Schüring",
+      "checksum": "a8004b15ee41d544a5183723e68ad7d3"
     },
     {
       "id": "img-190",
       "kind": "image",
       "filename": "questions/Ford_Plant_Saarlouis.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Ford_Plant_Saarlouis"
+      "credit": "© Ford_Plant_Saarlouis",
+      "checksum": "e577e0d4d2b74d42db24c927352d94b3"
     },
     {
       "id": "img-191",
       "kind": "image",
       "filename": "questions/Schwarzenbergturm_2015.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "d6f9689573a124b46674d58d9a49c2bb"
     },
     {
       "id": "img-192",
       "kind": "image",
       "filename": "questions/Saarschleife.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wolfgang Staudt"
+      "credit": "© Wolfgang Staudt",
+      "checksum": "5fcec9781dc210bcbe0ed21fcc10ffc0"
     },
     {
       "id": "img-193",
       "kind": "image",
       "filename": "questions/Locator_map_Saarland_in_Germany.jpeg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "b2720da163e0c383e5532bc36ff15b59"
     },
     {
       "id": "img-194",
       "kind": "image",
       "filename": "questions/Saarschleife2.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "b3347c23c2d8e857bdd7816912fead12"
     },
     {
       "id": "img-195",
       "kind": "image",
       "filename": "questions/Locator_map_Saarland_in_Germany.jpeg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "b2720da163e0c383e5532bc36ff15b59"
     },
     {
       "id": "img-196",
       "kind": "image",
       "filename": "questions/Stadtwappen_Saarbruecken.png",
       "mimeType": "image/png",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "b38789825337ea4a4ed896b5c526305b"
     },
     {
       "id": "img-197",
       "kind": "image",
-      "filename": "questions/1fc_saarbrucken.jpg",
+      "filename": "questions/FCS-Mannschaftsfoto_24_25.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "vectorportal.com"
+      "checksum": "cc90ff5e3caac617a63f010c2e2337f0"
     },
     {
       "id": "img-198",
       "kind": "image",
       "filename": "questions/Saarschleife.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wolfgang Staudt"
+      "credit": "© Wolfgang Staudt",
+      "checksum": "5fcec9781dc210bcbe0ed21fcc10ffc0"
     },
     {
       "id": "img-199",
       "kind": "image",
-      "filename": "questions/Luftbild_Bostalsee_09.jpg",
+      "filename": "questions/Luftbild_Bostalsee_09.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE"
+      "credit": "© Wikimedia Commons / CC BY-SA 3.0 DE",
+      "checksum": "bf6f4a99cf6f7451e627ca84145fc2a4"
     },
     {
       "id": "img-2",
       "kind": "image",
       "filename": "questions/2.2.Plenarsaal.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "65807620e9f7656779959a83bcd75fef"
     },
     {
       "id": "img-20",
       "kind": "image",
       "filename": "questions/s13_2758013.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "7155b995ad367bb6c0a451d4d15ccb19"
     },
     {
       "id": "img-200",
       "kind": "image",
       "filename": "questions/Alte_Bruecke.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Wolfgang Staudt, flickr"
+      "credit": "© Wolfgang Staudt, flickr",
+      "checksum": "dc3de8287fdae5b1119df3a8e7ef68fa"
     },
     {
       "id": "img-21",
       "kind": "image",
       "filename": "questions/s15_annemarie_renger.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Presse-Service Steponaitis"
+      "credit": "Deutscher Bundestag/Presse-Service Steponaitis",
+      "checksum": "6c0b764692c97250adeb397049a24490"
     },
     {
       "id": "img-22",
       "kind": "image",
       "filename": "questions/HenningOtto.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Michael M. Mey"
+      "credit": "Michael M. Mey",
+      "checksum": "c9e44ef68ca9737a58c6c8b5ca9ef447"
     },
     {
       "id": "img-23",
       "kind": "image",
       "filename": "questions/5003844.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Sylvia Bohn"
+      "credit": "Deutscher Bundestag/Sylvia Bohn",
+      "checksum": "34d19a7965d328fe30eebcc0f74fbea0"
     },
     {
       "id": "img-24",
       "kind": "image",
       "filename": "questions/s7_kuppel.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "17abfab18ad53c439e189511cf652824"
     },
     {
       "id": "img-25",
       "kind": "image",
       "filename": "questions/s1_volk.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "ecd9cea1a1808f12b1c78b8a9f757a15"
     },
     {
       "id": "img-26",
       "kind": "image",
       "filename": "questions/m1_abstimmung.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "675318329dadce69878831abbf6715dc"
     },
     {
       "id": "img-27",
       "kind": "image",
       "filename": "questions/s4_hammelsprung3.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "3a081c70d4e5c92af6ef87f6c36d2c8a"
     },
     {
       "id": "img-28",
       "kind": "image",
       "filename": "questions/s5_freieRede.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "f9d569486cee398c1613aa0f30c4eb06"
     },
     {
       "id": "img-29",
       "kind": "image",
       "filename": "questions/s8_Grundgesetz.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "678aeb564c6e6bc95cba0c3b5c8e1d58"
     },
     {
       "id": "img-3",
       "kind": "image",
       "filename": "questions/3.1.spree.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "d552c75d7d5104fc9ab7e820f190d714"
     },
     {
       "id": "img-30",
       "kind": "image",
       "filename": "questions/s11_Schmidt_2928296.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Presse-Service Steponaitis"
+      "credit": "Deutscher Bundestag/Presse-Service Steponaitis",
+      "checksum": "e0c1ff177f0d19a0ede0c7bfcedd2301"
     },
     {
       "id": "img-31",
       "kind": "image",
       "filename": "questions/s14_bundestag-2337174_1920.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "dbbba5af527a4237d24914d27adf258c"
     },
     {
       "id": "img-32",
       "kind": "image",
       "filename": "questions/BundesministerinKatherinaReiche.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Juliane Sonntag / photothek"
+      "credit": "Deutscher Bundestag/Juliane Sonntag / photothek",
+      "checksum": "69df7a9dab1a9d9c6e5b4756e57468a9"
     },
     {
       "id": "img-33",
       "kind": "image",
       "filename": "questions/s17_enquette_2083.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "fc1ab9567cb2bd3a57156e7de11e0f93"
     },
     {
       "id": "img-34",
       "kind": "image",
       "filename": "questions/82_SitzverteilungWP21.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "1029ae169d00e8753a21ba9fd5d8aa06"
     },
     {
       "id": "img-35",
       "kind": "image",
       "filename": "questions/m_11_bundestagsblau.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "21a9b7cc7a1d05fa8e6443b09fd61404"
     },
     {
       "id": "img-36",
       "kind": "image",
       "filename": "questions/Briefkasten.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Flickr/patric"
+      "credit": "Flickr/patric",
+      "checksum": "5103c43a514db2f3536088a2f94d4181"
     },
     {
       "id": "img-37",
       "kind": "image",
       "filename": "questions/s9_Bundesarchiv.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Bundesarchiv/Vollrath"
+      "credit": "Bundesarchiv/Vollrath",
+      "checksum": "aaf543c3692ae25b57cc3d49c256d92e"
     },
     {
       "id": "img-38",
       "kind": "image",
       "filename": "questions/20steWahlperiode.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "DBT/Julia Nowak/JUNOPHOTO"
+      "credit": "DBT/Julia Nowak/JUNOPHOTO",
+      "checksum": "1ecc6d769e2b4c261d12dc8c0511cf84"
     },
     {
       "id": "img-39",
       "kind": "image",
       "filename": "questions/502a7526.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag / Florian Gaertner / photothek"
+      "credit": "Deutscher Bundestag / Florian Gaertner / photothek",
+      "checksum": "5602c17fa0af99e701dae9056213b69a"
     },
     {
       "id": "img-4",
       "kind": "image",
       "filename": "questions/l5_banddesbundes.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "e268232f4164517ac98affda5b5d9dad"
     },
     {
       "id": "img-40",
       "kind": "image",
       "filename": "questions/4.4.JKH.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "868b074274ad4ee5ccd80da2d83a214a"
     },
     {
       "id": "img-41",
       "kind": "image",
       "filename": "questions/m10_Pettion.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "1db561115f0700a0f40e098efb13bb95"
     },
     {
       "id": "img-42",
       "kind": "image",
       "filename": "questions/1.4NorbertLammert.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Marc-Steffen Unger"
+      "credit": "Deutscher Bundestag/Marc-Steffen Unger",
+      "checksum": "19d885aabef187d6aff3cb45168def8d"
     },
     {
       "id": "img-43",
       "kind": "image",
       "filename": "questions/m3_Wolfgang_Schaeuble3.jpg",
       "mimeType": "image/jpeg",
-      "credit": "CDU/Wolfgang Schäuble"
+      "credit": "CDU/Wolfgang Schäuble",
+      "checksum": "6cd775bc3d51332377552b4abf22e47a"
     },
     {
       "id": "img-44",
       "kind": "image",
       "filename": "questions/BaerbelBas.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Tobias Koch"
+      "credit": "Deutscher Bundestag/Tobias Koch",
+      "checksum": "5875beabbf8187b41e865336e91ac744"
     },
     {
       "id": "img-45",
       "kind": "image",
       "filename": "questions/46_bundestagspraesidentin_kloeckner_bild.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Tobias Koch"
+      "credit": "Deutscher Bundestag/Tobias Koch",
+      "checksum": "5f280c68c2aed50452bb9288d03f2a77"
     },
     {
       "id": "img-46",
       "kind": "image",
       "filename": "questions/47_JensSpahn.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Jens Spahn/Anne Hufnagl"
+      "credit": "Jens Spahn/Anne Hufnagl",
+      "checksum": "4036004140d24ff209a5326c0faaf788"
     },
     {
       "id": "img-47",
       "kind": "image",
       "filename": "questions/48_miersch_matthias_gross.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Dr. Matthias Miersch/Jason Lee Mitchell"
+      "credit": "Dr. Matthias Miersch/Jason Lee Mitchell",
+      "checksum": "5a0359912cfff7b443f7d0dce2251b69"
     },
     {
       "id": "img-48",
       "kind": "image",
       "filename": "questions/KatharinaDroege_MdB.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Grüne im Bundestag/S. Kaminski"
+      "credit": "Grüne im Bundestag/S. Kaminski",
+      "checksum": "b07fe0176b4beff5ee823b378bb16787"
     },
     {
       "id": "img-49",
       "kind": "image",
       "filename": "questions/Britta_Hasselmann.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Britta Haßelmann/Studio Kohlmeier"
+      "credit": "Britta Haßelmann/Studio Kohlmeier",
+      "checksum": "1f3ee7ae8b2faeafe1814d21c00e9ebd"
     },
     {
       "id": "img-5",
       "kind": "image",
       "filename": "questions/5.1.kuppel.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/MELDEPRESS/Michael Ebner"
+      "credit": "Deutscher Bundestag/MELDEPRESS/Michael Ebner",
+      "checksum": "90d9f49c441817379c24b1b984fb10b4"
     },
     {
       "id": "img-50",
       "kind": "image",
       "filename": "questions/51_reichinnek_heidi.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Heidi Reichinnek/Olaf Krostitz"
+      "credit": "Heidi Reichinnek/Olaf Krostitz",
+      "checksum": "2a2ad57e7de475e07821e030c7ecbf13"
     },
     {
       "id": "img-51",
       "kind": "image",
       "filename": "questions/52_pellmann_soeren_gross.jpg",
       "mimeType": "image/jpeg",
-      "credit": "DBT/Inga Haar"
+      "credit": "DBT/Inga Haar",
+      "checksum": "54c88e768e322785d05c2a2ae8f7f010"
     },
     {
       "id": "img-52",
       "kind": "image",
       "filename": "questions/tino-chrupalla.jpg",
       "mimeType": "image/jpeg",
-      "credit": "©DBT/Achim Melde"
+      "credit": "©DBT/Achim Melde",
+      "checksum": "859220370fc7db341c2c9fc3f92a49fb"
     },
     {
       "id": "img-53",
       "kind": "image",
       "filename": "questions/m25_weidel.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Achim Melde"
+      "credit": "Deutscher Bundestag/Achim Melde",
+      "checksum": "5876c807647d92d55fd8091377ea1651"
     },
     {
       "id": "img-54",
       "kind": "image",
       "filename": "questions/m4_council.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "021ebe204d32e555527075b5e77d46af"
     },
     {
       "id": "img-55",
       "kind": "image",
       "filename": "questions/m17_Misstrauensvotum1982_2765912.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Presse-Service Steponaitis"
+      "credit": "Deutscher Bundestag/Presse-Service Steponaitis",
+      "checksum": "601f8e7e8050c8d87973564f538e95c4"
     },
     {
       "id": "img-56",
       "kind": "image",
       "filename": "questions/m1_abstimmung.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Achim Melde"
+      "credit": "Deutscher Bundestag/Achim Melde",
+      "checksum": "675318329dadce69878831abbf6715dc"
     },
     {
       "id": "img-57",
       "kind": "image",
       "filename": "questions/Fraktionslogos2025.png",
       "mimeType": "image/png",
-      "credit": "© compactteam"
+      "credit": "© compactteam",
+      "checksum": "16a5b443954f0a1e6f98934589b76c7f"
     },
     {
       "id": "img-58",
       "kind": "image",
       "filename": "questions/m12_Steinmeier-download.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Bundesregierung/Steffen Kugler"
+      "credit": "Bundesregierung/Steffen Kugler",
+      "checksum": "9f3ace91632a446a02aef1b00d45f1b8"
     },
     {
       "id": "img-59",
       "kind": "image",
       "filename": "questions/l7_Aufgaben_Bundestag.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Achim Melde"
+      "credit": "Deutscher Bundestag/Achim Melde",
+      "checksum": "f2cd28c3d5c77c03d64008fc76cf8caa"
     },
     {
       "id": "img-6",
       "kind": "image",
       "filename": "questions/6.3.MELH.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Jan Pauls"
+      "credit": "Deutscher Bundestag/Jan Pauls",
+      "checksum": "0d5d9092e57c44ef6b5113e9d933a87b"
     },
     {
       "id": "img-60",
       "kind": "image",
       "filename": "questions/s14_bundestag-2337174_1920.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "dbbba5af527a4237d24914d27adf258c"
     },
     {
       "id": "img-61",
       "kind": "image",
       "filename": "questions/l10_Partei_DBT.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "17ba5e7fb8cc4367f9171d4babb200d1"
     },
     {
       "id": "img-62",
       "kind": "image",
       "filename": "questions/m21_young-1922398_1920.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "b304d17c49d8743ad49ee66e89629cd6"
     },
     {
       "id": "img-63",
       "kind": "image",
       "filename": "questions/9.2.Berlin.JPG",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "5b3bf84321f80869b4dc4e0e0463fa55"
     },
     {
       "id": "img-64",
       "kind": "image",
       "filename": "questions/9.1.ReichstagFahne.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Axel Hartmann"
+      "credit": "Deutscher Bundestag/Axel Hartmann",
+      "checksum": "8fa8e994b2abefe2242bf6db46bbf6de"
     },
     {
       "id": "img-65",
       "kind": "image",
       "filename": "questions/7.1.Bundesadler.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Lichtblick/Achim Melde"
+      "credit": "Deutscher Bundestag/Lichtblick/Achim Melde",
+      "checksum": "f063f953ef831f5233f2621f0bea9998"
     },
     {
       "id": "img-66",
       "kind": "image",
       "filename": "questions/m6_bg_start2x.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Detlef Surrey"
+      "credit": "Detlef Surrey",
+      "checksum": "01801332a5cf85a60811f27aa0e832c4"
     },
     {
       "id": "img-67",
       "kind": "image",
       "filename": "questions/l8_karlchen.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Detlef Surrey"
+      "credit": "Detlef Surrey",
+      "checksum": "8acec96b469c24c9fdd9b7ab1c8385db"
     },
     {
       "id": "img-68",
       "kind": "image",
       "filename": "questions/l5_Sonne.png",
       "mimeType": "image/png",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "fd5083a561c634de53514d0fe56fba33"
     },
     {
       "id": "img-69",
       "kind": "image",
       "filename": "questions/l6_Adler.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "d570062e85fd49f830fb326be911b5f7"
     },
     {
       "id": "img-7",
       "kind": "image",
       "filename": "questions/3391358.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Axel Hartmann"
+      "credit": "Deutscher Bundestag/Axel Hartmann",
+      "checksum": "de61398f8c8afef9b0ddb574794a0a84"
     },
     {
       "id": "img-70",
       "kind": "image",
       "filename": "questions/l10_Berlin_skyline_2009w.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "2cc4f9e607035fe1a9001ccdf8e459d2"
     },
     {
       "id": "img-71",
       "kind": "image",
       "filename": "questions/m4_Felix_am_Rednerpult.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "0ae6ae7c57f2973c2de28afa09db9843"
     },
     {
       "id": "img-72",
       "kind": "image",
       "filename": "questions/l4_schueler.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "873cba6efe59892ef22a2047e5b338e7"
     },
     {
       "id": "img-73",
       "kind": "image",
       "filename": "questions/3Oktober1990.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Barbara Klemm"
+      "credit": "Barbara Klemm",
+      "checksum": "cd2c69c5a876d724cddcc103168c9d67"
     },
     {
       "id": "img-74",
       "kind": "image",
       "filename": "questions/s6_kiko.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Detlef Surrey"
+      "credit": "Detlef Surrey",
+      "checksum": "633c92ac39732549edbfedac1d98e66e"
     },
     {
       "id": "img-75",
       "kind": "image",
       "filename": "questions/46_bundestagspraesidentin_kloeckner_bild.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Tobias Koch"
+      "credit": "Deutscher Bundestag/Tobias Koch",
+      "checksum": "5f280c68c2aed50452bb9288d03f2a77"
     },
     {
       "id": "img-76",
       "kind": "image",
       "filename": "questions/6.2.DeutscherBundestag.jpeg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Marc-Steffen Unger"
+      "credit": "Deutscher Bundestag/Marc-Steffen Unger",
+      "checksum": "541f1716a1756d4ddbe914572db0ff85"
     },
     {
       "id": "img-77",
       "kind": "image",
       "filename": "questions/s2_hammelsprung.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "ba3cb81de17b32382b202b4748fb6b27"
     },
     {
       "id": "img-78",
       "kind": "image",
       "filename": "questions/m7_diaet.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "f8439f980a4055a1585231b0af4caab2"
     },
     {
       "id": "img-79",
       "kind": "image",
       "filename": "questions/s8_1200px-1895_reichstagsgebaeude.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "bed0da0bafc5b6be408b9babb3e77988"
     },
     {
       "id": "img-8",
       "kind": "image",
       "filename": "questions/2.1.Wiedervereinigung_neu.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag/Sven Simon"
+      "credit": "Deutscher Bundestag/Sven Simon",
+      "checksum": "cda40b0fb2f958469cb5abaf86fd4fa1"
     },
     {
       "id": "img-80",
       "kind": "image",
       "filename": "questions/82_SitzverteilungWP21.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "1029ae169d00e8753a21ba9fd5d8aa06"
     },
     {
       "id": "img-81",
       "kind": "image",
       "filename": "questions/m_11_bundestagsblau.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "21a9b7cc7a1d05fa8e6443b09fd61404"
     },
     {
       "id": "img-82",
       "kind": "image",
       "filename": "questions/s8_Grundgesetz.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "678aeb564c6e6bc95cba0c3b5c8e1d58"
     },
     {
       "id": "img-83",
       "kind": "image",
       "filename": "questions/m8_Wahllokal.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "53f4f4a39dc9e07f5960905408bb6af2"
     },
     {
       "id": "img-84",
       "kind": "image",
       "filename": "questions/m8_Wahllokal.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "53f4f4a39dc9e07f5960905408bb6af2"
     },
     {
       "id": "img-85",
       "kind": "image",
       "filename": "questions/m11_Stimmzettel.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Detlef Surrey"
+      "credit": "Detlef Surrey",
+      "checksum": "82be86bc50df23309d9a9098791bdb1c"
     },
     {
       "id": "img-86",
       "kind": "image",
       "filename": "questions/82_SitzverteilungWP21.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© Deutscher Bundestag"
+      "credit": "© Deutscher Bundestag",
+      "checksum": "1029ae169d00e8753a21ba9fd5d8aa06"
     },
     {
       "id": "img-87",
       "kind": "image",
       "filename": "questions/m3_volk.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Freepik"
+      "credit": "Freepik",
+      "checksum": "c4ae13d7964c29a4923cf680d814217b"
     },
     {
       "id": "img-88",
       "kind": "image",
       "filename": "questions/m1_deutschland.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "9bc29407e282133d6c70d095bb17de38"
     },
     {
       "id": "img-89",
       "kind": "image",
       "filename": "questions/m4_Felix_am_Rednerpult.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Deutscher Bundestag"
+      "credit": "Deutscher Bundestag",
+      "checksum": "0ae6ae7c57f2973c2de28afa09db9843"
     },
     {
       "id": "img-9",
       "kind": "image",
       "filename": "questions/l16_Reichstagsbrand.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "e85cf449e612ef6f2164a18ecab1250f"
     },
     {
       "id": "img-90",
       "kind": "image",
       "filename": "questions/m6_Parlament.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "2d754d6d16b3a4db5cf98f0cc80acb36"
     },
     {
       "id": "img-91",
       "kind": "image",
       "filename": "questions/l7_Freunde.jpg",
       "mimeType": "image/jpeg",
-      "credit": "Detlef Surrey"
+      "credit": "Detlef Surrey",
+      "checksum": "b81bd043567eae7b8d88308e59b1873f"
     },
     {
       "id": "img-92",
       "kind": "image",
       "filename": "questions/m10_Kinderechte.png",
       "mimeType": "image/png",
-      "credit": "Pixabay"
+      "credit": "Pixabay",
+      "checksum": "889a41c78c243e98f1dcc9a7fbd8e900"
     },
     {
       "id": "img-93",
       "kind": "image",
       "filename": "questions/Bild1_23.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Hans-Günther Oed"
+      "credit": "© DBT/Hans-Günther Oed",
+      "checksum": "dbb8df901dd3243a233b9b36351e220c"
     },
     {
       "id": "img-94",
       "kind": "image",
       "filename": "questions/Bild2_17.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Siegfried Bucker"
+      "credit": "© DBT/Siegfried Bucker",
+      "checksum": "f25f080a72b283f0301fc5c034306a7e"
     },
     {
       "id": "img-95",
       "kind": "image",
       "filename": "questions/Bild2_12.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© ap/dpa/pictures alliance/SZ Photo"
+      "credit": "© ap/dpa/pictures alliance/SZ Photo",
+      "checksum": "fbfb790cefb3f569d2677897e82ce2a6"
     },
     {
       "id": "img-96",
       "kind": "image",
       "filename": "questions/Bild2_2.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© BPS/Vollrath"
+      "credit": "© BPS/Vollrath",
+      "checksum": "caf992848c922fde005aed9c736d0168"
     },
     {
       "id": "img-97",
       "kind": "image",
       "filename": "questions/2_2_koenig_innen.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Sylvia Bohn"
+      "credit": "© DBT/Sylvia Bohn",
+      "checksum": "ef28d35e2ba77137890c8b2e662c8f42"
     },
     {
       "id": "img-98",
       "kind": "image",
       "filename": "questions/Bild2_8.jpg",
       "mimeType": "image/jpeg",
-      "credit": "© DBT/Presse-Service Steponaitis"
+      "credit": "© DBT/Presse-Service Steponaitis",
+      "checksum": "d18b7cf29b2c0e026bf19b157f68d39b"
     },
     {
       "id": "img-99",
       "kind": "image",
       "filename": "questions/s12_Thierse_Umzug_AP Archiv.jpg",
-      "mimeType": "image/jpeg"
+      "mimeType": "image/jpeg",
+      "checksum": "1456fa4f341f96d5fdeb7eddbe0ee4d6"
     },
     {
       "id": "start-adults",
@@ -1350,5 +1541,5 @@
       "checksum": "762a0602f00645ac0edf8a5f98b121b7"
     }
   ],
-  "checksum": "71e6af21f3c768c5f006558adb860bc9362672d0b24a9ca7fac5871c8e1fb0f5"
+  "checksum": "af59e01b0f9e71ca475b189c9533803030c795dfe35ce8385ad6cc7d9ab34c1f"
 }
