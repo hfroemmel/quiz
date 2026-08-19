@@ -1,16 +1,16 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.3
+Inhaltsversion: 1.0.4
 Ergebnis: BESTANDEN (0 Fehler, 256 Warnungen)
 
 ## Gesamtzahlen
 - Fragen gesamt: 199 (aktiv: 198)
 - Wiederholungsgruppen: 191
-- Medien: 198
+- Medien: 194
 - Nach Modus: adults=143, kids=56
 - Nach Schwierigkeit: medium=85, easy=63, hard=51
 - Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7
 - Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
-- Vergleich zu Version 1.0.2: +0 Fragen
+- Vergleich zu Version 1.0.3: +0 Fragen
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"

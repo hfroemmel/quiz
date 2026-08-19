@@ -1,26 +1,5 @@
 [
   {
-    "id": "logo-quiz",
-    "kind": "image",
-    "filename": "branding/logo-quiz.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
-  },
-  {
-    "id": "logo-kids",
-    "kind": "image",
-    "filename": "branding/logo-kids.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
-  },
-  {
-    "id": "logo-regional",
-    "kind": "image",
-    "filename": "branding/logo-regional.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
-  },
-  {
     "id": "start-adults",
     "kind": "image",
     "filename": "branding/start-adults.svg",
@@ -33,13 +12,6 @@
     "filename": "branding/start-kids.png",
     "mimeType": "image/png",
     "credit": "Gelieferte Designvorlage"
-  },
-  {
-    "id": "start-regional",
-    "kind": "image",
-    "filename": "branding/start-regional.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)"
   },
   {
     "id": "img-0",

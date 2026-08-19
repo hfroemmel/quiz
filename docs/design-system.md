@@ -209,12 +209,25 @@ Farbe.
 | Kachelbeschriftung | 1,0 | cqw | `Spieler`, `Punkte`, `Frage` |
 | Bedienleiste | 1,0 | rem | Schaltflaechen und Gruppentitel |
 
-**Offene Zulieferung:** Die Schriftdateien (`woff2`) samt Name und Lizenz werden
-geliefert. Bis dahin laeuft die Anwendung auf der Ersatzkette
-`'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', Georgia, serif`.
-Eingebunden wird die Schrift lokal ueber `@font-face` mit `font-display: block` -
-niemals ueber ein Netzwerk-CDN, weil die Anwendung offline lauffaehig bleiben
-muss (Spezifikation 2).
+### Gelieferte Schriften
+
+| Familie | Dateien | Einsatz |
+|---|---|---|
+| **Melior** | `MeliorCom.ttf`, `-Bold`, `-Italic`, `-BoldItalic` | die Buehne: Rubrik, Frage, Antworten, Kachelwerte, Ueberschriften |
+| **Noto Sans Display** | `-Regular`, `-SemiBold`, `-Bold` (+ weitere Schnitte im Bestand) | der Bedienrahmen des Operators und die Moderatoransicht |
+
+Melior ist die Serifenschrift des Entwurfs. Noto Sans Display traegt die kleinen
+Beschriftungen im Bedienrahmen, wo auf kurze Distanz gelesen wird - auf dem
+Beamer erscheint sie nie. Wer eine einzige Familie ueberall moechte, aendert dafuer
+genau eine Zeile: `--font-ui` in `apps/web/src/styles.css`.
+
+Eingebunden wird lokal ueber `@font-face` mit `font-display: block` - niemals ueber
+ein Netzwerk-CDN, weil die Anwendung offline lauffaehig bleiben muss
+(Spezifikation 2). `block` statt `swap`, weil ein Schriftwechsel mitten in der
+Show sichtbarer waere als ein kurzer Moment ohne Text.
+
+Die Buehnenschrift steht zusaetzlich im Quizpaket (`theme.typography`): Ein Modus
+kann damit eine eigene Schrift bekommen, ohne Codeaenderung.
 
 Beschriftungen in der Oberflaeche verwenden ab sofort **echte Umlaute**
 (`Aufloesen` wird zu `Auflösen`, `Zuruecksetzen` zu `Zurücksetzen`). Die

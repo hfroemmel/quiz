@@ -1328,30 +1328,6 @@
     "mimeType": "image/jpeg"
   },
   {
-    "id": "logo-kids",
-    "kind": "image",
-    "filename": "branding/logo-kids.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-    "checksum": "82c2793e1f62b54d606a80e2a462e595"
-  },
-  {
-    "id": "logo-quiz",
-    "kind": "image",
-    "filename": "branding/logo-quiz.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-    "checksum": "712a93e121a3d746ad4897630b1e56b5"
-  },
-  {
-    "id": "logo-regional",
-    "kind": "image",
-    "filename": "branding/logo-regional.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-    "checksum": "2e85a18e24893c7573bd0e0da6c77fe0"
-  },
-  {
     "id": "start-adults",
     "kind": "image",
     "filename": "branding/start-adults.svg",
@@ -1366,13 +1342,5 @@
     "mimeType": "image/png",
     "credit": "Gelieferte Designvorlage",
     "checksum": "762a0602f00645ac0edf8a5f98b121b7"
-  },
-  {
-    "id": "start-regional",
-    "kind": "image",
-    "filename": "branding/start-regional.svg",
-    "mimeType": "image/svg+xml",
-    "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-    "checksum": "5e4d5e97ca1ede995c077223c25d728d"
   }
 ]

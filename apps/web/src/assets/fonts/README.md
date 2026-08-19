@@ -1,25 +1,28 @@
 # Schriftdateien
 
-Hier liegen die Schriftdateien der Oberflaeche. Sie werden ueber `@font-face` in
-`apps/web/src/styles.css` eingebunden und von Vite mitgebaut - **nie** ueber ein
-Netzwerk-CDN, weil die Anwendung offline lauffaehig bleiben muss
-(Spezifikation 2).
+Die Schriften werden ueber `@font-face` in `apps/web/src/styles.css` eingebunden
+und von Vite mitgebaut - **nie** ueber ein Netzwerk-CDN, weil die Anwendung
+offline lauffaehig bleiben muss (Spezifikation 2).
 
-## Erwartet wird
+## Was wovon benutzt wird
 
-| Datei | Schnitt | Verwendung |
+| Familie | Eingebundene Schnitte | Einsatz |
 |---|---|---|
-| `<name>-regular.woff2` | 400 | Fragetext, Antworten, Kachelwerte |
-| `<name>-bold.woff2` | 700 | Rubrik ueber der Frage, Buchstabenchips |
+| **Melior** | `MeliorCom.ttf` (400), `-Bold` (700), `-Italic` | die Buehne: Rubrik, Frage, Antworten, Kachelwerte |
+| **Noto Sans Display** | `-Regular` (400), `-SemiBold` (600), `-Bold` (700) | Bedienrahmen des Operators und Moderatoransicht |
 
-Zwei Schnitte genuegen: Das Designsystem erzeugt Hierarchie ueber Groesse und
-Farbe, nicht ueber weitere Schriftstaerken.
+Die uebrigen Schnitte der Noto-Familie liegen im Bestand, sind aber nicht
+eingebunden. Jede eingebundene Datei landet im Build - deshalb wird nur geladen,
+was auch verwendet wird.
 
-Zusaetzlich gebraucht werden Name und Lizenz der Schrift - beides gehoert in
-diese Datei, damit spaeter nachvollziehbar bleibt, was ausgeliefert werden darf.
+## Aenderungen
 
-## Solange nichts hier liegt
+* Buehnenschrift: `theme.typography` im Quizpaket (`content/source/config.json`)
+  bzw. `--font-heading` als Fallback im Stylesheet.
+* Schrift des Bedienrahmens: `--font-ui` im Stylesheet. Wer ueberall dieselbe
+  Familie moechte, setzt dort `var(--font-body)`.
 
-Die Oberflaeche laeuft auf der Systemserifen-Kette aus
-`apps/web/src/theme/designTokens.ts`. Der Austausch ist danach ein
-`@font-face`-Block und ein geaenderter erster Familienname - kein Umbau.
+## Lizenz
+
+Noto Sans Display steht unter der SIL Open Font License. Fuer Melior ist die
+Lizenzlage noch zu klaeren, bevor die Anwendung ausgeliefert wird.
