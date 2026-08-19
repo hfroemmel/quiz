@@ -98,30 +98,31 @@
       "id": "kids",
       "label": "Kinder",
       "colors": {
-        "pageTop": "#555555",
-        "pageBottom": "#6E6E6E",
-        "stageTop": "#5C5C5C",
-        "stageBottom": "#757575",
-        "controls": "#555555",
-        "tile": "#444444",
-        "tileDisabled": "#4F4F4F",
-        "tileQuiet": "#464646",
-        "option": "#777777",
-        "accent": "#3693B3",
-        "accentQuiet": "#4E6A74",
-        "primary": "#00CC9C",
-        "solution": "#01A780",
-        "solutionChip": "#028365",
-        "correct": "#25A7B0",
-        "incorrect": "#A62749",
-        "text": "#FFFFFF",
-        "textMuted": "rgba(255, 255, 255, 0.45)"
+        "pageTop": "#A9D5EF",
+        "pageBottom": "#D9D7F2",
+        "stageTop": "#A9D5EF",
+        "stageBottom": "#D9D7F2",
+        "controls": "#FFF8E8",
+        "tile": "#FFF8E8",
+        "tileDisabled": "#F5EAD5",
+        "tileQuiet": "#F5EAD5",
+        "option": "#FFF8E8",
+        "accent": "#E63339",
+        "accentQuiet": "#D98B93",
+        "primary": "#E63339",
+        "solution": "#50C79A",
+        "solutionChip": "#FFD83D",
+        "correct": "#50C79A",
+        "incorrect": "#D98B93",
+        "text": "#172538",
+        "textMuted": "rgba(23, 37, 56, 0.6)"
       },
       "typography": {
-        "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
-        "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
+        "headingFont": "'Fredoka', 'Arial Rounded MT Bold', Arial, sans-serif",
+        "bodyFont": "'Nunito', Arial, sans-serif"
       },
-      "presentationAnimationSetId": "standard"
+      "presentationAnimationSetId": "standard",
+      "skin": "kids"
     },
     {
       "id": "regional",

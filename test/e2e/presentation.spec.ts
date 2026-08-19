@@ -87,7 +87,7 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await expect(page.locator('.result__label')).toHaveText('Gewinner')
     await expect(page.locator('.confetti')).toHaveCount(1)
 
-    await page.locator('.field--checkbox input').check()
+    await page.getByRole('checkbox', { name: 'Unentschieden (kein Konfetti)' }).check()
     await expect(page.locator('.result__label')).toHaveText('Unentschieden')
     await expect(page.locator('.confetti')).toHaveCount(0)
   })

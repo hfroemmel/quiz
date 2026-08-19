@@ -26,3 +26,15 @@ was auch verwendet wird.
 
 Noto Sans Display steht unter der SIL Open Font License. Fuer Melior ist die
 Lizenzlage noch zu klaeren, bevor die Anwendung ausgeliefert wird.
+
+## Fredoka und Nunito (Kinderquiz)
+
+`Fredoka-latin.woff2`, `Fredoka-latin-ext.woff2`, `Nunito-latin.woff2` und
+`Nunito-latin-ext.woff2` tragen die illustrierte Kinderansicht: Fredoka die
+Frage, die Zahlen und die Buchstaben A-D, Nunito die Antworten und alle
+Beschriftungen.
+
+Beide Familien stehen unter der SIL Open Font License 1.1 und liegen als
+variable Schnitte (Fredoka 300-700, Nunito 400-900) im Projekt. Sie werden
+lokal ausgeliefert, weil die Anwendung offline lauffaehig sein muss; ein
+Font-CDN kommt nicht in Frage.

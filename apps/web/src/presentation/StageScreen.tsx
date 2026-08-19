@@ -29,6 +29,8 @@ import { SolutionScene } from './scenes/SolutionScene.tsx'
 import { ResultScene } from './scenes/ResultScene.tsx'
 import { StartScene } from './scenes/StartScene.tsx'
 import { StageHeader, type StageHeaderSlots } from './StageHeader.tsx'
+import { KidsQuizScreen, kidsScreenCovers } from './kids/KidsQuizScreen.tsx'
+import { kidsAssets } from './kids/kidsAssets.ts'
 import type { SceneProps } from './scenes/sceneProps.ts'
 
 export interface StageScreenProps {
@@ -100,12 +102,26 @@ export function StageScreen({
   const animating = activeKey === entryKey
   const activeClass = animating ? (transition?.classNames?.active ?? '') : ''
 
+  /*
+   * Gestaltungswelt der Buehne. Sie kommt aus dem Theme des Quizmodus, nicht aus
+   * einem Modusnamen im Code: `theme.skin` ist konfiguriert (siehe
+   * `packages/contracts/src/content.ts`). Ein neuer Modus bekommt die
+   * Kinderwelt damit ohne Codeaenderung.
+   */
+  const kids = view.theme.skin === 'kids'
+  const kidsScreen = kids && kidsScreenCovers(view)
+
   return (
     <SoundProvider enabled={view.soundEnabled} isAudioMaster={isAudioMaster}>
       <div
-        className={`stage stage--${variant} stage--scene-${view.scene}`}
-        style={{ ...themeVariables(view), ...transitionStyle(transition) }}
+        className={`stage stage--${variant} stage--scene-${view.scene} ${kids ? 'stage--kids' : ''}`}
+        style={{
+          ...themeVariables(view),
+          ...transitionStyle(transition),
+          ...(kids ? { ['--kids-scene' as string]: `url(${kidsAssets.scene})`, ['--kids-grain' as string]: `url(${kidsAssets.paperGrain})` } : {}),
+        }}
         data-scene={view.scene}
+        data-skin={view.theme.skin ?? 'stage'}
         data-phase={view.phase}
         data-transition={transition?.id ?? 'none'}
       >
@@ -119,7 +135,7 @@ export function StageScreen({
           *
           * `aria-hidden`: reine Dekoration, kein Inhalt.
           */}
-        {view.question?.imageUrl && (
+        {view.question?.imageUrl && !kids && (
           <div
             className={`stage__backdrop ${isRevealing(view) ? 'stage__backdrop--veiled' : ''}`}
             style={{ backgroundImage: `url(${view.question.imageUrl})` }}
@@ -127,11 +143,15 @@ export function StageScreen({
           />
         )}
 
-        <StageHeader view={view} slots={headerSlots} />
+        {/* Die Kinderansicht bringt ihre eigene Kopfzeile mit. */}
+        {!kidsScreen && <StageHeader view={view} slots={headerSlots} />}
 
         <div key={entryKey} className={`scene-root ${activeClass} ${transition?.classNames?.to ?? ''}`}>
-          {renderScene(view, sceneProps, isAudioMaster, onReport)}
+          {kidsScreen ? <KidsQuizScreen view={view} /> : renderScene(view, sceneProps, isAudioMaster, onReport)}
         </div>
+
+        {/* Papierkoernung ganz oben - dekorativ, nimmt keine Klicks entgegen. */}
+        {kids && <div className="stage__grain" aria-hidden="true" />}
       </div>
     </SoundProvider>
   )

@@ -12,6 +12,8 @@ import { StageApp } from './apps/stage/StageApp.tsx'
 import { ModeratorApp } from './apps/moderator/ModeratorApp.tsx'
 import { PreviewApp } from './apps/preview/PreviewApp.tsx'
 import './styles.css'
+// Illustrierte Kinderwelt - greift ausschliesslich innerhalb von `.stage--kids`.
+import './styles/kids.css'
 
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/'

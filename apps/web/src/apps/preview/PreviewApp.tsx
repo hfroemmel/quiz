@@ -11,7 +11,7 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
-import { greyDesignColors, stageDesignColors } from '../../theme/designTokens.ts'
+import { kidsDesignColors, stageDesignColors } from '../../theme/designTokens.ts'
 import type { PublicQuizViewModel, PublicScene } from '@quiz/contracts'
 import { gameTiming } from '@quiz/contracts'
 import { StageScreen } from '../../presentation/StageScreen.tsx'
@@ -27,9 +27,12 @@ import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
  */
 const THEMES: Record<string, Record<string, string>> = {
   default: stageDesignColors,
-  kids: greyDesignColors,
+  kids: kidsDesignColors,
   regional: stageDesignColors,
 }
+
+/** Gestaltungswelt je Theme - wie im Quizpaket. */
+const SKINS: Record<string, 'stage' | 'kids'> = { default: 'stage', kids: 'kids', regional: 'stage' }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
 
@@ -39,12 +42,18 @@ export function PreviewApp() {
   const [feedbackOutcome, setFeedbackOutcome] = useState<'correct' | 'incorrect'>('correct')
   const [revealElapsedMs, setRevealElapsedMs] = useState(3_000)
   const [draw, setDraw] = useState(false)
+  /*
+   * Belastungsprobe der Textflaechen. Die Vorgabe des Kinderquiz-Assetpakets
+   * verlangt vier Fragezeilen und zweizeilige Antworten ohne Abschneiden; mit
+   * diesem Schalter laesst sich das in jeder Szene und jedem Theme pruefen.
+   */
+  const [longText, setLongText] = useState(false)
   // Neu montieren, um denselben Uebergang erneut abzuspielen.
   const [runId, setRunId] = useState(0)
 
   const view = useMemo(
-    () => buildSampleView({ scene, themeId, feedbackOutcome, revealElapsedMs, draw }),
-    [scene, themeId, feedbackOutcome, revealElapsedMs, draw],
+    () => buildSampleView({ scene, themeId, feedbackOutcome, revealElapsedMs, draw, longText }),
+    [scene, themeId, feedbackOutcome, revealElapsedMs, draw, longText],
   )
 
   if (!import.meta.env.DEV) {
@@ -119,6 +128,11 @@ export function PreviewApp() {
           </label>
         )}
 
+        <label className="field field--checkbox">
+          <input type="checkbox" checked={longText} onChange={(event) => setLongText(event.target.checked)} />
+          <span>Lange Texte (vierzeilige Frage, zweizeilige Antworten)</span>
+        </label>
+
         <button className="button button--primary" onClick={() => setRunId((value) => value + 1)}>
           Uebergang erneut abspielen
         </button>
@@ -182,24 +196,38 @@ const previewStartVisual =
  * Beispiel-View-Modelle. Sie haben denselben Aufbau wie die echten Snapshots des
  * Servers, damit die Vorschau nicht an einer eigenen Datenstruktur vorbeientwickelt.
  */
+/** Testtexte aus `ASSET_INTEGRATION.md`, Abschnitt 8. */
+const LONG_PROMPT =
+  'Welche Aufgabe übernimmt die Bundestagspräsidentin während einer besonders unübersichtlichen und kontrovers geführten Plenarsitzung?'
+const LONG_ANSWERS = [
+  'Sie achtet auf die Einhaltung der parlamentarischen Ordnung und leitet die Sitzung des Deutschen Bundestages.',
+  'Sie entscheidet gemeinsam mit dem Bundesrat über die Tagesordnung der kommenden Sitzungswoche im Plenum.',
+  'Sie vertritt den Deutschen Bundestag nach außen und führt die Geschäfte der Bundestagsverwaltung.',
+  'Sie beruft die Ausschüsse ein und bestimmt die Reihenfolge der Redebeiträge aller Fraktionen.',
+]
+
 function buildSampleView(input: {
   scene: PublicScene
   themeId: string
   feedbackOutcome: 'correct' | 'incorrect'
   revealElapsedMs: number
   draw: boolean
+  longText: boolean
 }): PublicQuizViewModel {
   const serverTimeMs = 1_700_000_000_000
   const scores = [
+    // Dreistellige Punktestaende sind der Regelfall, nicht die Ausnahme.
     { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false },
     { playerId: 'player-2' as const, label: 'Spieler 2', score: input.draw ? 200 : 150, active: false, locked: false },
   ]
+  const text = (short: string, index: number) => (input.longText ? (LONG_ANSWERS[index] ?? short) : short)
 
   const base: PublicQuizViewModel = {
     scene: input.scene,
     phase: 'question-presented',
     theme: {
       id: input.themeId,
+      skin: SKINS[input.themeId] ?? 'stage',
       colors: THEMES[input.themeId] ?? THEMES['default']!,
       startVisualUrl: previewStartVisual,
       startTitle: 'Bundestags-Quiz',
@@ -215,13 +243,19 @@ function buildSampleView(input: {
     case 'question':
       return {
         ...base,
-        question: { prompt: 'Welcher Fluss fließt durch Köln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
+        question: {
+          prompt: input.longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
+          presentationType: 'image-choice',
+          categoryLabel: 'Erdkunde',
+          imageUrl: previewImage,
+        },
         visibleOptions: [
-          { id: 'o1', text: 'Rhein' },
-          // Eingeloggte Antwort: oeffentlich blau, aber ohne Bewertung.
-          { id: 'o2', text: 'Elbe', state: 'chosen' },
-          { id: 'o3', text: 'Donau' },
-          { id: 'o4', text: 'Main' },
+          { id: 'o1', text: text('Rhein', 0) },
+          // Eingeloggte Antwort: oeffentlich markiert, aber ohne Bewertung.
+          { id: 'o2', text: text('Elbe', 1), state: 'chosen' },
+          { id: 'o3', text: text('Donau', 2) },
+          // Zweite Chance: diese Antwort war schon falsch und ist verbraucht.
+          { id: 'o4', text: text('Main', 3), state: 'chosen-incorrect' },
         ],
         currentPlayer: 'player-1',
       }
@@ -258,12 +292,18 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'solution',
-        question: { prompt: 'Welcher Fluss fließt durch Köln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
+        // Letzte Frage: prueft zugleich den Zaehler 7/7.
+        progress: { current: 7, total: 7 },
+        question: {
+          prompt: input.longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
+          presentationType: 'text-choice',
+          categoryLabel: 'Erdkunde',
+        },
         visibleOptions: [
-          { id: 'o1', text: 'Rhein', state: 'correct' },
-          { id: 'o2', text: 'Elbe', state: 'chosen-incorrect' },
-          { id: 'o3', text: 'Donau' },
-          { id: 'o4', text: 'Main' },
+          { id: 'o1', text: text('Rhein', 0), state: 'correct' },
+          { id: 'o2', text: text('Elbe', 1), state: 'chosen-incorrect' },
+          { id: 'o3', text: text('Donau', 2) },
+          { id: 'o4', text: text('Main', 3) },
         ],
         visibleSolution: { answerText: 'Rhein' },
       }

@@ -39,7 +39,7 @@ export default defineConfig({
        * Vite-Entwicklungsserver, nicht gegen den Produktionsbuild.
        */
       name: 'preview',
-      testMatch: /[/\\]presentation\.spec\.ts$/,
+      testMatch: /[/\\](presentation|kids-quiz)\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], baseURL: `http://localhost:${DEV_PORT}` },
     },
   ],

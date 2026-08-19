@@ -40,7 +40,32 @@ export const stageDesignColors: DesignColors = {
   textMuted: 'rgba(255, 255, 255, 0.6)',
 }
 
-/** Bisheriges Graustufensystem - traegt noch den Modus Kinder. */
+/**
+ * Farbwelt des Kinderquiz - Papier, Tinte und die Signalfarben der Illustration.
+ * Werte aus `implementation/design-tokens.json` des Assetpakets.
+ */
+export const kidsDesignColors: DesignColors = {
+  pageTop: '#A9D5EF',
+  pageBottom: '#D9D7F2',
+  stageTop: '#A9D5EF',
+  stageBottom: '#D9D7F2',
+  controls: '#FFF8E8',
+  tile: '#FFF8E8',
+  tileDisabled: '#F5EAD5',
+  tileQuiet: '#F5EAD5',
+  option: '#FFF8E8',
+  accent: '#E63339',
+  accentQuiet: '#D98B93',
+  primary: '#E63339',
+  solution: '#50C79A',
+  solutionChip: '#FFD83D',
+  correct: '#50C79A',
+  incorrect: '#D98B93',
+  text: '#172538',
+  textMuted: 'rgba(23, 37, 56, 0.6)',
+}
+
+/** Bisheriges Graustufensystem - Rueckfallebene fuer Themes ohne eigene Werte. */
 export const greyDesignColors: DesignColors = {
   pageTop: '#555555',
   pageBottom: '#6E6E6E',

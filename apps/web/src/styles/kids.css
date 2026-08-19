@@ -1,0 +1,468 @@
+/*
+ * Kinderquiz: illustrierte Karlchen-Welt.
+ *
+ * GELTUNGSBEREICH: ausschliesslich innerhalb von `.stage--kids`. Die dunkle
+ * Buehne des Erwachsenenquiz und der gesamte Bedienrahmen bleiben unberuehrt.
+ *
+ * MASSE IN CONTAINEREINHEITEN: Die Buehnenflaeche ist ein Container
+ * (`container-type: size`). Das Assetpaket nennt seine Werte in `vw`/`vh` und
+ * meint damit den Buehnenscreen im Vollbild - dort sind Container und Viewport
+ * dasselbe. In `cqw`/`cqh` gilt dieselbe Komposition zusaetzlich in der kleinen
+ * Operatorvorschau, ohne dass irgendein Wert doppelt gepflegt werden muss.
+ *
+ * KEINE CSS-RAHMEN: Jede Kontur ist gezeichnet und kommt als SVG-Flaeche aus dem
+ * Assetpaket (siehe `.kids-surface`). Ein `border` waere eine perfekte Linie und
+ * wuerde die Handschrift der Illustration zerstoeren.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Schriften des Kinderquiz
+ *
+ * Fredoka traegt Frage, Zahlen und die Buchstaben A-D, Nunito die Antworten und
+ * alle Beschriftungen. Beide liegen als lokale WOFF2-Dateien im Projekt; der
+ * Betrieb ist offline, ein Font-CDN kommt nicht in Frage.
+ * ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: 'Fredoka';
+  src: url('../assets/fonts/Fredoka-latin.woff2') format('woff2');
+  font-weight: 300 700;
+  font-display: block;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fredoka';
+  src: url('../assets/fonts/Fredoka-latin-ext.woff2') format('woff2');
+  font-weight: 300 700;
+  font-display: block;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/Nunito-latin.woff2') format('woff2');
+  font-weight: 400 900;
+  font-display: block;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/Nunito-latin-ext.woff2') format('woff2');
+  font-weight: 400 900;
+  font-display: block;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ------------------------------------------------------------------ *
+ * Grundflaeche und Ebenen
+ * ------------------------------------------------------------------ */
+
+.stage--kids {
+  /* Werte aus `implementation/design-tokens.json` des Assetpakets. */
+  --kids-ink: #172538;
+  --kids-paper: #fff8e8;
+  --kids-red: #e63339;
+  --kids-yellow: #ffd83d;
+
+  --kids-display: 'Fredoka', 'Arial Rounded MT Bold', Arial, sans-serif;
+  --kids-ui: 'Nunito', Arial, sans-serif;
+
+  /* Layout: Aussenabstand, Fuge, Spaltenanteile der Designreferenz. */
+  --kids-pad: clamp(16px, 1.8cqw, 36px);
+  --kids-gap: clamp(10px, 1cqw, 20px);
+  --kids-content-width: 75%;
+
+  /* Schriftgroessen: dieselben Werte wie im Paket, in Containereinheiten. */
+  --kids-size-question: clamp(28px, 2.15cqw, 48px);
+  --kids-size-answer: clamp(20px, 1.45cqw, 34px);
+  --kids-size-category: clamp(16px, 1cqw, 24px);
+  --kids-size-score: clamp(34px, 2.7cqw, 62px);
+  --kids-size-label: clamp(13px, 0.85cqw, 20px);
+
+  --kids-motion-normal: 260ms;
+  --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
+
+  color: var(--kids-ink);
+  font-family: var(--kids-ui);
+  /* Ebene 1: illustrierte Szene, rechts zentriert, formatfuellend. */
+  background: var(--kids-scene) right center / cover no-repeat, linear-gradient(180deg, #a9d5ef, #d9d7f2);
+}
+
+/* Ebene 5: sehr dezente Papierkoernung ueber allem. */
+.stage__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  background: var(--kids-grain) repeat;
+}
+/*
+ * Abschaltbar fuer schwache Buehnenrechner: Die Koernung ist Geschmack, kein
+ * Inhalt. `<html class="no-grain">` genuegt.
+ */
+.no-grain .stage__grain {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Gezeichnete Flaeche
+ * ------------------------------------------------------------------ */
+
+.kids-surface {
+  position: relative;
+  isolation: isolate;
+}
+.kids-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--kids-surface) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Bildschirmaufbau
+ * ------------------------------------------------------------------ */
+
+.kids-screen {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--kids-gap);
+  width: 100%;
+  min-height: 0;
+  padding: var(--kids-pad);
+}
+
+
+/* Kopfzeile: Wortmarke links, Spielerkarten mittig, Zaehler rechts. */
+.kids-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: var(--kids-gap);
+}
+.kids-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  min-width: 0;
+}
+.kids-brand__mark {
+  width: clamp(150px, 15cqw, 300px);
+  /* Die Wortmarke ist schwarz gezeichnet und steht hier auf hellem Grund. */
+  height: auto;
+}
+
+.kids-header__scores {
+  display: flex;
+  gap: clamp(8px, 0.9cqw, 18px);
+}
+
+/*
+ * Spielerkarte: zwei Zellen im Verhaeltnis der Zeichnung. Die farbige Haelfte
+ * des SVG endet bei 130 von 280 Einheiten - daher 46,4 %.
+ */
+.kids-score {
+  display: grid;
+  grid-template-columns: 46.4% 1fr;
+  align-items: center;
+  min-width: clamp(180px, 15.5cqw, 300px);
+  padding: clamp(6px, 0.6cqw, 12px) 0 clamp(8px, 0.8cqw, 16px);
+}
+.kids-score__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.kids-score__label {
+  font-family: var(--kids-ui);
+  font-weight: 800;
+  font-size: var(--kids-size-label);
+}
+.kids-score__value {
+  font-family: var(--kids-display);
+  font-weight: 700;
+  font-size: var(--kids-size-score);
+  font-variant-numeric: tabular-nums;
+}
+
+.kids-counter {
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(110px, 10cqw, 200px);
+  padding: clamp(8px, 0.9cqw, 18px) clamp(12px, 1.2cqw, 24px);
+  line-height: 1.05;
+}
+.kids-counter__label {
+  font-family: var(--kids-ui);
+  font-weight: 800;
+  font-size: var(--kids-size-label);
+}
+.kids-counter__value {
+  font-family: var(--kids-display);
+  font-weight: 700;
+  font-size: var(--kids-size-score);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ *
+ * Bild, Frage, Karlchen
+ * ------------------------------------------------------------------ */
+
+/*
+ * Fragezeile in den Spaltenanteilen der Designreferenz. Die dritte Spalte bleibt
+ * leer: Dort steht Karlchen, der aber am unteren Rand der ganzen Ansicht haengt
+ * und deshalb nicht in dieser Zeile liegt.
+ */
+.kids-stage {
+  display: grid;
+  grid-template-columns: 27% minmax(0, 46%) 25%;
+  gap: var(--kids-gap);
+  align-items: stretch;
+}
+/* Ohne Bild uebernimmt die Frageflaeche die Bildspalte. */
+.kids-stage--textonly {
+  grid-template-columns: minmax(0, 73%) 25%;
+}
+
+.kids-media {
+  position: relative;
+  aspect-ratio: 620 / 420;
+  padding: 2.5%;
+}
+.kids-media__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--kids-media-position, center);
+  border-radius: 2.2cqw;
+}
+/*
+ * Karlchen schaut ueber die obere Bildkante. Er liegt HINTER der gezeichneten
+ * Rahmenflaeche (`z-index: -2` gegen deren `-1`), damit nur Kopf und Fluegel
+ * herausschauen und der Rest verdeckt bleibt - wie in der Referenz.
+ */
+.kids-media__peek {
+  position: absolute;
+  right: 6%;
+  top: 0;
+  z-index: -2;
+  width: clamp(52px, 5.4cqw, 90px);
+  transform: translateY(-45%);
+  pointer-events: none;
+}
+
+.kids-panel {
+  /* Platz fuer bis zu vier Fragezeilen, ohne feste Hoehe. */
+  min-height: clamp(140px, 19cqw, 380px);
+  padding: clamp(16px, 1.9cqw, 40px) clamp(18px, 2.2cqw, 46px);
+}
+.kids-panel__category {
+  margin: 0 0 clamp(6px, 0.7cqw, 14px);
+  font-family: var(--kids-ui);
+  font-weight: 800;
+  font-size: var(--kids-size-category);
+  color: var(--kids-red);
+}
+.kids-panel__prompt {
+  margin: 0;
+  font-family: var(--kids-display);
+  font-weight: 600;
+  font-size: var(--kids-size-question);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+/*
+ * Karlchen steht am unteren rechten Rand der ganzen Ansicht, nicht in der
+ * Fragezeile: In der Referenz steht die Figur auf dem Boden neben den
+ * Antworten. Die Antwortzeilen enden bei 75 % der Breite, damit sie ihn nie
+ * beruehren.
+ */
+.kids-mascot {
+  position: absolute;
+  right: var(--kids-pad);
+  bottom: var(--kids-pad);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.kids-mascot__figure {
+  /* Hoechstens rund 430 CSS-Pixel - so weit traegt die Quellaufloesung. */
+  height: clamp(180px, 40cqh, 430px);
+  width: auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * Antwortzeilen
+ * ------------------------------------------------------------------ */
+
+.kids-solution-label {
+  margin: 0;
+  width: var(--kids-content-width);
+  font-family: var(--kids-ui);
+  font-weight: 800;
+  font-size: var(--kids-size-category);
+}
+
+.kids-answers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 0.7cqw, 14px);
+  /* Rechts bleibt die Figurenflaeche frei. */
+  width: var(--kids-content-width);
+}
+
+.kids-answer {
+  display: grid;
+  grid-template-columns: clamp(52px, 5cqw, 86px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--kids-gap);
+  min-height: clamp(66px, 8.7cqh, 110px);
+  padding: clamp(10px, 1cqw, 20px) clamp(16px, 1.6cqw, 32px);
+  color: var(--kids-ink);
+  transition:
+    color var(--kids-motion-normal) var(--kids-motion-easing),
+    opacity var(--kids-motion-normal) var(--kids-motion-easing);
+}
+/* Die gewaehlte Antwort steht rot; nur dort wird der Text weiss. */
+.kids-answer[data-state='selected'] {
+  color: #ffffff;
+}
+.kids-answer[data-state='disabled'] {
+  opacity: 0.55;
+}
+
+.kids-answer__chip {
+  /*
+   * Feste Spalte, feste Groesse: Bei zweizeiligem Text darf der Buchstabe weder
+   * mitwachsen noch nach unten rutschen.
+   */
+  width: clamp(48px, 4.7cqw, 78px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  background: var(--kids-chip) center / contain no-repeat;
+  font-family: var(--kids-display);
+  font-weight: 700;
+  font-size: clamp(26px, 2.3cqw, 46px);
+  line-height: 1;
+  color: var(--kids-ink);
+}
+
+.kids-answer__text {
+  font-family: var(--kids-ui);
+  font-weight: 700;
+  font-size: var(--kids-size-answer);
+  line-height: 1.15;
+  /* Kein Abschneiden: lange Antworten brechen um und die Zeile waechst mit. */
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Uebrige Szenen auf illustriertem Grund
+ *
+ * Pause, Rueckmeldung, Ergebnis und Enthuellung behalten ihre gemeinsame
+ * Komposition. Sie stehen hier auf Papier statt auf Dunkel, deshalb bekommen
+ * ihre Flaechen die gezeichnete Papierfarbe und einen ruhigen Rand.
+ * ------------------------------------------------------------------ */
+
+.stage--kids .scene {
+  font-family: var(--kids-ui);
+}
+.stage--kids .question-head__prompt,
+.stage--kids .feedback__label,
+.stage--kids .result__winner,
+.stage--kids .pause__progress,
+.stage--kids .pause__category,
+.stage--kids .progress-ring__seconds,
+.stage--kids .tile__value {
+  font-family: var(--kids-display);
+}
+.stage--kids .progress-ring__arc {
+  stroke: var(--kids-ink);
+}
+.stage--kids .progress-ring__track {
+  stroke: rgb(23 37 56 / 0.15);
+}
+
+/* ------------------------------------------------------------------ *
+ * Schmalere Ansichten
+ *
+ * Die Reihenfolge Bild -> Frage -> Antworten bleibt in jeder Breite gleich.
+ * Veraendert werden nur Groessen, Abstaende und die Figurenflaeche.
+ * ------------------------------------------------------------------ */
+
+/* 4:3 und schmale Ansichten: Antworten duerfen breiter werden. */
+@container stage (max-width: 1099px) {
+  .stage--kids {
+    --kids-content-width: 88%;
+    background-position: 72% center;
+  }
+  .kids-stage {
+    grid-template-columns: 27% minmax(0, 54%) 19%;
+  }
+  .kids-stage--textonly {
+    grid-template-columns: minmax(0, 81%) 19%;
+  }
+  .kids-mascot__figure {
+    height: clamp(150px, 26cqw, 320px);
+  }
+  .kids-answer {
+    grid-template-columns: clamp(46px, 6cqw, 66px) minmax(0, 1fr);
+  }
+}
+
+/*
+ * Unter 768 Pixeln ist das eine Entwickler- und Operatorvorschau, kein
+ * Spielscreen. Inhalte werden nicht entfernt, sondern duerfen scrollen.
+ */
+@container stage (max-width: 767px) {
+  .kids-screen {
+    overflow-y: auto;
+  }
+  .kids-stage,
+  .kids-stage--textonly {
+    grid-template-columns: 34% minmax(0, 1fr);
+  }
+  .kids-mascot {
+    position: absolute;
+    right: 1cqw;
+    top: 12cqw;
+    opacity: 0.35;
+  }
+  .kids-mascot__figure {
+    height: 26cqw;
+  }
+  .kids-answers,
+  .kids-solution-label {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage--kids *,
+  .stage--kids *::before,
+  .stage--kids *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

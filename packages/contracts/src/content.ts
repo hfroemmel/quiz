@@ -148,9 +148,25 @@ export const difficultyPresetSchema = z.object({
 })
 export type DifficultyPreset = z.infer<typeof difficultyPresetSchema>
 
+/**
+ * Gestaltungswelt eines Themes.
+ *
+ * `stage` ist die dunkle Buehne des Erwachsenenquiz. `kids` ist die
+ * illustrierte Karlchen-Welt mit gezeichneten Flaechen.
+ *
+ * WARUM ALS DATENFELD: Der Client darf keine Modusnamen kennen. Ohne dieses
+ * Feld muesste irgendwo `if (theme.id === 'kids')` stehen - genau die
+ * Modus-Sonderbehandlung, die die Spezifikation ausschliesst. So waehlt die
+ * Konfiguration die Welt, und ein neuer Modus bekommt sie ohne Codeaenderung.
+ */
+export const themeSkins = ['stage', 'kids'] as const
+export type ThemeSkin = (typeof themeSkins)[number]
+
 export const quizThemeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
+  /** Gestaltungswelt. Fehlt sie, gilt die dunkle Buehne. */
+  skin: z.enum(themeSkins).optional(),
   /** CSS-Custom-Properties ohne fuehrende Bindestriche, z. B. `accent`. */
   colors: z.record(z.string(), z.string()),
   logoAssetId: idSchema.optional(),

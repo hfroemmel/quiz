@@ -6,7 +6,7 @@
  * CSS auf dem Buehnenscreen waere nicht ausreichend, weil die Loesung dann bereits
  * uebertragen waere.
  */
-import type { QuestionExplanation, QuestionPresentationType } from './content.ts'
+import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content.ts'
 import type { AttemptOutcome, GamePhase, PlayerId } from './state.ts'
 import type { ActorRole, CommandType } from './commands.ts'
 
@@ -25,6 +25,8 @@ export type PublicScene = (typeof publicScenes)[number]
 
 export interface PublicTheme {
   id: string
+  /** Gestaltungswelt der Buehne. Fehlt sie, gilt die dunkle Buehne. */
+  skin?: ThemeSkin
   colors: Record<string, string>
   logoUrl?: string
   startVisualUrl?: string

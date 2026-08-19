@@ -418,6 +418,7 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
   const theme = ctx.config.themes.find((entry) => entry.id === mode.themeId) ?? ctx.config.themes[0]!
   return {
     id: theme.id,
+    skin: theme.skin,
     colors: theme.colors,
     logoUrl: ctx.assetUrl(theme.logoAssetId),
     startVisualUrl: ctx.assetUrl(mode.startVisualAssetId ?? theme.logoAssetId),

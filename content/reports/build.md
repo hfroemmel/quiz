@@ -1,5 +1,5 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.8
+Inhaltsversion: 1.0.9
 Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 
 ## Gesamtzahlen
@@ -10,7 +10,7 @@ Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 - Nach Schwierigkeit: medium=85, easy=63, hard=51
 - Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7
 - Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
-- Vergleich zu Version 1.0.7: +0 Fragen
+- Vergleich zu Version 1.0.8: +0 Fragen
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
