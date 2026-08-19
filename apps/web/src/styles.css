@@ -164,6 +164,7 @@ textarea {
   border-radius: var(--radius);
   background: var(--color-tile);
   color: var(--color-text);
+  font-weight: 700;
   cursor: pointer;
   transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
   text-decoration: none;
@@ -205,17 +206,10 @@ textarea {
 .button--option {
   /* Traegt nur den Buchstaben - der Antworttext steht auf der Buehne. */
   justify-content: space-between;
-  min-width: 5.5rem;
+  align-items: center;
 }
 .button__marker {
   display: inline-grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  font-weight: 700;
-  font-size: 0.85rem;
 }
 .button__flag {
   margin-left: auto;
@@ -369,7 +363,7 @@ select {
   align-items: center;
   justify-content: center;
   width: 7cqw;
-  padding: 0.8cqw 1.2cqw 0.6cqw;
+  padding: 1cqw 1.2cqw 0.6cqw;
   background: var(--color-tile);
   border-radius: var(--radius);
   line-height: 1;
@@ -381,7 +375,7 @@ select {
   background: var(--color-accentQuiet);
 }
 .tile__label {
-  font-size: 0.9cqw;
+  font-size: 1cqw;
   color: var(--color-textMuted);
   margin-bottom: 0.3cqw;
 }
@@ -1122,6 +1116,7 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--color-textMuted);
+  font-family: var(--font-ui);
   margin-bottom: 8px;
 }
 .controls__row {
@@ -1155,6 +1150,7 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-textMuted);
+  font-family: var(--font-ui);
   margin-bottom: 4px;
 }
 .private__block p {
