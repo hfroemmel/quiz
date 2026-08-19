@@ -381,7 +381,7 @@ select {
   position: absolute;
   left: 3cqw;
   top: 2cqw;
-  width: 13cqw;
+  width: 18cqw;
   aspect-ratio: 339.417 / 55;
   background-color: var(--color-text);
   -webkit-mask: var(--logo-url) no-repeat left center / contain;
