@@ -221,7 +221,10 @@ Projektion fragen dort nach.
   `START_GAME` traegt deshalb kein `playerLabels`, und der Server setzt seine
   Vorgabenamen.
 - Der aktive Chip ist `--accent`. Wechselt der Modus, wechselt sofort das
-  Farbsystem der gesamten Oberflaeche und das Startbild.
+  Farbsystem der **Buehnenflaeche** und das Startbild. Die Bedienoberflaeche
+  bleibt davon unberuehrt - sie traegt ihr eigenes, festes Farbsystem
+  (`--ui-*`, siehe `docs/design-system.md`), damit der Operator seine Tasten
+  nicht bei jedem Moduswechsel neu suchen muss.
 - Liegt ein wiederaufnehmbares Spiel vor (`resumable`), erscheint links neben
   `Spiel starten` zusaetzlich `Spiel fortsetzen`; das Startbild traegt dann eine
   Zeile `Unterbrochenes Spiel gefunden: Frage 4 von 7`.

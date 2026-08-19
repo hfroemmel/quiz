@@ -114,6 +114,36 @@ Der Verlauf laeuft in beiden Flaechen von oben nach unten heller. Die
 Buehnenflaeche ist minimal heller als die Seite - dadurch hebt sie sich ohne
 Rahmen und ohne Schatten ab.
 
+### Farben der Regieflaeche
+
+Die achtzehn Token oben gehoeren der **Buehne**. Die Bedienoberflaeche des
+Operators - und ebenso die Moderatoransicht - hat ein eigenes, festes
+Farbsystem, das ein Moduswechsel NICHT umtaucht:
+
+| Variable | Wert | Verwendung |
+|---|---|---|
+| `--ui-page` | `#0D0F13` | Seitenhintergrund der Bedienoberflaeche |
+| `--ui-surface` | `#171B21` | Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel |
+| `--ui-surface-quiet` | `#12151A` | Kopf- und Fusszeile |
+| `--ui-control` | `#242A33` | Schaltflaechen, Icontasten |
+| `--ui-control-disabled` | `#1A1E24` | gesperrte Icontaste |
+| `--ui-input` | `rgb(0 0 0 / 0.35)` | Eingabefelder |
+| `--ui-border` | `rgb(255 255 255 / 0.1)` | Raender und Trennlinien |
+| `--ui-text` | `#FFFFFF` | Text |
+| `--ui-text-muted` | `rgb(255 255 255 / 0.5)` | Beschriftungen, Nebeninformation |
+| `--ui-accent` | `#3693B3` | primaere Handlung, richtige Antwort im privaten Bereich, Auswahlring |
+| `--ui-correct` | `#25A7B0` | `Antwort war richtig`, Markierung der richtigen Option |
+| `--ui-incorrect` | `#A62749` | `Antwort war falsch`, Warnungen |
+
+Der Grund fuer die Trennung ist praktisch, nicht gestalterisch: Der Saal soll die
+Farbe des Quizmodus sehen, der Operator dagegen immer dieselbe Flaeche - er
+findet seine Tasten sonst bei jedem Moduswechsel neu. Die dunkle Regieflaeche
+laesst ausserdem die Buehnenvorschau als einziges helles Feld heraussstechen.
+
+Die Variablen stehen am Wurzelelement und werden von `themeVariables` nicht
+beruehrt; das setzt ausschliesslich `--color-*`. Ein Bauteil der Buehne greift nie
+auf `--ui-*` zu und umgekehrt.
+
 ### Rollenfarben
 
 | Token | Wert | Bedeutung |

@@ -110,6 +110,33 @@
 
   --radius: 6px;
   --gap: 16px;
+
+  /* ---------------------------------------------------------------- *
+   * Farben der Regieflaeche (Operator und Moderator)
+   *
+   * BEWUSST GETRENNT vom Farbsystem der Buehne. Die achtzehn `--color-*`-Token
+   * gehoeren dem Quizmodus: Wechselt der Modus, wechselt der Saal die Farbe.
+   * Die Bedienoberflaeche tut das NICHT - sie bleibt in jedem Modus dieselbe
+   * dunkle Flaeche, damit der Operator seine Tasten blind findet und die
+   * Buehnenvorschau als einziges helles Feld heraussticht.
+   *
+   * Diese Variablen stehen am Wurzelelement und werden von `themeVariables`
+   * nicht ueberschrieben - das setzt ausschliesslich `--color-*`.
+   * ---------------------------------------------------------------- */
+  --ui-page: #0d0f13;
+  /* Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel. */
+  --ui-surface: #171b21;
+  /* Kopf- und Fusszeile - eine Spur unter den Karten, damit sie zurueckstehen. */
+  --ui-surface-quiet: #12151a;
+  --ui-control: #242a33;
+  --ui-control-disabled: #1a1e24;
+  --ui-input: rgb(0 0 0 / 0.35);
+  --ui-border: rgb(255 255 255 / 0.1);
+  --ui-text: #ffffff;
+  --ui-text-muted: rgb(255 255 255 / 0.5);
+  --ui-accent: #3693b3;
+  --ui-correct: #25a7b0;
+  --ui-incorrect: #a62749;
 }
 
 * {
@@ -160,17 +187,17 @@ textarea {
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--ui-border);
   border-radius: var(--radius);
-  background: var(--color-tile);
-  color: var(--color-text);
+  background: var(--ui-control);
+  color: var(--ui-text);
   font-weight: 700;
   cursor: pointer;
   transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
   text-decoration: none;
 }
 .button:hover:not(:disabled) {
-  border-color: var(--color-accent);
+  border-color: var(--ui-accent);
 }
 .button:active:not(:disabled) {
   transform: translateY(1px);
@@ -180,8 +207,8 @@ textarea {
   cursor: not-allowed;
 }
 .button--primary {
-  background: var(--color-accent);
-  color: var(--color-text);
+  background: var(--ui-accent);
+  color: var(--ui-text);
   border-color: transparent;
   font-weight: 700;
 }
@@ -194,13 +221,13 @@ textarea {
   font-size: 0.85rem;
 }
 .button--correct {
-  border-color: var(--color-correct);
+  border-color: var(--ui-correct);
 }
 .button--incorrect {
-  border-color: var(--color-incorrect);
+  border-color: var(--ui-incorrect);
 }
 .button--selected {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--ui-accent);
   outline-offset: 2px;
 }
 .button--option {
@@ -216,7 +243,7 @@ textarea {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-correct);
+  color: var(--ui-correct);
 }
 
 /* ------------------------------------------------------------------ *
@@ -231,7 +258,7 @@ textarea {
 }
 .field > span {
   font-size: 0.85rem;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
 }
 select {
   /*
@@ -254,10 +281,10 @@ select {
 .field textarea {
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--ui-border);
   /* `background-color`, nicht `background`: Die Kurzform wuerde das Chevron
      der Auswahlfelder wieder entfernen. */
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: var(--ui-input);
 }
 .field select {
   padding-right: 40px;
@@ -985,8 +1012,9 @@ select {
   width: min(460px, 100%);
   padding: 24px;
   border-radius: var(--radius);
-  background: var(--color-tile);
-  box-shadow: 0 18px 48px rgb(0 0 0 / 0.45);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 0.55);
 }
 .dialog__title {
   margin: 0 0 10px;
@@ -995,15 +1023,15 @@ select {
 .dialog__message {
   margin: 0 0 20px;
   line-height: 1.5;
-  color: var(--color-text);
+  color: var(--ui-text);
 }
 .dialog__note {
   margin: 12px 0 0;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-size: 0.85rem;
 }
 .dialog__note--warning {
-  color: var(--color-text);
+  color: var(--ui-text);
 }
 /* Spielprotokoll: eine Zeile je Modus, Zahlen rechtsbuendig und tabellarisch. */
 .game-log {
@@ -1015,14 +1043,14 @@ select {
 .game-log td {
   padding: 6px 4px;
   text-align: left;
-  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  border-bottom: 1px solid var(--ui-border);
 }
 .game-log th {
   font-size: 0.7rem;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
 }
 /* Elementselektor schlaegt Klasse - deshalb hier ausdruecklich mit td/th. */
 .game-log td.game-log__number,
@@ -1033,7 +1061,7 @@ select {
 .game-log td.game-log__when,
 .game-log th.game-log__when {
   text-align: right;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   white-space: nowrap;
 }
 .game-log tfoot td {
@@ -1053,7 +1081,7 @@ select {
 .app-footer {
   margin-top: auto;
   padding: 0 16px;
-  background: var(--color-tile);
+  background: var(--ui-surface-quiet);
   /* Diagnose links, Spielprotokoll rechts aussen. */
   display: flex;
   align-items: center;
@@ -1106,7 +1134,7 @@ select {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: var(--color-pageTop);
+  background: var(--ui-page);
 }
 .operator--loading {
   display: grid;
@@ -1119,7 +1147,7 @@ select {
   justify-content: space-between;
   gap: var(--gap);
   padding: 12px 16px;
-  background: var(--color-stageTop);
+  background: var(--ui-surface-quiet);
   position: sticky;
   top: 0;
   z-index: 5;
@@ -1135,14 +1163,14 @@ select {
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
 }
 .session-code__value {
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   font-variant-numeric: tabular-nums;
-  color: var(--color-text);
+  color: var(--ui-text);
 }
 
 .icon-button {
@@ -1154,8 +1182,8 @@ select {
   padding: 8px;
   border: none;
   border-radius: var(--radius);
-  background: var(--color-tile);
-  color: var(--color-text);
+  background: var(--ui-control);
+  color: var(--ui-text);
   cursor: pointer;
 }
 .icon-button svg {
@@ -1163,8 +1191,8 @@ select {
   height: 100%;
 }
 .icon-button:disabled {
-  background: var(--color-tileDisabled);
-  color: var(--color-textMuted);
+  background: var(--ui-control-disabled);
+  color: var(--ui-text-muted);
   cursor: not-allowed;
 }
 
@@ -1238,7 +1266,7 @@ select {
   gap: 14px 24px;
   padding: 16px;
   border-radius: var(--radius);
-  background: var(--color-stageTop);
+  background: var(--ui-surface);
 }
 .controls__group {
   padding-top: 10px;
@@ -1247,7 +1275,7 @@ select {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-family: var(--font-ui);
   margin-bottom: 8px;
 }
@@ -1265,14 +1293,14 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
 }
 
 /* Privater Bereich */
 .private {
   padding: 14px;
   border-radius: var(--radius);
-  background: var(--color-tile);
+  background: var(--ui-surface);
 }
 .private__block {
   margin-bottom: 12px;
@@ -1281,7 +1309,7 @@ select {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-family: var(--font-ui);
   margin-bottom: 4px;
 }
@@ -1292,15 +1320,15 @@ select {
 .private__answer {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--ui-accent);
 }
 .private__block--notes {
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--ui-accent);
   padding-left: 10px;
 }
 .private__source,
 .private__accepted {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-size: 0.9rem;
 }
 
@@ -1309,11 +1337,11 @@ select {
 .resume {
   padding: 18px;
   border-radius: var(--radius);
-  background: var(--color-stageTop);
+  background: var(--ui-surface);
   margin-bottom: var(--gap);
 }
 .resume {
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--ui-accent);
 }
 .resume h2,
 .start-panel__form h2 {
@@ -1331,7 +1359,7 @@ select {
   gap: 10px;
 }
 .hotfix__note {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-size: 0.85rem;
   margin: 0;
 }
@@ -1352,7 +1380,7 @@ select {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.1);
+  background: var(--ui-control);
   font-weight: 700;
   font-size: 0.85rem;
 }
@@ -1361,15 +1389,15 @@ select {
   min-width: 0;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgb(255 255 255 / 0.18);
-  background-color: rgb(0 0 0 / 0.25);
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-input);
 }
 .hotfix__option-correct {
   flex: 0 0 auto;
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--color-correct);
+  accent-color: var(--ui-correct);
   cursor: pointer;
 }
 
@@ -1379,7 +1407,7 @@ select {
 }
 .diagnostics summary {
   cursor: pointer;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   padding: 8px 0;
 }
 .diagnostics__facts {
@@ -1390,7 +1418,7 @@ select {
 }
 .diagnostics__facts dt {
   font-size: 0.75rem;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -1402,24 +1430,24 @@ select {
   font-family: ui-monospace, monospace;
   font-size: 1.3rem;
   letter-spacing: 0.14em;
-  color: var(--color-accent);
+  color: var(--ui-accent);
 }
 .diagnostics__lan,
 .diagnostics__rationale {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-size: 0.9rem;
 }
 .diagnostics__warnings {
-  border-left: 3px solid var(--color-incorrect);
+  border-left: 3px solid var(--ui-incorrect);
   padding-left: 12px;
-  color: var(--color-incorrect);
+  color: var(--ui-incorrect);
 }
 .diagnostics__title {
   margin: 16px 0 8px;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
 }
 .audit {
   list-style: none;
@@ -1434,18 +1462,18 @@ select {
   grid-template-columns: 78px 84px 1fr;
   gap: 8px;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--ui-border);
 }
 .audit__entry time,
 .audit__role {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-variant-numeric: tabular-nums;
 }
 .audit__entry--score {
-  color: var(--color-accent);
+  color: var(--ui-accent);
 }
 .audit__entry--buzzer {
-  color: var(--color-accent);
+  color: var(--ui-accent);
 }
 
 /* ------------------------------------------------------------------ *
@@ -1457,7 +1485,7 @@ select {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: var(--color-pageTop);
+  background: var(--ui-page);
 }
 .moderator--login {
   display: grid;
@@ -1483,11 +1511,11 @@ select {
   flex-wrap: wrap;
 }
 .moderator__score {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-variant-numeric: tabular-nums;
 }
 .moderator__score--active {
-  color: var(--color-text);
+  color: var(--ui-text);
 }
 .moderator__header {
   display: flex;
@@ -1505,7 +1533,7 @@ select {
 }
 .moderator__hint {
   margin: 0;
-  color: var(--color-accent);
+  color: var(--ui-accent);
   font-size: 1.05rem;
 }
 .moderator__question h2 {
@@ -1525,33 +1553,33 @@ select {
   background: rgba(255, 255, 255, 0.06);
 }
 .moderator__option--used {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   text-decoration: line-through;
 }
 .moderator__option--correct {
-  outline: 2px solid var(--color-correct);
+  outline: 2px solid var(--ui-correct);
   font-weight: 700;
 }
 .moderator__solution {
   padding: 14px;
   border-radius: var(--radius);
-  background: var(--color-tile);
-  border: 1px dashed var(--color-accent);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
 }
 .moderator__answer {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--ui-accent);
   margin: 0 0 8px;
 }
 .moderator__notes {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
 }
 .moderator__status {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-size: 0.9rem;
 }
 .moderator__actions {
@@ -1561,7 +1589,7 @@ select {
   flex-wrap: wrap;
   gap: 10px;
   padding: 14px 16px;
-  background: var(--color-stageTop);
+  background: var(--ui-surface);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 .moderator__actions .button {
@@ -1587,7 +1615,7 @@ select {
 .preview__panel {
   padding: 16px;
   overflow-y: auto;
-  background: var(--color-stageTop);
+  background: var(--ui-surface);
   border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 .preview__panel h1 {
@@ -1598,12 +1626,12 @@ select {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   margin: 20px 0 8px;
 }
 .preview__note,
 .preview__reduced {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   font-size: 0.85rem;
 }
 .preview__transitions {
@@ -1622,16 +1650,16 @@ select {
 }
 .preview__transitions code {
   display: block;
-  color: var(--color-accent);
+  color: var(--ui-accent);
   font-weight: 700;
 }
 .preview__transitions span,
 .preview__transitions p {
-  color: var(--color-textMuted);
+  color: var(--ui-text-muted);
   margin: 4px 0 0;
 }
 .preview__locked {
-  color: var(--color-incorrect) !important;
+  color: var(--ui-incorrect) !important;
 }
 .preview__stage {
   min-height: 0;

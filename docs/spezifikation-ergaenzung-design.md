@@ -142,8 +142,9 @@ Zusaetzliche Abnahmekriterien:
    Entwicklungsansicht `/preview` anwaehlbar und dort abgenommen.
 3. Jede Zeile des Animationskatalogs hat eine Definition mit
    Reduced-Motion-Wert.
-4. Ein Moduswechsel auf der Startansicht taucht die gesamte Oberflaeche um,
-   ohne dass ein Modusname im Code steht.
+4. Ein Moduswechsel auf der Startansicht taucht die Buehnenflaeche um, ohne dass
+   ein Modusname im Code steht. Die Bedienoberflaeche behaelt ihr eigenes festes
+   Farbsystem.
 5. Kein Bauteil enthaelt einen Farbwert; alle Farben stammen aus Tokens.
 
 ## 8. Offene Punkte

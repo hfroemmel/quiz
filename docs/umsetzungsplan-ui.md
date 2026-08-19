@@ -163,8 +163,8 @@ mitgezogen.
 Startbild je Modus, Modus- und Schwierigkeitschips aus `catalog`,
 `Spiel starten`, `Spiel fortsetzen` bei wiederaufnehmbarem Spiel.
 
-*Abnahme:* Moduswechsel taucht sofort die gesamte Oberflaeche um; kein
-Modusname steht im Code.
+*Abnahme:* Moduswechsel taucht sofort die Buehnenflaeche um; kein Modusname
+steht im Code. Die Bedienoberflaeche bleibt in ihrem festen Farbsystem.
 
 ### P6 - Entworfene Zustaende
 
