@@ -139,8 +139,28 @@ export async function prepareAnswerPhase(operator: Page): Promise<void> {
 }
 
 /** Markiert die aktuelle Antwort als richtig - egal ob Optionsvergleich oder manuell. */
+/*
+ * Bewerten - unabhaengig vom Fragetyp.
+ *
+ * Auswahlfragen werden ueber die Antworttasten eingeloggt, das Bilderkennen ueber
+ * "richtig"/"falsch" von Hand. Welcher Weg gilt, entscheidet der Server; beide
+ * Tasten existieren nie gleichzeitig.
+ *
+ * WICHTIG: Erst warten, bis ueberhaupt eine der beiden Tasten da ist. Ein Zaehlen
+ * direkt nach dem Buzzern faellt sonst in die Luecke, bevor der Snapshot mit der
+ * Antwortphase eingetroffen ist - und der Test entscheidet sich fuer den falschen
+ * Weg.
+ */
+async function waitForAnswerControls(operator: Page) {
+  const options = operator.locator('.controls__row--options .button--option')
+  const manual = operator.getByRole('button', { name: /^Antwort war (richtig|falsch)$/ })
+  await expect(options.first().or(manual.first())).toBeVisible()
+  return { options, manual }
+}
+
 export async function markCorrect(operator: Page): Promise<void> {
-  if (await operator.locator('.button--marks-correct').count()) {
+  const { options } = await waitForAnswerControls(operator)
+  if (await options.count()) {
     await logCorrectOption(operator)
   } else {
     await operator.getByRole('button', { name: 'Antwort war richtig' }).click()
@@ -148,7 +168,8 @@ export async function markCorrect(operator: Page): Promise<void> {
 }
 
 export async function markIncorrect(operator: Page): Promise<void> {
-  if (await operator.locator('.controls__row--options .button--option').count()) {
+  const { options } = await waitForAnswerControls(operator)
+  if (await options.count()) {
     await logIncorrectOption(operator)
   } else {
     await operator.getByRole('button', { name: 'Antwort war falsch' }).click()
