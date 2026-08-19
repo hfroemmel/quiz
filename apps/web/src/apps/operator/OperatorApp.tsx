@@ -18,6 +18,7 @@ import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 import { unlockAudio } from '../../presentation/soundCues.ts'
 import { requestStageFullscreen } from '../../client/desktopBridge.ts'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
+import { GameLogDialog } from './GameLogDialog.tsx'
 import { FullscreenIcon, IconButton, SoundOffIcon, SoundOnIcon } from '../../ui/IconButton.tsx'
 import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
 import { OperatorControls } from './OperatorControls.tsx'
@@ -37,6 +38,7 @@ export function OperatorApp() {
   // Sobald ein neues Spiel laeuft, ist die Startansicht wieder Vergangenheit.
   const [wantsStartPanel, setWantsStartPanel] = useState(false)
   const [confirmAbort, setConfirmAbort] = useState(false)
+  const [showGameLog, setShowGameLog] = useState(false)
   useEffect(() => {
     if (view?.phase && view.phase !== 'result') setWantsStartPanel(false)
   }, [view?.phase])
@@ -189,7 +191,19 @@ export function OperatorApp() {
           connectedClients={view.diagnostics.connectedClients.length}
           audioMaster={audioMaster}
         />
+        <button className="button button--tiny" onClick={() => setShowGameLog(true)}>
+          Spielprotokoll
+        </button>
       </footer>
+
+      {showGameLog && (
+        <GameLogDialog
+          statistics={view.statistics}
+          canReset={view.allowedCommands.includes('RESET_GAME_STATISTICS')}
+          send={send}
+          onClose={() => setShowGameLog(false)}
+        />
+      )}
 
       {confirmAbort && (
         <ConfirmDialog

@@ -219,6 +219,32 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
   resumable?: { gameId: string; quizModeId: string; presetId: string; progress: string }
   /** Verfuegbare Modi und Presets aus validierter Konfiguration, nicht aus UI-Konstanten. */
   catalog: CatalogViewModel
+  /** Gespielte Spiele je Quizmodus. Liegt in der Datenbank, nicht im Browser. */
+  statistics: GameStatisticsViewModel
+}
+
+/**
+ * Spielprotokoll: wie viele Spiele in welchem Modus bereits gelaufen sind.
+ *
+ * Gezaehlt wird ueber Veranstaltungstage hinweg - das Protokoll beantwortet
+ * "was haben wir mit diesem Aufbau schon gespielt", nicht "was lief heute".
+ */
+export interface GameStatisticsViewModel {
+  /**
+   * Zeitpunkt, ab dem gezaehlt wird. Fehlt er, laeuft die Zaehlung seit der
+   * ersten Inbetriebnahme.
+   */
+  countingSinceIso?: string
+  modes: {
+    quizModeId: string
+    label: string
+    /** Alle begonnenen Spiele, einschliesslich abgebrochener und laufender. */
+    total: number
+    /** Bis zum Ergebnis gespielt. */
+    completed: number
+    aborted: number
+    lastPlayedIso?: string
+  }[]
 }
 
 export interface CatalogViewModel {

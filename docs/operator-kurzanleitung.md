@@ -27,6 +27,10 @@
 | 9 | Nach der siebten Frage: `Weiter zum Ergebnis` |
 | 10 | `Zurück zur Startansicht` fuer das naechste Spielpaar |
 
+Wie viele Spiele in welchem Modus schon gelaufen sind, steht hinter der Taste
+`Spielprotokoll` rechts unten in der Fusszeile. Die Zahlen liegen in der
+Datenbank und bleiben deshalb auch nach einem Neustart erhalten.
+
 Der private Bereich rechts neben der Buehnenflaeche zeigt jederzeit die richtige Antwort und die
 Zusatzinformationen. Der Saal sieht davon nichts.
 

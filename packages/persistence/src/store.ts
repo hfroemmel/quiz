@@ -39,6 +39,16 @@ export interface UsageRow {
   usedAtMs: number
 }
 
+/** Eine Zeile des Spielprotokolls: alle Spiele eines Quizmodus. */
+export interface GameCountRow {
+  quizModeId: string
+  total: number
+  completed: number
+  aborted: number
+  /** Zeitpunkt des zuletzt begonnenen Spiels dieses Modus. */
+  lastAtIso?: string
+}
+
 export class QuizStore {
   private readonly db: Database.Database
 
@@ -378,6 +388,44 @@ export class QuizStore {
       createdAt: row.created_at,
       createdBy: 'operator',
       applyMode: row.apply_mode as QuestionPatch['applyMode'],
+    }))
+  }
+
+  /* ---------------- Spielprotokoll ---------------- */
+
+  /**
+   * Gespielte Spiele je Quizmodus.
+   *
+   * `sinceIso` begrenzt die Zaehlung auf Spiele ab diesem Zeitpunkt. So laesst
+   * sich das Protokoll zuruecksetzen, ohne Spiele zu loeschen: Spielstaende,
+   * Versuche und Auditlog haengen an denselben Zeilen und wuerden mitgeloescht.
+   */
+  gameCountsByMode(sinceIso: string | null): GameCountRow[] {
+    const rows = this.db
+      .prepare(
+        `SELECT quiz_mode_id,
+                COUNT(*)                                             AS total,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,
+                SUM(CASE WHEN status = 'aborted'   THEN 1 ELSE 0 END) AS aborted,
+                MAX(created_at)                                      AS last_at
+           FROM games
+          WHERE (@since IS NULL OR created_at >= @since)
+       GROUP BY quiz_mode_id`,
+      )
+      .all({ since: sinceIso }) as {
+      quiz_mode_id: string
+      total: number
+      completed: number
+      aborted: number
+      last_at: string | null
+    }[]
+
+    return rows.map((row) => ({
+      quizModeId: row.quiz_mode_id,
+      total: row.total,
+      completed: row.completed,
+      aborted: row.aborted,
+      lastAtIso: row.last_at ?? undefined,
     }))
   }
 

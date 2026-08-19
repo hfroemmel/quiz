@@ -10,6 +10,7 @@
 import {
   isChoiceQuestion,
   scoringRules,
+  type GameStatisticsViewModel,
   type AuditEntry,
   type CatalogViewModel,
   type ModeratorQuizViewModel,
@@ -58,6 +59,14 @@ export interface ProjectionContext {
   previewModeId?: string
   /** Globaler Soundstatus, solange kein Spiel laeuft. */
   soundEnabled?: boolean
+  /**
+   * Rohzahlen des Spielprotokolls aus der Datenbank, je Quizmodus. Die Zuordnung
+   * zu lesbaren Modusnamen passiert hier in der Projektion - dieselbe Regel wie
+   * bei Rubriken: rohe IDs kommen nicht in die Oberflaeche.
+   */
+  gameCounts?: { quizModeId: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
+  /** Zeitpunkt, ab dem das Protokoll zaehlt. */
+  statisticsSinceIso?: string
 }
 
 /**
@@ -263,6 +272,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
       lanUrls: ctx.lanUrls,
       warnings: [...(ctx.warnings ?? []), ...videoWarnings(state)],
     },
+    statistics: gameStatistics(ctx),
     resumable: ctx.resumable,
     catalog: buildCatalog(ctx),
   }
@@ -310,6 +320,30 @@ function publicOptions(state: GameState, scene: PublicScene): PublicOption[] | u
       }
       return entry
     })
+}
+
+/**
+ * Spielprotokoll: jeder konfigurierte Modus erscheint, auch mit null Spielen.
+ *
+ * Ein fehlender Eintrag waere zweideutig - "noch nie gespielt" sieht dann aus wie
+ * "Modus gibt es nicht mehr".
+ */
+function gameStatistics(ctx: ProjectionContext): GameStatisticsViewModel {
+  const byMode = new Map((ctx.gameCounts ?? []).map((entry) => [entry.quizModeId, entry]))
+  return {
+    countingSinceIso: ctx.statisticsSinceIso,
+    modes: ctx.config.modes.map((mode) => {
+      const counts = byMode.get(mode.id)
+      return {
+        quizModeId: mode.id,
+        label: mode.label,
+        total: counts?.total ?? 0,
+        completed: counts?.completed ?? 0,
+        aborted: counts?.aborted ?? 0,
+        lastPlayedIso: counts?.lastAtIso,
+      }
+    }),
+  }
 }
 
 function correctAnswerText(state: GameState): string {

@@ -168,6 +168,20 @@ liesse sich genau bei diesen Fragen die Loesung nicht korrigieren.
 Gespeichert wird nur, was tatsaechlich geaendert wurde. Die Felder leeren sich
 beim Fragenwechsel - sonst stuende die Korrektur der vorigen Frage im Formular.
 
+### Fusszeile
+
+Flache Leiste am unteren Rand: links der aufklappbare Bereich
+`Technik, Protokoll und Verbindung`, rechts aussen die Taste `Spielprotokoll`.
+Sie oeffnet ein Popup mit den bisher gespielten Spielen je Quizmodus - gesamt,
+davon beendet, davon abgebrochen, und wann zuletzt gespielt wurde. Jeder
+konfigurierte Modus steht in der Tabelle, auch mit null Spielen: Ein fehlender
+Eintrag sieht sonst aus wie ein Modus, den es nicht mehr gibt.
+
+`Protokoll zurücksetzen` fragt in derselben Flaeche nach (`Wirklich zurücksetzen`)
+- ein zweites Popup ueber dem Popup waere unbedienbar. Zurueckgesetzt wird die
+**Zaehlung**: Die Spiele bleiben mit Punktestand und Auditlog in der Datenbank,
+und das Protokoll zaehlt ab diesem Zeitpunkt neu.
+
 ## Antwortoptionen: zwei bis vier
 
 Der Entwurf zeigt vier Leisten, verlangt sie aber nicht. Erlaubt sind **zwei bis
