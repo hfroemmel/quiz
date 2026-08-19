@@ -68,6 +68,8 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
       socketRef.current = socket
 
       socket.addEventListener('open', () => {
+        // Nur der aktuell gefuehrte Socket darf den Zustand veraendern.
+        if (socketRef.current !== socket) return socket.close()
         attemptRef.current = 0
         setConnected(true)
       })
@@ -118,6 +120,15 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
       }
 
       socket.addEventListener('close', () => {
+        /*
+         * NUR DER AKTUELLE SOCKET ZAEHLT. Ein spaet eintreffendes `close` einer
+         * bereits ersetzten Verbindung darf weder die laufende Verbindung
+         * verwerfen noch einen zweiten Wiederverbindungsversuch starten. Sonst
+         * zeigt der Client zwar Snapshots an, sendet aber ins Leere - im
+         * Entwicklungsmodus reproduzierbar, weil React jeden Effekt doppelt
+         * ausfuehrt, und im Betrieb bei jedem Reconnect moeglich.
+         */
+        if (socketRef.current !== socket) return
         setConnected(false)
         socketRef.current = null
         scheduleReconnect()
@@ -138,7 +149,21 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
 
   const send = useCallback((command: Command) => {
     const socket = socketRef.current
-    if (!socket || socket.readyState !== WebSocket.OPEN) return
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      /*
+       * Ein verschluckter Befehl ist im Live-Betrieb das Schlimmste: Der Operator
+       * klickt, nichts passiert, und niemand weiss warum. Statt still zu
+       * verwerfen wird die fehlende Verbindung gemeldet - der Befehl selbst wird
+       * NICHT nachgereicht, weil er sich auf einen inzwischen veralteten Stand
+       * beziehen wuerde.
+       */
+      setLastRejection({
+        reason: 'error',
+        message: 'Keine Verbindung zum Quizserver - der Befehl wurde nicht gesendet. Bitte erneut versuchen.',
+        atMs: Date.now(),
+      })
+      return
+    }
     socket.send(
       JSON.stringify({
         type: 'command',

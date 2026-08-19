@@ -130,7 +130,13 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
                 {view.visibleOptions.map((option) => (
                   <li
                     key={option.id}
-                    className={option.id === view.privateSolution?.correctOptionId ? 'moderator__option--correct' : ''}
+                    className={[
+                      option.id === view.privateSolution?.correctOptionId ? 'moderator__option--correct' : '',
+                      // Bereits als falsch bewertet - fuer die zweite Chance verbraucht.
+                      option.state === 'chosen-incorrect' ? 'moderator__option--used' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                   >
                     {option.text}
                   </li>

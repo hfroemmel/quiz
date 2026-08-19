@@ -8,6 +8,7 @@
  * Ein Ausblenden per CSS waere nicht ausreichend.
  */
 import {
+  isChoiceQuestion,
   scoringRules,
   type AuditEntry,
   type CatalogViewModel,
@@ -154,6 +155,8 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           }
         : undefined,
     question: publicQuestion,
+    // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
+    upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx) : undefined,
     /*
      * Die Antwortmoeglichkeiten gehen erst auf die Leitung, wenn der Operator die
      * Runde freigegeben hat. Solange nur die Frage steht, liest der Moderator sie
@@ -244,6 +247,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
           prompt: question.prompt,
           options: (question.options ?? []).map((option) => ({ id: option.id, text: option.text })),
           correctOptionId: question.correctOptionId,
+          acceptedAnswerText: question.acceptedAnswerText ?? [],
         }
       : undefined,
     allowedCommands: [
@@ -271,9 +275,13 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
 function publicOptions(state: GameState, scene: PublicScene): PublicOption[] | undefined {
   const runtime = state.currentQuestion
   const question = runtime?.question
-  if (!runtime || !question?.options?.length) return undefined
+  /*
+   * Ohne echte Auswahl gibt es keine Antwortleisten. Eine einzelne Option waere
+   * die Loesung auf der Buehne - die Frage laeuft dann als freie Antwort.
+   */
+  if (!runtime || !question || !isChoiceQuestion(question)) return undefined
 
-  const byId = new Map(question.options.map((option) => [option.id, option]))
+  const byId = new Map((question.options ?? []).map((option) => [option.id, option]))
   const chosenIncorrect = new Set(
     attemptsForCurrentQuestion(state)
       .filter((attempt) => attempt.outcome === 'incorrect' && attempt.loggedOptionId)
@@ -286,9 +294,15 @@ function publicOptions(state: GameState, scene: PublicScene): PublicOption[] | u
     .map((option) => {
       const entry: PublicOption = { id: option.id, text: option.text }
       // Ob eine Option richtig ist, wird erst in der Loesungsszene uebertragen.
-      if (scene === 'solution') {
-        if (option.id === question.correctOptionId) entry.state = 'correct'
-        else if (chosenIncorrect.has(option.id)) entry.state = 'chosen-incorrect'
+      if (scene === 'solution' && option.id === question.correctOptionId) {
+        entry.state = 'correct'
+      } else if (chosenIncorrect.has(option.id)) {
+        /*
+         * Eine bereits als falsch bewertete Option ist verbraucht. Sie wird sofort
+         * so markiert - nicht erst in der Loesungsszene -, damit die zweite Chance
+         * sie sichtbar ausschliesst. Der Saal hat die Bewertung ohnehin gehoert.
+         */
+        entry.state = 'chosen-incorrect'
       } else if (option.id === pendingAttempt(state)?.loggedOptionId) {
         // Die eingeloggte Antwort ist oeffentlich - aber nur als Festlegung,
         // nicht als Bewertung.

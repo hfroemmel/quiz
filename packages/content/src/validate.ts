@@ -290,7 +290,7 @@ type AddIssue = (severity: IssueSeverity, code: string, message: string, subject
 
 function validateAnswerModel(question: Question, add: AddIssue): void {
   const options = question.options ?? []
-  const needsExactlyFour =
+  const isChoiceType =
     question.presentationType === 'text-choice' || question.presentationType === 'image-choice'
 
   /*
@@ -326,11 +326,25 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
     )
   }
 
-  if (needsExactlyFour && options.length !== contentThresholds.requiredChoiceOptionCount) {
+  /*
+   * Drei Optionen statt vier sind erlaubt - die Leisten teilen sich die Breite
+   * ohnehin. Unter zwei Optionen gibt es nichts zu waehlen, ueber vier fehlt der
+   * Buchstabe im Entwurf.
+   */
+  if (isChoiceType && options.length < contentThresholds.minChoiceOptionCount) {
     add(
       structural,
       'option-count',
-      `Fragetyp "${question.presentationType}" verlangt genau ${contentThresholds.requiredChoiceOptionCount} Optionen, gefunden: ${options.length}.${draftHint}`,
+      `Fragetyp "${question.presentationType}" braucht mindestens ${contentThresholds.minChoiceOptionCount} Antwortoptionen, gefunden: ${options.length}. ` +
+        `Mit weniger ist es keine Auswahlfrage - dann gehoert die Loesung nach "acceptedAnswerText".${draftHint}`,
+      question.id,
+    )
+  }
+  if (isChoiceType && options.length > contentThresholds.maxChoiceOptionCount) {
+    add(
+      structural,
+      'option-count',
+      `Fragetyp "${question.presentationType}" erlaubt hoechstens ${contentThresholds.maxChoiceOptionCount} Antwortoptionen, gefunden: ${options.length}.${draftHint}`,
       question.id,
     )
   }

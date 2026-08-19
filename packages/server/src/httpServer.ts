@@ -102,8 +102,16 @@ function serveMedia(service: QuizService, assetId: string, response: ServerRespo
   const filename = service.content.assetFilename(assetId)
   if (!filename) return sendText(response, 404, 'Medium unbekannt')
 
-  const path = resolveAssetPath(service.content.rootDir, filename)
-  if (!path || !existsSync(path)) {
+  /*
+   * Gesucht wird zuerst im gebauten Paket, danach im redaktionellen
+   * Quellverzeichnis (siehe `ContentService.mediaRoots`). Die Pfadpruefung von
+   * `resolveAssetPath` gilt fuer jedes Verzeichnis einzeln - ein Dateiname aus den
+   * Quizdaten kann damit auch hier nichts ausserhalb der Assets erreichen.
+   */
+  const path = service.content.mediaRoots
+    .map((root) => resolveAssetPath(root, filename))
+    .find((candidate): candidate is string => Boolean(candidate) && existsSync(candidate!))
+  if (!path) {
     // Die Warnung bleibt: Der Operator muss wissen, dass hier kein echtes Bild
     // haengt. Statt eines kaputten Bildsymbols kommt ein lesbares Ersatzbild,
     // damit sich die Frage trotzdem spielen laesst.

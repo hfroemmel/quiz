@@ -16,6 +16,12 @@ export function PauseScene({ view }: SceneProps) {
           Frage {Math.min(view.progress.current, view.progress.total)} von {view.progress.total}
         </p>
       )}
+      {/*
+        * Die Rubrik kommt nach der Fragenummer herein. Sie ist das einzige
+        * inhaltliche Wort auf diesem Screen - Fragetext, Optionen und Bild
+        * bleiben bis zur Frageszene beim Server.
+        */}
+      {view.upcomingCategoryLabel && <p className="pause__category">{view.upcomingCategoryLabel}</p>}
     </div>
   )
 }

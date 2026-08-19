@@ -47,8 +47,14 @@ export const gameTiming = {
    * Dies ist der einzige Timingwert, der laut Spezifikation bindend ist.
    */
   imageRevealDurationMs: 10_000,
-  /** Dauer des Pausen-/Logoscreens zwischen zwei Fragen. */
-  pauseScreenMs: 1_200,
+  /**
+   * Dauer des Pausen-/Logoscreens zwischen zwei Fragen.
+   *
+   * Er kuendigt Fragenummer und Rubrik an. Anderthalb Sekunden reichten dafuer
+   * nicht: Die Rubrik blendet ein, und der Saal soll sie lesen koennen, bevor die
+   * Frage steht.
+   */
+  pauseScreenMs: 3_000,
 } as const
 
 /** Parameter des Auswahlalgorithmus (Spezifikation 17.2). */
@@ -74,8 +80,16 @@ export const contentThresholds = {
   longPromptChars: 220,
   /** Ab dieser Laenge gilt ein Antworttext als sehr lang. */
   longOptionChars: 90,
-  /** Anzahl Optionen, die Multiple-Choice-Fragen mit Optionen besitzen muessen. */
-  requiredChoiceOptionCount: 4,
+  /**
+   * Zulaessige Anzahl Antwortoptionen einer Auswahlfrage.
+   *
+   * Unter zwei Optionen gibt es nichts zu waehlen - eine einzelne "Auswahl" waere
+   * die Loesung selbst. Solche Fragen gehoeren als freie Antwort in
+   * `acceptedAnswerText`. Nach oben begrenzt der Entwurf: vier Zeilen mit den
+   * Buchstaben A bis D.
+   */
+  minChoiceOptionCount: 2,
+  maxChoiceOptionCount: 4,
 } as const
 
 export type ScoringRules = typeof scoringRules

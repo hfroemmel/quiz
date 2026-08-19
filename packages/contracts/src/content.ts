@@ -10,6 +10,7 @@
  *  - Laufzeitdaten (z. B. das Legacy-Feld `playCount`) gehoeren nicht in den Inhalt.
  */
 import { z } from 'zod'
+import { contentThresholds } from './config.ts'
 
 /** Praesentationsform einer Frage auf dem Buehnenscreen. */
 export const questionPresentationTypes = [
@@ -80,6 +81,21 @@ export const questionSchema = z.object({
   enabled: z.boolean(),
 })
 export type Question = z.infer<typeof questionSchema>
+
+/**
+ * Ist die Frage eine echte Auswahlfrage?
+ *
+ * EINZIGE QUELLE DIESER ENTSCHEIDUNG. Validierung, Engine, Befehlsfreigabe und
+ * Projektion fragen hier - und nur hier -, ob Antwortleisten, Buchstabentasten und
+ * der automatische Vergleich gegen `correctOptionId` ueberhaupt Sinn ergeben.
+ *
+ * Fragen mit weniger als zwei Optionen sind keine Auswahl: Eine einzelne Option
+ * waere die Loesung selbst. Sie laufen deshalb ueberall als freie Antwort - der
+ * Saal sieht keine Ein-Zeilen-Auswahl, und der Operator bewertet von Hand.
+ */
+export function isChoiceQuestion(question: Pick<Question, 'options'>): boolean {
+  return (question.options?.length ?? 0) >= contentThresholds.minChoiceOptionCount
+}
 
 export const mediaAssetSchema = z.object({
   id: idSchema,

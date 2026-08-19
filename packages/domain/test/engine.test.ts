@@ -155,6 +155,35 @@ describe('Normale Multiple-Choice-Frage', () => {
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-2' }).reason).toBe('invalid-phase')
   })
 
+  it('sperrt eine bereits als falsch bewertete Option fuer die zweite Chance', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'c' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+
+    // Dieselbe Option noch einmal koennte nur zu einem zweiten "falsch" fuehren.
+    expect(harness.expectReject({ type: 'LOG_OPTION_ANSWER', optionId: 'c' }).reason).toBe('option-already-answered')
+    // Jede andere Option bleibt selbstverstaendlich waehlbar.
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    expect(harness.state!.attempts.at(-1)!.loggedOptionId).toBe('b')
+  })
+
+  it('meldet die verbrauchte Option auch im oeffentlichen View-Modell', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'c' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+
+    const options = harness.publicView().visibleOptions ?? []
+    expect(options.find((option) => option.id === 'c')?.state).toBe('chosen-incorrect')
+    // Die richtige Antwort bleibt bis zur Loesungsszene verborgen.
+    expect(options.some((option) => option.state === 'correct')).toBe(false)
+  })
+
   it('richtige zweite Chance gibt exakt 50 Punkte', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)

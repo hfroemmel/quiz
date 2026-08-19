@@ -9,7 +9,7 @@
  * Diese Funktion ist eine Vorschau, keine zweite Validierung: verbindlich entscheidet
  * weiterhin die Engine beim Verarbeiten des Befehls.
  */
-import { roleMayIssue, type ActorRole, type CommandType, type GameState } from '@quiz/contracts'
+import { isChoiceQuestion, roleMayIssue, type ActorRole, type CommandType, type GameState } from '@quiz/contracts'
 
 export function availableCommands(state: GameState | null): CommandType[] {
   const list = new Set<CommandType>()
@@ -30,16 +30,20 @@ export function availableCommands(state: GameState | null): CommandType[] {
   list.add('ADJUST_SCORE')
 
   const question = state.currentQuestion?.question
-  const hasOptions = (question?.options?.length ?? 0) > 0
+  const isChoice = question ? isChoiceQuestion(question) : false
   const addAnswerLogging = () => {
-    if (hasOptions) list.add('LOG_OPTION_ANSWER')
+    if (isChoice) list.add('LOG_OPTION_ANSWER')
     /*
      * "Richtig"/"Falsch" von Hand gibt es nur, wo die Frage es vorsieht - beim
      * Bilderkennen mit freier Antwort. Bei einer Auswahlfrage waere es ein
      * zweiter Bewertungsweg neben der eingeloggten Option und wuerde die
      * automatische Auswertung aushebeln.
+     *
+     * Eine Frage ohne echte Auswahl (weniger als zwei Optionen) hat keine
+     * Buchstabentasten - dort ist die Handbewertung der einzige Weg, egal was
+     * im Datensatz als Auswertungsart steht.
      */
-    if (question?.evaluationMode === 'manual-correct-incorrect') list.add('MARK_MANUAL_ANSWER')
+    if (question?.evaluationMode === 'manual-correct-incorrect' || !isChoice) list.add('MARK_MANUAL_ANSWER')
     list.add('RESOLVE_ATTEMPT')
   }
 

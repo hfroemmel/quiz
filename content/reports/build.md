@@ -1,31 +1,31 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.6
-Ergebnis: BESTANDEN (0 Fehler, 65 Warnungen)
+Inhaltsversion: 1.0.7
+Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 
 ## Gesamtzahlen
-- Fragen gesamt: 199 (aktiv: 198)
+- Fragen gesamt: 199 (aktiv: 199)
 - Wiederholungsgruppen: 191
 - Medien: 194
 - Nach Modus: adults=143, kids=56
 - Nach Schwierigkeit: medium=85, easy=63, hard=51
 - Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7
 - Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
-- Vergleich zu Version 1.0.5: +0 Fragen
+- Vergleich zu Version 1.0.6: +0 Fragen
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
-- Platz 2 "wissen": 41 Kandidaten, 41 Wiederholungsgruppen
+Spiele ohne Wiederholung: 20
+- Platz 1 "einstieg": 20 Kandidaten, 20 Wiederholungsgruppen
+- Platz 2 "wissen": 42 Kandidaten, 42 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
-- Platz 4 "vertiefung": 101 Kandidaten, 100 Wiederholungsgruppen
+- Platz 4 "vertiefung": 102 Kandidaten, 101 Wiederholungsgruppen
 - Platz 5 "steigerung": 60 Kandidaten, 59 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 88 Kandidaten, 88 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 89 Kandidaten, 89 Wiederholungsgruppen
 - Platz 7 "finale": 101 Kandidaten, 100 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "medium"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
+Spiele ohne Wiederholung: 20
+- Platz 1 "einstieg": 20 Kandidaten, 20 Wiederholungsgruppen
 - Platz 2 "wissen": 60 Kandidaten, 59 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "parlament": 70 Kandidaten, 69 Wiederholungsgruppen
@@ -44,14 +44,14 @@ Spiele ohne Wiederholung: 13
 - Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, steigerung
 
 ### Modus "adults" / Preset "mixed"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
-- Platz 2 "wissen": 142 Kandidaten, 141 Wiederholungsgruppen | konkurriert mit: finale
+Spiele ohne Wiederholung: 20
+- Platz 1 "einstieg": 20 Kandidaten, 20 Wiederholungsgruppen
+- Platz 2 "wissen": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: finale
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
-- Platz 4 "orte": 59 Kandidaten, 59 Wiederholungsgruppen
+- Platz 4 "orte": 60 Kandidaten, 60 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 88 Kandidaten, 88 Wiederholungsgruppen
-- Platz 7 "finale": 142 Kandidaten, 141 Wiederholungsgruppen | konkurriert mit: wissen
+- Platz 6 "bildauswahl": 89 Kandidaten, 89 Wiederholungsgruppen
+- Platz 7 "finale": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "kids" / Preset "easy"
 Spiele ohne Wiederholung: 12
@@ -74,14 +74,14 @@ Spiele ohne Wiederholung: 12
 - Platz 7 "finale": 56 Kandidaten, 56 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "saarbruecken" / Preset "regional"
-Spiele ohne Wiederholung: 12
-- Platz 1 "einstieg": 14 Kandidaten, 12 Wiederholungsgruppen
+Spiele ohne Wiederholung: 13
+- Platz 1 "einstieg": 15 Kandidaten, 13 Wiederholungsgruppen
 - Platz 2 "vertiefung": 29 Kandidaten, 28 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 14 Kandidaten, 14 Wiederholungsgruppen
 - Platz 4 "mittelfeld": 39 Kandidaten, 38 Wiederholungsgruppen | konkurriert mit: steigerung
 - Platz 5 "steigerung": 39 Kandidaten, 38 Wiederholungsgruppen | konkurriert mit: mittelfeld
-- Platz 6 "bildauswahl": 42 Kandidaten, 37 Wiederholungsgruppen
-- Platz 7 "finale": 63 Kandidaten, 57 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 43 Kandidaten, 38 Wiederholungsgruppen
+- Platz 7 "finale": 64 Kandidaten, 58 Wiederholungsgruppen
 
 ## Warnungen (bewusste Freigabe erforderlich)
 - [missing-credit] 9: Kein Bildnachweis fuer "img-9".
@@ -141,7 +141,6 @@ Spiele ohne Wiederholung: 12
 - [missing-explanation] 128: Kein Erklaerungstext hinterlegt.
 - [missing-credit] 148: Kein Bildnachweis fuer "img-148".
 - [missing-credit] 149: Kein Bildnachweis fuer "img-149".
-- [option-count] 151: Fragetyp "image-choice" verlangt genau 4 Optionen, gefunden: 3. Die Frage ist deaktiviert und wird nicht gespielt.
 - [missing-credit] 153: Kein Bildnachweis fuer "img-153".
 - [missing-credit] 154: Kein Bildnachweis fuer "img-154".
 - [missing-credit] 157: Kein Bildnachweis fuer "img-157".

@@ -17,6 +17,7 @@
  */
 import {
   gameTiming,
+  isChoiceQuestion,
   isImageReveal,
   scoringRules,
   type AnswerAttempt,
@@ -411,8 +412,22 @@ function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' 
 
   const question = work.state.currentQuestion!.question
   if (input.optionId !== undefined) {
+    if (!isChoiceQuestion(question)) {
+      return reject('invalid-payload', 'Diese Frage hat keine Antwortoptionen zum Einloggen.')
+    }
     const known = question.options?.some((option) => option.id === input.optionId)
     if (!known) return reject('invalid-payload', 'Diese Antwortoption gehört nicht zur Frage.')
+    /*
+     * Eine bereits als falsch bewertete Option ist verbraucht. Sie in der zweiten
+     * Chance erneut einzuloggen koennte nur zu einem zweiten "falsch" fuehren -
+     * der Operator sieht sie deshalb gesperrt, und der Server haelt die Regel.
+     */
+    const alreadyWrong = attemptsForCurrentQuestion(work.state).some(
+      (attempt) => attempt.outcome === 'incorrect' && attempt.loggedOptionId === input.optionId,
+    )
+    if (alreadyWrong) {
+      return reject('option-already-answered', 'Diese Antwort wurde bereits als falsch bewertet.')
+    }
   }
 
   work.mutate((draft) => {

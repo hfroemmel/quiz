@@ -91,14 +91,20 @@ export function OperatorControls({ view, send }: Props) {
               {view.visibleOptions.map((option, index) => {
                 const isCorrect = option.id === question?.correctOptionId
                 const isLogged = answering?.loggedOptionId === option.id
+                /*
+                 * In der zweiten Chance ist eine schon als falsch bewertete Option
+                 * verbraucht. Der Server lehnt sie ab; die Taste zeigt das vorher.
+                 */
+                const isUsedUp = option.state === 'chosen-incorrect'
                 return (
                   <button
                     key={option.id}
                     className={`button button--option ${isLogged ? 'button--selected' : ''} ${isCorrect ? 'button--marks-correct' : ''}`}
+                    disabled={isUsedUp}
                     onClick={() => send({ type: 'LOG_OPTION_ANSWER', optionId: option.id })}
                     // Der Antworttext steht bereits auf der Buehne. Die Taste traegt
                     // deshalb nur den Buchstaben; der Volltext bleibt als Tooltip.
-                    title={option.text}
+                    title={isUsedUp ? `${option.text} - bereits als falsch bewertet` : option.text}
                   >
                     <span className="button__marker">{optionLetter(index)}</span>
                     {/* Nur der Operator sieht, welche Option richtig ist. */}
