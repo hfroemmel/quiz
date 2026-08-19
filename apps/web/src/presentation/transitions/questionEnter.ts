@@ -32,14 +32,14 @@ export const revealEnter: PresentationTransitionDefinition = {
   soundCueId: 'question-appear',
   classNames: { active: 'reveal-enter', to: 'scene-enter' },
   locked:
-    'Die Einblendung darf laufen, der Enthuellungsfortschritt selbst wird aber ausschliesslich ' +
-    'aus dem Serverzustand berechnet. Countdown und Bildschaerfe duerfen niemals aus dieser ' +
+    'Die Einblendung darf laufen, der Enthüllungsfortschritt selbst wird aber ausschließlich ' +
+    'aus dem Serverzustand berechnet. Countdown und Bildschärfe dürfen niemals aus dieser ' +
     'Animation abgeleitet werden.',
 }
 
 export const videoEnter: PresentationTransitionDefinition = {
   id: 'video-enter',
-  description: 'Videophase: Buehne verdunkelt, Videoflaeche faehrt auf.',
+  description: 'Videophase: Bühne verdunkelt, Videofläche fährt auf.',
   appliesTo: { from: '*', to: 'video' },
   durationMs: presentationTiming.sceneFadeMs,
   easing: easings.standard,

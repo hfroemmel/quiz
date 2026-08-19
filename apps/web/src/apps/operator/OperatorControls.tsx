@@ -7,7 +7,9 @@
  * deaktivierter Buttons mehr, und Operator- und Moderatorclient koennen niemals
  * auseinanderlaufen.
  */
+import { useState } from 'react'
 import type { Command, CommandType, OperatorQuizViewModel } from '@quiz/contracts'
+import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 import { optionLetter } from '../../ui/OptionBar.tsx'
 
 interface Props {
@@ -16,6 +18,7 @@ interface Props {
 }
 
 export function OperatorControls({ view, send }: Props) {
+  const [confirmReset, setConfirmReset] = useState(false)
   const can = (type: CommandType) => view.allowedCommands.includes(type)
   const question = view.privateSolution
   const answering = view.answering
@@ -39,7 +42,7 @@ export function OperatorControls({ view, send }: Props) {
             )}
             {can('START_IMAGE_REVEAL') && (
               <button className="button button--primary" onClick={() => send({ type: 'START_IMAGE_REVEAL' })}>
-                Enthuellung starten
+                Enthüllung starten
               </button>
             )}
           </div>
@@ -55,17 +58,23 @@ export function OperatorControls({ view, send }: Props) {
               view.playerScores.map((score) => (
                 <button
                   key={score.playerId}
-                  className="button"
+                  className={`button ${view.currentPlayer === score.playerId ? 'button--selected' : ''}`}
                   disabled={score.locked}
                   onClick={() => send({ type: 'SELECT_PLAYER_MANUALLY', playerId: score.playerId })}
                   title="Fallback, falls der Hardware-Buzzer nicht funktioniert"
                 >
-                  {score.label} manuell auswaehlen
+                  {score.label}
                 </button>
               ))}
             {can('RESET_BUZZER') && (
-              <button className="button" onClick={() => send({ type: 'RESET_BUZZER' })}>
-                Buzzer zuruecksetzen
+              <button
+                className="button"
+                // Ohne zugeordneten Spieler gibt es nichts zurueckzunehmen.
+                disabled={!view.currentPlayer}
+                onClick={() => send({ type: 'RESET_BUZZER' })}
+                title="Spielerzuordnung und eingeloggte Antwort verwerfen"
+              >
+                zurücksetzen
               </button>
             )}
           </div>
@@ -129,7 +138,7 @@ export function OperatorControls({ view, send }: Props) {
       {/* --- Aufloesen --- */}
       {(can('RESOLVE_ATTEMPT') || can('RESOLVE_WITHOUT_ANSWER') || can('PASS_SECOND_CHANCE')) && (
         <div className="controls__group">
-          <h3 className="controls__title">Aufloesen</h3>
+          <h3 className="controls__title">Auflösen</h3>
           <div className="controls__row">
             {can('RESOLVE_ATTEMPT') && (
               <button
@@ -138,7 +147,7 @@ export function OperatorControls({ view, send }: Props) {
                 onClick={() => send({ type: 'RESOLVE_ATTEMPT' })}
                 title="Wertet den eingeloggten Versuch verbindlich aus und bucht die Punkte"
               >
-                Aufloesen und bewerten
+                Auflösen und bewerten
               </button>
             )}
             {can('PASS_SECOND_CHANCE') && (
@@ -148,7 +157,7 @@ export function OperatorControls({ view, send }: Props) {
             )}
             {can('RESOLVE_WITHOUT_ANSWER') && (
               <button className="button" onClick={() => send({ type: 'RESOLVE_WITHOUT_ANSWER' })}>
-                Ohne Antwort aufloesen
+                Ohne Antwort auflösen
               </button>
             )}
           </div>
@@ -158,34 +167,27 @@ export function OperatorControls({ view, send }: Props) {
       {/* --- Bilderkennen --- */}
       {(can('PAUSE_IMAGE_REVEAL') || can('RESUME_IMAGE_REVEAL') || can('REVEAL_IMAGE_COMPLETELY')) && (
         <div className="controls__group">
-          <h3 className="controls__title">Bildenthuellung</h3>
+          <h3 className="controls__title">Bildenthüllung</h3>
           <div className="controls__row">
             {can('PAUSE_IMAGE_REVEAL') && (
               <button className="button" onClick={() => send({ type: 'PAUSE_IMAGE_REVEAL' })}>
-                Enthuellung pausieren
+                Enthüllung pausieren
               </button>
             )}
             {can('RESUME_IMAGE_REVEAL') && (
               <button className="button" onClick={() => send({ type: 'RESUME_IMAGE_REVEAL' })}>
-                Enthuellung fortsetzen
+                Enthüllung fortsetzen
               </button>
             )}
             {can('REVEAL_IMAGE_COMPLETELY') && (
               <button className="button" onClick={() => send({ type: 'REVEAL_IMAGE_COMPLETELY' })}>
-                Bild vollstaendig aufdecken
+                Bild vollständig aufdecken
               </button>
             )}
             {can('RESET_IMAGE_REVEAL') && (
               // Technische Korrekturaktion - bewusst klar getrennt von "Buzzer zuruecksetzen".
-              <button
-                className="button button--technical"
-                onClick={() => {
-                  if (confirm('Enthuellung technisch auf Sekunde 10 zuruecksetzen?')) {
-                    send({ type: 'RESET_IMAGE_REVEAL' })
-                  }
-                }}
-              >
-                Enthuellung auf Anfang zuruecksetzen
+              <button className="button button--technical" onClick={() => setConfirmReset(true)}>
+                Enthüllung auf Anfang zurücksetzen
               </button>
             )}
           </div>
@@ -239,9 +241,21 @@ export function OperatorControls({ view, send }: Props) {
       {can('CONTINUE') && (
         <div className="controls__group controls__group--continue">
           <button className="button button--large button--primary" onClick={() => send({ type: 'CONTINUE' })}>
-            {view.progress.current >= view.progress.total ? 'Weiter zum Ergebnis' : 'Weiter zur naechsten Frage'}
+            {view.progress.current >= view.progress.total ? 'Weiter zum Ergebnis' : 'Weiter zur nächsten Frage'}
           </button>
         </div>
+      )}
+      {confirmReset && (
+        <ConfirmDialog
+          title="Enthüllung zurücksetzen"
+          message="Das Bild wird wieder vollständig unscharf, der Countdown beginnt bei zehn Sekunden. Bereits gebuchte Punkte bleiben unverändert."
+          confirmLabel="Zurücksetzen"
+          onConfirm={() => {
+            send({ type: 'RESET_IMAGE_REVEAL' })
+            setConfirmReset(false)
+          }}
+          onCancel={() => setConfirmReset(false)}
+        />
       )}
     </section>
   )

@@ -5,7 +5,9 @@
  * verbundene Clients, Warnungen in klarer Sprache und das Auditlog. Moderatoraktionen
  * erscheinen hier ebenfalls, damit der Operator sie unmittelbar sieht.
  */
+import { useState } from 'react'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
+import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 
 export function DiagnosticsPanel({
   view,
@@ -17,6 +19,7 @@ export function DiagnosticsPanel({
   connectedClients: number
 }) {
   const diagnostics = view.diagnostics
+  const [confirmNewDay, setConfirmNewDay] = useState(false)
 
   return (
     <section className="diagnostics">
@@ -62,17 +65,10 @@ export function DiagnosticsPanel({
 
         <div className="controls__row">
           <a className="button" href="/api/export/changes" target="_blank" rel="noreferrer">
-            Aenderungsbericht exportieren
+            Änderungsbericht exportieren
           </a>
           {view.allowedCommands.includes('START_NEW_EVENT_DAY') && (
-            <button
-              className="button button--technical"
-              onClick={() => {
-                if (confirm('Neuen Veranstaltungstag beginnen? Die Wiederholungshistorie startet damit neu.')) {
-                  send({ type: 'START_NEW_EVENT_DAY' })
-                }
-              }}
-            >
+            <button className="button button--technical" onClick={() => setConfirmNewDay(true)}>
               Neuen Veranstaltungstag beginnen
             </button>
           )}
@@ -89,6 +85,18 @@ export function DiagnosticsPanel({
           ))}
         </ol>
       </details>
+      {confirmNewDay && (
+        <ConfirmDialog
+          title="Neuen Veranstaltungstag beginnen"
+          message="Die Wiederholungshistorie startet neu. Fragen der bisherigen Spiele können danach wieder gezogen werden."
+          confirmLabel="Neuen Tag beginnen"
+          onConfirm={() => {
+            send({ type: 'START_NEW_EVENT_DAY' })
+            setConfirmNewDay(false)
+          }}
+          onCancel={() => setConfirmNewDay(false)}
+        />
+      )}
     </section>
   )
 }

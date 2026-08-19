@@ -53,7 +53,7 @@ export function checkAccess(input: {
     // ausschliesslich am Laptop. Ein Fernzugriff ist bewusst nicht vorgesehen.
     return local
       ? { allowed: true }
-      : { allowed: false, message: 'Die Operatoransicht ist nur auf dem Veranstaltungslaptop verfuegbar.' }
+      : { allowed: false, message: 'Die Operatoransicht ist nur auf dem Veranstaltungslaptop verfügbar.' }
   }
 
   if (input.role === 'moderator') {

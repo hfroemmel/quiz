@@ -13,7 +13,7 @@ import type { PresentationTransitionDefinition } from './types.ts'
 
 export const incorrectFeedback: PresentationTransitionDefinition = {
   id: 'incorrect-feedback',
-  description: 'Gelieferte Bewegtgrafik: Kreis waechst mit Ringimpuls, zwei Striche drehen sich zum Kreuz.',
+  description: 'Gelieferte Bewegtgrafik: Kreis wächst mit Ringimpuls, zwei Striche drehen sich zum Kreuz.',
   appliesTo: { from: '*', to: 'feedback' },
   durationMs: presentationTiming.incorrectFeedbackMs,
   easing: easings.sharp,
@@ -21,6 +21,6 @@ export const incorrectFeedback: PresentationTransitionDefinition = {
   soundCueId: 'answer-incorrect',
   classNames: { active: 'feedback-incorrect', to: 'scene-enter' },
   locked:
-    'Dauer entspricht gameTiming.incorrectFeedbackMs. Ausserdem darf diese Animation die Loesung ' +
+    'Dauer entspricht gameTiming.incorrectFeedbackMs. Außerdem darf diese Animation die Lösung ' +
     'nicht vorwegnehmen, weil nach dem ersten Fehlversuch die zweite Chance folgt.',
 }

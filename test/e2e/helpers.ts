@@ -29,7 +29,7 @@ export async function openStage(page: Page): Promise<Page> {
 export async function resetToStartPanel(operator: Page): Promise<void> {
   if (await operator.locator('.start-panel').count()) return
 
-  const backToStart = operator.getByRole('button', { name: 'Zurueck zur Startansicht' })
+  const backToStart = operator.getByRole('button', { name: 'Zurück zur Startansicht' })
   if (await backToStart.count()) {
     await backToStart.click()
     await expect(operator.locator('.start-panel')).toBeVisible()
@@ -38,8 +38,9 @@ export async function resetToStartPanel(operator: Page): Promise<void> {
 
   const abort = operator.getByRole('button', { name: 'Beenden' })
   if (await abort.count()) {
-    operator.once('dialog', (dialog) => void dialog.accept())
     await abort.click()
+    // Die Rueckfrage liegt in der Anwendung, nicht im Browser.
+    await operator.locator('.dialog').getByRole('button', { name: 'Spiel beenden' }).click()
     await expect(operator.locator('.start-panel')).toBeVisible()
   }
 }
@@ -100,7 +101,7 @@ export async function logIncorrectOption(operator: Page): Promise<void> {
 }
 
 export async function resolveAttempt(operator: Page): Promise<void> {
-  await operator.getByRole('button', { name: 'Aufloesen und bewerten' }).click()
+  await operator.getByRole('button', { name: 'Auflösen und bewerten' }).click()
 }
 
 /**
@@ -143,13 +144,13 @@ export async function prepareAnswerPhase(operator: Page): Promise<void> {
     await operator.getByRole('button', { name: 'Antworten einblenden' }).click()
   }
   if ((await currentPhase(operator)) === 'reveal-ready') {
-    await operator.getByRole('button', { name: 'Enthuellung starten' }).click()
+    await operator.getByRole('button', { name: 'Enthüllung starten' }).click()
   }
 }
 
 /** Startet die Enthuellung einer Bilderkennen-Frage. */
 export async function startReveal(operator: Page): Promise<void> {
-  await operator.getByRole('button', { name: 'Enthuellung starten' }).click()
+  await operator.getByRole('button', { name: 'Enthüllung starten' }).click()
 }
 
 /** Markiert die aktuelle Antwort als richtig - egal ob Optionsvergleich oder manuell. */
@@ -206,7 +207,7 @@ export async function resolveWithoutAnswer(operator: Page): Promise<void> {
   if ((await currentPhase(operator)) === 'video-ready' || (await currentPhase(operator)) === 'video-playing') {
     await operator.getByRole('button', { name: 'Frage einblenden' }).click()
   }
-  await operator.getByRole('button', { name: 'Ohne Antwort aufloesen' }).click()
+  await operator.getByRole('button', { name: 'Ohne Antwort auflösen' }).click()
   await expectPhase(operator, 'solution')
 }
 

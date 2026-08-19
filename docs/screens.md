@@ -68,7 +68,7 @@ Zwei Zeilen:
    | Gruppe | Inhalt |
    |---|---|
    | `1. Runde` | `Starten` |
-   | `2. Spieler ermitteln` | `Spieler 1`, `Spieler 2` |
+   | `2. Spieler ermitteln` | `Spieler 1`, `Spieler 2`, `zurücksetzen` |
    | `3. Antwort auswählen` | `A B C D` bei Wahlfragen, `Richtig`/`Falsch` bei muendlichen Fragen |
 
    Die Tasten der Antwortgruppe tragen **nur den Buchstaben**. Der Antworttext
@@ -87,9 +87,30 @@ Zwei Zeilen:
    erlaubte Tasten werden gesperrt, nie ausgeblendet - der Operator soll seine
    Tasten blind finden.
 
-`Zurücksetzen` verwirft die Spielerzuordnung und die eingeloggte Antwort des
-laufenden Versuchs. Sperren aus bereits bewerteten Fehlversuchen bleiben
+`zurücksetzen` verwirft die Spielerzuordnung und die eingeloggte Antwort des
+laufenden Versuchs. Ohne zugeordneten Spieler ist die Taste gesperrt - es gaebe
+nichts zurueckzunehmen. Sperren aus bereits bewerteten Fehlversuchen bleiben
 bestehen (Spezifikation 6.4).
+
+### Bedienleiste: Aufteilung
+
+Die Handlungsgruppen stehen **nebeneinander** und teilen sich die volle Breite;
+die primaere Handlung (`Weiter`, `Spiel beenden`) sitzt rechts aussen. Damit ist
+die Leiste in einer Zeile lesbar und der Blick springt nicht.
+
+### Rueckfragen
+
+Handlungen, die sich nicht zuruecknehmen lassen - Spiel beenden, Enthuellung
+zuruecksetzen, Frage deaktivieren, unterbrochenes Spiel verwerfen, neuer
+Veranstaltungstag - fragen ueber einen Dialog **innerhalb** der Anwendung zurueck.
+Kein `confirm()` des Browsers: Das steht ausserhalb der Gestaltung und sieht auf
+einem Veranstaltungsrechner aus wie ein Fehler. Der Dialog benennt die Folge im
+Klartext, `Escape` bricht ab, und der Fokus liegt auf `Abbrechen`.
+
+### Fussbereich
+
+Technik, Protokoll und Verbindung liegen als flacher Fussbereich am unteren Rand
+des Fensters - eingeklappt eine Zeile, ausgeklappt der volle Diagnosebereich.
 
 ### Ausserhalb der Buehnenflaeche
 

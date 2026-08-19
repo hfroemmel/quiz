@@ -43,7 +43,7 @@ export const animationClips = {
     durationMs: 4_000,
     payoffMs: 1_400,
     sourceSizePx: 500,
-    description: 'Tuerkiser Kreis waechst, Konfetti stiebt aus, Haken zeichnet sich.',
+    description: 'Türkiser Kreis wächst, Konfetti stiebt aus, Haken zeichnet sich.',
   },
   wrong: {
     id: 'wrong',
@@ -51,7 +51,7 @@ export const animationClips = {
     durationMs: 2_000,
     payoffMs: 1_400,
     sourceSizePx: 500,
-    description: 'Roter Kreis waechst mit Ringimpuls, zwei Striche drehen sich zum Kreuz.',
+    description: 'Roter Kreis wächst mit Ringimpuls, zwei Striche drehen sich zum Kreuz.',
   },
   trophy: {
     id: 'trophy',
@@ -67,7 +67,7 @@ export const animationClips = {
     durationMs: 1_000,
     payoffMs: 600,
     sourceSizePx: 500,
-    description: 'Gelber Impuls, der in Sterne zerfaellt.',
+    description: 'Gelber Impuls, der in Sterne zerfällt.',
   },
   'question-marks': {
     id: 'question-marks',
@@ -75,7 +75,7 @@ export const animationClips = {
     durationMs: 1_500,
     payoffMs: 800,
     sourceSizePx: 500,
-    description: 'Drei Fragezeichen in Blautoenen, die nacheinander einsetzen.',
+    description: 'Drei Fragezeichen in Blautönen, die nacheinander einsetzen.',
   },
 } as const satisfies Record<string, AnimationClipAsset>
 

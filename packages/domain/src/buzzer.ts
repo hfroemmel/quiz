@@ -39,7 +39,7 @@ export interface BuzzDecision {
  */
 export function evaluateBuzz(state: GameState, playerId: PlayerId): BuzzDecision {
   if (state.status !== 'active') {
-    return { allowed: false, reason: 'no-active-game', message: 'Es laeuft gerade kein Spiel.' }
+    return { allowed: false, reason: 'no-active-game', message: 'Es läuft gerade kein Spiel.' }
   }
   if (state.phase === 'answer-locked' && state.buzzer.acceptedPlayerId) {
     // Haeufigster Fall: Ein Spieler hat den Zuschlag und der andere haemmert weiter
@@ -47,7 +47,7 @@ export function evaluateBuzz(state: GameState, playerId: PlayerId): BuzzDecision
     return {
       allowed: false,
       reason: 'buzzer-already-taken',
-      message: 'Ein Spieler hat bereits den Zuschlag. Mit "Buzzer zuruecksetzen" erneut freigeben.',
+      message: 'Ein Spieler hat bereits den Zuschlag. Mit "Buzzer zurücksetzen" erneut freigeben.',
     }
   }
   if (!isBuzzablePhase(state.phase)) {
@@ -62,7 +62,7 @@ export function evaluateBuzz(state: GameState, playerId: PlayerId): BuzzDecision
       return {
         allowed: false,
         reason: 'buzzer-already-taken',
-        message: 'Ein Spieler hat bereits den Zuschlag. Mit "Buzzer zuruecksetzen" erneut freigeben.',
+        message: 'Ein Spieler hat bereits den Zuschlag. Mit "Buzzer zurücksetzen" erneut freigeben.',
       }
     }
     return { allowed: false, reason: 'buzzer-closed', message: 'Der Buzzer ist derzeit gesperrt.' }

@@ -142,7 +142,7 @@ export class QuizService {
       atMs: this.now(),
       actorRole: 'system',
       category: 'system',
-      message: `Unvollstaendiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Enthuellung und Video wurden pausiert wiederhergestellt.`,
+      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Enthüllung und Video wurden pausiert wiederhergestellt.`,
     })
   }
 
@@ -176,7 +176,7 @@ export class QuizService {
 
     // 3. Rolle
     if (!roleMayIssue(envelope.actor.role, envelope.command.type)) {
-      return this.rejectAndRecord(envelope, 'forbidden-role', `Die Rolle "${envelope.actor.role}" darf "${envelope.command.type}" nicht ausloesen.`)
+      return this.rejectAndRecord(envelope, 'forbidden-role', `Die Rolle "${envelope.actor.role}" darf "${envelope.command.type}" nicht auslösen.`)
     }
 
     // 4. Revision - ein Befehl auf veraltetem Stand wird verstaendlich abgewiesen.
@@ -187,7 +187,7 @@ export class QuizService {
       return this.rejectAndRecord(
         envelope,
         'revision-conflict',
-        `Der Spielstand hat sich inzwischen geaendert (erwartet ${envelope.expectedRevision}, aktuell ${this.currentRevision}). Die Ansicht wurde aktualisiert.`,
+        `Der Spielstand hat sich inzwischen geändert (erwartet ${envelope.expectedRevision}, aktuell ${this.currentRevision}). Die Ansicht wurde aktualisiert.`,
       )
     }
 
@@ -228,7 +228,7 @@ export class QuizService {
         atMs: nowMs,
       })
     } catch (error) {
-      const message = `Der Spielstand konnte nicht gespeichert werden: ${(error as Error).message}. Bitte keine weiteren Aktionen ausfuehren und den Speicherort pruefen.`
+      const message = `Der Spielstand konnte nicht gespeichert werden: ${(error as Error).message}. Bitte keine weiteren Aktionen ausführen und den Speicherort prüfen.`
       this.addWarning(message)
       this.notify()
       return { ok: false, revision: this.currentRevision, rejection: { reason: 'persistence-error', message } }
@@ -265,7 +265,7 @@ export class QuizService {
           actorRole: envelope.actor.role,
           actorClientId: envelope.actor.clientId,
           category: 'system',
-          message: 'Unterbrochenes Spiel fortgesetzt. Alle Clients wurden mit einem vollstaendigen Snapshot synchronisiert.',
+          message: 'Unterbrochenes Spiel fortgesetzt. Alle Clients wurden mit einem vollständigen Snapshot synchronisiert.',
         })
         this.scheduleTransition()
         this.notify()
@@ -296,7 +296,7 @@ export class QuizService {
           return this.rejectAndRecord(
             envelope,
             'invalid-phase',
-            'Ein laufendes Spiel wird durch einen Tageswechsel nicht zurueckgesetzt. Bitte zuerst beenden.',
+            'Ein laufendes Spiel wird durch einen Tageswechsel nicht zurückgesetzt. Bitte zuerst beenden.',
           )
         }
         this.eventDay = this.store.startNewEventDay(this.calendarDate(), new Date(nowMs).toISOString())
@@ -360,7 +360,7 @@ export class QuizService {
           actorRole: envelope.actor.role,
           actorClientId: envelope.actor.clientId,
           category: 'content',
-          message: `Hotfix an Frage ${command.questionId} (${Object.keys(patch.changes).join(', ')})${command.reason ? ` - ${command.reason}` : ''}. Basispaket unveraendert.`,
+          message: `Hotfix an Frage ${command.questionId} (${Object.keys(patch.changes).join(', ')})${command.reason ? ` - ${command.reason}` : ''}. Basispaket unverändert.`,
         })
         this.notify()
         return { ok: true, revision: this.currentRevision }

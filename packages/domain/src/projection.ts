@@ -328,7 +328,7 @@ function videoPositionMs(state: GameState, nowMs: number): number {
 function videoWarnings(state: GameState | null): string[] {
   if (!state?.video?.error) return []
   return [
-    `Video konnte nicht geladen werden (${state.video.error}). Sichere naechste Aktion: Frage ueberspringen oder ohne Video weiterfuehren.`,
+    `Video konnte nicht geladen werden (${state.video.error}). Sichere nächste Aktion: Frage überspringen oder ohne Video weiterfuehren.`,
   ]
 }
 
@@ -368,36 +368,36 @@ function buildCatalog(ctx: ProjectionContext): CatalogViewModel {
 
 /** Klartexthinweis, was als naechstes passiert - hilft Moderator und Operator. */
 function nextStepHint(state: GameState | null): string {
-  if (!state) return 'Modus und Preset waehlen, dann "Spiel starten".'
-  if (state.status === 'aborted') return 'Spiel abgebrochen. Zurueck zur Startansicht.'
-  if (state.status === 'completed') return 'Ergebnis sichtbar. Punkte koennen noch korrigiert werden.'
+  if (!state) return 'Modus und Preset wählen, dann "Spiel starten".'
+  if (state.status === 'aborted') return 'Spiel abgebrochen. Zurück zur Startansicht.'
+  if (state.status === 'completed') return 'Ergebnis sichtbar. Punkte können noch korrigiert werden.'
 
   const isLast = state.currentSlotIndex + 1 >= state.totalQuestions
   switch (state.phase) {
     case 'pause-screen':
-      return 'Pausenscreen laeuft, danach erscheint die naechste Frage automatisch.'
+      return 'Pausenscreen läuft, danach erscheint die nächste Frage automatisch.'
     case 'question-presented':
       return 'Frage steht. Vorlesen, dann "Antworten einblenden".'
     case 'reveal-ready':
-      return 'Bild steht unscharf. Vorlesen, dann "Enthuellung starten".'
+      return 'Bild steht unscharf. Vorlesen, dann "Enthüllung starten".'
     case 'video-ready':
-      return 'Video steht bereit. Der Operator startet es; Buzzern ist erst nach dem Video moeglich.'
+      return 'Video steht bereit. Der Operator startet es; Buzzern ist erst nach dem Video möglich.'
     case 'video-playing':
-      return 'Video laeuft. Danach "Frage einblenden" und "Antworten einblenden".'
+      return 'Video läuft. Danach "Frage einblenden" und "Antworten einblenden".'
     case 'buzzer-open':
-      return 'Buzzer offen. Wer zuerst drueckt, antwortet.'
+      return 'Buzzer offen. Wer zuerst drückt, antwortet.'
     case 'reveal-running':
-      return 'Enthuellung laeuft. Buzzern bleibt auch nach dem Countdown erlaubt.'
+      return 'Enthüllung läuft. Buzzern bleibt auch nach dem Countdown erlaubt.'
     case 'reveal-paused':
-      return 'Enthuellung pausiert. Fortsetzen oder Antwort aufnehmen.'
+      return 'Enthüllung pausiert. Fortsetzen oder Antwort aufnehmen.'
     case 'answer-locked':
-      return 'Antwort einloggen und anschliessend aufloesen.'
+      return 'Antwort einloggen und anschließend auflösen.'
     case 'second-chance':
-      return 'Zweite Chance: 50 Punkte bei richtiger Antwort, kein erneutes Buzzern noetig.'
+      return 'Zweite Chance: 50 Punkte bei richtiger Antwort, kein erneutes Buzzern nötig.'
     case 'attempt-feedback':
-      return 'Feedback laeuft, der Wechsel erfolgt automatisch.'
+      return 'Feedback läuft, der Wechsel erfolgt automatisch.'
     case 'solution':
-      return isLast ? 'Letzte Frage. "Weiter" zeigt das Ergebnis.' : '"Weiter" startet die naechste Frage.'
+      return isLast ? 'Letzte Frage. "Weiter" zeigt das Ergebnis.' : '"Weiter" startet die nächste Frage.'
     default:
       return ''
   }

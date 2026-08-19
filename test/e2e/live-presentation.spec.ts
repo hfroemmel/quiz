@@ -56,7 +56,7 @@ test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
   // Doppelklick im selben Tick auf "Aufloesen und bewerten".
   await operator.evaluate(() => {
     const button = [...document.querySelectorAll<HTMLButtonElement>('.controls button')].find((entry) =>
-      entry.textContent?.includes('Aufloesen und bewerten'),
+      entry.textContent?.includes('Auflösen und bewerten'),
     )
     button?.click()
     button?.click()
@@ -84,7 +84,7 @@ test('Reconnect mitten in der Enthuellung zeigt den korrekten Serverstand', asyn
   await expectPhase(operator, 'reveal-running')
 
   // Enthuellung anhalten, damit der erwartete Wert eindeutig ist.
-  await operator.getByRole('button', { name: 'Enthuellung pausieren' }).click()
+  await operator.getByRole('button', { name: 'Enthüllung pausieren' }).click()
   await expectPhase(operator, 'reveal-paused')
   const beforeReload = await stage.locator('.reveal__seconds').textContent()
 
@@ -134,6 +134,6 @@ test('der Buehnenscreen erhaelt die Loesung erst in der Loesungsszene', async ({
   const stageHtml = await stage.content()
   expect(stageHtml).not.toContain('private__answer')
 
-  await operator.getByRole('button', { name: 'Ohne Antwort aufloesen' }).click()
+  await operator.getByRole('button', { name: 'Ohne Antwort auflösen' }).click()
   await expect(stage.locator('.solution__answer .option-bar__text')).toHaveText(privateAnswer)
 })

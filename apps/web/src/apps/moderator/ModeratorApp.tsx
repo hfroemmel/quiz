@@ -179,17 +179,17 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
         )}
         {can('START_IMAGE_REVEAL') && (
           <button className="button button--large" onClick={() => send({ type: 'START_IMAGE_REVEAL' })}>
-            Enthuellung starten
+            Enthüllung starten
           </button>
         )}
         {can('PAUSE_IMAGE_REVEAL') && (
           <button className="button button--large" onClick={() => send({ type: 'PAUSE_IMAGE_REVEAL' })}>
-            Enthuellung pausieren
+            Enthüllung pausieren
           </button>
         )}
         {can('RESUME_IMAGE_REVEAL') && (
           <button className="button button--large" onClick={() => send({ type: 'RESUME_IMAGE_REVEAL' })}>
-            Enthuellung fortsetzen
+            Enthüllung fortsetzen
           </button>
         )}
         {can('SHOW_QUESTION_AFTER_VIDEO') && (
@@ -199,12 +199,12 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
         )}
         {can('RESOLVE_ATTEMPT') && (
           <button className="button button--large button--primary" onClick={() => send({ type: 'RESOLVE_ATTEMPT' })}>
-            Aufloesen
+            Auflösen
           </button>
         )}
         {can('RESOLVE_WITHOUT_ANSWER') && (
           <button className="button button--large" onClick={() => send({ type: 'RESOLVE_WITHOUT_ANSWER' })}>
-            Ohne Antwort aufloesen
+            Ohne Antwort auflösen
           </button>
         )}
         {can('CONTINUE') && (

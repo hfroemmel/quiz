@@ -147,8 +147,10 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     await startGame(operator)
     await playQuestionCorrect(operator, 1)
 
-    operator.once('dialog', (dialog) => void dialog.accept())
     await operator.getByRole('button', { name: 'Beenden' }).click()
+    // Die Rueckfrage ist ein Dialog der Anwendung, kein Browserfenster.
+    await expect(operator.locator('.dialog')).toBeVisible()
+    await operator.locator('.dialog').getByRole('button', { name: 'Spiel beenden' }).click()
 
     await expect(operator.locator('.start-panel')).toBeVisible()
     await expect(stage.locator('.scene--start')).toBeVisible()
@@ -159,8 +161,9 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     const operator = await openOperator(page)
     await startGame(operator)
 
-    operator.once('dialog', (dialog) => void dialog.dismiss())
     await operator.getByRole('button', { name: 'Beenden' }).click()
+    await operator.locator('.dialog').getByRole('button', { name: 'Abbrechen' }).click()
+    await expect(operator.locator('.dialog')).toHaveCount(0)
     await expect(operator.locator('.controls')).toBeVisible()
   })
 })
@@ -183,13 +186,13 @@ test.describe('Bilderkennen', () => {
     await expect(stage.locator('.reveal__seconds')).toBeVisible()
 
     // Enthuellung pausieren: der Countdown bleibt stehen.
-    await operator.getByRole('button', { name: 'Enthuellung pausieren' }).click()
+    await operator.getByRole('button', { name: 'Enthüllung pausieren' }).click()
     await expectPhase(operator, 'reveal-paused')
     const frozen = await stage.locator('.reveal__seconds').textContent()
     await page.waitForTimeout(1_200)
     expect(await stage.locator('.reveal__seconds').textContent()).toBe(frozen)
 
-    await operator.getByRole('button', { name: 'Enthuellung fortsetzen' }).click()
+    await operator.getByRole('button', { name: 'Enthüllung fortsetzen' }).click()
     await expectPhase(operator, 'reveal-running')
 
     // Drei Fehlversuche - beide Spieler duerfen jedes Mal erneut buzzern.
@@ -225,7 +228,7 @@ test.describe('Bilderkennen', () => {
     await expectPhase(operator, 'reveal-running')
 
     // Statt zehn Sekunden zu warten: vollstaendig aufdecken. Der Buzzer bleibt offen.
-    await operator.getByRole('button', { name: 'Bild vollstaendig aufdecken' }).click()
+    await operator.getByRole('button', { name: 'Bild vollständig aufdecken' }).click()
     await expect(stage.locator('.reveal__seconds')).toHaveText('0')
 
     await buzz(operator, 1)
