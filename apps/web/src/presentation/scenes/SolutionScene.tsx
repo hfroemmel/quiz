@@ -63,7 +63,6 @@ export function SolutionScene({ view }: SceneProps) {
         </ul>
       )}
 
-      {solution.publicNote && <p className="solution__note">{solution.publicNote}</p>}
     </div>
   )
 }

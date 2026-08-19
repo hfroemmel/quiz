@@ -46,7 +46,7 @@ Wiederaufnahme nach Neustart, Moderatoransicht.
 - Die Kachel `Spieler` faerbt sich `--accent`, sobald der Spieler am Zug ist.
 - `Frage x/y` steht rechts und verschwindet in `start` und `result`.
 - `+`/`-` gehoeren dem Operator und liegen als Overlay ueber der Vorschau. Auf
-  dem Beamer erscheinen sie nicht. Sie behalten ihre Position auch dann, wenn
+  dem Beamer erscheinen sie nicht. Sie sind quadratisch. Sie behalten ihre Position auch dann, wenn
   die Kacheln daneben ausgeblendet sind (Ergebnisansicht).
 - Schrittweite `+`/`-` ist `scoringRules.manualAdjustmentStep` - derzeit 50 Punkte.
 
@@ -215,6 +215,9 @@ Vorlagenlos, im gezeigten Stil festgelegt; bestaetigt: sichtbar gekennzeichnet.
   dargestellt; darunter steht der Balken.
 - Falsch gewaehlte Optionen bleiben stehen und werden auf `--text-muted`
   zurueckgenommen, damit der Saal den Vergleich sieht.
+- **Kein Erklaerungstext auf der Buehne.** Der Hintergrund gehoert dem Moderator,
+  der ihn erzaehlt; er wird deshalb gar nicht erst oeffentlich uebertragen. Im
+  privaten Bereich des Operators steht er unveraendert.
 
 ## Ergebnis (`result`)
 

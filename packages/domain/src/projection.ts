@@ -284,12 +284,14 @@ function categoryLabel(question: Question, ctx: ProjectionContext): string | und
 
 function publicSolution(state: GameState, ctx: ProjectionContext): PublicSolution {
   const question = state.currentQuestion!.question
+  /*
+   * Die Loesungsansicht zeigt die Antwort - mehr nicht. Der Erklaerungstext bleibt
+   * dem Operator und dem Moderator vorbehalten; erzaehlt wird er auf der Buehne,
+   * nicht gelesen. Er wird deshalb gar nicht erst oeffentlich uebertragen.
+   */
   return {
     answerText: correctAnswerText(state),
     imageUrl: ctx.assetUrl(question.media?.imageAssetId),
-    // `summary` ist der redaktionell freigegebene, oeffentlich zeigbare Kurztext.
-    // `details`, `source` und `moderatorNotes` bleiben privat.
-    publicNote: question.explanation?.summary,
   }
 }
 
