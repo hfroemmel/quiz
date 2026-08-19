@@ -18,7 +18,10 @@ export const gamePhases = [
   'idle',
   /** Neutraler Pausen-/Logoscreen zwischen zwei Fragen (zeitgesteuert). */
   'pause-screen',
-  /** Frage sichtbar, Buzzer noch gesperrt. */
+  /**
+   * Frage sichtbar, Antwortmoeglichkeiten noch verborgen, Buzzer gesperrt.
+   * Der Moderator liest die Frage vor, bevor der Operator freigibt.
+   */
   'question-presented',
   /** Videofrage vorbereitet, Video steht, Buzzer gesperrt. */
   'video-ready',
@@ -32,6 +35,11 @@ export const gamePhases = [
   'attempt-feedback',
   /** Zweite Chance des anderen Spielers bei normaler Frage, kein Buzzern noetig. */
   'second-chance',
+  /**
+   * Bilderkennen: Bild steht unscharf, die Enthuellung ist noch nicht gestartet.
+   * Der Moderator liest die Frage vor; Buzzern ist noch gesperrt.
+   */
+  'reveal-ready',
   /** Bilderkennen: Enthuellung laeuft, Buzzer offen. */
   'reveal-running',
   /** Bilderkennen: Enthuellung eingefroren, Buzzer weiterhin offen. */

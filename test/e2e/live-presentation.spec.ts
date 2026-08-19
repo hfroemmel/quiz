@@ -16,6 +16,7 @@ import {
   playQuestionCorrect,
   resolveWithoutAnswer,
   startGame,
+  startReveal,
   waitForQuestionReady,
 } from './helpers.ts'
 
@@ -42,7 +43,7 @@ test('schneller Doppelklick auf "Weiter" ueberspringt keine Frage', async ({ pag
 test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
   const operator = await openOperator(page)
   await startGame(operator)
-  await operator.getByRole('button', { name: 'Buzzer freigeben' }).click()
+  await operator.getByRole('button', { name: 'Antworten einblenden' }).click()
   await buzz(operator, 1)
   await expectPhase(operator, 'answer-locked')
 
@@ -78,6 +79,8 @@ test('Reconnect mitten in der Enthuellung zeigt den korrekten Serverstand', asyn
   await continueGame(operator)
   await resolveWithoutAnswer(operator)
   await continueGame(operator)
+  await expectPhase(operator, 'reveal-ready')
+  await startReveal(operator)
   await expectPhase(operator, 'reveal-running')
 
   // Enthuellung anhalten, damit der erwartete Wert eindeutig ist.

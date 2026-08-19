@@ -47,6 +47,7 @@ export const commandSchema = z.discriminatedUnion('type', [
   /** Aktuelle Spielerzuordnung verwerfen und erneut freigeben. */
   z.object({ type: z.literal('RESET_BUZZER') }),
 
+  z.object({ type: z.literal('START_IMAGE_REVEAL') }),
   z.object({ type: z.literal('PAUSE_IMAGE_REVEAL') }),
   z.object({ type: z.literal('RESUME_IMAGE_REVEAL') }),
   z.object({ type: z.literal('REVEAL_IMAGE_COMPLETELY') }),
@@ -143,6 +144,7 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   RESOLVE_WITHOUT_ANSWER: ['operator', 'moderator'],
   PASS_SECOND_CHANCE: ['operator', 'moderator'],
   RESET_BUZZER: ['operator'],
+  START_IMAGE_REVEAL: ['operator', 'moderator'],
   PAUSE_IMAGE_REVEAL: ['operator', 'moderator'],
   RESUME_IMAGE_REVEAL: ['operator', 'moderator'],
   REVEAL_IMAGE_COMPLETELY: ['operator'],

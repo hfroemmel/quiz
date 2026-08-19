@@ -148,8 +148,18 @@ export function startGame(harness: Harness): GameState {
   return harness.state!
 }
 
-/** Bringt eine normale Frage bis zur Phase `answer-locked` mit dem angegebenen Spieler. */
-export function buzzIn(harness: Harness, playerId: 'player-1' | 'player-2'): void {
+/**
+ * Bringt eine Frage bis zur Phase `answer-locked` mit dem angegebenen Spieler.
+ *
+ * Jede Frage steht zuerst still da, damit der Moderator sie vorlesen kann; erst
+ * die Freigabe oeffnet den Buzzer.
+ */
+export function releaseRound(harness: Harness): void {
   if (harness.state?.phase === 'question-presented') harness.dispatch({ type: 'OPEN_BUZZER' })
+  if (harness.state?.phase === 'reveal-ready') harness.dispatch({ type: 'START_IMAGE_REVEAL' })
+}
+
+export function buzzIn(harness: Harness, playerId: 'player-1' | 'player-2'): void {
+  releaseRound(harness)
   harness.dispatch({ type: 'BUZZ', playerId })
 }

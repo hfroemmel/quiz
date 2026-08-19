@@ -229,6 +229,9 @@ describe('Wiederherstellung nach Serverneustart', () => {
     target.send({ type: 'CONTINUE' })
     target.settle()
 
+    // Die Frage steht zunaechst still - erst die Freigabe startet die Enthuellung.
+    expect(target.service.authoritativeState!.phase).toBe('reveal-ready')
+    target.send({ type: 'START_IMAGE_REVEAL' })
     expect(target.service.authoritativeState!.phase).toBe('reveal-running')
     target.clock.nowMs += 4_000
     // Ein "Absturz": kein sauberes Beenden, nur Neustart mit derselben Datenbank.

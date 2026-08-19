@@ -174,7 +174,12 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
       <footer className="moderator__actions">
         {can('OPEN_BUZZER') && (
           <button className="button button--large" onClick={() => send({ type: 'OPEN_BUZZER' })}>
-            Buzzer freigeben
+            Antworten einblenden
+          </button>
+        )}
+        {can('START_IMAGE_REVEAL') && (
+          <button className="button button--large" onClick={() => send({ type: 'START_IMAGE_REVEAL' })}>
+            Enthuellung starten
           </button>
         )}
         {can('PAUSE_IMAGE_REVEAL') && (

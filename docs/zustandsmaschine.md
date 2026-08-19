@@ -8,13 +8,14 @@ Alle Phasenwechsel finden ausschliesslich in `packages/domain/src/engine.ts` sta
 |---|---|---|
 | `idle` | kein Spiel aktiv | gesperrt |
 | `pause-screen` | Pausen-/Logoscreen zwischen zwei Fragen (zeitgesteuert) | gesperrt |
-| `question-presented` | Frage sichtbar, noch nicht freigegeben | gesperrt |
+| `question-presented` | Frage sichtbar, Antworten noch verborgen | gesperrt |
 | `video-ready` | Videofrage vorbereitet | gesperrt |
 | `video-playing` | Video laeuft | gesperrt |
 | `buzzer-open` | normale Frage, Buzzer offen | **offen** |
 | `answer-locked` | ein Spieler hat den Zuschlag | gesperrt |
 | `attempt-feedback` | Richtig-/Falsch-Animation (zeitgesteuert) | gesperrt |
 | `second-chance` | zweite Chance des anderen Spielers | gesperrt (kein Buzzern noetig) |
+| `reveal-ready` | Bilderkennen, Bild unscharf, Enthuellung noch nicht gestartet | gesperrt |
 | `reveal-running` | Bilderkennen, Enthuellung aktiv oder abgeschlossen | **offen** |
 | `reveal-paused` | Bilderkennen, Enthuellung eingefroren | **offen** |
 | `solution` | Loesung sichtbar, Frage abgeschlossen | gesperrt |
@@ -28,8 +29,8 @@ offenen Buzzer besitzen.
 ## Normale Multiple-Choice-Frage
 
 ```text
-pause-screen ──(Zeit)──> question-presented
-                              │ OPEN_BUZZER
+pause-screen ──(Zeit)──> question-presented   (nur die Frage, keine Antworten)
+                              │ OPEN_BUZZER   ("Antworten einblenden")
                               ▼
                          buzzer-open
                               │ BUZZ / SELECT_PLAYER_MANUALLY
@@ -52,11 +53,24 @@ Aus `question-presented`, `buzzer-open`, `answer-locked` und `second-chance` ist
 `RESOLVE_WITHOUT_ANSWER` jederzeit moeglich: keine Punkte, direkt zur Loesung. Es gibt
 keine verbindliche Wartezeit.
 
+## Der Zwischenschritt vor jeder Runde
+
+Jede Frage steht zuerst still da: Der Moderator liest sie vor, ohne dass jemand
+buzzern kann. Erst die Freigabe des Operators blendet die Antwortmoeglichkeiten
+ein bzw. startet die Enthuellung - und oeffnet damit den Buzzer.
+
+Das ist keine reine Anzeigefrage: In `question-presented` uebertraegt der Server
+die Antwortmoeglichkeiten gar nicht erst, und in `reveal-ready` laeuft die Uhr
+nicht. Die Vorlesezeit kostet also keine Sekunde des Countdowns.
+
 ## Bilderkennen
 
 ```text
-pause-screen ──(Zeit)──> reveal-running   (Enthuellung startet automatisch, Buzzer offen)
-   ▲                          │ BUZZ
+pause-screen ──(Zeit)──> reveal-ready   (Bild unscharf, Uhr steht, Buzzer gesperrt)
+   ▲                          │ START_IMAGE_REVEAL
+   │                          ▼
+   │                     reveal-running   (Enthuellung laeuft, Buzzer offen)
+   │                          │ BUZZ
    │                          ▼
    │                     answer-locked   (Enthuellung eingefroren)
    │                          │ RESOLVE_ATTEMPT
@@ -65,6 +79,9 @@ pause-screen ──(Zeit)──> reveal-running   (Enthuellung startet automatis
    └───── falsch ────────────┤
                              └── richtig ──> solution (Bild vollstaendig scharf)
 ```
+
+Nach einem Fehlversuch geht es zurueck nach `reveal-running`, nicht nach
+`reveal-ready`: Die Frage ist bereits vorgelesen.
 
 Unbegrenzt viele Fehlversuche; nach jedem Fehlversuch laeuft die Enthuellung an
 derselben Stelle weiter und **beide** Spieler duerfen erneut buzzern. `PAUSE_IMAGE_REVEAL`

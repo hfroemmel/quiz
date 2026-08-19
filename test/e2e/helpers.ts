@@ -127,15 +127,29 @@ export async function scores(operator: Page): Promise<number[]> {
   )
 }
 
-/** Bringt eine Frage in eine Phase, in der geantwortet werden kann. */
+/**
+ * Bringt eine Frage in eine Phase, in der geantwortet werden kann.
+ *
+ * Jede Frage steht zuerst still da, damit der Moderator sie vorlesen kann. Erst
+ * die Freigabe des Operators blendet die Antworten ein bzw. startet die
+ * Enthuellung - und erst dann darf gebuzzert werden.
+ */
 export async function prepareAnswerPhase(operator: Page): Promise<void> {
   await waitForQuestionReady(operator)
   if ((await currentPhase(operator)) === 'video-ready' || (await currentPhase(operator)) === 'video-playing') {
     await operator.getByRole('button', { name: 'Frage einblenden' }).click()
   }
   if ((await currentPhase(operator)) === 'question-presented') {
-    await operator.getByRole('button', { name: 'Buzzer freigeben' }).click()
+    await operator.getByRole('button', { name: 'Antworten einblenden' }).click()
   }
+  if ((await currentPhase(operator)) === 'reveal-ready') {
+    await operator.getByRole('button', { name: 'Enthuellung starten' }).click()
+  }
+}
+
+/** Startet die Enthuellung einer Bilderkennen-Frage. */
+export async function startReveal(operator: Page): Promise<void> {
+  await operator.getByRole('button', { name: 'Enthuellung starten' }).click()
 }
 
 /** Markiert die aktuelle Antwort als richtig - egal ob Optionsvergleich oder manuell. */

@@ -24,6 +24,7 @@ import {
   scores,
   sessionCode,
   startGame,
+  startReveal,
 } from './helpers.ts'
 
 test.describe('Vollstaendige Spielablaeufe', () => {
@@ -175,6 +176,9 @@ test.describe('Bilderkennen', () => {
     await resolveWithoutAnswer(operator)
     await continueGame(operator)
 
+    // Das Bild steht zunaechst unscharf, damit der Moderator vorlesen kann.
+    await expectPhase(operator, 'reveal-ready')
+    await startReveal(operator)
     await expectPhase(operator, 'reveal-running')
     await expect(stage.locator('.reveal__seconds')).toBeVisible()
 
@@ -216,6 +220,8 @@ test.describe('Bilderkennen', () => {
     await continueGame(operator)
     await resolveWithoutAnswer(operator)
     await continueGame(operator)
+    await expectPhase(operator, 'reveal-ready')
+    await startReveal(operator)
     await expectPhase(operator, 'reveal-running')
 
     // Statt zehn Sekunden zu warten: vollstaendig aufdecken. Der Buzzer bleibt offen.
@@ -245,13 +251,13 @@ test.describe('Moderator und Operator gleichzeitig', () => {
     await expect(moderator.locator('.moderator__actions')).toBeVisible()
 
     await startGame(operator)
-    await expect(moderator.locator('.moderator__hint')).toContainText('Buzzer freigeben')
+    await expect(moderator.locator('.moderator__hint')).toContainText('Antworten einblenden')
 
     // Der Moderator sieht die Loesung privat, der Buehnenscreen nicht.
     await expect(moderator.locator('.moderator__answer')).toBeVisible()
 
-    // Der Moderator gibt den Buzzer frei - der Operator sieht die Aenderung sofort.
-    await moderator.getByRole('button', { name: 'Buzzer freigeben' }).click()
+    // Der Moderator gibt die Runde frei - der Operator sieht die Aenderung sofort.
+    await moderator.getByRole('button', { name: 'Antworten einblenden' }).click()
     await expectPhase(operator, 'buzzer-open')
 
     // Zwei gleichzeitige Klicks duerfen nicht zwei Wirkungen haben.

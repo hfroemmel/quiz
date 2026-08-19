@@ -185,6 +185,26 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'RESET_BUZZER':
       return resetBuzzer(work)
 
+    case 'START_IMAGE_REVEAL': {
+      const guard = work.requireRevealQuestion()
+      if (guard) return guard
+      if (work.phase !== 'reveal-ready') {
+        return reject('invalid-phase', 'Die Enthuellung wurde bereits gestartet.')
+      }
+      /*
+       * Erst hier oeffnet der Buzzer. Vorher steht das Bild unscharf, damit der
+       * Moderator die Frage in Ruhe vorlesen kann - ein Buzzern waere sonst ein
+       * Zufallstreffer auf ein Bild, das noch niemand gesehen hat.
+       */
+      work.mutate((draft) => {
+        draft.reveal = resumeReveal(draft.reveal ?? createRevealClock(work.timing.imageRevealDurationMs), ctx.nowMs)
+        draft.phase = 'reveal-running'
+        draft.buzzer = { open: true }
+      })
+      work.log('phase', 'Enthuellung gestartet, Buzzer freigegeben.')
+      return work.commit()
+    }
+
     case 'PAUSE_IMAGE_REVEAL': {
       const guard = work.requireRevealQuestion()
       if (guard) return guard
@@ -450,6 +470,7 @@ function resolveWithoutAnswer(work: Draft, mode: 'resolve-without-answer' | 'pas
     'buzzer-open',
     'answer-locked',
     'second-chance',
+    'reveal-ready',
     'reveal-running',
     'reveal-paused',
   ]
@@ -763,6 +784,7 @@ function skipQuestion(work: Draft, reason: string | undefined): EngineResult {
     'second-chance',
     'video-ready',
     'video-playing',
+    'reveal-ready',
     'reveal-running',
     'reveal-paused',
   ]
@@ -802,7 +824,7 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
 function questionEntryPhase(state: GameState): GamePhase {
   const type = state.currentQuestion?.question.presentationType
   if (type === 'video-then-question') return 'video-ready'
-  if (type === 'image-reveal') return 'reveal-running'
+  if (type === 'image-reveal') return 'reveal-ready'
   return 'question-presented'
 }
 
@@ -838,6 +860,13 @@ function applyPhase(work: Draft, phase: GamePhase): void {
         draft.phase = 'reveal-running'
         draft.reveal = resumeReveal(draft.reveal ?? createRevealClock(work.timing.imageRevealDurationMs), work.ctx.nowMs)
         draft.buzzer = { open: true }
+        break
+      }
+      case 'reveal-ready': {
+        // Bild steht unscharf, die Uhr laeuft noch nicht - und der Buzzer ist zu.
+        draft.phase = 'reveal-ready'
+        draft.reveal = draft.reveal ?? createRevealClock(work.timing.imageRevealDurationMs)
+        draft.buzzer = { open: false }
         break
       }
       case 'question-presented': {

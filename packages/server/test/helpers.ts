@@ -104,6 +104,7 @@ export function playQuestion(
     return
   }
 
+  // Jede Frage wartet zuerst auf die Freigabe des Operators.
   rig.send({ type: 'OPEN_BUZZER' })
   rig.send({ type: 'BUZZ', playerId: 'player-1' })
 

@@ -78,6 +78,13 @@ export function availableCommands(state: GameState | null): CommandType[] {
       list.add('SKIP_QUESTION')
       break
 
+    case 'reveal-ready':
+      // Vor dem Start gibt es nichts zu buzzern - das Bild ist noch unscharf.
+      list.add('START_IMAGE_REVEAL')
+      list.add('RESOLVE_WITHOUT_ANSWER')
+      list.add('SKIP_QUESTION')
+      break
+
     case 'reveal-running':
       list.add('BUZZ')
       list.add('SELECT_PLAYER_MANUALLY')
