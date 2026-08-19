@@ -39,7 +39,13 @@ export function QuestionScene({ view }: SceneProps) {
               <OptionBar
                 letter={optionLetter(index)}
                 text={option.text}
-                tone={option.state === 'correct' ? 'solution' : option.state === 'chosen-incorrect' ? 'chosen' : 'neutral'}
+                tone={
+                  option.state === 'correct'
+                    ? 'solution'
+                    : option.state === 'chosen' || option.state === 'chosen-incorrect'
+                      ? 'chosen'
+                      : 'neutral'
+                }
                 delayMs={index * presentationTiming.optionStaggerMs}
               />
             </li>

@@ -17,6 +17,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Command, PublicQuizViewModel } from '@quiz/contracts'
 import { useRevealClock } from '../client/useRevealClock.ts'
 import { playCue } from './soundCues.ts'
+import { SoundProvider } from './SoundProvider.tsx'
+import { useStageSounds } from './useStageSounds.ts'
 import { effectiveDurationMs, transitionFor, transitionStyle } from './transitions/registry.ts'
 import { PauseScene } from './scenes/PauseScene.tsx'
 import { QuestionScene } from './scenes/QuestionScene.tsx'
@@ -58,6 +60,13 @@ export function StageScreen({
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
   const sceneProps: SceneProps = { view, reveal, serverNow }
 
+  // Klaenge, die innerhalb einer Szene entstehen - siehe `useStageSounds`.
+  const play = useMemo(
+    () => (cueId: Parameters<typeof playCue>[0]) => playCue(cueId, { enabled: view.soundEnabled, isAudioMaster }),
+    [view.soundEnabled, isAudioMaster],
+  )
+  useStageSounds(view, reveal, play)
+
   const feedbackVariant = view.feedback?.outcome === 'correct' ? 'correct' : 'incorrect'
   const previousScene = useRef<PublicQuizViewModel['scene'] | undefined>(undefined)
   const transition = useMemo(
@@ -92,19 +101,21 @@ export function StageScreen({
   const activeClass = animating ? (transition?.classNames?.active ?? '') : ''
 
   return (
-    <div
-      className={`stage stage--${variant} stage--scene-${view.scene}`}
-      style={{ ...themeVariables(view), ...transitionStyle(transition) }}
-      data-scene={view.scene}
-      data-phase={view.phase}
-      data-transition={transition?.id ?? 'none'}
-    >
-      <StageHeader view={view} slots={headerSlots} />
+    <SoundProvider enabled={view.soundEnabled} isAudioMaster={isAudioMaster}>
+      <div
+        className={`stage stage--${variant} stage--scene-${view.scene}`}
+        style={{ ...themeVariables(view), ...transitionStyle(transition) }}
+        data-scene={view.scene}
+        data-phase={view.phase}
+        data-transition={transition?.id ?? 'none'}
+      >
+        <StageHeader view={view} slots={headerSlots} />
 
-      <div key={entryKey} className={`scene-root ${activeClass} ${transition?.classNames?.to ?? ''}`}>
-        {renderScene(view, sceneProps, isAudioMaster, onReport)}
+        <div key={entryKey} className={`scene-root ${activeClass} ${transition?.classNames?.to ?? ''}`}>
+          {renderScene(view, sceneProps, isAudioMaster, onReport)}
+        </div>
       </div>
-    </div>
+    </SoundProvider>
   )
 }
 

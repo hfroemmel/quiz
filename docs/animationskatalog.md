@@ -159,4 +159,31 @@ Der Rahmen ist Werkzeug, kein Schauspiel. Er bekommt genau drei Bewegungen:
 | Einsatz von `stars` | **freigegeben** (siehe D2) |
 | `question-marks.webm`, `trophy.webm` | bleiben ungenutzt |
 | Gesperrte Dauern in C und D | ergeben sich aus der Spezifikation und den gelieferten Dateien |
-| Soundmarken | vorhanden, synthetisch erzeugt; Klangprofil separat justierbar |
+| Soundmarken | gelieferte Audiodateien, Zuordnung siehe unten |
+
+## Klaenge
+
+Die Klaenge kommen als gelieferte Dateien aus `apps/web/src/assets/audio/`.
+
+| Ereignis | Cue | Datei |
+|---|---|---|
+| neue Frage erscheint | `question-appear` | `opener.mp3` |
+| Antworten werden eingeblendet | `options-appear` | `swoosh.mp3` |
+| Spieler bekommt den Zuschlag | `buzz` | `buzzer.mp3` |
+| Antwort eingeloggt | `answer-logged` | `decide.mp3` |
+| richtig aufgeloest | `answer-correct` | `correct.mp3` **und** `applause.wav` |
+| falsch aufgeloest | `answer-incorrect` | `wrong.mp3` |
+| jede Sekunde des Countdowns | `countdown-tick` | `tick.mp3` |
+| Countdown abgelaufen | `countdown-end` | `ring.mp3` |
+| Punktestand zaehlt hoch | `score` | `score.mp3` |
+
+Drei Regeln dazu:
+
+1. **Nur der Audio-Master klingt.** Das ist im Normalbetrieb das Buehnenfenster;
+   Operator und weitere Praesentationsclients bleiben stumm, damit nichts
+   zeitversetzt doppelt zu hoeren ist.
+2. **Jeder Cue haengt am Serverzustand, nicht am Klick.** Ein abgewiesener Befehl
+   bleibt still - der Buzzerklang etwa kommt erst mit dem Phasenwechsel, den der
+   Server bestaetigt hat.
+3. **Fehlt eine Datei, bleibt der Cue still.** Die Dateien werden ueber
+   `import.meta.glob` eingesammelt; weder Build noch Spielablauf haengen daran.

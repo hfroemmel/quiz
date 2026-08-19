@@ -107,6 +107,12 @@ Kein `confirm()` des Browsers: Das steht ausserhalb der Gestaltung und sieht auf
 einem Veranstaltungsrechner aus wie ein Fehler. Der Dialog benennt die Folge im
 Klartext, `Escape` bricht ab, und der Fokus liegt auf `Abbrechen`.
 
+### Session-Code
+
+Oben rechts, links neben den Symbolschaltern: kleine Beschriftung
+`SESSION-CODE`, darunter der Code in Weiss. Der Moderator braucht ihn zum
+Anmelden am iPad; der Operator sucht ihn dort, wo die Fensterschalter sind.
+
 ### Fussbereich
 
 Technik, Protokoll und Verbindung liegen als flacher Fussbereich am unteren Rand
@@ -122,6 +128,14 @@ Die Operatoransicht kommt ohne erklaerende Beschriftungen aus: Es gibt weder ein
 Anweisungszeile ueber der Bedienleiste noch Ueberschriften wie „Das sieht der
 Saal“ oder „Nur fuer Regie“. Der Aufbau selbst sagt, was oeffentlich ist und was
 nicht - die Buehnenflaeche oben, alles Private darunter.
+
+### Fragenkorrektur
+
+Der Bereich `Fehlerhafte Frage korrigieren` zeigt Fragetext **und**
+Antwortmoeglichkeiten in bearbeitbaren Feldern; die richtige Antwort ist mit
+einem Haken markiert. Gespeichert wird nur, was tatsaechlich geaendert wurde.
+Die Felder leeren sich beim Fragenwechsel - sonst stuende die Korrektur der
+vorigen Frage im Formular.
 
 ## Startansicht (`idle`, Szene `start`)
 
@@ -175,6 +189,10 @@ und Antwortzone.
 | `buzzer-open` | sichtbar | sichtbar, neutral | `Spieler 1`, `Spieler 2` |
 | `answer-locked` | sichtbar | sichtbar, neutral | `A`-`D` bzw. `Richtig`/`Falsch`, `Zurücksetzen` |
 | `answer-locked`, Antwort eingeloggt | sichtbar | gewaehlte Leiste `--accent` | zusaetzlich `Auflösen` primaer |
+
+Die eingeloggte Antwort erscheint oeffentlich in `--accent`: Der Saal sieht die
+Festlegung, aber nicht ihre Bewertung. Ob sie stimmt, verraet erst die
+Loesungsszene.
 
 Die Optionen erscheinen erst nach der Freigabe (bestaetigt) - und werden bis
 dahin auch nicht uebertragen. Der Moderator liest die Frage vor, bevor jemand

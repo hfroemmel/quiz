@@ -110,6 +110,16 @@ export function OperatorApp() {
               Zurück zur Startansicht
             </button>
           )}
+          {/*
+            * Der Session-Code steht dort, wo der Operator ihn im Zweifel sucht:
+            * neben den Fensterschaltern. Der Moderator braucht ihn zum Anmelden.
+            */}
+          {view.diagnostics.sessionCode && (
+            <div className="session-code">
+              <span className="session-code__label">Session-Code</span>
+              <span className="session-code__value">{view.diagnostics.sessionCode}</span>
+            </div>
+          )}
           <IconButton label="Bühne im Vollbild zeigen" onClick={() => void requestStageFullscreen()}>
             <FullscreenIcon />
           </IconButton>

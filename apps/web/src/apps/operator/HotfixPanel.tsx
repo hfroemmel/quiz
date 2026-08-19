@@ -8,8 +8,9 @@
  * "Erst beim naechsten Einsatz" ist der Standard. Nur mit "Jetzt uebernehmen" geht
  * eine Aenderung sofort auf den Buehnenscreen.
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
+import { optionLetter } from '../../ui/OptionBar.tsx'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
 
 export function HotfixPanel({
@@ -21,11 +22,32 @@ export function HotfixPanel({
   send: (command: Command) => void
   questionId: string | undefined
 }) {
+  const editable = view.editableQuestion
   const [open, setOpen] = useState(false)
   const [prompt, setPrompt] = useState('')
+  const [optionTexts, setOptionTexts] = useState<Record<string, string>>({})
   const [reason, setReason] = useState('')
   const [immediate, setImmediate] = useState(false)
   const [confirmDisable, setConfirmDisable] = useState(false)
+
+  /*
+   * Beim Fragenwechsel werden die Felder geleert. Sonst stuende die Korrektur der
+   * vorigen Frage im Formular und liesse sich versehentlich auf die neue anwenden.
+   */
+  useEffect(() => {
+    setPrompt('')
+    setOptionTexts({})
+  }, [questionId])
+
+  /** Nur tatsaechlich geaenderte Felder werden gepatcht. */
+  const editedOptions = (editable?.options ?? [])
+    .map((option) => ({ id: option.id, text: (optionTexts[option.id] ?? option.text).trim() }))
+    .filter((option) => option.text.length > 0)
+  const optionsChanged =
+    editedOptions.length === (editable?.options.length ?? 0) &&
+    editedOptions.some((option, index) => option.text !== editable?.options[index]?.text)
+  const promptChanged = prompt.trim().length > 0 && prompt.trim() !== editable?.prompt
+  const hasChanges = promptChanged || optionsChanged
 
   const canPatch = view.allowedCommands.includes('APPLY_QUESTION_PATCH') && Boolean(questionId)
   const canSkip = view.allowedCommands.includes('SKIP_QUESTION')
@@ -68,14 +90,37 @@ export function HotfixPanel({
           {canPatch && (
             <>
               <label className="field">
-                <span>Fragetext korrigieren</span>
+                <span>Fragetext</span>
                 <textarea
                   rows={3}
-                  value={prompt}
-                  placeholder="Leer lassen, wenn der Text unverändert bleibt"
+                  value={prompt || (editable?.prompt ?? '')}
                   onChange={(event) => setPrompt(event.target.value)}
                 />
               </label>
+
+              {editable && editable.options.length > 0 && (
+                <div className="field">
+                  <span>Antwortmöglichkeiten</span>
+                  {editable.options.map((option, index) => (
+                    <label key={option.id} className="hotfix__option">
+                      <span className="hotfix__option-marker">
+                        {optionLetter(index)}
+                        {option.id === editable.correctOptionId && (
+                          <em className="hotfix__option-correct" title="richtige Antwort">
+                            ✓
+                          </em>
+                        )}
+                      </span>
+                      <input
+                        value={optionTexts[option.id] ?? option.text}
+                        onChange={(event) =>
+                          setOptionTexts((current) => ({ ...current, [option.id]: event.target.value }))
+                        }
+                      />
+                    </label>
+                  ))}
+                </div>
+              )}
               <label className="field">
                 <span>Grund (wird protokolliert)</span>
                 <input value={reason} onChange={(event) => setReason(event.target.value)} />
@@ -86,17 +131,21 @@ export function HotfixPanel({
               </label>
               <button
                 className="button button--primary"
-                disabled={!prompt.trim() || !questionId}
+                disabled={!hasChanges || !questionId}
                 onClick={() => {
                   if (!questionId) return
                   send({
                     type: 'APPLY_QUESTION_PATCH',
                     questionId,
-                    changes: { prompt: prompt.trim() },
+                    changes: {
+                      ...(promptChanged ? { prompt: prompt.trim() } : {}),
+                      ...(optionsChanged ? { options: editedOptions } : {}),
+                    },
                     reason: reason || 'Textkorrektur',
                     applyMode,
                   })
                   setPrompt('')
+                  setOptionTexts({})
                 }}
               >
                 Korrektur speichern

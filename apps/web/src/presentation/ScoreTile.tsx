@@ -17,6 +17,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { animationClips } from './animationAssets.ts'
 import { prefersReducedMotion, presentationTiming } from './animationPresets.ts'
+import { useSound } from './SoundProvider.tsx'
 import { AnimationClip } from '../ui/AnimationClip.tsx'
 import { Tile, type TileSize } from '../ui/Tile.tsx'
 
@@ -24,6 +25,7 @@ export function ScoreTile({ score, size = 'header' }: { score: number; size?: Ti
   const [displayed, setDisplayed] = useState(score)
   const [celebrationKey, setCelebrationKey] = useState<number | null>(null)
   const previous = useRef(score)
+  const play = useSound()
 
   useEffect(() => {
     const from = previous.current
@@ -35,7 +37,10 @@ export function ScoreTile({ score, size = 'header' }: { score: number; size?: Ti
       return
     }
 
-    if (score > from) setCelebrationKey(score)
+    if (score > from) {
+      setCelebrationKey(score)
+      play('score')
+    }
 
     const start = performance.now()
     let frame = 0
@@ -46,7 +51,7 @@ export function ScoreTile({ score, size = 'header' }: { score: number; size?: Ti
     }
     frame = requestAnimationFrame(step)
     return () => cancelAnimationFrame(frame)
-  }, [score])
+  }, [score, play])
 
   useEffect(() => {
     if (celebrationKey === null) return
