@@ -84,14 +84,7 @@ export function OperatorControls({ view, send }: Props) {
       {/* --- Antwort einloggen und auswerten --- */}
       {(can('LOG_OPTION_ANSWER') || can('MARK_MANUAL_ANSWER')) && (
         <div className="controls__group">
-          <h3 className="controls__title">
-            Antwort einloggen
-            {answering && (
-              <span className="controls__badge">
-                Versuch {answering.attemptNumber} &middot; {answering.pointsIfCorrect} Punkte bei richtig
-              </span>
-            )}
-          </h3>
+          <h3 className="controls__title">Antwort einloggen</h3>
 
           {can('LOG_OPTION_ANSWER') && view.visibleOptions && (
             <div className="controls__row controls__row--options">

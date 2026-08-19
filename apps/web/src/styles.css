@@ -273,13 +273,6 @@ select {
   align-items: center;
   gap: 10px;
 }
-.field-row {
-  display: flex;
-  gap: var(--gap);
-}
-.field-row .field {
-  flex: 1;
-}
 
 /* ------------------------------------------------------------------ *
  * Buehnenscreen
@@ -608,10 +601,10 @@ select {
   min-height: 0;
 }
 .reveal__countdown {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1cqw;
 }
 .progress-ring {
   position: relative;
@@ -638,7 +631,17 @@ select {
   font-size: 4cqw;
   font-variant-numeric: tabular-nums;
 }
+/*
+ * Regiehinweis unter dem Ring - nur in der Operatorvorschau sichtbar.
+ * Absolut positioniert, damit sein Erscheinen den Countdown nicht verschiebt.
+ */
 .reveal__hint {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.8cqw;
+  white-space: nowrap;
   color: var(--color-textMuted);
   font-size: 1.2cqw;
 }
@@ -1118,14 +1121,6 @@ select {
   letter-spacing: 0.1em;
   color: var(--color-textMuted);
   margin-bottom: 8px;
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-}
-.controls__badge {
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--color-accent);
 }
 .controls__row {
   display: flex;

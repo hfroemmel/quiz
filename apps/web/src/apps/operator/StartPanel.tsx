@@ -15,8 +15,6 @@ export function StartPanel({ view, send }: { view: OperatorQuizViewModel; send: 
   const mode = catalog.modes.find((entry) => entry.id === modeId) ?? catalog.modes[0]
   const allowedPresets = catalog.presets.filter((preset) => mode?.allowedPresetIds.includes(preset.id))
   const [presetId, setPresetId] = useState(allowedPresets[0]?.id ?? '')
-  const [playerOne, setPlayerOne] = useState('Spieler 1')
-  const [playerTwo, setPlayerTwo] = useState('Spieler 2')
   const [confirmDiscard, setConfirmDiscard] = useState(false)
 
   // Beim Moduswechsel auf ein erlaubtes Preset zurueckfallen.
@@ -76,27 +74,11 @@ export function StartPanel({ view, send }: { view: OperatorQuizViewModel; send: 
           </select>
         </label>
 
-        <div className="field-row">
-          <label className="field">
-            <span>Spieler 1</span>
-            <input value={playerOne} onChange={(event) => setPlayerOne(event.target.value)} maxLength={24} />
-          </label>
-          <label className="field">
-            <span>Spieler 2</span>
-            <input value={playerTwo} onChange={(event) => setPlayerTwo(event.target.value)} maxLength={24} />
-          </label>
-        </div>
-
         <button
           className="button button--large button--primary"
           disabled={!canStart}
           onClick={() =>
-            send({
-              type: 'START_GAME',
-              quizModeId: modeId,
-              presetId,
-              playerLabels: [playerOne.trim() || 'Spieler 1', playerTwo.trim() || 'Spieler 2'],
-            })
+            send({ type: 'START_GAME', quizModeId: modeId, presetId })
           }
         >
           Spiel starten

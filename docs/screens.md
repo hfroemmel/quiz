@@ -71,6 +71,11 @@ Zwei Zeilen:
    | `2. Spieler ermitteln` | `Spieler 1`, `Spieler 2`, `zurücksetzen` |
    | `3. Antwort auswählen` | `A B C D` bei Wahlfragen, `Richtig`/`Falsch` bei muendlichen Fragen |
 
+   Ueber den Gruppen steht nur die Ueberschrift, sonst nichts. Versuchszaehler
+   und die Punkte des laufenden Versuchs erscheinen dort **nicht** - der Wert
+   steht bereits auf der Buehne, und eine zweite Fassung an dieser Stelle laesst
+   die Leiste bei jedem Versuchswechsel umbrechen.
+
    Die Tasten der Antwortgruppe tragen **nur den Buchstaben**. Der Antworttext
    steht bereits auf der Buehne; ihn zu wiederholen kostet Platz und Blickzeit.
    Der Volltext bleibt als Tooltip erreichbar, und nur der Operator sieht die
@@ -146,6 +151,10 @@ vorigen Frage im Formular.
 - Bedienleiste: einzeilig, ohne private Antwortzeile.
   Gruppe `Modus` mit drei Chips aus `catalog.modes`, Gruppe `Schwierigkeitsgrad`
   mit den Presets des gewaehlten Modus, rechts `Spiel starten` in `--primary`.
+- **Keine Namensfelder.** Die Spieler heissen `Spieler 1` und `Spieler 2`; die
+  Buehne zeigt keine Eigennamen, also gibt es auch nichts einzutragen. Der Befehl
+  `START_GAME` traegt deshalb kein `playerLabels`, und der Server setzt seine
+  Vorgabenamen.
 - Der aktive Chip ist `--accent`. Wechselt der Modus, wechselt sofort das
   Farbsystem der gesamten Oberflaeche und das Startbild.
 - Liegt ein wiederaufnehmbares Spiel vor (`resumable`), erscheint links neben
@@ -219,6 +228,14 @@ festgelegt hat, aber nicht, ob es stimmt.
 - Pausiert: Ring und Bild frieren ein, die Sekundenzahl bekommt zusaetzlich das
   Pausensymbol, damit "eingefroren" nicht mit "sehr langsam" verwechselt wird.
 - Nach Ablauf zeigt der Ring `0`, das Bild ist scharf, die Buzzer bleiben offen.
+- Buzzert ein Spieler waehrend der Enthuellung, **bleibt die Buehne in dieser
+  Szene** und friert den Countdown ein. Ein Sprung ins Fragelayout wuerde Bild und
+  Ring vom Schirm nehmen, obwohl genau darueber gerade gesprochen wird
+  (`sceneForPhase` in `packages/domain/src/projection.ts`).
+- Die Worte `pausiert` bzw. `Buzzern weiterhin möglich` unter dem Ring sind
+  **Regiehinweise**: Sie stehen nur in der Vorschau des Operators, nie auf der
+  Buehne. Sie liegen absolut unter dem Ring, damit ihr Erscheinen den Countdown
+  nicht verschiebt.
 
 ## Rueckmeldung (`attempt-feedback`)
 

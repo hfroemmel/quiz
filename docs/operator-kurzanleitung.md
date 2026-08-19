@@ -16,7 +16,7 @@
 
 | Schritt | Aktion |
 |---|---|
-| 1 | Quizmodus und Schwierigkeits-Preset waehlen, Spielernamen eintragen |
+| 1 | Quizmodus und Schwierigkeits-Preset waehlen |
 | 2 | `Spiel starten` |
 | 3 | Frage steht - der Moderator liest sie vor |
 | 4 | `Antworten einblenden` bzw. `Enthüllung starten` - erst jetzt darf gebuzzert werden |

@@ -22,6 +22,7 @@ import {
   type PublicTheme,
   type QuizConfig,
   type Question,
+  type QuestionPresentationType,
   type GamePhase,
   type GameState,
   type PrivateSolution,
@@ -58,8 +59,21 @@ export interface ProjectionContext {
   soundEnabled?: boolean
 }
 
-/** Szene des Buehnenscreens. Sie wird immer aus der Phase abgeleitet. */
-export function sceneForPhase(phase: GamePhase): PublicScene {
+/**
+ * Szene des Buehnenscreens.
+ *
+ * Sie folgt der Phase - mit einer Ausnahme, die der Fragetyp vorgibt: Beim
+ * Bilderkennen bleibt die Buehne auch dann in der Enthuellungsszene, wenn ein
+ * Spieler den Zuschlag hat. Das Bild und der eingefrorene Countdown sind genau
+ * das, worueber jetzt gesprochen wird; ein Sprung in das Fragelayout wuerde
+ * beides vom Schirm nehmen.
+ */
+export function sceneForPhase(phase: GamePhase, presentationType?: QuestionPresentationType): PublicScene {
+  if (presentationType === 'image-reveal' && phase === 'answer-locked') return 'reveal'
+  return sceneForPhaseOnly(phase)
+}
+
+function sceneForPhaseOnly(phase: GamePhase): PublicScene {
   switch (phase) {
     case 'idle':
     case 'aborted':
@@ -102,7 +116,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     }
   }
 
-  const scene = sceneForPhase(state.phase)
+  const scene = sceneForPhase(state.phase, state.currentQuestion?.question.presentationType)
   const runtime = state.currentQuestion
   const question = runtime?.question
   const active = activePlayerId(state)

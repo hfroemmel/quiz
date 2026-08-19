@@ -58,7 +58,7 @@ export function StageScreen({
   headerSlots,
 }: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
-  const sceneProps: SceneProps = { view, reveal, serverNow }
+  const sceneProps: SceneProps = { view, reveal, serverNow, variant }
 
   // Klaenge, die innerhalb einer Szene entstehen - siehe `useStageSounds`.
   const play = useMemo(
