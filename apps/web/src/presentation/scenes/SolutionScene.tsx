@@ -49,15 +49,12 @@ export function SolutionScene({ view }: SceneProps) {
           {remaining.map((option) => (
             <li key={option.id}>
               {/*
-                * Eine falsch gewaehlte Antwort bleibt als solche erkennbar: Der
-                * Saal hat sie vorher blau gesehen und soll den Vergleich ziehen
-                * koennen. Alle uebrigen Optionen treten zurueck.
+                * In der Loesungsszene traegt NUR die richtige Antwort eine Farbe.
+                * Alle uebrigen treten gleichmaessig zurueck - auch die, die ein
+                * Spieler vorher gewaehlt hatte. Zwei farbige Leisten
+                * nebeneinander wuerden die Aussage der Szene aufweichen.
                 */}
-              <OptionBar
-                letter={optionLetter(options.indexOf(option))}
-                text={option.text}
-                tone={option.state === 'chosen-incorrect' ? 'chosen' : 'muted'}
-              />
+              <OptionBar letter={optionLetter(options.indexOf(option))} text={option.text} tone="muted" />
             </li>
           ))}
         </ul>

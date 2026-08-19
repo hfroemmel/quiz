@@ -364,8 +364,10 @@ Vorlagenlos, im gezeigten Stil festgelegt; bestaetigt: sichtbar gekennzeichnet.
   zeigen den Balken ohne Chip.
 - Bei Bilderkennen-Fragen wandert das Bild nach rechts oben und wird scharf
   dargestellt; darunter steht der Balken.
-- Falsch gewaehlte Optionen bleiben stehen und werden auf `--text-muted`
-  zurueckgenommen, damit der Saal den Vergleich sieht.
+- **Nur die richtige Antwort traegt Farbe.** Alle uebrigen Optionen bleiben
+  stehen und treten gleichmaessig zurueck - auch die, die ein Spieler vorher
+  gewaehlt hatte. Zwei farbige Leisten nebeneinander wuerden die Aussage der
+  Szene aufweichen: Hier geht es nur noch darum, was richtig ist.
 - **Kein Erklaerungstext auf der Buehne.** Der Hintergrund gehoert dem Moderator,
   der ihn erzaehlt; er wird deshalb gar nicht erst oeffentlich uebertragen. Im
   privaten Bereich des Operators steht er unveraendert.

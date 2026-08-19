@@ -74,11 +74,12 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await expect(page.locator('.solution__answer')).toHaveCount(0)
   })
 
-  test('Loesungsszene hebt die richtige Option hervor', async ({ page }) => {
+  test('Loesungsszene faerbt ausschliesslich die richtige Antwort', async ({ page }) => {
     await selectScene(page, 'solution')
     await expect(page.locator('.solution__answer')).toBeVisible()
     await expect(page.locator('.option-bar--solution')).toHaveCount(1)
-    await expect(page.locator('.option-bar--chosen')).toHaveCount(1)
+    // Auch eine vorher gewaehlte falsche Antwort tritt hier zurueck.
+    await expect(page.locator('.option-bar--chosen')).toHaveCount(0)
   })
 
   test('Ergebnisszene zeigt Konfetti nur bei einem Gewinner', async ({ page }) => {
