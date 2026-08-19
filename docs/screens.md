@@ -34,6 +34,14 @@ Wiederaufnahme nach Neustart, Moderatoransicht.
 
 ## Gemeinsamer Rahmen
 
+### Wortmarke
+
+Oben links steht die Wortmarke (`apps/web/src/assets/images/logo.svg`), gespiegelt
+zum Fragezaehler oben rechts. Sie wird als CSS-Maske ueber einer Farbflaeche
+gezeichnet und traegt damit immer `--text` des aktiven Modus - eine zweite,
+weisse Fassung der Datei gibt es nicht. Auf dem Startbild entfaellt sie, dort
+traegt die Startgrafik das Branding.
+
 ### Kopfzeile (oeffentlich, innerhalb der Buehnenflaeche)
 
 ```text
@@ -92,6 +100,12 @@ Zwei Zeilen:
    erlaubte Tasten werden gesperrt, nie ausgeblendet - der Operator soll seine
    Tasten blind finden.
 
+In der zweiten Chance ist eine bereits als falsch bewertete Option **verbraucht**:
+Auf der Buehne steht ihre Leiste zurueckgenommen, im Bedienfeld ist ihre Taste
+gesperrt, und der Server weist ein erneutes Einloggen mit
+`option-already-answered` ab. Ein zweites "falsch" auf dieselbe Antwort waere nur
+ein verlorener Versuch.
+
 `zurücksetzen` verwirft die Spielerzuordnung und die eingeloggte Antwort des
 laufenden Versuchs. Ohne zugeordneten Spieler ist die Taste gesperrt - es gaebe
 nichts zurueckzunehmen. Sperren aus bereits bewerteten Fehlversuchen bleiben
@@ -141,8 +155,38 @@ Antwortmoeglichkeiten in bearbeitbaren Feldern. Je Antwort steht eine Zeile:
 vorn der Buchstabe, dann das Textfeld ueber die volle Breite der Spalte, hinten
 ein Radiobutton. Der Radiobutton markiert die richtige Antwort und setzt damit
 `correctOptionId` - nie die Reihenfolge und nie eine Markierung im Text.
+Fragen ohne Auswahl - Bilderkennen und jede andere freie Antwort - haben statt der
+Optionszeilen ein Feld `Richtige Antwort`. Es schreibt `acceptedAnswerText`;
+mehrere zulaessige Formulierungen werden mit Semikolon getrennt. Ohne dieses Feld
+liesse sich genau bei diesen Fragen die Loesung nicht korrigieren.
+
 Gespeichert wird nur, was tatsaechlich geaendert wurde. Die Felder leeren sich
 beim Fragenwechsel - sonst stuende die Korrektur der vorigen Frage im Formular.
+
+## Antwortoptionen: zwei bis vier
+
+Der Entwurf zeigt vier Leisten, verlangt sie aber nicht. Erlaubt sind **zwei bis
+vier** Optionen (`contentThresholds.minChoiceOptionCount` und
+`maxChoiceOptionCount`); die Leisten teilen sich ohnehin die volle Breite, und die
+Buchstaben laufen von A weiter.
+
+Unter zwei Optionen ist es **keine Auswahlfrage**. Eine einzelne Option waere die
+Loesung selbst auf der Buehne. Solche Fragen laufen ueberall als freie Antwort:
+Der Saal sieht keine Antwortleisten, der Operator bekommt statt der Buchstaben
+`Richtig`/`Falsch`, und die Loesung kommt aus `acceptedAnswerText`. Entschieden
+wird das an genau einer Stelle - `isChoiceQuestion` in
+`packages/contracts/src/content.ts`; Validierung, Engine, Befehlsfreigabe und
+Projektion fragen dort nach.
+
+## Zwischenscreen (`pause-screen`, Szene `pause`)
+
+- Logo des Modus, darunter `Frage 3 von 7`, darunter die **Rubrik** der gleich
+  folgenden Frage. Die Rubrik blendet mit kurzer Verzoegerung ein, damit der Blick
+  erst die Nummer und dann das Thema aufnimmt.
+- Uebertragen wird ausschliesslich die Rubrik (`upcomingCategoryLabel`).
+  Fragetext, Optionen und Bild bleiben bis zur Frageszene beim Server.
+- Der Screen steht `gameTiming.pauseScreenMs` (3 s) - kurz genug, um nicht zu
+  bremsen, lang genug, um die Rubrik zu lesen.
 
 ## Startansicht (`idle`, Szene `start`)
 

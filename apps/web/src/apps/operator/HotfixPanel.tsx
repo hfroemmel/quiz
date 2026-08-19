@@ -28,6 +28,8 @@ export function HotfixPanel({
   const [optionTexts, setOptionTexts] = useState<Record<string, string>>({})
   /** `null` heisst "nicht angefasst"; dann gilt die richtige Antwort des Pakets. */
   const [correctId, setCorrectId] = useState<string | null>(null)
+  /** Freie Antwort - dasselbe Prinzip: leer heisst "unveraendert". */
+  const [answerText, setAnswerText] = useState('')
   const [reason, setReason] = useState('')
   const [immediate, setImmediate] = useState(false)
   const [confirmDisable, setConfirmDisable] = useState(false)
@@ -40,6 +42,7 @@ export function HotfixPanel({
     setPrompt('')
     setOptionTexts({})
     setCorrectId(null)
+    setAnswerText('')
   }, [questionId])
 
   /** Nur tatsaechlich geaenderte Felder werden gepatcht. */
@@ -56,7 +59,23 @@ export function HotfixPanel({
    */
   const selectedCorrectId = correctId ?? editable?.correctOptionId
   const correctChanged = Boolean(correctId) && correctId !== editable?.correctOptionId
-  const hasChanges = promptChanged || optionsChanged || correctChanged
+
+  /*
+   * Fragen ohne Auswahl - Bilderkennen und jede andere freie Antwort - haben
+   * keine Optionen und damit auch keinen Radiobutton. Ihre richtige Antwort steht
+   * in `acceptedAnswerText`; die erste Formulierung ist die, die auf der Buehne
+   * erscheint. Weitere werden mit Semikolon getrennt, damit der Moderator
+   * Alternativen behalten kann.
+   */
+  const hasOptions = (editable?.options.length ?? 0) > 0
+  const acceptedFromPackage = (editable?.acceptedAnswerText ?? []).join('; ')
+  const acceptedEntries = answerText
+    .split(';')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+  const answerChanged = answerText.trim().length > 0 && answerText.trim() !== acceptedFromPackage && acceptedEntries.length > 0
+
+  const hasChanges = promptChanged || optionsChanged || correctChanged || answerChanged
 
   const canPatch = view.allowedCommands.includes('APPLY_QUESTION_PATCH') && Boolean(questionId)
   const canSkip = view.allowedCommands.includes('SKIP_QUESTION')
@@ -134,6 +153,15 @@ export function HotfixPanel({
                   ))}
                 </div>
               )}
+              {editable && !hasOptions && (
+                <label className="field">
+                  <span>Richtige Antwort (mehrere Formulierungen mit Semikolon trennen)</span>
+                  <input
+                    value={answerText || acceptedFromPackage}
+                    onChange={(event) => setAnswerText(event.target.value)}
+                  />
+                </label>
+              )}
               <label className="field">
                 <span>Grund (wird protokolliert)</span>
                 <input value={reason} onChange={(event) => setReason(event.target.value)} />
@@ -154,6 +182,7 @@ export function HotfixPanel({
                       ...(promptChanged ? { prompt: prompt.trim() } : {}),
                       ...(optionsChanged ? { options: editedOptions } : {}),
                       ...(correctChanged && correctId ? { correctOptionId: correctId } : {}),
+                      ...(answerChanged ? { acceptedAnswerText: acceptedEntries } : {}),
                     },
                     reason: reason || 'Textkorrektur',
                     applyMode,
@@ -161,6 +190,7 @@ export function HotfixPanel({
                   setPrompt('')
                   setOptionTexts({})
                   setCorrectId(null)
+                  setAnswerText('')
                 }}
               >
                 Korrektur speichern

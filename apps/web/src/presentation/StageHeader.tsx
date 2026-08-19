@@ -14,10 +14,11 @@
  * gross in der Szene. Die Slots bleiben an ihrer Stelle, damit die
  * Korrekturtasten des Operators nicht wandern.
  */
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import { ScoreTile } from './ScoreTile.tsx'
 import { Tile } from '../ui/Tile.tsx'
+import logoUrl from '../assets/images/logo.svg'
 
 export interface StageHeaderSlots {
   /** Vor der Gruppe von Spieler 1 - im Entwurf die Punktekorrektur. */
@@ -41,6 +42,17 @@ export function StageHeader({ view, slots }: StageHeaderProps) {
 
   return (
     <header className="stage-header">
+      {/*
+        * Wortmarke in der oberen linken Ecke. Sie wird als CSS-Maske gefuellt und
+        * traegt deshalb immer die Textfarbe des Modus - eine zweite, weisse
+        * Fassung der Datei ist nicht noetig.
+        */}
+      <span
+        className="stage-header__logo"
+        style={{ '--logo-url': `url(${logoUrl})` } as CSSProperties}
+        aria-hidden="true"
+      />
+
       <div className="stage-header__group">
         {slots?.beforePlayerOne}
         {showsTiles && playerOne && (

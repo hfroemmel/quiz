@@ -74,3 +74,21 @@ scheitert es ohnehin.
   Vollbild selbst um (Taste `F` oder Doppelklick).
 * **Kein Installer.** Es gibt keinen `electron-builder`-Schritt; die Desktop-Anwendung
   wird aus dem Projektverzeichnis gestartet.
+
+## Ton und Medien im Browserbetrieb
+
+- **Tonausgabe braucht eine Interaktion je Fenster.** Browser geben Audio erst
+  frei, nachdem im jeweiligen Dokument geklickt oder getippt wurde. Operator und
+  Buehne holen die Freigabe beim ersten Klick selbst; die Desktop-Anwendung
+  erlaubt die Wiedergabe ohnehin. Ein Buehnenfenster, das nie angeklickt wird,
+  kann im Browser stumm bleiben - dann zeigt die Diagnose unter `Tonausgabe`,
+  welches Fenster gerade den Ton fuehrt.
+- **Mediendateien werden zuerst im gebauten Paket gesucht, danach unter
+  `content/source/assets`.** Die Kopien im Paket entstehen erst bei
+  `pnpm content:build`; ohne diesen Rueckfall zeigte eine frisch geklonte
+  Arbeitskopie ueberall Ersatzbilder. In einer ausgelieferten Anwendung gibt es
+  das Quellverzeichnis nicht - dort gilt allein das Paket.
+- **Nach `git pull` neu bauen.** `apps/web/dist` und die Bildkopien in
+  `content/dist/assets` liegen nicht im Repository. Wer den ausgelieferten Stand
+  testen will, ruft `pnpm build` auf; im Alltag genuegt `pnpm dev`, weil Vite die
+  Quellen direkt ausliefert.

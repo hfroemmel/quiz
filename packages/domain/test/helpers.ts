@@ -5,8 +5,18 @@
  * das Verhalten der Zustandsmaschine unabhaengig vom Auswahlalgorithmus geprueft
  * werden kann. Die Auswahl selbst hat eigene Tests (`selection.test.ts`).
  */
-import { gameTiming, type Command, type GameState, type Question, type RuntimeQuestion } from '@quiz/contracts'
+import {
+  designColorTokens,
+  gameTiming,
+  type Command,
+  type GameState,
+  type PublicQuizViewModel,
+  type Question,
+  type QuizConfig,
+  type RuntimeQuestion,
+} from '@quiz/contracts'
 import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine.ts'
+import { projectPublic } from '../src/projection.ts'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
   return {
@@ -60,6 +70,8 @@ export interface Harness {
   advance(ms: number): void
   /** Alle offenen zeitgesteuerten Uebergaenge sofort abschliessen. */
   settle(): void
+  /** Das oeffentliche View-Modell zum aktuellen Stand - das, was der Saal saehe. */
+  publicView(): PublicQuizViewModel
   events: { category: string; message: string }[]
   scoreTransactions: { playerId: string; delta: number; reason: string }[]
   usages: { questionId: string; slotId: string }[]
@@ -117,6 +129,16 @@ export function createHarness(
      * Wichtig fuer Bildfragen: sonst wuerde die Enthuellungsuhr unbeabsichtigt
      * bis zum Ende weiterlaufen.
      */
+    publicView() {
+      return projectPublic(harness.state, {
+        nowMs: harness.now,
+        config: testConfig,
+        assetUrl: (assetId) => (assetId ? `/media/${assetId}` : undefined),
+        contentVersion: 'test',
+        eventDayId: 'event-day-test',
+      })
+    },
+
     settle() {
       let guard = 0
       while (harness.state?.pendingTransition) {
@@ -139,6 +161,22 @@ export function createHarness(
   }
 
   return harness
+}
+
+/** Minimalkonfiguration fuer die Projektion - die Farbwerte selbst sind hier egal. */
+const testConfig: QuizConfig = {
+  questionsPerGame: 7,
+  difficulties: [{ id: 'medium', label: 'Mittel' }],
+  categories: [{ id: 'general', label: 'Allgemein' }],
+  themes: [
+    {
+      id: 'default',
+      label: 'Standard',
+      colors: Object.fromEntries(designColorTokens.map((token) => [token, '#000000'])) as QuizConfig['themes'][number]['colors'],
+    },
+  ],
+  presets: [{ id: 'medium', label: 'Mittel', slots: [{ id: 'text', filters: {} }] }],
+  modes: [{ id: 'adults', label: 'Erwachsene', questionFilter: {}, themeId: 'default', allowedPresetIds: ['medium'] }],
 }
 
 /** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */

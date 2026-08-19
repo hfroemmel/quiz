@@ -279,7 +279,8 @@ function buildSampleView(input: {
         },
       }
     case 'pause':
-      return { ...base, phase: 'pause-screen' }
+      // Der Zwischenscreen kuendigt Nummer und Rubrik der naechsten Frage an.
+      return { ...base, phase: 'pause-screen', upcomingCategoryLabel: 'Erdkunde' }
     default:
       return { ...base, phase: 'idle', playerScores: [] }
   }

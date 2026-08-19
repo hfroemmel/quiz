@@ -20,7 +20,7 @@
     "content:build": "tsx packages/content/src/cli/build.ts",
     "content:build:dev": "tsx packages/content/src/cli/build.ts --placeholder-media",
     "server": "tsx packages/server/src/main.ts",
-    "dev": "concurrently -n web,server -c cyan,magenta \"pnpm --filter @quiz/web dev\" \"pnpm server\"",
+    "dev": "concurrently -n web,server -c cyan,magenta \"pnpm --filter @quiz/web dev\" \"tsx packages/server/src/main.ts\"",
     "dev:desktop": "pnpm --filter @quiz/desktop dev",
     "build": "pnpm content:validate && pnpm --filter @quiz/web build",
     "build:dev": "pnpm content:validate:dev && pnpm --filter @quiz/web build",

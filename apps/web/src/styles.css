@@ -362,6 +362,23 @@ select {
   right: 3cqw;
   top: 2cqw;
 }
+/*
+ * Wortmarke oben links, gespiegelt zum Fragezaehler oben rechts.
+ * Sie liegt als Maske ueber einer Farbflaeche: So folgt sie der Textfarbe des
+ * Modus, statt als schwarze Grafik auf dunklem Grund zu verschwinden.
+ * Das Seitenverhaeltnis stammt aus dem viewBox der Datei (339,417 x 55).
+ */
+.stage-header__logo {
+  position: absolute;
+  left: 3cqw;
+  top: 2cqw;
+  width: 13cqw;
+  aspect-ratio: 339.417 / 55;
+  background-color: var(--color-text);
+  -webkit-mask: var(--logo-url) no-repeat left center / contain;
+  mask: var(--logo-url) no-repeat left center / contain;
+  pointer-events: none;
+}
 
 .tile {
   display: flex;
@@ -477,6 +494,28 @@ select {
   font-family: var(--font-heading);
   font-size: 2.8cqw;
   margin: 0;
+}
+/*
+ * Rubrik der kommenden Frage. Sie laeuft dem Fragezaehler kurz hinterher, damit
+ * der Blick erst die Nummer und dann das Thema aufnimmt.
+ */
+.pause__category {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 4.4cqw;
+  font-weight: 700;
+  color: var(--color-text);
+  animation: pause-category-in 600ms var(--transition-easing) 400ms backwards;
+}
+@keyframes pause-category-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .pause__placeholder {
   font-size: 3.8cqw;
@@ -670,19 +709,36 @@ select {
 /* Feedback */
 .scene--feedback {
   justify-content: center;
-  gap: 1cqw;
-}
-.feedback__symbol {
-  width: 16cqw;
-  aspect-ratio: 1;
-  line-height: 1;
+  gap: 0;
+  /* Kantenlaenge der Bewegtgrafik - alles andere richtet sich danach. */
+  --feedback-size: 16cqw;
+  /*
+   * Anteil der Kantenlaenge, um den das Wort hochgezogen wird. Die beiden
+   * gelieferten Grafiken haben unterschiedlich viel transparenten Rand: Der Haken
+   * schwingt mit Funken weit aus, das Kreuz sitzt eng im Bild.
+   */
+  --feedback-pull: 0.1;
 }
 /*
  * Richtig darf groesser feiern als falsch. Der Haken ist der Moment, auf den der
  * Saal wartet; das Kreuz bleibt bewusst zurueckhaltend.
  */
-.scene--feedback-correct .feedback__symbol {
-  width: 34cqw;
+.scene--feedback-correct {
+  --feedback-size: 34cqw;
+  --feedback-pull: 0.22;
+}
+/*
+ * Die gelieferten Bewegtgrafiken haben rundum transparenten Rand - er gehoert zum
+ * Ausschwingen der Animation. Der Ausgleich muss deshalb mit der Grafik wachsen,
+ * sonst klebt das Wort bei der kleinen Grafik und schwebt bei der grossen.
+ */
+.scene--feedback .feedback__label {
+  margin-top: calc(var(--feedback-size) * var(--feedback-pull) * -1);
+}
+.feedback__symbol {
+  width: var(--feedback-size);
+  aspect-ratio: 1;
+  line-height: 1;
 }
 .animation-clip {
   width: 100%;
@@ -883,6 +939,10 @@ select {
   .option-bar {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
+  }
+  .pause__category {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
   }
   .confetti {
     display: none;
@@ -1395,6 +1455,10 @@ select {
   padding: 10px 14px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
+}
+.moderator__option--used {
+  color: var(--color-textMuted);
+  text-decoration: line-through;
 }
 .moderator__option--correct {
   outline: 2px solid var(--color-correct);

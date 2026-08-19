@@ -10,7 +10,9 @@
  * Die Fragenauswahl selbst steht in `@quiz/domain/selection` - hier wird sie nur mit
  * Paket, Hotfixes und Nutzungshistorie verbunden.
  */
-import { applyPatches, loadQuizPackage } from '@quiz/content'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { applyPatches, contentSourceDir, loadQuizPackage } from '@quiz/content'
 import type { Question, QuestionPatch, QuizPackage, RuntimeQuestion } from '@quiz/contracts'
 import {
   poolForMode,
@@ -76,6 +78,25 @@ export class ContentService {
 
   assetFilename(assetId: string): string | undefined {
     return this.quizPackage.assetsById.get(assetId)?.filename
+  }
+
+  /**
+   * Verzeichnisse, in denen eine Mediendatei gesucht wird - in dieser Reihenfolge.
+   *
+   * Erste Wahl ist das gebaute Paket; es ist die verbindliche, versionierte Quelle
+   * und das Einzige, was in einer ausgelieferten Anwendung existiert.
+   *
+   * Zweite Wahl ist das redaktionelle Quellverzeichnis. Der Grund ist praktisch:
+   * Die Bilddateien liegen im Repository unter `content/source/assets`, ihre
+   * Kopien im Paket entstehen erst beim Build. Ohne diesen Rueckfall zeigte eine
+   * frisch geklonte Arbeitskopie ueberall Ersatzbilder, obwohl die Bilder
+   * danebenliegen. In einer ausgelieferten Anwendung gibt es das Verzeichnis
+   * nicht, dort bleibt es beim Paket.
+   */
+  get mediaRoots(): string[] {
+    return [this.quizPackage.rootDir, contentSourceDir].filter(
+      (dir, index) => index === 0 || existsSync(join(dir, 'assets')),
+    )
   }
 
   /** URL, unter der ein Medium ausgeliefert wird. Der Pfad kommt nie aus den Quizdaten. */

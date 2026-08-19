@@ -89,9 +89,48 @@ describe('Schemafehler brechen den Build ab', () => {
     expect(result.errors.some((issue) => issue.code === 'correct-option-unknown')).toBe(true)
   })
 
-  it('erkennt eine falsche Optionsanzahl', () => {
-    const result = validate([
+  it('laesst drei und zwei Antwortoptionen zu', () => {
+    const three = validate([
+      question({
+        id: 'q1',
+        options: [
+          { id: 'o1', text: 'A' },
+          { id: 'o2', text: 'B' },
+          { id: 'o3', text: 'C' },
+        ],
+      }),
+      revealQuestion,
+    ])
+    expect(three.errors.some((issue) => issue.code === 'option-count')).toBe(false)
+
+    const two = validate([
       question({ id: 'q1', options: [{ id: 'o1', text: 'A' }, { id: 'o2', text: 'B' }] }),
+      revealQuestion,
+    ])
+    expect(two.errors.some((issue) => issue.code === 'option-count')).toBe(false)
+  })
+
+  it('meldet eine Auswahlfrage mit nur einer Option', () => {
+    // Mit einer einzigen Option gibt es nichts zu waehlen - das ist keine Auswahl.
+    const result = validate([
+      question({ id: 'q1', options: [{ id: 'o1', text: 'A' }], correctOptionId: 'o1' }),
+      revealQuestion,
+    ])
+    expect(result.errors.some((issue) => issue.code === 'option-count')).toBe(true)
+  })
+
+  it('meldet mehr Antwortoptionen als der Entwurf traegt', () => {
+    const result = validate([
+      question({
+        id: 'q1',
+        options: [
+          { id: 'o1', text: 'A' },
+          { id: 'o2', text: 'B' },
+          { id: 'o3', text: 'C' },
+          { id: 'o4', text: 'D' },
+          { id: 'o5', text: 'E' },
+        ],
+      }),
       revealQuestion,
     ])
     expect(result.errors.some((issue) => issue.code === 'option-count')).toBe(true)

@@ -42,9 +42,12 @@ export function QuestionScene({ view }: SceneProps) {
                 tone={
                   option.state === 'correct'
                     ? 'solution'
-                    : option.state === 'chosen' || option.state === 'chosen-incorrect'
-                      ? 'chosen'
-                      : 'neutral'
+                    : // Verbrauchte Option: in der zweiten Chance sichtbar ausgeschlossen.
+                      option.state === 'chosen-incorrect'
+                      ? 'muted'
+                      : option.state === 'chosen'
+                        ? 'chosen'
+                        : 'neutral'
                 }
                 delayMs={index * presentationTiming.optionStaggerMs}
               />

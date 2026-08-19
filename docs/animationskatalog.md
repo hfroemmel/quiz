@@ -105,8 +105,23 @@ ist der Moment, auf den der Saal wartet, das Kreuz bleibt zurueckhaltend. Die
 Szene unter der Falsch-Grafik bewegt sich nicht mehr seitlich - sie blendet nur
 auf, damit die Grafik nicht mitwandert.
 
-Das Wort `Richtig!` bzw. `Falsch!` steht unter der Grafik. Der Punktestand zaehlt
+Das Wort `Richtig!` bzw. `Falsch!` steht dicht unter der Grafik. Beide Dateien
+bringen transparenten Rand mit - der Haken schwingt mit Funken weit aus, das Kreuz
+sitzt eng im Bild. Der Ausgleich haengt deshalb an `--feedback-pull` je Variante
+und waechst mit der Grafik mit. Der Punktestand zaehlt
 zeitgleich in der Kopfzeile hoch (`score-count-up`).
+
+## C2 - Zwischenscreen
+
+Der Screen zwischen zwei Fragen zeigt Fragenummer und Rubrik. Die Rubrik blendet
+mit `pause-category-in` ein: 600 ms, 400 ms verzoegert, von unten heraufziehend.
+Die Verzoegerung ist der Zweck der Animation - erst die Nummer, dann das Thema.
+
+| ID | Dauer | Reduced | Ton | Bindung |
+|---|---|---|---|---|
+| `pause-category-in` | 600 ms, 400 ms Verzug | ohne Bewegung, sofort sichtbar | - | frei |
+
+Der Screen selbst steht `gameTiming.pauseScreenMs` = 3000 ms.
 
 ## D - Enthuellung (Fairness)
 

@@ -216,6 +216,8 @@ export const commandRejectionReasons = [
   'no-pending-attempt',
   'attempt-already-resolved',
   'answer-not-logged',
+  /** Diese Option wurde in einem frueheren Versuch schon als falsch bewertet. */
+  'option-already-answered',
   'no-candidate-question',
   'nothing-to-resume',
   'invalid-patch',

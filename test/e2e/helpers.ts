@@ -97,7 +97,15 @@ export async function logCorrectOption(operator: Page): Promise<void> {
 }
 
 export async function logIncorrectOption(operator: Page): Promise<void> {
-  await operator.locator('.controls__row--options .button--option:not(.button--marks-correct)').first().click()
+  /*
+   * Eine in einem frueheren Versuch bereits als falsch bewertete Option ist
+   * gesperrt - sie waere in der zweiten Chance kein gueltiger Versuch mehr.
+   * Gewaehlt wird deshalb die erste noch offene falsche Antwort.
+   */
+  await operator
+    .locator('.controls__row--options .button--option:not(.button--marks-correct):not([disabled])')
+    .first()
+    .click()
 }
 
 export async function resolveAttempt(operator: Page): Promise<void> {

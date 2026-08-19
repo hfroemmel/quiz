@@ -115,6 +115,14 @@ export interface PublicQuizViewModel {
   phase: GamePhase
   theme: PublicTheme
   question?: PublicQuestion
+  /**
+   * Rubrik der NAECHSTEN Frage - ausschliesslich fuer den Zwischenscreen.
+   *
+   * Der Pausenscreen bleibt frei von Frageninhalten. Die Rubrik ist eine
+   * Ueberschrift, keine Information zur Antwort; sie kuendigt an, worum es gleich
+   * geht. Fragetext, Optionen und Medien werden weiterhin nicht uebertragen.
+   */
+  upcomingCategoryLabel?: string
   visibleOptions?: PublicOption[]
   visibleSolution?: PublicSolution
   feedback?: PublicFeedback
@@ -194,7 +202,17 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
    * Sie steht unabhaengig davon zur Verfuegung, ob die Antworten schon
    * eingeblendet sind: Der Operator sieht ohnehin die vollstaendige Frage.
    */
-  editableQuestion?: { prompt: string; options: { id: string; text: string }[]; correctOptionId?: string }
+  editableQuestion?: {
+    prompt: string
+    options: { id: string; text: string }[]
+    correctOptionId?: string
+    /**
+     * Erwartete Formulierungen der freien Antwort. Bei Fragen ohne Auswahl - etwa
+     * beim Bilderkennen - ist das die einzige Stelle, an der die richtige Antwort
+     * steht; ohne sie liesse sich genau dort nichts korrigieren.
+     */
+    acceptedAnswerText: string[]
+  }
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
   /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */
