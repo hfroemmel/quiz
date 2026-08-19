@@ -929,8 +929,7 @@ select {
 .app-footer {
   margin-top: auto;
   padding: 0 16px;
-  background: var(--color-controls);
-  border-top: 1px solid rgb(255 255 255 / 0.1);
+  background: var(--color-tile);
 }
 .app-footer .diagnostics {
   padding: 0;
