@@ -1,8 +1,9 @@
 # Kinderquiz: illustrierte Spieleransicht
 
-Umsetzung des Assetpakets „Kinderquiz – Web Asset Pack" in der Fassung 2.2
-(Karlchen-Adler-Welt). Diese Datei ist die Referenz fuer Aufbau, Zustaende und
-Abnahme dieser Ansicht.
+Umsetzung der Karlchen-Adler-Welt mit dem Boxen-Assetpaket: die Flaechen sind
+die ORIGINALPFADE des Entwurfs (aus `Boxes.svg` geschnitten) und skalieren per
+9-Slice, die Figuren und die Hintergrundszene liegen als Vektor bzw. WebP bei.
+Diese Datei ist die Referenz fuer Aufbau, Zustaende und Abnahme dieser Ansicht.
 
 ## 1. Bestandsaufnahme vor der Umsetzung
 
@@ -33,7 +34,7 @@ Codeaenderung.
 ## 3. Dateien
 
 ```text
-apps/web/public/assets/kinderquiz/     Assetpaket, unveraendert (inkl. fonts/)
+apps/web/public/assets/kinderquiz/     Assetpaket (boxes/, characters/, fonts/)
 apps/web/src/styles/kids.css           Farben, Layout, Zustaende, Breakpoints
 apps/web/src/presentation/kids/
 ├── kidsAssets.ts                      einzige Stelle mit Assetpfaden
@@ -52,8 +53,18 @@ apps/web/src/presentation/kids/
 | 1 | `karlchen-quiz-scene-16x9.webp` | `cover`, rechts zentriert, dekorativ |
 | 2 | Wortmarke, Karten, Frage, Foto, Antworten | echte DOM-Inhalte |
 | 3 | Karlchen (gross und klein) | `pointer-events: none`, ohne Alternativtext |
-| 4 | gezeichnete SVG-Flaechen | Pseudoelement `::before` hinter dem Inhalt |
+| 4 | gezeichnete SVG-Flaechen | Pseudoelement `::before`, 9-Slice via `border-image` |
 | 5 | `paper-grain.svg` | Overlay ueber Karten UND Figuren, abschaltbar |
+
+Zum 9-Slice: Handgezeichnete Ecken duerfen nicht verzerrt werden. Jede Box wird
+deshalb nach dem Muster des Pakets (`boxes.css`) in neun Felder zerlegt - Ecken
+bleiben unverzerrt, Kanten und Mitte strecken sich. Der Slice-Wert je Element
+stammt aus `boxes.json` (Prop `slice` von `KidsSurface`), die Randbreite setzt
+die Komponentenklasse in `cqw`: Bei 1920 Containerbreite entspricht sie genau
+dem Quellwert. Drei Dateien sind abgeleitet, weil der Entwurf sie nicht
+enthaelt (der Weg steht im README des Pakets): `answer-box-correct`
+(Papier -> Gruen), `answer-box-incorrect` (Rot -> gedecktes Rot) und das lila
+Feld in `chip-score-player2`.
 
 Das Fragefoto traegt einen inhaltlichen Alternativtext, alle dekorativen Bilder
 einen leeren.
@@ -79,11 +90,15 @@ Abgeleitet wird an genau einer Stelle: `answerVisualState`.
 
 | Serverzustand | Darstellung | Flaeche | Chip |
 |---|---|---|---|
-| `state = 'chosen'` | `selected` | `answer-selected` (rot) | `answer-active` (gelb) |
-| Loesungsszene, `state = 'correct'` | `correct` | `answer-correct` | `answer-correct` |
-| Loesungsszene, alles uebrige | `disabled` | `answer-default`, 55 % Deckkraft | `answer-neutral` |
-| `state = 'chosen-incorrect'` | `incorrect` | `answer-incorrect` | `answer-incorrect` |
-| sonst | `idle` | `answer-default` | `answer-neutral` |
+| `state = 'chosen'` | `selected` | `answer-box-b` (rot) | `badge-letter-b` (gelb) |
+| Loesungsszene, `state = 'correct'` | `correct` | `answer-box-correct` (gruen) | Papier-Badge der Zeile |
+| Loesungsszene, alles uebrige | `disabled` | Papier-Box der Zeile, 55 % Deckkraft | Papier-Badge der Zeile |
+| `state = 'chosen-incorrect'` | `incorrect` | `answer-box-incorrect` (gedecktes Rot) | Papier-Badge der Zeile |
+| sonst | `idle` | Papier-Box der Zeile | Papier-Badge der Zeile |
+
+„Der Zeile": Im Entwurf hat jede Antwortzeile ihre eigene Zeichnung (a bis d,
+verschieden wackelnd); Zeile B liegt nur rot vor und nutzt im Ruhezustand eine
+Nachbarzeichnung. Die Zuordnung steht in `kidsAssets.answerSurface`.
 
 Zur Loesungsszene: Dort traegt **ausschliesslich die richtige Antwort** Farbe -
 dieselbe Regel wie auf der dunklen Buehne. `chosen-incorrect` bedeutet ausserhalb
@@ -132,19 +147,21 @@ wird doppelt gepflegt.
 
 ## 7. Schriften
 
-**Patrick Hand** (400) traegt alles Gelesene: Frage, Antworten, Kategorie,
-Beschriftungen und die Buchstaben A–D. **Fredoka Bold** (700) traegt
-ausschliesslich Punktestaende und Fragenzaehler - dort muessen Ziffern beim
-Hochzaehlen ruhig stehen (`tabular-nums`).
+**Patrick Hand** (400) traegt alles Gelesene: Frage, Antworten, Kategorie und
+Beschriftungen. **Melior** (700) traegt die Zahlen (Spielernummer,
+Punktestaende, Fragenzaehler) und die Buchstaben A–D - dieselbe Serife wie auf
+der grossen Buehne, dort muessen Ziffern beim Hochzaehlen ruhig stehen
+(`tabular-nums`).
 
-Beide Schnitte kommen aus dem Assetpaket und liegen unter
-`apps/web/public/assets/kinderquiz/fonts/`. Sie werden bewusst nicht gebuendelt:
-Nur so behalten sie eine feste Adresse, die `apps/web/index.html` vorladen kann.
+Die Handschrift kommt aus dem Assetpaket und liegt unter
+`apps/web/public/assets/kinderquiz/fonts/`. Sie wird bewusst nicht gebuendelt:
+Nur so behaelt sie eine feste Adresse, die `apps/web/index.html` vorladen kann.
 `font-display: block` verhindert, dass auf der Buehne kurz eine Systemschrift zu
-sehen ist; der Rueckfall ist eine Schreibschrift, keine System-Sans.
+sehen ist; der Rueckfall ist eine Schreibschrift, keine System-Sans. Melior ist
+im regulaeren Schriftbestand gebuendelt (`apps/web/src/styles.css`).
 
-Es gibt **keine gerechnete Fettschrift**: Patrick Hand hat genau einen Schnitt,
-und jede Regel setzt `font-weight: 400`.
+Es gibt **keine gerechnete Fettschrift**: Patrick Hand hat genau einen Schnitt
+(400), Melior liegt als echter Bold-Schnitt vor.
 
 ## 8. Abnahme
 
@@ -158,7 +175,7 @@ und jede Regel setzt `font-weight: 400`.
 - kein CSS-Rahmen, kein CSS-Radius, kein gerechneter Schatten an Karten,
   Chips, Antworten, Bild, Spielerkarten und Zaehler
 - Chip und Antwortkarte als getrennte Flaechen mit sichtbarer Luecke
-- Patrick Hand fuer Text, Fredoka nur fuer Ziffern, beide wirklich geladen
+- Patrick Hand fuer Text, Melior fuer Zahlen und Buchstaben, beide wirklich geladen
 - sichtbare Fuge zwischen Fragebild und Frageflaeche
 - Karlchen 42 bis 52 Prozent der Bildhoehe, rechts, am Boden, ohne die
   Antworten zu beruehren; kleiner Karlchen mittig ueber dem Bildrahmen
@@ -175,9 +192,8 @@ Fuer die Belastungsprobe hat die Entwicklungsvorschau den Schalter
 
 1. **Nur Frage und Loesung sind gestaltet.** Pausenscreen, Rueckmeldung,
    Enthuellung, Video, Start und Ergebnis behalten ihre gemeinsame Komposition
-   und stehen auf dem illustrierten Grund mit Papierfarben. Das Assetpaket
-   enthaelt fuer diese Szenen keine Vorlagen; `generic-contour-9slice.svg` liegt
-   fuer spaetere Karten bereit.
+   und stehen auf dem illustrierten Grund mit Papierfarben. Das Boxen-Paket
+   enthaelt fuer diese Szenen keine Vorlagen.
 2. **Ein einziger Radius bleibt**: der Beschnitt des Fragefotos
    (`.kids-media__image`). Er ist aus der Innenkontur von `media-frame.svg`
    abgelesen und verhindert, dass rechtwinklige Fotoecken aus der gerundeten

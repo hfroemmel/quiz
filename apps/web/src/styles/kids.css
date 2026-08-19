@@ -22,12 +22,12 @@
 /* ------------------------------------------------------------------ *
  * Schriften des Kinderquiz
  *
- * Patrick Hand traegt alles Gelesene - Frage, Antworten, Kategorie,
- * Beschriftungen und die Buchstaben A bis D. Fredoka Bold traegt
- * ausschliesslich Punktestaende und Fragenzaehler, weil Ziffern dort stabil
- * ausgerichtet stehen muessen.
+ * Patrick Hand traegt alles Gelesene - Frage, Antworten, Kategorie und
+ * Beschriftungen. Melior traegt die Zahlen (Spielernummer, Punktestaende,
+ * Fragenzaehler) und die Buchstaben A bis D; die Familie kommt aus dem
+ * regulaeren Schriftbestand der Anwendung (`apps/web/src/styles.css`).
  *
- * Beide Dateien liegen im Assetpaket unter `public/` und werden NICHT
+ * Die Handschrift liegt im Assetpaket unter `public/` und wird NICHT
  * gebuendelt: So hat ihre Adresse eine feste Form, die `index.html` vorladen
  * kann. `font-display: block` verhindert, dass auf der Buehne fuer einen
  * Wimpernschlag eine Systemschrift zu sehen ist.
@@ -40,32 +40,26 @@
   font-weight: 400;
   font-display: block;
 }
-@font-face {
-  font-family: 'Fredoka';
-  src: url('/assets/kinderquiz/fonts/Fredoka-Bold.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 700;
-  font-display: block;
-}
 
 /* ------------------------------------------------------------------ *
  * Grundflaeche und Ebenen
  * ------------------------------------------------------------------ */
 
 .stage--kids {
-  /* Werte aus `implementation/design-tokens.json` des Assetpakets. */
-  --kids-ink: #172538;
-  --kids-paper: #fff8e8;
-  --kids-red: #e63339;
-  --kids-yellow: #ffd83d;
+  /* Farbwerte des Boxen-Pakets (`boxes.css`). */
+  --kids-ink: #0e090c;
+  --kids-paper: #f4ebd8;
+  --kids-red: #d61e1e;
+  --kids-yellow: #f9cd36;
 
   /*
-   * Zwei Familien, mehr nicht. Der Rueckfall ist bewusst eine Schreibschrift
-   * und keine System-Sans: Faellt die Datei aus, sieht die Ansicht immer noch
-   * handgeschrieben aus statt wie ein Formular.
+   * Zwei Familien, mehr nicht. Der Rueckfall der Handschrift ist bewusst eine
+   * Schreibschrift und keine System-Sans: Faellt die Datei aus, sieht die
+   * Ansicht immer noch handgeschrieben aus statt wie ein Formular. Melior ist
+   * dieselbe Serife wie auf der grossen Buehne.
    */
   --kids-hand: 'Patrick Hand', 'Comic Sans MS', cursive;
-  --kids-numeric: 'Fredoka', 'Arial Rounded MT Bold', cursive;
+  --kids-numeric: 'Melior', 'Palatino Linotype', Palatino, Georgia, serif;
 
   /* Layout: Aussenabstand, Fuge, Spaltenanteile der Designreferenz. */
   --kids-pad: clamp(16px, 1.8cqw, 36px);
@@ -131,6 +125,28 @@
   background: var(--kids-surface) center / 100% 100% no-repeat;
   pointer-events: none;
 }
+/*
+ * 9-Slice: Ecken bleiben unverzerrt, Kanten und Mitte strecken sich - der im
+ * Boxen-Paket vorgesehene Weg (`boxes.css`). Der Slice-Wert kommt je Element
+ * aus `boxes.json` (Prop `slice` der Komponente); die Randbreite setzt die
+ * Komponentenklasse, denn sie haengt vom Verhaeltnis zwischen Zeichnung und
+ * Element ab. Als Mass dient `cqw`: Bei 1920 Containerbreite entspricht der
+ * Rand genau dem Quellwert, kleinere Buehnen skalieren die Striche mit.
+ *
+ * Der Rand liegt auf dem PSEUDOELEMENT, nicht auf dem Element - die Regel
+ * "keine CSS-Rahmen an den Bauteilen" bleibt damit wortwoertlich wahr, und
+ * das Elementraster (Padding, Inhalt) bleibt vom Zeichnungsrand unabhaengig.
+ */
+.kids-surface--slice::before {
+  background: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: var(--kids-slice-width, 1.25cqw);
+  border-image-source: var(--kids-surface);
+  border-image-slice: var(--kids-slice, 24) fill;
+  border-image-width: var(--kids-slice-width, 1.25cqw);
+  border-image-repeat: stretch;
+}
 
 /* ------------------------------------------------------------------ *
  * Bildschirmaufbau
@@ -172,15 +188,29 @@
 }
 
 /*
- * Spielerkarte: zwei Zellen im Verhaeltnis der Zeichnung. Die farbige Haelfte
- * des SVG endet bei 130 von 280 Einheiten - daher 46,4 %.
+ * Spielerkarte: zwei Zellen im Verhaeltnis der Zeichnung. Das farbige Feld
+ * endet in beiden Boxen-SVGs bei rund 47 % der Breite.
  */
 .kids-score {
+  --kids-slice-width: clamp(12px, 1.35cqw, 27px);
   display: grid;
-  grid-template-columns: 46.4% 1fr;
+  grid-template-columns: 47% 1fr;
   align-items: center;
-  min-width: clamp(180px, 15.5cqw, 300px);
+  /*
+   * Nahe am Seitenverhaeltnis der Zeichnung (215 x 104) bleiben: Wird die Karte
+   * deutlich flacher gestreckt, schiebt sich das farbige Feld sichtbar ueber
+   * die linke Kontur hinaus.
+   */
+  min-width: clamp(170px, 13.5cqw, 265px);
+  min-height: clamp(64px, 9.6cqh, 112px);
   padding: clamp(6px, 0.6cqw, 12px) 0 clamp(8px, 0.8cqw, 16px);
+}
+/*
+ * Wer nicht am Zug ist, tritt zurueck. Das Boxen-Paket kennt keine eigene
+ * Aktiv-Zeichnung; eine gerechnete Kontur kaeme nicht in Frage.
+ */
+.kids-score[data-active='false'] {
+  opacity: 0.72;
 }
 .kids-score__cell {
   display: flex;
@@ -194,7 +224,7 @@
   font-weight: 400;
   font-size: var(--kids-size-label);
 }
-/* Nur die Ziffern tragen Fredoka - sie muessen beim Hochzaehlen ruhig stehen. */
+/* Nur die Ziffern tragen Melior - sie muessen beim Hochzaehlen ruhig stehen. */
 .kids-score__value {
   font-family: var(--kids-numeric);
   font-weight: 700;
@@ -203,6 +233,7 @@
 }
 
 .kids-counter {
+  --kids-slice-width: clamp(12px, 1.35cqw, 27px);
   justify-self: end;
   display: flex;
   flex-direction: column;
@@ -261,6 +292,7 @@
 }
 
 .kids-media {
+  --kids-slice-width: clamp(28px, 3.75cqw, 75px);
   position: relative;
   /*
    * `min-width: 0` ist Pflicht, kein Zierrat: Als Rasterzelle wuerde die Spalte
@@ -275,7 +307,7 @@
    * die Zelle ueberlaufen lassen und genau die Fuge schliessen, die hier
    * sichtbar bleiben soll.
    */
-  padding: 2.5%;
+  padding: clamp(8px, 0.9cqw, 18px);
 }
 /*
  * Der einzige Radius dieser Welt. Das Foto ist kein gezeichnetes Bauteil,
@@ -299,24 +331,25 @@
  */
 .kids-media__peek {
   position: absolute;
-  left: 50%;
+  /* Etwas rechts der Mitte wie im Entwurf - links darueber steht die Wortmarke. */
+  left: 68%;
   bottom: 100%;
   z-index: -2;
-  width: min(32%, 200px);
+  width: min(50%, 300px);
   /*
-   * Die Zeichnung endet bei 90,5 % der Bilddatei - darunter liegt durchsichtiger
+   * Die Zeichnung endet bei 90,6 % der Bilddatei - darunter liegt durchsichtiger
    * Rand. Er wird herausgerechnet, danach schiebt der zweite Summand die
    * Unterkante um die verlangten 8 bis 14 Pixel hinter den Rahmen.
    */
-  transform: translate(-50%, calc(9.5% + clamp(8px, 0.7cqw, 13px)));
+  transform: translate(-50%, calc(9.4% + clamp(8px, 0.7cqw, 13px)));
   pointer-events: none;
 }
 
 .kids-panel {
-  /* Platz fuer bis zu vier Fragezeilen, ohne feste Hoehe. */
+  --kids-slice-width: clamp(28px, 3.7cqw, 71px);
   /* Nur die Untergrenze - die Zielhoehe kommt aus der Fragezeile. */
   min-height: clamp(110px, 20cqh, 240px);
-  padding: clamp(14px, 1.6cqw, 34px) clamp(16px, 1.9cqw, 40px);
+  padding: clamp(16px, 1.9cqw, 40px) clamp(18px, 2.2cqw, 46px);
 }
 .kids-panel__category {
   margin: 0 0 clamp(4px, 0.5cqw, 10px);
@@ -410,6 +443,7 @@
 }
 
 .kids-answer__chip {
+  --kids-slice-width: clamp(12px, 1.25cqw, 24px);
   /*
    * Feste Spalte, feste Groesse: Bei zweizeiligem Text darf der Buchstabe weder
    * mitwachsen noch nach unten rutschen.
@@ -418,9 +452,9 @@
   display: grid;
   place-items: center;
   align-self: center;
-  font-family: var(--kids-hand);
-  font-weight: 400;
-  font-size: clamp(28px, 2.4cqw, 52px);
+  font-family: var(--kids-numeric);
+  font-weight: 700;
+  font-size: clamp(24px, 2.1cqw, 46px);
   line-height: 1;
   /* Auch auf dem gelben Chip der gewaehlten Antwort bleibt der Buchstabe dunkel. */
   color: var(--kids-ink);
@@ -428,6 +462,7 @@
 
 /* Die breite Kartenzeichnung - und nur sie - traegt den Antworttext. */
 .kids-answer__surface {
+  --kids-slice-width: clamp(12px, 1.25cqw, 24px);
   display: flex;
   align-items: center;
   min-height: clamp(58px, 8cqh, 104px);
@@ -468,7 +503,7 @@
   font-family: var(--kids-hand);
   font-weight: 400;
 }
-/* Ziffern bleiben bei Fredoka - sie sollen beim Zaehlen ruhig stehen. */
+/* Ziffern bleiben bei Melior - sie sollen beim Zaehlen ruhig stehen. */
 .stage--kids .progress-ring__seconds,
 .stage--kids .tile__value {
   font-family: var(--kids-numeric);

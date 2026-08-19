@@ -1,26 +1,14 @@
-# Enthaltene Fonts
+# Schrift der Kinderansicht
 
 ## Patrick Hand Regular
 
-- Einsatz: Fragen, Antworten, Kategorien, A–D, Spieler- und UI-Labels
-- Datei für Web: `PatrickHand-Regular.woff2`
-- optionale Originalquelle: `source/PatrickHand-Regular.ttf`
-- Lizenz: `licenses/OFL-Patrick-Hand.txt`
+- Einsatz: Fragen, Antworten, Kategorien, Spieler- und UI-Labels
+- Datei fuer Web: `PatrickHand-Regular.woff2`
+- Lizenz: `licenses/OFL-Patrick-Hand.txt` (SIL Open Font License 1.1)
 
-## Fredoka Bold
+Die Datei enthaelt den fuer deutsche Inhalte erforderlichen Latin-Zeichensatz
+einschliesslich Umlauten und `ss`.
 
-- Einsatz: Punktestände und Fragenzähler
-- Datei für Web: `Fredoka-Bold.woff2`
-- optionale Originalquelle: `source/Fredoka-Bold.ttf`
-- Lizenz: `licenses/OFL-Fredoka.txt`
-
-## Einbindung
-
-Wenn der vollständige Ordner unter `/public/assets/kinderquiz/` liegt:
-
-```css
-@import url("/assets/kinderquiz/fonts/fonts.css");
-```
-
-Die WOFF2-Dateien enthalten den für deutsche Inhalte erforderlichen Latin-Zeichensatz einschließlich Umlauten und `ß`.
-
+Zahlen (Spielernummer, Punktestaende, Fragenzaehler) und die Buchstaben A-D
+tragen **Melior** aus dem regulaeren Schriftbestand der Anwendung
+(`apps/web/src/assets/fonts/`, eingebunden in `apps/web/src/styles.css`).

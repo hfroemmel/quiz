@@ -29,7 +29,7 @@ export function QuestionStage({ question }: { question: PublicQuestion }) {
  */
 function QuestionMedia({ imageUrl, prompt }: { imageUrl: string; prompt: string }) {
   return (
-    <KidsSurface image={kidsAssets.mediaFrame} className="kids-media">
+    <KidsSurface image={kidsAssets.mediaFrame} slice={72} className="kids-media">
       <img className="kids-media__image" src={imageUrl} alt={`Bild zur Frage: ${prompt}`} />
       {/* Karlchen schaut ueber die obere Bildkante - reine Dekoration. */}
       <img className="kids-media__peek" src={kidsAssets.mini} alt="" aria-hidden="true" />
@@ -39,7 +39,7 @@ function QuestionMedia({ imageUrl, prompt }: { imageUrl: string; prompt: string 
 
 function QuestionPanel({ category, prompt }: { category?: string; prompt: string }) {
   return (
-    <KidsSurface image={kidsAssets.questionPanel} className="kids-panel">
+    <KidsSurface image={kidsAssets.questionPanel} slice={71} className="kids-panel">
       {category && <p className="kids-panel__category">{category}</p>}
       <p className="kids-panel__prompt">{prompt}</p>
     </KidsSurface>

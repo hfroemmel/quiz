@@ -35,9 +35,9 @@ sie deshalb nicht von hier, sondern aus
 
 | Familie | Datei | Einsatz |
 |---|---|---|
-| **Patrick Hand** (400) | `PatrickHand-Regular.woff2` | Frage, Antworten, Kategorie, Beschriftungen, Buchstaben A-D |
-| **Fredoka** (700) | `Fredoka-Bold.woff2` | ausschliesslich Punktestaende und Fragenzaehler |
+| **Patrick Hand** (400) | `PatrickHand-Regular.woff2` | Frage, Antworten, Kategorie, Beschriftungen |
+| **Melior** (700, aus diesem Ordner) | `MeliorCom-Bold.ttf` | Spielernummer, Punktestaende, Fragenzaehler, Buchstaben A-D |
 
-Beide stehen unter der SIL Open Font License 1.1; die Lizenztexte liegen neben
-den Dateien. Sie werden lokal ausgeliefert, weil die Anwendung offline
+Patrick Hand steht unter der SIL Open Font License 1.1; der Lizenztext liegt
+neben der Datei. Sie wird lokal ausgeliefert, weil die Anwendung offline
 lauffaehig sein muss - ein Font-CDN kommt nicht in Frage.

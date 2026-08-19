@@ -76,9 +76,14 @@ function PlayerScoreCard({
     </div>
   )
 
+  /*
+   * Das Boxen-Paket kennt keine Aktiv-Zeichnung; wer am Zug ist, zeigt die
+   * Karte ueber ihre Deckkraft (siehe `.kids-score[data-active='false']`).
+   */
   return (
     <KidsSurface
-      image={kidsAssets.score[colour][score.active ? 'active' : 'idle']}
+      image={kidsAssets.score[colour]}
+      slice={26}
       className="kids-score"
       data-player={number}
       data-active={String(score.active)}
@@ -91,7 +96,7 @@ function PlayerScoreCard({
 
 function QuestionCounter({ current, total }: { current: number; total: number }) {
   return (
-    <KidsSurface image={kidsAssets.questionCounter} className="kids-counter">
+    <KidsSurface image={kidsAssets.questionCounter} slice={26} className="kids-counter">
       <span className="kids-counter__label">Frage</span>
       <span className="kids-counter__value">
         {current}/{total}

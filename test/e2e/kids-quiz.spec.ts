@@ -124,14 +124,14 @@ test.describe('Zustaende der Antworten', () => {
         .evaluate((element) => getComputedStyle(element).getPropertyValue('--kids-surface').trim())
     const surface = (index: number) => drawing('.kids-answer__surface', index)
 
-    expect(await surface(0)).toContain('answer-default.svg')
-    expect(await surface(1)).toContain('answer-selected.svg')
-    expect(await surface(3)).toContain('answer-incorrect.svg')
+    expect(await surface(0)).toContain('answer-box-a.svg')
+    expect(await surface(1)).toContain('answer-box-b.svg')
+    expect(await surface(3)).toContain('answer-box-incorrect.svg')
 
-    expect(await drawing('.kids-answer__chip', 1)).toContain('answer-active.svg')
+    expect(await drawing('.kids-answer__chip', 1)).toContain('badge-letter-b.svg')
 
     await openKids(page, 'solution')
-    expect(await surface(0)).toContain('answer-correct.svg')
+    expect(await surface(0)).toContain('answer-box-correct.svg')
   })
 
   test('traegt die breite Kartenzeichnung nur auf der Antwortflaeche, nie auf der Zeile', async ({ page }) => {
@@ -183,7 +183,7 @@ test.describe('Zustaende der Antworten', () => {
 })
 
 test.describe('Handschrift und Zeichnung', () => {
-  test('setzt Patrick Hand fuer alles Gelesene und Fredoka nur fuer Ziffern', async ({ page }) => {
+  test('setzt Patrick Hand fuer alles Gelesene und Melior fuer Zahlen und Buchstaben', async ({ page }) => {
     await openKids(page)
 
     const family = (selector: string) =>
@@ -195,16 +195,17 @@ test.describe('Handschrift und Zeichnung', () => {
           return { font: style.fontFamily, weight: style.fontWeight }
         })
 
-    for (const selector of ['.kids-panel__prompt', '.kids-panel__category', '.kids-answer__text', '.kids-answer__chip', '.kids-score__label', '.kids-counter__label']) {
+    for (const selector of ['.kids-panel__prompt', '.kids-panel__category', '.kids-answer__text', '.kids-score__label', '.kids-counter__label']) {
       const { font, weight } = await family(selector)
       expect(font, `${selector} traegt nicht die Handschrift`).toContain('Patrick Hand')
       // Patrick Hand hat nur einen Schnitt: Alles darueber waere gerechnete Fettschrift.
       expect(weight, `${selector} wuerde synthetisch fett gerechnet`).toBe('400')
     }
 
-    for (const selector of ['.kids-score__value', '.kids-counter__value']) {
+    // Spielernummer, Punkte, Zaehler und die Buchstaben A-D stehen in Melior.
+    for (const selector of ['.kids-score__value', '.kids-counter__value', '.kids-answer__chip']) {
       const { font, weight } = await family(selector)
-      expect(font, `${selector} traegt nicht die Ziffernschrift`).toContain('Fredoka')
+      expect(font, `${selector} traegt nicht die Serifenschrift`).toContain('Melior')
       expect(weight).toBe('700')
     }
 
@@ -213,7 +214,7 @@ test.describe('Handschrift und Zeichnung', () => {
       await document.fonts.ready
       return {
         hand: document.fonts.check('400 40px "Patrick Hand"'),
-        numeric: document.fonts.check('700 40px "Fredoka"'),
+        numeric: document.fonts.check('700 40px Melior'),
       }
     })
     expect(loaded).toEqual({ hand: true, numeric: true })
@@ -260,7 +261,7 @@ test.describe('Handschrift und Zeichnung', () => {
     }
   })
 
-  test('laesst Karlchen mittig ueber dem Bildrahmen hervorschauen', async ({ page }) => {
+  test('laesst Karlchen ueber dem Bildrahmen hervorschauen, rechts der Wortmarke', async ({ page }) => {
     await openKids(page)
     await fullBleed(page)
     await page.setViewportSize({ width: 1920, height: 1080 })
@@ -269,15 +270,17 @@ test.describe('Handschrift und Zeichnung', () => {
     const media = (await page.locator('.kids-media').boundingBox())!
     const peek = (await page.locator('.kids-media__peek').boundingBox())!
 
-    // Mittig ueber dem Rahmen.
-    expect(Math.abs(peek.x + peek.width / 2 - (media.x + media.width / 2))).toBeLessThan(4)
+    // Etwas rechts der Rahmenmitte wie im Entwurf - und ueber dem Rahmen.
+    const centre = peek.x + peek.width / 2
+    expect(centre).toBeGreaterThan(media.x + media.width * 0.5)
+    expect(centre).toBeLessThan(media.x + media.width * 0.8)
 
     /*
      * Die Unterkante steckt 8 bis 14 Pixel hinter dem Rahmen. Gemessen wird die
-     * Zeichnung, nicht die Datei: Unter ihr liegen 9,5 Prozent durchsichtiger
+     * Zeichnung, nicht die Datei: Unter ihr liegen 9,4 Prozent durchsichtiger
      * Rand.
      */
-    const drawnBottom = peek.y + peek.height * 0.905
+    const drawnBottom = peek.y + peek.height * 0.906
     const overlap = drawnBottom - media.y
     expect(overlap).toBeGreaterThanOrEqual(8)
     expect(overlap).toBeLessThanOrEqual(14)

@@ -16,7 +16,7 @@
  */
 import { optionLetter } from '../../ui/OptionBar.tsx'
 import { answerVisualState } from './answerVisualState.ts'
-import { kidsAssets } from './kidsAssets.ts'
+import { answerBadge, answerSurface } from './kidsAssets.ts'
 import { KidsSurface } from './KidsSurface.tsx'
 import type { PublicOption, PublicScene } from '@quiz/contracts'
 
@@ -25,21 +25,33 @@ export function AnswerList({ options, scene }: { options: PublicOption[]; scene:
   return (
     <ul className="kids-answers">
       {options.map((option, index) => (
-        <AnswerOption key={option.id} letter={optionLetter(index)} text={option.text} state={answerVisualState(option, scene)} />
+        <AnswerOption
+          key={option.id}
+          index={index}
+          letter={optionLetter(index)}
+          text={option.text}
+          state={answerVisualState(option, scene)}
+        />
       ))}
     </ul>
   )
 }
 
 function AnswerOption({
+  index,
   letter,
   text,
   state,
 }: {
+  index: number
   letter: string
   text: string
   state: ReturnType<typeof answerVisualState>
 }) {
+  /*
+   * Der Index waehlt die Zeichnung mit aus: Im Entwurf hat jede Zeile ihre
+   * eigene Kontur. Die Slice-Werte stammen aus `boxes.json` des Pakets.
+   */
   return (
     <li className="kids-answer" data-state={state}>
       {/*
@@ -47,14 +59,10 @@ function AnswerOption({
         * festen Spalte. Er darf bei zweizeiligem Text weder mitwachsen noch nach
         * unten rutschen - sonst tanzen die Buchstaben A bis D in der Senkrechten.
         */}
-      <KidsSurface
-        as="span"
-        image={kidsAssets.chip[state]}
-        className="kids-answer__chip"
-      >
+      <KidsSurface as="span" image={answerBadge(state, index)} slice={24} className="kids-answer__chip">
         {letter}
       </KidsSurface>
-      <KidsSurface as="span" image={kidsAssets.answer[state]} className="kids-answer__surface">
+      <KidsSurface as="span" image={answerSurface(state, index)} slice={24} className="kids-answer__surface">
         <span className="kids-answer__text">{text}</span>
       </KidsSurface>
     </li>
