@@ -150,16 +150,21 @@ und Antwortzone.
 
 | Phase | Kopfzone | Optionen | Bedienbar |
 |---|---|---|---|
-| `question-presented` | sichtbar | **verborgen** | `Starten` |
+| `question-presented` | sichtbar | **verborgen** | `Antworten einblenden` |
 | `buzzer-open` | sichtbar | sichtbar, neutral | `Spieler 1`, `Spieler 2` |
 | `answer-locked` | sichtbar | sichtbar, neutral | `A`-`D` bzw. `Richtig`/`Falsch`, `Zurücksetzen` |
 | `answer-locked`, Antwort eingeloggt | sichtbar | gewaehlte Leiste `--accent` | zusaetzlich `Auflösen` primaer |
 
-Die Optionen erscheinen erst nach `Starten` (bestaetigt). Die eingeloggte
-Antwort ist **oeffentlich** sichtbar - der Saal sieht, worauf sich der Spieler
+Die Optionen erscheinen erst nach der Freigabe (bestaetigt) - und werden bis
+dahin auch nicht uebertragen. Der Moderator liest die Frage vor, bevor jemand
+buzzern kann. Die eingeloggte Antwort ist **oeffentlich** sichtbar - der Saal sieht, worauf sich der Spieler
 festgelegt hat, aber nicht, ob es stimmt.
 
-## Enthuellung (`reveal-running`, `reveal-paused`)
+## Enthuellung (`reveal-ready`, `reveal-running`, `reveal-paused`)
+
+- `reveal-ready` ist der Zwischenschritt vor dem Start: Das Bild steht bei voller
+  Unschaerfe, der Ring zeigt die volle Dauer, die Uhr laeuft nicht und niemand
+  kann buzzern. Der Operator startet mit `Enthuellung starten`.
 
 - Links der Ring, rechts das Bild. Der Ring hat aussen die Spur in
   `--surface-tile-disabled`, darauf den weissen Fortschrittsbogen mit runden
@@ -285,7 +290,7 @@ Frage 3/7 · Person · mittel
 Fragetext gross
 Loesung: Bundestagsadler
 Hintergrund: ...
-Naechster Schritt: Buzzer freigeben
+Naechster Schritt: Antworten einblenden
 Punktestand: 100 : 100
 ```
 

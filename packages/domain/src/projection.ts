@@ -74,6 +74,7 @@ export function sceneForPhase(phase: GamePhase): PublicScene {
     case 'video-ready':
     case 'video-playing':
       return 'video'
+    case 'reveal-ready':
     case 'reveal-running':
     case 'reveal-paused':
       return 'reveal'
@@ -139,7 +140,13 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           }
         : undefined,
     question: publicQuestion,
-    visibleOptions: showsQuestion ? publicOptions(state, scene) : undefined,
+    /*
+     * Die Antwortmoeglichkeiten gehen erst auf die Leitung, wenn der Operator die
+     * Runde freigegeben hat. Solange nur die Frage steht, liest der Moderator sie
+     * vor - haette der Buehnenclient die Optionen bereits, waeren sie im DOM zu
+     * finden, bevor sie jemand sehen soll.
+     */
+    visibleOptions: showsQuestion && state.phase !== 'question-presented' ? publicOptions(state, scene) : undefined,
     // Die Loesung wird ausschliesslich in der Loesungsszene uebertragen. Nach einer
     // falschen ersten Antwort bleibt sie damit auch technisch verborgen.
     visibleSolution: scene === 'solution' ? publicSolution(state, ctx) : undefined,
@@ -370,11 +377,13 @@ function nextStepHint(state: GameState | null): string {
     case 'pause-screen':
       return 'Pausenscreen laeuft, danach erscheint die naechste Frage automatisch.'
     case 'question-presented':
-      return 'Frage steht. Naechster Schritt: Buzzer freigeben.'
+      return 'Frage steht. Vorlesen, dann "Antworten einblenden".'
+    case 'reveal-ready':
+      return 'Bild steht unscharf. Vorlesen, dann "Enthuellung starten".'
     case 'video-ready':
       return 'Video steht bereit. Der Operator startet es; Buzzern ist erst nach dem Video moeglich.'
     case 'video-playing':
-      return 'Video laeuft. Danach "Frage einblenden" und Buzzer freigeben.'
+      return 'Video laeuft. Danach "Frage einblenden" und "Antworten einblenden".'
     case 'buzzer-open':
       return 'Buzzer offen. Wer zuerst drueckt, antwortet.'
     case 'reveal-running':

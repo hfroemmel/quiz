@@ -4,7 +4,7 @@ Ergebnis: BESTANDEN (0 Fehler, 256 Warnungen)
 ## Gesamtzahlen
 - Fragen gesamt: 199 (aktiv: 198)
 - Wiederholungsgruppen: 191
-- Medien: 198
+- Medien: 194
 - Nach Modus: adults=143, kids=56
 - Nach Schwierigkeit: medium=85, easy=63, hard=51
 - Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7

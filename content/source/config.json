@@ -88,10 +88,9 @@
         "text": "#FFFFFF",
         "textMuted": "rgba(255, 255, 255, 0.45)"
       },
-      "logoAssetId": "logo-quiz",
       "typography": {
-        "headingFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
-        "bodyFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
+        "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
+        "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
       },
       "presentationAnimationSetId": "standard"
     },
@@ -118,10 +117,9 @@
         "text": "#FFFFFF",
         "textMuted": "rgba(255, 255, 255, 0.45)"
       },
-      "logoAssetId": "logo-kids",
       "typography": {
-        "headingFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
-        "bodyFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
+        "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
+        "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
       },
       "presentationAnimationSetId": "standard"
     },
@@ -148,10 +146,9 @@
         "text": "#FFFFFF",
         "textMuted": "rgba(255, 255, 255, 0.45)"
       },
-      "logoAssetId": "logo-regional",
       "typography": {
-        "headingFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
-        "bodyFont": "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
+        "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
+        "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
       },
       "presentationAnimationSetId": "standard"
     }
@@ -576,7 +573,6 @@
         ]
       },
       "themeId": "regional",
-      "startVisualAssetId": "start-regional",
       "allowedPresetIds": [
         "regional"
       ],

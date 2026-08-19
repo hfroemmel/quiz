@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, scoringRules } from '@quiz/contracts'
-import { buzzIn, createHarness, makeQuestion, startGame } from './helpers.ts'
+import { buzzIn, createHarness, makeQuestion, releaseRound, startGame } from './helpers.ts'
 import { determineResult } from '../src/scoring.ts'
 import { availableCommands } from '../src/allowedCommands.ts'
 
@@ -235,19 +235,42 @@ describe('Normale Multiple-Choice-Frage', () => {
 })
 
 describe('Bilderkennen mit Enthuellung', () => {
-  it('startet die Enthuellung automatisch und oeffnet den Buzzer', () => {
+  it('wartet auf die Freigabe, bevor die Enthuellung laeuft und der Buzzer oeffnet', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
+    // Das Bild steht unscharf, damit der Moderator die Frage vorlesen kann.
+    expect(harness.state!.phase).toBe('reveal-ready')
+    expect(harness.state!.reveal?.status).toBe('idle')
+    expect(harness.state!.reveal?.durationMs).toBe(gameTiming.imageRevealDurationMs)
+    expect(harness.state!.buzzer.open).toBe(false)
+
+    // Vor der Freigabe ist Buzzern wirkungslos.
+    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
+
+    harness.dispatch({ type: 'START_IMAGE_REVEAL' })
     expect(harness.state!.phase).toBe('reveal-running')
     expect(harness.state!.reveal?.status).toBe('running')
-    expect(harness.state!.reveal?.durationMs).toBe(gameTiming.imageRevealDurationMs)
     expect(harness.state!.buzzer.open).toBe(true)
+  })
+
+  it('zaehlt erst ab der Freigabe - die Vorlesezeit kostet keine Sekunde', () => {
+    const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    harness.advance(6_000)
+    harness.dispatch({ type: 'START_IMAGE_REVEAL' })
+    harness.advance(2_000)
+
+    expect(harness.state!.reveal!.elapsedBeforeStartMs).toBe(0)
+    harness.dispatch({ type: 'PAUSE_IMAGE_REVEAL' })
+    expect(harness.state!.reveal!.elapsedBeforeStartMs).toBe(2_000)
   })
 
   it('pausiert bei gueltigem Buzzer und setzt an derselben Position fort', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
+    releaseRound(harness)
 
     harness.advance(4_000)
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
@@ -271,6 +294,7 @@ describe('Bilderkennen mit Enthuellung', () => {
   it('erlaubt unbegrenzt viele Fehlversuche und beide Spieler duerfen erneut buzzern', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
+    releaseRound(harness)
 
     for (let round = 0; round < 5; round += 1) {
       const playerId = round % 2 === 0 ? 'player-1' : 'player-2'
@@ -290,6 +314,7 @@ describe('Bilderkennen mit Enthuellung', () => {
   it('gibt 100 Punkte ohne Fehlversuch und 50 Punkte nach einem Fehlversuch', () => {
     const clean = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(clean)
+    releaseRound(clean)
     clean.dispatch({ type: 'BUZZ', playerId: 'player-1' })
     clean.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
     clean.dispatch({ type: 'RESOLVE_ATTEMPT' })
@@ -297,6 +322,7 @@ describe('Bilderkennen mit Enthuellung', () => {
 
     const afterMiss = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(afterMiss)
+    releaseRound(afterMiss)
     afterMiss.dispatch({ type: 'BUZZ', playerId: 'player-1' })
     afterMiss.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'incorrect' })
     afterMiss.dispatch({ type: 'RESOLVE_ATTEMPT' })
@@ -310,6 +336,7 @@ describe('Bilderkennen mit Enthuellung', () => {
   it('vollstaendige Enthuellung sperrt den Buzzer nicht', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
+    releaseRound(harness)
 
     harness.advance(gameTiming.imageRevealDurationMs + 2_000)
     expect(harness.state!.buzzer.open).toBe(true)
@@ -318,6 +345,7 @@ describe('Bilderkennen mit Enthuellung', () => {
 
     const explicit = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(explicit)
+    releaseRound(explicit)
     explicit.dispatch({ type: 'REVEAL_IMAGE_COMPLETELY' })
     expect(explicit.state!.reveal!.status).toBe('completed')
     expect(explicit.state!.buzzer.open).toBe(true)
@@ -326,6 +354,7 @@ describe('Bilderkennen mit Enthuellung', () => {
   it('trennt "Buzzer zuruecksetzen" klar vom technischen Reset der Enthuellung', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
+    releaseRound(harness)
     harness.advance(6_000)
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
 
@@ -342,6 +371,7 @@ describe('Bilderkennen mit Enthuellung', () => {
   it('zeigt nach richtiger Antwort das vollstaendig scharfe Bild', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
+    releaseRound(harness)
     harness.advance(2_000)
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
     harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })

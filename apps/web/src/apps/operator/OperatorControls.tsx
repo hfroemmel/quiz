@@ -22,16 +22,35 @@ export function OperatorControls({ view, send }: Props) {
 
   return (
     <section className="controls" aria-label="Steuerung">
+      {/* --- Runde freigeben --- */}
+      {(can('OPEN_BUZZER') || can('START_IMAGE_REVEAL')) && (
+        <div className="controls__group">
+          <h3 className="controls__title">Runde</h3>
+          <div className="controls__row">
+            {/*
+              * Der Zwischenschritt: Erst steht nur die Frage, der Moderator liest
+              * sie vor. Antwortmoeglichkeiten bzw. Enthuellung erscheinen auf
+              * Klick - und erst dann darf gebuzzert werden.
+              */}
+            {can('OPEN_BUZZER') && (
+              <button className="button button--primary" onClick={() => send({ type: 'OPEN_BUZZER' })}>
+                Antworten einblenden
+              </button>
+            )}
+            {can('START_IMAGE_REVEAL') && (
+              <button className="button button--primary" onClick={() => send({ type: 'START_IMAGE_REVEAL' })}>
+                Enthuellung starten
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* --- Spieler bestimmen --- */}
-      {(can('OPEN_BUZZER') || can('SELECT_PLAYER_MANUALLY') || can('RESET_BUZZER')) && (
+      {(can('SELECT_PLAYER_MANUALLY') || can('RESET_BUZZER')) && (
         <div className="controls__group">
           <h3 className="controls__title">Spielerauswahl</h3>
           <div className="controls__row">
-            {can('OPEN_BUZZER') && (
-              <button className="button button--primary" onClick={() => send({ type: 'OPEN_BUZZER' })}>
-                Buzzer freigeben
-              </button>
-            )}
             {can('SELECT_PLAYER_MANUALLY') &&
               view.playerScores.map((score) => (
                 <button

@@ -33,6 +33,7 @@ interface CommandEnvelope {
 |---|---|---|
 | `START_GAME` | operator | ja |
 | `OPEN_BUZZER` | operator, moderator | ja |
+| `START_IMAGE_REVEAL` | operator, moderator | ja |
 | `BUZZ` | operator, buzzer | nein |
 | `SELECT_PLAYER_MANUALLY` | operator | nein |
 | `LOG_OPTION_ANSWER` | operator | ja |

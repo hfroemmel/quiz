@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "1.0.3",
-  "createdAt": "2026-08-18T15:53:27.546Z",
+  "contentVersion": "1.0.4",
+  "createdAt": "2026-08-19T06:22:09.923Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
   "assets": [
@@ -1334,30 +1334,6 @@
       "mimeType": "image/jpeg"
     },
     {
-      "id": "logo-kids",
-      "kind": "image",
-      "filename": "branding/logo-kids.svg",
-      "mimeType": "image/svg+xml",
-      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-      "checksum": "82c2793e1f62b54d606a80e2a462e595"
-    },
-    {
-      "id": "logo-quiz",
-      "kind": "image",
-      "filename": "branding/logo-quiz.svg",
-      "mimeType": "image/svg+xml",
-      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-      "checksum": "712a93e121a3d746ad4897630b1e56b5"
-    },
-    {
-      "id": "logo-regional",
-      "kind": "image",
-      "filename": "branding/logo-regional.svg",
-      "mimeType": "image/svg+xml",
-      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-      "checksum": "2e85a18e24893c7573bd0e0da6c77fe0"
-    },
-    {
       "id": "start-adults",
       "kind": "image",
       "filename": "branding/start-adults.svg",
@@ -1372,15 +1348,7 @@
       "mimeType": "image/png",
       "credit": "Gelieferte Designvorlage",
       "checksum": "762a0602f00645ac0edf8a5f98b121b7"
-    },
-    {
-      "id": "start-regional",
-      "kind": "image",
-      "filename": "branding/start-regional.svg",
-      "mimeType": "image/svg+xml",
-      "credit": "Eigene Platzhaltergrafik (pnpm content:assets)",
-      "checksum": "5e4d5e97ca1ede995c077223c25d728d"
     }
   ],
-  "checksum": "6f9c66d07c70663237170f0a875e6f878a4c5cef4eb77fba05e1526215faa897"
+  "checksum": "48c947e7173b58233c64ee8da1adf02e43a33db6354d1dfc48e846ae9f3f105a"
 }

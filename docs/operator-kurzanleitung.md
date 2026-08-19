@@ -18,13 +18,14 @@
 |---|---|
 | 1 | Quizmodus und Schwierigkeits-Preset waehlen, Spielernamen eintragen |
 | 2 | `Spiel starten` |
-| 3 | Pro Frage: `Buzzer freigeben` |
-| 4 | Spieler buzzert - oder `… manuell auswaehlen`, falls die Hardware klemmt |
-| 5 | Genannte Antwort einloggen (Option anklicken oder `Antwort war richtig/falsch`) |
-| 6 | `Aufloesen und bewerten` |
-| 7 | `Weiter zur naechsten Frage` |
-| 8 | Nach der siebten Frage: `Weiter zum Ergebnis` |
-| 9 | `Zurueck zur Startansicht` fuer das naechste Spielpaar |
+| 3 | Frage steht - der Moderator liest sie vor |
+| 4 | `Antworten einblenden` bzw. `Enthuellung starten` - erst jetzt darf gebuzzert werden |
+| 5 | Spieler buzzert - oder `… manuell auswaehlen`, falls die Hardware klemmt |
+| 6 | Genannte Antwort einloggen (Buchstabe anklicken oder `Antwort war richtig/falsch`) |
+| 7 | `Aufloesen und bewerten` |
+| 8 | `Weiter zur naechsten Frage` |
+| 9 | Nach der siebten Frage: `Weiter zum Ergebnis` |
+| 10 | `Zurueck zur Startansicht` fuer das naechste Spielpaar |
 
 Der private Bereich rechts neben der Buehnenflaeche zeigt jederzeit die richtige Antwort und die
 Zusatzinformationen. Der Saal sieht davon nichts.
@@ -35,12 +36,14 @@ Zusatzinformationen. Der Saal sieht davon nichts.
 * Richtige zweite Chance: **50**
 * Bilderkennen nach mindestens einem Fehlversuch: **50**
 * Falsch, Passen, Aufloesen ohne Antwort: **0** - nie Abzug
-* Manuelle Korrektur: `+100` / `−100` im Kopfbereich, auch auf der Ergebnisansicht.
+* Manuelle Korrektur: `+50` / `−50` im Kopfbereich, auch auf der Ergebnisansicht.
   Der Stand faellt nicht unter null; jede Korrektur wird protokolliert.
 
 ## Bilderkennen
 
-* Die Enthuellung startet automatisch und laeuft zehn Sekunden.
+* Das Bild steht zuerst unscharf; die Uhr laeuft erst nach `Enthuellung starten`.
+  Die Vorlesezeit kostet also keine Sekunde des Countdowns.
+* Die Enthuellung laeuft dann zehn Sekunden.
 * Ein gueltiger Buzzer friert Bild und Countdown sofort ein.
 * Nach einer falschen Antwort laeuft die Enthuellung an derselben Stelle weiter,
   **beide** Spieler duerfen erneut buzzern - beliebig oft.
@@ -54,7 +57,7 @@ Zusatzinformationen. Der Saal sieht davon nichts.
 
 Video bewusst starten (kein Autoplay), bei Bedarf pausieren, springen oder neu
 starten. Waehrend des Videos ist der Buzzer gesperrt. Danach `Frage einblenden`,
-dann `Buzzer freigeben`.
+dann `Antworten einblenden`.
 
 Laesst sich ein Video nicht abspielen, erscheint eine Warnung im Diagnosebereich.
 Sichere naechste Aktion: `Frage ueberspringen`.

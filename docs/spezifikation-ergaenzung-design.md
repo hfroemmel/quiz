@@ -61,6 +61,29 @@ Der bestehende Test, der prueft, dass die Loesung vor der Loesungsszene nirgends
 im DOM des Buehnenclients auftaucht, bleibt unveraendert gueltig und ist die
 Abnahme dieser Regel.
 
+## 2b. Ergaenzung zu Abschnitt 6 - der Zwischenschritt vor jeder Runde
+
+Jede Frage steht zuerst still da, damit der Moderator sie vorlesen kann. Erst die
+Freigabe des Operators blendet die Antwortmoeglichkeiten ein bzw. startet die
+Enthuellung - und erst dann darf gebuzzert werden.
+
+| Fragetyp | Wartezustand | Freigabe |
+|---|---|---|
+| Auswahlfrage | `question-presented` | `OPEN_BUZZER` ("Antworten einblenden") |
+| Bilderkennen | `reveal-ready` (neu) | `START_IMAGE_REVEAL` ("Enthuellung starten") |
+| Videofrage | `video-ready` | `SHOW_QUESTION_AFTER_VIDEO`, danach wie Auswahlfrage |
+
+Zwei Punkte sind dabei keine Anzeigefragen, sondern Fachlogik:
+
+- In `question-presented` uebertraegt der Server die Antwortmoeglichkeiten **gar
+  nicht erst**. Sie stehen also auch nicht im DOM eines Buehnenclients, bevor sie
+  jemand sehen soll.
+- In `reveal-ready` laeuft die Enthuellungsuhr nicht. Die Vorlesezeit kostet keine
+  Sekunde des Countdowns - der Zehn-Sekunden-Wert bleibt unangetastet.
+
+Nach einem Fehlversuch beim Bilderkennen geht es zurueck nach `reveal-running`,
+nicht nach `reveal-ready`: Die Frage ist bereits vorgelesen.
+
 ## 3. Ergaenzung zu Abschnitt 13 - oeffentliches View-Modell
 
 Neu aufgenommen:
