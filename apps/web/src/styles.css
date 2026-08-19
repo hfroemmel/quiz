@@ -328,10 +328,25 @@ select {
   text-align: center;
   min-height: 0;
 }
+/*
+ * Hinweis auf die zweite Chance.
+ *
+ * Er steht rechtsbuendig direkt ueber den Antwortleisten und traegt die
+ * Akzentfarbe: Der Saal soll auf einen Blick sehen, dass dieser Versuch weniger
+ * Punkte bringt. Die negative Aussenkante zieht ihn an die Unterkante der
+ * Kopfzone heran, damit er keine eigene Zeile aufreisst.
+ */
 .scene__hint {
-  margin: 0;
-  color: var(--color-textMuted);
-  font-size: 1.4cqw;
+  align-self: flex-end;
+  margin: -3cqw 0 0;
+  padding: 0.6cqw 1.4cqw;
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.6cqw;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 /* Kopfzeile: gespiegelte Punktekacheln, Fragezaehler, Slots des Operators */
@@ -704,14 +719,21 @@ select {
 .scene--feedback {
   justify-content: center;
   gap: 0;
+  /*
+   * Mittig in der GESAMTEN Buehnenflaeche, nicht nur in dem Rest unter der
+   * Kopfzeile. Die Kopfzeile ist rund 8 cqw hoch; zusaetzliche Polsterung unten
+   * verschiebt den zentrierten Block um ihre Haelfte nach oben.
+   */
+  padding-bottom: 11cqw;
   /* Kantenlaenge der Bewegtgrafik - alles andere richtet sich danach. */
   --feedback-size: 16cqw;
   /*
-   * Anteil der Kantenlaenge, um den das Wort hochgezogen wird. Die beiden
-   * gelieferten Grafiken haben unterschiedlich viel transparenten Rand: Der Haken
-   * schwingt mit Funken weit aus, das Kreuz sitzt eng im Bild.
+   * Anteil der Kantenlaenge, um den das Wort an die Grafik heranrueckt. Die
+   * beiden gelieferten Grafiken haben unterschiedlich viel transparenten Rand:
+   * Der Haken schwingt mit Funken weit aus, das Kreuz sitzt eng im Bild und
+   * braucht deshalb umgekehrt zusaetzlichen Abstand - dafuer ist der Wert negativ.
    */
-  --feedback-pull: 0.1;
+  --feedback-pull: -0.04;
 }
 /*
  * Richtig darf groesser feiern als falsch. Der Haken ist der Moment, auf den der

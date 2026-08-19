@@ -100,6 +100,11 @@ Zwei Zeilen:
    erlaubte Tasten werden gesperrt, nie ausgeblendet - der Operator soll seine
    Tasten blind finden.
 
+Der Hinweis `Zweite Chance · 50 Punkte` steht **rechtsbuendig direkt ueber den
+Antwortleisten**, auf `--accent` mit runden Ecken. Er ist kein Nebensatz, sondern
+die Ansage, dass dieser Versuch nur noch halb so viel bringt; seine rechte Kante
+liegt auf der rechten Kante der Antwortleisten.
+
 In der zweiten Chance ist eine bereits als falsch bewertete Option **verbraucht**:
 Auf der Buehne steht ihre Leiste zurueckgenommen, im Bedienfeld ist ihre Taste
 gesperrt, und der Server weist ein erneutes Einloggen mit
@@ -285,6 +290,9 @@ festgelegt hat, aber nicht, ob es stimmt.
 
 ## Rueckmeldung (`attempt-feedback`)
 
+- Grafik und Wort stehen mittig in der **gesamten** Buehnenflaeche, nicht nur in
+  dem Bereich unter der Kopfzeile. Der Ausgleich steckt als zusaetzliche
+  Polsterung unten in `.scene--feedback`.
 - Zentraler Kreis, darunter das Wort. Richtig: `--correct`, weisser Haken,
   kurze Funkenpartikel nach aussen. Falsch: `--incorrect`, weisses Kreuz,
   **keine** Partikel.
