@@ -15,7 +15,7 @@ import type { PresentationTransitionDefinition } from './types.ts'
 
 export const correctFeedback: PresentationTransitionDefinition = {
   id: 'correct-feedback',
-  description: 'Gelieferte Bewegtgrafik: Kreis waechst, Konfetti stiebt aus, Haken zeichnet sich; Punktestand zaehlt hoch.',
+  description: 'Gelieferte Bewegtgrafik: Kreis wächst, Konfetti stiebt aus, Haken zeichnet sich; Punktestand zählt hoch.',
   appliesTo: { from: '*', to: 'feedback' },
   durationMs: presentationTiming.correctFeedbackMs,
   easing: easings.emphasized,
@@ -24,5 +24,5 @@ export const correctFeedback: PresentationTransitionDefinition = {
   classNames: { active: 'feedback-correct', to: 'scene-enter' },
   locked:
     'Dauer entspricht gameTiming.correctFeedbackMs. Der Server beendet die Phase nach genau ' +
-    'dieser Zeit; eine abweichende Dauer wuerde Anzeige und Spielzustand auseinanderlaufen lassen.',
+    'dieser Zeit; eine abweichende Dauer würde Anzeige und Spielzustand auseinanderlaufen lassen.',
 }

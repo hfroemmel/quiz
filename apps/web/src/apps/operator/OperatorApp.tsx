@@ -17,6 +17,7 @@ import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 import { unlockAudio } from '../../presentation/soundCues.ts'
 import { requestStageFullscreen } from '../../client/desktopBridge.ts'
+import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 import { FullscreenIcon, IconButton, SoundOffIcon, SoundOnIcon } from '../../ui/IconButton.tsx'
 import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
 import { OperatorControls } from './OperatorControls.tsx'
@@ -35,6 +36,7 @@ export function OperatorApp() {
 
   // Sobald ein neues Spiel laeuft, ist die Startansicht wieder Vergangenheit.
   const [wantsStartPanel, setWantsStartPanel] = useState(false)
+  const [confirmAbort, setConfirmAbort] = useState(false)
   useEffect(() => {
     if (view?.phase && view.phase !== 'result') setWantsStartPanel(false)
   }, [view?.phase])
@@ -96,14 +98,7 @@ export function OperatorApp() {
       <header className="operator__header">
         <div className="operator__header-left">
           {view.allowedCommands.includes('ABORT_GAME') && (
-            <button
-              className="button button--technical"
-              onClick={() => {
-                if (confirm('Laufendes Spiel wirklich beenden? Es wird kein Ergebnis angezeigt.')) {
-                  send({ type: 'ABORT_GAME' })
-                }
-              }}
-            >
+            <button className="button button--technical" onClick={() => setConfirmAbort(true)}>
               Beenden
             </button>
           )}
@@ -112,10 +107,10 @@ export function OperatorApp() {
         <div className="operator__header-right">
           {isResult && !wantsStartPanel && (
             <button className="button button--primary button--tiny" onClick={() => setWantsStartPanel(true)}>
-              Zurueck zur Startansicht
+              Zurück zur Startansicht
             </button>
           )}
-          <IconButton label="Buehne im Vollbild zeigen" onClick={() => void requestStageFullscreen()}>
+          <IconButton label="Bühne im Vollbild zeigen" onClick={() => void requestStageFullscreen()}>
             <FullscreenIcon />
           </IconButton>
           <IconButton
@@ -133,7 +128,7 @@ export function OperatorApp() {
 
       {!showStartPanel ? (
         <main className="operator__main">
-          <section className="operator__preview" aria-label="Vorschau Buehnenscreen">
+          <section className="operator__preview" aria-label="Vorschau Bühnenscreen">
             <div className="operator__preview-frame">
               <StageScreen
                 view={view}
@@ -155,7 +150,7 @@ export function OperatorApp() {
       ) : (
         <main className="operator__main operator__main--start">
           <StartPanel view={view} send={send} />
-          <section className="operator__preview" aria-label="Vorschau Buehnenscreen">
+          <section className="operator__preview" aria-label="Vorschau Bühnenscreen">
             <div className="operator__preview-frame">
               <StageScreen
                 view={view}
@@ -169,7 +164,22 @@ export function OperatorApp() {
         </main>
       )}
 
-      <DiagnosticsPanel view={view} send={send} connectedClients={view.diagnostics.connectedClients.length} />
+      <footer className="app-footer">
+        <DiagnosticsPanel view={view} send={send} connectedClients={view.diagnostics.connectedClients.length} />
+      </footer>
+
+      {confirmAbort && (
+        <ConfirmDialog
+          title="Spiel beenden"
+          message="Das laufende Spiel wird abgebrochen. Es wird kein Ergebnis angezeigt, und die bisherigen Punkte bleiben im Protokoll stehen."
+          confirmLabel="Spiel beenden"
+          onConfirm={() => {
+            send({ type: 'ABORT_GAME' })
+            setConfirmAbort(false)
+          }}
+          onCancel={() => setConfirmAbort(false)}
+        />
+      )}
     </div>
   )
 }

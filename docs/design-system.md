@@ -229,10 +229,11 @@ Show sichtbarer waere als ein kurzer Moment ohne Text.
 Die Buehnenschrift steht zusaetzlich im Quizpaket (`theme.typography`): Ein Modus
 kann damit eine eigene Schrift bekommen, ohne Codeaenderung.
 
-Beschriftungen in der Oberflaeche verwenden ab sofort **echte Umlaute**
-(`Aufloesen` wird zu `Auflösen`, `Zuruecksetzen` zu `Zurücksetzen`). Die
-Quelltexte sind UTF-8; die ASCII-Schreibweise bleibt nur in Kommentaren und
-Dokumentation erhalten.
+Beschriftungen in der Oberflaeche verwenden **echte Umlaute** - und zwar
+ueberall, wo Text den Nutzer erreicht: Tastenbeschriftungen, Ueberschriften,
+Hinweise, Ablehnungsgruende des Servers und Protokolleintraege. Die Quelltexte
+sind UTF-8; die ASCII-Schreibweise bleibt ausschliesslich in Kommentaren und in
+dieser Dokumentation erhalten.
 
 ## Formen und Abstaende
 

@@ -51,7 +51,7 @@ export function PreviewApp() {
   if (!import.meta.env.DEV) {
     return (
       <div className="preview preview--disabled">
-        <p>Die Entwicklungsansicht ist nur im Entwicklungsmodus verfuegbar.</p>
+        <p>Die Entwicklungsansicht ist nur im Entwicklungsmodus verfügbar.</p>
       </div>
     )
   }
@@ -128,7 +128,7 @@ export function PreviewApp() {
           Reduzierte Bewegung ist aktuell <strong>{prefersReducedMotion() ? 'aktiv' : 'inaktiv'}</strong>.
         </p>
 
-        <h2>Registrierte Uebergaenge</h2>
+        <h2>Registrierte Übergänge</h2>
         <ul className="preview__transitions">
           {transitions.map((definition) => (
             <li key={definition.id}>
@@ -216,7 +216,7 @@ function buildSampleView(input: {
     case 'question':
       return {
         ...base,
-        question: { prompt: 'Welcher Fluss fliesst durch Koeln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
+        question: { prompt: 'Welcher Fluss fließt durch Köln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
         visibleOptions: [
           { id: 'o1', text: 'Rhein' },
           { id: 'o2', text: 'Elbe' },
@@ -258,7 +258,7 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'solution',
-        question: { prompt: 'Welcher Fluss fliesst durch Koeln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
+        question: { prompt: 'Welcher Fluss fließt durch Köln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
         visibleOptions: [
           { id: 'o1', text: 'Rhein', state: 'correct' },
           { id: 'o2', text: 'Elbe', state: 'chosen-incorrect' },

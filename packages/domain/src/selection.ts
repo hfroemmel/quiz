@@ -145,15 +145,15 @@ export function selectQuestionForSlot(input: SelectionInput): SelectionResult {
       ...baseRationale,
       freshnessClass: 'never-used',
       windowSize: 0,
-      text: `Kein Kandidat fuer Fragenplatz "${slot.id}" (passend: ${matching.length}, nach Ausschluss: 0).`,
+      text: `Kein Kandidat für Fragenplatz "${slot.id}" (passend: ${matching.length}, nach Ausschluss: 0).`,
     }
     return {
       ok: false,
       rationale,
       message:
         matching.length === 0
-          ? `Fuer den Fragenplatz "${slot.id}" gibt es im gewaehlten Modus keine passende Frage. Bitte anderes Preset oder anderen Modus waehlen.`
-          : `Alle passenden Fragen fuer "${slot.id}" wurden in diesem Spiel bereits verwendet. Bitte Preset anpassen oder Fragenpool erweitern.`,
+          ? `Für den Fragenplatz "${slot.id}" gibt es im gewählten Modus keine passende Frage. Bitte anderes Preset oder anderen Modus wählen.`
+          : `Alle passenden Fragen für "${slot.id}" wurden in diesem Spiel bereits verwendet. Bitte Preset anpassen oder Fragenpool erweitern.`,
     }
   }
 
@@ -168,7 +168,7 @@ export function selectQuestionForSlot(input: SelectionInput): SelectionResult {
         ...baseRationale,
         freshnessClass: 'never-used',
         windowSize: neverUsed.length,
-        text: `Zufaellig aus ${neverUsed.length} heute noch nicht gespielten Fragen gewaehlt.`,
+        text: `Zufällig aus ${neverUsed.length} heute noch nicht gespielten Fragen gewählt.`,
       },
     }
   }
@@ -192,7 +192,7 @@ export function selectQuestionForSlot(input: SelectionInput): SelectionResult {
       ...baseRationale,
       freshnessClass: 'least-recently-used',
       windowSize,
-      text: `Pool erschoepft: gewichtete Auswahl aus den ${windowSize} am laengsten nicht gespielten Fragen.`,
+      text: `Pool erschöpft: gewichtete Auswahl aus den ${windowSize} am längsten nicht gespielten Fragen.`,
     },
   }
 }

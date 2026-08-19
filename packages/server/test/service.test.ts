@@ -82,7 +82,7 @@ describe('Befehl, Transaktion und Verteilung', () => {
     })
     expect(result.ok).toBe(false)
     expect(result.rejection?.reason).toBe('revision-conflict')
-    expect(result.rejection?.message).toContain('geaendert')
+    expect(result.rejection?.message).toContain('geändert')
   })
 
   it('gibt bei zwei gleichzeitigen Steuerbefehlen dem ersten den Vorrang', () => {

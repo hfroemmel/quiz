@@ -203,9 +203,9 @@ textarea {
   outline-offset: 2px;
 }
 .button--option {
-  justify-content: flex-start;
-  text-align: left;
-  min-width: 220px;
+  /* Traegt nur den Buchstaben - der Antworttext steht auf der Buehne. */
+  justify-content: space-between;
+  min-width: 5.5rem;
 }
 .button__marker {
   display: inline-grid;
@@ -239,13 +239,34 @@ textarea {
   font-size: 0.85rem;
   color: var(--color-textMuted);
 }
+select {
+  /*
+   * Eigener Chevron statt des Systempfeils: Nur so laesst sich der Abstand zum
+   * Rand steuern - der Systempfeil klebt sonst am Rahmen.
+   */
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 20px top 55%,
+    right 14px top 55%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
 .field input,
 .field select,
 .field textarea {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(0, 0, 0, 0.25);
+  /* `background-color`, nicht `background`: Die Kurzform wuerde das Chevron
+     der Auswahlfelder wieder entfernen. */
+  background-color: rgba(0, 0, 0, 0.25);
+}
+.field select {
+  padding-right: 40px;
 }
 .field--checkbox {
   flex-direction: row;
@@ -867,6 +888,59 @@ textarea {
 }
 
 /* ------------------------------------------------------------------ *
+ * Rueckfragen
+ * ------------------------------------------------------------------ */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.55);
+  padding: 24px;
+}
+.dialog {
+  width: min(460px, 100%);
+  padding: 24px;
+  border-radius: var(--radius);
+  background: var(--color-tile);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 0.45);
+}
+.dialog__title {
+  margin: 0 0 10px;
+  font-size: 1.25rem;
+}
+.dialog__message {
+  margin: 0 0 20px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Fussbereich der Anwendung
+ * ------------------------------------------------------------------ */
+
+.app-footer {
+  margin-top: auto;
+  padding: 0 16px;
+  background: var(--color-controls);
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+.app-footer .diagnostics {
+  padding: 0;
+}
+.app-footer .diagnostics summary {
+  padding: 10px 0;
+  font-size: 0.85rem;
+}
+
+/* ------------------------------------------------------------------ *
  * Banner
  * ------------------------------------------------------------------ */
 
@@ -1000,11 +1074,17 @@ textarea {
   }
 }
 
-/* Steuerung */
+/* Steuerung
+ *
+ * Die Gruppen stehen nebeneinander und teilen sich die volle Breite. Sie behalten
+ * dabei ihre Reihenfolge - der Operator findet seine Tasten an derselben Stelle,
+ * auch wenn eine Gruppe gerade nicht anwaehlbar ist.
+ */
 .controls {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 14px 24px;
   padding: 16px;
   border-radius: var(--radius);
   background: var(--color-stageTop);
@@ -1033,12 +1113,10 @@ textarea {
   gap: 10px;
 }
 .controls__row--options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
 }
-.controls__group--continue {
-  border-top: none;
-}
+
 .controls__seek {
   display: flex;
   align-items: center;

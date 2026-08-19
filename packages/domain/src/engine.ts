@@ -127,7 +127,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       return startGame(work, command.quizModeId, command.presetId, command.playerLabels)
 
     case 'SET_SOUND_ENABLED': {
-      if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+      if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
       work.mutate((draft) => {
         draft.soundEnabled = command.enabled
       })
@@ -189,7 +189,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       const guard = work.requireRevealQuestion()
       if (guard) return guard
       if (work.phase !== 'reveal-ready') {
-        return reject('invalid-phase', 'Die Enthuellung wurde bereits gestartet.')
+        return reject('invalid-phase', 'Die Enthüllung wurde bereits gestartet.')
       }
       /*
        * Erst hier oeffnet der Buzzer. Vorher steht das Bild unscharf, damit der
@@ -201,7 +201,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
         draft.phase = 'reveal-running'
         draft.buzzer = { open: true }
       })
-      work.log('phase', 'Enthuellung gestartet, Buzzer freigegeben.')
+      work.log('phase', 'Enthüllung gestartet, Buzzer freigegeben.')
       return work.commit()
     }
 
@@ -209,13 +209,13 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       const guard = work.requireRevealQuestion()
       if (guard) return guard
       if (work.phase !== 'reveal-running') {
-        return reject('invalid-phase', 'Die Enthuellung laeuft gerade nicht.')
+        return reject('invalid-phase', 'Die Enthüllung läuft gerade nicht.')
       }
       work.mutate((draft) => {
         draft.reveal = pauseReveal(draft.reveal!, ctx.nowMs)
         draft.phase = 'reveal-paused'
       })
-      work.log('phase', 'Enthuellung pausiert.')
+      work.log('phase', 'Enthüllung pausiert.')
       return work.commit()
     }
 
@@ -223,13 +223,13 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       const guard = work.requireRevealQuestion()
       if (guard) return guard
       if (work.phase !== 'reveal-paused') {
-        return reject('invalid-phase', 'Die Enthuellung ist gerade nicht pausiert.')
+        return reject('invalid-phase', 'Die Enthüllung ist gerade nicht pausiert.')
       }
       work.mutate((draft) => {
         draft.reveal = resumeReveal(draft.reveal!, ctx.nowMs)
         draft.phase = 'reveal-running'
       })
-      work.log('phase', 'Enthuellung fortgesetzt.')
+      work.log('phase', 'Enthüllung fortgesetzt.')
       return work.commit()
     }
 
@@ -244,7 +244,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
         // Vollstaendige Enthuellung sperrt den Buzzer ausdruecklich NICHT.
         if (draft.phase === 'reveal-paused') draft.phase = 'reveal-running'
       })
-      work.log('phase', 'Bild vollstaendig aufgedeckt. Buzzern bleibt erlaubt.')
+      work.log('phase', 'Bild vollständig aufgedeckt. Buzzern bleibt erlaubt.')
       return work.commit()
     }
 
@@ -252,14 +252,14 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       const guard = work.requireRevealQuestion()
       if (guard) return guard
       if (!['reveal-running', 'reveal-paused'].includes(work.phase)) {
-        return reject('invalid-phase', 'Die Enthuellung kann in dieser Phase nicht zurueckgesetzt werden.')
+        return reject('invalid-phase', 'Die Enthüllung kann in dieser Phase nicht zurückgesetzt werden.')
       }
       work.mutate((draft) => {
         draft.reveal = resumeReveal(resetReveal(draft.reveal!), ctx.nowMs)
         draft.phase = 'reveal-running'
       })
       // Technische Korrekturaktion, bewusst getrennt von "Buzzer zuruecksetzen".
-      work.log('system', 'Enthuellung technisch auf den Anfang zurueckgesetzt.')
+      work.log('system', 'Enthüllung technisch auf den Anfang zurückgesetzt.')
       return work.commit()
     }
 
@@ -272,7 +272,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       return handleVideoCommand(work, command)
 
     case 'ADJUST_SCORE': {
-      if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+      if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
       if (work.state.status === 'aborted') {
         return reject('invalid-phase', 'Ein abgebrochenes Spiel kann nicht mehr korrigiert werden.')
       }
@@ -330,7 +330,7 @@ function startGame(
   playerLabels: [string, string] | undefined,
 ): EngineResult {
   if (work.state && work.state.status === 'active') {
-    return reject('invalid-phase', 'Es laeuft bereits ein Spiel. Bitte zuerst beenden.')
+    return reject('invalid-phase', 'Es läuft bereits ein Spiel. Bitte zuerst beenden.')
   }
   const slotCount = work.ctx.questionSource.slotCountFor(quizModeId, presetId)
   if (slotCount === null) {
@@ -374,11 +374,11 @@ function startGame(
 }
 
 function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual'): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const decision = evaluateBuzz(work.state, playerId)
   if (!decision.allowed) {
     // Abgewiesene Ereignisse werden protokolliert - inklusive Auto-Repeat der Tastatur.
-    return reject(decision.reason ?? 'buzzer-closed', decision.message ?? 'Buzzer nicht moeglich.')
+    return reject(decision.reason ?? 'buzzer-closed', decision.message ?? 'Buzzer nicht möglich.')
   }
 
   const label = work.state.players.find((player) => player.id === playerId)!.label
@@ -402,7 +402,7 @@ function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual
 }
 
 function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' | 'incorrect' }): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   if (!['answer-locked', 'second-chance'].includes(work.phase)) {
     return reject('invalid-phase', 'In dieser Phase kann keine Antwort eingeloggt werden.')
   }
@@ -412,7 +412,7 @@ function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' 
   const question = work.state.currentQuestion!.question
   if (input.optionId !== undefined) {
     const known = question.options?.some((option) => option.id === input.optionId)
-    if (!known) return reject('invalid-payload', 'Diese Antwortoption gehoert nicht zur Frage.')
+    if (!known) return reject('invalid-payload', 'Diese Antwortoption gehört nicht zur Frage.')
   }
 
   work.mutate((draft) => {
@@ -435,7 +435,7 @@ function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' 
 }
 
 function resolveAttempt(work: Draft): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   if (!['answer-locked', 'second-chance'].includes(work.phase)) {
     return reject('invalid-phase', 'In dieser Phase gibt es nichts auszuwerten.')
   }
@@ -456,7 +456,7 @@ function resolveAttempt(work: Draft): EngineResult {
   } else {
     return reject(
       'answer-not-logged',
-      'Zuerst die genannte Antwort einloggen oder "Ohne Antwort aufloesen" verwenden.',
+      'Zuerst die genannte Antwort einloggen oder "Ohne Antwort auflösen" verwenden.',
     )
   }
 
@@ -464,7 +464,7 @@ function resolveAttempt(work: Draft): EngineResult {
 }
 
 function resolveWithoutAnswer(work: Draft, mode: 'resolve-without-answer' | 'pass'): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const allowedPhases: GamePhase[] = [
     'question-presented',
     'buzzer-open',
@@ -475,10 +475,10 @@ function resolveWithoutAnswer(work: Draft, mode: 'resolve-without-answer' | 'pas
     'reveal-paused',
   ]
   if (!allowedPhases.includes(work.phase)) {
-    return reject('invalid-phase', 'In dieser Phase kann nicht aufgeloest werden.')
+    return reject('invalid-phase', 'In dieser Phase kann nicht aufgelöst werden.')
   }
   if (mode === 'pass' && work.phase !== 'second-chance') {
-    return reject('invalid-phase', 'Passen ist nur in der zweiten Chance moeglich.')
+    return reject('invalid-phase', 'Passen ist nur in der zweiten Chance möglich.')
   }
 
   const existing = pendingAttempt(work.state)
@@ -590,7 +590,7 @@ function nextPhaseAfterAttempt(
 }
 
 function resetBuzzer(work: Draft): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const question = work.state.currentQuestion
   if (!question) return reject('invalid-phase', 'Es ist gerade keine Frage aktiv.')
 
@@ -598,7 +598,7 @@ function resetBuzzer(work: Draft): EngineResult {
     // In der zweiten Chance gibt es keine Buzzer-Zuordnung; zurueckgesetzt wird
     // nur die bereits eingeloggte Antwort.
     const attempt = pendingAttempt(work.state)
-    if (!attempt) return reject('no-pending-attempt', 'Es gibt nichts zurueckzusetzen.')
+    if (!attempt) return reject('no-pending-attempt', 'Es gibt nichts zurückzusetzen.')
     work.mutate((draft) => {
       const target = draft.attempts.find((entry) => entry.id === attempt.id)!
       target.loggedOptionId = undefined
@@ -625,12 +625,12 @@ function resetBuzzer(work: Draft): EngineResult {
         : 'reveal-running'
       : 'buzzer-open'
   })
-  work.log('buzzer', 'Buzzer zurueckgesetzt und erneut freigegeben.')
+  work.log('buzzer', 'Buzzer zurückgesetzt und erneut freigegeben.')
   return work.commit()
 }
 
 function handleVideoCommand(work: Draft, command: Command): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const question = work.state.currentQuestion
   if (!question || question.question.presentationType !== 'video-then-question') {
     return reject('invalid-phase', 'Die aktuelle Frage ist keine Videofrage.')
@@ -651,7 +651,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
       return work.commit()
     }
     case 'PAUSE_VIDEO': {
-      if (work.phase !== 'video-playing') return reject('invalid-phase', 'Das Video laeuft gerade nicht.')
+      if (work.phase !== 'video-playing') return reject('invalid-phase', 'Das Video läuft gerade nicht.')
       work.mutate((draft) => {
         const video = draft.video!
         const elapsed = video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0
@@ -703,7 +703,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
       if (command.error) {
         work.log(
           'system',
-          `Video konnte nicht abgespielt werden: ${command.error}. Frage ueberspringen oder ohne Video weiterfuehren.`,
+          `Video konnte nicht abgespielt werden: ${command.error}. Frage überspringen oder ohne Video weiterfuehren.`,
         )
       }
       return work.commit()
@@ -737,12 +737,12 @@ function handleContinue(work: Draft): EngineResult {
   if (guard) return guard
 
   if (work.phase === 'result') {
-    return reject('invalid-phase', 'Das Spiel ist beendet. Ueber "Beenden" geht es zurueck zur Startansicht.')
+    return reject('invalid-phase', 'Das Spiel ist beendet. Ueber "Beenden" geht es zurück zur Startansicht.')
   }
   if (work.phase !== 'solution') {
     // `Weiter` bedeutet immer dasselbe und darf niemals "Antwort bewerten" oder
     // "zweiten Spieler freigeben" bedeuten - dafuer gibt es eigene Befehle.
-    return reject('invalid-phase', '"Weiter" ist erst nach der Loesung moeglich.')
+    return reject('invalid-phase', '"Weiter" ist erst nach der Lösung möglich.')
   }
 
   const state = work.state!
@@ -789,14 +789,14 @@ function skipQuestion(work: Draft, reason: string | undefined): EngineResult {
     'reveal-paused',
   ]
   if (!skippablePhases.includes(work.phase)) {
-    return reject('invalid-phase', 'Eine bereits aufgeloeste Frage kann nicht mehr uebersprungen werden.')
+    return reject('invalid-phase', 'Eine bereits aufgelöste Frage kann nicht mehr übersprungen werden.')
   }
 
   const skippedId = current.question.id
   const selection = drawQuestionForCurrentSlot(work, [skippedId])
   if (!selection.ok) return selection.rejection
 
-  work.log('content', `Frage ${skippedId} uebersprungen${reason ? ` (${reason})` : ''}.`, { skippedId, reason })
+  work.log('content', `Frage ${skippedId} übersprungen${reason ? ` (${reason})` : ''}.`, { skippedId, reason })
   work.mutate((draft) => {
     draft.phase = 'pause-screen'
   })
@@ -805,7 +805,7 @@ function skipQuestion(work: Draft, reason: string | undefined): EngineResult {
 }
 
 function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const pending = work.state.pendingTransition
   if (!pending || pending.transitionId !== transitionId) {
     // Doppelte oder verspaetete Meldungen laufen hier ins Leere - ein schneller
@@ -893,7 +893,7 @@ function applyPhase(work: Draft, phase: GamePhase): void {
       work.mutate((draft) => {
         draft.attempts.push(createAttempt(work, draft, eligible.id))
       })
-      work.log('phase', `Zweite Chance fuer ${eligible.label}. Kein erneutes Buzzern noetig.`)
+      work.log('phase', `Zweite Chance für ${eligible.label}. Kein erneutes Buzzern nötig.`)
     }
   } else {
     work.log('phase', `Phase: ${phase}.`)
@@ -953,7 +953,7 @@ function drawQuestionForCurrentSlot(
   })
   work.log(
     'content',
-    `Frage ${state.currentSlotIndex + 1}/${state.totalQuestions} gewaehlt: ${runtime.question.id} - ${response.rationale}`,
+    `Frage ${state.currentSlotIndex + 1}/${state.totalQuestions} gewählt: ${runtime.question.id} - ${response.rationale}`,
     { questionId: runtime.question.id, rationale: response.rationale },
   )
   return { ok: true }
@@ -993,7 +993,7 @@ function describeOutcome(outcome: 'correct' | 'incorrect' | 'passed' | 'no-answe
     case 'passed':
       return 'gepasst'
     case 'no-answer':
-      return 'ohne Antwort aufgeloest'
+      return 'ohne Antwort aufgelöst'
   }
 }
 
@@ -1049,7 +1049,7 @@ class Draft {
   }
 
   requireActiveGame(): EngineResult | null {
-    if (!this.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
+    if (!this.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
     if (this.state.status !== 'active') {
       return reject('no-active-game', 'Das Spiel ist bereits beendet oder abgebrochen.')
     }

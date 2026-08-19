@@ -63,13 +63,13 @@ export function createRequestHandler(options: HttpOptions) {
       // Der Session-Code wird nur lokal ausgegeben - er ist der Schluessel fuer den
       // Moderatorzugriff im LAN.
       if (pathname === '/api/session') {
-        if (!isLoopback(request.socket.remoteAddress)) return sendJson(response, 403, { error: 'Nur lokal verfuegbar.' })
+        if (!isLoopback(request.socket.remoteAddress)) return sendJson(response, 403, { error: 'Nur lokal verfügbar.' })
         return sendJson(response, 200, { sessionCode: options.sessionCode, port: options.port })
       }
 
       // Aenderungsbericht der Live-Hotfixes zum Export nach der Veranstaltung.
       if (pathname === '/api/export/changes') {
-        if (!isLoopback(request.socket.remoteAddress)) return sendJson(response, 403, { error: 'Nur lokal verfuegbar.' })
+        if (!isLoopback(request.socket.remoteAddress)) return sendJson(response, 403, { error: 'Nur lokal verfügbar.' })
         return sendJson(response, 200, {
           contentVersion: options.service.content.contentVersion,
           entries: options.service.changeReport(),
@@ -130,7 +130,7 @@ function serveFile(path: string, response: ServerResponse, options: HttpOptions)
     return sendText(
       response,
       503,
-      'Der Web-Client ist noch nicht gebaut.\n\nBitte "pnpm --filter @quiz/web build" ausfuehren oder im Entwicklungsmodus "pnpm dev" verwenden.',
+      'Der Web-Client ist noch nicht gebaut.\n\nBitte "pnpm --filter @quiz/web build" ausführen oder im Entwicklungsmodus "pnpm dev" verwenden.',
     )
   }
   void options

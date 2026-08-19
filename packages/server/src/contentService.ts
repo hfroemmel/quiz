@@ -60,7 +60,7 @@ export class ContentService {
 
   get patchWarnings(): string[] {
     return this.rejectedPatches.map(
-      (entry) => `Frage ${entry.questionId} wurde wegen eines ungueltigen Hotfixes nicht geladen: ${entry.reason}`,
+      (entry) => `Frage ${entry.questionId} wurde wegen eines ungültigen Hotfixes nicht geladen: ${entry.reason}`,
     )
   }
 

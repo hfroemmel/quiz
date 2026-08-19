@@ -33,7 +33,7 @@ export function RevealScene({ view, reveal }: SceneProps) {
         <div className={`reveal__countdown ${paused ? 'reveal__countdown--paused' : ''}`}>
           <ProgressRing remaining={1 - reveal.progress} seconds={reveal.countdownSeconds} paused={paused} />
           {paused && <span className="reveal__hint">pausiert</span>}
-          {finished && !paused && <span className="reveal__hint">Buzzern weiterhin moeglich</span>}
+          {finished && !paused && <span className="reveal__hint">Buzzern weiterhin möglich</span>}
         </div>
 
         <MediaFrame src={question.imageUrl} blurPx={reveal.blurPx} variant="reveal" className="reveal__frame" />

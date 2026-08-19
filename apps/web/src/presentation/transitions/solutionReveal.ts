@@ -14,7 +14,7 @@ import type { PresentationTransitionDefinition } from './types.ts'
 
 export const solutionReveal: PresentationTransitionDefinition = {
   id: 'solution-reveal',
-  description: 'Loesungskarte faehrt auf, richtige Option leuchtet, Punktestaende aktualisieren sich.',
+  description: 'Lösungskarte fährt auf, richtige Option leuchtet, Punktestände aktualisieren sich.',
   appliesTo: { from: '*', to: 'solution' },
   durationMs: 560,
   delayMs: presentationTiming.solutionDelayMs,

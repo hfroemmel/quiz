@@ -61,7 +61,7 @@ export function VideoScene({ view, isAudioMaster = true, onReport }: VideoSceneP
           <p>Kein Video hinterlegt.</p>
         </div>
       )}
-      {video?.hasError && <p className="video__error">Video nicht verfuegbar.</p>}
+      {video?.hasError && <p className="video__error">Video nicht verfügbar.</p>}
     </div>
   )
 }

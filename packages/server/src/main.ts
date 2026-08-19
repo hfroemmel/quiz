@@ -9,20 +9,20 @@ import { startServer } from './startServer.ts'
 const running = await startServer()
 
 console.log('')
-console.log('  Live-Quiz - lokaler Server laeuft')
+console.log('  Live-Quiz - lokaler Server läuft')
 console.log(`  Quizpaket:        ${running.service.content.contentVersion}`)
 console.log(`  Veranstaltungstag: ${running.service.eventDayId}`)
 console.log('')
 console.log(`  Operator:    http://localhost:${running.port}/operator   (nur auf diesem Rechner)`)
-console.log(`  Buehne:      http://localhost:${running.port}/stage`)
+console.log(`  Bühne:      http://localhost:${running.port}/stage`)
 console.log(`  Vorschau:    http://localhost:${running.port}/preview    (nur Entwicklung)`)
 console.log('')
-console.log(`  Session-Code fuer den Moderator: ${running.sessionCode}`)
+console.log(`  Session-Code für den Moderator: ${running.sessionCode}`)
 for (const url of running.lanUrls) {
   console.log(`  Moderator im LAN: ${url}/moderator`)
 }
 if (running.lanUrls.length === 0) {
-  console.log('  (Kein LAN gefunden - der Ein-Laptop-Betrieb funktioniert unveraendert.)')
+  console.log('  (Kein LAN gefunden - der Ein-Laptop-Betrieb funktioniert unverändert.)')
 }
 console.log('')
 

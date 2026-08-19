@@ -90,7 +90,7 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
       const envelope = message.envelope as { actor?: { role?: string }; command?: { type?: string } } | null
       if (role === 'stage') {
         if (envelope?.command?.type !== 'REPORT_VIDEO_STATUS') {
-          send(connection, { type: 'error', message: 'Buehnenclients duerfen keine Steuerbefehle senden.' })
+          send(connection, { type: 'error', message: 'Bühnenclients dürfen keine Steuerbefehle senden.' })
           return
         }
       } else if (envelope?.actor?.role && envelope.actor.role !== role && envelope.actor.role !== 'buzzer') {

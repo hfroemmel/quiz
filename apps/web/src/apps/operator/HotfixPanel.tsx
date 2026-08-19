@@ -9,6 +9,7 @@
  * eine Aenderung sofort auf den Buehnenscreen.
  */
 import { useState } from 'react'
+import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
 
 export function HotfixPanel({
@@ -24,6 +25,7 @@ export function HotfixPanel({
   const [prompt, setPrompt] = useState('')
   const [reason, setReason] = useState('')
   const [immediate, setImmediate] = useState(false)
+  const [confirmDisable, setConfirmDisable] = useState(false)
 
   const canPatch = view.allowedCommands.includes('APPLY_QUESTION_PATCH') && Boolean(questionId)
   const canSkip = view.allowedCommands.includes('SKIP_QUESTION')
@@ -34,39 +36,29 @@ export function HotfixPanel({
   return (
     <section className="hotfix">
       <button type="button" className="button button--technical" onClick={() => setOpen((value) => !value)}>
-        {open ? 'Fragenkorrektur schliessen' : 'Fehlerhafte Frage korrigieren'}
+        {open ? 'Fragenkorrektur schließen' : 'Fehlerhafte Frage korrigieren'}
       </button>
 
       {open && (
         <div className="hotfix__body">
           <p className="hotfix__note">
-            Aenderungen werden als lokaler Hotfix gespeichert. Das Basispaket bleibt unveraendert.
+            Aenderungen werden als lokaler Hotfix gespeichert. Das Basispaket bleibt unverändert.
           </p>
 
           <div className="controls__row">
             {canSkip && (
               <button
                 className="button"
-                onClick={() => send({ type: 'SKIP_QUESTION', reason: reason || 'Operator hat uebersprungen' })}
+                onClick={() => send({ type: 'SKIP_QUESTION', reason: reason || 'Operator hat übersprungen' })}
               >
-                Frage ueberspringen
+                Frage überspringen
               </button>
             )}
             {canPatch && (
               <button
                 className="button button--technical"
-                onClick={() => {
-                  if (!questionId) return
-                  if (confirm('Frage fuer den Rest der Veranstaltung deaktivieren?')) {
-                    send({
-                      type: 'APPLY_QUESTION_PATCH',
-                      questionId,
-                      changes: { enabled: false },
-                      reason: reason || 'Frage fehlerhaft',
-                      applyMode: 'next-use',
-                    })
-                  }
-                }}
+                disabled={!questionId}
+                onClick={() => setConfirmDisable(true)}
               >
                 Frage deaktivieren
               </button>
@@ -80,7 +72,7 @@ export function HotfixPanel({
                 <textarea
                   rows={3}
                   value={prompt}
-                  placeholder="Leer lassen, wenn der Text unveraendert bleibt"
+                  placeholder="Leer lassen, wenn der Text unverändert bleibt"
                   onChange={(event) => setPrompt(event.target.value)}
                 />
               </label>
@@ -90,7 +82,7 @@ export function HotfixPanel({
               </label>
               <label className="field field--checkbox">
                 <input type="checkbox" checked={immediate} onChange={(event) => setImmediate(event.target.checked)} />
-                <span>Jetzt uebernehmen (auch auf dem laufenden Buehnenscreen)</span>
+                <span>Jetzt übernehmen (auch auf dem laufenden Bühnenscreen)</span>
               </label>
               <button
                 className="button button--primary"
@@ -112,6 +104,24 @@ export function HotfixPanel({
             </>
           )}
         </div>
+      )}
+      {confirmDisable && questionId && (
+        <ConfirmDialog
+          title="Frage deaktivieren"
+          message="Die Frage wird für den Rest der Veranstaltung nicht mehr gezogen. Das Basispaket bleibt unverändert; die Änderung steht im Änderungsbericht."
+          confirmLabel="Deaktivieren"
+          onConfirm={() => {
+            send({
+              type: 'APPLY_QUESTION_PATCH',
+              questionId,
+              changes: { enabled: false },
+              reason: reason || 'Frage fehlerhaft',
+              applyMode: 'next-use',
+            })
+            setConfirmDisable(false)
+          }}
+          onCancel={() => setConfirmDisable(false)}
+        />
       )}
     </section>
   )

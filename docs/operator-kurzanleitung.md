@@ -6,7 +6,7 @@
 2. `pnpm content:build` - Paketversion notieren.
 3. Anwendung starten (`pnpm dev:desktop` oder `pnpm server` plus Browser).
 4. Beamer anschliessen, Praesentationsfenster auf das zweite Display legen,
-   `Buehne Vollbild` druecken.
+   `Bühne Vollbild` druecken.
 5. Buzzer testen: Taste `A` = Spieler 1, Taste `B` = Spieler 2.
 6. Ton testen (`Ton an` im Kopfbereich).
 7. Falls ein Moderator dabei ist: Session-Code aus „Technik, Protokoll und
@@ -19,13 +19,13 @@
 | 1 | Quizmodus und Schwierigkeits-Preset waehlen, Spielernamen eintragen |
 | 2 | `Spiel starten` |
 | 3 | Frage steht - der Moderator liest sie vor |
-| 4 | `Antworten einblenden` bzw. `Enthuellung starten` - erst jetzt darf gebuzzert werden |
+| 4 | `Antworten einblenden` bzw. `Enthüllung starten` - erst jetzt darf gebuzzert werden |
 | 5 | Spieler buzzert - oder `… manuell auswaehlen`, falls die Hardware klemmt |
 | 6 | Genannte Antwort einloggen (Buchstabe anklicken oder `Antwort war richtig/falsch`) |
-| 7 | `Aufloesen und bewerten` |
-| 8 | `Weiter zur naechsten Frage` |
+| 7 | `Auflösen und bewerten` |
+| 8 | `Weiter zur nächsten Frage` |
 | 9 | Nach der siebten Frage: `Weiter zum Ergebnis` |
-| 10 | `Zurueck zur Startansicht` fuer das naechste Spielpaar |
+| 10 | `Zurück zur Startansicht` fuer das naechste Spielpaar |
 
 Der private Bereich rechts neben der Buehnenflaeche zeigt jederzeit die richtige Antwort und die
 Zusatzinformationen. Der Saal sieht davon nichts.
@@ -41,7 +41,7 @@ Zusatzinformationen. Der Saal sieht davon nichts.
 
 ## Bilderkennen
 
-* Das Bild steht zuerst unscharf; die Uhr laeuft erst nach `Enthuellung starten`.
+* Das Bild steht zuerst unscharf; die Uhr laeuft erst nach `Enthüllung starten`.
   Die Vorlesezeit kostet also keine Sekunde des Countdowns.
 * Die Enthuellung laeuft dann zehn Sekunden.
 * Ein gueltiger Buzzer friert Bild und Countdown sofort ein.
@@ -49,9 +49,9 @@ Zusatzinformationen. Der Saal sieht davon nichts.
   **beide** Spieler duerfen erneut buzzern - beliebig oft.
 * Auch nach `0` bleibt Buzzern erlaubt. Der Countdown ist eine Enthuellungsdauer,
   kein Antwortlimit.
-* `Bild vollstaendig aufdecken` deckt sofort auf und sperrt den Buzzer **nicht**.
-* `Enthuellung auf Anfang zuruecksetzen` ist eine technische Korrektur und bewusst
-  etwas anderes als `Buzzer zuruecksetzen`.
+* `Bild vollständig aufdecken` deckt sofort auf und sperrt den Buzzer **nicht**.
+* `Enthüllung auf Anfang zurücksetzen` ist eine technische Korrektur und bewusst
+  etwas anderes als `zurücksetzen`.
 
 ## Videofragen
 
@@ -66,7 +66,7 @@ Sichere naechste Aktion: `Frage ueberspringen`.
 
 | Situation | Was tun |
 |---|---|
-| Falscher Spieler hat den Zuschlag | `Buzzer zuruecksetzen`, dann erneut freigeben |
+| Falscher Spieler hat den Zuschlag | `zurücksetzen`, dann erneut freigeben |
 | Buzzer reagiert nicht | `… manuell auswaehlen` verwenden - gleiche Regeln |
 | Frage ist inhaltlich fehlerhaft | `Fehlerhafte Frage korrigieren` → `Frage ueberspringen` |
 | Frage soll fuer den Rest des Abends raus | dort `Frage deaktivieren` |
