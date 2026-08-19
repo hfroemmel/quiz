@@ -142,7 +142,7 @@ aufgenommen.
 - Antwortleisten gestapelt ueber die volle Breite, Loesungsbalken mit Chip
 - Enthuellungsring ab 12 Uhr im Uhrzeigersinn, Bildschaerfe unveraendert aus
   derselben Fortschrittsvariablen
-- Ergebnisansicht mit Pokal, Konfetti und gespiegelten Ergebniskacheln
+- Ergebnisansicht mit Konfetti und gespiegelten Ergebniskacheln
 - die Buehnenflaeche ist ein Container; alle Groessen darin stehen in `cqw`
 
 *Abgenommen:* Vorschau und Buehnenfenster zeigen dieselbe Komposition,
@@ -177,7 +177,7 @@ Verbindungsband, Fehlerhinweise, Moderatoransicht.
 
 Bereits umgesetzt: Richtig und Falsch aus den gelieferten Bewegtgrafiken,
 Ringrichtung ab 12 Uhr, Einlaufregel der Optionen, Punkte-Hochzaehlen mit
-Sternen ueber der Punktekachel, Pokal in der Ergebnisansicht.
+Sternen ueber der Punktekachel.
 
 Offen: die Baender des Bedienrahmens (mit P4) und die Feinabstimmung der
 Szenenwechsel gegen die neuen Layouts.

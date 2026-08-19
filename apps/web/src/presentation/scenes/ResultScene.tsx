@@ -4,16 +4,15 @@
  * Der hoehere Punktestand gewinnt, bei Gleichstand erscheint "Unentschieden". Es gibt
  * bewusst keine manuelle Gewinnerauswahl und keine automatische Entscheidungsfrage.
  *
- * Pokal und Konfetti laufen nur bei einem Gewinner - beides ist reine Darstellung.
- * Korrigiert der Operator danach Punkte, berechnet der Server das Ergebnis
- * deterministisch neu und diese Ansicht folgt einfach dem neuen Snapshot.
+ * Konfetti laeuft nur bei einem Gewinner und ist reine Darstellung. Korrigiert der
+ * Operator danach Punkte, berechnet der Server das Ergebnis deterministisch neu
+ * und diese Ansicht folgt einfach dem neuen Snapshot.
  *
  * Die Ergebniskacheln stehen gespiegelt wie in der Kopfzeile: Spieler aussen,
  * Punkte innen. Sie zaehlen ebenfalls hoch - korrigiert der Operator hier noch
  * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
 import { Confetti } from '../../components/Confetti.tsx'
-import { AnimationClip } from '../../ui/AnimationClip.tsx'
 import { ScoreTile } from '../ScoreTile.tsx'
 import { Tile } from '../../ui/Tile.tsx'
 import type { SceneProps } from './sceneProps.ts'
@@ -28,12 +27,6 @@ export function ResultScene({ view }: SceneProps) {
   return (
     <div className="scene scene--result">
       {!result.isDraw && <Confetti />}
-
-      {!result.isDraw && (
-        <div className="result__trophy">
-          <AnimationClip clipId="trophy" restartKey={result.winnerPlayerId ?? 'none'} />
-        </div>
-      )}
 
       <p className="result__label">{result.isDraw ? 'Unentschieden' : 'Gewinner'}</p>
       <h2 className="result__winner">{result.isDraw ? 'Unentschieden!' : `${winner?.label} hat gewonnen!`}</h2>

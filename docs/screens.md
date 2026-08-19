@@ -232,8 +232,6 @@ Vorlagenlos, im gezeigten Stil festgelegt; bestaetigt: sichtbar gekennzeichnet.
   `--primary`; die private Antwortzeile zeigt weiterhin die letzte Loesung.
 - Die Ergebniskacheln zaehlen wie die Kopfzeile hoch: Korrigiert der Operator
   hier noch Punkte, ist das dieselbe Bewegung wie im Spiel.
-- Ueber dem Titel laeuft die gelieferte Pokalgrafik; bei Unentschieden entfaellt
-  sie zusammen mit dem Konfetti.
 
 ## Pausenbild (`pause-screen`) - entworfen
 

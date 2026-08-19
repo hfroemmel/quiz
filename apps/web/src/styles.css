@@ -624,10 +624,6 @@ textarea {
   justify-content: center;
   gap: 1.2cqw;
 }
-.result__trophy {
-  width: 12cqw;
-  aspect-ratio: 1;
-}
 .result__label {
   /* Die Aussage steht in der Ueberschrift; das Etikett bleibt fuer Tests und
      Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. */

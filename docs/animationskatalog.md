@@ -130,6 +130,7 @@ Nicht eingesetzt und ohne Verwendung im Bestand:
 | Datei | Grund |
 |---|---|
 | `question-marks.webm` | Das Pausenbild bleibt ruhig |
+| `trophy.webm` | Die Ergebnisansicht kommt mit Konfetti und Kacheln aus |
 
 ## E - Bedienrahmen des Operators
 
@@ -155,7 +156,7 @@ Der Rahmen ist Werkzeug, kein Schauspiel. Er bekommt genau drei Bewegungen:
 | Punkt | Status |
 |---|---|
 | Abschnitte A bis F | **freigegeben** |
-| Einsatz von `trophy` und `stars` | **freigegeben** (siehe D2) |
-| `question-marks.webm` | bleibt ungenutzt |
+| Einsatz von `stars` | **freigegeben** (siehe D2) |
+| `question-marks.webm`, `trophy.webm` | bleiben ungenutzt |
 | Gesperrte Dauern in C und D | ergeben sich aus der Spezifikation und den gelieferten Dateien |
 | Soundmarken | vorhanden, synthetisch erzeugt; Klangprofil separat justierbar |
