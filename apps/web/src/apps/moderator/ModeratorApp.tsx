@@ -142,7 +142,6 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
 
         {view.privateSolution && (
           <section className="moderator__solution">
-            <span className="private__tag">Nur fuer Regie</span>
             <p className="moderator__answer">{view.privateSolution.answerText}</p>
             {view.explanation?.summary && <p>{view.explanation.summary}</p>}
             {view.explanation?.moderatorNotes && (

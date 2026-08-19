@@ -17,7 +17,7 @@ export const scoringRules = {
   /** Falsche Antwort, Passen und Aufloesen ohne Antwort. Es gibt keinen Punktabzug. */
   noPoints: 0,
   /** Schrittweite der manuellen Korrektur. */
-  manualAdjustmentStep: 100,
+  manualAdjustmentStep: 50,
   /** Der Punktestand faellt standardmaessig nicht unter null. */
   minimumScore: 0,
 } as const

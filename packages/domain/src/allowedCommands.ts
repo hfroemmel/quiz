@@ -33,7 +33,13 @@ export function availableCommands(state: GameState | null): CommandType[] {
   const hasOptions = (question?.options?.length ?? 0) > 0
   const addAnswerLogging = () => {
     if (hasOptions) list.add('LOG_OPTION_ANSWER')
-    list.add('MARK_MANUAL_ANSWER')
+    /*
+     * "Richtig"/"Falsch" von Hand gibt es nur, wo die Frage es vorsieht - beim
+     * Bilderkennen mit freier Antwort. Bei einer Auswahlfrage waere es ein
+     * zweiter Bewertungsweg neben der eingeloggten Option und wuerde die
+     * automatische Auswertung aushebeln.
+     */
+    if (question?.evaluationMode === 'manual-correct-incorrect') list.add('MARK_MANUAL_ANSWER')
     list.add('RESOLVE_ATTEMPT')
   }
 

@@ -17,6 +17,7 @@ import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 import { unlockAudio } from '../../presentation/soundCues.ts'
 import { requestStageFullscreen } from '../../client/desktopBridge.ts'
+import { FullscreenIcon, IconButton, SoundOffIcon, SoundOnIcon } from '../../ui/IconButton.tsx'
 import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
 import { OperatorControls } from './OperatorControls.tsx'
 import { PrivatePanel } from './PrivatePanel.tsx'
@@ -114,16 +115,17 @@ export function OperatorApp() {
               Zurueck zur Startansicht
             </button>
           )}
-          <button className="button button--tiny" onClick={() => void requestStageFullscreen()}>
-            Buehne Vollbild
-          </button>
-          <button
-            className="button button--tiny"
+          <IconButton label="Buehne im Vollbild zeigen" onClick={() => void requestStageFullscreen()}>
+            <FullscreenIcon />
+          </IconButton>
+          <IconButton
+            label={view.soundEnabled ? 'Ton ausschalten' : 'Ton einschalten'}
+            pressed={view.soundEnabled}
             disabled={!view.allowedCommands.includes('SET_SOUND_ENABLED')}
             onClick={() => send({ type: 'SET_SOUND_ENABLED', enabled: !view.soundEnabled })}
           >
-            {view.soundEnabled ? 'Ton an' : 'Ton aus'}
-          </button>
+            {view.soundEnabled ? <SoundOnIcon /> : <SoundOffIcon />}
+          </IconButton>
         </div>
       </header>
 
@@ -132,7 +134,6 @@ export function OperatorApp() {
       {!showStartPanel ? (
         <main className="operator__main">
           <section className="operator__preview" aria-label="Vorschau Buehnenscreen">
-            <h2 className="operator__section-title">Das sieht der Saal</h2>
             <div className="operator__preview-frame">
               <StageScreen
                 view={view}

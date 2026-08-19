@@ -265,7 +265,7 @@ function buildSampleView(input: {
           { id: 'o3', text: 'Donau' },
           { id: 'o4', text: 'Main' },
         ],
-        visibleSolution: { answerText: 'Rhein', publicNote: 'Koeln liegt am Rhein.' },
+        visibleSolution: { answerText: 'Rhein' },
       }
     case 'result':
       return {

@@ -53,7 +53,9 @@ test.describe('Vollstaendige Spielablaeufe', () => {
 
     // Nach dem ersten Fehlversuch folgt die zweite Chance - nicht die Loesung.
     await expectPhase(operator, 'second-chance')
-    await expect(operator.locator('.controls__hint')).toContainText('50 Punkte')
+    // Der Punktwert steht oeffentlich auf der Buehne, nicht mehr in einer
+    // Anweisungszeile der Bedienleiste.
+    await expect(operator.locator('.scene__hint')).toContainText('50 Punkte')
 
     await markCorrect(operator)
     await resolveAttempt(operator)
@@ -125,13 +127,16 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     await expect(stage.locator('.confetti')).toHaveCount(1)
 
     // Korrektur zugunsten von Spieler 2 - danach Unentschieden.
-    await operator.getByLabel('Spieler 2 plus 100').click()
+    // Schrittweite ist `scoringRules.manualAdjustmentStep` = 50 Punkte.
+    await operator.getByLabel('Spieler 2 plus 50').click()
+    await operator.getByLabel('Spieler 2 plus 50').click()
     await expect(stage.locator('.result__label')).toHaveText('Unentschieden')
     expect(await scores(operator)).toEqual([100, 100])
 
     // Der Punktestand faellt nicht unter null.
-    await operator.getByLabel('Spieler 2 minus 100').click()
-    await operator.getByLabel('Spieler 2 minus 100').click()
+    await operator.getByLabel('Spieler 2 minus 50').click()
+    await operator.getByLabel('Spieler 2 minus 50').click()
+    await operator.getByLabel('Spieler 2 minus 50').click()
     expect((await scores(operator))[1]).toBe(0)
   })
 
@@ -257,6 +262,6 @@ test.describe('Moderator und Operator gleichzeitig', () => {
     await expect(operator.locator('.banner--error')).toBeVisible()
 
     // Der Moderator darf keine Punkte aendern - der Button existiert dort gar nicht.
-    await expect(moderator.getByLabel('Spieler 1 plus 100')).toHaveCount(0)
+    await expect(moderator.getByLabel('Spieler 1 plus 50')).toHaveCount(0)
   })
 })

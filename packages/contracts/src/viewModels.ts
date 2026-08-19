@@ -62,8 +62,6 @@ export interface PublicSolution {
   /** Text der richtigen Antwort. */
   answerText: string
   imageUrl?: string
-  /** Optionaler oeffentlicher Kurztext, redaktionell freigegeben. */
-  publicNote?: string
 }
 
 export interface PublicScore {

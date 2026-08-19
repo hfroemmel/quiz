@@ -14,8 +14,6 @@ export function PrivatePanel({ view }: { view: ModeratorQuizViewModel }) {
 
   return (
     <section className="private" aria-label="Private Informationen">
-      <span className="private__tag">Nur fuer Regie</span>
-
       {solution && (
         <div className="private__block">
           <h3>Richtige Antwort</h3>
