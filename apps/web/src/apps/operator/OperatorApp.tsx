@@ -28,7 +28,7 @@ import { DiagnosticsPanel } from './DiagnosticsPanel.tsx'
 
 export function OperatorApp() {
   const connection = useQuizConnection<OperatorQuizViewModel>('operator')
-  const { view, send, connected, lastRejection, clearRejection, serverNow } = connection
+  const { view, send, connected, lastRejection, clearRejection, serverNow, audioMaster } = connection
 
   // Der Hardware-Buzzer ist nur sinnvoll, solange ein Spiel laeuft. Die Entprellung
   // steckt im Hook; ueber Gueltigkeit entscheidet weiterhin der Server.
@@ -41,11 +41,19 @@ export function OperatorApp() {
     if (view?.phase && view.phase !== 'result') setWantsStartPanel(false)
   }, [view?.phase])
 
-  // Browser erlauben Tonausgabe erst nach einer Nutzerinteraktion.
+  // Browser erlauben Tonausgabe erst nach einer Nutzerinteraktion in diesem Fenster.
   useEffect(() => {
-    const unlock = () => unlockAudio()
-    window.addEventListener('pointerdown', unlock, { once: true })
-    return () => window.removeEventListener('pointerdown', unlock)
+    const unlock = () => {
+      unlockAudio()
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
   }, [])
 
   if (!view) {
@@ -143,7 +151,7 @@ export function OperatorApp() {
               <StageScreen
                 view={view}
                 serverNow={serverNow}
-                isAudioMaster={false}
+                isAudioMaster={audioMaster}
                 variant="preview"
                 headerSlots={scoreControls}
               />
@@ -165,7 +173,7 @@ export function OperatorApp() {
               <StageScreen
                 view={view}
                 serverNow={serverNow}
-                isAudioMaster={false}
+                isAudioMaster={audioMaster}
                 variant="preview"
                 headerSlots={scoreControls}
               />
@@ -175,7 +183,12 @@ export function OperatorApp() {
       )}
 
       <footer className="app-footer">
-        <DiagnosticsPanel view={view} send={send} connectedClients={view.diagnostics.connectedClients.length} />
+        <DiagnosticsPanel
+          view={view}
+          send={send}
+          connectedClients={view.diagnostics.connectedClients.length}
+          audioMaster={audioMaster}
+        />
       </footer>
 
       {confirmAbort && (

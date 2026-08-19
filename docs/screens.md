@@ -137,10 +137,12 @@ nicht - die Buehnenflaeche oben, alles Private darunter.
 ### Fragenkorrektur
 
 Der Bereich `Fehlerhafte Frage korrigieren` zeigt Fragetext **und**
-Antwortmoeglichkeiten in bearbeitbaren Feldern; die richtige Antwort ist mit
-einem Haken markiert. Gespeichert wird nur, was tatsaechlich geaendert wurde.
-Die Felder leeren sich beim Fragenwechsel - sonst stuende die Korrektur der
-vorigen Frage im Formular.
+Antwortmoeglichkeiten in bearbeitbaren Feldern. Je Antwort steht eine Zeile:
+vorn der Buchstabe, dann das Textfeld ueber die volle Breite der Spalte, hinten
+ein Radiobutton. Der Radiobutton markiert die richtige Antwort und setzt damit
+`correctOptionId` - nie die Reihenfolge und nie eine Markierung im Text.
+Gespeichert wird nur, was tatsaechlich geaendert wurde. Die Felder leeren sich
+beim Fragenwechsel - sonst stuende die Korrektur der vorigen Frage im Formular.
 
 ## Startansicht (`idle`, Szene `start`)
 

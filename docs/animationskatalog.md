@@ -100,6 +100,11 @@ beendet die Phase nach genau dieser Zeit.
 Bei `prefers-reduced-motion` wird die Datei nicht weggelassen, sondern auf ihr
 Endbild gesetzt und angehalten: gleiche Aussage, keine Bewegung.
 
+Die Richtig-Grafik steht auf **34 cqw**, die Falsch-Grafik auf 16 cqw: Der Haken
+ist der Moment, auf den der Saal wartet, das Kreuz bleibt zurueckhaltend. Die
+Szene unter der Falsch-Grafik bewegt sich nicht mehr seitlich - sie blendet nur
+auf, damit die Grafik nicht mitwandert.
+
 Das Wort `Richtig!` bzw. `Falsch!` steht unter der Grafik. Der Punktestand zaehlt
 zeitgleich in der Kopfzeile hoch (`score-count-up`).
 
@@ -177,13 +182,21 @@ Die Klaenge kommen als gelieferte Dateien aus `apps/web/src/assets/audio/`.
 | Countdown abgelaufen | `countdown-end` | `ring.mp3` |
 | Punktestand zaehlt hoch | `score` | `score.mp3` |
 
-Drei Regeln dazu:
+Vier Regeln dazu:
 
-1. **Nur der Audio-Master klingt.** Das ist im Normalbetrieb das Buehnenfenster;
-   Operator und weitere Praesentationsclients bleiben stumm, damit nichts
-   zeitversetzt doppelt zu hoeren ist.
-2. **Jeder Cue haengt am Serverzustand, nicht am Klick.** Ein abgewiesener Befehl
+1. **Nur der Audio-Master klingt.** Den bestimmt der Server in dieser
+   Reihenfolge: lokales Buehnenfenster, sonst irgendein Buehnenfenster, sonst der
+   Operator. Der letzte Schritt ist der Ton bei Proben und im reinen
+   Browserbetrieb - ohne ihn bliebe die Anwendung stumm, solange kein
+   Buehnenfenster offen ist. Kommt eine Buehne dazu, gibt der Operator die
+   Tonhoheit sofort wieder ab; es klingt immer genau ein Client. Welches Fenster
+   das gerade ist, steht in der Diagnose unter `Tonausgabe`.
+2. **Die Freigabe braucht eine Interaktion je Fenster.** Browser sperren die
+   Tonausgabe, bis im jeweiligen Dokument geklickt oder getippt wurde. Operator
+   und Buehne spielen deshalb beim ersten Klick jede Datei einmal stumm an und
+   setzen sie zurueck (`unlockAudio`). Ein blosses `load()` genuegt dafuer nicht.
+3. **Jeder Cue haengt am Serverzustand, nicht am Klick.** Ein abgewiesener Befehl
    bleibt still - der Buzzerklang etwa kommt erst mit dem Phasenwechsel, den der
    Server bestaetigt hat.
-3. **Fehlt eine Datei, bleibt der Cue still.** Die Dateien werden ueber
+4. **Fehlt eine Datei, bleibt der Cue still.** Die Dateien werden ueber
    `import.meta.glob` eingesammelt; weder Build noch Spielablauf haengen daran.

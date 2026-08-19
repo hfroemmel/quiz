@@ -4,7 +4,7 @@
  * WICHTIG: Diese Grafiken sind bewusst abstrakt. Sie zeigen nichts, was die Loesung
  * verraten koennte, und sie sind kein Ersatz fuer redaktionell freigegebenes
  * Bildmaterial. Vor einer echten Veranstaltung werden die Dateien unter
- * `content/source/assets/images/` durch die freigegebenen Bilder ersetzt
+ * `content/source/assets/questions/` durch die freigegebenen Bilder ersetzt
  * (gleicher Dateiname, oder Dateiname in `assets.json` anpassen).
  *
  * Die Grafiken werden deterministisch aus der Asset-ID abgeleitet, damit wiederholte

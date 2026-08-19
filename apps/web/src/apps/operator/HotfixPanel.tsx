@@ -26,6 +26,8 @@ export function HotfixPanel({
   const [open, setOpen] = useState(false)
   const [prompt, setPrompt] = useState('')
   const [optionTexts, setOptionTexts] = useState<Record<string, string>>({})
+  /** `null` heisst "nicht angefasst"; dann gilt die richtige Antwort des Pakets. */
+  const [correctId, setCorrectId] = useState<string | null>(null)
   const [reason, setReason] = useState('')
   const [immediate, setImmediate] = useState(false)
   const [confirmDisable, setConfirmDisable] = useState(false)
@@ -37,6 +39,7 @@ export function HotfixPanel({
   useEffect(() => {
     setPrompt('')
     setOptionTexts({})
+    setCorrectId(null)
   }, [questionId])
 
   /** Nur tatsaechlich geaenderte Felder werden gepatcht. */
@@ -47,7 +50,13 @@ export function HotfixPanel({
     editedOptions.length === (editable?.options.length ?? 0) &&
     editedOptions.some((option, index) => option.text !== editable?.options[index]?.text)
   const promptChanged = prompt.trim().length > 0 && prompt.trim() !== editable?.prompt
-  const hasChanges = promptChanged || optionsChanged
+  /*
+   * Welche Option richtig ist, steht als Verweis in `correctOptionId` - nie als
+   * Reihenfolge oder Markierung im Text. Der Radiobutton setzt genau diesen Verweis.
+   */
+  const selectedCorrectId = correctId ?? editable?.correctOptionId
+  const correctChanged = Boolean(correctId) && correctId !== editable?.correctOptionId
+  const hasChanges = promptChanged || optionsChanged || correctChanged
 
   const canPatch = view.allowedCommands.includes('APPLY_QUESTION_PATCH') && Boolean(questionId)
   const canSkip = view.allowedCommands.includes('SKIP_QUESTION')
@@ -102,22 +111,26 @@ export function HotfixPanel({
                 <div className="field">
                   <span>Antwortmöglichkeiten</span>
                   {editable.options.map((option, index) => (
-                    <label key={option.id} className="hotfix__option">
-                      <span className="hotfix__option-marker">
-                        {optionLetter(index)}
-                        {option.id === editable.correctOptionId && (
-                          <em className="hotfix__option-correct" title="richtige Antwort">
-                            ✓
-                          </em>
-                        )}
-                      </span>
+                    <div key={option.id} className="hotfix__option">
+                      <span className="hotfix__option-marker">{optionLetter(index)}</span>
                       <input
+                        className="hotfix__option-text"
+                        aria-label={`Antwort ${optionLetter(index)}`}
                         value={optionTexts[option.id] ?? option.text}
                         onChange={(event) =>
                           setOptionTexts((current) => ({ ...current, [option.id]: event.target.value }))
                         }
                       />
-                    </label>
+                      <input
+                        type="radio"
+                        className="hotfix__option-correct"
+                        name="hotfix-correct-option"
+                        title="als richtige Antwort markieren"
+                        aria-label={`Antwort ${optionLetter(index)} ist richtig`}
+                        checked={selectedCorrectId === option.id}
+                        onChange={() => setCorrectId(option.id)}
+                      />
+                    </div>
                   ))}
                 </div>
               )}
@@ -140,12 +153,14 @@ export function HotfixPanel({
                     changes: {
                       ...(promptChanged ? { prompt: prompt.trim() } : {}),
                       ...(optionsChanged ? { options: editedOptions } : {}),
+                      ...(correctChanged && correctId ? { correctOptionId: correctId } : {}),
                     },
                     reason: reason || 'Textkorrektur',
                     applyMode,
                   })
                   setPrompt('')
                   setOptionTexts({})
+                  setCorrectId(null)
                 }}
               >
                 Korrektur speichern

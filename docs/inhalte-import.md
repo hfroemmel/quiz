@@ -96,5 +96,5 @@ Ergebnis liegt unter `content/migrated/` und wird bewusst **nicht** automatisch 
 
 `pnpm content:assets` erzeugt abstrakte Platzhalter-Grafiken fuer das mitgelieferte
 Beispielpaket. Vor einer echten Veranstaltung werden die Dateien unter
-`content/source/assets/images/` durch freigegebenes Bildmaterial ersetzt (gleicher
+`content/source/assets/questions/` durch freigegebenes Bildmaterial ersetzt (gleicher
 Dateiname, oder `filename` in `assets.json` anpassen).

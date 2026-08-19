@@ -47,7 +47,10 @@ export interface MigrationOptions {
   questionsSource: string
   /** Inhalt von `config.js`; optional, wird nur fuer Diagnose gelesen. */
   configSource?: string
-  /** Unterverzeichnis, in dem Bilddateien liegen (relativ zu `assets/`). */
+  /**
+   * Unterverzeichnis, in dem die Fragenbilder liegen (relativ zu `assets/`).
+   * Vorgabe `questions` - dort liegen die gelieferten Bilder.
+   */
   imageDirectory?: string
 }
 
@@ -66,7 +69,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
   const notes: MigrationNote[] = []
   const skipped: MigrationResult['skipped'] = []
   const assets = new Map<string, MediaAsset>()
-  const imageDirectory = options.imageDirectory ?? 'images'
+  const imageDirectory = options.imageDirectory ?? 'questions'
 
   const declarations = extractDeclarations(options.questionsSource)
   const rawQuestions = findQuestionArray(declarations)

@@ -13,6 +13,7 @@ import { useEffect } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
 import { StageScreen } from '../../presentation/StageScreen.tsx'
+import { unlockAudio } from '../../presentation/soundCues.ts'
 import { toggleOwnFullscreen } from '../../client/desktopBridge.ts'
 
 export function StageApp() {
@@ -25,6 +26,26 @@ export function StageApp() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  /*
+   * Die Tonhoheit liegt normalerweise hier. Im Browser bleibt die Ausgabe aber
+   * gesperrt, bis in DIESEM Fenster einmal geklickt oder getippt wurde - deshalb
+   * dieselbe Freigabe wie im Operatorfenster. In der Desktop-Anwendung ist die
+   * Wiedergabe ohnehin erlaubt; der Aufruf ist dort wirkungslos.
+   */
+  useEffect(() => {
+    const unlock = () => {
+      unlockAudio()
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
   }, [])
 
   if (!view) {

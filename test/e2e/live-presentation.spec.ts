@@ -137,3 +137,20 @@ test('der Buehnenscreen erhaelt die Loesung erst in der Loesungsszene', async ({
   await operator.getByRole('button', { name: 'Ohne Antwort auflösen' }).click()
   await expect(stage.locator('.solution__answer .option-bar__text')).toHaveText(privateAnswer)
 })
+
+test('ohne Buehnenfenster gibt der Operator den Ton aus und tritt ihn danach ab', async ({ page }) => {
+  const operator = await openOperator(page)
+  const audioState = operator.locator('.diagnostics__facts [data-audio-master]')
+  await operator.locator('.diagnostics summary').click()
+
+  // Allein im Betrieb - sonst gaebe es ueberhaupt keinen Ton.
+  await expect(audioState).toHaveAttribute('data-audio-master', 'true')
+
+  // Sobald die Buehne da ist, gehoert ihr der Ton. Es klingt immer nur ein Client.
+  const stage = await openStage(await page.context().newPage())
+  await expect(audioState).toHaveAttribute('data-audio-master', 'false')
+
+  // Faellt die Buehne weg, uebernimmt der Operator wieder.
+  await stage.close()
+  await expect(audioState).toHaveAttribute('data-audio-master', 'true')
+})

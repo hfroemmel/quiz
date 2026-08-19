@@ -117,20 +117,37 @@ export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioM
 }
 
 /**
- * Browser erlauben Audio erst nach einer Nutzerinteraktion. Der Operator loest das
- * beim ersten Klick aus; danach ist die Ausgabe bereit.
+ * Gibt die Tonausgabe frei.
  *
- * Im Buehnenfenster gibt es keine Interaktion - dort erlaubt die Desktop-Anwendung
- * die Wiedergabe ausdruecklich (siehe `apps/desktop/src/main.ts`).
+ * Browser erlauben Audio erst, nachdem in DIESEM Dokument eine Nutzerinteraktion
+ * stattgefunden hat. `load()` allein genuegt dafuer nicht - erst ein `play()`
+ * innerhalb der Interaktion hebt die Sperre. Deshalb wird jedes Element hier
+ * stumm angespielt und sofort wieder zurueckgesetzt: hoerbar ist nichts, aber der
+ * spaetere Cue darf klingen.
+ *
+ * Das muss in jedem Fenster passieren, das Ton ausgeben kann - Operator UND
+ * Buehne. Im Buehnenfenster der Desktop-Anwendung ist die Wiedergabe ohnehin
+ * ausdruecklich erlaubt (siehe `apps/desktop/src/main.ts`); der Aufruf schadet
+ * dort nicht.
  */
 export function unlockAudio(): void {
   for (const name of new Set(Object.values(cueFiles).flat())) {
     const element = elementFor(name)
     if (!element) continue
     try {
-      element.load()
+      element.muted = true
+      void element
+        .play()
+        .then(() => {
+          element.pause()
+          element.currentTime = 0
+          element.muted = false
+        })
+        .catch(() => {
+          element.muted = false
+        })
     } catch {
-      // Vorladen ist Komfort, kein Muss.
+      // Freigeben ist Komfort, kein Muss.
     }
   }
 }

@@ -13,10 +13,13 @@ export function DiagnosticsPanel({
   view,
   send,
   connectedClients,
+  audioMaster,
 }: {
   view: OperatorQuizViewModel
   send: (command: Command) => void
   connectedClients: number
+  /** Ob dieses Fenster gerade den Ton ausgibt - der Server entscheidet das. */
+  audioMaster: boolean
 }) {
   const diagnostics = view.diagnostics
   const [confirmNewDay, setConfirmNewDay] = useState(false)
@@ -42,6 +45,11 @@ export function DiagnosticsPanel({
           <div>
             <dt>Verbundene Clients</dt>
             <dd>{connectedClients}</dd>
+          </div>
+          {/* Haeufigste Tonfrage im Betrieb: "Warum hoere ich nichts?" */}
+          <div>
+            <dt>Tonausgabe</dt>
+            <dd data-audio-master={audioMaster}>{audioMaster ? 'dieses Fenster' : 'Bühnenfenster'}</dd>
           </div>
         </dl>
 

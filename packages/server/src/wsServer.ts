@@ -119,8 +119,9 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
     socket.on('close', () => {
       connections.delete(connection)
       service.unregisterClient(connection.clientId)
-      // Faellt der Audio-Master weg, uebernimmt der naechste geeignete Client.
-      if (connection.audioMaster) assignAudioMaster()
+      // Faellt eine Buehne weg, uebernimmt der naechste geeignete Client - auch dann,
+      // wenn die weggefallene Verbindung selbst nicht der Master war.
+      assignAudioMaster()
     })
 
     socket.on('error', () => {
@@ -131,14 +132,22 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
   }
 
   /**
-   * Waehlt genau einen Audio-Master: bevorzugt einen lokalen Buehnenclient
-   * (Standardbetrieb: die Desktop-Anwendung). Entfernte Praesentationsclients
-   * starten dadurch stumm.
+   * Waehlt genau einen Audio-Master.
+   *
+   * Reihenfolge: lokaler Buehnenclient, sonst irgendein Buehnenclient, sonst der
+   * Operator. Der letzte Schritt ist wichtig fuer Proben und fuer den Betrieb im
+   * reinen Browser: Ohne geoeffnetes Buehnenfenster gaebe es sonst ueberhaupt
+   * keinen Ton. Sobald eine Buehne dazukommt, gibt der Operator die Tonhoheit
+   * wieder ab - es klingt immer nur genau ein Client.
    */
   function assignAudioMaster(): void {
-    const stages = [...connections].filter((connection) => connection.role === 'stage')
-    const preferred = stages.find((connection) => connection.isLocal) ?? stages[0]
-    for (const connection of stages) {
+    const candidates = [...connections].filter(
+      (connection) => connection.role === 'stage' || connection.role === 'operator',
+    )
+    const stages = candidates.filter((connection) => connection.role === 'stage')
+    const pool = stages.length > 0 ? stages : candidates.filter((connection) => connection.role === 'operator')
+    const preferred = pool.find((connection) => connection.isLocal) ?? pool[0]
+    for (const connection of candidates) {
       const shouldBeMaster = connection === preferred
       if (connection.audioMaster !== shouldBeMaster) {
         connection.audioMaster = shouldBeMaster

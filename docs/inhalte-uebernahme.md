@@ -59,7 +59,7 @@ laeuft die Entwicklung mit einem erzeugten Ersatzbild:
 | Operator | bekommt fuer jede fehlende Datei eine Warnung in der Diagnose |
 
 Damit ist die Luecke sichtbar, aber nicht blockierend. Sobald die Bilder unter
-`content/source/assets/images/` liegen, verschwinden Warnung und Ersatzbild ohne
+`content/source/assets/questions/` liegen, verschwinden Warnung und Ersatzbild ohne
 weitere Aenderung - die Dateinamen stehen bereits in `assets.json`.
 
 Der Livebetrieb bleibt geschuetzt: `pnpm build` verwendet die strenge Pruefung
@@ -106,7 +106,7 @@ sie mit.
 
 ## Wenn die Bilder eintreffen
 
-1. Dateien nach `content/source/assets/images/` legen - die Namen stehen in
+1. Dateien nach `content/source/assets/questions/` legen - die Namen stehen in
    `content/source/assets.json`
 2. `pnpm content:validate` (ohne Flag) ausfuehren; die Warnungen zu fehlenden
    Medien muessen verschwinden
