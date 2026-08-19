@@ -216,8 +216,22 @@ export function projectModerator(state: GameState | null, ctx: ProjectionContext
 
 export function projectOperator(state: GameState | null, ctx: ProjectionContext): OperatorQuizViewModel {
   const moderator = projectModerator(state, ctx)
+  const question = state?.currentQuestion?.question
   return {
     ...moderator,
+    /*
+     * Grundlage der Live-Korrektur: Fragetext und Antwortmoeglichkeiten in
+     * bearbeitbarer Form. Sie stehen unabhaengig davon bereit, ob die Antworten
+     * auf der Buehne schon eingeblendet sind - der Operator sieht ohnehin die
+     * vollstaendige Frage.
+     */
+    editableQuestion: question
+      ? {
+          prompt: question.prompt,
+          options: (question.options ?? []).map((option) => ({ id: option.id, text: option.text })),
+          correctOptionId: question.correctOptionId,
+        }
+      : undefined,
     allowedCommands: [
       ...new Set([...allowedCommandsForRole(state ?? null, 'operator'), ...(ctx.additionalOperatorCommands ?? [])]),
     ],
@@ -257,10 +271,14 @@ function publicOptions(state: GameState, scene: PublicScene): PublicOption[] | u
     .filter((option): option is NonNullable<typeof option> => Boolean(option))
     .map((option) => {
       const entry: PublicOption = { id: option.id, text: option.text }
-      // Der Zustand einer Option wird erst in der Loesungsszene uebertragen.
+      // Ob eine Option richtig ist, wird erst in der Loesungsszene uebertragen.
       if (scene === 'solution') {
         if (option.id === question.correctOptionId) entry.state = 'correct'
         else if (chosenIncorrect.has(option.id)) entry.state = 'chosen-incorrect'
+      } else if (option.id === pendingAttempt(state)?.loggedOptionId) {
+        // Die eingeloggte Antwort ist oeffentlich - aber nur als Festlegung,
+        // nicht als Bewertung.
+        entry.state = 'chosen'
       }
       return entry
     })

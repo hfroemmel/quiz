@@ -993,6 +993,27 @@ select {
   top: 0;
   z-index: 5;
 }
+.session-code {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+  margin-right: 6px;
+}
+.session-code__label {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-textMuted);
+}
+.session-code__value {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
 .icon-button {
   display: inline-flex;
   align-items: center;

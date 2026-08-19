@@ -41,13 +41,14 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await expect(page.locator('.option-bar')).toHaveCount(0)
   })
 
-  test('Frageszene zeigt Frage und vier Optionen ohne Loesungshinweis', async ({ page }) => {
+  test('Frageszene zeigt die eingeloggte Antwort, aber keinen Loesungshinweis', async ({ page }) => {
     await selectScene(page, 'question')
     await expect(page.locator('.question-head__prompt')).toBeVisible()
     await expect(page.locator('.option-bar')).toHaveCount(4)
-    // Kein Zustand an den Optionen: die Loesung ist noch nicht oeffentlich.
+    // Die Festlegung des Spielers ist oeffentlich - genau eine Leiste ist markiert.
+    await expect(page.locator('.option-bar--chosen')).toHaveCount(1)
+    // Ob sie stimmt, verraet die Buehne erst in der Loesungsszene.
     await expect(page.locator('.option-bar--solution')).toHaveCount(0)
-    await expect(page.locator('.option-bar--chosen')).toHaveCount(0)
   })
 
   test('Bilderkennen zeigt Countdown und unscharfes Bild', async ({ page }) => {

@@ -42,7 +42,12 @@ export interface PublicOption {
   id: string
   text: string
   /** Nur in der Loesungsansicht gesetzt; vorher niemals uebertragen. */
-  state?: 'correct' | 'chosen-incorrect'
+  /**
+   * `chosen` markiert die eingeloggte Antwort, solange noch nicht aufgeloest ist -
+   * der Saal sieht, worauf sich der Spieler festgelegt hat, aber nicht, ob es
+   * stimmt. `correct` und `chosen-incorrect` kommen erst in der Loesungsszene.
+   */
+  state?: 'chosen' | 'correct' | 'chosen-incorrect'
 }
 
 export interface PublicQuestion {
@@ -184,6 +189,12 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
 }
 
 export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
+  /**
+   * Die laufende Frage in bearbeitbarer Form - Grundlage der Live-Korrektur.
+   * Sie steht unabhaengig davon zur Verfuegung, ob die Antworten schon
+   * eingeblendet sind: Der Operator sieht ohnehin die vollstaendige Frage.
+   */
+  editableQuestion?: { prompt: string; options: { id: string; text: string }[]; correctOptionId?: string }
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
   /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */

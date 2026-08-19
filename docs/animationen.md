@@ -23,11 +23,15 @@ schickt anschliessend `ADVANCE_TIMED_PHASE`.
 
 ```text
 apps/web/src/assets/animations/   gelieferte Bewegtgrafiken (WebM mit Alpha, SVG)
+apps/web/src/assets/audio/        gelieferte Klaenge (mp3, wav)
 apps/web/src/ui/AnimationClip.tsx Abspielbaustein, kennt keinen Spielzustand
 apps/web/src/presentation/
   animationAssets.ts       Registry der gelieferten Dateien: Laenge und Zeitpunkt
                            der vollstaendigen Aussage (`payoffMs`)
   animationPresets.ts      zentrale Timings und Easings
+  soundCues.ts             Zuordnung Cue -> Audiodatei
+  SoundProvider.tsx        Zugang zu den Cues fuer Szenen und Kacheln
+  useStageSounds.ts        Cues, die INNERHALB einer Szene entstehen
   soundCues.ts             Soundmarken (Web Audio, keine Dateien)
   StageScreen.tsx          waehlt Szene, wendet Uebergang an, spielt Soundmarke
   scenes/                  PauseScene, QuestionScene, RevealScene, VideoScene,

@@ -219,7 +219,8 @@ function buildSampleView(input: {
         question: { prompt: 'Welcher Fluss fließt durch Köln?', presentationType: 'text-choice', categoryLabel: 'Erdkunde' },
         visibleOptions: [
           { id: 'o1', text: 'Rhein' },
-          { id: 'o2', text: 'Elbe' },
+          // Eingeloggte Antwort: oeffentlich blau, aber ohne Bewertung.
+          { id: 'o2', text: 'Elbe', state: 'chosen' },
           { id: 'o3', text: 'Donau' },
           { id: 'o4', text: 'Main' },
         ],

@@ -137,6 +137,12 @@ function createStageWindow(): BrowserWindow {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
+      /*
+       * Im Buehnenfenster klickt niemand - es laeuft auf dem Beamer. Ohne diese
+       * Freigabe blieben die Soundmarken stumm, weil Browser Audio erst nach
+       * einer Nutzerinteraktion erlauben.
+       */
+      autoplayPolicy: 'no-user-gesture-required',
     },
   })
 
