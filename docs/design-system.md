@@ -100,19 +100,64 @@ Alle Farben sind CSS-Variablen. Kein Bauteil schreibt einen Farbwert direkt.
 
 | Token | Wert | Verwendung |
 |---|---|---|
-| `--surface-page-top` | `#555555` | Seitenhintergrund oben |
-| `--surface-page-bottom` | `#6E6E6E` | Seitenhintergrund unten (linearer Verlauf) |
-| `--surface-stage-top` | `#5C5C5C` | Buehnenflaeche oben |
-| `--surface-stage-bottom` | `#757575` | Buehnenflaeche unten |
-| `--surface-controls` | `#555555` | Bedienleiste |
-| `--surface-tile` | `#444444` | Kacheln, Schaltflaechen, Buchstabenchips |
-| `--surface-tile-disabled` | `#4F4F4F` | gesperrte Schaltflaeche |
-| `--surface-tile-quiet` | `#464646` | `Beenden` |
-| `--surface-option` | `#777777` | Antwortleiste, neutral |
+| `pageTop` | `#12161A` | Seitenhintergrund oben |
+| `pageBottom` | `#171C21` | Seitenhintergrund unten (linearer Verlauf) |
+| `stageTop` | `#171C21` | Buehnenflaeche oben |
+| `stageBottom` | `#293139` | Buehnenflaeche unten |
+| `controls` | `#12161A` | Bedienleiste |
+| `tile` | `rgb(255 255 255 / 0.09)` | Kacheln, Buchstabenchips |
+| `tileDisabled` | `rgb(255 255 255 / 0.05)` | gesperrte Flaeche |
+| `tileQuiet` | `rgb(255 255 255 / 0.06)` | zurueckgenommene Kachel |
+| `option` | `rgb(255 255 255 / 0.05)` | Antwortleiste, neutral |
 
-Der Verlauf laeuft in beiden Flaechen von oben nach unten heller. Die
-Buehnenflaeche ist minimal heller als die Seite - dadurch hebt sie sich ohne
-Rahmen und ohne Schatten ab.
+Die Buehnenflaeche laeuft von oben nach unten heller und leicht ins Blaue - ein
+kuehler Grund, vor dem das warme Licht der Fragenbilder wirkt.
+
+**Die Flaechenfarben sind halbtransparent.** Das ist kein Detail, sondern der
+Kern des Entwurfs: Hinter der Szene liegt das unscharfe Fragebild, und Kacheln,
+Buchstaben und Antwortleisten lassen es als Milchglas durchscheinen, statt es
+zuzudecken. Ein Token mit deckender Farbe wuerde die Tiefe sofort zerstoeren.
+
+### Unscharfes Fragebild als Hintergrund
+
+Hinter jeder Szene mit Bild liegt dasselbe Bild formatfuellend, stark
+weichgezeichnet (`blur(3cqw)`), abgedunkelt (`brightness(0.5)`) und mit einem
+Farbschleier aus `stageTop`/`stageBottom` bei 82 % Deckkraft ueberzogen. Jede
+Frage bekommt damit ihre eigene Atmosphaere, ohne dass Text an Ruhe verliert.
+
+Doppelt abgedunkelt wird bewusst am Bild UND am Schleier: Die Fragenbilder
+reichen von der Nachtaufnahme bis zum wolkenlosen Sommerhimmel, und ein heller
+Himmel wuerde die Buehne sonst ins Milchige kippen.
+
+**Waehrend der Bildenthuellung** ist derselbe Hintergrund viel staerker
+weichgezeichnet (`blur(9cqw)`, `brightness(0.35)`, Schleier 92 %). Die Aufgabe
+ist dort, das Motiv zu erkennen; der Hintergrund darf keine Silhouette verraten.
+
+### Radien und Schatten
+
+`--stage-radius` steht bei `0.7cqw` - auf einem 1920 Pixel breiten Beamer rund
+13 Pixel. Der Wert steht wie alle Groessen der Buehne in Containereinheiten,
+damit die kleine Operatorvorschau und das Vollbild identisch aussehen.
+
+`--stage-shadow` (`0 0.5cqw 1.6cqw rgb(0 0 0 / 0.35)`) liegt unter Bild,
+Kacheln und Antwortleisten. Er dient ausschliesslich der raeumlichen Tiefe -
+sichtbare Konturen oder Rahmen gibt es auf der Buehne nicht.
+
+Das Cyan ist eine **Bedeutungsfarbe, keine Flaechenfarbe**: Es markiert den
+aktiven Spieler, die gewaehlte Antwort, die Rubrik und Statuswechsel wie die
+zweite Chance. Grosse Flaechen bleiben im kuehlen Grund.
+
+### Schriftmischung auf der Buehne
+
+Die Serifenschrift traegt Inhalt, die Groteske traegt Beschriftungen:
+
+| Element | Schrift |
+|---|---|
+| Fragetext, Antworttexte, Kachelwerte, Sekunden, Ergebnis | Melior |
+| `Spieler`, `Punkte`, `Frage`, Rubrik | Noto Sans Display |
+
+Die Rubrik steht klein (1,15 cqw), halbfett und in `accent`: ein
+Orientierungselement ueber der Frage, keine zweite Ueberschrift.
 
 ### Farben der Regieflaeche
 
@@ -148,8 +193,8 @@ auf `--ui-*` zu und umgekehrt.
 
 | Token | Wert | Bedeutung |
 |---|---|---|
-| `--accent` | `#3693B3` | aktiver Spieler, aktuell gewaehlte Antwort, aktive Auswahl |
-| `--accent-quiet` | `#4E6A74` | dieselbe Bedeutung, aber abgeschlossen bzw. nicht mehr bedienbar |
+| `accent` | `#1F87B5` | aktiver Spieler, gewaehlte Antwort, Rubrik, Statuswechsel |
+| `accentQuiet` | `#2B5C73` | dieselbe Bedeutung, aber abgeschlossen bzw. nicht mehr bedienbar |
 | `--primary` | `#00CC9C` | genau eine primaere Handlung je Bildschirm |
 | `--solution` | `#01A780` | Loesungsbalken in der Loesungsszene |
 | `--solution-chip` | `#028365` | Buchstabenchip im Loesungsbalken |

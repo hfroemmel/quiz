@@ -34,6 +34,23 @@ Wiederaufnahme nach Neustart, Moderatoransicht.
 
 ## Gemeinsamer Rahmen
 
+### Grund und Atmosphaere
+
+Die Buehne steht auf einem kuehlen, leicht blaeulichen Verlauf
+(`#171C21` nach `#293139`). Dahinter liegt das **Fragebild selbst**:
+formatfuellend, stark weichgezeichnet, abgedunkelt und mit einem Farbschleier
+ueberzogen. Jede Frage bekommt so ihre eigene Atmosphaere, ohne dass Text an
+Ruhe verliert.
+
+Waehrend einer Bildenthuellung ist derselbe Hintergrund viel staerker
+weichgezeichnet und staerker verschleiert: Dort ist das Motiv die Aufgabe, und
+der Hintergrund darf keine Silhouette verraten.
+
+Kacheln, Buchstabenfelder und Antwortleisten sind halbtransparente Milchglas-
+flaechen mit leichter Weichzeichnung - ohne Rahmen, mit einem sehr weichen
+Schatten fuer raeumliche Tiefe. Die Werte stehen in
+[`docs/design-system.md`](design-system.md).
+
 ### Wortmarke
 
 Oben links steht die Wortmarke (`apps/web/src/assets/images/logo.svg`), gespiegelt
@@ -247,10 +264,12 @@ Projektion fragen dort nach.
 
 - Das Bild steht links, etwa 18 % der Flaechenbreite, Verhaeltnis 4:3.
 - Die **Rubrik** ueber der Frage ist das Label der **ersten Kategorie** der Frage
-  (bestaetigt). Dafuer traegt das oeffentliche View-Modell kuenftig
-  `question.categoryLabel`.
-- Optionsleisten: Buchstabenchip `--surface-tile` links, Text zentriert auf
-  `--surface-option`.
+  (bestaetigt). Dafuer traegt das oeffentliche View-Modell
+  `question.categoryLabel`. Sie steht klein, halbfett, in der Groteske und in
+  `accent` - ein Orientierungselement, keine zweite Ueberschrift.
+- Optionsleisten: Buchstabenchip `tile` links, Text zentriert auf `option`.
+  Beide sind halbtransparent, tragen denselben Radius und stehen nur eine
+  schmale Fuge auseinander - der Buchstabe gehoert sichtbar zu seiner Zeile.
 
 ### Aufbau ohne Bild (Vorlage 13)
 

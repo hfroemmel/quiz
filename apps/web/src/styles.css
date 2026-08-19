@@ -79,24 +79,24 @@
    * hier, damit die Oberflaeche auch vor dem ersten Snapshot vollstaendig
    * gefaerbt ist - eine farblose Flaeche waere auf der Buehne sichtbar.
    */
-  --color-pageTop: #555555;
-  --color-pageBottom: #6e6e6e;
-  --color-stageTop: #5c5c5c;
-  --color-stageBottom: #757575;
-  --color-controls: #555555;
-  --color-tile: #444444;
-  --color-tileDisabled: #4f4f4f;
-  --color-tileQuiet: #464646;
-  --color-option: #777777;
-  --color-accent: #3693b3;
-  --color-accentQuiet: #4e6a74;
+  --color-pageTop: #12161a;
+  --color-pageBottom: #171c21;
+  --color-stageTop: #171c21;
+  --color-stageBottom: #293139;
+  --color-controls: #12161a;
+  --color-tile: rgba(255, 255, 255, 0.09);
+  --color-tileDisabled: rgba(255, 255, 255, 0.05);
+  --color-tileQuiet: rgba(255, 255, 255, 0.06);
+  --color-option: rgba(255, 255, 255, 0.05);
+  --color-accent: #1f87b5;
+  --color-accentQuiet: #2b5c73;
   --color-primary: #00cc9c;
   --color-solution: #01a780;
   --color-solutionChip: #028365;
   --color-correct: #25a7b0;
   --color-incorrect: #a62749;
   --color-text: #ffffff;
-  --color-textMuted: rgba(255, 255, 255, 0.45);
+  --color-textMuted: rgba(255, 255, 255, 0.6);
 
   --font-heading: 'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --font-body: var(--font-heading);
@@ -333,6 +333,69 @@ select {
   background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
   color: var(--color-text);
   font-family: var(--font-body);
+
+  /*
+   * Rundungen und Schatten der Buehne stehen in Containereinheiten, nicht in px:
+   * Dieselbe Komposition laeuft in der kleinen Operatorvorschau und im
+   * Beamer-Vollbild und soll in beiden gleich aussehen. 0,7 cqw ergibt auf einem
+   * 1920 Pixel breiten Beamer rund 13 Pixel.
+   */
+  --stage-radius: 0.7cqw;
+  /* Ausschliesslich raeumliche Tiefe - keine sichtbare Kontur. */
+  --stage-shadow: 0 0.5cqw 1.6cqw rgb(0 0 0 / 0.35);
+}
+
+/*
+ * Unscharfes Fragebild als Hintergrund.
+ *
+ * Der Rahmen liegt bewusst ueber die Kante hinaus (`inset: -8%`) und ist
+ * zusaetzlich vergroessert: Eine Weichzeichnung zieht sonst die transparenten
+ * Raender ins Bild und es entsteht ein heller Saum.
+ *
+ * Darueber liegt ein Farbschleier aus denselben Flaechenfarben wie der Verlauf.
+ * Er nimmt dem Bild so viel Helligkeit, dass Frage und Antworten darauf ruhig
+ * lesbar bleiben - das Bild traegt Stimmung, nicht Information.
+ */
+.stage__backdrop {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: scale(1.08);
+  /*
+   * Abdunkeln geschieht ZWEIFACH: am Bild selbst und ueber den Farbschleier.
+   * Ein heller Himmel wuerde die ganze Flaeche sonst aufhellen und die Buehne
+   * vom kuehlen Dunkel ins Milchige kippen - gepruefte Fragenbilder reichen von
+   * Nachtaufnahme bis Schneelandschaft.
+   */
+  filter: blur(3cqw) saturate(0.85) brightness(0.5);
+  pointer-events: none;
+}
+.stage__backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
+  opacity: 0.82;
+}
+/*
+ * Waehrend der Bildenthuellung: viel staerker weichgezeichnet und staerker
+ * verschleiert. Die Aufgabe ist, das Motiv zu erkennen - der Hintergrund darf
+ * dabei keine Silhouette verraten.
+ */
+.stage__backdrop--veiled {
+  filter: blur(9cqw) saturate(0.7) brightness(0.35);
+}
+.stage__backdrop--veiled::after {
+  opacity: 0.92;
+}
+/* Alles Inhaltliche liegt ueber dem Hintergrund. */
+.stage-header,
+.scene-root {
+  position: relative;
+  z-index: 1;
 }
 .stage--preview {
   aspect-ratio: 16 / 9;
@@ -367,8 +430,9 @@ select {
   align-self: flex-end;
   margin: -3cqw 0 0;
   padding: 0.6cqw 1.4cqw;
-  border-radius: var(--radius);
+  border-radius: var(--stage-radius);
   background: var(--color-accent);
+  box-shadow: var(--stage-shadow);
   color: var(--color-text);
   font-family: var(--font-heading);
   font-size: 1.6cqw;
@@ -423,8 +487,12 @@ select {
   justify-content: center;
   width: 7cqw;
   padding: 1cqw 1.2cqw 0.6cqw;
+  /* Milchglas: halbtransparent mit Weichzeichnung, ohne Rahmen. */
   background: var(--color-tile);
-  border-radius: var(--radius);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+  box-shadow: var(--stage-shadow);
   line-height: 1;
 }
 .tile--active {
@@ -434,7 +502,10 @@ select {
   background: var(--color-accentQuiet);
 }
 .tile__label {
+  /* Beschriftungen in der Groteske, Werte in der Serifenschrift. */
+  font-family: var(--font-ui);
   font-size: 1cqw;
+  letter-spacing: 0.02em;
   color: var(--color-textMuted);
   margin-bottom: 0.3cqw;
 }
@@ -573,11 +644,17 @@ select {
   flex: 1;
   min-width: 0;
 }
+/*
+ * Rubrik als Orientierung, nicht als zweite Ueberschrift: klein, in der
+ * Groteske und in der Akzentfarbe.
+ */
 .question-head__category {
-  margin: 0 0 0.4cqw;
-  font-size: 1.6cqw;
-  font-weight: 700;
-  font-family: var(--font-heading);
+  margin: 0 0 0.6cqw;
+  font-family: var(--font-ui);
+  font-size: 1.15cqw;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
 }
 .question-head__prompt {
   margin: 0;
@@ -590,8 +667,9 @@ select {
 .media-frame {
   flex: 0 0 auto;
   overflow: hidden;
-  border-radius: var(--radius);
+  border-radius: var(--stage-radius);
   background: var(--color-tile);
+  box-shadow: var(--stage-shadow);
 }
 .media-frame__image {
   display: block;
@@ -622,9 +700,9 @@ select {
 .option-bar {
   display: flex;
   align-items: stretch;
-  gap: 0.5cqw;
-  border-radius: var(--radius);
-  overflow: hidden;
+  /* Buchstabe und Zeile gehoeren zusammen - der Spalt ist nur eine Fuge. */
+  gap: 0.25cqw;
+  border-radius: var(--stage-radius);
   animation: option-enter var(--transition-duration) var(--transition-easing) backwards;
 }
 .option-bar__chip {
@@ -634,7 +712,10 @@ select {
   min-width: 3.4cqw;
   padding: 0.8cqw 0;
   background: var(--color-tile);
-  border-radius: var(--radius);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+  box-shadow: var(--stage-shadow);
   font-family: var(--font-heading);
   font-size: 1.9cqw;
   font-weight: 700;
@@ -646,7 +727,10 @@ select {
   justify-content: center;
   padding: 0.8cqw 1.2cqw;
   background: var(--color-option);
-  border-radius: var(--radius);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+  box-shadow: var(--stage-shadow);
   font-size: 1.9cqw;
   font-family: var(--font-heading);
 }
@@ -729,8 +813,9 @@ select {
   width: 70cqw;
   aspect-ratio: 16 / 9;
   background: #000000;
-  border-radius: var(--radius);
+  border-radius: var(--stage-radius);
   overflow: hidden;
+  box-shadow: var(--stage-shadow);
 }
 .video__frame video {
   width: 100%;

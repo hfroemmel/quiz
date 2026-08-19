@@ -11,7 +11,7 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
-import { greyDesignColors } from '../../theme/designTokens.ts'
+import { greyDesignColors, stageDesignColors } from '../../theme/designTokens.ts'
 import type { PublicQuizViewModel, PublicScene } from '@quiz/contracts'
 import { gameTiming } from '@quiz/contracts'
 import { StageScreen } from '../../presentation/StageScreen.tsx'
@@ -19,17 +19,16 @@ import { transitions } from '../../presentation/transitions/registry.ts'
 import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
 
 /**
- * Themes der Vorschau.
+ * Themes der Vorschau - dieselben Werte wie im Quizpaket.
  *
- * Alle drei Modi tragen derzeit dasselbe Graustufensystem: Die eigenen
- * Farbsysteme fuer Kinder und Saarbruecken werden nachgeliefert. Die Auswahl
- * bleibt trotzdem stehen, damit der Unterschied sofort sichtbar wird, sobald
- * die Werte im Quizpaket stehen.
+ * Erwachsene und Saarbruecken tragen das kuehle System des Entwurfs. Der Modus
+ * Kinder steht noch auf dem Graustufensystem, bis sein eigenes Farbsystem
+ * geliefert wird.
  */
 const THEMES: Record<string, Record<string, string>> = {
-  default: greyDesignColors,
+  default: stageDesignColors,
   kids: greyDesignColors,
-  regional: greyDesignColors,
+  regional: stageDesignColors,
 }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']

@@ -109,6 +109,24 @@ export function StageScreen({
         data-phase={view.phase}
         data-transition={transition?.id ?? 'none'}
       >
+        {/*
+          * Unscharfes Fragebild als Atmosphaere hinter der Szene.
+          *
+          * FAIRNESS BEIM BILDERKENNEN: Dort laeuft die Enthuellung als eigene
+          * Fortschrittsvariable; der Hintergrund darf ihr nicht vorgreifen. Er
+          * wird deshalb in den Enthuellungsphasen deutlich staerker weichgezeichnet
+          * und staerker abgedunkelt - sichtbar bleibt Stimmung, keine Silhouette.
+          *
+          * `aria-hidden`: reine Dekoration, kein Inhalt.
+          */}
+        {view.question?.imageUrl && (
+          <div
+            className={`stage__backdrop ${isRevealing(view) ? 'stage__backdrop--veiled' : ''}`}
+            style={{ backgroundImage: `url(${view.question.imageUrl})` }}
+            aria-hidden="true"
+          />
+        )}
+
         <StageHeader view={view} slots={headerSlots} />
 
         <div key={entryKey} className={`scene-root ${activeClass} ${transition?.classNames?.to ?? ''}`}>
@@ -117,6 +135,15 @@ export function StageScreen({
       </div>
     </SoundProvider>
   )
+}
+
+/**
+ * Laeuft gerade eine Bildenthuellung? Dann ist das Bild selbst die Aufgabe.
+ * `reveal-ready` zaehlt dazu: Dort steht das Bild bei voller Unschaerfe und
+ * niemand hat es je scharf gesehen.
+ */
+function isRevealing(view: PublicQuizViewModel): boolean {
+  return view.phase === 'reveal-ready' || view.phase === 'reveal-running' || view.phase === 'reveal-paused' || (view.scene === 'reveal' && view.phase === 'answer-locked')
 }
 
 function renderScene(
