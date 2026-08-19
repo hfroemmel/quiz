@@ -1,7 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-  <defs><linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f24a42"/><stop offset="1" stop-color="#dc272d"/></linearGradient></defs>
+  <defs>
+    <linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f24a42"/><stop offset="1" stop-color="#dc272d"/></linearGradient>
+    <filter id="rough" x="-3%" y="-24%" width="106%" height="148%"><feTurbulence type="fractalNoise" baseFrequency=".012 .08" numOctaves="2" seed="37" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  </defs>
   <path d="M20 10 C322 5 770 12 1180 7 C1192 11 1196 22 1194 38 L1196 83 C1195 102 1189 110 1175 111 C805 116 389 109 20 114 C9 110 5 101 7 85 L5 38 C5 22 11 13 20 10 Z" fill="#172538" opacity=".15" transform="translate(0 5)"/>
   <path d="M20 7 C322 3 770 10 1180 5 C1192 9 1196 20 1194 36 L1196 81 C1195 100 1189 108 1175 109 C805 114 389 107 20 112 C9 108 5 99 7 83 L5 36 C5 20 11 11 20 7 Z" fill="url(#r)"/>
-  <path d="M20 7 C322 3 770 10 1180 5 C1192 9 1196 20 1194 36 L1196 81 C1195 100 1189 108 1175 109 C805 114 389 107 20 112 C9 108 5 99 7 83 L5 36 C5 20 11 11 20 7 Z" fill="none" stroke="#172538" stroke-width="4.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M20 7 C322 3 770 10 1180 5 C1192 9 1196 20 1194 36 L1196 81 C1195 100 1189 108 1175 109 C805 114 389 107 20 112 C9 108 5 99 7 83 L5 36 C5 20 11 11 20 7 Z" fill="none" stroke="#172538" stroke-width="5" stroke-linejoin="round" vector-effect="non-scaling-stroke" filter="url(#rough)"/>
   <path d="M22 10 C326 6 773 13 1177 8 C1188 12 1191 22 1190 37 L1192 79 C1191 96 1186 103 1173 104 C803 109 391 102 23 107 C13 103 10 95 11 81 L9 38 C9 23 14 14 22 10 Z" fill="none" stroke="#7b1118" stroke-opacity=".35" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+  <path d="M27 5 C291 10 599 3 906 9 C1010 11 1099 3 1178 8" fill="none" stroke="#7b1118" stroke-opacity=".42" stroke-width="1.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
 </svg>

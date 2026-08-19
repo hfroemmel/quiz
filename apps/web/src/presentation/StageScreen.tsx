@@ -30,7 +30,7 @@ import { ResultScene } from './scenes/ResultScene.tsx'
 import { StartScene } from './scenes/StartScene.tsx'
 import { StageHeader, type StageHeaderSlots } from './StageHeader.tsx'
 import { KidsQuizScreen, kidsScreenCovers } from './kids/KidsQuizScreen.tsx'
-import { kidsAssets } from './kids/kidsAssets.ts'
+import { kidsAssets, kidsPreloadImages } from './kids/kidsAssets.ts'
 import type { SceneProps } from './scenes/sceneProps.ts'
 
 export interface StageScreenProps {
@@ -110,6 +110,21 @@ export function StageScreen({
    */
   const kids = view.theme.skin === 'kids'
   const kidsScreen = kids && kidsScreenCovers(view)
+
+  /*
+   * Zeichnungen der Kinderwelt einmal in den Browsercache holen.
+   *
+   * Auf dem Buehnenscreen darf waehrend der Show nichts nachladen: Ein Chip, der
+   * erst beim Wechsel auf 'richtig' geholt wird, blitzt vor dem Saal leer auf.
+   * Der Effekt laeuft genau einmal je Sitzung, sobald die Kinderwelt aktiv ist.
+   */
+  useEffect(() => {
+    if (!kids) return
+    for (const source of kidsPreloadImages) {
+      const image = new Image()
+      image.src = source
+    }
+  }, [kids])
 
   return (
     <SoundProvider enabled={view.soundEnabled} isAudioMaster={isAudioMaster}>

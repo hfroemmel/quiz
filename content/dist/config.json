@@ -119,8 +119,8 @@
         "textMuted": "rgba(23, 37, 56, 0.6)"
       },
       "typography": {
-        "headingFont": "'Fredoka', 'Arial Rounded MT Bold', Arial, sans-serif",
-        "bodyFont": "'Nunito', Arial, sans-serif"
+        "headingFont": "'Patrick Hand', 'Comic Sans MS', cursive",
+        "bodyFont": "'Patrick Hand', 'Comic Sans MS', cursive"
       },
       "presentationAnimationSetId": "standard"
     },

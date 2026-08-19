@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" preserveAspectRatio="none">
+  <defs><filter id="rough" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".018 .026" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4.8" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
+  <path d="M23 21 C173 17 411 22 598 19 C611 25 615 43 612 67 L615 379 C612 406 603 416 586 417 C405 422 198 416 25 420 C10 415 6 401 9 378 L7 66 C7 43 13 27 23 21 Z" fill="#646c99" opacity=".18"/>
   <path d="M23 12 C173 8 411 13 598 10 C611 16 615 34 612 58 L615 370 C612 397 603 407 586 408 C405 413 198 407 25 411 C10 406 6 392 9 369 L7 57 C7 34 13 18 23 12 Z" fill="#fff8e8"/>
-  <path d="M23 12 C173 8 411 13 598 10 C611 16 615 34 612 58 L615 370 C612 397 603 407 586 408 C405 413 198 407 25 411 C10 406 6 392 9 369 L7 57 C7 34 13 18 23 12 Z" fill="none" stroke="#172538" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M23 12 C173 8 411 13 598 10 C611 16 615 34 612 58 L615 370 C612 397 603 407 586 408 C405 413 198 407 25 411 C10 406 6 392 9 369 L7 57 C7 34 13 18 23 12 Z" fill="none" stroke="#172538" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" filter="url(#rough)"/>
   <path d="M29 24 C180 19 407 24 591 21 C598 27 601 38 599 58 L602 361 C599 384 593 392 579 394 C399 398 201 392 31 397 C20 392 17 382 19 363 L17 62 C17 42 21 29 29 24 Z" fill="none" stroke="#172538" stroke-opacity=".2" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
 </svg>

@@ -25,6 +25,16 @@ export const kidsAssets = {
   characterShadow: `${BASE}/decorations/character-shadow.svg`,
   categoryUnderline: `${BASE}/decorations/category-underline.svg`,
 
+  /**
+   * Schriften des Pakets. Sie liegen neben den Bildern und werden nicht
+   * gebuendelt: Nur so hat die Adresse eine feste Form, die `index.html`
+   * vorladen kann, ohne den Bundlernamen zu kennen.
+   */
+  fonts: {
+    hand: `${BASE}/fonts/PatrickHand-Regular.woff2`,
+    numeric: `${BASE}/fonts/Fredoka-Bold.woff2`,
+  },
+
   questionPanel: `${BASE}/frames/question-panel.svg`,
   mediaFrame: `${BASE}/frames/media-frame.svg`,
   questionCounter: `${BASE}/frames/question-counter.svg`,
@@ -74,4 +84,8 @@ export const kidsPreloadImages: readonly string[] = [
   kidsAssets.answer.selected,
   kidsAssets.answer.correct,
   kidsAssets.answer.incorrect,
+  kidsAssets.chip.idle,
+  kidsAssets.chip.selected,
+  kidsAssets.chip.correct,
+  kidsAssets.chip.incorrect,
 ]

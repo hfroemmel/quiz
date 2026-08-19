@@ -117,36 +117,170 @@ test.describe('Zustaende der Antworten', () => {
 
   test('jeder Zustand traegt seine eigene gezeichnete Flaeche und seinen Chip', async ({ page }) => {
     await openKids(page)
-    const surface = (index: number) =>
+    const drawing = (selector: string, index: number) =>
       page
-        .locator('.kids-answer')
+        .locator(selector)
         .nth(index)
         .evaluate((element) => getComputedStyle(element).getPropertyValue('--kids-surface').trim())
+    const surface = (index: number) => drawing('.kids-answer__surface', index)
 
     expect(await surface(0)).toContain('answer-default.svg')
     expect(await surface(1)).toContain('answer-selected.svg')
     expect(await surface(3)).toContain('answer-incorrect.svg')
 
-    const chip = await page
-      .locator('.kids-answer')
-      .nth(1)
-      .locator('.kids-answer__chip')
-      .evaluate((element) => getComputedStyle(element).getPropertyValue('--kids-chip').trim())
-    expect(chip).toContain('answer-active.svg')
+    expect(await drawing('.kids-answer__chip', 1)).toContain('answer-active.svg')
 
     await openKids(page, 'solution')
     expect(await surface(0)).toContain('answer-correct.svg')
   })
 
+  test('traegt die breite Kartenzeichnung nur auf der Antwortflaeche, nie auf der Zeile', async ({ page }) => {
+    await openKids(page)
+
+    /*
+     * Der Kern der Korrektur: Chip und Karte sind zwei Zeichnungen. Laege die
+     * breite Karte auf der Zeile, saesse der Buchstabe mit auf ihr - genau das
+     * war die Abweichung der ersten Fassung.
+     */
+    const rowDrawing = await page
+      .locator('.kids-answer')
+      .first()
+      .evaluate((element) => getComputedStyle(element).getPropertyValue('--kids-surface').trim())
+    expect(rowDrawing).toBe('')
+
+    // Und zwischen beiden bleibt eine sichtbare Luecke.
+    const gap = await page.locator('.kids-answer').first().evaluate((row) => {
+      const chip = row.querySelector('.kids-answer__chip')!.getBoundingClientRect()
+      const surface = row.querySelector('.kids-answer__surface')!.getBoundingClientRect()
+      return surface.left - chip.right
+    })
+    expect(gap).toBeGreaterThanOrEqual(9)
+  })
+
   test('zeichnet Konturen ausschliesslich als Flaechen, nie als CSS-Rahmen', async ({ page }) => {
     await openKids(page)
-    const framed = ['.kids-answer', '.kids-panel', '.kids-media', '.kids-score', '.kids-counter']
+    const framed = [
+      '.kids-answer',
+      '.kids-answer__surface',
+      '.kids-answer__chip',
+      '.kids-panel',
+      '.kids-media',
+      '.kids-score',
+      '.kids-counter',
+    ]
     for (const selector of framed) {
-      const widths = await page
-        .locator(selector)
-        .evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).borderTopWidth))
-      expect(widths.every((width) => width === '0px'), `${selector} traegt einen CSS-Rahmen`).toBe(true)
+      const drawn = await page.locator(selector).evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const style = getComputedStyle(node)
+          return { border: style.borderTopWidth, radius: style.borderTopLeftRadius, shadow: style.boxShadow }
+        }),
+      )
+      expect(drawn.every((entry) => entry.border === '0px'), `${selector} traegt einen CSS-Rahmen`).toBe(true)
+      expect(drawn.every((entry) => entry.radius === '0px'), `${selector} traegt einen CSS-Radius`).toBe(true)
+      expect(drawn.every((entry) => entry.shadow === 'none'), `${selector} traegt einen gerechneten Schatten`).toBe(true)
     }
+  })
+})
+
+test.describe('Handschrift und Zeichnung', () => {
+  test('setzt Patrick Hand fuer alles Gelesene und Fredoka nur fuer Ziffern', async ({ page }) => {
+    await openKids(page)
+
+    const family = (selector: string) =>
+      page
+        .locator(selector)
+        .first()
+        .evaluate((element) => {
+          const style = getComputedStyle(element)
+          return { font: style.fontFamily, weight: style.fontWeight }
+        })
+
+    for (const selector of ['.kids-panel__prompt', '.kids-panel__category', '.kids-answer__text', '.kids-answer__chip', '.kids-score__label', '.kids-counter__label']) {
+      const { font, weight } = await family(selector)
+      expect(font, `${selector} traegt nicht die Handschrift`).toContain('Patrick Hand')
+      // Patrick Hand hat nur einen Schnitt: Alles darueber waere gerechnete Fettschrift.
+      expect(weight, `${selector} wuerde synthetisch fett gerechnet`).toBe('400')
+    }
+
+    for (const selector of ['.kids-score__value', '.kids-counter__value']) {
+      const { font, weight } = await family(selector)
+      expect(font, `${selector} traegt nicht die Ziffernschrift`).toContain('Fredoka')
+      expect(weight).toBe('700')
+    }
+
+    // Und beide Dateien liegen wirklich vor - sonst zeigte der Screen den Rueckfall.
+    const loaded = await page.evaluate(async () => {
+      await document.fonts.ready
+      return {
+        hand: document.fonts.check('400 40px "Patrick Hand"'),
+        numeric: document.fonts.check('700 40px "Fredoka"'),
+      }
+    })
+    expect(loaded).toEqual({ hand: true, numeric: true })
+  })
+
+  test('haelt eine sichtbare Fuge zwischen Fragebild und Frageflaeche', async ({ page }) => {
+    await openKids(page)
+    await fullBleed(page)
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await page.waitForTimeout(200)
+
+    const media = (await page.locator('.kids-media').boundingBox())!
+    const panel = (await page.locator('.kids-panel').boundingBox())!
+    // `clamp(16px, 1.4vw, 28px)` - bei 1920 sind das 27 Pixel.
+    expect(panel.x - (media.x + media.width)).toBeGreaterThanOrEqual(16)
+  })
+
+  test('stellt Karlchen gross an den rechten Rand, ohne die Antworten zu beruehren', async ({ page }) => {
+    await openKids(page)
+    await fullBleed(page)
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await page.waitForTimeout(200)
+
+    const stage = (await page.locator('.stage').boundingBox())!
+    const figure = (await page.locator('.kids-mascot__figure').boundingBox())!
+
+    // Rund die halbe Bildhoehe - keine Randgrafik.
+    const share = figure.height / stage.height
+    expect(share).toBeGreaterThanOrEqual(0.42)
+    expect(share).toBeLessThanOrEqual(0.52)
+
+    // Sie steht rechts und auf dem Boden, nicht in der Bildmitte.
+    expect(figure.x).toBeGreaterThan(stage.x + stage.width * 0.7)
+    expect(figure.y + figure.height).toBeGreaterThan(stage.y + stage.height * 0.85)
+
+    // Und die Antwortzeilen enden davor.
+    const answers = (await page.locator('.kids-answers').boundingBox())!
+    expect(answers.x + answers.width).toBeLessThanOrEqual(figure.x)
+
+    // Dekoration nimmt keine Klicks entgegen.
+    for (const selector of ['.kids-mascot', '.kids-media__peek']) {
+      const events = await page.locator(selector).evaluate((element) => getComputedStyle(element).pointerEvents)
+      expect(events, `${selector} faengt Klicks`).toBe('none')
+    }
+  })
+
+  test('laesst Karlchen mittig ueber dem Bildrahmen hervorschauen', async ({ page }) => {
+    await openKids(page)
+    await fullBleed(page)
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await page.waitForTimeout(200)
+
+    const media = (await page.locator('.kids-media').boundingBox())!
+    const peek = (await page.locator('.kids-media__peek').boundingBox())!
+
+    // Mittig ueber dem Rahmen.
+    expect(Math.abs(peek.x + peek.width / 2 - (media.x + media.width / 2))).toBeLessThan(4)
+
+    /*
+     * Die Unterkante steckt 8 bis 14 Pixel hinter dem Rahmen. Gemessen wird die
+     * Zeichnung, nicht die Datei: Unter ihr liegen 9,5 Prozent durchsichtiger
+     * Rand.
+     */
+    const drawnBottom = peek.y + peek.height * 0.905
+    const overlap = drawnBottom - media.y
+    expect(overlap).toBeGreaterThanOrEqual(8)
+    expect(overlap).toBeLessThanOrEqual(14)
   })
 })
 
@@ -168,7 +302,7 @@ test.describe('Lange Fragen und Antworten', () => {
        * Zeilenbox scheitert.
        */
       const clipping = await page
-        .locator('.kids-panel, .kids-panel__prompt, .kids-answer, .kids-answer__text')
+        .locator('.kids-panel, .kids-panel__prompt, .kids-answer__surface, .kids-answer__text')
         .evaluateAll((nodes) =>
           nodes
             .filter((node) => {

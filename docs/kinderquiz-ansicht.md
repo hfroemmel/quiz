@@ -1,7 +1,8 @@
 # Kinderquiz: illustrierte Spieleransicht
 
-Umsetzung des Assetpakets „Kinderquiz – Web Asset Pack" (Karlchen-Adler-Welt).
-Diese Datei ist die Referenz fuer Aufbau, Zustaende und Abnahme dieser Ansicht.
+Umsetzung des Assetpakets „Kinderquiz – Web Asset Pack" in der Fassung 2.2
+(Karlchen-Adler-Welt). Diese Datei ist die Referenz fuer Aufbau, Zustaende und
+Abnahme dieser Ansicht.
 
 ## 1. Bestandsaufnahme vor der Umsetzung
 
@@ -32,8 +33,7 @@ Codeaenderung.
 ## 3. Dateien
 
 ```text
-apps/web/public/assets/kinderquiz/     Assetpaket, unveraendert
-apps/web/src/assets/fonts/             Fredoka und Nunito als WOFF2
+apps/web/public/assets/kinderquiz/     Assetpaket, unveraendert (inkl. fonts/)
 apps/web/src/styles/kids.css           Farben, Layout, Zustaende, Breakpoints
 apps/web/src/presentation/kids/
 ├── kidsAssets.ts                      einzige Stelle mit Assetpfaden
@@ -53,10 +53,25 @@ apps/web/src/presentation/kids/
 | 2 | Wortmarke, Karten, Frage, Foto, Antworten | echte DOM-Inhalte |
 | 3 | Karlchen (gross und klein) | `pointer-events: none`, ohne Alternativtext |
 | 4 | gezeichnete SVG-Flaechen | Pseudoelement `::before` hinter dem Inhalt |
-| 5 | `paper-grain.svg` | Overlay, abschaltbar ueber `<html class="no-grain">` |
+| 5 | `paper-grain.svg` | Overlay ueber Karten UND Figuren, abschaltbar |
 
 Das Fragefoto traegt einen inhaltlichen Alternativtext, alle dekorativen Bilder
 einen leeren.
+
+## 5a. Aufbau einer Antwortzeile
+
+Chip und Karte sind **zwei getrennte Zeichnungen** mit einer sichtbaren Luecke
+(`clamp(10px, .9cqw, 18px)`):
+
+```text
+li.kids-answer                Raster, ohne eigene Zeichnung
+├── span.kids-answer__chip    quadratische Chipzeichnung, feste Spalte
+└── span.kids-answer__surface breite Kartenzeichnung
+    └── span.kids-answer__text
+```
+
+Die breite Karte liegt nie auf der Zeile - sonst saesse der Buchstabe mit auf
+ihr, und genau daran war die erste Fassung als Standard-UI zu erkennen.
 
 ## 5. Zustaende der Antworten
 
@@ -77,14 +92,28 @@ Flaeche `answer-incorrect` gedacht.
 
 ## 6. Layout
 
-- Raster und Anteile der Designreferenz: Bild 27 %, Frage 46 %, Karlchen 25 %.
+- Raster und Anteile der Designreferenz: Bild 27 %, Frage der Rest, Karlchen 25 %.
+- Zwischen Fragebild und Frageflaeche steht eine sichtbare Fuge von
+  `clamp(16px, 1.4cqw, 28px)`; beide beruehren sich nie.
 - Antwortzeilen und Loesungszeile enden bei 75 % der Breite, damit die
   Figurenflaeche frei bleibt.
 - Karlchen steht am unteren rechten Rand der **ganzen Ansicht**, nicht in der
-  Fragezeile - so steht er wie in der Referenz auf dem Boden.
+  Fragezeile - so steht er wie in der Referenz auf dem Boden. Er ist rund halb
+  so hoch wie die Ansicht (`clamp(240px, 51cqh, 560px)`) und praesentiert mit
+  dem ausgestreckten Fluegel nach links zu den Antworten.
+- Der kleine Karlchen schaut mittig ueber die obere Bildkante; seine Unterkante
+  steckt 8 bis 13 Pixel hinter der Rahmenzeichnung, damit die Haende auf dem
+  Rand aufzuliegen scheinen.
 - Ohne Fragebild uebernimmt die Frageflaeche die Bildspalte
   (`.kids-stage--textonly`). Die Reihenfolge Bild → Frage → Antworten aendert
   sich nie.
+
+### Wer gibt nach
+
+Die Fragezeile ist der nachgiebige Teil: Sie waechst in den freien Platz, damit
+die Komposition wie in der Referenz die ganze Hoehe traegt, und gibt ihn wieder
+her, sobald vier zweizeilige Antworten mehr Raum brauchen. Die Antwortzeilen
+geben nichts her - sie sind der Inhalt, um den es geht.
 
 ### Masseinheiten
 
@@ -103,12 +132,19 @@ wird doppelt gepflegt.
 
 ## 7. Schriften
 
-Fredoka traegt Frage, Punktestaende, Fragenzaehler und die Buchstaben A–D;
-Nunito die Antworten, Kategorien und Beschriftungen. Beide liegen als lokale
-WOFF2-Dateien (Latin und Latin Extended) im Projekt - der Betrieb ist offline,
-ein Font-CDN kommt nicht in Frage. Beide Familien stehen unter der SIL Open Font
-License. Punktestaende und Fragenzaehler nutzen `tabular-nums`, damit die
-Zahlen beim Hochzaehlen nicht springen.
+**Patrick Hand** (400) traegt alles Gelesene: Frage, Antworten, Kategorie,
+Beschriftungen und die Buchstaben A–D. **Fredoka Bold** (700) traegt
+ausschliesslich Punktestaende und Fragenzaehler - dort muessen Ziffern beim
+Hochzaehlen ruhig stehen (`tabular-nums`).
+
+Beide Schnitte kommen aus dem Assetpaket und liegen unter
+`apps/web/public/assets/kinderquiz/fonts/`. Sie werden bewusst nicht gebuendelt:
+Nur so behalten sie eine feste Adresse, die `apps/web/index.html` vorladen kann.
+`font-display: block` verhindert, dass auf der Buehne kurz eine Systemschrift zu
+sehen ist; der Rueckfall ist eine Schreibschrift, keine System-Sans.
+
+Es gibt **keine gerechnete Fettschrift**: Patrick Hand hat genau einen Schnitt,
+und jede Regel setzt `font-weight: 400`.
 
 ## 8. Abnahme
 
@@ -119,7 +155,13 @@ Zahlen beim Hochzaehlen nicht springen.
 - dreistellige Punktestaende, Zaehler `7/7`, Tabellenziffern
 - Zustandsabbildung `idle` / `selected` / `incorrect` / `correct` / `disabled`
   samt zugehoeriger Flaechen- und Chipdatei
-- kein CSS-Rahmen an Karten, Antworten, Bild, Spielerkarten und Zaehler
+- kein CSS-Rahmen, kein CSS-Radius, kein gerechneter Schatten an Karten,
+  Chips, Antworten, Bild, Spielerkarten und Zaehler
+- Chip und Antwortkarte als getrennte Flaechen mit sichtbarer Luecke
+- Patrick Hand fuer Text, Fredoka nur fuer Ziffern, beide wirklich geladen
+- sichtbare Fuge zwischen Fragebild und Frageflaeche
+- Karlchen 42 bis 52 Prozent der Bildhoehe, rechts, am Boden, ohne die
+  Antworten zu beruehren; kleiner Karlchen mittig ueber dem Bildrahmen
 - lange Texte in allen vier Zielformaten: kein Abschneiden, mehrzeilige Frage,
   zweizeilige Antworten, Chip in fester Groesse und mittig
 - Rueckfall ohne Fragebild
@@ -136,9 +178,11 @@ Fuer die Belastungsprobe hat die Entwicklungsvorschau den Schalter
    und stehen auf dem illustrierten Grund mit Papierfarben. Das Assetpaket
    enthaelt fuer diese Szenen keine Vorlagen; `generic-contour-9slice.svg` liegt
    fuer spaetere Karten bereit.
-2. **Karlchen-Figuren sind freigestellte PNGs** aus den Illustrationsreferenzen.
-   Liegen offizielle transparente Originaldateien vor, ersetzen sie die Dateien
-   unter `characters/` ohne Layoutaenderung.
+2. **Ein einziger Radius bleibt**: der Beschnitt des Fragefotos
+   (`.kids-media__image`). Er ist aus der Innenkontur von `media-frame.svg`
+   abgelesen und verhindert, dass rechtwinklige Fotoecken aus der gerundeten
+   Innenform der Zeichnung herausstehen (Assetpaket, Abschnitt 10). Alle
+   gezeichneten Bauteile sind radienfrei.
 3. **Die Wortmarke** ist das bereits im Projekt vorhandene freigegebene Asset
    (`apps/web/src/assets/images/logo.svg`), nicht die Zeichnung aus dem Paket.
 4. **Der Kindermodus hat noch keine eigenen Startgrafiken.** Startbild und

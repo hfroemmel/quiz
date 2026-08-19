@@ -4,6 +4,12 @@
  * `AnswerOption` deckt alle vier Antworten und alle Zustaende ab - es gibt
  * bewusst keine zweite Zeilenkomponente, die spaeter abweichen koennte.
  *
+ * ZWEI FLAECHEN, NICHT EINE: Buchstabenchip und Antwortkarte sind getrennte
+ * Geschwister mit einer sichtbaren Luecke dazwischen (Assetpaket, Abschnitt 6).
+ * Die breite Kartenzeichnung liegt ausschliesslich auf `.kids-answer__surface`;
+ * laege sie auf der Zeile, saesse der Chip auf derselben Karte und die Ansicht
+ * verloere genau den gezeichneten Aufbau der Designreferenz.
+ *
  * Die Zeilen sind KEINE Schaltflaechen: Auf der Buehne wird nicht geklickt.
  * Gespielt wird ueber Buzzer und Operator; der Screen zeigt nur den Zustand, den
  * der Server sendet.
@@ -35,16 +41,22 @@ function AnswerOption({
   state: ReturnType<typeof answerVisualState>
 }) {
   return (
-    <KidsSurface as="li" image={kidsAssets.answer[state]} className="kids-answer" data-state={state}>
+    <li className="kids-answer" data-state={state}>
       {/*
-        * Der Chip steht in einer festen Spalte. Er darf bei zweizeiligem Text
-        * weder mitwachsen noch nach unten rutschen - sonst tanzen die
-        * Buchstaben A bis D in der Senkrechten.
+        * Der Chip traegt seine eigene quadratische Zeichnung und steht in einer
+        * festen Spalte. Er darf bei zweizeiligem Text weder mitwachsen noch nach
+        * unten rutschen - sonst tanzen die Buchstaben A bis D in der Senkrechten.
         */}
-      <span className="kids-answer__chip" style={{ ['--kids-chip' as string]: `url(${kidsAssets.chip[state]})` }}>
+      <KidsSurface
+        as="span"
+        image={kidsAssets.chip[state]}
+        className="kids-answer__chip"
+      >
         {letter}
-      </span>
-      <span className="kids-answer__text">{text}</span>
-    </KidsSurface>
+      </KidsSurface>
+      <KidsSurface as="span" image={kidsAssets.answer[state]} className="kids-answer__surface">
+        <span className="kids-answer__text">{text}</span>
+      </KidsSurface>
+    </li>
   )
 }

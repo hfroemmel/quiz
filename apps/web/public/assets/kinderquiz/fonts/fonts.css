@@ -1,0 +1,17 @@
+@font-face {
+  font-family: "Patrick Hand";
+  src: url("./PatrickHand-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fredoka";
+  src: url("./Fredoka-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+}
+

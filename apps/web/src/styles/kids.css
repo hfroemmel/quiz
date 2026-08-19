@@ -1,5 +1,5 @@
 /*
- * Kinderquiz: illustrierte Karlchen-Welt.
+ * Kinderquiz: illustrierte Karlchen-Welt (Assetpaket Version 2).
  *
  * GELTUNGSBEREICH: ausschliesslich innerhalb von `.stage--kids`. Die dunkle
  * Buehne des Erwachsenenquiz und der gesamte Bedienrahmen bleiben unberuehrt.
@@ -10,50 +10,42 @@
  * dasselbe. In `cqw`/`cqh` gilt dieselbe Komposition zusaetzlich in der kleinen
  * Operatorvorschau, ohne dass irgendein Wert doppelt gepflegt werden muss.
  *
- * KEINE CSS-RAHMEN: Jede Kontur ist gezeichnet und kommt als SVG-Flaeche aus dem
- * Assetpaket (siehe `.kids-surface`). Ein `border` waere eine perfekte Linie und
- * wuerde die Handschrift der Illustration zerstoeren.
+ * KEINE CSS-KONTUREN: Rahmen, Radien, Ringe und gerechnete Schatten sind in
+ * dieser Welt verboten. Jede sichtbare Form kommt als SVG aus dem Assetpaket
+ * (siehe `.kids-surface`); die Zeichnungen tragen ihre eigenen unregelmaessigen
+ * Doppelkonturen und versetzten Schattenflaechen. Eine CSS-Linie waere perfekt
+ * und wuerde genau die Handschrift zerstoeren, um die es hier geht. Einzige
+ * Ausnahme ist der Beschnitt des Fragefotos - dazu die Anmerkung bei
+ * `.kids-media__image`.
  */
 
 /* ------------------------------------------------------------------ *
  * Schriften des Kinderquiz
  *
- * Fredoka traegt Frage, Zahlen und die Buchstaben A-D, Nunito die Antworten und
- * alle Beschriftungen. Beide liegen als lokale WOFF2-Dateien im Projekt; der
- * Betrieb ist offline, ein Font-CDN kommt nicht in Frage.
+ * Patrick Hand traegt alles Gelesene - Frage, Antworten, Kategorie,
+ * Beschriftungen und die Buchstaben A bis D. Fredoka Bold traegt
+ * ausschliesslich Punktestaende und Fragenzaehler, weil Ziffern dort stabil
+ * ausgerichtet stehen muessen.
+ *
+ * Beide Dateien liegen im Assetpaket unter `public/` und werden NICHT
+ * gebuendelt: So hat ihre Adresse eine feste Form, die `index.html` vorladen
+ * kann. `font-display: block` verhindert, dass auf der Buehne fuer einen
+ * Wimpernschlag eine Systemschrift zu sehen ist.
  * ------------------------------------------------------------------ */
 
 @font-face {
-  font-family: 'Fredoka';
-  src: url('../assets/fonts/Fredoka-latin.woff2') format('woff2');
-  font-weight: 300 700;
+  font-family: 'Patrick Hand';
+  src: url('/assets/kinderquiz/fonts/PatrickHand-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
   font-display: block;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
   font-family: 'Fredoka';
-  src: url('../assets/fonts/Fredoka-latin-ext.woff2') format('woff2');
-  font-weight: 300 700;
+  src: url('/assets/kinderquiz/fonts/Fredoka-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
   font-display: block;
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
-    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Nunito';
-  src: url('../assets/fonts/Nunito-latin.woff2') format('woff2');
-  font-weight: 400 900;
-  font-display: block;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Nunito';
-  src: url('../assets/fonts/Nunito-latin-ext.woff2') format('woff2');
-  font-weight: 400 900;
-  font-display: block;
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
-    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 /* ------------------------------------------------------------------ *
@@ -67,37 +59,51 @@
   --kids-red: #e63339;
   --kids-yellow: #ffd83d;
 
-  --kids-display: 'Fredoka', 'Arial Rounded MT Bold', Arial, sans-serif;
-  --kids-ui: 'Nunito', Arial, sans-serif;
+  /*
+   * Zwei Familien, mehr nicht. Der Rueckfall ist bewusst eine Schreibschrift
+   * und keine System-Sans: Faellt die Datei aus, sieht die Ansicht immer noch
+   * handgeschrieben aus statt wie ein Formular.
+   */
+  --kids-hand: 'Patrick Hand', 'Comic Sans MS', cursive;
+  --kids-numeric: 'Fredoka', 'Arial Rounded MT Bold', cursive;
 
   /* Layout: Aussenabstand, Fuge, Spaltenanteile der Designreferenz. */
   --kids-pad: clamp(16px, 1.8cqw, 36px);
   --kids-gap: clamp(10px, 1cqw, 20px);
+  /* Sichtbare Fuge zwischen Foto und Fragepanel - sie duerfen sich nie beruehren. */
+  --kids-stage-gap: clamp(16px, 1.4cqw, 28px);
+  /* Luecke zwischen Buchstabenchip und Antwortkarte. */
+  --kids-chip-gap: clamp(10px, 0.9cqw, 18px);
   --kids-content-width: 75%;
 
   /* Schriftgroessen: dieselben Werte wie im Paket, in Containereinheiten. */
-  --kids-size-question: clamp(28px, 2.15cqw, 48px);
-  --kids-size-answer: clamp(20px, 1.45cqw, 34px);
-  --kids-size-category: clamp(16px, 1cqw, 24px);
-  --kids-size-score: clamp(34px, 2.7cqw, 62px);
-  --kids-size-label: clamp(13px, 0.85cqw, 20px);
+  --kids-size-question: clamp(34px, 2.6cqw, 58px);
+  --kids-size-answer: clamp(24px, 1.75cqw, 39px);
+  --kids-size-category: clamp(18px, 1.15cqw, 27px);
+  --kids-size-score: clamp(30px, 2.4cqw, 56px);
+  --kids-size-label: clamp(14px, 0.95cqw, 22px);
 
   --kids-motion-normal: 260ms;
   --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
 
   color: var(--kids-ink);
-  font-family: var(--kids-ui);
+  font-family: var(--kids-hand);
+  font-weight: 400;
   /* Ebene 1: illustrierte Szene, rechts zentriert, formatfuellend. */
   background: var(--kids-scene) right center / cover no-repeat, linear-gradient(180deg, #a9d5ef, #d9d7f2);
 }
 
-/* Ebene 5: sehr dezente Papierkoernung ueber allem. */
+/*
+ * Ebene 5: Papierkoernung ueber allem - auch ueber Karten und Figuren, damit
+ * die Ansicht auf einem Blatt liegt statt aus Aufklebern zu bestehen. Sie ist
+ * dezent, aber sichtbar; `multiply` haelt sie an hellen Flaechen zurueck.
+ */
 .stage__grain {
   position: absolute;
   inset: 0;
   z-index: 6;
   pointer-events: none;
-  opacity: 0.32;
+  opacity: 0.4;
   mix-blend-mode: multiply;
   background: var(--kids-grain) repeat;
 }
@@ -140,7 +146,6 @@
   min-height: 0;
   padding: var(--kids-pad);
 }
-
 
 /* Kopfzeile: Wortmarke links, Spielerkarten mittig, Zaehler rechts. */
 .kids-header {
@@ -185,12 +190,13 @@
   line-height: 1;
 }
 .kids-score__label {
-  font-family: var(--kids-ui);
-  font-weight: 800;
+  font-family: var(--kids-hand);
+  font-weight: 400;
   font-size: var(--kids-size-label);
 }
+/* Nur die Ziffern tragen Fredoka - sie muessen beim Hochzaehlen ruhig stehen. */
 .kids-score__value {
-  font-family: var(--kids-display);
+  font-family: var(--kids-numeric);
   font-weight: 700;
   font-size: var(--kids-size-score);
   font-variant-numeric: tabular-nums;
@@ -207,12 +213,12 @@
   line-height: 1.05;
 }
 .kids-counter__label {
-  font-family: var(--kids-ui);
-  font-weight: 800;
+  font-family: var(--kids-hand);
+  font-weight: 400;
   font-size: var(--kids-size-label);
 }
 .kids-counter__value {
-  font-family: var(--kids-display);
+  font-family: var(--kids-numeric);
   font-weight: 700;
   font-size: var(--kids-size-score);
   font-variant-numeric: tabular-nums;
@@ -229,81 +235,128 @@
  */
 .kids-stage {
   display: grid;
-  grid-template-columns: 27% minmax(0, 46%) 25%;
-  gap: var(--kids-gap);
+  grid-template-columns: 27% minmax(0, 1fr) 25%;
+  gap: var(--kids-stage-gap);
+  /*
+   * Foto und Frageflaeche stehen gleich hoch nebeneinander. Deshalb stretch:
+   * Die Rahmenzeichnung traegt `preserveAspectRatio="none"` und ist genau dafuer
+   * gemacht; das Seitenverhaeltnis des Fotos regelt `object-fit`, nicht das
+   * Kaestchen darum.
+   */
   align-items: stretch;
+  /*
+   * Die Fragezeile ist der nachgiebige Teil der Ansicht: Sie waechst in den
+   * freien Platz, damit die Komposition wie in der Referenz die ganze Hoehe
+   * traegt, und sie gibt ihn wieder her, sobald vier zweizeilige Antworten
+   * darunter mehr Raum brauchen. Ohne das laufen lange Texte im 16:9-Format
+   * unten aus dem Bild.
+   */
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: clamp(200px, 38cqh, 440px);
 }
 /* Ohne Bild uebernimmt die Frageflaeche die Bildspalte. */
 .kids-stage--textonly {
-  grid-template-columns: minmax(0, 73%) 25%;
+  grid-template-columns: minmax(0, 1fr) 25%;
 }
 
 .kids-media {
   position: relative;
-  aspect-ratio: 620 / 420;
+  /*
+   * `min-width: 0` ist Pflicht, kein Zierrat: Als Rasterzelle wuerde die Spalte
+   * sonst auf die Eigenbreite des Fotos wachsen (automatische Mindestgroesse)
+   * und die Fuge zum Fragepanel auffressen.
+   */
+  min-width: 0;
+  min-height: 0;
+  /*
+   * Bewusst OHNE `aspect-ratio`: Die Zeile ist `stretch`, die Hoehe kommt also
+   * vom Fragepanel. Ein Seitenverhaeltnis wuerde daraus eine Breite ableiten,
+   * die Zelle ueberlaufen lassen und genau die Fuge schliessen, die hier
+   * sichtbar bleiben soll.
+   */
   padding: 2.5%;
 }
+/*
+ * Der einzige Radius dieser Welt. Das Foto ist kein gezeichnetes Bauteil,
+ * sondern Inhalt, der IM Rahmen liegt; ohne diesen Beschnitt wuerden seine
+ * rechtwinkligen Ecken aus der gerundeten Innenform der Rahmenzeichnung
+ * herausstehen (Assetpaket, Abschnitt 10). Der Wert ist aus der Innenkontur des
+ * SVG abgelesen, nicht frei gewaehlt.
+ */
 .kids-media__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: var(--kids-media-position, center);
-  border-radius: 2.2cqw;
+  border-radius: 4.8% / 7%;
 }
 /*
- * Karlchen schaut ueber die obere Bildkante. Er liegt HINTER der gezeichneten
- * Rahmenflaeche (`z-index: -2` gegen deren `-1`), damit nur Kopf und Fluegel
- * herausschauen und der Rest verdeckt bleibt - wie in der Referenz.
+ * Karlchen schaut ueber die obere Bildkante: mittig, mit beiden Haenden auf dem
+ * Rahmen. Er liegt HINTER der gezeichneten Rahmenflaeche (`z-index: -2` gegen
+ * deren `-1`), und seine Unterkante steckt ein Stueck weit dahinter - genau
+ * dadurch wirkt der gerade Anschnitt der Zeichnung wie ein Griff auf dem Rand.
  */
 .kids-media__peek {
   position: absolute;
-  right: 6%;
-  top: 0;
+  left: 50%;
+  bottom: 100%;
   z-index: -2;
-  width: clamp(52px, 5.4cqw, 90px);
-  transform: translateY(-45%);
+  width: min(32%, 200px);
+  /*
+   * Die Zeichnung endet bei 90,5 % der Bilddatei - darunter liegt durchsichtiger
+   * Rand. Er wird herausgerechnet, danach schiebt der zweite Summand die
+   * Unterkante um die verlangten 8 bis 14 Pixel hinter den Rahmen.
+   */
+  transform: translate(-50%, calc(9.5% + clamp(8px, 0.7cqw, 13px)));
   pointer-events: none;
 }
 
 .kids-panel {
   /* Platz fuer bis zu vier Fragezeilen, ohne feste Hoehe. */
-  min-height: clamp(140px, 19cqw, 380px);
-  padding: clamp(16px, 1.9cqw, 40px) clamp(18px, 2.2cqw, 46px);
+  /* Nur die Untergrenze - die Zielhoehe kommt aus der Fragezeile. */
+  min-height: clamp(110px, 20cqh, 240px);
+  padding: clamp(14px, 1.6cqw, 34px) clamp(16px, 1.9cqw, 40px);
 }
 .kids-panel__category {
-  margin: 0 0 clamp(6px, 0.7cqw, 14px);
-  font-family: var(--kids-ui);
-  font-weight: 800;
+  margin: 0 0 clamp(4px, 0.5cqw, 10px);
+  font-family: var(--kids-hand);
+  font-weight: 400;
   font-size: var(--kids-size-category);
   color: var(--kids-red);
 }
 .kids-panel__prompt {
   margin: 0;
-  font-family: var(--kids-display);
-  font-weight: 600;
+  font-family: var(--kids-hand);
+  font-weight: 400;
   font-size: var(--kids-size-question);
-  line-height: 1.12;
+  line-height: 1.04;
   text-wrap: balance;
 }
 
 /*
  * Karlchen steht am unteren rechten Rand der ganzen Ansicht, nicht in der
  * Fragezeile: In der Referenz steht die Figur auf dem Boden neben den
- * Antworten. Die Antwortzeilen enden bei 75 % der Breite, damit sie ihn nie
- * beruehren.
+ * Antworten, praesentiert mit dem ausgestreckten Fluegel nach links zu ihnen
+ * hinueber und reicht dabei bis weit ueber die halbe Bildhoehe.
+ *
+ * `z-index: -1` ist kein Schoenheitsfehler, sondern die Regel fuer schmale
+ * Ansichten: Dort darf die Figur hinter die Inhaltsflaeche rutschen statt zu
+ * verschwinden. In den breiten Formaten beruehrt sie den Text ohnehin nie.
  */
 .kids-mascot {
   position: absolute;
-  right: var(--kids-pad);
-  bottom: var(--kids-pad);
+  right: clamp(4px, 0.8cqw, 18px);
+  bottom: clamp(10px, 9cqh, 100px);
+  z-index: -1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-end;
   pointer-events: none;
 }
 .kids-mascot__figure {
-  /* Hoechstens rund 430 CSS-Pixel - so weit traegt die Quellaufloesung. */
-  height: clamp(180px, 40cqh, 430px);
+  /* Rund die Haelfte der Bildhoehe - die Quelle traegt 1170 Pixel. */
+  height: clamp(240px, 51cqh, 560px);
   width: auto;
 }
 
@@ -314,8 +367,8 @@
 .kids-solution-label {
   margin: 0;
   width: var(--kids-content-width);
-  font-family: var(--kids-ui);
-  font-weight: 800;
+  font-family: var(--kids-hand);
+  font-weight: 400;
   font-size: var(--kids-size-category);
 }
 
@@ -325,25 +378,31 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(6px, 0.7cqw, 14px);
+  gap: clamp(8px, 2.7cqh, 32px);
+  /* Die Antworten geben nichts her; nachgiebig ist die Fragezeile darueber. */
+  flex: 0 0 auto;
   /* Rechts bleibt die Figurenflaeche frei. */
   width: var(--kids-content-width);
 }
 
+/*
+ * Die Zeile selbst ist NUR Layout: zwei Spalten mit einer sichtbaren Luecke.
+ * Sie traegt keine Zeichnung - die liegt auf dem Chip und auf der Karte, und
+ * genau das ist der Unterschied zur Version 1, in der beides auf einer Flaeche
+ * sass.
+ */
 .kids-answer {
   display: grid;
-  grid-template-columns: clamp(52px, 5cqw, 86px) minmax(0, 1fr);
+  grid-template-columns: clamp(48px, 4.7cqw, 82px) minmax(0, 1fr);
   align-items: center;
-  gap: var(--kids-gap);
-  min-height: clamp(66px, 8.7cqh, 110px);
-  padding: clamp(10px, 1cqw, 20px) clamp(16px, 1.6cqw, 32px);
+  gap: var(--kids-chip-gap);
   color: var(--kids-ink);
   transition:
     color var(--kids-motion-normal) var(--kids-motion-easing),
     opacity var(--kids-motion-normal) var(--kids-motion-easing);
 }
 /* Die gewaehlte Antwort steht rot; nur dort wird der Text weiss. */
-.kids-answer[data-state='selected'] {
+.kids-answer[data-state='selected'] .kids-answer__text {
   color: #ffffff;
 }
 .kids-answer[data-state='disabled'] {
@@ -355,25 +414,32 @@
    * Feste Spalte, feste Groesse: Bei zweizeiligem Text darf der Buchstabe weder
    * mitwachsen noch nach unten rutschen.
    */
-  width: clamp(48px, 4.7cqw, 78px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   align-self: center;
-  background: var(--kids-chip) center / contain no-repeat;
-  font-family: var(--kids-display);
-  font-weight: 700;
-  font-size: clamp(26px, 2.3cqw, 46px);
+  font-family: var(--kids-hand);
+  font-weight: 400;
+  font-size: clamp(28px, 2.4cqw, 52px);
   line-height: 1;
+  /* Auch auf dem gelben Chip der gewaehlten Antwort bleibt der Buchstabe dunkel. */
   color: var(--kids-ink);
 }
 
+/* Die breite Kartenzeichnung - und nur sie - traegt den Antworttext. */
+.kids-answer__surface {
+  display: flex;
+  align-items: center;
+  min-height: clamp(58px, 8cqh, 104px);
+  padding: clamp(8px, 0.85cqw, 18px) clamp(16px, 1.6cqw, 34px);
+}
+
 .kids-answer__text {
-  font-family: var(--kids-ui);
-  font-weight: 700;
+  font-family: var(--kids-hand);
+  font-weight: 400;
   font-size: var(--kids-size-answer);
-  line-height: 1.15;
-  /* Kein Abschneiden: lange Antworten brechen um und die Zeile waechst mit. */
+  line-height: 1.08;
+  /* Kein Abschneiden: lange Antworten brechen um und die Karte waechst mit. */
   min-width: 0;
 }
 
@@ -385,17 +451,29 @@
  * ihre Flaechen die gezeichnete Papierfarbe und einen ruhigen Rand.
  * ------------------------------------------------------------------ */
 
-.stage--kids .scene {
-  font-family: var(--kids-ui);
-}
+/*
+ * Die gemeinsamen Szenen setzen ihre Schrift ueber `--font-heading` bzw.
+ * `--font-body` selbst - geerbt wird da nichts. Deshalb werden sie hier
+ * einzeln auf die Handschrift gestellt; sonst steht mitten in der Kinderwelt
+ * die Serifenschrift der dunklen Buehne.
+ */
+.stage--kids .scene,
 .stage--kids .question-head__prompt,
 .stage--kids .feedback__label,
 .stage--kids .result__winner,
 .stage--kids .pause__progress,
 .stage--kids .pause__category,
+.stage--kids .scene__hint,
+.stage--kids .tile__label {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+}
+/* Ziffern bleiben bei Fredoka - sie sollen beim Zaehlen ruhig stehen. */
 .stage--kids .progress-ring__seconds,
 .stage--kids .tile__value {
-  font-family: var(--kids-display);
+  font-family: var(--kids-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 .stage--kids .progress-ring__arc {
   stroke: var(--kids-ink);
@@ -414,7 +492,7 @@
 /* 4:3 und schmale Ansichten: Antworten duerfen breiter werden. */
 @container stage (max-width: 1099px) {
   .stage--kids {
-    --kids-content-width: 88%;
+    --kids-content-width: 86%;
     background-position: 72% center;
   }
   .kids-stage {
@@ -424,10 +502,10 @@
     grid-template-columns: minmax(0, 81%) 19%;
   }
   .kids-mascot__figure {
-    height: clamp(150px, 26cqw, 320px);
+    height: clamp(180px, 40cqh, 380px);
   }
   .kids-answer {
-    grid-template-columns: clamp(46px, 6cqw, 66px) minmax(0, 1fr);
+    grid-template-columns: clamp(44px, 6cqw, 70px) minmax(0, 1fr);
   }
 }
 
@@ -447,6 +525,7 @@
     position: absolute;
     right: 1cqw;
     top: 12cqw;
+    bottom: auto;
     opacity: 0.35;
   }
   .kids-mascot__figure {

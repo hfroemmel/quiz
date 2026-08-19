@@ -1,3 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
-  <path d="M17 5 C34 3 66 6 81 4 C89 8 93 16 91 28 L93 72 C92 84 86 90 76 91 C58 94 34 90 18 92 C8 89 4 82 6 72 L4 27 C4 16 9 8 17 5 Z" fill="#fff8e8" stroke="#172538" stroke-width="4" stroke-linejoin="round"/>
+  <defs><filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".065" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.8"/></filter></defs>
+  <path d="M17 9 C34 7 66 10 81 8 C89 12 93 20 91 32 L93 76 C92 88 86 94 76 95 C58 98 34 94 18 96 C8 93 4 86 6 76 L4 31 C4 20 9 12 17 9 Z" fill="#646c99" opacity=".2"/>
+  <path d="M17 5 C34 3 66 6 81 4 C89 8 93 16 91 28 L93 72 C92 84 86 90 76 91 C58 94 34 90 18 92 C8 89 4 82 6 72 L4 27 C4 16 9 8 17 5 Z" fill="#fff8e8" stroke="#172538" stroke-width="4" stroke-linejoin="round" filter="url(#rough)"/>
+  <path d="M20 9 C38 6 62 10 78 7" fill="none" stroke="#172538" stroke-opacity=".28" stroke-width="1.2" stroke-linecap="round"/>
 </svg>
