@@ -166,6 +166,7 @@ textarea {
   color: var(--color-text);
   cursor: pointer;
   transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+  text-decoration: none;
 }
 .button:hover:not(:disabled) {
   border-color: var(--color-accent);
@@ -354,7 +355,7 @@ textarea {
   align-items: center;
   justify-content: center;
   width: 7cqw;
-  padding: 0.8cqw 1.2cqw;
+  padding: 0.8cqw 1.2cqw 0.6cqw;
   background: var(--color-tile);
   border-radius: var(--radius);
   line-height: 1;
@@ -371,7 +372,7 @@ textarea {
   margin-bottom: 0.3cqw;
 }
 .tile__value {
-  font-size: 2.4cqw;
+  font-size: 3cqw;
   font-family: var(--font-heading);
   font-variant-numeric: tabular-nums;
 }
@@ -880,11 +881,9 @@ textarea {
 }
 .banner--warning {
   background: rgba(255, 195, 43, 0.16);
-  border: 1px solid var(--color-accent);
 }
 .banner--error {
   background: rgba(255, 92, 92, 0.16);
-  border: 1px solid var(--color-incorrect);
 }
 .banner__dismiss {
   background: none;
