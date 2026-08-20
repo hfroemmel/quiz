@@ -12,27 +12,27 @@
  */
 import { useMemo, useState } from 'react'
 import { kidsDesignColors, stageDesignColors } from '../../theme/designTokens.ts'
-import type { PublicQuizViewModel, PublicScene } from '@quiz/contracts'
+import type { PublicQuizViewModel, PublicScene, ThemeSkin } from '@quiz/contracts'
 import { gameTiming } from '@quiz/contracts'
-import { StageScreen } from '../../presentation/StageScreen.tsx'
+import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { transitions } from '../../presentation/transitions/registry.ts'
 import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
+import styles from './PreviewApp.module.css'
 
 /**
  * Themes der Vorschau - dieselben Werte wie im Quizpaket.
  *
- * Erwachsene und Saarbruecken tragen das kuehle System des Entwurfs. Der Modus
- * Kinder steht noch auf dem Graustufensystem, bis sein eigenes Farbsystem
- * geliefert wird.
+ * Es gibt genau zwei Gestaltungswelten: die Buehne der Erwachsenen und die
+ * illustrierte Kinderwelt. Der Modus Saarbruecken benutzt das Theme der
+ * Erwachsenen und taucht hier deshalb nicht eigens auf.
  */
 const THEMES: Record<string, Record<string, string>> = {
   default: stageDesignColors,
   kids: kidsDesignColors,
-  regional: stageDesignColors,
 }
 
 /** Gestaltungswelt je Theme - wie im Quizpaket. */
-const SKINS: Record<string, 'stage' | 'kids'> = { default: 'stage', kids: 'kids', regional: 'stage' }
+const SKINS: Record<string, ThemeSkin> = { default: 'default', kids: 'kids' }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
 
@@ -58,17 +58,17 @@ export function PreviewApp() {
 
   if (!import.meta.env.DEV) {
     return (
-      <div className="preview preview--disabled">
+      <div className={`${styles.preview} ${styles.disabled}`}>
         <p>Die Entwicklungsansicht ist nur im Entwicklungsmodus verfügbar.</p>
       </div>
     )
   }
 
   return (
-    <div className="preview">
-      <aside className="preview__panel">
+    <div className={styles.preview} data-preview="">
+      <aside className={styles.panel} data-preview-panel="">
         <h1>Szenen- und Animationsvorschau</h1>
-        <p className="preview__note">
+        <p className={styles.note}>
           Nur Entwicklung. Kein Server, keine Befehle, kein Einfluss auf ein laufendes Spiel.
         </p>
 
@@ -137,12 +137,12 @@ export function PreviewApp() {
           Uebergang erneut abspielen
         </button>
 
-        <p className="preview__reduced">
+        <p className={styles.reduced}>
           Reduzierte Bewegung ist aktuell <strong>{prefersReducedMotion() ? 'aktiv' : 'inaktiv'}</strong>.
         </p>
 
         <h2>Registrierte Übergänge</h2>
-        <ul className="preview__transitions">
+        <ul className={styles.transitions}>
           {transitions.map((definition) => (
             <li key={definition.id}>
               <code>{definition.id}</code>
@@ -152,13 +152,13 @@ export function PreviewApp() {
                 {definition.reducedMotionDurationMs} ms bei reduzierter Bewegung
               </span>
               <p>{definition.description}</p>
-              {definition.locked && <p className="preview__locked">Feste Dauer: {definition.locked}</p>}
+              {definition.locked && <p className={styles.locked}>Feste Dauer: {definition.locked}</p>}
             </li>
           ))}
         </ul>
       </aside>
 
-      <div className="preview__stage">
+      <div className={styles.stage} data-preview-stage="" style={themeVariables(view)}>
         <StageScreen key={runId} view={view} serverNow={() => view.serverTimeMs} isAudioMaster={false} />
       </div>
     </div>
@@ -227,7 +227,7 @@ function buildSampleView(input: {
     phase: 'question-presented',
     theme: {
       id: input.themeId,
-      skin: SKINS[input.themeId] ?? 'stage',
+      skin: SKINS[input.themeId] ?? 'default',
       colors: THEMES[input.themeId] ?? THEMES['default']!,
       startVisualUrl: previewStartVisual,
       startTitle: 'Bundestags-Quiz',

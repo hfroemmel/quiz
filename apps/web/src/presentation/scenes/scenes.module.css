@@ -1,0 +1,253 @@
+/*
+ * Szenen der Buehne.
+ *
+ * Hier steht, was ALLE Szenen gemeinsam haben und was die einzelnen Szenen
+ * ausmacht, die keine eigene Komponentendatei brauchen (Start, Pause,
+ * Rueckmeldung, Enthuellung, Video, Ergebnis).
+ *
+ * Frage- und Loesungsszene bestehen fast nur aus Bauteilen; ihre Regeln stehen
+ * deshalb bei den Bauteilen und nicht hier.
+ */
+
+/*
+ * Abstaende und Ausrichtung kommen als Token von der Buehne. So kann jede Szene
+ * sie an sich selbst ueberschreiben, ohne dass ein Wettlauf um die Spezifitaet
+ * entsteht: Eine Angabe AM Element sticht jeden geerbten Wert.
+ */
+.scene {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: var(--scene-align);
+  justify-content: flex-start;
+  min-height: 0;
+  text-align: var(--scene-text-align);
+  gap: var(--scene-gap);
+  padding: var(--scene-pad);
+}
+
+.start {
+  justify-content: center;
+  --scene-gap: 0;
+}
+.startVisual,
+.pauseLogo {
+  max-width: 46cqw;
+  max-height: 55cqh;
+  object-fit: contain;
+}
+.startTitle {
+  margin: 0;
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+.pause {
+  justify-content: center;
+}
+.pauseLogo {
+  opacity: 0.35;
+}
+.pauseProgress {
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 2.8cqw;
+  margin: 0;
+}
+/*
+ * Rubrik der kommenden Frage. Sie laeuft dem Fragezaehler kurz hinterher, damit
+ * der Blick erst die Nummer und dann das Thema aufnimmt.
+ */
+.pauseCategory {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 4.4cqw;
+  font-weight: 700;
+  color: var(--color-text);
+  animation: pause-category-in 600ms var(--transition-easing) 400ms backwards;
+}
+.pausePlaceholder {
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+}
+
+/* Bilderkennen */
+.revealStage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4cqw;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.countdown {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/*
+ * Regiehinweis unter dem Ring - nur in der Operatorvorschau sichtbar.
+ * Absolut positioniert, damit sein Erscheinen den Countdown nicht verschiebt.
+ */
+.revealHint {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.8cqw;
+  white-space: nowrap;
+  color: var(--color-textMuted);
+  font-size: 1.2cqw;
+}
+
+/* Video */
+.video {
+  justify-content: center;
+}
+.videoError {
+  color: var(--color-textMuted);
+  font-size: 1.6cqw;
+}
+
+/* Rueckmeldung */
+.feedback {
+  justify-content: center;
+  --scene-gap: 0;
+  /*
+   * Mittig in der GESAMTEN Buehnenflaeche, nicht nur in dem Rest unter der
+   * Kopfzeile. Die Kopfzeile ist rund 8 cqw hoch; zusaetzliche Polsterung unten
+   * verschiebt den zentrierten Block um ihre Haelfte nach oben.
+   */
+  padding-bottom: 11cqw;
+  /* Kantenlaenge der Bewegtgrafik - alles andere richtet sich danach. */
+  --feedback-size: 16cqw;
+  /*
+   * Anteil der Kantenlaenge, um den das Wort an die Grafik heranrueckt. Die
+   * beiden gelieferten Grafiken haben unterschiedlich viel transparenten Rand:
+   * Der Haken schwingt mit Funken weit aus, das Kreuz sitzt eng im Bild und
+   * braucht deshalb umgekehrt zusaetzlichen Abstand - dafuer ist der Wert negativ.
+   */
+  --feedback-pull: -0.04;
+}
+/*
+ * Richtig darf groesser feiern als falsch. Der Haken ist der Moment, auf den der
+ * Saal wartet; das Kreuz bleibt bewusst zurueckhaltend.
+ */
+.feedback[data-outcome='correct'] {
+  --feedback-size: 34cqw;
+  --feedback-pull: 0.22;
+}
+.feedbackSymbol {
+  width: var(--feedback-size);
+  aspect-ratio: 1;
+  line-height: 1;
+}
+/*
+ * Die gelieferten Bewegtgrafiken haben rundum transparenten Rand - er gehoert zum
+ * Ausschwingen der Animation. Der Ausgleich muss deshalb mit der Grafik wachsen,
+ * sonst klebt das Wort bei der kleinen Grafik und schwebt bei der grossen.
+ */
+.feedbackLabel {
+  margin: calc(var(--feedback-size) * var(--feedback-pull) * -1) 0 0;
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+}
+
+/* Loesung */
+.solutionLabel {
+  margin: 0;
+  align-self: flex-start;
+  color: var(--color-text);
+  font-size: 1.6cqw;
+}
+
+/* Ergebnis */
+.result {
+  justify-content: center;
+  --scene-gap: 1.2cqw;
+}
+.resultLabel {
+  /* Die Aussage steht in der Ueberschrift; das Etikett bleibt fuer Tests und
+     Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.resultWinner {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 400;
+  font-family: var(--font-heading);
+}
+.resultScores {
+  display: flex;
+  gap: 1.6cqw;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen
+ * ------------------------------------------------------------------ */
+
+
+/*
+ * In der Loesung steht die richtige Antwort oben - das ist die Aussage der
+ * Szene. Umgestellt wird ausschliesslich die Darstellung; die Reihenfolge im
+ * Markup bleibt die des Servers. Der Zuschlag unten stellt den groesseren
+ * Abstand zu den uebrigen Zeilen her, den die Szene vorher als eigene Gruppe
+ * hatte.
+ */
+:global(.stage--default) .solution :global([data-state='correct']) {
+  order: -1;
+  margin-bottom: 1.2cqw;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt
+ * ------------------------------------------------------------------ */
+
+/*
+ * In der Kinderwelt stehen Frage und Loesung linksbuendig - die Komposition
+ * liest sich von der Bildkante her. Alle uebrigen Szenen bleiben mittig.
+ */
+:global(.stage--kids) .question,
+:global(.stage--kids) .solution {
+  --scene-align: flex-start;
+  --scene-text-align: left;
+  /* Die Kopfzeile bringt ihren eigenen oberen Abstand mit. */
+  padding-top: var(--kids-gap);
+}
+:global(.stage--kids) .solutionLabel {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+  font-size: var(--kids-size-category);
+}
+/*
+ * Die gemeinsamen Szenen setzen ihre Schrift ueber `--font-heading` selbst -
+ * geerbt wird da nichts. Deshalb werden sie hier auf die Handschrift gestellt;
+ * sonst steht mitten in der Kinderwelt die Serifenschrift der Buehne.
+ */
+:global(.stage--kids) .scene,
+:global(.stage--kids) .feedbackLabel,
+:global(.stage--kids) .resultWinner,
+:global(.stage--kids) .pauseProgress,
+:global(.stage--kids) .pauseCategory,
+:global(.stage--kids) .startTitle,
+:global(.stage--kids) .pausePlaceholder,
+:global(.stage--kids) .videoError,
+:global(.stage--kids) .revealHint {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+}
+
+/* Reduzierte Bewegung: Die Rubrik erscheint ohne Nachlauf. */
+@media (prefers-reduced-motion: reduce) {
+  .pauseCategory {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}

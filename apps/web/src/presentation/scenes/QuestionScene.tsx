@@ -7,16 +7,17 @@
  * Aufbau nach Entwurf:
  *   mit Bild   Bild links, Rubrik und Frage rechts daneben
  *   ohne Bild  Rubrik und Frage ueber die volle Breite
- *   darunter   die Antwortleisten, jeweils ueber die volle Breite
+ *   darunter   die Antwortzeilen
  *
  * Die Optionsreihenfolge kommt vom Server (pro Spiel gemischt); der Client sortiert
  * nichts um. Sie erscheinen erst, wenn der Server sie mitsendet - also nach
  * "Starten". Der Zustand einer Option kommt ebenfalls vom Server.
  */
-import { presentationTiming } from '../animationPresets.ts'
-import { MediaFrame } from '../../ui/MediaFrame.tsx'
-import { OptionBar, optionLetter } from '../../ui/OptionBar.tsx'
-import { QuestionHead } from './QuestionHead.tsx'
+import { AnswerList } from '../stage/AnswerList.tsx'
+import { answerState, optionLetter } from '../stage/answerState.ts'
+import { QuestionHead } from '../stage/QuestionHead.tsx'
+import { SecondChanceHint } from '../stage/SecondChanceHint.tsx'
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function QuestionScene({ view }: SceneProps) {
@@ -25,36 +26,19 @@ export function QuestionScene({ view }: SceneProps) {
   const options = view.visibleOptions ?? []
 
   return (
-    <div className={`scene scene--question ${question.imageUrl ? 'scene--question-with-image' : ''}`}>
-      <QuestionHead question={question} media={<MediaFrame src={question.imageUrl} />} />
+    <div className={`${styles.scene} ${styles.question}`}>
+      <QuestionHead question={question} imageUrl={question.imageUrl} />
 
-      {view.secondChance && (
-        <p className="scene__hint">Zweite Chance · {view.secondChance.pointsIfCorrect} Punkte</p>
-      )}
+      {view.secondChance && <SecondChanceHint points={view.secondChance.pointsIfCorrect} />}
 
-      {options.length > 0 && (
-        <ul className="option-list">
-          {options.map((option, index) => (
-            <li key={option.id}>
-              <OptionBar
-                letter={optionLetter(index)}
-                text={option.text}
-                tone={
-                  option.state === 'correct'
-                    ? 'solution'
-                    : // Verbrauchte Option: in der zweiten Chance sichtbar ausgeschlossen.
-                      option.state === 'chosen-incorrect'
-                      ? 'muted'
-                      : option.state === 'chosen'
-                        ? 'chosen'
-                        : 'neutral'
-                }
-                delayMs={index * presentationTiming.optionStaggerMs}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      <AnswerList
+        rows={options.map((option, index) => ({
+          id: option.id,
+          letter: optionLetter(index),
+          text: option.text,
+          state: answerState(option, view.scene),
+        }))}
+      />
     </div>
   )
 }

@@ -1,0 +1,219 @@
+/*
+ * Antwortzeilen.
+ *
+ * Chip und Antwortflaeche sind zwei getrennte Flaechen. Der Zustand steht als
+ * `data-state` an der Zeile; wie er aussieht, entscheidet die jeweilige Welt.
+ */
+
+.answers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.answer {
+  display: flex;
+  align-items: stretch;
+}
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.surface {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.text {
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen: Milchglasleisten
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default) .answers {
+  gap: 0.8cqw;
+}
+:global(.stage--default) .answer {
+  /* Buchstabe und Zeile gehoeren zusammen - der Spalt ist nur eine Fuge. */
+  gap: 0.25cqw;
+  border-radius: var(--stage-radius);
+  animation: option-enter var(--transition-duration) var(--transition-easing) backwards;
+}
+:global(.stage--default) .chip {
+  min-width: 3.4cqw;
+  padding: 0.8cqw 0;
+  background: var(--color-tile);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+  font-family: var(--font-heading);
+  font-size: 1.9cqw;
+  font-weight: 700;
+}
+:global(.stage--default) .surface {
+  justify-content: center;
+  padding: 0.8cqw 1.2cqw;
+  background: var(--color-option);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+  font-size: 1.9cqw;
+  font-family: var(--font-heading);
+}
+:global(.stage--default) .answer[data-state='selected'] .surface {
+  background: var(--color-accent);
+}
+:global(.stage--default) .answer[data-state='correct'] .surface {
+  background: var(--color-solution);
+}
+:global(.stage--default) .answer[data-state='correct'] .chip {
+  background: var(--color-solutionChip);
+}
+/*
+ * Verbraucht oder in der Loesung zurueckgenommen: beides tritt gleich weit
+ * zurueck. Zwei verschiedene Graustufen wuerden eine Bedeutung suggerieren,
+ * die es nicht gibt.
+ */
+:global(.stage--default) .answer[data-state='incorrect'] .surface,
+:global(.stage--default) .answer[data-state='incorrect'] .chip,
+:global(.stage--default) .answer[data-state='disabled'] .surface,
+:global(.stage--default) .answer[data-state='disabled'] .chip {
+  color: var(--color-textMuted);
+  background: color-mix(in srgb, var(--color-option) 55%, transparent);
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt: gezeichnete Karten, je Zeile eine eigene Kontur
+ * ------------------------------------------------------------------ */
+
+:global(.stage--kids) .answers {
+  gap: 1cqh;
+  /* Rechts bleibt die Figurenflaeche frei. */
+  width: var(--kids-content-width);
+  /* Die Antworten geben nichts her; nachgiebig ist die Fragezeile darueber. */
+  flex: 0 0 auto;
+}
+:global(.stage--kids) .answer {
+  align-items: center;
+  gap: var(--kids-chip-gap);
+  color: var(--kids-ink);
+  transition:
+    color var(--kids-motion-normal) var(--kids-motion-easing),
+    opacity var(--kids-motion-normal) var(--kids-motion-easing);
+}
+:global(.stage--kids) .chip {
+  width: 4.7cqw;
+  aspect-ratio: 1;
+  align-self: center;
+  font-family: var(--kids-numeric);
+  font-weight: 700;
+  font-size: 2.8cqw;
+  padding: 0.2cqw 0 0;
+  line-height: 1;
+  position: relative;
+  isolation: isolate;
+}
+:global(.stage--kids) .surface {
+  min-height: 8cqh;
+  padding: 0.85cqw 1.6cqw;
+  position: relative;
+  isolation: isolate;
+}
+/*
+ * Die Zeichnungen liegen als Pseudoelement HINTER dem Inhalt: So bleibt das
+ * Innenmass von Chip und Karte vom Strich der Kontur unberuehrt.
+ */
+:global(.stage--kids) .chip::before,
+:global(.stage--kids) .surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.25cqw;
+  border-image-slice: 24 fill;
+  border-image-width: 1.25cqw;
+  border-image-outset: 0;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+:global(.stage--kids) .chip::before {
+  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-a.svg');
+}
+:global(.stage--kids) .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-a.svg');
+}
+:global(.stage--kids) .text {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+  font-size: var(--kids-size-answer);
+  line-height: 1.08;
+}
+/*
+ * Im Entwurf hat jede Zeile ihre eigene, anders wackelnde Kontur. Zeile B liegt
+ * nur in Rot vor und leiht sich im Ruhezustand die Nachbarzeichnung.
+ */
+:global(.stage--kids) .answer:nth-child(2) .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-d.svg');
+}
+:global(.stage--kids) .answer:nth-child(2) .chip::before {
+  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-d.svg');
+}
+:global(.stage--kids) .answer:nth-child(3) .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-c.svg');
+}
+:global(.stage--kids) .answer:nth-child(3) .chip::before {
+  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-c.svg');
+}
+:global(.stage--kids) .answer:nth-child(4) .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-d.svg');
+}
+:global(.stage--kids) .answer:nth-child(4) .chip::before {
+  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-d.svg');
+}
+/* Zustaende stechen die Zeilenzeichnung aus. */
+:global(.stage--kids) .answer[data-state='selected'] .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-b.svg');
+}
+:global(.stage--kids) .answer[data-state='selected'] .chip::before {
+  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-b.svg');
+}
+:global(.stage--kids) .answer[data-state='selected'] .text {
+  color: #ffffff;
+}
+:global(.stage--kids) .answer[data-state='correct'] .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-correct.svg');
+}
+:global(.stage--kids) .answer[data-state='incorrect'] .surface::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-incorrect.svg');
+}
+:global(.stage--kids) .answer[data-state='disabled'] {
+  opacity: 0.55;
+}
+
+/*
+ * Helle Fassung: Auf den farbigen Flaechen wird der Text hell. Im Dunkeln
+ * traegt er ohnehin die helle Textfarbe; auf Papier waere er dort dunkel auf
+ * kraeftigem Grund und damit schlecht lesbar.
+ */
+:global(.stage--bright) .answer[data-state='selected'] .surface,
+:global(.stage--bright) .answer[data-state='correct'] .surface,
+:global(.stage--bright) .answer[data-state='correct'] .chip {
+  color: #ffffff;
+}
+
+/* Reduzierte Bewegung: Die Zeilen stehen sofort, statt nacheinander einzulaufen. */
+@media (prefers-reduced-motion: reduce) {
+  .answer {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -11,6 +11,7 @@
  */
 import { useEffect, useRef } from 'react'
 import type { Command } from '@quiz/contracts'
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 interface VideoSceneProps extends SceneProps {
@@ -43,11 +44,11 @@ export function VideoScene({ view, isAudioMaster = true, onReport }: VideoSceneP
   if (!question) return null
 
   return (
-    <div className="scene scene--video">
+    <div className={`${styles.scene} ${styles.video}`}>
       {question.videoUrl ? (
         <video
           ref={elementRef}
-          className="video__player"
+          className={styles.videoPlayer}
           src={question.videoUrl}
           muted={!isAudioMaster}
           playsInline
@@ -57,11 +58,11 @@ export function VideoScene({ view, isAudioMaster = true, onReport }: VideoSceneP
           onError={() => onReport?.({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' })}
         />
       ) : (
-        <div className="video__missing">
+        <div className={styles.videoMissing}>
           <p>Kein Video hinterlegt.</p>
         </div>
       )}
-      {video?.hasError && <p className="video__error">Video nicht verfügbar.</p>}
+      {video?.hasError && <p className={styles.videoError}>Video nicht verfügbar.</p>}
     </div>
   )
 }

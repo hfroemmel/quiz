@@ -1,0 +1,160 @@
+/*
+ * Punktekarte eines Spielers.
+ *
+ * Aufbau und Markup sind in beiden Welten gleich; unterschieden wird
+ * ausschliesslich ueber die Klasse an der Buehne. Die Grundregeln stehen oben,
+ * darunter je Welt nur das, was sie wirklich anders macht.
+ */
+
+.score {
+  display: flex;
+  align-items: stretch;
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.label {
+  letter-spacing: 0.02em;
+}
+.value {
+  font-variant-numeric: tabular-nums;
+}
+/* Die Sterne liegen ueber der Punktezelle, ohne Platz zu nehmen. */
+.cellPoints {
+  position: relative;
+}
+.stars {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 9cqw;
+  aspect-ratio: 1;
+  transform: translate(-50%, 25%);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen: zwei aneinanderstossende Milchglaskacheln
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default) .cell {
+  width: 7cqw;
+  padding: 1cqw 1.2cqw 0.6cqw;
+  /* Milchglas: halbtransparent mit Weichzeichnung, ohne Rahmen. */
+  background: var(--color-tile);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+}
+:global(.stage--default) .cellPoints {
+  min-width: 7cqw;
+}
+:global(.stage--default) .label {
+  /* Beschriftungen in der Groteske, Werte in der Serifenschrift. */
+  font-family: var(--font-ui);
+  font-size: 1cqw;
+  color: var(--color-textMuted);
+  margin-bottom: 0.3cqw;
+}
+:global(.stage--default) .value {
+  font-size: 3cqw;
+  font-family: var(--font-heading);
+}
+/* Der Spieler am Zug traegt die Akzentfarbe, ein gesperrter die ruhige. */
+:global(.stage--default) .score[data-active='true'] .cellPlayer {
+  background: var(--color-accent);
+}
+:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer {
+  background: var(--color-accentQuiet);
+}
+/* Innen aneinanderstossend, aussen abgerundet - die Karte wirkt als ein Block. */
+:global(.stage--default) .cell:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+:global(.stage--default) .cell:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+/* Ergebnisansicht: dieselbe Karte, groesser. */
+:global(.stage--default) .result .cell {
+  min-width: 9cqw;
+  padding: 1cqw 2cqw 1.4cqw;
+}
+:global(.stage--default) .result .label {
+  font-size: 1.2cqw;
+}
+:global(.stage--default) .result .value {
+  font-size: 4cqw;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt: eine gezeichnete Papierkarte mit farbigem Feld
+ * ------------------------------------------------------------------ */
+
+/*
+ * Die Zeichnung wird per 9-Slice gestreckt: Ecken bleiben unverzerrt, Kanten
+ * und Mitte strecken sich. Das farbige Feld endet in beiden Kartenzeichnungen
+ * bei rund 47 Prozent der Breite - daher das feste Spaltenverhaeltnis. Nahe am
+ * Seitenverhaeltnis der Zeichnung (215 x 104) bleiben: Wird die Karte deutlich
+ * flacher gestreckt, schiebt sich das Feld ueber die linke Kontur hinaus.
+ */
+:global(.stage--kids) .score {
+  display: grid;
+  grid-template-columns: 47% 1fr;
+  align-items: center;
+  min-width: 13.5cqw;
+  min-height: 9.6cqh;
+  padding: 0.6cqw 0 0.8cqw;
+  position: relative;
+  isolation: isolate;
+}
+/* Die Zeichnung liegt als Pseudoelement HINTER dem Inhalt: So bleibt das
+   Innenmass der Karte vom Strich der Kontur unberuehrt. */
+:global(.stage--kids) .score::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.35cqw;
+  border-image: url('/assets/kinderquiz/boxes/chip-score-player1.svg') 26 fill / 1.35cqw / 0 stretch;
+  pointer-events: none;
+}
+:global(.stage--kids) .mirrored::before {
+  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player2.svg');
+}
+/*
+ * Wer nicht am Zug ist, tritt zurueck. Das Boxen-Paket kennt keine eigene
+ * Aktiv-Zeichnung; eine gerechnete Kontur kaeme nicht in Frage.
+ */
+:global(.stage--kids) .score[data-active='false'] {
+  opacity: 0.72;
+}
+:global(.stage--kids) .label {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+  font-size: var(--kids-size-label);
+  padding: 0.5cqh 0;
+}
+/* Nur die Ziffern tragen Melior - sie muessen beim Hochzaehlen ruhig stehen. */
+:global(.stage--kids) .value {
+  font-family: var(--kids-numeric);
+  font-weight: 700;
+  font-size: var(--kids-size-score);
+}
+/* Die Kinderwelt feiert mit ihren eigenen Mitteln - ohne Sternegrafik. */
+:global(.stage--kids) .stars {
+  display: none;
+}
+
+/* Helle Fassung: Der Spieler am Zug traegt seine Farbe kraeftig - Text hell. */
+:global(.stage--bright) .score[data-active='true'] .cellPlayer,
+:global(.stage--bright) .score[data-active='true'] .cellPlayer .label {
+  color: #ffffff;
+}

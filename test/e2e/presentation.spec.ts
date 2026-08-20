@@ -13,83 +13,83 @@
 import { expect, test, type Page } from '@playwright/test'
 
 async function selectScene(page: Page, scene: string): Promise<void> {
-  await page.locator('.preview__panel select').first().selectOption(scene)
+  await page.locator('[data-preview-panel] select').first().selectOption(scene)
   await expect(page.locator('.stage')).toHaveAttribute('data-scene', scene)
 }
 
 async function selectTheme(page: Page, theme: string): Promise<void> {
-  await page.locator('.preview__panel select').nth(1).selectOption(theme)
+  await page.locator('[data-preview-panel] select').nth(1).selectOption(theme)
 }
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/preview')
-  await expect(page.locator('.preview__stage')).toBeVisible()
+  await expect(page.locator('[data-preview-stage]')).toBeVisible()
 })
 
 test.describe('Visuelle Smoke-Tests aller Szenen', () => {
   test('Startbild zeigt nur Branding', async ({ page }) => {
     await selectScene(page, 'start')
-    await expect(page.locator('.scene--start')).toBeVisible()
+    await expect(page.locator('.stage[data-scene="start"]')).toBeVisible()
     // Auf dem Startbild darf keine Frage stehen.
-    await expect(page.locator('.question-head__prompt')).toHaveCount(0)
+    await expect(page.locator('[data-prompt]')).toHaveCount(0)
   })
 
   test('Pausenscreen zeigt keine Frageninhalte', async ({ page }) => {
     await selectScene(page, 'pause')
-    await expect(page.locator('.scene--pause')).toBeVisible()
-    await expect(page.locator('.question-head__prompt')).toHaveCount(0)
-    await expect(page.locator('.option-bar')).toHaveCount(0)
+    await expect(page.locator('.stage[data-scene="pause"]')).toBeVisible()
+    await expect(page.locator('[data-prompt]')).toHaveCount(0)
+    await expect(page.locator('[data-answer]')).toHaveCount(0)
   })
 
   test('Frageszene zeigt die eingeloggte Antwort, aber keinen Loesungshinweis', async ({ page }) => {
     await selectScene(page, 'question')
-    await expect(page.locator('.question-head__prompt')).toBeVisible()
-    await expect(page.locator('.option-bar')).toHaveCount(4)
+    await expect(page.locator('[data-prompt]')).toBeVisible()
+    await expect(page.locator('[data-answer]')).toHaveCount(4)
     // Die Festlegung des Spielers ist oeffentlich - genau eine Leiste ist markiert.
-    await expect(page.locator('.option-bar--chosen')).toHaveCount(1)
+    await expect(page.locator('[data-answer][data-state="selected"]')).toHaveCount(1)
     // Ob sie stimmt, verraet die Buehne erst in der Loesungsszene.
-    await expect(page.locator('.option-bar--solution')).toHaveCount(0)
+    await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
   test('Bilderkennen zeigt Countdown und unscharfes Bild', async ({ page }) => {
     await selectScene(page, 'reveal')
-    await expect(page.locator('.reveal__seconds')).toBeVisible()
-    await expect(page.locator('.media-frame--reveal .media-frame__image')).toBeVisible()
+    await expect(page.locator('[data-seconds]')).toBeVisible()
+    await expect(page.locator('[data-media][data-variant="reveal"] [data-media-image]')).toBeVisible()
   })
 
   test('Videoszene zeigt die Videoflaeche', async ({ page }) => {
     await selectScene(page, 'video')
-    await expect(page.locator('.scene--video')).toBeVisible()
+    await expect(page.locator('.stage[data-scene="video"]')).toBeVisible()
   })
 
   test('Feedbackszene zeigt Richtig und Falsch unterschiedlich', async ({ page }) => {
     await selectScene(page, 'feedback')
-    await expect(page.locator('.scene--feedback-correct')).toBeVisible()
-    await expect(page.locator('.animation-clip[data-clip="correct"]')).toBeVisible()
+    await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="correct"]')).toBeVisible()
+    await expect(page.locator('[data-clip="correct"]')).toBeVisible()
 
-    await page.locator('.preview__panel select').nth(2).selectOption('incorrect')
-    await expect(page.locator('.scene--feedback-incorrect')).toBeVisible()
-    await expect(page.locator('.animation-clip[data-clip="wrong"]')).toBeVisible()
+    await page.locator('[data-preview-panel] select').nth(2).selectOption('incorrect')
+    await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="incorrect"]')).toBeVisible()
+    await expect(page.locator('[data-clip="wrong"]')).toBeVisible()
     // Die Falsch-Animation darf die Loesung nicht vorwegnehmen.
-    await expect(page.locator('.solution__answer')).toHaveCount(0)
+    await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
   test('Loesungsszene faerbt ausschliesslich die richtige Antwort', async ({ page }) => {
     await selectScene(page, 'solution')
-    await expect(page.locator('.solution__answer')).toBeVisible()
-    await expect(page.locator('.option-bar--solution')).toHaveCount(1)
+    await expect(page.locator('[data-answer][data-state="correct"]')).toBeVisible()
+    await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(1)
     // Auch eine vorher gewaehlte falsche Antwort tritt hier zurueck.
-    await expect(page.locator('.option-bar--chosen')).toHaveCount(0)
+    await expect(page.locator('[data-answer][data-state="selected"]')).toHaveCount(0)
   })
 
   test('Ergebnisszene zeigt Konfetti nur bei einem Gewinner', async ({ page }) => {
     await selectScene(page, 'result')
-    await expect(page.locator('.result__label')).toHaveText('Gewinner')
-    await expect(page.locator('.confetti')).toHaveCount(1)
+    await expect(page.locator('[data-result-label]')).toHaveText('Gewinner')
+    await expect(page.locator('[data-confetti]')).toHaveCount(1)
 
     await page.getByRole('checkbox', { name: 'Unentschieden (kein Konfetti)' }).check()
-    await expect(page.locator('.result__label')).toHaveText('Unentschieden')
-    await expect(page.locator('.confetti')).toHaveCount(0)
+    await expect(page.locator('[data-result-label]')).toHaveText('Unentschieden')
+    await expect(page.locator('[data-confetti]')).toHaveCount(0)
   })
 })
 
@@ -110,7 +110,8 @@ test.describe('Themes', () => {
   test('jeder Modus setzt den vollstaendigen Tokensatz auf der Buehne', async ({ page }) => {
     await selectScene(page, 'question')
 
-    for (const theme of ['default', 'kids', 'regional']) {
+    // Es gibt genau zwei Gestaltungswelten - Saarbruecken benutzt die der Erwachsenen.
+    for (const theme of ['default', 'kids']) {
       await selectTheme(page, theme)
       const missing = await page.locator('.stage').evaluate((element, tokens) => {
         const style = getComputedStyle(element)
@@ -124,12 +125,12 @@ test.describe('Themes', () => {
 test.describe('Enthuellung: Countdown und Bildschaerfe stammen aus derselben Quelle', () => {
   test('Schaerfe und Countdown laufen synchron', async ({ page }) => {
     await selectScene(page, 'reveal')
-    const slider = page.locator('.preview__panel input[type="range"]')
+    const slider = page.locator('[data-preview-panel] input[type="range"]')
 
     const readState = async () => ({
-      seconds: Number(await page.locator('.reveal__seconds').textContent()),
+      seconds: Number(await page.locator('[data-seconds]').textContent()),
       blur: await page
-        .locator('.media-frame--reveal .media-frame__image')
+        .locator('[data-media][data-variant="reveal"] [data-media-image]')
         .evaluate((element) => Number.parseFloat((element as HTMLElement).style.filter.replace(/[^\d.]/g, ''))),
     })
 
@@ -165,13 +166,13 @@ test.describe('Reduzierte Bewegung', () => {
 
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.reload()
-    await expect(page.locator('.preview__stage')).toBeVisible()
+    await expect(page.locator('[data-preview-stage]')).toBeVisible()
     await selectScene(page, 'question')
     // Reduced-Motion-Fallback der Definition question-enter.
     expect(await readDuration()).toBe('140ms')
 
     await selectScene(page, 'result')
-    await expect(page.locator('.confetti')).toBeHidden()
+    await expect(page.locator('[data-confetti]')).toBeHidden()
   })
 })
 
@@ -180,14 +181,14 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.reload()
-    await expect(page.locator('.preview__stage')).toBeVisible()
+    await expect(page.locator('[data-preview-stage]')).toBeVisible()
   })
 
   for (const scene of ['question', 'solution', 'result', 'pause'] as const) {
     test(`Szene ${scene}`, async ({ page }) => {
       await selectScene(page, scene)
       await page.waitForTimeout(300)
-      await expect(page.locator('.preview__stage')).toHaveScreenshot(`scene-${scene}.png`, {
+      await expect(page.locator('[data-preview-stage]')).toHaveScreenshot(`scene-${scene}.png`, {
         maxDiffPixelRatio: 0.02,
         animations: 'disabled',
       })

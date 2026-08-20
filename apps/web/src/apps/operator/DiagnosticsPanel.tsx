@@ -8,6 +8,7 @@
 import { useState } from 'react'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
+import styles from './DiagnosticsPanel.module.css'
 
 export function DiagnosticsPanel({
   view,
@@ -25,11 +26,11 @@ export function DiagnosticsPanel({
   const [confirmNewDay, setConfirmNewDay] = useState(false)
 
   return (
-    <section className="diagnostics">
+    <section className={`${styles.diagnostics} ${styles.compact}`}>
       <details>
-        <summary>Technik, Protokoll und Verbindung</summary>
+        <summary data-diagnostics-summary="">Technik, Protokoll und Verbindung</summary>
 
-        <dl className="diagnostics__facts">
+        <dl className={styles.facts} data-diagnostics-facts="">
           <div>
             <dt>Quizpaket</dt>
             <dd>{diagnostics.contentVersion}</dd>
@@ -40,7 +41,7 @@ export function DiagnosticsPanel({
           </div>
           <div>
             <dt>Session-Code (Moderator)</dt>
-            <dd className="diagnostics__code">{diagnostics.sessionCode ?? '-'}</dd>
+            <dd className={styles.code}>{diagnostics.sessionCode ?? '-'}</dd>
           </div>
           <div>
             <dt>Verbundene Clients</dt>
@@ -54,24 +55,24 @@ export function DiagnosticsPanel({
         </dl>
 
         {diagnostics.lanUrls && diagnostics.lanUrls.length > 0 && (
-          <p className="diagnostics__lan">
+          <p className={styles.lan}>
             Moderatoransicht im Netzwerk: {diagnostics.lanUrls.map((url) => `${url}/moderator`).join(', ')}
           </p>
         )}
 
         {diagnostics.selectionRationale && (
-          <p className="diagnostics__rationale">Fragenauswahl: {diagnostics.selectionRationale}</p>
+          <p className={styles.rationale}>Fragenauswahl: {diagnostics.selectionRationale}</p>
         )}
 
         {diagnostics.warnings.length > 0 && (
-          <ul className="diagnostics__warnings">
+          <ul className={styles.warnings}>
             {diagnostics.warnings.map((warning, index) => (
               <li key={index}>{warning}</li>
             ))}
           </ul>
         )}
 
-        <div className="controls__row">
+        <div className={styles.actions}>
           <a className="button" href="/api/export/changes" target="_blank" rel="noreferrer">
             Änderungsbericht exportieren
           </a>
@@ -82,12 +83,12 @@ export function DiagnosticsPanel({
           )}
         </div>
 
-        <h3 className="diagnostics__title">Protokoll</h3>
-        <ol className="audit">
+        <h3 className={styles.title}>Protokoll</h3>
+        <ol className={styles.audit}>
           {view.auditSummary.map((entry) => (
-            <li key={entry.id} className={`audit__entry audit__entry--${entry.category}`}>
+            <li key={entry.id} className={`${styles.entry} ${entry.category === 'score' ? styles.entryScore : entry.category === 'buzzer' ? styles.entryBuzzer : ''}`}>
               <time>{new Date(entry.atMs).toLocaleTimeString('de-DE')}</time>
-              <span className="audit__role">{entry.actorRole}</span>
+              <span className={styles.role}>{entry.actorRole}</span>
               <span>{entry.message}</span>
             </li>
           ))}

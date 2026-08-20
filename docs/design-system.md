@@ -262,9 +262,39 @@ Die drei Modi der Startansicht (`Kinder`, `Erwachsene`, `Saarbruecken`) kommen a
 `catalog.modes`. Das Layout ist auf drei Eintraege ausgelegt; mehr Eintraege
 laufen in eine zweite Zeile, statt die Leiste zu stauchen.
 
-**Offene Zulieferung:** Die Farbsysteme fuer `Kinder` und `Saarbruecken` liegen
-noch nicht vor. Bis dahin erben beide Modi die Werte von `Erwachsene`; nur der
-Startbildschirm unterscheidet sich bereits (Kindermaskottchen auf `#C9284F`).
+## Zwei Gestaltungswelten, zwei Fassungen
+
+Es gibt genau **zwei Gestaltungswelten** (`theme.skin`):
+
+| Welt | Klasse an der Buehne | Wer sie nutzt |
+|---|---|---|
+| `default` | `.stage--default` | Erwachsene und Saarbruecken |
+| `kids` | `.stage--kids` | Kinder |
+
+Beide teilen sich **dasselbe Markup**. Der einzige Unterschied ist die Klasse an
+der Buehnenflaeche; jedes Bauteil bringt beide Welten in seinem eigenen CSS-Modul
+mit (`:global(.stage--default)` / `:global(.stage--kids)`). Modusabhaengige
+Komponenten oder Klassennamen gibt es nicht - `Score`, nicht `KidsScore`.
+
+Die Welt `default` hat zusaetzlich **zwei Fassungen**:
+
+| Fassung | Klasse | Wirkung |
+|---|---|---|
+| dunkel | `.stage--dark` | die Werte des Quizmodus, unveraendert |
+| hell | `.stage--bright` | dieselben achtzehn Token in einer hellen Tafel |
+
+Die Fassung aendert **ausschliesslich Farben, Transparenzen, Konturen und
+Schatten**. Schriften, Bauteile, Positionen und Abstaende sind in beiden
+identisch. Sie ist eine Ansichtssache des Bedienenden - sie steht im
+`localStorage`, nicht im Snapshot, und der Server weiss nichts davon. Umgeschaltet
+wird im Kopf der Operatoransicht, links neben dem Vollbildschalter; im
+Kindermodus entfaellt der Schalter, weil diese Welt ihr eigenes Papier mitbringt.
+
+**Warum die Themewerte am Rahmen stehen und nicht an der Buehne:** `themeVariables`
+liefert die achtzehn Token als Inline-Stil, und ein Inline-Stil schlaegt jede
+Klassenregel. Stuenden sie an der Buehne selbst, koennte `.stage--bright` seine
+Farben nicht mehr setzen. Vom umgebenden Rahmen aus werden sie geerbt - und eine
+Angabe am Element sticht jeden geerbten Wert.
 
 ## Typografie
 
@@ -373,22 +403,39 @@ Die Umsetzung folgt drei Ebenen. Eine Ebene darf nur die darunterliegende
 benutzen - das haelt die Oberflaeche frei von Sonderfaellen.
 
 ```text
-Ebene 1  Tokens          styles/tokens.css, themeToCssVariables()
-Ebene 2  Primitive       Tile, ActionButton, OptionBar, CircleBadge, ProgressRing,
-                         SectionLabel, MediaFrame
-Ebene 3  Bereiche        StageHeader, StageScreen (+ Szenen), OperatorChrome,
-                         ControlBar, PrivateAnswerPanel
+Ebene 1  Global          styles/tokens.css, base.css, controls.css, motion.css,
+                         stage.css - bewusst keine Module
+Ebene 2  Bauteile        presentation/stage/* und ui/*, je ein *.module.css
+Ebene 3  Bereiche        StageScreen (+ Szenen), OperatorApp, ModeratorApp,
+                         PreviewApp, je ein *.module.css
 ```
 
-| Primitiv | Aufgabe | Varianten |
-|---|---|---|
-| `Tile` | Kachel mit kleiner Beschriftung und grossem Wert | `player`, `score`, `progress`, `result` |
-| `ActionButton` | Schaltflaeche der Bedienleiste | `default`, `primary`, `quiet`, plus Zustand aus der Matrix |
-| `OptionBar` | Antwortzeile mit Buchstabenchip | `neutral`, `chosen`, `solution`, `chipless` |
-| `CircleBadge` | Kreis mit Symbol | `correct`, `incorrect` |
-| `ProgressRing` | Enthuellungsring mit Sekundenzahl | `running`, `paused`, `completed` |
-| `MediaFrame` | Bildrahmen mit Bildnachweis und Schaerfegrad | `inline`, `reveal`, `solution` |
+Nur fuenf Stylesheets sind global, und jedes aus einem Grund:
 
-Jedes Primitiv kennt nur Tokens und seine eigenen Varianten. Kein Primitiv liest
-das View-Modell, kein Primitiv sendet Befehle. Damit ist jede visuelle Aenderung
-eine Aenderung an genau einer Datei.
+| Datei | Warum global |
+|---|---|
+| `tokens.css` | Variablen am Wurzelelement |
+| `base.css` | Schriften, Reset, Grundtypografie |
+| `controls.css` | `.button` und `.field` - jede Ansicht darf sie benutzen |
+| `motion.css` | das Uebergangsregistry setzt Klassennamen als Zeichenkette |
+| `stage.css` | `.stage--default` / `.stage--kids` / `.stage--bright` - der Schalter, auf den alle Bauteilmodule ueber `:global(...)` zugreifen |
+
+| Bauteil | Aufgabe | Varianten |
+|---|---|---|
+| `Score` | Punktekarte eines Spielers | `header`, `result`, gespiegelt |
+| `Counter` | Fragenzaehler | - |
+| `QuestionHead` | Medium und Fragetafel | mit und ohne Bild |
+| `Media` | Bildrahmen mit Schaerfegrad | `inline`, `reveal`, `solution` |
+| `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
+| `SecondChanceHint` | Hinweis auf die zweite Chance | - |
+| `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
+| `ProgressRing` | Enthuellungsring mit Sekundenzahl | laufend, pausiert |
+
+Jedes Bauteil kennt nur Tokens und seine eigenen Varianten. Kein Bauteil liest
+das View-Modell, keines sendet Befehle, und keines kennt den Namen eines Modus.
+Damit ist jede visuelle Aenderung eine Aenderung an genau einer Datei.
+
+**Testhaken:** Klassennamen sind gehasht und taugen nicht als Selektor. Die
+Bauteile tragen dafuer stabile Datenattribute (`data-answer`, `data-panel`,
+`data-score`, `data-counter`, `data-media`, `data-prompt` ...); der Zustand einer
+Antwortzeile steht in `data-state`.

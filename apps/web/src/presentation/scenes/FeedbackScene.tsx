@@ -14,6 +14,7 @@
  * Animation in der Punktekachel der Kopfzeile hoch (Designergaenzung).
  */
 import { AnimationClip } from '../../ui/AnimationClip.tsx'
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function FeedbackScene({ view }: SceneProps) {
@@ -21,15 +22,15 @@ export function FeedbackScene({ view }: SceneProps) {
   const correct = feedback?.outcome === 'correct'
 
   return (
-    <div className={`scene scene--feedback ${correct ? 'scene--feedback-correct' : 'scene--feedback-incorrect'}`}>
-      <div className="feedback__symbol">
+    <div className={`${styles.scene} ${styles.feedback}`} data-outcome={correct ? 'correct' : 'incorrect'}>
+      <div className={styles.feedbackSymbol}>
         <AnimationClip
           clipId={correct ? 'correct' : 'wrong'}
           // Ein neuer Versuch desselben Spielers startet die Grafik neu.
           restartKey={`${feedback?.playerId ?? 'none'}-${feedback?.outcome ?? 'none'}-${view.revision}`}
         />
       </div>
-      <p className="feedback__label">{correct ? 'Richtig!' : 'Falsch!'}</p>
+      <p className={styles.feedbackLabel}>{correct ? 'Richtig!' : 'Falsch!'}</p>
     </div>
   )
 }

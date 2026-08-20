@@ -8,6 +8,8 @@
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
+import shell from './OperatorApp.module.css'
+import styles from './StartPanel.module.css'
 
 export function StartPanel({ view, send }: { view: OperatorQuizViewModel; send: (command: Command) => void }) {
   const catalog = view.catalog
@@ -27,15 +29,15 @@ export function StartPanel({ view, send }: { view: OperatorQuizViewModel; send: 
   const canStart = view.allowedCommands.includes('START_GAME') && modeId && presetId
 
   return (
-    <div className="start-panel">
+    <div className={shell.startArea} data-start-panel="">
       {view.resumable && (
-        <section className="resume" role="status">
+        <section className={styles.resume} role="status">
           <h2>Unterbrochenes Spiel gefunden</h2>
           <p>
             Modus {view.resumable.quizModeId}, Preset {view.resumable.presetId}, Stand: {view.resumable.progress}.
             Eine laufende Bildenthüllung wurde sicherheitshalber pausiert wiederhergestellt.
           </p>
-          <div className="controls__row">
+          <div className={styles.buttonRow}>
             <button className="button button--primary" onClick={() => send({ type: 'RESUME_GAME' })}>
               Spiel fortsetzen
             </button>
@@ -49,7 +51,7 @@ export function StartPanel({ view, send }: { view: OperatorQuizViewModel; send: 
         </section>
       )}
 
-      <section className="start-panel__form">
+      <section className={styles.form} data-start-form="">
         <h2>Neues Spiel</h2>
 
         <label className="field">

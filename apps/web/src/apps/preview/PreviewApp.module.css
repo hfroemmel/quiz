@@ -1,0 +1,76 @@
+/*
+ * Szenen- und Animationsvorschau.
+ *
+ * Nur Entwicklung: Bedienspalte links, Buehnenflaeche rechts. Sie traegt die
+ * Farben des Bedienrahmens (`--ui-*`) - die Buehne daneben ist das einzige
+ * Feld, das die Farben des Quizmodus zeigt.
+ */
+
+.preview {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  height: 100%;
+}
+.disabled {
+  display: grid;
+  place-items: center;
+}
+.panel {
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--ui-surface);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+.panel h1 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.panel h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ui-text-muted);
+  margin: 20px 0 8px;
+}
+.note,
+.reduced {
+  color: var(--ui-text-muted);
+  font-size: 0.85rem;
+}
+.transitions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 0.82rem;
+}
+.transitions li {
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.transitions code {
+  display: block;
+  color: var(--ui-accent);
+  font-weight: 700;
+}
+.transitions span,
+.transitions p {
+  color: var(--ui-text-muted);
+  margin: 4px 0 0;
+}
+.locked {
+  color: var(--ui-incorrect) !important;
+}
+.stage {
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .preview {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 60vh;
+  }
+}

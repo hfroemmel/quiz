@@ -6,6 +6,7 @@
  * gar nicht erst uebertragen.
  */
 import type { ModeratorQuizViewModel } from '@quiz/contracts'
+import styles from './PrivatePanel.module.css'
 
 export function PrivatePanel({ view }: { view: ModeratorQuizViewModel }) {
   const solution = view.privateSolution
@@ -13,13 +14,13 @@ export function PrivatePanel({ view }: { view: ModeratorQuizViewModel }) {
   if (!solution && !explanation) return null
 
   return (
-    <section className="private" aria-label="Private Informationen">
+    <section className={styles.private} aria-label="Private Informationen">
       {solution && (
-        <div className="private__block">
+        <div className={styles.block}>
           <h3>Richtige Antwort</h3>
-          <p className="private__answer">{solution.answerText}</p>
+          <p className={styles.answer} data-private-answer="">{solution.answerText}</p>
           {solution.acceptedAnswerText && solution.acceptedAnswerText.length > 1 && (
-            <p className="private__accepted">
+            <p className={styles.accepted}>
               Ebenfalls akzeptabel: {solution.acceptedAnswerText.slice(1).join(', ')}
             </p>
           )}
@@ -27,27 +28,27 @@ export function PrivatePanel({ view }: { view: ModeratorQuizViewModel }) {
       )}
 
       {explanation?.summary && (
-        <div className="private__block">
+        <div className={styles.block}>
           <h3>Zusatzinformation</h3>
           <p>{explanation.summary}</p>
         </div>
       )}
       {explanation?.details && (
-        <div className="private__block">
+        <div className={styles.block}>
           <h3>Hintergrund</h3>
           <p>{explanation.details}</p>
         </div>
       )}
       {explanation?.moderatorNotes && (
-        <div className="private__block private__block--notes">
+        <div className={`${styles.block} ${styles.notes}`}>
           <h3>Regiehinweis</h3>
           <p>{explanation.moderatorNotes}</p>
         </div>
       )}
       {explanation?.source && (
-        <div className="private__block">
+        <div className={styles.block}>
           <h3>Quelle</h3>
-          <p className="private__source">{explanation.source}</p>
+          <p className={styles.source}>{explanation.source}</p>
         </div>
       )}
     </section>

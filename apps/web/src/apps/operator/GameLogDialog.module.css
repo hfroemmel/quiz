@@ -1,0 +1,36 @@
+/* Spielprotokoll: eine Zeile je Modus, Zahlen rechtsbuendig und tabellarisch. */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.table th,
+.table td {
+  padding: 6px 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--ui-border);
+}
+.table th {
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ui-text-muted);
+}
+/* Elementselektor schlaegt Klasse - deshalb hier ausdruecklich mit td/th. */
+.table td.number,
+.table th.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.table td.when,
+.table th.when {
+  text-align: right;
+  color: var(--ui-text-muted);
+  white-space: nowrap;
+}
+.table tfoot td {
+  border-bottom: none;
+  font-weight: 700;
+}

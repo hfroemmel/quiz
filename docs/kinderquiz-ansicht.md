@@ -26,25 +26,39 @@ Die Welt haengt am **Theme**, nicht am Modusnamen:
 { "id": "kids", "skin": "kids", "colors": { … } }
 ```
 
-`quizThemeSchema.skin` (`stage` | `kids`) wird ueber das View-Modell an die
-Buehne durchgereicht. `StageScreen` liest `view.theme.skin` - im Client steht
-nirgends ein Modusname. Ein weiterer Modus bekommt die Kinderwelt damit ohne
-Codeaenderung.
+`quizThemeSchema.skin` (`default` | `kids`) wird ueber das View-Modell an die
+Buehne durchgereicht. `StageScreen` macht daraus die EINZIGE Klasse, in der sich
+die beiden Welten unterscheiden:
+
+```text
+.stage.stage--default   .stage.stage--kids
+```
+
+Im Client steht nirgends ein Modusname, und es gibt keine kinderspezifischen
+Komponenten mehr: Kopfzeile, Fragetafel und Antwortzeilen sind dieselben
+Bauteile wie auf der Buehne der Erwachsenen. Jedes Bauteil bringt beide Welten
+in seinem eigenen CSS-Modul mit (`:global(.stage--kids)`). Ein weiterer Modus
+bekommt die Kinderwelt damit ohne Codeaenderung.
 
 ## 3. Dateien
 
 ```text
 apps/web/public/assets/kinderquiz/     Assetpaket (boxes/, characters/, fonts/)
-apps/web/src/styles/kids.css           Farben, Layout, Zustaende, Breakpoints
-apps/web/src/presentation/kids/
-├── kidsAssets.ts                      einzige Stelle mit Assetpfaden
-├── answerVisualState.ts               einzige Ableitung des Antwortzustands
-├── KidsSurface.tsx                    gezeichnete Flaeche hinter beliebigem Inhalt
-├── KidsQuizScreen.tsx                 Komposition, Szenenabdeckung
-├── QuizHeader.tsx                     Wortmarke, Spielerkarten, Fragenzaehler
-├── QuestionStage.tsx                  Fragebild, Fragepanel, Karlchen
-└── AnswerList.tsx                     Antwortzeilen (eine Komponente fuer alle vier)
+apps/web/src/styles/stage.css          Wurzelklassen und Token beider Welten
+apps/web/src/presentation/stage/
+├── StageHeader.tsx / .module.css      Wortmarke, Spielerkarten, Fragenzaehler
+├── Score.tsx / .module.css            Punktekarte
+├── Counter.tsx / .module.css          Fragenzaehler
+├── QuestionHead.tsx / .module.css     Fragebild und Fragetafel
+├── Media.tsx / .module.css            Bildrahmen samt hervorschauender Figur
+├── AnswerList.tsx / .module.css       Antwortzeilen
+├── Mascot.tsx / .module.css           Figurenebene
+├── answerState.ts                     einzige Ableitung des Antwortzustands
+└── kidsAssets.ts                      Liste der vorzuladenden Zeichnungen
 ```
+
+Die Adressen der Zeichnungen stehen in den Stylesheets der Bauteile, nicht im
+Markup: Welche Zeichnung ein Zustand traegt, ist eine Frage der Gestaltung.
 
 ## 4. Ebenen
 

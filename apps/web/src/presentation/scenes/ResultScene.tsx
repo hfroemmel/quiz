@@ -13,8 +13,8 @@
  * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
 import { Confetti } from '../../components/Confetti.tsx'
-import { ScoreTile } from '../ScoreTile.tsx'
-import { Tile } from '../../ui/Tile.tsx'
+import { Score } from '../stage/Score.tsx'
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function ResultScene({ view }: SceneProps) {
@@ -25,25 +25,15 @@ export function ResultScene({ view }: SceneProps) {
   const [playerOne, playerTwo] = result.scores
 
   return (
-    <div className="scene scene--result">
+    <div className={`${styles.scene} ${styles.result}`}>
       {!result.isDraw && <Confetti />}
 
-      <p className="result__label">{result.isDraw ? 'Unentschieden' : 'Gewinner'}</p>
-      <h2 className="result__winner">{result.isDraw ? 'Unentschieden!' : `${winner?.label} hat gewonnen!`}</h2>
+      <p className={styles.resultLabel} data-result-label="">{result.isDraw ? 'Unentschieden' : 'Gewinner'}</p>
+      <h2 className={styles.resultWinner}>{result.isDraw ? 'Unentschieden!' : `${winner?.label} hat gewonnen!`}</h2>
 
-      <div className="result__scores">
-        {playerOne && (
-          <div className="result__group">
-            <Tile label="Spieler" value={playerOne.label.replace(/\D+/g, '') || '1'} size="result" />
-            <ScoreTile score={playerOne.score} size="result" />
-          </div>
-        )}
-        {playerTwo && (
-          <div className="result__group result__group--mirrored">
-            <ScoreTile score={playerTwo.score} size="result" />
-            <Tile label="Spieler" value={playerTwo.label.replace(/\D+/g, '') || '2'} size="result" />
-          </div>
-        )}
+      <div className={styles.resultScores}>
+        {playerOne && <Score label={playerOne.label} score={playerOne.score} size="result" />}
+        {playerTwo && <Score label={playerTwo.label} score={playerTwo.score} size="result" mirrored />}
       </div>
     </div>
   )

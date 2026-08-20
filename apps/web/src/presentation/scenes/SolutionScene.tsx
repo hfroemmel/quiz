@@ -5,17 +5,22 @@
  * klaren Abschlusszustand. Der Moderator hat jetzt Zeit zu sprechen - die App
  * wechselt NICHT automatisch weiter.
  *
- * Aufbau nach Entwurf: Kopfzone wie in der Frage, darunter die Zeile
- * "Richtige Antwort:" und der Loesungsbalken ueber die volle Breite. Bei
- * Auswahlfragen traegt er den Buchstaben der richtigen Option, bei freien
- * Antworten steht er ohne Chip.
+ * Aufbau: Kopfzone wie in der Frage, darunter die Zeile "Richtige Antwort:" und
+ * die Antwortzeilen. Bei Auswahlfragen stehen alle Optionen in der Reihenfolge
+ * des Servers, und nur die richtige traegt Farbe; bei freien Antworten steht
+ * eine einzelne Zeile ohne Buchstaben.
+ *
+ * WO DIE RICHTIGE ZEILE STEHT, ist Sache der Gestaltungswelt: Die Buehne der
+ * Erwachsenen zieht sie im Stylesheet nach oben, die Kinderwelt laesst sie an
+ * ihrem Platz. Das Markup ist in beiden Faellen dasselbe.
  *
  * Alle hier sichtbaren Daten kommen aus `visibleSolution` bzw. `visibleOptions`, die
  * der Server ausschliesslich in dieser Szene mitsendet.
  */
-import { MediaFrame } from '../../ui/MediaFrame.tsx'
-import { OptionBar, optionLetter } from '../../ui/OptionBar.tsx'
-import { QuestionHead } from './QuestionHead.tsx'
+import { AnswerList, type AnswerRow } from '../stage/AnswerList.tsx'
+import { answerState, optionLetter } from '../stage/answerState.ts'
+import { QuestionHead } from '../stage/QuestionHead.tsx'
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function SolutionScene({ view }: SceneProps) {
@@ -23,43 +28,31 @@ export function SolutionScene({ view }: SceneProps) {
   if (!solution) return null
 
   const options = view.visibleOptions ?? []
-  const correctIndex = options.findIndex((option) => option.state === 'correct')
-  const remaining = options.filter((option) => option.state !== 'correct')
+  const rows: AnswerRow[] =
+    options.length > 0
+      ? options.map((option, index) => ({
+          id: option.id,
+          letter: optionLetter(index),
+          text: option.text,
+          state: answerState(option, view.scene),
+        }))
+      : // Freie Antwort - etwa beim Bilderkennen: eine Zeile, kein Buchstabe.
+        [{ id: 'solution', text: solution.answerText, state: 'correct' }]
 
   return (
-    <div className="scene scene--solution">
+    <div className={`${styles.scene} ${styles.solution}`}>
       {view.question && (
         <QuestionHead
           question={view.question}
-          media={<MediaFrame src={solution.imageUrl ?? view.question.imageUrl} variant="solution" />}
+          imageUrl={solution.imageUrl ?? view.question.imageUrl}
+          variant="solution"
         />
       )}
 
-      <p className="solution__label">Richtige Antwort:</p>
-      <div className="solution__answer">
-        <OptionBar
-          letter={correctIndex >= 0 ? optionLetter(correctIndex) : undefined}
-          text={solution.answerText}
-          tone="solution"
-        />
-      </div>
-
-      {remaining.length > 0 && (
-        <ul className="option-list option-list--solution">
-          {remaining.map((option) => (
-            <li key={option.id}>
-              {/*
-                * In der Loesungsszene traegt NUR die richtige Antwort eine Farbe.
-                * Alle uebrigen treten gleichmaessig zurueck - auch die, die ein
-                * Spieler vorher gewaehlt hatte. Zwei farbige Leisten
-                * nebeneinander wuerden die Aussage der Szene aufweichen.
-                */}
-              <OptionBar letter={optionLetter(options.indexOf(option))} text={option.text} tone="muted" />
-            </li>
-          ))}
-        </ul>
-      )}
-
+      <p className={styles.solutionLabel} data-solution-label="">
+        Richtige Antwort:
+      </p>
+      <AnswerList rows={rows} />
     </div>
   )
 }

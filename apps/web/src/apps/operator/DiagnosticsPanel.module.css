@@ -1,0 +1,102 @@
+/*
+ * Technik, Protokoll und Verbindung.
+ *
+ * Der Bereich steht zusammengeklappt im Fussbereich: Er wird selten gebraucht,
+ * muss aber im Zweifel sofort erreichbar sein.
+ */
+
+.diagnostics {
+  padding: 0 16px 24px;
+}
+/*
+ * Im Fussbereich steht die Diagnose als eine Zeile neben dem Spielprotokoll -
+ * ohne eigenen Aussenabstand und mit kleinerer Beschriftung. Die Variante steht
+ * hier und nicht beim Fussbereich: Wie sich dieser Bereich schmal macht, weiss
+ * er selbst am besten.
+ */
+.compact {
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+.compact summary {
+  padding: 10px 0;
+  font-size: 0.85rem;
+}
+.diagnostics summary {
+  cursor: pointer;
+  color: var(--ui-text-muted);
+  padding: 8px 0;
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+.facts dt {
+  font-size: 0.75rem;
+  color: var(--ui-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+.code {
+  font-family: ui-monospace, monospace;
+  font-size: 1.3rem;
+  letter-spacing: 0.14em;
+  color: var(--ui-accent);
+}
+.lan,
+.rationale {
+  color: var(--ui-text-muted);
+  font-size: 0.9rem;
+}
+.warnings {
+  border-left: 3px solid var(--ui-incorrect);
+  padding-left: 12px;
+  color: var(--ui-incorrect);
+}
+.title {
+  margin: 16px 0 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ui-text-muted);
+}
+.audit {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+.entry {
+  display: grid;
+  grid-template-columns: 78px 84px 1fr;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+.entry time,
+.role {
+  color: var(--ui-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.entryScore {
+  color: var(--ui-accent);
+}
+.entryBuzzer {
+  color: var(--ui-accent);
+}
+
+/* Zeile mit den technischen Schaltflaechen (Export, neuer Veranstaltungstag). */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

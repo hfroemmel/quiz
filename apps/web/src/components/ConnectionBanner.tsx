@@ -4,6 +4,8 @@
  * Jede Meldung nennt eine sichere naechste Aktion. Technische Details bleiben im
  * Serverprotokoll und erscheinen nie auf dem Buehnenscreen.
  */
+
+import styles from './ConnectionBanner.module.css'
 export function ConnectionBanner({
   connected,
   rejection,
@@ -15,7 +17,7 @@ export function ConnectionBanner({
 }) {
   if (!connected) {
     return (
-      <div className="banner banner--warning" role="status">
+      <div className={`${styles.banner} ${styles.warning}`} data-banner="warning" role="status">
         <strong>Verbindung unterbrochen.</strong> Es wird automatisch neu verbunden. Der Spielstand auf dem Server
         bleibt erhalten.
       </div>
@@ -23,10 +25,10 @@ export function ConnectionBanner({
   }
   if (!rejection) return null
   return (
-    <div className="banner banner--error" role="alert">
+    <div className={`${styles.banner} ${styles.error}`} data-banner="error" role="alert">
       <span>{rejection.message}</span>
       {onDismiss && (
-        <button type="button" className="banner__dismiss" onClick={onDismiss}>
+        <button type="button" className={styles.dismiss} onClick={onDismiss}>
           Verstanden
         </button>
       )}

@@ -21,11 +21,11 @@ const VIEWPORTS = [
 
 async function openKids(page: Page, scene: 'question' | 'solution' = 'question'): Promise<void> {
   await page.goto('/preview')
-  await expect(page.locator('.preview__stage')).toBeVisible()
-  await page.locator('.preview__panel select').nth(1).selectOption('kids')
-  await page.locator('.preview__panel select').first().selectOption(scene)
+  await expect(page.locator('[data-preview-stage]')).toBeVisible()
+  await page.locator('[data-preview-panel] select').nth(1).selectOption('kids')
+  await page.locator('[data-preview-panel] select').first().selectOption(scene)
   await expect(page.locator('.stage')).toHaveAttribute('data-skin', 'kids')
-  await expect(page.locator('.kids-screen')).toBeVisible()
+  await expect(page.locator(`.stage[data-scene='${scene}']`)).toBeVisible()
 }
 
 /**
@@ -37,7 +37,7 @@ async function openKids(page: Page, scene: 'question' | 'solution' = 'question')
  */
 async function fullBleed(page: Page): Promise<void> {
   await page.addStyleTag({
-    content: '.preview{grid-template-columns:1fr !important}.preview__panel{position:absolute;opacity:0;pointer-events:none}',
+    content: '[data-preview]{grid-template-columns:1fr !important}[data-preview-panel]{position:absolute;opacity:0;pointer-events:none}',
   })
 }
 
@@ -50,43 +50,43 @@ test.describe('Aufbau der Kinderansicht', () => {
   test('zeigt Wortmarke, beide Spielerkarten, Zaehler, Bild, Frage und vier Antworten', async ({ page }) => {
     await openKids(page)
 
-    await expect(page.locator('.kids-brand__mark')).toBeVisible()
-    await expect(page.locator('.kids-score')).toHaveCount(2)
-    await expect(page.locator('.kids-counter')).toBeVisible()
-    await expect(page.locator('.kids-media__image')).toBeVisible()
-    await expect(page.locator('.kids-panel__prompt')).toBeVisible()
-    await expect(page.locator('.kids-answer')).toHaveCount(4)
+    await expect(page.locator('[data-brand]')).toBeVisible()
+    await expect(page.locator('[data-score]')).toHaveCount(2)
+    await expect(page.locator('[data-counter]')).toBeVisible()
+    await expect(page.locator('[data-media-image]')).toBeVisible()
+    await expect(page.locator('[data-prompt]')).toBeVisible()
+    await expect(page.locator('[data-answer]')).toHaveCount(4)
 
     // Die Buchstaben stehen in der Reihenfolge des Servers, nicht sortiert.
-    expect(await page.locator('.kids-answer__chip').allTextContents()).toEqual(['A', 'B', 'C', 'D'])
+    expect(await page.locator('[data-answer-chip]').allTextContents()).toEqual(['A', 'B', 'C', 'D'])
   })
 
   test('spiegelt den Inhalt der Spielerkarten, nicht die Zeichnung', async ({ page }) => {
     await openKids(page)
-    const cards = page.locator('.kids-score')
+    const cards = page.locator('[data-score]')
 
     // Spieler 1: erst die Spielernummer, dann die Punkte.
-    expect(await cards.nth(0).locator('.kids-score__label').allTextContents()).toEqual(['Spieler', 'Punkte'])
+    expect(await cards.nth(0).locator('[data-score-label]').allTextContents()).toEqual(['Spieler', 'Punkte'])
     // Spieler 2: gespiegelt.
-    expect(await cards.nth(1).locator('.kids-score__label').allTextContents()).toEqual(['Punkte', 'Spieler'])
+    expect(await cards.nth(1).locator('[data-score-label]').allTextContents()).toEqual(['Punkte', 'Spieler'])
 
     // Der aktive Spieler ist markiert - genau einer.
-    await expect(page.locator('.kids-score[data-active="true"]')).toHaveCount(1)
+    await expect(page.locator('[data-score][data-active="true"]')).toHaveCount(1)
   })
 
   test('zeigt dreistellige Punktestaende und den Zaehler mit Tabellenziffern', async ({ page }) => {
     await openKids(page)
-    const scores = await page.locator('.kids-score__value--points').allTextContents()
+    const scores = await page.locator('[data-score-value="points"]').allTextContents()
     expect(scores).toEqual(['200', '150'])
 
     const numeric = await page
-      .locator('.kids-counter__value')
+      .locator('[data-counter-value]')
       .evaluate((element) => getComputedStyle(element).fontVariantNumeric)
     expect(numeric).toContain('tabular-nums')
 
     // Letzte Frage: der Zaehler steht auf 7/7.
     await openKids(page, 'solution')
-    await expect(page.locator('.kids-counter__value')).toHaveText('7/7')
+    await expect(page.locator('[data-counter-value]')).toHaveText('7/7')
   })
 })
 
@@ -98,7 +98,7 @@ test.describe('Zustaende der Antworten', () => {
      * Frageszene der zweiten Chance: eine gewaehlte Antwort, eine bereits als
      * falsch bewertete und zwei unberuehrte.
      */
-    expect(await page.locator('.kids-answer').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-state')))).toEqual([
+    expect(await page.locator('[data-answer]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-state')))).toEqual([
       'idle',
       'selected',
       'idle',
@@ -107,7 +107,7 @@ test.describe('Zustaende der Antworten', () => {
 
     // Loesungsszene: nur die richtige Antwort traegt Farbe.
     await openKids(page, 'solution')
-    expect(await page.locator('.kids-answer').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-state')))).toEqual([
+    expect(await page.locator('[data-answer]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-state')))).toEqual([
       'correct',
       'disabled',
       'disabled',
@@ -117,18 +117,22 @@ test.describe('Zustaende der Antworten', () => {
 
   test('jeder Zustand traegt seine eigene gezeichnete Flaeche und seinen Chip', async ({ page }) => {
     await openKids(page)
+    /*
+     * Die Zeichnung liegt auf dem Pseudoelement hinter dem Inhalt - genau dort
+     * wird sie deshalb auch gelesen.
+     */
     const drawing = (selector: string, index: number) =>
       page
         .locator(selector)
         .nth(index)
-        .evaluate((element) => getComputedStyle(element).getPropertyValue('--kids-surface').trim())
-    const surface = (index: number) => drawing('.kids-answer__surface', index)
+        .evaluate((element) => getComputedStyle(element, '::before').borderImageSource)
+    const surface = (index: number) => drawing('[data-answer-surface]', index)
 
     expect(await surface(0)).toContain('answer-box-a.svg')
     expect(await surface(1)).toContain('answer-box-b.svg')
     expect(await surface(3)).toContain('answer-box-incorrect.svg')
 
-    expect(await drawing('.kids-answer__chip', 1)).toContain('badge-letter-b.svg')
+    expect(await drawing('[data-answer-chip]', 1)).toContain('badge-letter-b.svg')
 
     await openKids(page, 'solution')
     expect(await surface(0)).toContain('answer-box-correct.svg')
@@ -147,15 +151,15 @@ test.describe('Zustaende der Antworten', () => {
      * war die Abweichung der ersten Fassung.
      */
     const rowDrawing = await page
-      .locator('.kids-answer')
+      .locator('[data-answer]')
       .first()
-      .evaluate((element) => getComputedStyle(element).getPropertyValue('--kids-surface').trim())
-    expect(rowDrawing).toBe('')
+      .evaluate((element) => getComputedStyle(element, '::before').borderImageSource)
+    expect(rowDrawing).toBe('none')
 
     // Und zwischen beiden bleibt eine sichtbare Luecke.
-    const gap = await page.locator('.kids-answer').first().evaluate((row) => {
-      const chip = row.querySelector('.kids-answer__chip')!.getBoundingClientRect()
-      const surface = row.querySelector('.kids-answer__surface')!.getBoundingClientRect()
+    const gap = await page.locator('[data-answer]').first().evaluate((row) => {
+      const chip = row.querySelector('[data-answer-chip]')!.getBoundingClientRect()
+      const surface = row.querySelector('[data-answer-surface]')!.getBoundingClientRect()
       return surface.left - chip.right
     })
     expect(gap).toBeGreaterThanOrEqual(9)
@@ -164,13 +168,13 @@ test.describe('Zustaende der Antworten', () => {
   test('zeichnet Konturen ausschliesslich als Flaechen, nie als CSS-Rahmen', async ({ page }) => {
     await openKids(page)
     const framed = [
-      '.kids-answer',
-      '.kids-answer__surface',
-      '.kids-answer__chip',
-      '.kids-panel',
-      '.kids-media',
-      '.kids-score',
-      '.kids-counter',
+      '[data-answer]',
+      '[data-answer-surface]',
+      '[data-answer-chip]',
+      '[data-panel]',
+      '[data-media]',
+      '[data-score]',
+      '[data-counter]',
     ]
     for (const selector of framed) {
       const drawn = await page.locator(selector).evaluateAll((nodes) =>
@@ -199,7 +203,7 @@ test.describe('Handschrift und Zeichnung', () => {
           return { font: style.fontFamily, weight: style.fontWeight }
         })
 
-    for (const selector of ['.kids-panel__prompt', '.kids-panel__category', '.kids-answer__text', '.kids-score__label', '.kids-counter__label']) {
+    for (const selector of ['[data-prompt]', '[data-category]', '[data-answer-text]', '[data-score-label]', '[data-counter-label]']) {
       const { font, weight } = await family(selector)
       expect(font, `${selector} traegt nicht die Handschrift`).toContain('Patrick Hand')
       // Patrick Hand hat nur einen Schnitt: Alles darueber waere gerechnete Fettschrift.
@@ -207,7 +211,7 @@ test.describe('Handschrift und Zeichnung', () => {
     }
 
     // Spielernummer, Punkte, Zaehler und die Buchstaben A-D stehen in Melior.
-    for (const selector of ['.kids-score__value', '.kids-counter__value', '.kids-answer__chip']) {
+    for (const selector of ['[data-score-value]', '[data-counter-value]', '[data-answer-chip]']) {
       const { font, weight } = await family(selector)
       expect(font, `${selector} traegt nicht die Serifenschrift`).toContain('Melior')
       expect(weight).toBe('700')
@@ -230,8 +234,8 @@ test.describe('Handschrift und Zeichnung', () => {
     await page.setViewportSize({ width: 1920, height: 1080 })
     await page.waitForTimeout(200)
 
-    const media = (await page.locator('.kids-media').boundingBox())!
-    const panel = (await page.locator('.kids-panel').boundingBox())!
+    const media = (await page.locator('[data-media]').boundingBox())!
+    const panel = (await page.locator('[data-panel]').boundingBox())!
     // `clamp(16px, 1.4vw, 28px)` - bei 1920 sind das 27 Pixel.
     expect(panel.x - (media.x + media.width)).toBeGreaterThanOrEqual(16)
   })
@@ -243,7 +247,7 @@ test.describe('Handschrift und Zeichnung', () => {
     await page.waitForTimeout(200)
 
     const stage = (await page.locator('.stage').boundingBox())!
-    const figure = (await page.locator('.kids-mascot__figure').boundingBox())!
+    const figure = (await page.locator('[data-mascot]').boundingBox())!
 
     // Rund die halbe Bildhoehe - keine Randgrafik.
     const share = figure.height / stage.height
@@ -255,11 +259,11 @@ test.describe('Handschrift und Zeichnung', () => {
     expect(figure.y + figure.height).toBeGreaterThan(stage.y + stage.height * 0.85)
 
     // Und die Antwortzeilen enden davor.
-    const answers = (await page.locator('.kids-answers').boundingBox())!
+    const answers = (await page.locator('[data-answers]').boundingBox())!
     expect(answers.x + answers.width).toBeLessThanOrEqual(figure.x)
 
     // Dekoration nimmt keine Klicks entgegen.
-    for (const selector of ['.kids-mascot', '.kids-media__peek']) {
+    for (const selector of ['[data-mascot]', '[data-peek]']) {
       const events = await page.locator(selector).evaluate((element) => getComputedStyle(element).pointerEvents)
       expect(events, `${selector} faengt Klicks`).toBe('none')
     }
@@ -271,8 +275,8 @@ test.describe('Handschrift und Zeichnung', () => {
     await page.setViewportSize({ width: 1920, height: 1080 })
     await page.waitForTimeout(200)
 
-    const media = (await page.locator('.kids-media').boundingBox())!
-    const peek = (await page.locator('.kids-media__peek').boundingBox())!
+    const media = (await page.locator('[data-media]').boundingBox())!
+    const peek = (await page.locator('[data-peek]').boundingBox())!
 
     // Etwas rechts der Rahmenmitte wie im Entwurf - und ueber dem Rahmen.
     const centre = peek.x + peek.width / 2
@@ -309,7 +313,7 @@ test.describe('Lange Fragen und Antworten', () => {
        * Zeilenbox scheitert.
        */
       const clipping = await page
-        .locator('.kids-panel, .kids-panel__prompt, .kids-answer__surface, .kids-answer__text')
+        .locator('[data-panel], [data-prompt], [data-answer-surface], [data-answer-text]')
         .evaluateAll((nodes) =>
           nodes
             .filter((node) => {
@@ -322,14 +326,14 @@ test.describe('Lange Fragen und Antworten', () => {
       expect(clipping, `Text abgeschnitten bei ${viewport.name}`).toEqual([])
 
       // Die Frage nimmt mehrere Zeilen ein, wird also wirklich umgebrochen.
-      const promptLines = await page.locator('.kids-panel__prompt').evaluate((element) => {
+      const promptLines = await page.locator('[data-prompt]').evaluate((element) => {
         const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight)
         return Math.round(element.getBoundingClientRect().height / lineHeight)
       })
       expect(promptLines, `Frage einzeilig bei ${viewport.name}`).toBeGreaterThanOrEqual(3)
 
       // Und die Antwortzeilen tragen ihre zwei Zeilen, ohne dass die Karte klemmt.
-      const answerLines = await page.locator('.kids-answer__text').first().evaluate((element) => {
+      const answerLines = await page.locator('[data-answer-text]').first().evaluate((element) => {
         const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight)
         return Math.round(element.getBoundingClientRect().height / lineHeight)
       })
@@ -339,7 +343,7 @@ test.describe('Lange Fragen und Antworten', () => {
 
   test('haelt den Buchstabenchip in fester Groesse und mittig', async ({ page }) => {
     await openKids(page)
-    const chipBox = async () => (await page.locator('.kids-answer__chip').first().boundingBox())!
+    const chipBox = async () => (await page.locator('[data-answer-chip]').first().boundingBox())!
 
     const short = await chipBox()
     await longTextSwitch(page).check()
@@ -351,7 +355,7 @@ test.describe('Lange Fragen und Antworten', () => {
     expect(Math.abs(long.height - short.height)).toBeLessThan(1)
 
     // Und er bleibt senkrecht mittig in seiner Zeile.
-    const row = (await page.locator('.kids-answer').first().boundingBox())!
+    const row = (await page.locator('[data-answer]').first().boundingBox())!
     expect(Math.abs(long.y + long.height / 2 - (row.y + row.height / 2))).toBeLessThan(2)
   })
 })
@@ -360,17 +364,18 @@ test.describe('Rueckfaelle', () => {
   test('kommt ohne Fragebild aus, ohne die Reihenfolge zu aendern', async ({ page }) => {
     // Die Loesungsszene der Vorschau hat bewusst kein Bild.
     await openKids(page, 'solution')
-    await expect(page.locator('.kids-media')).toHaveCount(0)
-    await expect(page.locator('.kids-stage--textonly')).toBeVisible()
-    await expect(page.locator('.kids-panel__prompt')).toBeVisible()
-    await expect(page.locator('.kids-answer')).toHaveCount(4)
+    await expect(page.locator('[data-media]')).toHaveCount(0)
+    // Ohne Bild entfaellt der Rahmen ganz; die Fragetafel nimmt seinen Platz ein.
+    await expect(page.locator('[data-panel]')).toBeVisible()
+    await expect(page.locator('[data-prompt]')).toBeVisible()
+    await expect(page.locator('[data-answer]')).toHaveCount(4)
   })
 
   test('verkuerzt bei reduzierter Bewegung alle Uebergaenge', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await openKids(page)
     const duration = await page
-      .locator('.kids-answer')
+      .locator('[data-answer]')
       .first()
       .evaluate((element) => getComputedStyle(element).transitionDuration)
     expect(duration.startsWith('0.001s')).toBe(true)

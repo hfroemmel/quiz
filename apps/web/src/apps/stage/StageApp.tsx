@@ -12,7 +12,8 @@
 import { useEffect } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
-import { StageScreen } from '../../presentation/StageScreen.tsx'
+import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
+import styles from './StageApp.module.css'
 import { unlockAudio } from '../../presentation/soundCues.ts'
 import { toggleOwnFullscreen } from '../../client/desktopBridge.ts'
 
@@ -50,17 +51,17 @@ export function StageApp() {
 
   if (!view) {
     return (
-      <div className="stage stage--offline">
+      <div className={`stage stage--default stage--dark ${styles.waiting}`}>
         <p>{connected ? 'Warte auf den Quizserver...' : 'Keine Verbindung zum Quizserver.'}</p>
       </div>
     )
   }
 
   return (
-    <div className="stage-host" onDoubleClick={() => void toggleOwnFullscreen()}>
+    <div className={styles.host} style={themeVariables(view)} onDoubleClick={() => void toggleOwnFullscreen()}>
       {/* Ein Verbindungsverlust darf den Saal nicht mit Technik behelligen: nur ein
           dezenter Punkt, keine Fehlermeldung auf der Buehne. */}
-      {!connected && <span className="stage-host__offline" title="Keine Verbindung" aria-hidden="true" />}
+      {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
       <StageScreen view={view} serverNow={serverNow} isAudioMaster={audioMaster} onReport={send} />
     </div>
   )

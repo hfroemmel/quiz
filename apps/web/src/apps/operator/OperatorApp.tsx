@@ -14,18 +14,27 @@ import { useEffect, useState } from 'react'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
 import { useBuzzerKeys } from '../../client/useBuzzerKeys.ts'
 import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
+import { useStageTheme } from '../../presentation/stageTheme.ts'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 import { unlockAudio } from '../../presentation/soundCues.ts'
 import { requestStageFullscreen } from '../../client/desktopBridge.ts'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 import { GameLogDialog } from './GameLogDialog.tsx'
-import { FullscreenIcon, IconButton, SoundOffIcon, SoundOnIcon } from '../../ui/IconButton.tsx'
+import {
+  BrightThemeIcon,
+  DarkThemeIcon,
+  FullscreenIcon,
+  IconButton,
+  SoundOffIcon,
+  SoundOnIcon,
+} from '../../ui/IconButton.tsx'
 import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
 import { OperatorControls } from './OperatorControls.tsx'
 import { PrivatePanel } from './PrivatePanel.tsx'
 import { StartPanel } from './StartPanel.tsx'
 import { HotfixPanel } from './HotfixPanel.tsx'
 import { DiagnosticsPanel } from './DiagnosticsPanel.tsx'
+import styles from './OperatorApp.module.css'
 
 export function OperatorApp() {
   const connection = useQuizConnection<OperatorQuizViewModel>('operator')
@@ -39,6 +48,8 @@ export function OperatorApp() {
   const [wantsStartPanel, setWantsStartPanel] = useState(false)
   const [confirmAbort, setConfirmAbort] = useState(false)
   const [showGameLog, setShowGameLog] = useState(false)
+  // Ansichtssache des Bedienenden, kein Spielzustand - deshalb lokal, nicht im Snapshot.
+  const [stageTheme, setStageTheme] = useStageTheme()
   useEffect(() => {
     if (view?.phase && view.phase !== 'result') setWantsStartPanel(false)
   }, [view?.phase])
@@ -60,7 +71,7 @@ export function OperatorApp() {
 
   if (!view) {
     return (
-      <div className="operator operator--loading">
+      <div className={`${styles.operator} ${styles.loading}`}>
         <ConnectionBanner connected={connected} rejection={lastRejection} />
         <p>Verbindung zum lokalen Quizserver wird aufgebaut...</p>
       </div>
@@ -82,7 +93,7 @@ export function OperatorApp() {
    * Renderpfad: Das Buehnenfenster uebergibt keine Slots und zeigt sie nie.
    */
   const adjust = (playerId: 'player-1' | 'player-2') => (
-    <div className="score-adjust">
+    <div className={styles.scoreAdjust}>
       <button
         className="button button--tiny"
         disabled={!view.allowedCommands.includes('ADJUST_SCORE')}
@@ -104,9 +115,9 @@ export function OperatorApp() {
   const scoreControls = { beforePlayerOne: adjust('player-1'), afterPlayerTwo: adjust('player-2') }
 
   return (
-    <div className="operator" style={themeVariables(view)}>
-      <header className="operator__header">
-        <div className="operator__header-left">
+    <div className={styles.operator} data-operator="" style={themeVariables(view)}>
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
           {view.allowedCommands.includes('ABORT_GAME') && (
             <button className="button button--technical" onClick={() => setConfirmAbort(true)}>
               Beenden
@@ -114,7 +125,7 @@ export function OperatorApp() {
           )}
         </div>
 
-        <div className="operator__header-right">
+        <div className={styles.headerRight}>
           {isResult && !wantsStartPanel && (
             <button className="button button--primary button--tiny" onClick={() => setWantsStartPanel(true)}>
               Zurück zur Startansicht
@@ -125,10 +136,23 @@ export function OperatorApp() {
             * neben den Fensterschaltern. Der Moderator braucht ihn zum Anmelden.
             */}
           {view.diagnostics.sessionCode && (
-            <div className="session-code">
-              <span className="session-code__label">Session-Code</span>
-              <span className="session-code__value">{view.diagnostics.sessionCode}</span>
+            <div className={styles.sessionCode}>
+              <span className={styles.sessionLabel}>Session-Code</span>
+              <span className={styles.sessionValue}>{view.diagnostics.sessionCode}</span>
             </div>
+          )}
+          {/*
+            * Helle oder dunkle Buehne. Nur der Erwachsenenmodus kennt beide
+            * Fassungen - die Kinderwelt bringt ihr eigenes Papier mit, dort
+            * gaebe es nichts umzuschalten.
+            */}
+          {view.theme.skin !== 'kids' && (
+            <IconButton
+              label={stageTheme === 'bright' ? 'Bühne dunkel zeigen' : 'Bühne hell zeigen'}
+              onClick={() => setStageTheme(stageTheme === 'bright' ? 'dark' : 'bright')}
+            >
+              {stageTheme === 'bright' ? <DarkThemeIcon /> : <BrightThemeIcon />}
+            </IconButton>
           )}
           <IconButton label="Bühne im Vollbild zeigen" onClick={() => void requestStageFullscreen()}>
             <FullscreenIcon />
@@ -147,9 +171,9 @@ export function OperatorApp() {
       <ConnectionBanner connected={connected} rejection={lastRejection} onDismiss={clearRejection} />
 
       {!showStartPanel ? (
-        <main className="operator__main">
-          <section className="operator__preview" aria-label="Vorschau Bühnenscreen">
-            <div className="operator__preview-frame">
+        <main className={styles.main}>
+          <section className={styles.preview} aria-label="Vorschau Bühnenscreen">
+            <div className={styles.previewFrame}>
               <StageScreen
                 view={view}
                 serverNow={serverNow}
@@ -160,18 +184,18 @@ export function OperatorApp() {
             </div>
           </section>
 
-          <aside className="operator__side">
+          <aside className={styles.side}>
             <PrivatePanel view={view} />
             <HotfixPanel view={view} send={send} questionId={view.questionId} />
           </aside>
 
-          <OperatorControls view={view} send={send} />
+          <OperatorControls view={view} send={send} className={styles.controlsArea} />
         </main>
       ) : (
-        <main className="operator__main operator__main--start">
+        <main className={`${styles.main} ${styles.mainStart}`}>
           <StartPanel view={view} send={send} />
-          <section className="operator__preview" aria-label="Vorschau Bühnenscreen">
-            <div className="operator__preview-frame">
+          <section className={styles.preview} aria-label="Vorschau Bühnenscreen">
+            <div className={styles.previewFrame}>
               <StageScreen
                 view={view}
                 serverNow={serverNow}
@@ -184,7 +208,7 @@ export function OperatorApp() {
         </main>
       )}
 
-      <footer className="app-footer">
+      <footer className={styles.footer}>
         <DiagnosticsPanel
           view={view}
           send={send}
@@ -192,8 +216,8 @@ export function OperatorApp() {
           audioMaster={audioMaster}
         />
         {/* Gleiche ruhige Tonlage wie die Diagnosezeile links - kein Knopf im Knopfgewand. */}
-        <button className="game-log-open" onClick={() => setShowGameLog(true)}>
-          <svg className="game-log-open__icon" viewBox="0 0 16 16" aria-hidden="true">
+        <button className={styles.logOpen} onClick={() => setShowGameLog(true)}>
+          <svg className={styles.logIcon} viewBox="0 0 16 16" aria-hidden="true">
             <path
               d="M5.5 2.5h6A1.5 1.5 0 0 1 13 4v9a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13V5.5"
               fill="none"

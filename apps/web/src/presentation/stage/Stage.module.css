@@ -1,0 +1,124 @@
+/*
+ * Grundflaeche der Buehne: Hintergrund, Szenenebene, Dekorationsebenen.
+ *
+ * Die Wurzelklassen `.stage`, `.stage--default` und `.stage--kids` stehen
+ * bewusst GLOBAL in `styles/stage.css`: Sie sind der Schalter, auf den alle
+ * Bauteilmodule zugreifen. Alles andere ist hier lokal.
+ */
+
+/*
+ * Unscharfes Fragebild als Hintergrund.
+ *
+ * Der Rahmen liegt bewusst ueber die Kante hinaus (`inset: -8%`) und ist
+ * zusaetzlich vergroessert: Eine Weichzeichnung zieht sonst die transparenten
+ * Raender ins Bild und es entsteht ein heller Saum.
+ *
+ * Darueber liegt ein Farbschleier aus denselben Flaechenfarben wie der Verlauf.
+ * Er nimmt dem Bild so viel Helligkeit, dass Frage und Antworten darauf ruhig
+ * lesbar bleiben - das Bild traegt Stimmung, nicht Information.
+ */
+.backdrop {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: scale(1.08);
+  pointer-events: none;
+}
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
+}
+
+/* Alles Inhaltliche liegt ueber dem Hintergrund. */
+.sceneRoot {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Koernungsebene ganz oben - nur die Kinderwelt fuellt sie. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default) .backdrop {
+  /*
+   * Abdunkeln geschieht ZWEIFACH: am Bild selbst und ueber den Farbschleier.
+   * Ein heller Himmel wuerde die ganze Flaeche sonst aufhellen und die Buehne
+   * vom kuehlen Dunkel ins Milchige kippen - gepruefte Fragenbilder reichen von
+   * Nachtaufnahme bis Schneelandschaft.
+   */
+  filter: blur(3cqw) saturate(1) brightness(0.72);
+}
+:global(.stage--default) .backdrop::after {
+  opacity: 0.66;
+}
+/*
+ * Waehrend der Bildenthuellung: viel staerker weichgezeichnet und staerker
+ * verschleiert. Die Aufgabe ist, das Motiv zu erkennen - der Hintergrund darf
+ * dabei keine Silhouette verraten.
+ */
+:global(.stage--default) .backdrop[data-veiled='true'] {
+  filter: blur(9cqw) saturate(0.9) brightness(0.5);
+}
+:global(.stage--default) .backdrop[data-veiled='true']::after {
+  opacity: 0.84;
+}
+
+/*
+ * Helle Fassung: Das unscharfe Fragebild muss AUFhellen statt abdunkeln - sonst
+ * saesse ein dunkler Fleck mitten im Papier. Der Schleier traegt dieselbe
+ * Aufgabe wie im Dunkeln und deckt dafuer etwas staerker.
+ */
+:global(.stage--bright) .backdrop {
+  filter: blur(3cqw) saturate(0.85) brightness(1.22);
+}
+:global(.stage--bright) .backdrop::after {
+  opacity: 0.72;
+}
+:global(.stage--bright) .backdrop[data-veiled='true'] {
+  filter: blur(9cqw) saturate(0.8) brightness(1.35);
+}
+:global(.stage--bright) .backdrop[data-veiled='true']::after {
+  opacity: 0.88;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt
+ * ------------------------------------------------------------------ */
+
+/* Dort traegt die illustrierte Szene den Grund; das Fragefoto bleibt draussen. */
+:global(.stage--kids) .backdrop {
+  display: none;
+}
+/*
+ * Papierkoernung ueber allem - auch ueber Karten und Figuren, damit die Ansicht
+ * auf einem Blatt liegt statt aus Aufklebern zu bestehen. Sie ist dezent, aber
+ * sichtbar; `multiply` haelt sie an hellen Flaechen zurueck.
+ */
+:global(.stage--kids) .grain {
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background: url('/assets/kinderquiz/backgrounds/paper-grain.svg') repeat;
+}
+/*
+ * Abschaltbar fuer schwache Buehnenrechner: Die Koernung ist Geschmack, kein
+ * Inhalt. `<html class="no-grain">` genuegt.
+ */
+:global(.no-grain) .grain {
+  display: none;
+}

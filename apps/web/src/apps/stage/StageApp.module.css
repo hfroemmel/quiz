@@ -1,0 +1,36 @@
+/*
+ * Buehnenfenster: die Flaeche, die auf dem Beamer liegt.
+ *
+ * Sie traegt nur den Grund und den Verbindungspunkt; alles Sichtbare kommt aus
+ * der Praesentationsschicht.
+ */
+
+.host {
+  position: relative;
+  height: 100%;
+  background: var(--color-pageTop);
+}
+/*
+ * Verbindungsabriss: ein stiller Punkt in der Ecke. Auf der Buehne darf keine
+ * Fehlermeldung stehen - der Saal sieht sie mit.
+ */
+.offline {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-incorrect);
+  z-index: 10;
+  opacity: 0.7;
+}
+
+/*
+ * Wartezustand vor dem ersten Snapshot: die Buehnenflaeche selbst, mittig
+ * gesetzte Meldung. Sie erscheint nur, solange kein Zustand vorliegt.
+ */
+.waiting {
+  display: grid;
+  place-items: center;
+}

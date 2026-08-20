@@ -1,0 +1,68 @@
+/*
+ * Fragenzaehler. Aufbau in beiden Welten gleich, Rahmung je Welt verschieden.
+ */
+
+.counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.label {
+  letter-spacing: 0.02em;
+}
+.value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Buehne der Erwachsenen: dieselbe Milchglaskachel wie die Punktekarte. */
+:global(.stage--default) .counter {
+  width: 7cqw;
+  padding: 1cqw 1.2cqw 0.6cqw;
+  background: var(--color-tile);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
+  border-radius: var(--stage-radius);
+}
+:global(.stage--default) .label {
+  font-family: var(--font-ui);
+  font-size: 1cqw;
+  color: var(--color-textMuted);
+  margin-bottom: 0.3cqw;
+}
+:global(.stage--default) .value {
+  font-size: 3cqw;
+  font-family: var(--font-heading);
+}
+
+/* Kinderwelt: gezeichneter Zaehlerchip mit rotem Eck. */
+:global(.stage--kids) .counter {
+  min-width: 9cqw;
+  padding: 0.6cqw 0 0.8cqw;
+  line-height: 1.05;
+  position: relative;
+  isolation: isolate;
+}
+:global(.stage--kids) .counter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.35cqw;
+  border-image: url('/assets/kinderquiz/boxes/chip-question-counter.svg') 26 fill / 1.35cqw / 0 stretch;
+  pointer-events: none;
+}
+:global(.stage--kids) .label {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+  font-size: var(--kids-size-label);
+  padding: 0.5cqh 0;
+}
+:global(.stage--kids) .value {
+  font-family: var(--kids-numeric);
+  font-weight: 700;
+  font-size: var(--kids-size-score);
+}

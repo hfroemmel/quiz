@@ -13,9 +13,11 @@
  * Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach einem
  * Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
-import { MediaFrame } from '../../ui/MediaFrame.tsx'
+import { Media } from '../stage/Media.tsx'
 import { ProgressRing } from '../../ui/ProgressRing.tsx'
-import { QuestionHead } from './QuestionHead.tsx'
+import { QuestionHead } from '../stage/QuestionHead.tsx'
+import { SecondChanceHint } from '../stage/SecondChanceHint.tsx'
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function RevealScene({ view, reveal, variant }: SceneProps) {
@@ -33,21 +35,19 @@ export function RevealScene({ view, reveal, variant }: SceneProps) {
   const hint = variant !== 'preview' ? null : paused ? 'pausiert' : finished ? 'Buzzern weiterhin möglich' : null
 
   return (
-    <div className="scene scene--reveal">
+    <div className={`${styles.scene} ${styles.reveal}`}>
       <QuestionHead question={question} />
 
-      <div className="reveal__stage">
-        <div className={`reveal__countdown ${paused ? 'reveal__countdown--paused' : ''}`}>
+      <div className={styles.revealStage}>
+        <div className={styles.countdown} data-countdown="" data-paused={String(paused)}>
           <ProgressRing remaining={1 - reveal.progress} seconds={reveal.countdownSeconds} paused={paused} />
-          {hint && <span className="reveal__hint">{hint}</span>}
+          {hint && <span className={styles.revealHint}>{hint}</span>}
         </div>
 
-        <MediaFrame src={question.imageUrl} blurPx={reveal.blurPx} variant="reveal" className="reveal__frame" />
+        <Media src={question.imageUrl} blurPx={reveal.blurPx} variant="reveal" />
       </div>
 
-      {view.secondChance && (
-        <p className="scene__hint">Zweite Chance · {view.secondChance.pointsIfCorrect} Punkte</p>
-      )}
+      {view.secondChance && <SecondChanceHint points={view.secondChance.pointsIfCorrect} />}
     </div>
   )
 }

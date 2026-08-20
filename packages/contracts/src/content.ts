@@ -159,13 +159,13 @@ export type DifficultyPreset = z.infer<typeof difficultyPresetSchema>
  * Modus-Sonderbehandlung, die die Spezifikation ausschliesst. So waehlt die
  * Konfiguration die Welt, und ein neuer Modus bekommt sie ohne Codeaenderung.
  */
-export const themeSkins = ['stage', 'kids'] as const
+export const themeSkins = ['default', 'kids'] as const
 export type ThemeSkin = (typeof themeSkins)[number]
 
 export const quizThemeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  /** Gestaltungswelt. Fehlt sie, gilt die dunkle Buehne. */
+  /** Gestaltungswelt: `default` oder `kids`. Fehlt sie, gilt `default`. */
   skin: z.enum(themeSkins).optional(),
   /** CSS-Custom-Properties ohne fuehrende Bindestriche, z. B. `accent`. */
   colors: z.record(z.string(), z.string()),

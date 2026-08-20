@@ -33,7 +33,7 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     await startGame(operator)
 
     for (let index = 1; index <= 7; index += 1) {
-      await expect(operator.locator('.stage-header__progress .tile__value')).toContainText(`${index}/7`)
+      await expect(operator.locator('[data-counter-value]')).toContainText(`${index}/7`)
       await playQuestionCorrect(operator, 1)
       await continueGame(operator)
     }
@@ -56,7 +56,7 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     await expectPhase(operator, 'second-chance')
     // Der Punktwert steht oeffentlich auf der Buehne, nicht mehr in einer
     // Anweisungszeile der Bedienleiste.
-    await expect(operator.locator('.scene__hint')).toContainText('50 Punkte')
+    await expect(operator.locator('[data-hint]')).toContainText('50 Punkte')
 
     await markCorrect(operator)
     await resolveAttempt(operator)
@@ -88,7 +88,7 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     // Es gibt keine verbindliche Wartezeit vor dem Aufloesen.
     await resolveWithoutAnswer(operator)
     expect(await scores(operator)).toEqual([0, 0])
-    await expect(stage.locator('.solution__answer')).toBeVisible()
+    await expect(stage.locator('[data-answer][data-state="correct"]')).toBeVisible()
   })
 
   test('8 - Punktgleichstand ergibt Unentschieden ohne Konfetti', async ({ page }) => {
@@ -108,8 +108,8 @@ test.describe('Vollstaendige Spielablaeufe', () => {
 
     await expectPhase(operator, 'result')
     expect(await scores(operator)).toEqual([100, 100])
-    await expect(stage.locator('.result__label')).toHaveText('Unentschieden')
-    await expect(stage.locator('.confetti')).toHaveCount(0)
+    await expect(stage.locator('[data-result-label]')).toHaveText('Unentschieden')
+    await expect(stage.locator('[data-confetti]')).toHaveCount(0)
   })
 
   test('9 - manuelle Korrektur auf der Ergebnisansicht rechnet das Ergebnis neu', async ({ page }) => {
@@ -124,14 +124,14 @@ test.describe('Vollstaendige Spielablaeufe', () => {
       await continueGame(operator)
     }
     await expectPhase(operator, 'result')
-    await expect(stage.locator('.result__label')).toHaveText('Gewinner')
-    await expect(stage.locator('.confetti')).toHaveCount(1)
+    await expect(stage.locator('[data-result-label]')).toHaveText('Gewinner')
+    await expect(stage.locator('[data-confetti]')).toHaveCount(1)
 
     // Korrektur zugunsten von Spieler 2 - danach Unentschieden.
     // Schrittweite ist `scoringRules.manualAdjustmentStep` = 50 Punkte.
     await operator.getByLabel('Spieler 2 plus 50').click()
     await operator.getByLabel('Spieler 2 plus 50').click()
-    await expect(stage.locator('.result__label')).toHaveText('Unentschieden')
+    await expect(stage.locator('[data-result-label]')).toHaveText('Unentschieden')
     expect(await scores(operator)).toEqual([100, 100])
 
     // Der Punktestand faellt nicht unter null.
@@ -149,12 +149,12 @@ test.describe('Vollstaendige Spielablaeufe', () => {
 
     await operator.getByRole('button', { name: 'Beenden' }).click()
     // Die Rueckfrage ist ein Dialog der Anwendung, kein Browserfenster.
-    await expect(operator.locator('.dialog')).toBeVisible()
-    await operator.locator('.dialog').getByRole('button', { name: 'Spiel beenden' }).click()
+    await expect(operator.locator('[data-dialog]')).toBeVisible()
+    await operator.locator('[data-dialog]').getByRole('button', { name: 'Spiel beenden' }).click()
 
-    await expect(operator.locator('.start-panel')).toBeVisible()
-    await expect(stage.locator('.scene--start')).toBeVisible()
-    await expect(stage.locator('.result__label')).toHaveCount(0)
+    await expect(operator.locator('[data-start-panel]')).toBeVisible()
+    await expect(stage.locator('.stage[data-scene="start"]')).toBeVisible()
+    await expect(stage.locator('[data-result-label]')).toHaveCount(0)
   })
 
   test('Abbruch kann abgelehnt werden und das Spiel laeuft weiter', async ({ page }) => {
@@ -162,9 +162,9 @@ test.describe('Vollstaendige Spielablaeufe', () => {
     await startGame(operator)
 
     await operator.getByRole('button', { name: 'Beenden' }).click()
-    await operator.locator('.dialog').getByRole('button', { name: 'Abbrechen' }).click()
-    await expect(operator.locator('.dialog')).toHaveCount(0)
-    await expect(operator.locator('.controls')).toBeVisible()
+    await operator.locator('[data-dialog]').getByRole('button', { name: 'Abbrechen' }).click()
+    await expect(operator.locator('[data-dialog]')).toHaveCount(0)
+    await expect(operator.locator('[data-controls]')).toBeVisible()
   })
 })
 
@@ -183,14 +183,14 @@ test.describe('Bilderkennen', () => {
     await expectPhase(operator, 'reveal-ready')
     await startReveal(operator)
     await expectPhase(operator, 'reveal-running')
-    await expect(stage.locator('.reveal__seconds')).toBeVisible()
+    await expect(stage.locator('[data-seconds]')).toBeVisible()
 
     // Enthuellung pausieren: der Countdown bleibt stehen.
     await operator.getByRole('button', { name: 'Enthüllung pausieren' }).click()
     await expectPhase(operator, 'reveal-paused')
-    const frozen = await stage.locator('.reveal__seconds').textContent()
+    const frozen = await stage.locator('[data-seconds]').textContent()
     await page.waitForTimeout(1_200)
-    expect(await stage.locator('.reveal__seconds').textContent()).toBe(frozen)
+    expect(await stage.locator('[data-seconds]').textContent()).toBe(frozen)
 
     await operator.getByRole('button', { name: 'Enthüllung fortsetzen' }).click()
     await expectPhase(operator, 'reveal-running')
@@ -203,7 +203,7 @@ test.describe('Bilderkennen', () => {
       await resolveAttempt(operator)
       await expectPhase(operator, 'reveal-running')
       // Die Loesung bleibt verborgen.
-      await expect(stage.locator('.solution__answer')).toHaveCount(0)
+      await expect(stage.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
     }
     expect(await scores(operator)).toEqual([0, 0])
 
@@ -229,7 +229,7 @@ test.describe('Bilderkennen', () => {
 
     // Statt zehn Sekunden zu warten: vollstaendig aufdecken. Der Buzzer bleibt offen.
     await operator.getByRole('button', { name: 'Bild vollständig aufdecken' }).click()
-    await expect(stage.locator('.reveal__seconds')).toHaveText('0')
+    await expect(stage.locator('[data-seconds]')).toHaveText('0')
 
     await buzz(operator, 1)
     await expectPhase(operator, 'answer-locked')
@@ -251,13 +251,13 @@ test.describe('Moderator und Operator gleichzeitig', () => {
       code,
     )
     await moderator.goto('/moderator')
-    await expect(moderator.locator('.moderator__actions')).toBeVisible()
+    await expect(moderator.locator('[data-moderator-actions]')).toBeVisible()
 
     await startGame(operator)
-    await expect(moderator.locator('.moderator__hint')).toContainText('Antworten einblenden')
+    await expect(moderator.locator('[data-moderator-hint]')).toContainText('Antworten einblenden')
 
     // Der Moderator sieht die Loesung privat, der Buehnenscreen nicht.
-    await expect(moderator.locator('.moderator__answer')).toBeVisible()
+    await expect(moderator.locator('[data-moderator-answer]')).toBeVisible()
 
     // Der Moderator gibt die Runde frei - der Operator sieht die Aenderung sofort.
     await moderator.getByRole('button', { name: 'Antworten einblenden' }).click()
@@ -268,7 +268,7 @@ test.describe('Moderator und Operator gleichzeitig', () => {
     await expectPhase(operator, 'answer-locked')
     await buzz(operator, 2)
     await expectPhase(operator, 'answer-locked')
-    await expect(operator.locator('.banner--error')).toBeVisible()
+    await expect(operator.locator('[data-banner="error"]')).toBeVisible()
 
     // Der Moderator darf keine Punkte aendern - der Button existiert dort gar nicht.
     await expect(moderator.getByLabel('Spieler 1 plus 50')).toHaveCount(0)

@@ -29,7 +29,7 @@ test('schneller Doppelklick auf "Weiter" ueberspringt keine Frage', async ({ pag
   // Der zweite Klick trifft eine veraltete Revision und darf keine zweite Frage
   // ueberspringen.
   await operator.evaluate(() => {
-    const button = [...document.querySelectorAll<HTMLButtonElement>('.controls button')].find((entry) =>
+    const button = [...document.querySelectorAll<HTMLButtonElement>('[data-controls] button')].find((entry) =>
       entry.textContent?.includes('Weiter zu'),
     )
     button?.click()
@@ -37,7 +37,7 @@ test('schneller Doppelklick auf "Weiter" ueberspringt keine Frage', async ({ pag
   })
 
   await waitForQuestionReady(operator)
-  await expect(operator.locator('.stage-header__progress .tile__value')).toContainText('2/7')
+  await expect(operator.locator('[data-counter-value]')).toContainText('2/7')
 })
 
 test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
@@ -47,15 +47,15 @@ test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
   await buzz(operator, 1)
   await expectPhase(operator, 'answer-locked')
 
-  if (await operator.locator('.button--marks-correct').count()) {
-    await operator.locator('.button--marks-correct').first().click()
+  if (await operator.locator('[data-marks-correct]').count()) {
+    await operator.locator('[data-marks-correct]').first().click()
   } else {
     await operator.getByRole('button', { name: 'Antwort war richtig' }).click()
   }
 
   // Doppelklick im selben Tick auf "Aufloesen und bewerten".
   await operator.evaluate(() => {
-    const button = [...document.querySelectorAll<HTMLButtonElement>('.controls button')].find((entry) =>
+    const button = [...document.querySelectorAll<HTMLButtonElement>('[data-controls] button')].find((entry) =>
       entry.textContent?.includes('Auflösen und bewerten'),
     )
     button?.click()
@@ -64,7 +64,7 @@ test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
 
   await expectPhase(operator, 'solution')
   const scores = await operator
-    .locator('.score-tile')
+    .locator('[data-score]')
     .evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).dataset['score'] ?? ''))
   expect(scores[0]).toBe('100')
 })
@@ -86,15 +86,15 @@ test('Reconnect mitten in der Enthuellung zeigt den korrekten Serverstand', asyn
   // Enthuellung anhalten, damit der erwartete Wert eindeutig ist.
   await operator.getByRole('button', { name: 'Enthüllung pausieren' }).click()
   await expectPhase(operator, 'reveal-paused')
-  const beforeReload = await stage.locator('.reveal__seconds').textContent()
+  const beforeReload = await stage.locator('[data-seconds]').textContent()
 
   // Der Buehnenclient verliert die Verbindung und verbindet neu.
   await stage.reload()
-  await expect(stage.locator('.reveal__seconds')).toBeVisible()
+  await expect(stage.locator('[data-seconds]')).toBeVisible()
 
   // Er uebernimmt sofort wieder den Serverstand, statt bei 10 neu zu starten.
-  expect(await stage.locator('.reveal__seconds').textContent()).toBe(beforeReload)
-  await expect(stage.locator('.reveal__countdown--paused')).toBeVisible()
+  expect(await stage.locator('[data-seconds]').textContent()).toBe(beforeReload)
+  await expect(stage.locator('[data-countdown][data-paused="true"]')).toBeVisible()
 })
 
 test('ein neu verbundener Buehnenclient bekommt sofort den vollstaendigen Snapshot', async ({ page }) => {
@@ -104,8 +104,8 @@ test('ein neu verbundener Buehnenclient bekommt sofort den vollstaendigen Snapsh
 
   // Erst jetzt wird der Buehnenscreen geoeffnet - er darf keine Ereignisse nachholen muessen.
   const stage = await openStage(await page.context().newPage())
-  await expect(stage.locator('.solution__answer')).toBeVisible()
-  await expect(stage.locator('.score-tile').first()).toHaveAttribute('data-score', '100')
+  await expect(stage.locator('[data-answer][data-state="correct"]')).toBeVisible()
+  await expect(stage.locator('[data-score]').first()).toHaveAttribute('data-score', '100')
 })
 
 test('das Praesentationsfenster kann geschlossen und neu geoeffnet werden', async ({ page }) => {
@@ -116,11 +116,11 @@ test('das Praesentationsfenster kann geschlossen und neu geoeffnet werden', asyn
 
   // Verlust des Praesentationsfensters beendet das Spiel nicht.
   await stage.close()
-  await expect(operator.locator('.controls')).toBeVisible()
+  await expect(operator.locator('[data-controls]')).toBeVisible()
   expect(await currentPhase(operator)).toBe('solution')
 
   const reopened = await openStage(await page.context().newPage())
-  await expect(reopened.locator('.solution__answer')).toBeVisible()
+  await expect(reopened.locator('[data-answer][data-state="correct"]')).toBeVisible()
 })
 
 test('der Buehnenscreen erhaelt die Loesung erst in der Loesungsszene', async ({ page }) => {
@@ -129,19 +129,19 @@ test('der Buehnenscreen erhaelt die Loesung erst in der Loesungsszene', async ({
   await startGame(operator)
 
   // Waehrend der Frage darf im gesamten DOM des Buehnenclients keine Loesung stehen.
-  const privateAnswer = (await operator.locator('.private__answer').textContent()) ?? ''
+  const privateAnswer = (await operator.locator('[data-private-answer]').textContent()) ?? ''
   expect(privateAnswer.length).toBeGreaterThan(0)
   const stageHtml = await stage.content()
   expect(stageHtml).not.toContain('private__answer')
 
   await operator.getByRole('button', { name: 'Ohne Antwort auflösen' }).click()
-  await expect(stage.locator('.solution__answer .option-bar__text')).toHaveText(privateAnswer)
+  await expect(stage.locator('[data-answer][data-state="correct"] [data-answer-text]')).toHaveText(privateAnswer)
 })
 
 test('ohne Buehnenfenster gibt der Operator den Ton aus und tritt ihn danach ab', async ({ page }) => {
   const operator = await openOperator(page)
-  const audioState = operator.locator('.diagnostics__facts [data-audio-master]')
-  await operator.locator('.diagnostics summary').click()
+  const audioState = operator.locator('[data-diagnostics-facts] [data-audio-master]')
+  await operator.locator('[data-diagnostics-summary]').click()
 
   // Allein im Betrieb - sonst gaebe es ueberhaupt keinen Ton.
   await expect(audioState).toHaveAttribute('data-audio-master', 'true')
@@ -160,11 +160,11 @@ test('das Spielprotokoll zaehlt gespielte Spiele und laesst sich zuruecksetzen',
   await startGame(operator)
 
   await operator.getByRole('button', { name: 'Spielprotokoll' }).click()
-  const dialog = operator.locator('.dialog')
+  const dialog = operator.locator('[data-dialog]')
   await expect(dialog).toBeVisible()
 
   // Jeder konfigurierte Modus steht in der Tabelle, auch ohne Spiel.
-  const rows = dialog.locator('.game-log tbody tr')
+  const rows = dialog.locator('[data-game-log] tbody tr')
   expect(await rows.count()).toBeGreaterThan(1)
   const adults = rows.filter({ hasText: 'Erwachsene' })
   expect(Number(await adults.locator('td').nth(1).textContent())).toBeGreaterThan(0)
@@ -175,5 +175,5 @@ test('das Spielprotokoll zaehlt gespielte Spiele und laesst sich zuruecksetzen',
   await expect(adults.locator('td').nth(1)).toHaveText('0')
 
   await dialog.getByRole('button', { name: 'Schließen' }).click()
-  await expect(operator.locator('.dialog')).toHaveCount(0)
+  await expect(operator.locator('[data-dialog]')).toHaveCount(0)
 })

@@ -1,13 +1,18 @@
 /**
- * Bildrahmen der Buehne.
+ * Bildrahmen der Buehne - EIN Bauteil fuer beide Gestaltungswelten.
  *
  * Zwei Aufgaben: das Bild im richtigen Verhaeltnis zeigen und - beim
  * Bilderkennen - die Schaerfe aus dem Enthuellungsfortschritt uebernehmen.
  *
  * Die Unschaerfe kommt als fertiger Wert herein. Dieses Bauteil rechnet nichts
  * aus; die Ableitung steht in der Domain und gilt fuer Ring und Bild gemeinsam.
+ *
+ * Das Foto liegt INNERHALB des Rahmens, nie in einer Rahmengrafik: Es wechselt
+ * mit jeder Frage, der Rahmen nie.
  */
-interface MediaFrameProps {
+import styles from './Media.module.css'
+
+interface MediaProps {
   src?: string
   /**
    * Unschaerfe in Bildpunkten; 0 bedeutet scharf.
@@ -18,19 +23,25 @@ interface MediaFrameProps {
    */
   blurPx?: number
   variant?: 'inline' | 'reveal' | 'solution'
-  className?: string
 }
 
-export function MediaFrame({ src, blurPx, variant = 'inline', className }: MediaFrameProps) {
+export function Media({ src, blurPx, variant = 'inline' }: MediaProps) {
   if (!src) return null
   return (
-    <div className={['media-frame', `media-frame--${variant}`, className].filter(Boolean).join(' ')}>
+    <div className={`${styles.media} ${styles[variant]}`} data-media="" data-variant={variant}>
       <img
-        className="media-frame__image"
+        className={styles.image}
+        data-media-image=""
         src={src}
         alt=""
         style={blurPx === undefined ? undefined : { filter: `blur(${blurPx.toFixed(2)}px)` }}
       />
+      {/*
+        * Platz fuer eine Figur, die ueber die obere Bildkante schaut. Reine
+        * Dekoration: Ob dort etwas zu sehen ist, entscheidet die Gestaltungswelt
+        * im Stylesheet - im Markup steht kein Modusname.
+        */}
+      <span className={styles.peek} data-peek="" aria-hidden="true" />
     </div>
   )
 }

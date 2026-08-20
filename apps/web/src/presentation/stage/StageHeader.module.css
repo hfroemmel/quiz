@@ -1,0 +1,74 @@
+/*
+ * Kopfzeile der Buehne: Wortmarke links, Punktekarten mittig, Zaehler rechts.
+ */
+
+.header {
+  /* Ueber Hintergrund und Figurenebene - alles Inhaltliche liegt auf Ebene 1. */
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.scores {
+  display: flex;
+  align-items: flex-start;
+}
+/*
+ * Wortmarke. Sie liegt als Maske ueber einer Farbflaeche und folgt damit der
+ * Textfarbe der Welt. Das Seitenverhaeltnis stammt aus dem viewBox der Datei
+ * (339,417 x 55).
+ */
+.brand {
+  aspect-ratio: 339.417 / 55;
+  background-color: var(--color-text);
+  -webkit-mask: var(--logo-url) no-repeat left center / contain;
+  mask: var(--logo-url) no-repeat left center / contain;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen
+ *
+ * Wortmarke und Zaehler haengen in den Ecken der Flaeche, damit die
+ * Punktekarten exakt mittig stehen - unabhaengig davon, wie breit sie werden.
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default) .header {
+  gap: 2cqw;
+  padding: 2cqw 3cqw 0;
+}
+:global(.stage--default) .scores {
+  gap: 1cqw;
+}
+:global(.stage--default) .brand {
+  position: absolute;
+  left: 3cqw;
+  top: 2cqw;
+  width: 18cqw;
+}
+:global(.stage--default) .counterSlot {
+  position: absolute;
+  right: 3cqw;
+  top: 2cqw;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt: alles steht in der Zeile, in drei Spalten
+ * ------------------------------------------------------------------ */
+
+:global(.stage--kids) .header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--kids-gap);
+  padding: var(--kids-pad) var(--kids-pad) 0;
+}
+:global(.stage--kids) .brand {
+  width: 15cqw;
+}
+:global(.stage--kids) .scores {
+  gap: 0.9cqw;
+}
+:global(.stage--kids) .counterSlot {
+  justify-self: end;
+}
