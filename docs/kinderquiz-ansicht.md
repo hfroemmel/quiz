@@ -133,9 +133,10 @@ geben nichts her - sie sind der Inhalt, um den es geht.
 ### Masseinheiten
 
 Das Assetpaket nennt seine Werte in `vw`/`vh` und meint den Buehnenscreen im
-Vollbild. Umgesetzt sind sie in `cqw`/`cqh`: Bei Vollbild ist das derselbe Wert,
-und zusaetzlich stimmt die Komposition in der kleinen Operatorvorschau. Kein Wert
-wird doppelt gepflegt.
+Vollbild. Umgesetzt sind sie als REINE Containermasse (`cqw`/`cqh`, ohne
+`clamp`-Grenzen): Bei Vollbild ist das derselbe Wert, jede kleinere Buehne -
+auch die Operatorvorschau - ist eine exakt proportionale Verkleinerung. Kein
+Wert wird doppelt gepflegt, und kein Pixeldeckel verschiebt die Komposition.
 
 ### Schmalere Ansichten
 
@@ -190,10 +191,14 @@ Fuer die Belastungsprobe hat die Entwicklungsvorschau den Schalter
 
 ## 9. Offene Punkte
 
-1. **Nur Frage und Loesung sind gestaltet.** Pausenscreen, Rueckmeldung,
-   Enthuellung, Video, Start und Ergebnis behalten ihre gemeinsame Komposition
-   und stehen auf dem illustrierten Grund mit Papierfarben. Das Boxen-Paket
-   enthaelt fuer diese Szenen keine Vorlagen.
+1. **Frage und Loesung haben eigene Komponenten.** Pausenscreen, Rueckmeldung,
+   Enthuellung, Video, Start und Ergebnis behalten ihre gemeinsame Komposition,
+   sind aber in der Kinderwelt umgezeichnet (`kids.css`, Abschnitt "Kopfzeile
+   der gemeinsamen Szenen"): Spielergruppen und Fragezaehler tragen die
+   Kartenzeichnungen per `border-image`, das Enthuellungsfoto steht im
+   gezeichneten Portraetrahmen (die Unschaerfe haelt ein `clip-path` im
+   Rahmen), der Hinweis zur zweiten Chance ist der gelbe Chip, und die grossen
+   Ergebniskacheln stehen auf Papier.
 2. **Ein einziger Radius bleibt**: der Beschnitt des Fragefotos
    (`.kids-media__image`). Er ist aus der Innenkontur von `media-frame.svg`
    abgelesen und verhindert, dass rechtwinklige Fotoecken aus der gerundeten

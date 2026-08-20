@@ -191,7 +191,19 @@ export function OperatorApp() {
           connectedClients={view.diagnostics.connectedClients.length}
           audioMaster={audioMaster}
         />
-        <button className="button button--tiny" onClick={() => setShowGameLog(true)}>
+        {/* Gleiche ruhige Tonlage wie die Diagnosezeile links - kein Knopf im Knopfgewand. */}
+        <button className="game-log-open" onClick={() => setShowGameLog(true)}>
+          <svg className="game-log-open__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M5.5 2.5h6A1.5 1.5 0 0 1 13 4v9a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13V5.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+            />
+            <path d="M5.5 1.5v2h-2z" fill="currentColor" />
+            <path d="M5.5 7h5M5.5 9.5h5M5.5 12h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+          </svg>
           Spielprotokoll
         </button>
       </footer>

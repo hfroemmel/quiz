@@ -62,20 +62,20 @@
   --kids-numeric: 'Melior', 'Palatino Linotype', Palatino, Georgia, serif;
 
   /* Layout: Aussenabstand, Fuge, Spaltenanteile der Designreferenz. */
-  --kids-pad: clamp(16px, 1.8cqw, 36px);
-  --kids-gap: clamp(10px, 1cqw, 20px);
+  --kids-pad: 1.8cqw;
+  --kids-gap: 1cqw;
   /* Sichtbare Fuge zwischen Foto und Fragepanel - sie duerfen sich nie beruehren. */
-  --kids-stage-gap: clamp(16px, 1.4cqw, 28px);
+  --kids-stage-gap: 1.4cqw;
   /* Luecke zwischen Buchstabenchip und Antwortkarte. */
-  --kids-chip-gap: clamp(10px, 0.9cqw, 18px);
+  --kids-chip-gap: 0.9cqw;
   --kids-content-width: 75%;
 
   /* Schriftgroessen: dieselben Werte wie im Paket, in Containereinheiten. */
-  --kids-size-question: clamp(34px, 2.6cqw, 58px);
-  --kids-size-answer: clamp(24px, 1.75cqw, 39px);
-  --kids-size-category: clamp(18px, 1.15cqw, 27px);
+  --kids-size-question: 2.6cqw;
+  --kids-size-answer: 1.75cqw;
+  --kids-size-category: 1.15cqw;
   --kids-size-score: 3.4cqw;
-  --kids-size-label: clamp(14px, 0.95cqw, 22px);
+  --kids-size-label: 0.95cqw;
 
   --kids-motion-normal: 260ms;
   --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
@@ -177,14 +177,14 @@
   min-width: 0;
 }
 .kids-brand__mark {
-  width: clamp(150px, 15cqw, 300px);
+  width: 15cqw;
   /* Die Wortmarke ist schwarz gezeichnet und steht hier auf hellem Grund. */
   height: auto;
 }
 
 .kids-header__scores {
   display: flex;
-  gap: clamp(8px, 0.9cqw, 18px);
+  gap: 0.9cqw;
 }
 
 /*
@@ -192,7 +192,7 @@
  * endet in beiden Boxen-SVGs bei rund 47 % der Breite.
  */
 .kids-score {
-  --kids-slice-width: clamp(12px, 1.35cqw, 27px);
+  --kids-slice-width: 1.35cqw;
   display: grid;
   grid-template-columns: 47% 1fr;
   align-items: center;
@@ -201,9 +201,9 @@
    * deutlich flacher gestreckt, schiebt sich das farbige Feld sichtbar ueber
    * die linke Kontur hinaus.
    */
-  min-width: clamp(170px, 13.5cqw, 265px);
-  min-height: clamp(64px, 9.6cqh, 112px);
-  padding: clamp(6px, 0.6cqw, 12px) 0 clamp(8px, 0.8cqw, 16px);
+  min-width: 13.5cqw;
+  min-height: 9.6cqh;
+  padding: 0.6cqw 0 0.8cqw;
 }
 /*
  * Wer nicht am Zug ist, tritt zurueck. Das Boxen-Paket kennt keine eigene
@@ -234,14 +234,14 @@
 }
 
 .kids-counter {
-  --kids-slice-width: clamp(12px, 1.35cqw, 27px);
+  --kids-slice-width: 1.35cqw;
   justify-self: end;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-width: 9cqw;
-  padding: clamp(6px, 0.6cqw, 12px) 0 clamp(8px, 0.8cqw, 16px);
+  padding: 0.6cqw 0 0.8cqw;
   line-height: 1.05;
 }
 .kids-counter__label {
@@ -287,15 +287,16 @@
    */
   flex: 1 1 auto;
   min-height: 0;
-  max-height: clamp(200px, 38cqh, 440px);
+  max-height: 38cqh;
 }
 /* Ohne Bild uebernimmt die Frageflaeche die Bildspalte. */
 .kids-stage--textonly {
-  grid-template-columns: minmax(0, 1fr) 25%;
+  /* Die Fragezeile ist so breit wie die Antworten darunter - eine Spalte reicht. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .kids-media {
-  --kids-slice-width: clamp(28px, 3.75cqw, 75px);
+  --kids-slice-width: 3.75cqw;
   position: relative;
   /*
    * `min-width: 0` ist Pflicht, kein Zierrat: Als Rasterzelle wuerde die Spalte
@@ -310,7 +311,7 @@
    * die Zelle ueberlaufen lassen und genau die Fuge schliessen, die hier
    * sichtbar bleiben soll.
    */
-  padding: clamp(8px, 0.9cqw, 18px);
+  padding: 0.9cqw;
 }
 /*
  * Der einzige Radius dieser Welt. Das Foto ist kein gezeichnetes Bauteil,
@@ -344,18 +345,18 @@
    * Rand. Er wird herausgerechnet, danach schiebt der zweite Summand die
    * Unterkante um die verlangten 8 bis 14 Pixel hinter den Rahmen.
    */
-  transform: translate(-50%, calc(9.4% + clamp(8px, 0.7cqw, 13px)));
+  transform: translate(-50%, calc(9.4% + 0.7cqw));
   pointer-events: none;
 }
 
 .kids-panel {
-  --kids-slice-width: clamp(28px, 3.7cqw, 71px);
+  --kids-slice-width: 3.7cqw;
   /* Nur die Untergrenze - die Zielhoehe kommt aus der Fragezeile. */
-  min-height: clamp(110px, 20cqh, 240px);
-  padding: clamp(16px, 1.9cqw, 40px) clamp(18px, 2.2cqw, 46px);
+  min-height: 20cqh;
+  padding: 1.9cqw 2.2cqw;
 }
 .kids-panel__category {
-  margin: 0 0 clamp(4px, 0.5cqw, 10px);
+  margin: 0 0 0.5cqw;
   font-family: var(--kids-hand);
   font-weight: 400;
   font-size: var(--kids-size-category);
@@ -382,8 +383,8 @@
  */
 .kids-mascot {
   position: absolute;
-  right: clamp(4px, 0.8cqw, 18px);
-  bottom: clamp(10px, 9cqh, 100px);
+  right: 0.8cqw;
+  bottom: 9cqh;
   z-index: -1;
   display: flex;
   justify-content: flex-end;
@@ -392,7 +393,7 @@
 }
 .kids-mascot__figure {
   /* Rund die Haelfte der Bildhoehe - die Quelle traegt 1170 Pixel. */
-  height: clamp(240px, 51cqh, 560px);
+  height: 51cqh;
   width: auto;
 }
 
@@ -429,7 +430,7 @@
  */
 .kids-answer {
   display: grid;
-  grid-template-columns: clamp(48px, 4.7cqw, 82px) minmax(0, 1fr);
+  grid-template-columns: 4.7cqw minmax(0, 1fr);
   align-items: center;
   gap: var(--kids-chip-gap);
   color: var(--kids-ink);
@@ -446,7 +447,7 @@
 }
 
 .kids-answer__chip {
-  --kids-slice-width: clamp(12px, 1.25cqw, 24px);
+  --kids-slice-width: 1.25cqw;
   /*
    * Feste Spalte, feste Groesse: Bei zweizeiligem Text darf der Buchstabe weder
    * mitwachsen noch nach unten rutschen.
@@ -466,11 +467,11 @@
 
 /* Die breite Kartenzeichnung - und nur sie - traegt den Antworttext. */
 .kids-answer__surface {
-  --kids-slice-width: clamp(12px, 1.25cqw, 24px);
+  --kids-slice-width: 1.25cqw;
   display: flex;
   align-items: center;
-  min-height: clamp(58px, 8cqh, 104px);
-  padding: clamp(8px, 0.85cqw, 18px) clamp(16px, 1.6cqw, 34px);
+  min-height: 8cqh;
+  padding: 0.85cqw 1.6cqw;
 }
 
 .kids-answer__text {
@@ -502,7 +503,6 @@
 .stage--kids .result__winner,
 .stage--kids .pause__progress,
 .stage--kids .pause__category,
-.stage--kids .scene__hint,
 .stage--kids .tile__label {
   font-family: var(--kids-hand);
   font-weight: 400;
@@ -513,12 +513,130 @@
   font-family: var(--kids-numeric);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: var(--kids-ink);
 }
 .stage--kids .progress-ring__arc {
   stroke: var(--kids-ink);
 }
 .stage--kids .progress-ring__track {
-  stroke: rgb(23 37 56 / 0.15);
+  stroke: rgb(14 9 12 / 0.15);
+}
+
+/* ------------------------------------------------------------------ *
+ * Kopfzeile der gemeinsamen Szenen
+ *
+ * Bildeinblenden, Zwischenscreen, Rueckmeldung, Video und Ergebnis nutzen die
+ * allgemeine `StageHeader`-Kopfzeile. In der Kinderwelt bekommt sie dieselben
+ * Zeichnungen wie die Kinder-Kopfzeile: Die Spielergruppe traegt die
+ * Spielerkarte, der Fragezaehler den Zaehlerchip. Die Kacheln darin werden
+ * durchsichtig - Milchglas, Radien und gerechnete Schatten haben in dieser
+ * Welt nichts verloren.
+ * ------------------------------------------------------------------ */
+
+.stage--kids .tile {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--kids-ink);
+}
+/* Auch die Zustandsfarben entfallen - wer am Zug ist, zeigt die Karte selbst. */
+.stage--kids .tile--active,
+.stage--kids .tile--quiet {
+  background: none;
+}
+
+.stage--kids .stage-header__player {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.35cqw;
+  border-image: url('/assets/kinderquiz/boxes/chip-score-player1.svg') 26 fill / 1.35cqw / 0 stretch;
+}
+.stage--kids .stage-header__player--mirrored {
+  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player2.svg');
+}
+/* Wer nicht am Zug ist, tritt zurueck - wie in der Kinder-Kopfzeile. */
+.stage--kids .stage-header__player:not(:has(.tile--active)) {
+  opacity: 0.72;
+}
+
+.stage--kids .stage-header__progress {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.35cqw;
+  border-image: url('/assets/kinderquiz/boxes/chip-question-counter.svg') 26 fill / 1.35cqw / 0 stretch;
+}
+
+/* Grosse Kacheln der Ergebnisansicht: Papierkarte statt Milchglas. */
+.stage--kids .tile--result {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.25cqw;
+  border-image: url('/assets/kinderquiz/boxes/badge-letter-a.svg') 24 fill / 1.25cqw / 0 stretch;
+}
+
+/* ------------------------------------------------------------------ *
+ * Bildeinblenden
+ * ------------------------------------------------------------------ */
+
+/*
+ * Das enthuellte Foto steht im gezeichneten Portraetrahmen - derselbe Aufbau
+ * wie `.kids-media`: Die Zeichnung liegt als Pseudoelement HINTER dem Bild,
+ * das Foto wechselt, der Rahmen nie.
+ */
+.stage--kids .media-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  /*
+   * Das Foto endet INNERHALB der gezeichneten Kontur. Beim Bilderkennen ist es
+   * weichgezeichnet, und die Unschaerfe schmiert ueber jede Kante, die zu nah
+   * an der Linie liegt - deshalb sitzt es hier tiefer im Rahmen als das
+   * scharfe Fragefoto der Kinderansicht.
+   */
+  padding: 1.7cqw;
+}
+.stage--kids .media-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 3.75cqw;
+  border-image: url('/assets/kinderquiz/boxes/frame-portrait.svg') 72 fill / 3.75cqw / 0 stretch;
+  pointer-events: none;
+}
+.stage--kids .media-frame__image {
+  border-radius: 1cqw;
+  /*
+   * `border-radius` beschneidet nur das Bild, nicht die Weichzeichnung - ein
+   * Filter malt ueber die Elementkante hinaus und wuerde die gezeichnete Kontur
+   * vernebeln. `clip-path` greift NACH dem Filter und haelt den Schleier im
+   * Rahmen.
+   */
+  clip-path: inset(0 round 1cqw);
+}
+
+/*
+ * Hinweis auf die zweite Chance: gelber gezeichneter Chip statt Akzentflaeche
+ * mit Radius und Schatten.
+ */
+.stage--kids .scene__hint {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1cqw;
+  border-image: url('/assets/kinderquiz/boxes/badge-letter-b.svg') 24 fill / 1cqw / 0 stretch;
+  color: var(--kids-ink);
+  font-family: var(--kids-hand);
+  font-weight: 400;
 }
 
 /* ------------------------------------------------------------------ *
@@ -538,13 +656,13 @@
     grid-template-columns: 27% minmax(0, 54%);
   }
   .kids-stage--textonly {
-    grid-template-columns: minmax(0, 81%) 19%;
+    grid-template-columns: minmax(0, 1fr);
   }
   .kids-mascot__figure {
-    height: clamp(180px, 40cqh, 380px);
+    height: 40cqh;
   }
   .kids-answer {
-    grid-template-columns: clamp(44px, 6cqw, 70px) minmax(0, 1fr);
+    grid-template-columns: 6cqw minmax(0, 1fr);
   }
 }
 

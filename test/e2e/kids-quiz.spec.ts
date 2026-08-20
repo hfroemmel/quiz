@@ -136,6 +136,10 @@ test.describe('Zustaende der Antworten', () => {
 
   test('traegt die breite Kartenzeichnung nur auf der Antwortflaeche, nie auf der Zeile', async ({ page }) => {
     await openKids(page)
+    // Alle Masse sind reine Containermasse - gemessen wird im Zielformat.
+    await fullBleed(page)
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await page.waitForTimeout(200)
 
     /*
      * Der Kern der Korrektur: Chip und Karte sind zwei Zeichnungen. Laege die
