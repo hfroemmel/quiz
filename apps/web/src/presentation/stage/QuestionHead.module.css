@@ -35,6 +35,16 @@
   font-family: var(--font-heading);
 }
 
+/*
+ * Portraetfrage: Die Rubrik steht als kleine Versalzeile ueber der Frage. Sie
+ * hat dort keine Bildspalte neben sich, an der sie sich ausrichten koennte -
+ * die Versalien geben ihr die Kante zurueck.
+ */
+:global(.stage[data-presentation='person']) .category {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
 /* ------------------------------------------------------------------ *
  * Kinderwelt
  *

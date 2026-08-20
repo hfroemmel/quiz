@@ -21,6 +21,12 @@ async function selectTheme(page: Page, theme: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(1).selectOption(theme)
 }
 
+/** Nur in Frage- und Loesungsszene vorhanden; dort steht die Auswahl an dritter Stelle. */
+async function selectQuestionType(page: Page, type: string): Promise<void> {
+  await page.locator('[data-preview-panel] select').nth(2).selectOption(type)
+  await expect(page.locator('.stage')).toHaveAttribute('data-presentation', type)
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/preview')
   await expect(page.locator('[data-preview-stage]')).toBeVisible()
@@ -49,6 +55,26 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await expect(page.locator('[data-answer][data-state="selected"]')).toHaveCount(1)
     // Ob sie stimmt, verraet die Buehne erst in der Loesungsszene.
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
+  })
+
+  test('Portraetfrage stellt das Bild neben Rubrik, Frage und Antworten', async ({ page }) => {
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'person')
+    await expect(page.locator('[data-media][data-variant="portrait"] [data-media-image]')).toBeVisible()
+    await expect(page.locator('[data-answer]')).toHaveCount(4)
+
+    /*
+     * Der Kern dieser Anordnung ist die Nebeneinanderstellung: Das Portraet steht
+     * links, alles andere in einer Spalte rechts DANEBEN - nicht darunter wie bei
+     * den uebrigen Bildfragen.
+     */
+    const portrait = await page.locator('[data-variant="portrait"]').boundingBox()
+    const prompt = await page.locator('[data-prompt]').boundingBox()
+    const answers = await page.locator('[data-answers]').boundingBox()
+    expect(portrait && prompt && answers).toBeTruthy()
+    expect(prompt!.x).toBeGreaterThanOrEqual(portrait!.x + portrait!.width)
+    expect(answers!.x).toBeGreaterThanOrEqual(portrait!.x + portrait!.width)
+    expect(answers!.y).toBeLessThan(portrait!.y + portrait!.height)
   })
 
   test('Bilderkennen zeigt Countdown und unscharfes Bild', async ({ page }) => {
@@ -194,4 +220,14 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
       })
     })
   }
+
+  test('Szene question als Portraetfrage', async ({ page }) => {
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'person')
+    await page.waitForTimeout(300)
+    await expect(page.locator('[data-preview-stage]')).toHaveScreenshot('scene-question-person.png', {
+      maxDiffPixelRatio: 0.02,
+      animations: 'disabled',
+    })
+  })
 })

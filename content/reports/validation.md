@@ -7,48 +7,48 @@ Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 - Medien: 194
 - Nach Modus: adults=143, kids=56
 - Nach Schwierigkeit: medium=85, easy=63, hard=51
-- Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7
+- Nach Praesentationstyp: image-choice=123, image-reveal=64, text-choice=7, person=5
 - Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
-Spiele ohne Wiederholung: 20
-- Platz 1 "einstieg": 20 Kandidaten, 20 Wiederholungsgruppen
+Spiele ohne Wiederholung: 19
+- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
 - Platz 2 "wissen": 42 Kandidaten, 42 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "vertiefung": 102 Kandidaten, 101 Wiederholungsgruppen
 - Platz 5 "steigerung": 60 Kandidaten, 59 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 89 Kandidaten, 89 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
 - Platz 7 "finale": 101 Kandidaten, 100 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "medium"
-Spiele ohne Wiederholung: 20
-- Platz 1 "einstieg": 20 Kandidaten, 20 Wiederholungsgruppen
+Spiele ohne Wiederholung: 19
+- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
 - Platz 2 "wissen": 60 Kandidaten, 59 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "parlament": 70 Kandidaten, 69 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 69 Kandidaten, 69 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 65 Kandidaten, 65 Wiederholungsgruppen
 - Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "hard"
 Spiele ohne Wiederholung: 13
-- Platz 1 "einstieg": 39 Kandidaten, 39 Wiederholungsgruppen
+- Platz 1 "einstieg": 36 Kandidaten, 36 Wiederholungsgruppen
 - Platz 2 "wissen": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: steigerung, finale
 - Platz 3 "bilderkennen": 25 Kandidaten, 24 Wiederholungsgruppen
 - Platz 4 "parlament": 76 Kandidaten, 75 Wiederholungsgruppen
 - Platz 5 "steigerung": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, finale
-- Platz 6 "bildauswahl": 31 Kandidaten, 31 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 30 Kandidaten, 30 Wiederholungsgruppen
 - Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, steigerung
 
 ### Modus "adults" / Preset "mixed"
-Spiele ohne Wiederholung: 20
-- Platz 1 "einstieg": 20 Kandidaten, 20 Wiederholungsgruppen
+Spiele ohne Wiederholung: 19
+- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
 - Platz 2 "wissen": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: finale
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "orte": 60 Kandidaten, 60 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 89 Kandidaten, 89 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
 - Platz 7 "finale": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "kids" / Preset "easy"

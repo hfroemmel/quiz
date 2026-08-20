@@ -12,7 +12,7 @@
  */
 import { useMemo, useState } from 'react'
 import { kidsDesignColors, stageDesignColors } from '../../theme/designTokens.ts'
-import type { PublicQuizViewModel, PublicScene, ThemeSkin } from '@quiz/contracts'
+import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@quiz/contracts'
 import { gameTiming } from '@quiz/contracts'
 import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { transitions } from '../../presentation/transitions/registry.ts'
@@ -36,8 +36,21 @@ const SKINS: Record<string, ThemeSkin> = { default: 'default', kids: 'kids' }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
 
+/**
+ * Fragetypen mit eigener Anordnung, die sich in der Frage- und der Loesungsszene
+ * pruefen lassen. `image-reveal` und `video-then-question` haben eigene Szenen und
+ * stehen deshalb nicht zur Wahl.
+ */
+const QUESTION_TYPES: QuestionPresentationType[] = ['image-choice', 'text-choice', 'person']
+
 export function PreviewApp() {
   const [scene, setScene] = useState<PublicScene>('question')
+  /*
+   * `null` heisst: die Szene behaelt ihren eigenen Beispieltyp. Nur so bleiben die
+   * Referenzbilder der Szenenvorschau vergleichbar, waehrend sich jeder Fragetyp
+   * bei Bedarf einzeln aufrufen laesst.
+   */
+  const [questionType, setQuestionType] = useState<QuestionPresentationType | null>(null)
   const [themeId, setThemeId] = useState('default')
   const [feedbackOutcome, setFeedbackOutcome] = useState<'correct' | 'incorrect'>('correct')
   const [revealElapsedMs, setRevealElapsedMs] = useState(3_000)
@@ -52,8 +65,8 @@ export function PreviewApp() {
   const [runId, setRunId] = useState(0)
 
   const view = useMemo(
-    () => buildSampleView({ scene, themeId, feedbackOutcome, revealElapsedMs, draw, longText }),
-    [scene, themeId, feedbackOutcome, revealElapsedMs, draw, longText],
+    () => buildSampleView({ scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText }),
+    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText],
   )
 
   if (!import.meta.env.DEV) {
@@ -93,6 +106,25 @@ export function PreviewApp() {
             ))}
           </select>
         </label>
+
+        {(scene === 'question' || scene === 'solution') && (
+          <label className="field">
+            <span>Fragetyp</span>
+            <select
+              value={questionType ?? ''}
+              onChange={(event) =>
+                setQuestionType(event.target.value === '' ? null : (event.target.value as QuestionPresentationType))
+              }
+            >
+              <option value="">Vorgabe der Szene</option>
+              {QUESTION_TYPES.map((entry) => (
+                <option key={entry} value={entry}>
+                  {entry}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         {scene === 'feedback' && (
           <label className="field">
@@ -182,6 +214,22 @@ const previewImage =
     </svg>`,
   )
 
+/**
+ * Portraet der Vorschau fuer den Fragetyp `person`.
+ *
+ * Nahezu quadratisch, weil die Anordnung das Bild hochkant gross herausstellt; ein
+ * Querformat wuerde die Spaltenaufteilung falsch beurteilen lassen.
+ */
+const previewPortrait =
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 620" width="640" height="620">
+      <rect width="640" height="620" fill="#5C5C5C"/>
+      <circle cx="320" cy="250" r="120" fill="#8A8A8A"/>
+      <path d="M120 620c0-125 90-205 200-205s200 80 200 205z" fill="#8A8A8A"/>
+    </svg>`,
+  )
+
 /** Startbild der Vorschau - ebenfalls ohne Serveradresse. */
 const previewStartVisual =
   'data:image/svg+xml;charset=utf-8,' +
@@ -206,8 +254,38 @@ const LONG_ANSWERS = [
   'Sie beruft die Ausschüsse ein und bestimmt die Reihenfolge der Redebeiträge aller Fraktionen.',
 ]
 
+/**
+ * Beispielfrage je Anordnung.
+ *
+ * `person` bekommt eine eigene Frage samt Portraet: Die Anordnung stellt das Bild
+ * gross heraus und laesst sich mit einer Erdkundefrage nicht beurteilen.
+ */
+function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
+  if (type === 'person') {
+    return {
+      question: {
+        prompt: longText ? LONG_PROMPT : 'Wer ist diese Politikerin?',
+        presentationType: type,
+        categoryLabel: 'Personen',
+        imageUrl: previewPortrait,
+      },
+      answers: ['Bärbel Bas', 'Rita Süssmuth', 'Annemarie Renger', 'Hildegard Hamm-Brücher'],
+    }
+  }
+  return {
+    question: {
+      prompt: longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
+      presentationType: type,
+      categoryLabel: 'Erdkunde',
+      ...(type === 'image-choice' ? { imageUrl: previewImage } : {}),
+    },
+    answers: ['Rhein', 'Elbe', 'Donau', 'Main'],
+  }
+}
+
 function buildSampleView(input: {
   scene: PublicScene
+  questionType: QuestionPresentationType | null
   themeId: string
   feedbackOutcome: 'correct' | 'incorrect'
   revealElapsedMs: number
@@ -240,25 +318,22 @@ function buildSampleView(input: {
   }
 
   switch (input.scene) {
-    case 'question':
+    case 'question': {
+      const sample = sampleQuestion(input.questionType ?? 'image-choice', input.longText)
       return {
         ...base,
-        question: {
-          prompt: input.longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
-          presentationType: 'image-choice',
-          categoryLabel: 'Erdkunde',
-          imageUrl: previewImage,
-        },
+        question: sample.question,
         visibleOptions: [
-          { id: 'o1', text: text('Rhein', 0) },
+          { id: 'o1', text: text(sample.answers[0]!, 0) },
           // Eingeloggte Antwort: oeffentlich markiert, aber ohne Bewertung.
-          { id: 'o2', text: text('Elbe', 1), state: 'chosen' },
-          { id: 'o3', text: text('Donau', 2) },
+          { id: 'o2', text: text(sample.answers[1]!, 1), state: 'chosen' },
+          { id: 'o3', text: text(sample.answers[2]!, 2) },
           // Zweite Chance: diese Antwort war schon falsch und ist verbraucht.
-          { id: 'o4', text: text('Main', 3), state: 'chosen-incorrect' },
+          { id: 'o4', text: text(sample.answers[3]!, 3), state: 'chosen-incorrect' },
         ],
         currentPlayer: 'player-1',
       }
+    }
     case 'reveal':
       return {
         ...base,
@@ -288,25 +363,23 @@ function buildSampleView(input: {
           awardedPoints: input.feedbackOutcome === 'correct' ? 100 : 0,
         },
       }
-    case 'solution':
+    case 'solution': {
+      const sample = sampleQuestion(input.questionType ?? 'text-choice', input.longText)
       return {
         ...base,
         phase: 'solution',
         // Letzte Frage: prueft zugleich den Zaehler 7/7.
         progress: { current: 7, total: 7 },
-        question: {
-          prompt: input.longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
-          presentationType: 'text-choice',
-          categoryLabel: 'Erdkunde',
-        },
+        question: sample.question,
         visibleOptions: [
-          { id: 'o1', text: text('Rhein', 0), state: 'correct' },
-          { id: 'o2', text: text('Elbe', 1), state: 'chosen-incorrect' },
-          { id: 'o3', text: text('Donau', 2) },
-          { id: 'o4', text: text('Main', 3) },
+          { id: 'o1', text: text(sample.answers[0]!, 0), state: 'correct' },
+          { id: 'o2', text: text(sample.answers[1]!, 1), state: 'chosen-incorrect' },
+          { id: 'o3', text: text(sample.answers[2]!, 2) },
+          { id: 'o4', text: text(sample.answers[3]!, 3) },
         ],
-        visibleSolution: { answerText: 'Rhein' },
+        visibleSolution: { answerText: sample.answers[0]! },
       }
+    }
     case 'result':
       return {
         ...base,

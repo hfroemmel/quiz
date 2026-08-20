@@ -19,6 +19,20 @@
   width: 34cqw;
   aspect-ratio: 4 / 3;
 }
+/*
+ * Portraet: fast quadratisch - so, wie ein Mensch auf einem Querformatfoto
+ * sitzt, wenn man ihn beschneidet. Der Ausschnitt liegt etwas ueber der Mitte,
+ * weil Gesichter im oberen Drittel eines Bildes stehen.
+ *
+ * Als einziges Medium bemisst es sich nach der HOEHE der Buehne: Es ist der
+ * Inhalt der Frage und soll den Raum unter der Kopfzeile fuellen. Die Breite
+ * folgt daraus - so bleibt der Ausschnitt in jedem Seitenverhaeltnis derselbe,
+ * statt bei flachen Buehnen unten herauszuragen.
+ */
+.portrait {
+  height: 66cqh;
+  aspect-ratio: 64 / 62;
+}
 .image {
   display: block;
   width: 100%;
@@ -39,6 +53,18 @@
   overflow: hidden;
   border-radius: var(--stage-radius);
   background: var(--color-tile);
+}
+/*
+ * Das Portraet ist das Herz der Ansicht und bekommt deshalb als einziges Medium
+ * eine sichtbare Fassung: eine haarfeine helle Kante, damit es sich auch von
+ * einem hellen Motiv her gegen den dunklen Grund absetzt.
+ */
+:global(.stage--default) .portrait {
+  border-radius: calc(var(--stage-radius) * 1.6);
+  box-shadow: inset 0 0 0 0.12cqw rgb(255 255 255 / 0.22);
+}
+:global(.stage--default) .portrait .image {
+  object-position: center 30%;
 }
 
 /* ------------------------------------------------------------------ *

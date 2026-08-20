@@ -28,6 +28,21 @@ export function answerState(option: PublicOption, scene: PublicScene): AnswerSta
   return 'idle'
 }
 
+/**
+ * Antwortzeilen aus den Optionen des Servers.
+ *
+ * Frage- und Loesungsszene bauen dieselben Zeilen; die Ableitung steht deshalb
+ * hier und nicht zweimal in den Szenen.
+ */
+export function answerRows(options: PublicOption[], scene: PublicScene) {
+  return options.map((option, index) => ({
+    id: option.id,
+    letter: optionLetter(index),
+    text: option.text,
+    state: answerState(option, scene),
+  }))
+}
+
 /** Buchstabe zur Position: 0 wird zu A. */
 export function optionLetter(index: number): string {
   return String.fromCharCode(65 + index)

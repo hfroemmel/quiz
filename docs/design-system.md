@@ -424,8 +424,9 @@ Nur fuenf Stylesheets sind global, und jedes aus einem Grund:
 |---|---|---|
 | `Score` | Punktekarte eines Spielers | `header`, `result`, gespiegelt |
 | `Counter` | Fragenzaehler | - |
+| `QuestionComposition` | Anordnung von Bild, Frage und Antworten | untereinander, Portraet nebeneinander |
 | `QuestionHead` | Medium und Fragetafel | mit und ohne Bild |
-| `Media` | Bildrahmen mit Schaerfegrad | `inline`, `reveal`, `solution` |
+| `Media` | Bildrahmen mit Schaerfegrad | `inline`, `reveal`, `solution`, `portrait` |
 | `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
 | `SecondChanceHint` | Hinweis auf die zweite Chance | - |
 | `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
@@ -439,3 +440,24 @@ Damit ist jede visuelle Aenderung eine Aenderung an genau einer Datei.
 Bauteile tragen dafuer stabile Datenattribute (`data-answer`, `data-panel`,
 `data-score`, `data-counter`, `data-media`, `data-prompt` ...); der Zustand einer
 Antwortzeile steht in `data-state`.
+
+## Anordnung nach Fragetyp
+
+Frage- und Loesungsszene bauen ihre Inhalte nicht selbst zusammen, sondern
+uebergeben sie an `QuestionComposition`. Nur dieses Bauteil kennt den Unterschied
+zwischen den Anordnungen; beide Szenen bleiben dadurch gleich aufgebaut.
+
+| Typ | Anordnung |
+|---|---|
+| `text-choice` | Rubrik und Frage ueber die volle Breite, Antworten darunter |
+| `image-choice` | Bild links, Rubrik und Frage daneben, Antworten darunter |
+| `person` | Portraet gross links, Rubrik, Frage und Antworten rechts daneben |
+
+Die Buehne traegt den Typ als `data-presentation`. Bauteile, die sich in einer
+Anordnung anders verhalten muessen - der linksbuendige Antworttext der
+Portraetfrage etwa - haengen ihre Regel an dieses Attribut, statt eine eigene
+Variante zu bekommen.
+
+Beim Portraet haengen die Masse an der **Hoehe** der Buehne (`cqh`), nicht wie
+sonst an ihrer Breite: Bild und Antwortspalte sollen gleich weit nach unten
+reichen, und das Bild darf auf einer flachen Buehne nicht unten herausragen.

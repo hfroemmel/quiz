@@ -89,6 +89,37 @@
   background: color-mix(in srgb, var(--color-option) 55%, transparent);
 }
 
+/*
+ * Portraetfrage: Die Antworten stehen in einer Spalte neben dem Bild und tragen
+ * dort die Ansicht zur Haelfte. Sie sind deshalb hoeher und stehen weiter
+ * auseinander als unter einer Frage, und ihre Masse haengen - wie das Portraet
+ * daneben - an der HOEHE der Buehne, damit beide Spalten gleich weit reichen.
+ *
+ * Zentrierter Text wirkt in dieser Spalte unruhig: Die Namen beginnen alle an
+ * derselben Kante, direkt hinter dem Buchstaben.
+ */
+:global(.stage[data-presentation='person']) .surface {
+  justify-content: flex-start;
+  padding-left: 1.6cqw;
+}
+:global(.stage--default[data-presentation='person']) .answers {
+  gap: 3.1cqh;
+}
+:global(.stage--default[data-presentation='person']) .answer {
+  min-height: 8.7cqh;
+  gap: 0.9cqw;
+}
+/*
+ * Der Buchstabe steht in einem nahezu quadratischen Feld. Die Breite ist gesetzt
+ * und nicht aus der Zeilenhoehe abgeleitet: Als Flexbaustein bekommt der Chip
+ * seine Breite, bevor die Zeilenhoehe feststeht - ein Seitenverhaeltnis bliebe
+ * wirkungslos.
+ */
+:global(.stage--default[data-presentation='person']) .chip {
+  min-width: 9cqh;
+  font-size: 2.4cqw;
+}
+
 /* ------------------------------------------------------------------ *
  * Kinderwelt: gezeichnete Karten, je Zeile eine eigene Kontur
  * ------------------------------------------------------------------ */

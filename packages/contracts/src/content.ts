@@ -12,14 +12,38 @@
 import { z } from 'zod'
 import { contentThresholds } from './config.ts'
 
-/** Praesentationsform einer Frage auf dem Buehnenscreen. */
+/**
+ * Praesentationsform einer Frage auf dem Buehnenscreen.
+ *
+ * `person` ist eine Auswahlfrage mit Bild wie `image-choice` - sie unterscheidet
+ * sich ausschliesslich in der Komposition: Das Portraet traegt die Ansicht und
+ * steht gross links, Frage und Antworten stehen daneben. Fachlich laeuft sie
+ * durch dieselben Regeln.
+ */
 export const questionPresentationTypes = [
   'text-choice',
   'image-choice',
+  'person',
   'image-reveal',
   'video-then-question',
 ] as const
 export type QuestionPresentationType = (typeof questionPresentationTypes)[number]
+
+/**
+ * Braucht dieser Fragetyp Antwortoptionen?
+ *
+ * EINZIGE QUELLE DIESER ENTSCHEIDUNG - Validierung und Inhaltspflege fragen
+ * hier. Wer einen Typ ergaenzt, muss ihn hier einsortieren; eine vergessene
+ * Aufzaehlung an anderer Stelle faellt sonst erst im Betrieb auf.
+ */
+export function presentationNeedsOptions(type: QuestionPresentationType): boolean {
+  return type === 'text-choice' || type === 'image-choice' || type === 'person'
+}
+
+/** Braucht dieser Fragetyp ein Bild? */
+export function presentationNeedsImage(type: QuestionPresentationType): boolean {
+  return type === 'image-choice' || type === 'person' || type === 'image-reveal'
+}
 
 /** Wie ein Versuch bewertet wird. */
 export const evaluationModes = ['option-comparison', 'manual-correct-incorrect'] as const

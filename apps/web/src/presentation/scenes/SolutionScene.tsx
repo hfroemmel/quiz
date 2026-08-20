@@ -5,8 +5,8 @@
  * klaren Abschlusszustand. Der Moderator hat jetzt Zeit zu sprechen - die App
  * wechselt NICHT automatisch weiter.
  *
- * Aufbau: Kopfzone wie in der Frage, darunter die Zeile "Richtige Antwort:" und
- * die Antwortzeilen. Bei Auswahlfragen stehen alle Optionen in der Reihenfolge
+ * Aufbau: dieselbe Komposition wie die Frage, dazwischen die Zeile
+ * "Richtige Antwort:". Bei Auswahlfragen stehen alle Optionen in der Reihenfolge
  * des Servers, und nur die richtige traegt Farbe; bei freien Antworten steht
  * eine einzelne Zeile ohne Buchstaben.
  *
@@ -17,42 +17,36 @@
  * Alle hier sichtbaren Daten kommen aus `visibleSolution` bzw. `visibleOptions`, die
  * der Server ausschliesslich in dieser Szene mitsendet.
  */
-import { AnswerList, type AnswerRow } from '../stage/AnswerList.tsx'
-import { answerState, optionLetter } from '../stage/answerState.ts'
-import { QuestionHead } from '../stage/QuestionHead.tsx'
+import { answerRows } from '../stage/answerState.ts'
+import { QuestionComposition } from '../stage/QuestionComposition.tsx'
+import type { AnswerRow } from '../stage/AnswerList.tsx'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function SolutionScene({ view }: SceneProps) {
   const solution = view.visibleSolution
-  if (!solution) return null
+  const question = view.question
+  if (!solution || !question) return null
 
   const options = view.visibleOptions ?? []
   const rows: AnswerRow[] =
     options.length > 0
-      ? options.map((option, index) => ({
-          id: option.id,
-          letter: optionLetter(index),
-          text: option.text,
-          state: answerState(option, view.scene),
-        }))
+      ? answerRows(options, view.scene)
       : // Freie Antwort - etwa beim Bilderkennen: eine Zeile, kein Buchstabe.
         [{ id: 'solution', text: solution.answerText, state: 'correct' }]
 
   return (
     <div className={`${styles.scene} ${styles.solution}`}>
-      {view.question && (
-        <QuestionHead
-          question={view.question}
-          imageUrl={solution.imageUrl ?? view.question.imageUrl}
-          variant="solution"
-        />
-      )}
-
-      <p className={styles.solutionLabel} data-solution-label="">
-        Richtige Antwort:
-      </p>
-      <AnswerList rows={rows} />
+      <QuestionComposition
+        question={question}
+        imageUrl={solution.imageUrl ?? question.imageUrl}
+        mediaVariant="solution"
+        rows={rows}
+      >
+        <p className={styles.solutionLabel} data-solution-label="">
+          Richtige Antwort:
+        </p>
+      </QuestionComposition>
     </div>
   )
 }

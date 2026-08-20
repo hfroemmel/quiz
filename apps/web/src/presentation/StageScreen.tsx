@@ -148,6 +148,7 @@ export function StageScreen({
           .join(' ')}
         style={transitionStyle(transition)}
         data-scene={view.scene}
+        data-presentation={view.question?.presentationType}
         data-skin={skin}
         data-theme={theme ?? skin}
         data-phase={view.phase}

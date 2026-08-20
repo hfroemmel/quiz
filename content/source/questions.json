@@ -3580,7 +3580,7 @@
     ],
     "tags": [],
     "prompt": "Die Bundestagspräsidentin bzw. der Bundestagspräsident …",
-    "presentationType": "image-choice",
+    "presentationType": "person",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3618,7 +3618,7 @@
     ],
     "tags": [],
     "prompt": "Wer war sowohl Parlamentspräsident im Reichstag der Weimarer Republik als auch 1. Alterspräsident im Deutschen Bundestag 1949?",
-    "presentationType": "image-choice",
+    "presentationType": "person",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3656,7 +3656,7 @@
     ],
     "tags": [],
     "prompt": "Welcher dieser Regierungschefs wurde nicht vier Mal vom Bundestag zum Bundeskanzler gewählt?",
-    "presentationType": "image-choice",
+    "presentationType": "person",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3694,7 +3694,7 @@
     ],
     "tags": [],
     "prompt": "Welche dieser Politikerinnen war niemals Bundestagspräsidentin?",
-    "presentationType": "image-choice",
+    "presentationType": "person",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3811,7 +3811,7 @@
     ],
     "tags": [],
     "prompt": "Friedrich Merz ist der wievielte Bundeskanzler in der 75-jährigen Geschichte der Bundesrepublik?",
-    "presentationType": "image-choice",
+    "presentationType": "person",
     "evaluationMode": "option-comparison",
     "options": [
       {

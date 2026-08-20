@@ -22,7 +22,7 @@ interface MediaProps {
    * die Ring und Schaerfe gegeneinander halten.
    */
   blurPx?: number
-  variant?: 'inline' | 'reveal' | 'solution'
+  variant?: 'inline' | 'reveal' | 'solution' | 'portrait'
 }
 
 export function Media({ src, blurPx, variant = 'inline' }: MediaProps) {
