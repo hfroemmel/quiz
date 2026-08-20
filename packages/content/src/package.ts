@@ -113,16 +113,22 @@ export function buildPackage(options: BuildOptions): BuildResult {
     return { manifest: emptyManifest(options), validation, outDir: options.outDir, missingAssetFiles: [] }
   }
 
-  const parsedConfig = quizConfigSchema.parse(source.config)
+  const sourceConfig = quizConfigSchema.parse(source.config)
   /*
    * Die Themes verlassen die Quelle mit ihren Abweichungen und kommen mit dem
    * vollstaendigen Farbsatz ins Paket. Nur so bleibt das Paket allein lesbar:
    * Server und Client sehen fertige Farben, ohne die Farbdatei zu kennen.
+   *
+   * DER ZWEITE `parse` IST PFLICHT, nicht Zierde: Die Pruefsumme laeuft ueber
+   * `JSON.stringify`, und dort zaehlt die Reihenfolge der Schluessel. Ein
+   * ergaenztes `colors` stuende am Ende des Objekts, waehrend der Ladeweg es
+   * ueber das Schema an seinen Platz sortiert - das Paket wuerde beim Start mit
+   * "Pruefsumme stimmt nicht" abgewiesen.
    */
-  const config: QuizConfig = {
-    ...parsedConfig,
-    themes: parsedConfig.themes.map((theme) => ({ ...theme, colors: resolveThemeColors(theme) })),
-  }
+  const config: QuizConfig = quizConfigSchema.parse({
+    ...sourceConfig,
+    themes: sourceConfig.themes.map((theme) => ({ ...theme, colors: resolveThemeColors(theme) })),
+  })
   const questions = questionSchema.array().parse(source.questions)
 
   // Normalisierung: stabile Sortierung, damit Builds reproduzierbar sind.

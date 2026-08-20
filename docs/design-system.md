@@ -166,20 +166,28 @@ Die achtzehn Token oben gehoeren der **Buehne**. Die Bedienoberflaeche des
 Operators - und ebenso die Moderatoransicht - hat ein eigenes, festes
 Farbsystem, das ein Moduswechsel NICHT umtaucht:
 
-| Variable | Wert | Verwendung |
-|---|---|---|
-| `--ui-page` | `#0D0F13` | Seitenhintergrund der Bedienoberflaeche |
-| `--ui-surface` | `#171B21` | Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel |
-| `--ui-surface-quiet` | `#12151A` | Kopf- und Fusszeile |
-| `--ui-control` | `#242A33` | Schaltflaechen, Icontasten |
-| `--ui-control-disabled` | `#1A1E24` | gesperrte Icontaste |
-| `--ui-input` | `rgb(0 0 0 / 0.35)` | Eingabefelder |
-| `--ui-border` | `rgb(255 255 255 / 0.1)` | Raender und Trennlinien |
-| `--ui-text` | `#FFFFFF` | Text |
-| `--ui-text-muted` | `rgb(255 255 255 / 0.5)` | Beschriftungen, Nebeninformation |
-| `--ui-accent` | `#3693B3` | primaere Handlung, richtige Antwort im privaten Bereich, Auswahlring |
-| `--ui-correct` | `#25A7B0` | `Antwort war richtig`, Markierung der richtigen Option |
-| `--ui-incorrect` | `#A62749` | `Antwort war falsch`, Warnungen |
+Auch diese Werte stehen in `packages/contracts/src/theme.ts` (`uiPalette`) und
+nicht hier:
+
+| Variable | Verwendung |
+|---|---|
+| `--ui-page` | Seitenhintergrund der Bedienoberflaeche |
+| `--ui-surface` | Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel |
+| `--ui-surface-quiet` | Kopf- und Fusszeile |
+| `--ui-surface-raised` | aufgehellte Flaeche innerhalb einer Karte |
+| `--ui-control` | Schaltflaechen, Icontasten |
+| `--ui-control-disabled` | gesperrte Icontaste |
+| `--ui-input` | Eingabefelder |
+| `--ui-border` | Raender und Trennlinien |
+| `--ui-border-quiet` | Trennlinie innerhalb einer Karte |
+| `--ui-border-strong` | Kante eines Feldes, das sich absetzen soll |
+| `--ui-scrim`, `--ui-scrim-quiet` | Flaeche hinter einem Popup, Grund einer Vorschaukachel |
+| `--ui-text` | Text |
+| `--ui-text-muted` | Beschriftungen, Nebeninformation |
+| `--ui-accent` | primaere Handlung, richtige Antwort im privaten Bereich, Auswahlring |
+| `--ui-correct` | `Antwort war richtig`, Markierung der richtigen Option |
+| `--ui-incorrect` | `Antwort war falsch`, Warnungen |
+| `--ui-warning-soft`, `--ui-error-soft` | hinterlegte Meldungen im Verbindungsband |
 
 Der Grund fuer die Trennung ist praktisch, nicht gestalterisch: Der Saal soll die
 Farbe des Quizmodus sehen, der Operator dagegen immer dieselbe Flaeche - er
@@ -192,17 +200,27 @@ auf `--ui-*` zu und umgekehrt.
 
 ### Rollenfarben
 
-| Token | Wert | Bedeutung |
+Die Bedeutungsfarben stammen aus dem **Farbspektrum des Bundes**. Ausgewaehlt
+wurde je Token der Ton mit dem kleinsten Abstand zur zuvor gesetzten Farbe
+(CIELAB), damit die Buehne ihr Bild behaelt und trotzdem amtliche Werte traegt.
+Die dunkle Fassung nimmt die Aufhellungen der Abstufungsreihe - der reine Ton
+saeuft auf dunklem Grund ab -, die helle Fassung dieselben Farben bei 100 Prozent.
+
+Die Werte stehen **nicht hier**, sondern in `packages/contracts/src/theme.ts`.
+Eine Abschrift in dieser Datei wuerde beim naechsten Farbwechsel veralten, ohne
+dass es jemandem auffiel.
+
+| Token | CI-Farbe | Bedeutung |
 |---|---|---|
-| `accent` | `#1F87B5` | aktiver Spieler, gewaehlte Antwort, Rubrik, Statuswechsel |
-| `accentQuiet` | `#2B5C73` | dieselbe Bedeutung, aber abgeschlossen bzw. nicht mehr bedienbar |
-| `--primary` | `#00CC9C` | genau eine primaere Handlung je Bildschirm |
-| `--solution` | `#01A780` | Loesungsbalken in der Loesungsszene |
-| `--solution-chip` | `#028365` | Buchstabenchip im Loesungsbalken |
-| `--correct` | `#25A7B0` | Kreis der Richtig-Rueckmeldung |
-| `--incorrect` | `#A62749` | Kreis der Falsch-Rueckmeldung |
-| `--text` | `#FFFFFF` | Text auf allen dunklen Flaechen |
-| `--text-muted` | `rgb(255 255 255 / 0.45)` | Kachelbeschriftungen, gesperrte Schaltflaechen |
+| `accent` | Blau | aktiver Spieler, gewaehlte Antwort, Rubrik, Statuswechsel |
+| `accentQuiet` | Petrol, abgedunkelt | dieselbe Bedeutung, aber abgeschlossen bzw. nicht mehr bedienbar |
+| `primary` | Gruen | genau eine primaere Handlung je Bildschirm |
+| `solution` | Gruen | Loesungsbalken in der Loesungsszene |
+| `solutionChip` | Dunkelgruen | Buchstabenchip im Loesungsbalken |
+| `correct` | Tuerkis | Kreis der Richtig-Rueckmeldung |
+| `incorrect` | Rot, abgedunkelt | Kreis der Falsch-Rueckmeldung |
+| `text` | - | Text auf allen dunklen Flaechen |
+| `textMuted` | - | Kachelbeschriftungen, gesperrte Schaltflaechen |
 
 `--accent-quiet` ist die wichtigste Erfindung des Designs: Sie zeigt
 "das war die Auswahl" an, ohne noch zur Bedienung einzuladen. Sie erscheint an

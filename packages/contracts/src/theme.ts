@@ -67,7 +67,9 @@ export function missingColorTokens(colors: Record<string, string>): DesignColorT
  *
  * Die Flaechenfarben sind halbtransparent: Hinter der Szene liegt das unscharfe
  * Fragebild, und Kacheln, Buchstaben und Antwortleisten sollen es als Milchglas
- * durchscheinen lassen, statt es zuzudecken.
+ * durchscheinen lassen, statt es zuzudecken. Sie sind neutral und stammen aus
+ * dem Buehnenentwurf; die Bedeutungsfarben dagegen aus dem Farbspektrum des
+ * Bundes (Styleguide der Bundesregierung, dieselbe Farbwelt wie bundestag.de).
  *
  * Farbwelt des Kinderquiz: Papier, Tinte und die Signalfarben der Illustration.
  * Ihre Werte stammen aus `boxes.css` des Boxen-Assetpakets - die gezeichneten
@@ -84,13 +86,25 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
     tileDisabled: 'rgba(255, 255, 255, 0.05)',
     tileQuiet: 'rgba(255, 255, 255, 0.06)',
     option: 'rgba(255, 255, 255, 0.05)',
-    accent: '#1F87B5',
-    accentQuiet: '#2B5C73',
-    primary: '#00CC9C',
-    solution: '#01A780',
-    solutionChip: '#028365',
-    correct: '#25A7B0',
-    incorrect: '#A62749',
+    /*
+     * Bedeutungsfarben aus dem Farbspektrum des Bundes.
+     *
+     * Ausgewaehlt wurde je Token der Ton mit dem kleinsten Abstand zur zuvor
+     * gesetzten Farbe (CIELAB) - die Buehne behaelt ihr Bild, traegt aber
+     * amtliche Werte. Die Prozentzahl ist die Abstufung des Styleguides; sie
+     * entsteht durch proportionales Aufhellen mit Weiss bzw. Abdunkeln mit
+     * Schwarz und ist selbst Teil der Vorgabe.
+     *
+     * Auf dunklem Grund tragen die Aufhellungen: Der reine Ton saeuft im
+     * Hintergrund ab. Die helle Fassung nimmt dieselben Farben bei 100 Prozent.
+     */
+    accent: '#3392C5', // Blau 80 %
+    accentQuiet: '#005A76', // Petrol, 80 % abgedunkelt
+    primary: '#339D6E', // Gruen 80 %
+    solution: '#339D6E', // Gruen 80 %
+    solutionChip: '#337D6A', // Dunkelgruen 80 %
+    correct: '#339AA2', // Tuerkis 80 %
+    incorrect: '#9A0030', // Rot, 80 % abgedunkelt
     text: '#FFFFFF',
     textMuted: 'rgba(255, 255, 255, 0.6)',
   },
@@ -122,10 +136,12 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
  * Der Bauplan spiegelt die dunkle Fassung: Wo dort weisse Schleier auf Dunkel
  * liegen, liegen hier dunkle Schleier auf Papier.
  *
- * ABSICHTLICH UNVOLLSTAENDIG: Sie nennt nur Flaechen, Kanten und Schrift. Akzent,
- * Loesungsgruen und die Signalfarben gehoeren dem Modus, nicht der Hell-Dunkel-
- * Entscheidung; ein Modus mit eigenem Akzent behaelt ihn deshalb auch im Hellen.
- * Was hier fehlt, kommt weiterhin aus dem Theme des laufenden Quiz.
+ * Sie nennt auch die Bedeutungsfarben, und zwar dieselben CI-Farben wie oben,
+ * nur bei voller Saettigung: Eine Aufhellung, die auf Dunkel leuchtet,
+ * verschwindet auf Papier. Das ist zugleich eine Festlegung - ein Modus mit
+ * eigenem Akzent zeigt ihn in der hellen Fassung nicht mehr. Beide Modi der
+ * Buehne benutzen heute dasselbe Theme; sollte je ein Modus eine eigene
+ * Farbwelt bekommen, gehoert die helle Fassung in sein Theme.
  */
 export const brightPalette: Partial<DesignColors> = {
   pageTop: '#fff',
@@ -133,12 +149,19 @@ export const brightPalette: Partial<DesignColors> = {
   stageTop: '#fff',
   stageBottom: '#ebebeb',
   controls: '#eeeeee',
+  /* Keine Bedeutung, sondern Zuruecknahme: der gesperrte Spieler auf Papier. */
   accentQuiet: '#dcdcdc',
   /* Milchglas bleibt Milchglas - nur aus Tinte statt aus Licht. */
   tile: 'rgba(25, 25, 25, 0.06)',
   tileDisabled: 'rgba(25, 25, 25, 0.04)',
   tileQuiet: 'rgba(25, 25, 25, 0.05)',
   option: 'rgba(25, 25, 25, 0.05)',
+  accent: '#0077B6', // Blau 100 %
+  primary: '#00854A', // Gruen 100 %
+  solution: '#00854A', // Gruen 100 %
+  solutionChip: '#005C45', // Dunkelgruen 100 %
+  correct: '#00818B', // Tuerkis 100 %
+  incorrect: '#780F2D', // Dunkelrot 100 %
   text: 'rgb(25, 25, 25)',
   textMuted: 'rgba(25, 25, 25, 0.6)',
 }

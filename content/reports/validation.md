@@ -12,8 +12,8 @@ Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
+Spiele ohne Wiederholung: 22
+- Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
 - Platz 2 "wissen": 42 Kandidaten, 42 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "vertiefung": 102 Kandidaten, 101 Wiederholungsgruppen
@@ -52,8 +52,8 @@ Spiele ohne Wiederholung: 19
 - Platz 7 "finale": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "kids" / Preset "easy"
-Spiele ohne Wiederholung: 12
-- Platz 1 "einstieg": 12 Kandidaten, 12 Wiederholungsgruppen
+Spiele ohne Wiederholung: 9
+- Platz 1 "einstieg": 9 Kandidaten, 9 Wiederholungsgruppen
 - Platz 2 "wissen": 21 Kandidaten, 21 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
 - Platz 4 "vertiefung": 46 Kandidaten, 46 Wiederholungsgruppen
