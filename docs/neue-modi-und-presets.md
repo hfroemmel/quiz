@@ -12,7 +12,7 @@ Engine gibt es dafuer **keinen** Sondercode - insbesondere nicht fuer `kids` ode
 {
   "id": "senioren",
   "label": "Seniorenquiz",
-  "colors": { "background": "#101418", "accent": "#e8b84b", "…": "…" },
+  "colors": { "accent": "#e8b84b" },
   "logoAssetId": "logo-senioren"
 }
 ```
@@ -22,6 +22,12 @@ Ein Theme kann ueber `skin` waehlen, in welcher **Gestaltungswelt** es steht:
 Karlchen-Welt). Mehr Welten gibt es nicht - eine neue braeuchte eigene
 Zeichnungen und eigene Regeln in jedem Bauteilmodul. Wer nur andere Farben will,
 braucht kein `skin`, sondern nur eigene `colors`.
+
+`colors` nennt ausschliesslich **Abweichungen**. Alles Uebrige erbt das Theme aus
+der Farbtafel seiner Gestaltungswelt (`packages/contracts/src/theme.ts`); beim
+Bauen wird der vollstaendige Satz eingesetzt. Ein Theme ohne `colors` sieht
+deshalb aus wie seine Welt - das ist der Normalfall, `default` und `kids` machen
+es so.
 
 Ein Modus ohne eigene Farbwuensche verweist einfach auf ein vorhandenes Theme;
 so macht es `Saarbruecken` mit `"themeId": "default"`.

@@ -42,36 +42,13 @@
   --scene-text-align: center;
 }
 
-/* ------------------------------------------------------------------ *
- * Helle Fassung der Buehne
- *
- * NUR FARBEN, TRANSPARENZEN, KONTUREN UND SCHATTEN. Schriften, Bauteile,
- * Positionen und Abstaende sind in beiden Fassungen dieselben - deshalb steht
- * hier ausschliesslich die Farbtafel und kein einziges Mass.
- *
- * Sie ueberschreibt die achtzehn Farbtoken des Quizmodus. Die kommen als
- * geerbter Wert vom Rahmen; eine Angabe hier am Element sticht ihn.
- *
- * Der Bauplan spiegelt die dunkle Fassung: Wo dort weisse Schleier auf Dunkel
- * liegen, liegen hier dunkle Schleier auf Papier. Die Bedeutungsfarben - Akzent,
- * Loesung, Richtig, Falsch - behalten ihren Farbton und werden nur so weit
- * abgedunkelt, dass sie auf hellem Grund denselben Kontrast tragen.
- * ------------------------------------------------------------------ */
+/*
+ * Die helle Fassung der Buehne steht NICHT hier, sondern in `palette.css`:
+ * Sie ist eine reine Farbtafel und gehoert damit zur Palette, die aus
+ * `packages/contracts/src/theme.ts` erzeugt wird. Schriften, Bauteile,
+ * Positionen und Abstaende sind in beiden Fassungen dieselben.
+ */
 
-.stage--default.stage--bright {
-  --color-pageTop: #fff;
-  --color-pageBottom: #f6f6f6;
-  --color-stageTop: #fff;
-  --color-stageBottom: #ebebeb;
-  --color-controls: #eeeeee;
-  --color-accentQuiet: #dcdcdc;
-  --color-tile: rgba(25, 25, 25, 0.06);
-  --color-tileDisabled: rgba(25, 25, 25, 0.04);
-  --color-tileQuiet: rgba(25, 25, 25, 0.05);
-  --color-option: rgba(25, 25, 25, 0.05);
-  --color-text: rgb(25, 25, 25);
-  --color-textMuted: rgba(25, 25, 25, 0.6);
-}
 /* Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
 .stage--preview {
   aspect-ratio: 16 / 9;
@@ -87,11 +64,17 @@
  * ------------------------------------------------------------------ */
 
 .stage--kids {
-  /* Farbwerte des Boxen-Assetpakets (`boxes.css`). */
-  --kids-ink: #0e090c;
-  --kids-paper: #f4ebd8;
-  --kids-red: #d61e1e;
-  --kids-yellow: #f9cd36;
+  /*
+   * Namen der Zeichnung fuer Farben, die das Theme schon traegt. Die gezeichneten
+   * Rahmen des Boxen-Assetpakets sind in genau diesen Toenen gemalt; sie stehen
+   * deshalb in der Palette und nicht hier. Der zweite Name macht die Regeln der
+   * Bauteile lesbar: `--kids-paper` sagt, was gemeint ist, `--color-tile` sagt,
+   * woher es kommt.
+   */
+  --kids-ink: var(--color-text);
+  --kids-paper: var(--color-tile);
+  --kids-red: var(--color-accent);
+  --kids-yellow: var(--color-solutionChip);
 
   /*
    * Zwei Familien, mehr nicht. Der Rueckfall der Handschrift ist bewusst eine
@@ -130,7 +113,7 @@
   /* Illustrierte Szene, rechts zentriert, formatfuellend. */
   background:
     url('/assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
-    linear-gradient(180deg, #a9d5ef, #d9d7f2);
+    linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
 /*

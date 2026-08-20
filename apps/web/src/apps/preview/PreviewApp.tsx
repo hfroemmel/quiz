@@ -11,27 +11,25 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
-import { kidsDesignColors, stageDesignColors } from '../../theme/designTokens.ts'
 import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@quiz/contracts'
-import { gameTiming } from '@quiz/contracts'
+import { gameTiming, stagePalettes } from '@quiz/contracts'
 import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { transitions } from '../../presentation/transitions/registry.ts'
 import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
 import styles from './PreviewApp.module.css'
 
 /**
- * Themes der Vorschau - dieselben Werte wie im Quizpaket.
+ * Themes der Vorschau.
+ *
+ * Die Vorschau laeuft ohne Server und baut ihre View-Modelle selbst; die Farben
+ * holt sie sich deshalb direkt aus der Palette - derselben Quelle, aus der auch
+ * das Quizpaket gebaut wird. Eine eigene Abschrift gaebe es hier sonst zwangs-
+ * laeufig, und sie liefe irgendwann auseinander.
  *
  * Es gibt genau zwei Gestaltungswelten: die Buehne der Erwachsenen und die
  * illustrierte Kinderwelt. Der Modus Saarbruecken benutzt das Theme der
  * Erwachsenen und taucht hier deshalb nicht eigens auf.
  */
-const THEMES: Record<string, Record<string, string>> = {
-  default: stageDesignColors,
-  kids: kidsDesignColors,
-}
-
-/** Gestaltungswelt je Theme - wie im Quizpaket. */
 const SKINS: Record<string, ThemeSkin> = { default: 'default', kids: 'kids' }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
@@ -99,7 +97,7 @@ export function PreviewApp() {
         <label className="field">
           <span>Theme</span>
           <select value={themeId} onChange={(event) => setThemeId(event.target.value)}>
-            {Object.keys(THEMES).map((entry) => (
+            {Object.keys(SKINS).map((entry) => (
               <option key={entry} value={entry}>
                 {entry}
               </option>
@@ -306,7 +304,7 @@ function buildSampleView(input: {
     theme: {
       id: input.themeId,
       skin: SKINS[input.themeId] ?? 'default',
-      colors: THEMES[input.themeId] ?? THEMES['default']!,
+      colors: stagePalettes[SKINS[input.themeId] ?? 'default'],
       startVisualUrl: previewStartVisual,
       startTitle: 'Bundestags-Quiz',
     },

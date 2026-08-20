@@ -106,6 +106,12 @@ Validierung: Ein Theme muss alle Tokens tragen; fehlende Tokens sind ein
 **Fehler** im Inhaltsbericht, kein Hinweis. Ein Modus ohne Startbild
 (`startVisualUrl`) erzeugt eine Warnung.
 
+*Nachtrag zur Umsetzung:* Das gebaute Paket traegt den vollstaendigen Satz - die
+Quelle dagegen nur die Abweichungen. Die Werte stehen an einer einzigen Stelle
+(`packages/contracts/src/theme.ts`) und werden beim Bauen eingesetzt. Die
+Zusage bleibt damit unveraendert, sie wird nur nicht mehr in jede Datei
+abgeschrieben; siehe `docs/design-system.md`, Abschnitt „Wo die Farben stehen".
+
 ## 5. Ergaenzung zu Abschnitt 22 - Praesentation und Animation
 
 - Der Animationskatalog ist die vollstaendige Liste der Bewegungen. Jede Zeile

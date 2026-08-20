@@ -36,7 +36,7 @@
   stroke: var(--kids-ink);
 }
 :global(.stage--kids) .track {
-  stroke: rgb(14 9 12 / 0.15);
+  stroke: color-mix(in srgb, var(--kids-ink) 15%, transparent);
 }
 :global(.stage--kids) .seconds {
   font-family: var(--kids-numeric);

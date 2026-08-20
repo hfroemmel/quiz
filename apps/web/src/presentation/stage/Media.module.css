@@ -61,7 +61,7 @@
  */
 :global(.stage--default) .portrait {
   border-radius: calc(var(--stage-radius) * 1.6);
-  box-shadow: inset 0 0 0 0.12cqw rgb(255 255 255 / 0.22);
+  box-shadow: inset 0 0 0 0.12cqw var(--stage-edge);
 }
 :global(.stage--default) .portrait .image {
   object-position: center 30%;

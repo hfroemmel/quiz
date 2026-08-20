@@ -1,15 +1,29 @@
 /**
- * Farbtoken des Designsystems (Designergaenzung, `docs/design-system.md`).
+ * DIE FARBEN. Alle. An einer Stelle.
  *
- * WARUM HIER: Die Tokenliste ist Vertrag zwischen drei Seiten - dem Quizpaket,
- * das die Werte liefert, der Inhaltsvalidierung, die Vollstaendigkeit prueft,
- * und der Oberflaeche, die daraus CSS-Custom-Properties macht. Es gibt sie
- * deshalb genau einmal.
+ * Jeder Farbwert der Anwendung steht in dieser Datei - die beiden
+ * Gestaltungswelten, die helle Fassung der Erwachsenenbuehne, die wenigen
+ * Farben, die keiner Welt gehoeren, und der Bedienrahmen des Operators.
+ * Anderswo steht kein Farbwert mehr; ein Test in `apps/web/test` haelt das fest.
  *
- * Ein Theme muss ALLE Token tragen. Ein fehlendes Token waere kein kleiner
- * Schoenheitsfehler, sondern eine Flaeche ohne Farbe auf der Buehne; die
- * Validierung meldet es als Fehler.
+ * WARUM SO STRENG: Die Werte werden an drei voellig verschiedenen Orten
+ * gebraucht - im Quizpaket (`content/dist/config.json`, das der Server je Modus
+ * ausliefert), in der serverlosen Entwicklungsvorschau und als Rueckfallebene im
+ * Stylesheet, bevor der erste Snapshot da ist. Solange jeder Ort seine eigene
+ * Abschrift fuehrte, liefen sie auseinander, ohne dass es jemandem auffiel: Eine
+ * geerbte Inline-Variable schlaegt eine `:root`-Regel, also gewann stillschweigend
+ * das Quizpaket, und Aenderungen am Stylesheet blieben wirkungslos.
+ *
+ * WER LIEST WAS:
+ *   `packages/content`   setzt die Farben beim Bauen in das Quizpaket ein
+ *   `apps/web/src/theme` schreibt sie als Custom-Properties in ein Stylesheet
+ *
+ * Ein Theme in `config.json` kann einzelne Werte ueberschreiben (Feld `colors`);
+ * es erbt alles, was es nicht nennt, von seiner Gestaltungswelt. Ein neuer Modus
+ * mit eigener Farbwelt braucht deshalb weiterhin keine Codeaenderung.
  */
+import type { ThemeSkin } from './content.ts'
+
 export const designColorTokens = [
   /* Grundflaechen */
   'pageTop',
@@ -42,4 +56,158 @@ export type DesignColors = Record<DesignColorToken, string>
 
 export function missingColorTokens(colors: Record<string, string>): DesignColorToken[] {
   return designColorTokens.filter((token) => !colors[token])
+}
+
+/* ------------------------------------------------------------------ *
+ * Die Gestaltungswelten
+ * ------------------------------------------------------------------ */
+
+/**
+ * Kuehles, leicht blaeuliches System der Buehne der Erwachsenen.
+ *
+ * Die Flaechenfarben sind halbtransparent: Hinter der Szene liegt das unscharfe
+ * Fragebild, und Kacheln, Buchstaben und Antwortleisten sollen es als Milchglas
+ * durchscheinen lassen, statt es zuzudecken.
+ *
+ * Farbwelt des Kinderquiz: Papier, Tinte und die Signalfarben der Illustration.
+ * Ihre Werte stammen aus `boxes.css` des Boxen-Assetpakets - die gezeichneten
+ * Rahmen tragen dieselben Toene, deshalb duerfen sie nicht frei gewaehlt werden.
+ */
+export const stagePalettes: Record<ThemeSkin, DesignColors> = {
+  default: {
+    pageTop: '#12161A',
+    pageBottom: '#171C21',
+    stageTop: '#171C21',
+    stageBottom: '#293139',
+    controls: '#12161A',
+    tile: 'rgba(255, 255, 255, 0.09)',
+    tileDisabled: 'rgba(255, 255, 255, 0.05)',
+    tileQuiet: 'rgba(255, 255, 255, 0.06)',
+    option: 'rgba(255, 255, 255, 0.05)',
+    accent: '#1F87B5',
+    accentQuiet: '#2B5C73',
+    primary: '#00CC9C',
+    solution: '#01A780',
+    solutionChip: '#028365',
+    correct: '#25A7B0',
+    incorrect: '#A62749',
+    text: '#FFFFFF',
+    textMuted: 'rgba(255, 255, 255, 0.6)',
+  },
+  kids: {
+    pageTop: '#A9D5EF',
+    pageBottom: '#D9D7F2',
+    stageTop: '#A9D5EF',
+    stageBottom: '#D9D7F2',
+    controls: '#F4EBD8',
+    tile: '#F4EBD8',
+    tileDisabled: '#EADDC2',
+    tileQuiet: '#EADDC2',
+    option: '#F4EBD8',
+    accent: '#D61E1E',
+    accentQuiet: '#D98B93',
+    primary: '#D61E1E',
+    solution: '#6FBE6B',
+    solutionChip: '#F9CD36',
+    correct: '#6FBE6B',
+    incorrect: '#D98B93',
+    text: '#0E090C',
+    textMuted: 'rgba(14, 9, 12, 0.6)',
+  },
+}
+
+/**
+ * Helle Fassung der Erwachsenenbuehne - der Umschalter im Kopf der Buehne.
+ *
+ * Der Bauplan spiegelt die dunkle Fassung: Wo dort weisse Schleier auf Dunkel
+ * liegen, liegen hier dunkle Schleier auf Papier.
+ *
+ * ABSICHTLICH UNVOLLSTAENDIG: Sie nennt nur Flaechen, Kanten und Schrift. Akzent,
+ * Loesungsgruen und die Signalfarben gehoeren dem Modus, nicht der Hell-Dunkel-
+ * Entscheidung; ein Modus mit eigenem Akzent behaelt ihn deshalb auch im Hellen.
+ * Was hier fehlt, kommt weiterhin aus dem Theme des laufenden Quiz.
+ */
+export const brightPalette: Partial<DesignColors> = {
+  pageTop: '#fff',
+  pageBottom: '#f6f6f6',
+  stageTop: '#fff',
+  stageBottom: '#ebebeb',
+  controls: '#eeeeee',
+  accentQuiet: '#dcdcdc',
+  /* Milchglas bleibt Milchglas - nur aus Tinte statt aus Licht. */
+  tile: 'rgba(25, 25, 25, 0.06)',
+  tileDisabled: 'rgba(25, 25, 25, 0.04)',
+  tileQuiet: 'rgba(25, 25, 25, 0.05)',
+  option: 'rgba(25, 25, 25, 0.05)',
+  text: 'rgb(25, 25, 25)',
+  textMuted: 'rgba(25, 25, 25, 0.6)',
+}
+
+/**
+ * Farben der Buehne, die keinem Theme gehoeren.
+ *
+ * Sie beschreiben kein Thema, sondern eine physikalische Lage: Schrift, die auf
+ * einer kraeftigen Flaeche steht, und eine Kante, die ein Bild vom Grund
+ * abtrennt. Sie bleiben in jedem Modus gleich und stehen deshalb nicht im
+ * Tokensatz des Quizpakets.
+ */
+export const stageExtras = {
+  /** Schrift auf Akzent-, Loesungs- oder Spielerfarbe - dort immer hell. */
+  inkOnStrong: '#ffffff',
+  /** Haarfeine Kante am Portraet, damit es sich vom Grund abhebt. */
+  edge: 'rgb(255 255 255 / 0.22)',
+} as const
+
+/* ------------------------------------------------------------------ *
+ * Bedienrahmen von Operator und Moderator
+ * ------------------------------------------------------------------ */
+
+/**
+ * BEWUSST GETRENNT vom Farbsystem der Buehne. Die achtzehn Themetoken gehoeren
+ * dem Quizmodus: Wechselt der Modus, wechselt der Saal die Farbe. Die
+ * Bedienoberflaeche tut das NICHT - sie bleibt in jedem Modus dieselbe dunkle
+ * Flaeche, damit der Operator seine Tasten blind findet und die Buehnenvorschau
+ * als einziges helles Feld heraussticht.
+ */
+export const uiPalette = {
+  page: '#0d0f13',
+  /* Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel. */
+  surface: '#171b21',
+  /* Kopf- und Fusszeile - eine Spur unter den Karten, damit sie zurueckstehen. */
+  'surface-quiet': '#12151a',
+  /* Aufgehellte Flaeche INNERHALB einer Karte - etwa die Notizspalte. */
+  'surface-raised': 'rgba(255, 255, 255, 0.06)',
+  control: '#242a33',
+  'control-disabled': '#1a1e24',
+  input: 'rgb(0 0 0 / 0.35)',
+  border: 'rgb(255 255 255 / 0.1)',
+  /* Trennlinie innerhalb einer Karte - schwaecher als die Aussenkante. */
+  'border-quiet': 'rgb(255 255 255 / 0.12)',
+  /* Kante eines Feldes, das sich absetzen soll - die Buehnenvorschau. */
+  'border-strong': 'rgba(255, 255, 255, 0.24)',
+  /* Flaeche hinter einem Popup und Grund der Vorschaukachel. */
+  scrim: 'rgb(0 0 0 / 0.55)',
+  'scrim-quiet': 'rgb(0 0 0 / 0.3)',
+  text: '#ffffff',
+  'text-muted': 'rgb(255 255 255 / 0.5)',
+  accent: '#36b35e',
+  correct: '#36b35e',
+  incorrect: '#a62749',
+  /* Hinterlegte Meldungen: nur ein Hauch Farbe, die Schrift traegt die Aussage. */
+  'warning-soft': 'rgba(255, 195, 43, 0.16)',
+  'error-soft': 'rgba(255, 92, 92, 0.16)',
+} as const
+
+/**
+ * Farben eines Themes vervollstaendigen.
+ *
+ * Ein Theme nennt nur, was von seiner Gestaltungswelt abweicht. Erst hier
+ * entsteht der vollstaendige Satz, den das Quizpaket ausliefert und den die
+ * Validierung prueft.
+ */
+export function resolveThemeColors(theme: {
+  skin?: ThemeSkin | undefined
+  colors?: Record<string, string> | undefined
+}): DesignColors {
+  return { ...stagePalettes[theme.skin ?? 'default'], ...theme.colors }
 }

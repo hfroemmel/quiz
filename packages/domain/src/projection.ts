@@ -9,6 +9,7 @@
  */
 import {
   isChoiceQuestion,
+  resolveThemeColors,
   scoringRules,
   type GameStatisticsViewModel,
   type AuditEntry,
@@ -419,7 +420,13 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
   return {
     id: theme.id,
     skin: theme.skin,
-    colors: theme.colors,
+    /*
+     * Im gebauten Paket steht der vollstaendige Satz. Die Aufloesung hier ist
+     * der Guertel zum Hosentraeger: Ein von Hand zusammengestelltes Paket koennte
+     * nur Abweichungen enthalten, und eine fehlende Farbe waere eine farblose
+     * Flaeche auf der Buehne.
+     */
+    colors: resolveThemeColors(theme),
     logoUrl: ctx.assetUrl(theme.logoAssetId),
     startVisualUrl: ctx.assetUrl(mode.startVisualAssetId ?? theme.logoAssetId),
     startTitle: mode.startTitle,

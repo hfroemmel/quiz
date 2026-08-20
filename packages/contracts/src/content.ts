@@ -191,8 +191,16 @@ export const quizThemeSchema = z.object({
   label: z.string().min(1),
   /** Gestaltungswelt: `default` oder `kids`. Fehlt sie, gilt `default`. */
   skin: z.enum(themeSkins).optional(),
-  /** CSS-Custom-Properties ohne fuehrende Bindestriche, z. B. `accent`. */
-  colors: z.record(z.string(), z.string()),
+  /**
+   * ABWEICHUNGEN von der Farbwelt des `skin`, nicht der ganze Satz.
+   *
+   * Die Farben stehen in `theme.ts`; ein Theme nennt hier nur, was bei ihm
+   * anders ist. Fehlt das Feld, gilt die Welt unveraendert. Beim Bauen wird der
+   * vollstaendige Satz eingesetzt, damit das Paket allein lesbar bleibt.
+   *
+   * Schluessel sind CSS-Custom-Properties ohne fuehrende Bindestriche.
+   */
+  colors: z.record(z.string(), z.string()).optional(),
   logoAssetId: idSchema.optional(),
   typography: z
     .object({

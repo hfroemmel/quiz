@@ -304,9 +304,21 @@ describe('Fehlende Mediendateien', () => {
 })
 
 describe('Themes muessen vollstaendig sein', () => {
-  it('meldet fehlende Farbtoken als Fehler', () => {
+  /*
+   * Vollstaendig heisst nicht selbst geschrieben: Ein Theme nennt nur, was von
+   * seiner Gestaltungswelt abweicht, und erbt den Rest aus der Palette.
+   */
+  it('laesst ein Theme einzelne Farben ueberschreiben', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
       themes: [{ id: 'default', label: 'Standard', colors: { accent: '#3693B3' } }],
+    })
+    expect(result.errors.find((entry) => entry.code === 'theme-tokens')).toBeUndefined()
+    expect(result.ok).toBe(true)
+  })
+
+  it('meldet eine leer gelassene Farbe als Fehler', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      themes: [{ id: 'default', label: 'Standard', colors: { pageTop: '' } }],
     })
     const issue = result.errors.find((entry) => entry.code === 'theme-tokens')
     expect(issue?.message).toContain('pageTop')
