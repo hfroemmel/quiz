@@ -31,7 +31,7 @@ damit spaeter niemand raten muss.
 | Falsch-Rueckmeldung | Kreuz fehlt in den Vorlagen und wird ergaenzt |
 | Rubrik ueber der Frage | Label der ersten Kategorie der Frage |
 | `klicken um mehr zu erfahren` | Bereich klappt auf und zeigt Zusatzinfos |
-| Enthuellung | ausschliesslich Schaerfeaenderung, kein Zoom |
+| Enthuellung | Raster aus Kacheln, die nacheinander fallen; kein Zoom |
 | Punktekacheln | gespiegelt angeordnet |
 | Antwortoptionen | erscheinen erst nach `Starten` |
 | Eingeloggte Antwort | oeffentlich blau markiert |
@@ -119,7 +119,7 @@ abgeschrieben; siehe `docs/design-system.md`, Abschnitt „Wo die Farben stehen"
 - Zwei Dauern bleiben an `gameTiming` gebunden und tragen `locked`:
   Richtig- und Falsch-Rueckmeldung.
 - Die Enthuellung bleibt an `packages/domain/src/reveal.ts` gebunden: Ringlaenge
-  und Bildschaerfe stammen aus derselben Fortschrittsvariablen. Neu festgelegt
+  und Bildaufloesung stammen aus derselben Fortschrittsvariablen. Neu festgelegt
   ist allein die **Richtung** des Rings: Beginn bei 12 Uhr, Ablauf im
   Uhrzeigersinn.
 - Neu: Der Punktestand zaehlt waehrend der Richtig-Animation hoch. Die Animation

@@ -49,15 +49,12 @@ export const easings = {
   sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
 } as const
 
-/**
- * Maximale Unschaerfe des Bilderkennens in Pixeln bei Fortschritt 0.
- *
- * ACHTUNG - FAIRNESS: Dieser Wert darf gestalterisch angepasst werden, die
- * BERECHNUNG aber nicht. Sie muss weiterhin aus demselben Reveal-Fortschritt
- * stammen wie der Countdown (siehe `@quiz/domain/reveal`), sonst entsteht ein
- * Informationsvorteil fuer einen Spieler.
+/*
+ * Das Bilderkennen hat hier keinen Wert mehr: Rastergroesse, Reihenfolge und
+ * Kachelblende stehen in `revealGrid` (`@quiz/contracts/config`), weil sie
+ * bestimmen, WAS ein Spieler wann sieht, und damit zur Fairness gehoeren - nicht
+ * zur Ausschmueckung.
  */
-export const revealMaxBlurPx = 44
 
 /**
  * Reduzierte Bewegung: Nutzer- bzw. Systemeinstellung `prefers-reduced-motion`.

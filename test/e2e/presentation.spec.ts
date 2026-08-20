@@ -77,10 +77,12 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     expect(answers!.y).toBeLessThan(portrait!.y + portrait!.height)
   })
 
-  test('Bilderkennen zeigt Countdown und unscharfes Bild', async ({ page }) => {
+  test('Bilderkennen zeigt Countdown und verdecktes Bild', async ({ page }) => {
     await selectScene(page, 'reveal')
     await expect(page.locator('[data-seconds]')).toBeVisible()
     await expect(page.locator('[data-media][data-variant="reveal"] [data-media-image]')).toBeVisible()
+    // Das Bild ist vollstaendig da - was fehlt, ist der Blick darauf.
+    await expect(page.locator('[data-reveal-tiles]')).toBeVisible()
   })
 
   test('Videoszene zeigt die Videoflaeche', async ({ page }) => {
@@ -148,34 +150,56 @@ test.describe('Themes', () => {
   })
 })
 
-test.describe('Enthuellung: Countdown und Bildschaerfe stammen aus derselben Quelle', () => {
-  test('Schaerfe und Countdown laufen synchron', async ({ page }) => {
+test.describe('Enthuellung: Countdown und Raster stammen aus derselben Quelle', () => {
+  test('Kacheln und Countdown laufen synchron', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
+    const tiles = page.locator('[data-reveal-tiles] [data-reveal-tile]')
 
     const readState = async () => ({
       seconds: Number(await page.locator('[data-seconds]').textContent()),
-      blur: await page
-        .locator('[data-media][data-variant="reveal"] [data-media-image]')
-        .evaluate((element) => Number.parseFloat((element as HTMLElement).style.filter.replace(/[^\d.]/g, ''))),
+      offen: await page.locator('[data-reveal-tile][data-open="true"]').count(),
     })
+
+    // Die Rastergroesse steht in `revealGrid` - hier zaehlt nur, dass ALLE Kacheln da sind.
+    const gesamt = await tiles.count()
+    expect(gesamt).toBeGreaterThan(1)
 
     await slider.fill('0')
     const start = await readState()
     expect(start.seconds).toBe(10)
-    expect(start.blur).toBeGreaterThan(40)
+    // Zu Beginn ist das Bild vollstaendig verdeckt.
+    expect(start.offen).toBe(0)
 
     await slider.fill('5000')
-    const middle = await readState()
-    expect(middle.seconds).toBe(5)
-    // Halber Fortschritt bedeutet halbe Unschaerfe - dieselbe Variable.
-    expect(middle.blur).toBeGreaterThan(start.blur * 0.45)
-    expect(middle.blur).toBeLessThan(start.blur * 0.55)
+    const mitte = await readState()
+    expect(mitte.seconds).toBe(5)
+    // Halber Fortschritt, halbes Bild - dieselbe Variable.
+    expect(mitte.offen).toBe(Math.floor(gesamt / 2))
 
     await slider.fill('10000')
-    const end = await readState()
-    expect(end.seconds).toBe(0)
-    expect(end.blur).toBe(0)
+    const ende = await readState()
+    expect(ende.seconds).toBe(0)
+    expect(ende.offen).toBe(gesamt)
+  })
+
+  test('einmal offene Kacheln bleiben offen', async ({ page }) => {
+    await selectScene(page, 'reveal')
+    const slider = page.locator('[data-preview-panel] input[type="range"]')
+    const offeneIndizes = () =>
+      page.locator('[data-reveal-tile]').evaluateAll((nodes) =>
+        nodes.map((node, index) => (node.getAttribute('data-open') === 'true' ? index : -1)).filter((index) => index >= 0),
+      )
+
+    await slider.fill('3000')
+    const frueh = await offeneIndizes()
+    await slider.fill('7000')
+    const spaet = await offeneIndizes()
+
+    expect(frueh.length).toBeGreaterThan(0)
+    expect(spaet.length).toBeGreaterThan(frueh.length)
+    // Keine Kachel darf sich wieder schliessen: Der Vorrat waechst nur.
+    expect(spaet).toEqual(expect.arrayContaining(frueh))
   })
 })
 

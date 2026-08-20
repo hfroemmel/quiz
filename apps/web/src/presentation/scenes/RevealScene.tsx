@@ -1,18 +1,20 @@
 /**
- * Bilderkennen mit synchroner Enthuellung (Spezifikation 10).
+ * Bilderkennen mit synchroner Aufloesung (Spezifikation 10).
  *
- * ABLEITUNG DER BILDSCHAERFE: `reveal.blurPx` und `reveal.countdownSeconds` stammen
+ * ABLEITUNG DER AUFLOESUNG: `reveal.progress` und `reveal.countdownSeconds` stammen
  * beide aus `useRevealClock` und damit aus demselben Fortschritt. Hier darf niemals
- * eine eigene CSS-Animation die Unschaerfe steuern - sonst koennten Countdown und
+ * eine eigene CSS-Animation das Aufdecken steuern - sonst koennten Countdown und
  * Bild auseinanderlaufen und ein Spieler bekaeme einen Informationsvorteil.
  *
- * Am Bild aendert sich ausschliesslich die Schaerfe: kein Zoom, keine Bewegung
+ * Das Bild liegt unter einer Decke aus Kacheln, die eine nach der anderen
+ * verschwindet. Am Bild selbst aendert sich nichts: kein Zoom, keine Bewegung
  * (bestaetigte Designvorgabe).
  *
  * VERHALTEN BEI PAUSE UND RECONNECT: Pausiert der Server die Enthuellung, friert der
  * Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach einem
  * Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
+import { revealGrid } from '@quiz/contracts'
 import { Media } from '../stage/Media.tsx'
 import { ProgressRing } from '../../ui/ProgressRing.tsx'
 import { QuestionHead } from '../stage/QuestionHead.tsx'
@@ -44,7 +46,7 @@ export function RevealScene({ view, reveal, variant }: SceneProps) {
           {hint && <span className={styles.revealHint}>{hint}</span>}
         </div>
 
-        <Media src={question.imageUrl} blurPx={reveal.blurPx} variant="reveal" />
+        <Media src={question.imageUrl} reveal={{ grid: revealGrid, progress: reveal.progress }} variant="reveal" />
       </div>
 
       {view.secondChance && <SecondChanceHint points={view.secondChance.pointsIfCorrect} />}

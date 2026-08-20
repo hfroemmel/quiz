@@ -1,0 +1,59 @@
+/*
+ * Die Kacheldecke des Bilderkennens.
+ *
+ * Raster und Kachelzahl kommen als Inline-Wert vom Bauteil, weil sie
+ * konfigurierbar sind; hier steht nur, WIE eine Kachel aussieht und verschwindet.
+ */
+
+.tiles {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  /* Ueber dem Foto, aber unter allem, was die Welt darueber zeichnet. */
+  z-index: 1;
+  pointer-events: none;
+}
+/*
+ * Die Kachel deckt vollstaendig - eine durchscheinende Flaeche waere kein
+ * Verdecken, sondern ein Schleier, und das Motiv liesse sich erraten.
+ *
+ * Sie verschwindet ueber die Deckkraft und nicht ueber die Groesse: Ein
+ * schrumpfendes Feld gaebe das Bild an den Raendern frueher frei und liesse die
+ * feste Lage der Kacheln verschwimmen.
+ */
+.tile {
+  opacity: 1;
+  transition: opacity var(--reveal-tile-fade) var(--transition-easing);
+}
+.tile[data-open='true'] {
+  opacity: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen: geschlossene Platte mit feiner Fuge
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default) .tile {
+  background: var(--color-controls);
+  box-shadow: inset 0 0 0 0.08cqw var(--color-tileQuiet);
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt: Papier mit gezeichneter Fuge
+ * ------------------------------------------------------------------ */
+
+:global(.stage--kids) .tile {
+  background: var(--kids-paper);
+  box-shadow: inset 0 0 0 0.1cqw color-mix(in srgb, var(--kids-ink) 18%, transparent);
+}
+
+/*
+ * Reduzierte Bewegung: Die Kachel verschwindet ohne Uebergang. Der Ablauf
+ * bleibt derselbe - es wird weiterhin Stueck fuer Stueck aufgedeckt, nur ohne
+ * Blende.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition-duration: 1ms;
+  }
+}

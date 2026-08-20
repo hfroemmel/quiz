@@ -33,6 +33,18 @@
   height: 66cqh;
   aspect-ratio: 64 / 62;
 }
+/*
+ * Die Bildflaeche - das Foto und, beim Bilderkennen, die Decke darueber.
+ *
+ * Sie fuellt den Innenraum des Rahmens und ist der Bezug fuer die Kacheln: Ein
+ * Innenabstand der Welt (die Kinderwelt haelt hier ihre gezeichnete Rahmung)
+ * bleibt dadurch ausserhalb der Decke.
+ */
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 .image {
   display: block;
   width: 100%;

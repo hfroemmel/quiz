@@ -142,8 +142,8 @@ aufgenommen.
 - `QuestionHead` traegt Medium, Rubrik und Fragetext fuer Frage-, Enthuellungs-
   und Loesungsszene - einmal statt dreimal
 - Antwortleisten gestapelt ueber die volle Breite, Loesungsbalken mit Chip
-- Enthuellungsring ab 12 Uhr im Uhrzeigersinn, Bildschaerfe unveraendert aus
-  derselben Fortschrittsvariablen
+- Enthuellungsring ab 12 Uhr im Uhrzeigersinn, Bildaufloesung unveraendert aus
+  derselben Fortschrittsvariablen (damals als Schaerfe, heute als Kachelraster)
 - Ergebnisansicht mit Konfetti und gespiegelten Ergebniskacheln
 - die Buehnenflaeche ist ein Container; alle Groessen darin stehen in `cqw`
 

@@ -1,7 +1,7 @@
 /**
  * Fluessige Darstellung der Bildenthuellung.
  *
- * FAIRNESSREGEL (Spezifikation 10.2): Countdown und Bildschaerfe stammen aus
+ * FAIRNESSREGEL (Spezifikation 10.2): Countdown und Bildaufloesung stammen aus
  * DERSELBEN Fortschrittsvariable. Dieser Hook berechnet sie deshalb beide aus
  * `revealProgress` des Domain-Pakets - es gibt keine zweite, unabhaengige
  * CSS-Animation und keinen separaten Timer.
@@ -12,13 +12,11 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import type { PublicRevealState } from '@quiz/contracts'
-import { revealBlurPx, revealCountdownSeconds, revealProgress } from '@quiz/domain'
-import { revealMaxBlurPx } from '../presentation/animationPresets.ts'
+import { revealCountdownSeconds, revealProgress } from '@quiz/domain'
 
 export interface RevealDisplay {
   progress: number
   countdownSeconds: number
-  blurPx: number
   running: boolean
 }
 
@@ -47,7 +45,7 @@ export function useRevealClock(
     }
   }, [running])
 
-  if (!reveal) return { progress: 0, countdownSeconds: 0, blurPx: 0, running: false }
+  if (!reveal) return { progress: 0, countdownSeconds: 0, running: false }
 
   // Der Serverzustand wird in die Form gebracht, die die Domain-Funktionen erwarten:
   // "verstrichene Zeit vor dem laufenden Abschnitt" plus Startzeitpunkt.
@@ -62,7 +60,6 @@ export function useRevealClock(
   return {
     progress: revealProgress(clock, now),
     countdownSeconds: revealCountdownSeconds(clock, now),
-    blurPx: revealBlurPx(clock, now, revealMaxBlurPx),
     running,
   }
 }

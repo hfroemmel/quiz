@@ -85,7 +85,7 @@ Easing werden dort **nicht** hart geschrieben, sondern ueber `--transition-durat
 | Easings, Klassennamen, Keyframes | frei |
 | `correctFeedbackMs`, `incorrectFeedbackMs`, `solutionDelayMs`, `pauseScreenMs` | nur in `gameTiming` (`packages/contracts/src/config.ts`) - der Server beendet die Phase nach genau dieser Zeit |
 | `imageRevealDurationMs` | bestaetigte zehn Sekunden; Aenderung nur nach Ruecksprache |
-| Ableitung der Bildschaerfe aus dem Reveal-Fortschritt | **nicht** aendern - Fairness |
+| Ableitung der Bildaufloesung aus dem Reveal-Fortschritt | **nicht** aendern - Fairness |
 | `payoffMs` einer gelieferten Bewegtgrafik | nur gemeinsam mit der Datei; die Phase muss mindestens so lang laufen |
 
 Wer eine Feedbackdauer nur in der Animation aendert, laesst Anzeige und Spielzustand
@@ -93,21 +93,30 @@ auseinanderlaufen: Die Loesung erschiene, waehrend die Animation noch laeuft. De
 spiegeln `correctFeedback.ts` und `incorrectFeedback.ts` bewusst `gameTiming` und
 tragen ein `locked`-Feld mit Begruendung.
 
-## Bildschaerfe und Countdown
+## Bildaufloesung und Countdown
 
-Beide werden aus **derselben** Fortschrittsvariable berechnet:
+Das Bild liegt unter einer Decke aus Kacheln, die waehrend des Countdowns
+verschwinden. Beides wird aus **derselben** Fortschrittsvariable berechnet:
 
 ```text
 progress  = clamp(elapsedMs / durationMs, 0, 1)
 countdown = ceil((1 - progress) × durationSeconds)
-blur      = maxBlurPx × (1 - progress)
+Kachel i  = offen, sobald progress >= plan[i]
 ```
 
-Die Funktionen stehen in `packages/domain/src/reveal.ts`, der Client nutzt sie ueber
-`useRevealClock`. Es darf niemals eine unabhaengige CSS-Animation neben einem
-separaten JavaScript-Timer laufen - sonst bekaeme ein Spieler einen Informationsvorteil.
+Der Aufdeckplan `plan` sagt je Kachel, ab welchem Fortschritt sie faellt. Er
+entsteht in `revealTilePlan` aus drei Zutaten: dem Abstand zum vermuteten Motiv
+(Mitte zuletzt), einer Streuung (damit kein Ring wandert) und einem Startwert aus
+der Bildadresse (damit alle Screens dasselbe Muster zeigen).
 
-Anpassbar ist allein `revealMaxBlurPx` in `animationPresets.ts`.
+Die Funktionen stehen in `packages/domain/src/reveal.ts`, der Client nutzt sie ueber
+`useRevealClock` und `RevealTiles`. Es darf niemals eine unabhaengige CSS-Animation
+neben einem separaten JavaScript-Timer laufen - sonst bekaeme ein Spieler einen
+Informationsvorteil. Die Kachelblende ist die einzige freie Bewegung: Sie blendet
+eine bereits gefallene Kachel aus, verschiebt aber keinen Zeitpunkt.
+
+Anpassbar ist allein `revealGrid` in `packages/contracts/src/config.ts` -
+Rastergroesse, Streuung, vermutetes Motiv und Blendendauer.
 
 ## Pausieren und Reconnect
 

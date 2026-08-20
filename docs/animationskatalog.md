@@ -127,14 +127,15 @@ Der Screen selbst steht `gameTiming.pauseScreenMs` = 3000 ms.
 
 | ID | Dauer | Was sich bewegt | Ton |
 |---|---|---|---|
-| `reveal-progress` | `gameTiming.imageRevealDurationMs` = 10 s | Ringbogen laeuft ab 12 Uhr im Uhrzeigersinn zurueck, Sekundenzahl zaehlt, Bildschaerfe steigt von 44 px Unschaerfe auf 0 | - |
+| `reveal-progress` | `gameTiming.imageRevealDurationMs` = 10 s | Ringbogen laeuft ab 12 Uhr im Uhrzeigersinn zurueck, Sekundenzahl zaehlt, Kacheln des Rasters verschwinden eine nach der anderen | - |
 | `reveal-pause` | 160 ms | Ring und Bild frieren ein, Pausensymbol blendet ein | - |
-| `reveal-complete` | 300 ms | letzter Bogenrest verschwindet, Bild erreicht volle Schaerfe | `question-appear` |
+| `reveal-complete` | 300 ms | letzter Bogenrest verschwindet, die letzte Kachel faellt | `question-appear` |
 
-**Nicht verhandelbar:** Ring und Schaerfe werden aus **derselben**
+**Nicht verhandelbar:** Ring und Aufloesung werden aus **derselben**
 Fortschrittsvariablen berechnet und niemals aus einer eigenstaendigen
-CSS-Animation. Am Bild aendert sich ausschliesslich die Schaerfe - kein Zoom,
-keine Bewegung (bestaetigt).
+CSS-Animation. Am Bild selbst aendert sich nichts - kein Zoom, keine Bewegung
+(bestaetigt); es wird nur Stueck fuer Stueck freigegeben. Eine einmal offene
+Kachel bleibt offen und zeigt ihren Ausschnitt sofort vollstaendig.
 
 ## D2 - Weitere gelieferte Bewegtgrafiken
 

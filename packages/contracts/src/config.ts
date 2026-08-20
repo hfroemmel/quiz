@@ -57,6 +57,43 @@ export const gameTiming = {
   pauseScreenMs: 3_000,
 } as const
 
+/**
+ * Das Raster des Bilderkennens.
+ *
+ * Das Bild liegt unter einer Decke aus Kacheln, die waehrend des Countdowns eine
+ * nach der anderen verschwindet. Alle Werte, die diese Aufloesung bestimmen,
+ * stehen hier - Rastergroesse, Reihenfolge und Kachelbewegung. Wer das Bild
+ * anders aufdecken will, aendert nichts anderes als diese Zahlen.
+ *
+ * Warum fachlich und nicht rein visuell: Die Reihenfolge entscheidet, WAS ein
+ * Spieler wann sieht. Sie gehoert damit zur Fairness und wird wie der Countdown
+ * aus dem Fortschritt abgeleitet, nicht aus einer nebenherlaufenden Animation.
+ */
+export const revealGrid = {
+  columns: 6,
+  rows: 4,
+  /**
+   * Anteil des Zufalls an der Reihenfolge.
+   *
+   * 0 deckt streng von aussen nach innen auf - erkennbar als wandernder Ring und
+   * damit langweilig. 1 wuerde rein zufaellig aufdecken und das Motiv womoeglich
+   * sofort preisgeben. Dazwischen entsteht das Bild des Entwurfs: verstreute
+   * Kacheln, deren Mitte sich zuletzt schliesst.
+   */
+  jitter: 0.55,
+  /**
+   * Wo das Motiv vermutet wird, in Anteilen der Bildbreite und -hoehe.
+   *
+   * Ohne Bildanalyse ist das eine Annahme, aber eine tragfaehige: Fotos setzen
+   * ihr Motiv in die Mitte, und der Himmel liegt oben. Der Punkt sitzt deshalb
+   * etwas unterhalb der Mitte - dort, wo Gebaeude, Gesichter und Wahrzeichen
+   * stehen, waehrend die Randkacheln fruehes Beiwerk zeigen.
+   */
+  focus: { x: 0.5, y: 0.58 },
+  /** Dauer, in der eine einzelne Kachel verschwindet. */
+  tileFadeMs: 320,
+} as const
+
 /** Parameter des Auswahlalgorithmus (Spezifikation 17.2). */
 export const selectionTuning = {
   /** Mindestgroesse des Kandidatenfensters unter den am laengsten nicht genutzten Fragen. */
@@ -94,3 +131,18 @@ export const contentThresholds = {
 
 export type ScoringRules = typeof scoringRules
 export type GameTiming = typeof gameTiming
+
+/**
+ * Ein Raster, das sich vom voreingestellten unterscheiden darf.
+ *
+ * Die Funktionen der Domain nehmen diesen Typ und nicht die Konstante: So laesst
+ * sich die Aufloesung in Tests mit einem winzigen Raster pruefen, ohne die
+ * Voreinstellung anzufassen.
+ */
+export interface RevealGrid {
+  columns: number
+  rows: number
+  jitter: number
+  focus: { x: number; y: number }
+  tileFadeMs: number
+}

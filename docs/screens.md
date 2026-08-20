@@ -297,8 +297,8 @@ festgelegt hat, aber nicht, ob es stimmt.
 
 ## Enthuellung (`reveal-ready`, `reveal-running`, `reveal-paused`)
 
-- `reveal-ready` ist der Zwischenschritt vor dem Start: Das Bild steht bei voller
-  Unschaerfe, der Ring zeigt die volle Dauer, die Uhr laeuft nicht und niemand
+- `reveal-ready` ist der Zwischenschritt vor dem Start: Das Bild ist vollstaendig
+  verdeckt, der Ring zeigt die volle Dauer, die Uhr laeuft nicht und niemand
   kann buzzern. Der Operator startet mit `Enthuellung starten`.
 
 - Links der Ring, rechts das Bild. Der Ring hat aussen die Spur in
@@ -307,11 +307,16 @@ festgelegt hat, aber nicht, ob es stimmt.
 - **Der Bogen beginnt bei 12 Uhr und laeuft im Uhrzeigersinn.** Seine Laenge ist
   der Restanteil: bei 7 von 10 Sekunden 252 Grad, bei 1 Sekunde 36 Grad. Am Ende
   bleibt nur die Spur.
-- Am Bild aendert sich **ausschliesslich die Schaerfe** (bestaetigt) - keine
-  Skalierung, keine Bewegung, keine Deckkraft.
-- Ring und Schaerfe stammen aus **einer** Fortschrittsvariablen
+- Das Bild liegt unter einem Raster aus Kacheln (Voreinstellung 6 x 4), die
+  waehrend des Countdowns nacheinander verschwinden. Am Bild selbst aendert sich
+  nichts - keine Skalierung, keine Bewegung, keine Deckkraft; eine offene Kachel
+  zeigt ihren Ausschnitt sofort vollstaendig und bleibt offen.
+- Die Reihenfolge ist gestreut, haelt die Bildmitte aber bis zuletzt verdeckt.
+  Sie haengt an der Bildadresse und ist deshalb auf jedem Screen dieselbe.
+- Ring und Aufloesung stammen aus **einer** Fortschrittsvariablen
   (`packages/domain/src/reveal.ts`). Das ist eine Fairnessregel, keine
-  Gestaltungsfrage.
+  Gestaltungsfrage. Rastergroesse und Streuung stehen in `revealGrid`
+  (`packages/contracts/src/config.ts`).
 - Pausiert: Ring und Bild frieren ein, die Sekundenzahl bekommt zusaetzlich das
   Pausensymbol, damit "eingefroren" nicht mit "sehr langsam" verwechselt wird.
 - Nach Ablauf zeigt der Ring `0`, das Bild ist scharf, die Buzzer bleiben offen.

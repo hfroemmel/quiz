@@ -459,7 +459,8 @@ Nur sechs Stylesheets sind global, und jedes aus einem Grund:
 | `Counter` | Fragenzaehler | - |
 | `QuestionComposition` | Anordnung von Bild, Frage und Antworten | untereinander, Portraet nebeneinander |
 | `QuestionHead` | Medium und Fragetafel | mit und ohne Bild |
-| `Media` | Bildrahmen mit Schaerfegrad | `inline`, `reveal`, `solution`, `portrait` |
+| `Media` | Bildrahmen, beim Bilderkennen mit Kacheldecke | `inline`, `reveal`, `solution`, `portrait` |
+| `RevealTiles` | Kacheldecke des Bilderkennens | - |
 | `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
 | `SecondChanceHint` | Hinweis auf die zweite Chance | - |
 | `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
