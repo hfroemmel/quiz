@@ -75,10 +75,14 @@ deshalb nach dem Muster des Pakets (`boxes.css`) in neun Felder zerlegt - Ecken
 bleiben unverzerrt, Kanten und Mitte strecken sich. Der Slice-Wert je Element
 stammt aus `boxes.json` (Prop `slice` von `KidsSurface`), die Randbreite setzt
 die Komponentenklasse in `cqw`: Bei 1920 Containerbreite entspricht sie genau
-dem Quellwert. Drei Dateien sind abgeleitet, weil der Entwurf sie nicht
+dem Quellwert. Zwei Dateien sind abgeleitet, weil der Entwurf sie nicht
 enthaelt (der Weg steht im README des Pakets): `answer-box-correct`
-(Papier -> Gruen), `answer-box-incorrect` (Rot -> gedecktes Rot) und das lila
-Feld in `chip-score-player2`.
+(Papier -> Gruen) und `answer-box-incorrect` (Rot -> gedecktes Rot).
+
+Die Spielerkarte gibt es in zwei Zeichnungen je Spieler: `chip-score-playerN`
+zeigt reines Papier, `chip-score-playerN-selected` das farbige Feld mit der
+gelben Ecke. Wer am Zug ist, steht damit in der Zeichnung - dieselbe Welt, in
+der auch jeder Antwortzustand gezeichnet und nicht gerechnet ist.
 
 Das Fragefoto traegt einen inhaltlichen Alternativtext, alle dekorativen Bilder
 einen leeren.

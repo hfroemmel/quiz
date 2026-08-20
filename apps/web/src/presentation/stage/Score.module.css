@@ -130,11 +130,22 @@
   border-image-source: url('/assets/kinderquiz/boxes/chip-score-player2.svg');
 }
 /*
- * Wer nicht am Zug ist, tritt zurueck. Das Boxen-Paket kennt keine eigene
- * Aktiv-Zeichnung; eine gerechnete Kontur kaeme nicht in Frage.
+ * Spieler am Zug: eigene Zeichnung mit farbigem Feld und gelber Ecke.
+ *
+ * Die Auswahl steckt damit in der Zeichnung selbst - so, wie in dieser Welt
+ * jeder Zustand gezeichnet ist und nicht gerechnet. Vorher musste eine
+ * Deckkraft von 72 Prozent auf dem ANDEREN Spieler den Unterschied tragen; das
+ * nahm dem Punktestand die Lesbarkeit, obwohl er im Saal von hinten gelesen
+ * werden muss.
+ *
+ * Die gespiegelte Karte steht zuletzt: Sie hat dieselbe Spezifitaet wie die
+ * Regel darueber und wuerde sonst die Zeichnung von Spieler 1 tragen.
  */
-:global(.stage--kids) .score[data-active='false'] {
-  opacity: 0.72;
+:global(.stage--kids) .score[data-active='true']::before {
+  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player1-selected.svg');
+}
+:global(.stage--kids) .mirrored[data-active='true']::before {
+  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player2-selected.svg');
 }
 :global(.stage--kids) .label {
   font-family: var(--kids-hand);
