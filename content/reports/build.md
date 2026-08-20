@@ -1,5 +1,5 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.13
+Inhaltsversion: 1.0.16
 Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 
 ## Gesamtzahlen
@@ -10,12 +10,12 @@ Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
 - Nach Schwierigkeit: medium=85, easy=63, hard=51
 - Nach Praesentationstyp: image-choice=123, image-reveal=64, text-choice=7, person=5
 - Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
-- Vergleich zu Version 1.0.12: +0 Fragen
+- Vergleich zu Version 1.0.15: +0 Fragen
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
+Spiele ohne Wiederholung: 22
+- Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
 - Platz 2 "wissen": 42 Kandidaten, 42 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "vertiefung": 102 Kandidaten, 101 Wiederholungsgruppen
@@ -54,8 +54,8 @@ Spiele ohne Wiederholung: 19
 - Platz 7 "finale": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: wissen
 
 ### Modus "kids" / Preset "easy"
-Spiele ohne Wiederholung: 12
-- Platz 1 "einstieg": 12 Kandidaten, 12 Wiederholungsgruppen
+Spiele ohne Wiederholung: 9
+- Platz 1 "einstieg": 9 Kandidaten, 9 Wiederholungsgruppen
 - Platz 2 "wissen": 21 Kandidaten, 21 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
 - Platz 4 "vertiefung": 46 Kandidaten, 46 Wiederholungsgruppen

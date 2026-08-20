@@ -78,13 +78,13 @@
         "tileDisabled": "rgba(255, 255, 255, 0.05)",
         "tileQuiet": "rgba(255, 255, 255, 0.06)",
         "option": "rgba(255, 255, 255, 0.05)",
-        "accent": "#1F87B5",
-        "accentQuiet": "#2B5C73",
-        "primary": "#00CC9C",
-        "solution": "#01A780",
-        "solutionChip": "#028365",
-        "correct": "#25A7B0",
-        "incorrect": "#A62749",
+        "accent": "#3392C5",
+        "accentQuiet": "#005A76",
+        "primary": "#339D6E",
+        "solution": "#339D6E",
+        "solutionChip": "#337D6A",
+        "correct": "#339AA2",
+        "incorrect": "#9A0030",
         "text": "#FFFFFF",
         "textMuted": "rgba(255, 255, 255, 0.6)"
       },
@@ -138,8 +138,7 @@
               "easy"
             ],
             "presentationTypes": [
-              "text-choice",
-              "image-choice"
+              "image-reveal"
             ]
           }
         },
