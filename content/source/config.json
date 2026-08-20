@@ -134,12 +134,8 @@
           "id": "einstieg",
           "label": "Einstieg",
           "filters": {
-            "difficultyIds": [
-              "easy"
-            ],
             "presentationTypes": [
-              "text-choice",
-              "image-choice"
+              "person"
             ]
           }
         },

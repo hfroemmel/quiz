@@ -29,11 +29,11 @@
   --color-tileDisabled: rgba(255, 255, 255, 0.05);
   --color-tileQuiet: rgba(255, 255, 255, 0.06);
   --color-option: rgba(255, 255, 255, 0.05);
-  --color-accent: #1f87b5;
-  --color-accentQuiet: #2b5c73;
+  --color-accent: #00acd3;
+  --color-accentQuiet: #367e8f;
   --color-primary: #00cc9c;
-  --color-solution: #01a780;
-  --color-solutionChip: #028365;
+  --color-solution: #00cc9c;
+  --color-solutionChip: #00cc9c;
   --color-correct: #25a7b0;
   --color-incorrect: #a62749;
   --color-text: #ffffff;
@@ -75,7 +75,7 @@
   --ui-border: rgb(255 255 255 / 0.1);
   --ui-text: #ffffff;
   --ui-text-muted: rgb(255 255 255 / 0.5);
-  --ui-accent: #3693b3;
-  --ui-correct: #25a7b0;
+  --ui-accent: #36b35e;
+  --ui-correct: #36b35e;
   --ui-incorrect: #a62749;
 }

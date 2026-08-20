@@ -59,25 +59,18 @@
  * ------------------------------------------------------------------ */
 
 .stage--default.stage--bright {
-  --color-pageTop: #eef1f4;
-  --color-pageBottom: #e4e9ee;
-  --color-stageTop: #f7f9fb;
-  --color-stageBottom: #dde4ec;
-  --color-controls: #eef1f4;
-  /* Milchglas bleibt Milchglas - nur aus Tinte statt aus Licht. */
-  --color-tile: rgba(23, 37, 56, 0.07);
-  --color-tileDisabled: rgba(23, 37, 56, 0.04);
-  --color-tileQuiet: rgba(23, 37, 56, 0.05);
-  --color-option: rgba(23, 37, 56, 0.05);
-  --color-accent: #17698f;
-  --color-accentQuiet: #9db6c4;
-  --color-primary: #00694e;
-  --color-solution: #0d7a5f;
-  --color-solutionChip: #0a5f4a;
-  --color-correct: #146a70;
-  --color-incorrect: #8d1f3c;
-  --color-text: #14202c;
-  --color-textMuted: rgba(20, 32, 44, 0.6);
+  --color-pageTop: #fff;
+  --color-pageBottom: #f6f6f6;
+  --color-stageTop: #fff;
+  --color-stageBottom: #ebebeb;
+  --color-controls: #eeeeee;
+  --color-accentQuiet: #dcdcdc;
+  --color-tile: rgba(25, 25, 25, 0.06);
+  --color-tileDisabled: rgba(25, 25, 25, 0.04);
+  --color-tileQuiet: rgba(25, 25, 25, 0.05);
+  --color-option: rgba(25, 25, 25, 0.05);
+  --color-text: rgb(25, 25, 25);
+  --color-textMuted: rgba(25, 25, 25, 0.6);
 }
 /* Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
 .stage--preview {

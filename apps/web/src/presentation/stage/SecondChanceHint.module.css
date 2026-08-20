@@ -12,13 +12,13 @@
 }
 
 :global(.stage--default) .hint {
-  margin-top: -3cqw;
-  padding: 0.6cqw 1.4cqw;
+  margin-top: -5.75cqw;
+  padding: 1cqw 1.8cqw;
   border-radius: var(--stage-radius);
   background: var(--color-accent);
   color: var(--color-text);
-  font-family: var(--font-heading);
-  font-size: 1.6cqw;
+  font-family: var(--font-ui);
+  font-size: 1.5cqw;
   font-weight: 700;
 }
 

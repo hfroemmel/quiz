@@ -48,7 +48,7 @@
 }
 :global(.stage--default) .chip {
   min-width: 3.4cqw;
-  padding: 0.8cqw 0;
+  padding: 0.8cqw 0 0.4cqw;
   background: var(--color-tile);
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
@@ -59,22 +59,27 @@
 }
 :global(.stage--default) .surface {
   justify-content: center;
-  padding: 0.8cqw 1.2cqw;
+  padding: 1cqw 1.2cqw 0.8cqw;
   background: var(--color-option);
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
-  font-size: 1.9cqw;
+  font-size: 1.75cqw;
   font-family: var(--font-heading);
 }
 :global(.stage--default) .answer[data-state='selected'] .surface {
   background: var(--color-accent);
+}
+:global(.stage--default) .answer[data-state='selected'] .chip {
+  background: var(--color-accent);
+  color: #fff;
 }
 :global(.stage--default) .answer[data-state='correct'] .surface {
   background: var(--color-solution);
 }
 :global(.stage--default) .answer[data-state='correct'] .chip {
   background: var(--color-solutionChip);
+  color: #fff;
 }
 /*
  * Verbraucht oder in der Loesung zurueckgenommen: beides tritt gleich weit
