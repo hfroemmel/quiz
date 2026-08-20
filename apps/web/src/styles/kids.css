@@ -65,14 +65,14 @@
   --kids-pad: clamp(16px, 1.8cqw, 36px);
   --kids-gap: clamp(10px, 1cqw, 20px);
   /* Sichtbare Fuge zwischen Foto und Fragepanel - sie duerfen sich nie beruehren. */
-  --kids-stage-gap: clamp(16px, 1.4cqw, 28px);
+  --kids-stage-gap: 1cqw;
   /* Luecke zwischen Buchstabenchip und Antwortkarte. */
-  --kids-chip-gap: clamp(10px, 0.9cqw, 18px);
+  --kids-chip-gap: 1cqw;
   --kids-content-width: 75%;
 
   /* Schriftgroessen: dieselben Werte wie im Paket, in Containereinheiten. */
-  --kids-size-question: clamp(34px, 2.6cqw, 58px);
-  --kids-size-answer: clamp(24px, 1.75cqw, 39px);
+  --kids-size-question: 3cqw;
+  --kids-size-answer: 2.5cqw;
   --kids-size-category: clamp(18px, 1.15cqw, 27px);
   --kids-size-score: 3.4cqw;
   --kids-size-label: clamp(14px, 0.95cqw, 22px);
@@ -429,7 +429,7 @@
  */
 .kids-answer {
   display: grid;
-  grid-template-columns: clamp(48px, 4.7cqw, 82px) minmax(0, 1fr);
+  grid-template-columns: 5.5cqw minmax(0, 100%);
   align-items: center;
   gap: var(--kids-chip-gap);
   color: var(--kids-ink);
@@ -462,6 +462,8 @@
   line-height: 1;
   /* Auch auf dem gelben Chip der gewaehlten Antwort bleibt der Buchstabe dunkel. */
   color: var(--kids-ink);
+  height: 10.5cqh;
+  aspect-ratio: 1;
 }
 
 /* Die breite Kartenzeichnung - und nur sie - traegt den Antworttext. */
@@ -469,7 +471,7 @@
   --kids-slice-width: clamp(12px, 1.25cqw, 24px);
   display: flex;
   align-items: center;
-  min-height: clamp(58px, 8cqh, 104px);
+  min-height: 10.5cqh;
   padding: clamp(8px, 0.85cqw, 18px) clamp(16px, 1.6cqw, 34px);
 }
 
@@ -519,61 +521,6 @@
 }
 .stage--kids .progress-ring__track {
   stroke: rgb(23 37 56 / 0.15);
-}
-
-/* ------------------------------------------------------------------ *
- * Schmalere Ansichten
- *
- * Die Reihenfolge Bild -> Frage -> Antworten bleibt in jeder Breite gleich.
- * Veraendert werden nur Groessen, Abstaende und die Figurenflaeche.
- * ------------------------------------------------------------------ */
-
-/* 4:3 und schmale Ansichten: Antworten duerfen breiter werden. */
-@container stage (max-width: 1099px) {
-  .stage--kids {
-    --kids-content-width: 86%;
-    background-position: 72% center;
-  }
-  .kids-stage {
-    grid-template-columns: 27% minmax(0, 54%);
-  }
-  .kids-stage--textonly {
-    grid-template-columns: minmax(0, 81%) 19%;
-  }
-  .kids-mascot__figure {
-    height: clamp(180px, 40cqh, 380px);
-  }
-  .kids-answer {
-    grid-template-columns: clamp(44px, 6cqw, 70px) minmax(0, 1fr);
-  }
-}
-
-/*
- * Unter 768 Pixeln ist das eine Entwickler- und Operatorvorschau, kein
- * Spielscreen. Inhalte werden nicht entfernt, sondern duerfen scrollen.
- */
-@container stage (max-width: 767px) {
-  .kids-screen {
-    overflow-y: auto;
-  }
-  .kids-stage,
-  .kids-stage--textonly {
-    grid-template-columns: 34% minmax(0, 1fr);
-  }
-  .kids-mascot {
-    position: absolute;
-    right: 1cqw;
-    top: 12cqw;
-    bottom: auto;
-    opacity: 0.35;
-  }
-  .kids-mascot__figure {
-    height: 26cqw;
-  }
-  .kids-answers,
-  .kids-solution-label {
-    width: 100%;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
