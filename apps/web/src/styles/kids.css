@@ -74,7 +74,7 @@
   --kids-size-question: clamp(34px, 2.6cqw, 58px);
   --kids-size-answer: clamp(24px, 1.75cqw, 39px);
   --kids-size-category: clamp(18px, 1.15cqw, 27px);
-  --kids-size-score: clamp(30px, 2.4cqw, 56px);
+  --kids-size-score: 3.4cqw;
   --kids-size-label: clamp(14px, 0.95cqw, 22px);
 
   --kids-motion-normal: 260ms;
@@ -223,6 +223,7 @@
   font-family: var(--kids-hand);
   font-weight: 400;
   font-size: var(--kids-size-label);
+  padding: 0.5cqh 0;
 }
 /* Nur die Ziffern tragen Melior - sie muessen beim Hochzaehlen ruhig stehen. */
 .kids-score__value {
@@ -239,14 +240,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: clamp(110px, 10cqw, 200px);
-  padding: clamp(8px, 0.9cqw, 18px) clamp(12px, 1.2cqw, 24px);
+  min-width: 9cqw;
+  padding: clamp(6px, 0.6cqw, 12px) 0 clamp(8px, 0.8cqw, 16px);
   line-height: 1.05;
 }
 .kids-counter__label {
   font-family: var(--kids-hand);
   font-weight: 400;
   font-size: var(--kids-size-label);
+  padding: 0.5cqh 0;
 }
 .kids-counter__value {
   font-family: var(--kids-numeric);
@@ -266,7 +268,8 @@
  */
 .kids-stage {
   display: grid;
-  grid-template-columns: 27% minmax(0, 1fr) 25%;
+  width: var(--kids-content-width);
+  grid-template-columns: 38% minmax(0, 1fr);
   gap: var(--kids-stage-gap);
   /*
    * Foto und Frageflaeche stehen gleich hoch nebeneinander. Deshalb stretch:
@@ -411,7 +414,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 2.7cqh, 32px);
+  gap: 1cqh;
   /* Die Antworten geben nichts her; nachgiebig ist die Fragezeile darueber. */
   flex: 0 0 auto;
   /* Rechts bleibt die Figurenflaeche frei. */
@@ -454,7 +457,8 @@
   align-self: center;
   font-family: var(--kids-numeric);
   font-weight: 700;
-  font-size: clamp(24px, 2.1cqw, 46px);
+  font-size: 2.8cqw;
+  padding: 0.2cqw 0 0;
   line-height: 1;
   /* Auch auf dem gelben Chip der gewaehlten Antwort bleibt der Buchstabe dunkel. */
   color: var(--kids-ink);
@@ -531,7 +535,7 @@
     background-position: 72% center;
   }
   .kids-stage {
-    grid-template-columns: 27% minmax(0, 54%) 19%;
+    grid-template-columns: 27% minmax(0, 54%);
   }
   .kids-stage--textonly {
     grid-template-columns: minmax(0, 81%) 19%;
