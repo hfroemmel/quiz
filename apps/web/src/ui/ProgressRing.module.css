@@ -31,17 +31,27 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Kinderwelt: Tinte statt Weiss, Ziffern in der Serifenschrift der Zahlen. */
-:global(.stage--kids) .arc {
-  /* stroke: var(--kids-accent); */
-}
+/*
+ * Kinderwelt: Der Bogen behaelt die Akzentfarbe der Welt - `.arc` oben liest
+ * `--color-accent`, und das ist im Kinderquiz das Rot der Zeichnungen. Eine
+ * eigene Regel braucht es dafuer nicht.
+ */
 :global(.stage--kids) .track {
   stroke: color-mix(in srgb, var(--kids-ink) 15%, transparent);
 }
+/*
+ * Die Sekunden stehen gross und hell mitten im Ring, ueber der illustrierten
+ * Szene. Die Kontur haelt sie lesbar, wo der Hintergrund hell wird.
+ */
 :global(.stage--kids) .seconds {
   font-family: var(--kids-numeric);
   font-weight: 700;
   font-size: 7cqw;
-  text-shadow: -0.1cqw 0 black, 0.1cqw 0 black, 0 0.1cqw black, 0.1cqw 0 black, 0 -0.1cqw black, 0.3cqw 0.3cqw black;
-  color: #fff;
+  color: var(--stage-inkOnStrong);
+  text-shadow:
+    -0.1cqw 0 var(--stage-inkOutline),
+    0.1cqw 0 var(--stage-inkOutline),
+    0 0.1cqw var(--stage-inkOutline),
+    0 -0.1cqw var(--stage-inkOutline),
+    0.3cqw 0.3cqw var(--stage-inkOutline);
 }

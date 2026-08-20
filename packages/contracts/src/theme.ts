@@ -179,6 +179,14 @@ export const stageExtras = {
   inkOnStrong: '#ffffff',
   /** Haarfeine Kante am Portraet, damit es sich vom Grund abhebt. */
   edge: 'rgb(255 255 255 / 0.22)',
+  /**
+   * Kontur um helle Schrift, die auf unruhigem Grund steht.
+   *
+   * In der Kinderwelt liegen Punktestand und Countdown ueber einer Zeichnung
+   * mit hellen und dunklen Stellen. Eine Schrift ohne Kontur wuerde dort
+   * stellenweise verschwinden - im Saal aus zwanzig Metern zuerst.
+   */
+  inkOutline: '#000000',
 } as const
 
 /* ------------------------------------------------------------------ *

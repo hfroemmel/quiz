@@ -114,9 +114,19 @@
   isolation: isolate;
 }
 
+/*
+ * Die Nummer des Spielers am Zug steht auf dem farbigen Feld der Zeichnung:
+ * hell, mit Kontur. Ohne sie liefe die Ziffer an den hellen Stellen des
+ * gezeichneten Feldes aus.
+ */
 :global(.stage--kids) .score[data-active='true'] .cellPlayer .value {
-  color: #fff;
-  text-shadow: -0.1cqw 0 black, 0.1cqw 0 black, 0 0.1cqw black, 0.1cqw 0 black, 0 -0.1cqw black, 0.2cqw 0.2cqw black;
+  color: var(--stage-inkOnStrong);
+  text-shadow:
+    -0.1cqw 0 var(--stage-inkOutline),
+    0.1cqw 0 var(--stage-inkOutline),
+    0 0.1cqw var(--stage-inkOutline),
+    0 -0.1cqw var(--stage-inkOutline),
+    0.2cqw 0.2cqw var(--stage-inkOutline);
 }
 
 /* Die Zeichnung liegt als Pseudoelement HINTER dem Inhalt: So bleibt das

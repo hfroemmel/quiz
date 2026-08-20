@@ -32,6 +32,7 @@
   --color-textMuted: rgba(255, 255, 255, 0.6);
   --stage-inkOnStrong: #ffffff;
   --stage-edge: rgb(255 255 255 / 0.22);
+  --stage-inkOutline: #000000;
   --ui-page: #0d0f13;
   --ui-surface: #171b21;
   --ui-surface-quiet: #12151a;

@@ -27,7 +27,19 @@ const generated = join(sourceDir, 'styles', 'palette.css')
  */
 const EXEMPT = ['styles/palette.css', 'apps/preview/PreviewApp.tsx']
 
-const COLOR = /#[0-9a-fA-F]{3,8}\b|\brgba?\(/
+/*
+ * Hexwerte, `rgb(...)` und die benannten Farben von CSS.
+ *
+ * Die Namen brauchen die Klammer davor und dahinter: `--kids-red` ist ein
+ * Variablenname und keine Farbe, `text-shadow: 0 0 black` dagegen schon.
+ * `transparent` und `currentColor` bleiben erlaubt - sie nennen keinen Ton.
+ */
+const NAMED = [
+  'black', 'white', 'red', 'green', 'blue', 'yellow', 'orange', 'purple',
+  'pink', 'brown', 'gray', 'grey', 'silver', 'gold', 'cyan', 'magenta',
+  'teal', 'navy', 'olive', 'maroon', 'lime', 'aqua', 'fuchsia',
+].join('|')
+const COLOR = new RegExp(`#[0-9a-fA-F]{3,8}\\b|\\brgba?\\(|(?<![-\\w])(${NAMED})(?![-\\w])`)
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
