@@ -113,6 +113,12 @@
   position: relative;
   isolation: isolate;
 }
+
+:global(.stage--kids) .score[data-active='true'] .cellPlayer .value {
+  color: #fff;
+  text-shadow: -0.1cqw 0 black, 0.1cqw 0 black, 0 0.1cqw black, 0.1cqw 0 black, 0 -0.1cqw black, 0.2cqw 0.2cqw black;
+}
+
 /* Die Zeichnung liegt als Pseudoelement HINTER dem Inhalt: So bleibt das
    Innenmass der Karte vom Strich der Kontur unberuehrt. */
 :global(.stage--kids) .score::before {

@@ -18,7 +18,7 @@
   stroke: var(--color-tileDisabled);
 }
 .arc {
-  stroke: var(--color-text);
+  stroke: var(--color-accent);
 }
 .seconds {
   position: absolute;
@@ -33,7 +33,7 @@
 
 /* Kinderwelt: Tinte statt Weiss, Ziffern in der Serifenschrift der Zahlen. */
 :global(.stage--kids) .arc {
-  stroke: var(--kids-ink);
+  /* stroke: var(--kids-accent); */
 }
 :global(.stage--kids) .track {
   stroke: color-mix(in srgb, var(--kids-ink) 15%, transparent);
@@ -41,4 +41,7 @@
 :global(.stage--kids) .seconds {
   font-family: var(--kids-numeric);
   font-weight: 700;
+  font-size: 7cqw;
+  text-shadow: -0.1cqw 0 black, 0.1cqw 0 black, 0 0.1cqw black, 0.1cqw 0 black, 0 -0.1cqw black, 0.3cqw 0.3cqw black;
+  color: #fff;
 }
