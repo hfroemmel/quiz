@@ -94,7 +94,12 @@ Ergebnis liegt unter `content/migrated/` und wird bewusst **nicht** automatisch 
 
 ## Medien vorbereiten
 
-`pnpm content:assets` erzeugt abstrakte Platzhalter-Grafiken fuer das mitgelieferte
-Beispielpaket. Vor einer echten Veranstaltung werden die Dateien unter
-`content/source/assets/questions/` durch freigegebenes Bildmaterial ersetzt (gleicher
-Dateiname, oder `filename` in `assets.json` anpassen).
+Unter `content/source/assets/questions/` liegt das echte Bildmaterial des
+uebernommenen Katalogs. `pnpm content:assets` erzeugt abstrakte Platzhalter-Grafiken
+und ist damit nur noch fuer neue, noch unbebilderte Fragen gedacht - es ueberschreibt
+vorhandene Dateien nicht. Ein neues Bild kommt unter denselben Dateinamen oder
+bekommt einen eigenen Eintrag in `assets.json`.
+
+Videos liegen unter `content/source/assets/video/`. Sie werden wie Bilder ueber
+`assets.json` eingetragen (`"kind": "video"`) und ueber `media.videoAssetId` an eine
+Frage gehaengt.

@@ -9,29 +9,51 @@ Buzzer-Beleuchtung, negative Punkte, manuelle Gewinnerauswahl, eine automatische
 Entscheidungsfrage bei Gleichstand, automatisch eingeblendete Zusatzinformationen auf
 dem Buehnenscreen und ungeprueft uebernommene KI-Korrekturen.
 
-## Inhalte des Beispielpakets
+## Inhalte
 
-* Das mitgelieferte Paket enthaelt **53 Beispielfragen** und dient dem Start, nicht der
-  Veranstaltung. Die Validierung meldet dafuer 27 Warnungen - fast ausschliesslich
-  „kleiner Kandidatenpool“. Fuer einen Abend mit vielen aufeinanderfolgenden Spielen
-  sollte der Pool deutlich groesser sein; der Bericht nennt pro Fragenplatz die
-  konkrete Kandidatenzahl.
-* Die Bilder sind **abstrakte Platzhaltergrafiken** (`pnpm content:assets`). Vor einer
-  echten Veranstaltung werden sie durch freigegebenes Bildmaterial ersetzt.
+* Der Katalog enthaelt die **199 uebernommenen Fragen** des gelieferten Bestands
+  sowie zwei Lorem-Ipsum-Testfragen (`test-video`, `test-person`). Die Bilder sind
+  echtes Material, kein Platzhalter.
+* Die Validierung meldet **85 Warnungen**. Der groesste Teil sind fehlende
+  Erklaerungstexte (42) und fehlende Bildnachweise (17) - beides redaktionelle
+  Arbeit, kein technischer Mangel. 21 Warnungen betreffen die absichtlich kleinen
+  Pools der beiden Testplaetze (siehe unten). Zwei Fragen (119, 127) tragen zwei
+  identische Antwortoptionen und sind so nicht spielbar.
+
+## Testplaetze am Anfang jedes Spiels
+
+Fragenplatz 1 und 2 sind in **allen** Presets auf die beiden Testfragen
+festgelegt, damit sich Videofrage und Portraetanordnung ohne Durchspielen pruefen
+lassen. Das ist eine Vorrichtung fuer die Entwicklung, keine Dramaturgie: Vor der
+Veranstaltung werden die beiden Plaetze in `content/source/config.json` wieder
+durch redaktionelle Filter ersetzt.
+
+Die Testfragen tragen die Kategorie `saarbruecken` als zweite Kategorie. Das ist
+kein Inhalt, sondern der Schluessel zum regionalen Modus - er filtert auf diese
+Kategorie und haette sonst keinen Kandidaten fuer die beiden Plaetze.
 
 ## Videofragen
 
-Dem Repository liegt kein freigegebenes Videomaterial bei. Die Beispielfrage
-`a-video-01` ist deshalb auf `"enabled": false` gesetzt und wird nie gespielt; die
-Validierung meldet dafuer eine Warnung statt eines Fehlers.
+Das mitgelieferte `testvideo.mp4` ist **Testmaterial ohne redaktionelle
+Freigabe**. Es liegt unter `content/source/assets/video/` und haengt an der Frage
+`test-video`.
 
-Die Videologik selbst ist vollstaendig umgesetzt und getestet: Buzzersperre waehrend
-des Videos, Start/Pause/Neustart/Springen, `Frage einblenden` als zweite Phase
-derselben Frage, Fehlermeldung mit `Frage ueberspringen` bei nicht ladbarem Medium.
-Abgedeckt ist das durch Domain-Unit-Tests; ein End-to-End-Test fuer den Videoablauf
-fehlt, weil dafuer eine abspielbare Datei noetig waere.
+Die Videologik ist vollstaendig umgesetzt und getestet: Buzzersperre waehrend des
+Videos, Start/Pause/Neustart/Springen, `Frage einblenden` als zweite Phase
+derselben Frage, Fehlermeldung mit `Frage ueberspringen` bei nicht ladbarem
+Medium. Der End-to-End-Fall 7 der Spezifikation laeuft.
 
-Anleitung zum Aktivieren: `content/source/assets/video/README.md`.
+Zwei Punkte dazu:
+
+* **Das Chromium der Testumgebung spielt die Datei nicht.** Es kennt H.264 und
+  AAC nicht (`canPlayType` liefert leer) und zeigt "Video nicht verfuegbar". Im
+  ausgelieferten Browser und in der Desktopanwendung spielt dieselbe Datei. Der
+  End-to-End-Test prueft deshalb den Ablauf, nicht die Wiedergabe.
+* **Der Positionsregler reicht nur bis zur bereits erreichten Stelle.** Die
+  Spieldauer steht im Serverzustand nicht zur Verfuegung; der Regler behilft sich
+  mit der aktuellen Position. Vorwaerts springen laesst sich damit nicht. Wer das
+  braucht, muss die Dauer in den Zustand aufnehmen - der Buehnenclient kennt sie
+  aus `loadedmetadata`.
 
 ## Natives SQLite-Modul
 

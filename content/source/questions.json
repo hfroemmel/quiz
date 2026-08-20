@@ -6843,5 +6843,93 @@
       "summary": "https://de.wikipedia.org/wiki/Alte_Br%C3%BCcke_%28Saarbr%C3%BCcken%29"
     },
     "enabled": true
+  },
+  {
+    "id": "test-video",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "begriffe",
+      "saarbruecken"
+    ],
+    "tags": [
+      "testfrage"
+    ],
+    "prompt": "Lorem ipsum dolor sit amet: Was zeigt das Video?",
+    "presentationType": "video-then-question",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Lorem ipsum dolor"
+      },
+      {
+        "id": "o2",
+        "text": "Consetetur sadipscing"
+      },
+      {
+        "id": "o3",
+        "text": "Takimata sanctus est"
+      },
+      {
+        "id": "o4",
+        "text": "Duo dolores et ea"
+      }
+    ],
+    "correctOptionId": "o1",
+    "media": {
+      "videoAssetId": "vid-test-01"
+    },
+    "explanation": {
+      "summary": "Testfrage zum Pruefen des Videoablaufs. Die richtige Antwort ist immer die erste."
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-person",
+    "modeIds": [
+      "adults",
+      "kids"
+    ],
+    "difficultyId": "easy",
+    "categoryIds": [
+      "begriffe",
+      "saarbruecken"
+    ],
+    "tags": [
+      "testfrage"
+    ],
+    "prompt": "Lorem ipsum: Wer ist diese Person?",
+    "presentationType": "person",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Lorem Ipsumowa"
+      },
+      {
+        "id": "o2",
+        "text": "Consetetur Sadipscing"
+      },
+      {
+        "id": "o3",
+        "text": "Takimata Sanctus"
+      },
+      {
+        "id": "o4",
+        "text": "Stet Clita Kasd"
+      }
+    ],
+    "correctOptionId": "o1",
+    "media": {
+      "imageAssetId": "img-111"
+    },
+    "explanation": {
+      "summary": "Testfrage zum Pruefen der Portraetanordnung. Die richtige Antwort ist immer die erste."
+    },
+    "enabled": true
   }
 ]

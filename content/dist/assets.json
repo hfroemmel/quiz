@@ -1533,5 +1533,13 @@
     "mimeType": "image/png",
     "credit": "Gelieferte Designvorlage",
     "checksum": "762a0602f00645ac0edf8a5f98b121b7"
+  },
+  {
+    "id": "vid-test-01",
+    "kind": "video",
+    "filename": "video/testvideo.mp4",
+    "mimeType": "video/mp4",
+    "credit": "Testmaterial ohne redaktionelle Freigabe",
+    "checksum": "863e1732306ee16ebae683ce83f341f2"
   }
 ]

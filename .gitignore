@@ -32,3 +32,6 @@ playwright-report/
 .DS_Store
 .vscode/
 .idea/
+
+# Videokopie im gebauten Paket: unveraenderte Kopie aus content/source/assets/video.
+content/dist/assets/video/

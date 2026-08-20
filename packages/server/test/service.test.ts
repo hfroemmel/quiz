@@ -6,7 +6,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { scoringRules } from '@quiz/contracts'
-import { createRig, playQuestion, type TestRig } from './helpers.ts'
+import { createRig, playQuestion, showQuestionAfterVideo, type TestRig } from './helpers.ts'
 
 const rigs: TestRig[] = []
 function rig(options?: Parameters<typeof createRig>[0]): TestRig {
@@ -19,10 +19,16 @@ afterEach(() => {
   while (rigs.length) rigs.pop()!.dispose()
 })
 
+/*
+ * Startet ein Spiel und bringt die erste Frage in einen Zustand, in dem sich
+ * bedienen laesst. Der erste Fragenplatz ist eine Videofrage; das Video ist fuer
+ * diese Tests Vorspann, nicht Gegenstand.
+ */
 function startGame(target: TestRig, presetId = 'medium'): void {
   const result = target.send({ type: 'START_GAME', quizModeId: 'adults', presetId })
   expect(result.ok).toBe(true)
   target.settle()
+  showQuestionAfterVideo(target)
 }
 
 describe('Spielprotokoll', () => {
@@ -336,20 +342,30 @@ describe('Wiederholungsvermeidung ueber mehrere Spiele', () => {
 
   it('bevorzugt im naechsten Spiel noch nicht gespielte Fragen', () => {
     const target = rig({ seed: 5 })
-    startGame(target)
-    const firstGame = new Set<string>()
-    for (let index = 0; index < 7; index += 1) {
-      firstGame.add(target.service.authoritativeState!.currentQuestion!.question.id)
-      playQuestion(target, 'resolve-without-answer')
-      target.send({ type: 'CONTINUE' })
-      target.settle()
+    const spielen = (): string[] => {
+      const gespielt: string[] = []
+      startGame(target)
+      for (let index = 0; index < 7; index += 1) {
+        gespielt.push(target.service.authoritativeState!.currentQuestion!.question.id)
+        playQuestion(target, 'resolve-without-answer')
+        target.send({ type: 'CONTINUE' })
+        target.settle()
+      }
+      expect(target.service.authoritativeState!.phase).toBe('result')
+      return gespielt
     }
-    expect(target.service.authoritativeState!.phase).toBe('result')
 
-    startGame(target)
-    const secondGameFirstQuestion = target.service.authoritativeState!.currentQuestion!.question.id
-    // Der Einstiegs-Pool ist gross genug, dass eine frische Frage kommen muss.
-    expect(firstGame.has(secondGameFirstQuestion)).toBe(false)
+    const ersteRunde = spielen()
+    const zweiteRunde = spielen()
+
+    /*
+     * Platz 1 ist der Testplatz fuer die Videofrage und hat genau einen
+     * Kandidaten - er MUSS sich wiederholen. Ueberall sonst ist der Pool gross
+     * genug, dass die Auswahl frische Fragen vorzieht; das gilt auch fuer den
+     * Portraetplatz, hinter dem die echten Personenfragen stehen.
+     */
+    expect(zweiteRunde[0]).toBe(ersteRunde[0])
+    expect(zweiteRunde.slice(1).filter((id) => ersteRunde.includes(id))).toEqual([])
   })
 })
 

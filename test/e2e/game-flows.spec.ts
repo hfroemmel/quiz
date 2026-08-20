@@ -215,6 +215,67 @@ test.describe('Bilderkennen', () => {
     expect(await scores(operator)).toEqual([0, 50])
   })
 
+  /*
+   * Fall 7 der Spezifikation. Er stand lange aus, weil kein freigegebenes
+   * Videomaterial im Repository lag; seit der Testdatei laesst er sich fahren.
+   *
+   * Der Buzzer ist waehrend des Videos gesperrt - das ist die eigentliche Regel
+   * dieses Fragetyps und wird hier zuerst geprueft.
+   *
+   * Geprueft wird der ABLAUF, nicht die Wiedergabe: Das mitgelieferte Chromium
+   * der Testumgebung kennt H.264 und AAC nicht (`canPlayType` liefert leer) und
+   * zeigt deshalb "Video nicht verfuegbar". Im ausgelieferten Browser und in der
+   * Desktopanwendung spielt dieselbe Datei. Genau dafuer gibt es die
+   * Fehlerbehandlung, die der Ablauf hier mit durchlaeuft.
+   */
+  test('7 - Videofrage mit Springen, danach Buzzer und richtige Antwort', async ({ page }) => {
+    const operator = await openOperator(page)
+    await startGame(operator, { holdVideoIntro: true })
+    await expectPhase(operator, 'video-ready')
+
+    await operator.getByRole('button', { name: 'Video starten' }).click()
+    await expectPhase(operator, 'video-playing')
+
+    // Waehrend das Video laeuft, darf kein Buzzer durchkommen.
+    await buzz(operator, 1)
+    await expectPhase(operator, 'video-playing')
+
+    // Pausieren fuehrt zurueck in die Bereitschaft - eine eigene Pausenphase gibt es nicht.
+    await operator.getByRole('button', { name: 'Video pausieren' }).click()
+    await expectPhase(operator, 'video-ready')
+
+    /*
+     * Springen im Video. Der Regler reicht heute nur bis zur bereits erreichten
+     * Stelle bzw. eine Sekunde - die Spieldauer steht im Zustand nicht zur
+     * Verfuegung. Geprueft wird deshalb, dass der Befehl ankommt und der Server
+     * die Position uebernimmt, nicht eine bestimmte Sprungweite.
+     */
+    const seek = operator.locator('[data-controls] input[type="range"]')
+    await seek.fill('1000')
+    await expect(seek).toHaveValue('1000')
+
+    await operator.getByRole('button', { name: 'Frage einblenden' }).click()
+    await expectPhase(operator, 'question-presented')
+
+    // Ab hier ist es eine gewoehnliche Auswahlfrage - zweite Phase derselben Frage.
+    await operator.getByRole('button', { name: 'Antworten einblenden' }).click()
+    await buzz(operator, 2)
+    await expectPhase(operator, 'answer-locked')
+    await logCorrectOption(operator)
+    await resolveAttempt(operator)
+    await expectPhase(operator, 'solution')
+    expect(await scores(operator)).toEqual([0, 100])
+
+    /*
+     * Die beiden Testfragen stehen bewusst an erster und zweiter Stelle jedes
+     * Presets, damit sie sich ohne Durchspielen pruefen lassen. Faellt diese
+     * Reihenfolge aus der Konfiguration, faellt es hier auf.
+     */
+    await continueGame(operator)
+    await expect(operator.locator('[data-counter-value]')).toContainText('2/7')
+    await expect(operator.locator('.stage').first()).toHaveAttribute('data-presentation', 'person')
+  })
+
   test('6 - nach Ablauf des Countdowns bleibt Buzzern erlaubt', async ({ page }) => {
     const operator = await openOperator(page)
     const stage = await openStage(await page.context().newPage())

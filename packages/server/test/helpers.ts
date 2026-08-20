@@ -88,11 +88,26 @@ export function createRig(options: { databaseFile?: string; seed?: number; start
   return rig
 }
 
+/**
+ * Blendet die Frage einer Videofrage ein, sofern gerade eine laeuft.
+ *
+ * Eine Videofrage beginnt mit dem Video; erst danach gibt es eine Frage, auf die
+ * sich buzzern laesst. Fuer Tests, die den ANTWORTABLAUF pruefen, ist das eine
+ * Vorstufe - der Videoablauf selbst hat eigene Faelle.
+ */
+export function showQuestionAfterVideo(rig: TestRig): void {
+  const phase = rig.service.authoritativeState?.phase
+  if (phase !== 'video-ready' && phase !== 'video-playing') return
+  rig.send({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
+  rig.settle()
+}
+
 /** Spielt eine normale Frage bis zur Loesung durch. */
 export function playQuestion(
   rig: TestRig,
   outcome: 'correct-first' | 'incorrect-then-correct' | 'resolve-without-answer',
 ): void {
+  showQuestionAfterVideo(rig)
   const state = rig.service.authoritativeState!
   const question = state.currentQuestion!.question
 

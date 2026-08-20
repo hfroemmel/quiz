@@ -45,7 +45,10 @@ export async function resetToStartPanel(operator: Page): Promise<void> {
   }
 }
 
-export async function startGame(operator: Page, options: { mode?: string; preset?: string } = {}): Promise<void> {
+export async function startGame(
+  operator: Page,
+  options: { mode?: string; preset?: string; holdVideoIntro?: boolean } = {},
+): Promise<void> {
   await resetToStartPanel(operator)
   await expect(operator.locator('[data-start-panel]')).toBeVisible()
   const selects = operator.locator('[data-start-form] select')
@@ -54,7 +57,12 @@ export async function startGame(operator: Page, options: { mode?: string; preset
   await operator.getByRole('button', { name: 'Spiel starten' }).click()
   // Der Pausenscreen laeuft kurz, danach steht die erste Frage.
   await expect(operator.locator('[data-controls]')).toBeVisible()
-  await waitForQuestionReady(operator)
+  await waitPastPauseScreen(operator)
+  /*
+   * `holdVideoIntro` ist fuer den einen Test, der das Video selbst prueft. Alle
+   * anderen wollen eine stehende Frage vorfinden, egal welcher Typ zuerst kommt.
+   */
+  if (!options.holdVideoIntro) await skipVideoIntro(operator)
 }
 
 export async function currentPhase(page: Page): Promise<string> {
@@ -75,9 +83,28 @@ export async function expectPhase(page: Page, phase: string): Promise<void> {
  * Der Pausenscreen ist eine eigene, zeitgesteuerte Praesentationsphase. Wer direkt
  * nach `Weiter` weiterbedient, wuerde sonst gegen eine Phase arbeiten, in der es die
  * erwartete Aktion noch gar nicht gibt.
+ *
+ * Eine Videofrage beginnt mit dem Video, nicht mit der Frage. Fuer alle Tests, die
+ * den ANTWORTABLAUF pruefen, ist das eine Vorstufe: Hier wird sie einmal
+ * durchgereicht, damit jeder Test dieselbe Ausgangslage vorfindet - eine stehende
+ * Frage. Der Videoablauf selbst hat einen eigenen Test.
  */
 export async function waitForQuestionReady(page: Page): Promise<void> {
+  await waitPastPauseScreen(page)
+  await skipVideoIntro(page)
+}
+
+/** Nur die zeitgesteuerte Zwischenansicht abwarten - ohne den Fragetyp anzufassen. */
+export async function waitPastPauseScreen(page: Page): Promise<void> {
   await expect.poll(async () => currentPhase(page), { timeout: 15_000 }).not.toBe('pause-screen')
+}
+
+/** Blendet die Frage einer Videofrage ein, sofern gerade eine laeuft. */
+export async function skipVideoIntro(operator: Page): Promise<void> {
+  const showQuestion = operator.getByRole('button', { name: 'Frage einblenden' })
+  if (!(await showQuestion.count())) return
+  await showQuestion.click()
+  await expect.poll(async () => currentPhase(operator), { timeout: 10_000 }).toBe('question-presented')
 }
 
 /**
@@ -145,9 +172,6 @@ export async function scores(operator: Page): Promise<number[]> {
  */
 export async function prepareAnswerPhase(operator: Page): Promise<void> {
   await waitForQuestionReady(operator)
-  if ((await currentPhase(operator)) === 'video-ready' || (await currentPhase(operator)) === 'video-playing') {
-    await operator.getByRole('button', { name: 'Frage einblenden' }).click()
-  }
   if ((await currentPhase(operator)) === 'question-presented') {
     await operator.getByRole('button', { name: 'Antworten einblenden' }).click()
   }
@@ -212,9 +236,6 @@ export async function playQuestionCorrect(operator: Page, player: 1 | 2 = 1): Pr
 /** Loest eine Frage ohne Buzzer und ohne Antwort auf. */
 export async function resolveWithoutAnswer(operator: Page): Promise<void> {
   await waitForQuestionReady(operator)
-  if ((await currentPhase(operator)) === 'video-ready' || (await currentPhase(operator)) === 'video-playing') {
-    await operator.getByRole('button', { name: 'Frage einblenden' }).click()
-  }
   await operator.getByRole('button', { name: 'Ohne Antwort auflösen' }).click()
   await expectPhase(operator, 'solution')
 }

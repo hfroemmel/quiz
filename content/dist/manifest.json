@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "1.0.16",
-  "createdAt": "2026-08-20T13:34:47.897Z",
+  "contentVersion": "1.0.18",
+  "createdAt": "2026-08-20T18:58:39.987Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
   "assets": [
@@ -1539,7 +1539,15 @@
       "mimeType": "image/png",
       "credit": "Gelieferte Designvorlage",
       "checksum": "762a0602f00645ac0edf8a5f98b121b7"
+    },
+    {
+      "id": "vid-test-01",
+      "kind": "video",
+      "filename": "video/testvideo.mp4",
+      "mimeType": "video/mp4",
+      "credit": "Testmaterial ohne redaktionelle Freigabe",
+      "checksum": "863e1732306ee16ebae683ce83f341f2"
     }
   ],
-  "checksum": "ddd28cc571ba9d42874e03824d0d19f75dcfc02db322a8be28a41f64d1e6e393"
+  "checksum": "dfc17fb9064259ac69b6761199694859bbe1a8e84a6f2cffa0e45c42ac5307a9"
 }

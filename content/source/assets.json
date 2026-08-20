@@ -1339,5 +1339,12 @@
     "kind": "image",
     "filename": "questions/s12_Thierse_Umzug_AP Archiv.jpg",
     "mimeType": "image/jpeg"
+  },
+  {
+    "id": "vid-test-01",
+    "kind": "video",
+    "filename": "video/testvideo.mp4",
+    "mimeType": "video/mp4",
+    "credit": "Testmaterial ohne redaktionelle Freigabe"
   }
 ]

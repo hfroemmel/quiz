@@ -1,30 +1,30 @@
 # Validierungsbericht Quizinhalte
-Ergebnis: BESTANDEN (0 Fehler, 64 Warnungen)
+Ergebnis: BESTANDEN (0 Fehler, 85 Warnungen)
 
 ## Gesamtzahlen
-- Fragen gesamt: 199 (aktiv: 199)
-- Wiederholungsgruppen: 191
-- Medien: 194
-- Nach Modus: adults=143, kids=56
-- Nach Schwierigkeit: medium=85, easy=63, hard=51
-- Nach Praesentationstyp: image-choice=123, image-reveal=64, text-choice=7, person=5
-- Nach Kategorie: saarbruecken=64, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=5, kurioses=4, erdkunde=2, fahnen-und-symbole=2
+- Fragen gesamt: 201 (aktiv: 201)
+- Wiederholungsgruppen: 193
+- Medien: 195
+- Nach Modus: adults=145, kids=58
+- Nach Schwierigkeit: medium=85, easy=65, hard=51
+- Nach Praesentationstyp: image-choice=123, image-reveal=64, text-choice=7, person=6, video-then-question=1
+- Nach Kategorie: saarbruecken=66, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=7, kurioses=4, erdkunde=2, fahnen-und-symbole=2
 
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
-Spiele ohne Wiederholung: 22
-- Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
-- Platz 2 "wissen": 42 Kandidaten, 42 Wiederholungsgruppen
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
-- Platz 4 "vertiefung": 102 Kandidaten, 101 Wiederholungsgruppen
+- Platz 4 "vertiefung": 104 Kandidaten, 103 Wiederholungsgruppen
 - Platz 5 "steigerung": 60 Kandidaten, 59 Wiederholungsgruppen
 - Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
 - Platz 7 "finale": 101 Kandidaten, 100 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "medium"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
-- Platz 2 "wissen": 60 Kandidaten, 59 Wiederholungsgruppen
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "parlament": 70 Kandidaten, 69 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
@@ -32,54 +32,54 @@ Spiele ohne Wiederholung: 19
 - Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "hard"
-Spiele ohne Wiederholung: 13
-- Platz 1 "einstieg": 36 Kandidaten, 36 Wiederholungsgruppen
-- Platz 2 "wissen": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: steigerung, finale
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 25 Kandidaten, 24 Wiederholungsgruppen
 - Platz 4 "parlament": 76 Kandidaten, 75 Wiederholungsgruppen
-- Platz 5 "steigerung": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, finale
+- Platz 5 "steigerung": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: finale
 - Platz 6 "bildauswahl": 30 Kandidaten, 30 Wiederholungsgruppen
-- Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: wissen, steigerung
+- Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: steigerung
 
 ### Modus "adults" / Preset "mixed"
-Spiele ohne Wiederholung: 19
-- Platz 1 "einstieg": 19 Kandidaten, 19 Wiederholungsgruppen
-- Platz 2 "wissen": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: finale
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
-- Platz 4 "orte": 60 Kandidaten, 60 Wiederholungsgruppen
+- Platz 4 "orte": 62 Kandidaten, 62 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
 - Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
-- Platz 7 "finale": 143 Kandidaten, 142 Wiederholungsgruppen | konkurriert mit: wissen
+- Platz 7 "finale": 145 Kandidaten, 144 Wiederholungsgruppen
 
 ### Modus "kids" / Preset "easy"
-Spiele ohne Wiederholung: 9
-- Platz 1 "einstieg": 9 Kandidaten, 9 Wiederholungsgruppen
-- Platz 2 "wissen": 21 Kandidaten, 21 Wiederholungsgruppen
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
-- Platz 4 "vertiefung": 46 Kandidaten, 46 Wiederholungsgruppen
+- Platz 4 "vertiefung": 48 Kandidaten, 48 Wiederholungsgruppen
 - Platz 5 "steigerung": 25 Kandidaten, 25 Wiederholungsgruppen
 - Platz 6 "bildauswahl": 39 Kandidaten, 39 Wiederholungsgruppen
 - Platz 7 "finale": 35 Kandidaten, 35 Wiederholungsgruppen
 
 ### Modus "kids" / Preset "mixed"
-Spiele ohne Wiederholung: 12
-- Platz 1 "einstieg": 12 Kandidaten, 12 Wiederholungsgruppen
-- Platz 2 "wissen": 56 Kandidaten, 56 Wiederholungsgruppen | konkurriert mit: finale
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
-- Platz 4 "orte": 24 Kandidaten, 24 Wiederholungsgruppen
+- Platz 4 "orte": 26 Kandidaten, 26 Wiederholungsgruppen
 - Platz 5 "steigerung": 35 Kandidaten, 35 Wiederholungsgruppen
 - Platz 6 "bildauswahl": 39 Kandidaten, 39 Wiederholungsgruppen
-- Platz 7 "finale": 56 Kandidaten, 56 Wiederholungsgruppen | konkurriert mit: wissen
+- Platz 7 "finale": 58 Kandidaten, 58 Wiederholungsgruppen
 
 ### Modus "saarbruecken" / Preset "regional"
-Spiele ohne Wiederholung: 13
-- Platz 1 "einstieg": 15 Kandidaten, 13 Wiederholungsgruppen
-- Platz 2 "vertiefung": 29 Kandidaten, 28 Wiederholungsgruppen
+Spiele ohne Wiederholung: 1
+- Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 14 Kandidaten, 14 Wiederholungsgruppen
 - Platz 4 "mittelfeld": 39 Kandidaten, 38 Wiederholungsgruppen | konkurriert mit: steigerung
 - Platz 5 "steigerung": 39 Kandidaten, 38 Wiederholungsgruppen | konkurriert mit: mittelfeld
 - Platz 6 "bildauswahl": 43 Kandidaten, 38 Wiederholungsgruppen
-- Platz 7 "finale": 64 Kandidaten, 58 Wiederholungsgruppen
+- Platz 7 "finale": 66 Kandidaten, 60 Wiederholungsgruppen
 
 ## Warnungen (bewusste Freigabe erforderlich)
 - [missing-credit] 9: Kein Bildnachweis fuer "img-9".
@@ -146,3 +146,24 @@ Spiele ohne Wiederholung: 13
 - [missing-credit] 193: Kein Bildnachweis fuer "img-193".
 - [missing-credit] 195: Kein Bildnachweis fuer "img-195".
 - [missing-credit] 197: Kein Bildnachweis fuer "img-197".
+- [small-pool] adults/easy/test-video: Modus "adults" / Preset "easy": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] adults/easy/test-person: Modus "adults" / Preset "easy": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [few-games-without-repetition] adults/easy: Modus "adults" / Preset "easy": nur 1 Spiele ohne Wiederholung moeglich.
+- [small-pool] adults/medium/test-video: Modus "adults" / Preset "medium": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] adults/medium/test-person: Modus "adults" / Preset "medium": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [few-games-without-repetition] adults/medium: Modus "adults" / Preset "medium": nur 1 Spiele ohne Wiederholung moeglich.
+- [small-pool] adults/hard/test-video: Modus "adults" / Preset "hard": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] adults/hard/test-person: Modus "adults" / Preset "hard": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [few-games-without-repetition] adults/hard: Modus "adults" / Preset "hard": nur 1 Spiele ohne Wiederholung moeglich.
+- [small-pool] adults/mixed/test-video: Modus "adults" / Preset "mixed": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] adults/mixed/test-person: Modus "adults" / Preset "mixed": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [few-games-without-repetition] adults/mixed: Modus "adults" / Preset "mixed": nur 1 Spiele ohne Wiederholung moeglich.
+- [small-pool] kids/easy/test-video: Modus "kids" / Preset "easy": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] kids/easy/test-person: Modus "kids" / Preset "easy": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
+- [few-games-without-repetition] kids/easy: Modus "kids" / Preset "easy": nur 1 Spiele ohne Wiederholung moeglich.
+- [small-pool] kids/mixed/test-video: Modus "kids" / Preset "mixed": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] kids/mixed/test-person: Modus "kids" / Preset "mixed": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
+- [few-games-without-repetition] kids/mixed: Modus "kids" / Preset "mixed": nur 1 Spiele ohne Wiederholung moeglich.
+- [small-pool] saarbruecken/regional/test-video: Modus "saarbruecken" / Preset "regional": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
+- [small-pool] saarbruecken/regional/test-person: Modus "saarbruecken" / Preset "regional": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
+- [few-games-without-repetition] saarbruecken/regional: Modus "saarbruecken" / Preset "regional": nur 1 Spiele ohne Wiederholung moeglich.

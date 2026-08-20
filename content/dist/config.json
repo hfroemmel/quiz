@@ -131,23 +131,20 @@
       "label": "Leicht",
       "slots": [
         {
-          "id": "einstieg",
-          "label": "Einstieg",
+          "id": "test-video",
+          "label": "Test: Videofrage",
           "filters": {
-            "difficultyIds": [
-              "easy"
-            ],
             "presentationTypes": [
-              "image-reveal"
+              "video-then-question"
             ]
           }
         },
         {
-          "id": "wissen",
-          "label": "Wissen",
+          "id": "test-person",
+          "label": "Test: Personenfrage",
           "filters": {
-            "difficultyIds": [
-              "easy"
+            "presentationTypes": [
+              "person"
             ]
           }
         },
@@ -205,24 +202,20 @@
       "label": "Mittel",
       "slots": [
         {
-          "id": "einstieg",
-          "label": "Einstieg",
+          "id": "test-video",
+          "label": "Test: Videofrage",
           "filters": {
-            "difficultyIds": [
-              "easy"
-            ],
             "presentationTypes": [
-              "text-choice",
-              "image-choice"
+              "video-then-question"
             ]
           }
         },
         {
-          "id": "wissen",
-          "label": "Wissen",
+          "id": "test-person",
+          "label": "Test: Personenfrage",
           "filters": {
-            "difficultyIds": [
-              "medium"
+            "presentationTypes": [
+              "person"
             ]
           }
         },
@@ -287,24 +280,20 @@
       "label": "Schwer",
       "slots": [
         {
-          "id": "einstieg",
-          "label": "Einstieg",
+          "id": "test-video",
+          "label": "Test: Videofrage",
           "filters": {
-            "difficultyIds": [
-              "medium"
-            ],
             "presentationTypes": [
-              "text-choice",
-              "image-choice"
+              "video-then-question"
             ]
           }
         },
         {
-          "id": "wissen",
-          "label": "Wissen",
+          "id": "test-person",
+          "label": "Test: Personenfrage",
           "filters": {
-            "difficultyIds": [
-              "hard"
+            "presentationTypes": [
+              "person"
             ]
           }
         },
@@ -370,22 +359,22 @@
       "label": "Gemischt",
       "slots": [
         {
-          "id": "einstieg",
-          "label": "Einstieg",
+          "id": "test-video",
+          "label": "Test: Videofrage",
           "filters": {
-            "difficultyIds": [
-              "easy"
-            ],
             "presentationTypes": [
-              "text-choice",
-              "image-choice"
+              "video-then-question"
             ]
           }
         },
         {
-          "id": "wissen",
-          "label": "Wissen",
-          "filters": {}
+          "id": "test-person",
+          "label": "Test: Personenfrage",
+          "filters": {
+            "presentationTypes": [
+              "person"
+            ]
+          }
         },
         {
           "id": "bilderkennen",
@@ -438,24 +427,20 @@
       "label": "Saarbrücken",
       "slots": [
         {
-          "id": "einstieg",
-          "label": "Einstieg",
+          "id": "test-video",
+          "label": "Test: Videofrage",
           "filters": {
-            "difficultyIds": [
-              "easy"
-            ],
             "presentationTypes": [
-              "text-choice",
-              "image-choice"
+              "video-then-question"
             ]
           }
         },
         {
-          "id": "vertiefung",
-          "label": "Vertiefung",
+          "id": "test-person",
+          "label": "Test: Personenfrage",
           "filters": {
-            "difficultyIds": [
-              "medium"
+            "presentationTypes": [
+              "person"
             ]
           }
         },
