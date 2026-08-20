@@ -432,7 +432,6 @@ select {
   padding: 0.6cqw 1.4cqw;
   border-radius: var(--stage-radius);
   background: var(--color-accent);
-  box-shadow: var(--stage-shadow);
   color: var(--color-text);
   font-family: var(--font-heading);
   font-size: 1.6cqw;
@@ -492,7 +491,6 @@ select {
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
-  box-shadow: var(--stage-shadow);
   line-height: 1;
 }
 .tile--active {
@@ -669,7 +667,6 @@ select {
   overflow: hidden;
   border-radius: var(--stage-radius);
   background: var(--color-tile);
-  box-shadow: var(--stage-shadow);
 }
 .media-frame__image {
   display: block;
@@ -715,7 +712,6 @@ select {
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
-  box-shadow: var(--stage-shadow);
   font-family: var(--font-heading);
   font-size: 1.9cqw;
   font-weight: 700;
@@ -730,7 +726,6 @@ select {
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
-  box-shadow: var(--stage-shadow);
   font-size: 1.9cqw;
   font-family: var(--font-heading);
 }
@@ -815,7 +810,6 @@ select {
   background: #000000;
   border-radius: var(--stage-radius);
   overflow: hidden;
-  box-shadow: var(--stage-shadow);
 }
 .video__frame video {
   width: 100%;
