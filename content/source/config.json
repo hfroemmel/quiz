@@ -134,8 +134,11 @@
           "id": "einstieg",
           "label": "Einstieg",
           "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
             "presentationTypes": [
-              "person"
+              "image-reveal"
             ]
           }
         },
