@@ -1,44 +1,20 @@
 /*
- * Gemeinsames Stylesheet aller Rollen.
+ * Masse, Schriften und Dauern - gemeinsam fuer alle Rollen.
  *
- * Farben kommen als CSS-Custom-Properties aus dem Theme des aktiven Quizmodus
- * (siehe `themeVariables` in StageScreen.tsx). Dadurch kann das Kinderquiz ein
- * eigenes Farbsystem besitzen, ohne dass irgendwo eine Modus-Sonderbehandlung
- * im Code steht.
+ * HIER STEHT KEINE FARBE. Alle Farbwerte kommen aus
+ * `packages/contracts/src/theme.ts` und stehen als erzeugtes Stylesheet in
+ * `palette.css`. Im Betrieb ueberschreibt das Theme des aktiven Quizmodus die
+ * Buehnenfarben ohnehin (siehe `themeVariables` in StageScreen.tsx) - eine
+ * Farbe an dieser Stelle waere deshalb wirkungslos und nur eine zweite
+ * Wahrheit.
  *
- * ANIMATIONSDAUERN stehen NICHT hier fest verdrahtet, sondern kommen als
+ * ANIMATIONSDAUERN stehen ebenfalls nicht fest verdrahtet, sondern kommen als
  * `--transition-duration`, `--transition-delay` und `--transition-easing` aus dem
  * Uebergangsregistry (`presentation/transitions/registry.ts`). So gibt es genau eine
  * Stelle, an der Timings geaendert werden.
  */
 
 :root {
-  /*
-   * Fallbackwerte des Graustufensystems (docs/design-system.md).
-   *
-   * Im Betrieb ueberschreibt sie das Theme des aktiven Quizmodus. Sie stehen
-   * hier, damit die Oberflaeche auch vor dem ersten Snapshot vollstaendig
-   * gefaerbt ist - eine farblose Flaeche waere auf der Buehne sichtbar.
-   */
-  --color-pageTop: #12161a;
-  --color-pageBottom: #171c21;
-  --color-stageTop: #171c21;
-  --color-stageBottom: #293139;
-  --color-controls: #12161a;
-  --color-tile: rgba(255, 255, 255, 0.09);
-  --color-tileDisabled: rgba(255, 255, 255, 0.05);
-  --color-tileQuiet: rgba(255, 255, 255, 0.06);
-  --color-option: rgba(255, 255, 255, 0.05);
-  --color-accent: #00acd3;
-  --color-accentQuiet: #367e8f;
-  --color-primary: #00cc9c;
-  --color-solution: #00cc9c;
-  --color-solutionChip: #00cc9c;
-  --color-correct: #25a7b0;
-  --color-incorrect: #a62749;
-  --color-text: #ffffff;
-  --color-textMuted: rgba(255, 255, 255, 0.6);
-
   --font-heading: 'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --font-body: var(--font-heading);
   /* Nur der Bedienrahmen des Operators - nichts davon steht auf der Buehne. */
@@ -51,31 +27,4 @@
 
   --radius: 6px;
   --gap: 16px;
-
-  /* ---------------------------------------------------------------- *
-   * Farben der Regieflaeche (Operator und Moderator)
-   *
-   * BEWUSST GETRENNT vom Farbsystem der Buehne. Die achtzehn `--color-*`-Token
-   * gehoeren dem Quizmodus: Wechselt der Modus, wechselt der Saal die Farbe.
-   * Die Bedienoberflaeche tut das NICHT - sie bleibt in jedem Modus dieselbe
-   * dunkle Flaeche, damit der Operator seine Tasten blind findet und die
-   * Buehnenvorschau als einziges helles Feld heraussticht.
-   *
-   * Diese Variablen stehen am Wurzelelement und werden von `themeVariables`
-   * nicht ueberschrieben - das setzt ausschliesslich `--color-*`.
-   * ---------------------------------------------------------------- */
-  --ui-page: #0d0f13;
-  /* Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel. */
-  --ui-surface: #171b21;
-  /* Kopf- und Fusszeile - eine Spur unter den Karten, damit sie zurueckstehen. */
-  --ui-surface-quiet: #12151a;
-  --ui-control: #242a33;
-  --ui-control-disabled: #1a1e24;
-  --ui-input: rgb(0 0 0 / 0.35);
-  --ui-border: rgb(255 255 255 / 0.1);
-  --ui-text: #ffffff;
-  --ui-text-muted: rgb(255 255 255 / 0.5);
-  --ui-accent: #36b35e;
-  --ui-correct: #36b35e;
-  --ui-incorrect: #a62749;
 }

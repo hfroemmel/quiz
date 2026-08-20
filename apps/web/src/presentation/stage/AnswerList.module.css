@@ -72,14 +72,14 @@
 }
 :global(.stage--default) .answer[data-state='selected'] .chip {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--stage-inkOnStrong);
 }
 :global(.stage--default) .answer[data-state='correct'] .surface {
   background: var(--color-solution);
 }
 :global(.stage--default) .answer[data-state='correct'] .chip {
   background: var(--color-solutionChip);
-  color: #fff;
+  color: var(--stage-inkOnStrong);
 }
 /*
  * Verbraucht oder in der Loesung zurueckgenommen: beides tritt gleich weit
@@ -223,7 +223,7 @@
   border-image-source: url('/assets/kinderquiz/boxes/badge-letter-b.svg');
 }
 :global(.stage--kids) .answer[data-state='selected'] .text {
-  color: #ffffff;
+  color: var(--stage-inkOnStrong);
 }
 :global(.stage--kids) .answer[data-state='correct'] .surface::before {
   border-image-source: url('/assets/kinderquiz/boxes/answer-box-correct.svg');
@@ -243,7 +243,7 @@
 :global(.stage--bright) .answer[data-state='selected'] .surface,
 :global(.stage--bright) .answer[data-state='correct'] .surface,
 :global(.stage--bright) .answer[data-state='correct'] .chip {
-  color: #ffffff;
+  color: var(--stage-inkOnStrong);
 }
 
 /* Reduzierte Bewegung: Die Zeilen stehen sofort, statt nacheinander einzulaufen. */

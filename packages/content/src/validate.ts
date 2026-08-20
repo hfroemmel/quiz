@@ -12,6 +12,7 @@
 import {
   contentThresholds,
   missingColorTokens,
+  resolveThemeColors,
   presentationNeedsImage,
   presentationNeedsOptions,
   questionSchema,
@@ -150,7 +151,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
   }
   for (const theme of config.themes) {
-    const missingTokens = missingColorTokens(theme.colors)
+    const missingTokens = missingColorTokens(resolveThemeColors(theme))
     if (missingTokens.length) {
       add(
         'error',

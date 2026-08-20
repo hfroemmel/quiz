@@ -111,8 +111,10 @@ des Entwurfs, ohne dass ein Layout umgebaut ist.
 - die Inhaltsvalidierung meldet ein unvollstaendiges Theme als **Fehler**
 - `content/source/config.json` traegt den Tokensatz fuer alle drei Modi; Kinder
   und Saarbruecken erben ihn, bis die eigenen Farbsysteme geliefert sind
-- `apps/web/src/theme/designTokens.ts` haelt dieselben Werte getippt fuer
-  Vorschau und CSS-Fallback
+- die Werte selbst standen zunaechst dreifach - im Quizpaket, in
+  `apps/web/src/theme/designTokens.ts` und in `tokens.css`. Sie liefen
+  auseinander und stehen heute nur noch in `theme.ts`; Vorschau, Stylesheet und
+  Quizpaket werden daraus gespeist
 - Serifenschrift durchgehend, Radius auf 6 px
 
 *Abgenommen:* alle Token auf der Buehne gesetzt (E2E), `pnpm typecheck`,

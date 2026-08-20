@@ -222,41 +222,55 @@ Die Zustaende werden **nicht** im Bauteil entschieden, sondern aus
 `allowedCommands` und dem View-Modell abgeleitet (Spezifikation 10.4). Das Design
 liefert die Darstellung, der Server die Wahrheit.
 
-## Themes je Modus
+## Wo die Farben stehen
 
-Bestaetigt: jeder Quizmodus bringt ein **komplettes Farbsystem** mit, nicht nur
-eine Akzentfarbe. Das vorhandene `themes`-Feld in `content/source/config.json`
-traegt deshalb ab sofort den vollstaendigen Tokensatz:
+**In genau einer Datei: `packages/contracts/src/theme.ts`.** Dort stehen die
+beiden Gestaltungswelten, die helle Fassung, die wenigen Farben, die keiner Welt
+gehoeren, und der Bedienrahmen des Operators. Anderswo steht kein Farbwert;
+`apps/web/test/palette.test.ts` prueft das bei jedem Testlauf.
 
-```jsonc
-{
-  "id": "adults",
-  "label": "Erwachsene",
-  "colors": {
-    "pageTop": "#555555", "pageBottom": "#6E6E6E",
-    "stageTop": "#5C5C5C", "stageBottom": "#757575",
-    "controls": "#555555", "tile": "#444444", "tileDisabled": "#4F4F4F",
-    "tileQuiet": "#464646", "option": "#777777",
-    "accent": "#3693B3", "accentQuiet": "#4E6A74",
-    "primary": "#00CC9C", "solution": "#01A780", "solutionChip": "#028365",
-    "correct": "#25A7B0", "incorrect": "#A62749",
-    "text": "#FFFFFF", "textMuted": "rgb(255 255 255 / 0.45)"
-  }
-}
+Von dort aus laufen zwei Wege:
+
+```text
+theme.ts ──> pnpm content:build ──> content/dist/config.json ──> Server ──> Buehne
+         └─> pnpm palette:build ──> apps/web/src/styles/palette.css
 ```
 
-Der Client setzt daraus die CSS-Variablen (`--color-<token>`) auf dem
-Wurzelelement der Buehnenflaeche. Ein neuer Modus braucht damit **keine
-Codeaenderung**, sondern nur einen Eintrag im Quizpaket - genau wie in
+Das Quizpaket ist der Weg fuer den Betrieb: Der Server liefert die Farben des
+aktiven Modus mit jedem Snapshot, und `themeVariables` schreibt sie als
+Inline-Variablen auf den **Rahmen** um die Buehne. `palette.css` ist der zweite
+Weg - die Rueckfallebene am Wurzelelement, bis der erste Snapshot da ist, und die
+helle Fassung, die am Buehnenelement selbst stehen muss.
+
+**Merksatz zur Kaskade:** Ein geerbter Inline-Wert schlaegt eine `:root`-Regel.
+Wer eine Buehnenfarbe im Stylesheet aendert, aendert deshalb nichts - im Betrieb
+gewinnt immer das Quizpaket. Nur eine Regel, die am Buehnenelement selbst haengt
+(`.stage--default.stage--bright`), sticht den geerbten Wert.
+
+Ein Theme in `config.json` nennt nur **Abweichungen** von seiner Gestaltungswelt:
+
+```jsonc
+{ "id": "senioren", "label": "Senioren", "colors": { "accent": "#e8b84b" } }
+```
+
+Beim Bauen wird daraus der vollstaendige Satz; das Paket bleibt allein lesbar.
+Ein neuer Modus braucht damit **keine Codeaenderung** - genau wie in
 `docs/neue-modi-und-presets.md` beschrieben.
 
-Die Tokenliste steht als Vertrag in `packages/contracts/src/theme.ts`. Sie gilt
-an drei Stellen zugleich: Das Quizpaket liefert die Werte, die Inhaltsvalidierung
-prueft die Vollstaendigkeit (ein fehlendes Token ist ein **Fehler**), und die
-Oberflaeche macht daraus CSS-Variablen. Zusammengesetzte Werte wie der
-Flaechenverlauf werden bewusst erst an der Verwendungsstelle gebildet - eine
-Variable, die ihre Farben schon am Wurzelelement aufloest, wuerde spaetere
-Theme-Werte ignorieren.
+Die Tokenliste steht neben den Werten und gilt an drei Stellen zugleich: Das
+Quizpaket liefert die Werte, die Inhaltsvalidierung prueft die Vollstaendigkeit
+(eine leer gelassene Farbe ist ein **Fehler**), und die Oberflaeche macht daraus
+CSS-Variablen. Zusammengesetzte Werte wie der Flaechenverlauf werden bewusst erst
+an der Verwendungsstelle gebildet - eine Variable, die ihre Farben schon am
+Wurzelelement aufloest, wuerde spaetere Theme-Werte ignorieren.
+
+Drei Namensraeume, drei Zustaendigkeiten:
+
+| Praefix | Wem gehoert die Farbe | Beispiel |
+|---|---|---|
+| `--color-*` | dem Quizmodus - wechselt mit dem Theme | `--color-accent` |
+| `--stage-*` | der Lage, nicht dem Thema - in jedem Modus gleich | `--stage-inkOnStrong` |
+| `--ui-*` | dem Bedienrahmen - bleibt dunkel, egal welcher Modus laeuft | `--ui-surface` |
 
 Die drei Modi der Startansicht (`Kinder`, `Erwachsene`, `Saarbruecken`) kommen aus
 `catalog.modes`. Das Layout ist auf drei Eintraege ausgelegt; mehr Eintraege
@@ -403,18 +417,19 @@ Die Umsetzung folgt drei Ebenen. Eine Ebene darf nur die darunterliegende
 benutzen - das haelt die Oberflaeche frei von Sonderfaellen.
 
 ```text
-Ebene 1  Global          styles/tokens.css, base.css, controls.css, motion.css,
-                         stage.css - bewusst keine Module
+Ebene 1  Global          styles/palette.css, tokens.css, base.css, controls.css,
+                         motion.css, stage.css - bewusst keine Module
 Ebene 2  Bauteile        presentation/stage/* und ui/*, je ein *.module.css
 Ebene 3  Bereiche        StageScreen (+ Szenen), OperatorApp, ModeratorApp,
                          PreviewApp, je ein *.module.css
 ```
 
-Nur fuenf Stylesheets sind global, und jedes aus einem Grund:
+Nur sechs Stylesheets sind global, und jedes aus einem Grund:
 
 | Datei | Warum global |
 |---|---|
-| `tokens.css` | Variablen am Wurzelelement |
+| `palette.css` | ERZEUGT aus `packages/contracts/src/theme.ts` - alle Farbwerte |
+| `tokens.css` | Masse, Schriften und Dauern am Wurzelelement |
 | `base.css` | Schriften, Reset, Grundtypografie |
 | `controls.css` | `.button` und `.field` - jede Ansicht darf sie benutzen |
 | `motion.css` | das Uebergangsregistry setzt Klassennamen als Zeichenkette |

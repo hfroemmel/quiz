@@ -46,5 +46,5 @@
 
 /* Helle Fassung: heller Text auf der kraeftigen Akzentflaeche. */
 :global(.stage--bright) .hint {
-  color: #ffffff;
+  color: var(--stage-inkOnStrong);
 }

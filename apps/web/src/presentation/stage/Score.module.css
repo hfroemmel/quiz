@@ -156,5 +156,5 @@
 /* Helle Fassung: Der Spieler am Zug traegt seine Farbe kraeftig - Text hell. */
 :global(.stage--bright) .score[data-active='true'] .cellPlayer,
 :global(.stage--bright) .score[data-active='true'] .cellPlayer .label {
-  color: #ffffff;
+  color: var(--stage-inkOnStrong);
 }

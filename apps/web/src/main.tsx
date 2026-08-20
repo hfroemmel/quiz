@@ -14,7 +14,8 @@ import { PreviewApp } from './apps/preview/PreviewApp.tsx'
 /*
  * Globale Stylesheets - bewusst KEINE Module.
  *
- *   tokens    Farb- und Massvariablen am Wurzelelement
+ *   palette   ERZEUGT aus `packages/contracts/src/theme.ts` - alle Farbwerte
+ *   tokens    Massvariablen, Schriften und Dauern am Wurzelelement
  *   base      Schriften, Reset, Grundtypografie
  *   controls  Schaltflaechen und Formularfelder des Bedienrahmens
  *   motion    Keyframes und Uebergangsklassen; das Uebergangsregistry setzt
@@ -25,6 +26,7 @@ import { PreviewApp } from './apps/preview/PreviewApp.tsx'
  *
  * Alles Bauteilhafte liegt als `*.module.css` neben seiner Komponente.
  */
+import './styles/palette.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/controls.css'

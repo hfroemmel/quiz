@@ -23,7 +23,7 @@ Die Welt haengt am **Theme**, nicht am Modusnamen:
 
 ```jsonc
 // content/source/config.json
-{ "id": "kids", "skin": "kids", "colors": { … } }
+{ "id": "kids", "skin": "kids" }
 ```
 
 `quizThemeSchema.skin` (`default` | `kids`) wird ueber das View-Modell an die

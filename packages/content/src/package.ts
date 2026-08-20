@@ -14,6 +14,7 @@ import {
   questionSchema,
   quizConfigSchema,
   quizPackageManifestSchema,
+  resolveThemeColors,
   type MediaAsset,
   type Question,
   type QuizConfig,
@@ -112,7 +113,16 @@ export function buildPackage(options: BuildOptions): BuildResult {
     return { manifest: emptyManifest(options), validation, outDir: options.outDir, missingAssetFiles: [] }
   }
 
-  const config = quizConfigSchema.parse(source.config)
+  const parsedConfig = quizConfigSchema.parse(source.config)
+  /*
+   * Die Themes verlassen die Quelle mit ihren Abweichungen und kommen mit dem
+   * vollstaendigen Farbsatz ins Paket. Nur so bleibt das Paket allein lesbar:
+   * Server und Client sehen fertige Farben, ohne die Farbdatei zu kennen.
+   */
+  const config: QuizConfig = {
+    ...parsedConfig,
+    themes: parsedConfig.themes.map((theme) => ({ ...theme, colors: resolveThemeColors(theme) })),
+  }
   const questions = questionSchema.array().parse(source.questions)
 
   // Normalisierung: stabile Sortierung, damit Builds reproduzierbar sind.

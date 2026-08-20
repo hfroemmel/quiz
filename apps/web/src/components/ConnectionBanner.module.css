@@ -14,10 +14,10 @@
   margin: 0 16px 12px;
 }
 .warning {
-  background: rgba(255, 195, 43, 0.16);
+  background: var(--ui-warning-soft);
 }
 .error {
-  background: rgba(255, 92, 92, 0.16);
+  background: var(--ui-error-soft);
 }
 .dismiss {
   background: none;

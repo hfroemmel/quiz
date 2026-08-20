@@ -68,26 +68,6 @@
     {
       "id": "default",
       "label": "Erwachsene",
-      "colors": {
-        "pageTop": "#12161A",
-        "pageBottom": "#171C21",
-        "stageTop": "#171C21",
-        "stageBottom": "#293139",
-        "controls": "#12161A",
-        "tile": "rgba(255, 255, 255, 0.09)",
-        "tileDisabled": "rgba(255, 255, 255, 0.05)",
-        "tileQuiet": "rgba(255, 255, 255, 0.06)",
-        "option": "rgba(255, 255, 255, 0.05)",
-        "accent": "#1F87B5",
-        "accentQuiet": "#2B5C73",
-        "primary": "#00CC9C",
-        "solution": "#01A780",
-        "solutionChip": "#028365",
-        "correct": "#25A7B0",
-        "incorrect": "#A62749",
-        "text": "#FFFFFF",
-        "textMuted": "rgba(255, 255, 255, 0.6)"
-      },
       "typography": {
         "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
         "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
@@ -97,26 +77,6 @@
     {
       "id": "kids",
       "label": "Kinder",
-      "colors": {
-        "pageTop": "#A9D5EF",
-        "pageBottom": "#D9D7F2",
-        "stageTop": "#A9D5EF",
-        "stageBottom": "#D9D7F2",
-        "controls": "#F4EBD8",
-        "tile": "#F4EBD8",
-        "tileDisabled": "#EADDC2",
-        "tileQuiet": "#EADDC2",
-        "option": "#F4EBD8",
-        "accent": "#D61E1E",
-        "accentQuiet": "#D98B93",
-        "primary": "#D61E1E",
-        "solution": "#6FBE6B",
-        "solutionChip": "#F9CD36",
-        "correct": "#6FBE6B",
-        "incorrect": "#D98B93",
-        "text": "#0E090C",
-        "textMuted": "rgba(14, 9, 12, 0.6)"
-      },
       "typography": {
         "headingFont": "'Patrick Hand', 'Comic Sans MS', cursive",
         "bodyFont": "'Patrick Hand', 'Comic Sans MS', cursive"

@@ -106,7 +106,8 @@ beliebige lokale Dateien zeigen.
   "themes": [{
     "id": "kids",
     "label": "Kinderquiz",
-    "colors": { "background": "#10233a", "accent": "#ffd93d" },
+    "skin": "kids",
+    "colors": { "accent": "#ffd93d" },   // NUR Abweichungen von der Welt des skin
     "logoAssetId": "logo-kids",
     "typography": { "headingFont": "…", "bodyFont": "…" }
   }],

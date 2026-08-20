@@ -1,0 +1,70 @@
+/*
+ * ERZEUGT - NICHT VON HAND BEARBEITEN.
+ *
+ * Quelle aller Werte: packages/contracts/src/theme.ts
+ * Neu schreiben:      pnpm palette:build
+ *
+ * Wer hier einen Farbwert aendert, aendert ihn nur an der Oberflaeche: Im Betrieb
+ * kommen die Buehnenfarben aus dem Quizpaket, das aus derselben Quelle gebaut
+ * wird. Der naechste Lauf ueberschreibt die Aenderung, und der Test
+ * apps/web/test/palette.test.ts meldet sie vorher.
+ */
+
+/* Rueckfallebene: Buehne der Erwachsenen, dunkel - plus alles, was keinem Theme gehoert. */
+:root {
+  --color-pageTop: #12161A;
+  --color-pageBottom: #171C21;
+  --color-stageTop: #171C21;
+  --color-stageBottom: #293139;
+  --color-controls: #12161A;
+  --color-tile: rgba(255, 255, 255, 0.09);
+  --color-tileDisabled: rgba(255, 255, 255, 0.05);
+  --color-tileQuiet: rgba(255, 255, 255, 0.06);
+  --color-option: rgba(255, 255, 255, 0.05);
+  --color-accent: #1F87B5;
+  --color-accentQuiet: #2B5C73;
+  --color-primary: #00CC9C;
+  --color-solution: #01A780;
+  --color-solutionChip: #028365;
+  --color-correct: #25A7B0;
+  --color-incorrect: #A62749;
+  --color-text: #FFFFFF;
+  --color-textMuted: rgba(255, 255, 255, 0.6);
+  --stage-inkOnStrong: #ffffff;
+  --stage-edge: rgb(255 255 255 / 0.22);
+  --ui-page: #0d0f13;
+  --ui-surface: #171b21;
+  --ui-surface-quiet: #12151a;
+  --ui-surface-raised: rgba(255, 255, 255, 0.06);
+  --ui-control: #242a33;
+  --ui-control-disabled: #1a1e24;
+  --ui-input: rgb(0 0 0 / 0.35);
+  --ui-border: rgb(255 255 255 / 0.1);
+  --ui-border-quiet: rgb(255 255 255 / 0.12);
+  --ui-border-strong: rgba(255, 255, 255, 0.24);
+  --ui-scrim: rgb(0 0 0 / 0.55);
+  --ui-scrim-quiet: rgb(0 0 0 / 0.3);
+  --ui-text: #ffffff;
+  --ui-text-muted: rgb(255 255 255 / 0.5);
+  --ui-accent: #36b35e;
+  --ui-correct: #36b35e;
+  --ui-incorrect: #a62749;
+  --ui-warning-soft: rgba(255, 195, 43, 0.16);
+  --ui-error-soft: rgba(255, 92, 92, 0.16);
+}
+
+/* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */
+.stage--default.stage--bright {
+  --color-pageTop: #fff;
+  --color-pageBottom: #f6f6f6;
+  --color-stageTop: #fff;
+  --color-stageBottom: #ebebeb;
+  --color-controls: #eeeeee;
+  --color-accentQuiet: #dcdcdc;
+  --color-tile: rgba(25, 25, 25, 0.06);
+  --color-tileDisabled: rgba(25, 25, 25, 0.04);
+  --color-tileQuiet: rgba(25, 25, 25, 0.05);
+  --color-option: rgba(25, 25, 25, 0.05);
+  --color-text: rgb(25, 25, 25);
+  --color-textMuted: rgba(25, 25, 25, 0.6);
+}
