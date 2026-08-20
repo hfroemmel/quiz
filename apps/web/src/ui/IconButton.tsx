@@ -9,6 +9,7 @@
  * externen Dateien (docs/design-system.md).
  */
 import type { ReactNode } from 'react'
+import styles from './IconButton.module.css'
 
 interface IconButtonProps {
   label: string
@@ -23,7 +24,7 @@ export function IconButton({ label, onClick, children, disabled, pressed, classN
   return (
     <button
       type="button"
-      className={['icon-button', className].filter(Boolean).join(' ')}
+      className={[styles.button, className].filter(Boolean).join(' ')}
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
@@ -60,6 +61,25 @@ export function SoundOffIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
       <path d="M4 9v6h4l5 4V5L8 9H4z" />
       <path d="M17 9.5l4 5M21 9.5l-4 5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** Mond - schaltet die Buehne auf die dunkle Fassung. */
+export function DarkThemeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />
+    </svg>
+  )
+}
+
+/** Sonne - schaltet die Buehne auf die helle Fassung. */
+export function BrightThemeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
     </svg>
   )
 }

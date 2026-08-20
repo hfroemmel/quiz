@@ -1,0 +1,39 @@
+/*
+ * Privater Bereich: Loesung, Erklaerung und Notizen - nur fuer den Operator.
+ * Nichts davon geht je an den Buehnenscreen.
+ */
+
+.private {
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--ui-surface);
+}
+.block {
+  margin-bottom: 12px;
+}
+.block h3 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ui-text-muted);
+  font-family: var(--font-ui);
+  margin-bottom: 4px;
+}
+.block p {
+  margin: 0;
+  line-height: 1.45;
+}
+.answer {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ui-accent);
+}
+.notes {
+  border-left: 3px solid var(--ui-accent);
+  padding-left: 10px;
+}
+.source,
+.accepted {
+  color: var(--ui-text-muted);
+  font-size: 0.9rem;
+}

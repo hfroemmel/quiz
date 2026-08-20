@@ -10,6 +10,7 @@
  * Jeder konkrete Dialog fuellt nur noch Inhalt und Tasten.
  */
 import { useEffect, useRef, type ReactNode } from 'react'
+import styles from './Dialog.module.css'
 
 interface DialogProps {
   title: string
@@ -33,11 +34,11 @@ export function Dialog({ title, onClose, role = 'dialog', children, actions }: D
   }, [onClose])
 
   return (
-    <div className="dialog-backdrop" role="presentation" onClick={onClose}>
-      <div className="dialog" role={role} aria-modal="true" aria-label={title} onClick={(event) => event.stopPropagation()}>
-        <h2 className="dialog__title">{title}</h2>
+    <div className={styles.backdrop} role="presentation" onClick={onClose}>
+      <div className={styles.dialog} data-dialog="" role={role} aria-modal="true" aria-label={title} onClick={(event) => event.stopPropagation()}>
+        <h2 className={styles.title}>{title}</h2>
         {children}
-        <div className="dialog__actions" ref={actionsRef}>
+        <div className={styles.actions} ref={actionsRef}>
           {actions}
         </div>
       </div>

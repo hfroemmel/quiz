@@ -1,0 +1,181 @@
+/*
+ * Wurzelklassen der Buehne - der EINZIGE Unterschied zwischen den Welten.
+ *
+ * Diese Datei ist bewusst kein CSS-Modul: `.stage--default` und `.stage--kids`
+ * sind der Schalter, auf den jedes Bauteilmodul ueber `:global(...)` zugreift.
+ * Ein gehashter Name waere von dort aus nicht ansprechbar.
+ *
+ * Was hier steht, ist deshalb auf das Noetigste beschraenkt: die Flaeche selbst,
+ * ihre Masseinheiten und die Farb- und Schriftentscheidungen, die fuer die ganze
+ * Welt gelten. Alles Bauteilhafte steht im Modul des jeweiligen Bauteils.
+ *
+ * DIE BUEHNENFLAECHE IST EIN CONTAINER: Alle Groessen darin stehen in `cqw`
+ * bzw. `cqh` (Prozent der Flaechenbreite/-hoehe). Dadurch ist die kleine
+ * Vorschau im Operatorfenster dieselbe Komposition wie das Vollbild auf dem
+ * Beamer - eine Zeile Layout, zwei Groessen, keine Geraeteabfragen.
+ */
+
+.stage {
+  container-type: size;
+  container-name: stage;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
+  color: var(--color-text);
+  font-family: var(--font-body);
+
+  /*
+   * Rundungen und Schatten der Buehne stehen in Containereinheiten, nicht in px:
+   * Dieselbe Komposition laeuft in der kleinen Operatorvorschau und im
+   * Beamer-Vollbild und soll in beiden gleich aussehen. 0,7 cqw ergibt auf einem
+   * 1920 Pixel breiten Beamer rund 13 Pixel.
+   */
+  --stage-radius: 0.7cqw;
+
+  /* Abstaende und Ausrichtung der Szenen - die Szenen lesen sie als Token. */
+  --scene-gap: 2cqw;
+  --scene-pad: 3cqw;
+  --scene-align: center;
+  --scene-text-align: center;
+}
+
+/* ------------------------------------------------------------------ *
+ * Helle Fassung der Buehne
+ *
+ * NUR FARBEN, TRANSPARENZEN, KONTUREN UND SCHATTEN. Schriften, Bauteile,
+ * Positionen und Abstaende sind in beiden Fassungen dieselben - deshalb steht
+ * hier ausschliesslich die Farbtafel und kein einziges Mass.
+ *
+ * Sie ueberschreibt die achtzehn Farbtoken des Quizmodus. Die kommen als
+ * geerbter Wert vom Rahmen; eine Angabe hier am Element sticht ihn.
+ *
+ * Der Bauplan spiegelt die dunkle Fassung: Wo dort weisse Schleier auf Dunkel
+ * liegen, liegen hier dunkle Schleier auf Papier. Die Bedeutungsfarben - Akzent,
+ * Loesung, Richtig, Falsch - behalten ihren Farbton und werden nur so weit
+ * abgedunkelt, dass sie auf hellem Grund denselben Kontrast tragen.
+ * ------------------------------------------------------------------ */
+
+.stage--default.stage--bright {
+  --color-pageTop: #eef1f4;
+  --color-pageBottom: #e4e9ee;
+  --color-stageTop: #f7f9fb;
+  --color-stageBottom: #dde4ec;
+  --color-controls: #eef1f4;
+  /* Milchglas bleibt Milchglas - nur aus Tinte statt aus Licht. */
+  --color-tile: rgba(23, 37, 56, 0.07);
+  --color-tileDisabled: rgba(23, 37, 56, 0.04);
+  --color-tileQuiet: rgba(23, 37, 56, 0.05);
+  --color-option: rgba(23, 37, 56, 0.05);
+  --color-accent: #17698f;
+  --color-accentQuiet: #9db6c4;
+  --color-primary: #00694e;
+  --color-solution: #0d7a5f;
+  --color-solutionChip: #0a5f4a;
+  --color-correct: #146a70;
+  --color-incorrect: #8d1f3c;
+  --color-text: #14202c;
+  --color-textMuted: rgba(20, 32, 44, 0.6);
+}
+/* Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
+.stage--preview {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt
+ *
+ * Farben, Masse und Schriften der illustrierten Karlchen-Welt. Sie stehen hier
+ * als Token an der Buehne; die Bauteilmodule lesen sie und wissen sonst nichts
+ * von der Welt, in der sie gerade stehen.
+ * ------------------------------------------------------------------ */
+
+.stage--kids {
+  /* Farbwerte des Boxen-Assetpakets (`boxes.css`). */
+  --kids-ink: #0e090c;
+  --kids-paper: #f4ebd8;
+  --kids-red: #d61e1e;
+  --kids-yellow: #f9cd36;
+
+  /*
+   * Zwei Familien, mehr nicht. Der Rueckfall der Handschrift ist bewusst eine
+   * Schreibschrift und keine System-Sans: Faellt die Datei aus, sieht die
+   * Ansicht immer noch handgeschrieben aus statt wie ein Formular. Melior ist
+   * dieselbe Serife wie auf der Buehne der Erwachsenen.
+   */
+  --kids-hand: 'Patrick Hand', 'Comic Sans MS', cursive;
+  --kids-numeric: 'Melior', 'Palatino Linotype', Palatino, Georgia, serif;
+
+  /* Layout: Aussenabstand, Fuge, Anteil der Inhaltsbreite. */
+  --kids-pad: 1.8cqw;
+  --kids-gap: 1cqw;
+  /* Sichtbare Fuge zwischen Foto und Fragetafel - sie duerfen sich nie beruehren. */
+  --kids-stage-gap: 1.4cqw;
+  /* Luecke zwischen Buchstabenchip und Antwortkarte. */
+  --kids-chip-gap: 0.9cqw;
+  --kids-content-width: 75%;
+
+  /* Schriftgroessen des Assetpakets, in Containereinheiten. */
+  --kids-size-question: 2.6cqw;
+  --kids-size-answer: 1.75cqw;
+  --kids-size-category: 1.15cqw;
+  --kids-size-score: 3.4cqw;
+  --kids-size-label: 0.95cqw;
+
+  --kids-motion-normal: 260ms;
+  --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
+
+  --scene-gap: var(--kids-gap);
+  --scene-pad: var(--kids-pad);
+
+  color: var(--kids-ink);
+  font-family: var(--kids-hand);
+  font-weight: 400;
+  /* Illustrierte Szene, rechts zentriert, formatfuellend. */
+  background:
+    url('/assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
+    linear-gradient(180deg, #a9d5ef, #d9d7f2);
+}
+
+/*
+ * Schriften der Kinderwelt.
+ *
+ * Patrick Hand traegt alles Gelesene, Melior die Zahlen und die Buchstaben A
+ * bis D. Die Handschrift liegt im Assetpaket unter `public/` und wird NICHT
+ * gebuendelt: So hat ihre Adresse eine feste Form, die `index.html` vorladen
+ * kann. `font-display: block` verhindert, dass auf der Buehne fuer einen
+ * Wimpernschlag eine Systemschrift zu sehen ist.
+ */
+@font-face {
+  font-family: 'Patrick Hand';
+  src: url('/assets/kinderquiz/fonts/PatrickHand-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+/* ------------------------------------------------------------------ *
+ * Schmalere Ansichten
+ *
+ * Die Reihenfolge Bild -> Frage -> Antworten bleibt in jeder Breite gleich.
+ * Veraendert werden nur Groessen, Abstaende und die Figurenflaeche.
+ * ------------------------------------------------------------------ */
+
+@container stage (max-width: 1099px) {
+  .stage--kids {
+    --kids-content-width: 86%;
+    background-position: 72% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage--kids *,
+  .stage--kids *::before,
+  .stage--kids *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

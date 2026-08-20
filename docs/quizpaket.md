@@ -42,7 +42,7 @@ bearbeiten“ technisch erkennbar. Live-Korrekturen laufen stattdessen ueber Hot
   "tags": [],
 
   "prompt": "Welche Stadt ist die Hauptstadt Australiens?",
-  "presentationType": "text-choice",              // text-choice | image-choice | image-reveal | video-then-question
+  "presentationType": "text-choice",              // text-choice | image-choice | person | image-reveal | video-then-question
   "evaluationMode": "option-comparison",          // option-comparison | manual-correct-incorrect
 
   "options": [

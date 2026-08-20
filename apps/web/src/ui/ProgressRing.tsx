@@ -10,6 +10,8 @@
  * sonst koennten Ring und Bildschaerfe auseinanderlaufen
  * (siehe `packages/domain/src/reveal.ts`).
  */
+import styles from './ProgressRing.module.css'
+
 interface ProgressRingProps {
   /** Verbleibender Anteil zwischen 0 und 1. */
   remaining: number
@@ -27,10 +29,10 @@ export function ProgressRing({ remaining, seconds, paused = false }: ProgressRin
   const clamped = Math.min(Math.max(remaining, 0), 1)
 
   return (
-    <div className={['progress-ring', paused ? 'progress-ring--paused' : ''].filter(Boolean).join(' ')}>
-      <svg className="progress-ring__svg" viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
+    <div className={styles.ring} data-paused={String(paused)}>
+      <svg className={styles.svg} viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
         <circle
-          className="progress-ring__track"
+          className={styles.track}
           cx={SIZE / 2}
           cy={SIZE / 2}
           r={RADIUS}
@@ -38,7 +40,7 @@ export function ProgressRing({ remaining, seconds, paused = false }: ProgressRin
           strokeWidth={STROKE}
         />
         <circle
-          className="progress-ring__arc"
+          className={styles.arc}
           cx={SIZE / 2}
           cy={SIZE / 2}
           r={RADIUS}
@@ -51,7 +53,9 @@ export function ProgressRing({ remaining, seconds, paused = false }: ProgressRin
           transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
         />
       </svg>
-      <span className="progress-ring__seconds reveal__seconds">{seconds}</span>
+      <span className={styles.seconds} data-seconds="">
+        {seconds}
+      </span>
     </div>
   )
 }

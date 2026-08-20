@@ -1,0 +1,126 @@
+/*
+ * Kopfzone einer Frage: Medium und Fragetafel nebeneinander.
+ *
+ * DREI SZENEN, EIN BAUTEIL: Frage, Enthuellung und Loesung benutzen dieselbe
+ * Kopfzone. In der Enthuellung steht das Bild nicht hier, sondern gross neben
+ * dem Countdown - dann laeuft der Text ueber die volle Breite.
+ */
+
+.head {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 2cqw;
+}
+/* Ohne Bild bleibt in der Buehne der Erwachsenen alles, wie es ist: Die
+   Fragetafel nimmt als einziges Kind ohnehin die ganze Breite. */
+.panel {
+  flex: 1;
+  min-width: 0;
+}
+.category {
+  margin: 0 0 0.6cqw;
+  font-family: var(--font-ui);
+  font-size: 1.15cqw;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+}
+.prompt {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 400;
+  line-height: 1.25;
+  font-family: var(--font-heading);
+}
+
+/*
+ * Portraetfrage: Die Rubrik steht als kleine Versalzeile ueber der Frage. Sie
+ * hat dort keine Bildspalte neben sich, an der sie sich ausrichten koennte -
+ * die Versalien geben ihr die Kante zurueck.
+ */
+:global(.stage[data-presentation='person']) .category {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt
+ *
+ * Die gezeichnete Fragetafel gehoert zur Komposition von Frage und Loesung:
+ * Foto links, Tafel rechts, dazwischen eine sichtbare Fuge. In der Enthuellung
+ * traegt der Countdown die Flaeche - dort bleibt der Text frei auf dem Grund.
+ * ------------------------------------------------------------------ */
+
+:global(.stage--kids) .category {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+}
+:global(.stage--kids) .prompt {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+}
+
+/*
+ * Die Fragezeile ist der nachgiebige Teil der Ansicht: Sie waechst in den
+ * freien Platz, damit die Komposition wie in der Referenz die ganze Hoehe
+ * traegt, und sie gibt ihn wieder her, sobald vier zweizeilige Antworten
+ * darunter mehr Raum brauchen. Ohne das laufen lange Texte im 16:9-Format
+ * unten aus dem Bild.
+ */
+:global(.stage--kids.stage--scene-question) .head,
+:global(.stage--kids.stage--scene-solution) .head {
+  display: grid;
+  width: var(--kids-content-width);
+  grid-template-columns: 38% minmax(0, 1fr);
+  gap: var(--kids-stage-gap);
+  /*
+   * Foto und Frageflaeche stehen gleich hoch nebeneinander. Deshalb stretch:
+   * Die Rahmenzeichnung traegt `preserveAspectRatio="none"` und ist genau dafuer
+   * gemacht; das Seitenverhaeltnis des Fotos regelt `object-fit`, nicht das
+   * Kaestchen darum.
+   */
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 38cqh;
+}
+/* Ohne Bild uebernimmt die Fragetafel die ganze Zeile. */
+:global(.stage--kids.stage--scene-question) .wide,
+:global(.stage--kids.stage--scene-solution) .wide {
+  grid-template-columns: minmax(0, 1fr);
+}
+:global(.stage--kids.stage--scene-question) .panel,
+:global(.stage--kids.stage--scene-solution) .panel {
+  /* Nur die Untergrenze - die Zielhoehe kommt aus der Fragezeile. */
+  min-height: 20cqh;
+  padding: 1.9cqw 2.2cqw;
+  position: relative;
+  isolation: isolate;
+}
+/* Die Zeichnung liegt HINTER dem Inhalt, damit das Innenmass unberuehrt bleibt. */
+:global(.stage--kids.stage--scene-question) .panel::before,
+:global(.stage--kids.stage--scene-solution) .panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 3.7cqw;
+  border-image: url('/assets/kinderquiz/boxes/panel-question.svg') 71 fill / 3.7cqw / 0 stretch;
+  pointer-events: none;
+}
+:global(.stage--kids.stage--scene-question) .category,
+:global(.stage--kids.stage--scene-solution) .category {
+  margin-bottom: 0.5cqw;
+  font-size: var(--kids-size-category);
+  color: var(--kids-red);
+}
+:global(.stage--kids.stage--scene-question) .prompt,
+:global(.stage--kids.stage--scene-solution) .prompt {
+  font-size: var(--kids-size-question);
+  line-height: 1.04;
+  text-wrap: balance;
+}

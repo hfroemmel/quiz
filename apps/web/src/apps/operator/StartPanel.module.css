@@ -1,0 +1,23 @@
+/* Startansicht: Modusauswahl und das Angebot, ein offenes Spiel fortzusetzen. */
+
+.form,
+.resume {
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--ui-surface);
+  margin-bottom: var(--gap);
+}
+.resume {
+  border: 1px solid var(--ui-accent);
+}
+.resume h2,
+.form h2 {
+  margin-bottom: 12px;
+}
+
+/* Zeile mit Schaltflaechen - sie brechen um, statt aus der Karte zu laufen. */
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

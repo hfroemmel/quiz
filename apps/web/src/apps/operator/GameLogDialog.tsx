@@ -12,6 +12,8 @@
 import { useState } from 'react'
 import { Dialog } from '../../ui/Dialog.tsx'
 import type { Command, GameStatisticsViewModel } from '@quiz/contracts'
+import styles from '../../ui/Dialog.module.css'
+import log from './GameLogDialog.module.css'
 
 export function GameLogDialog({
   statistics,
@@ -57,47 +59,47 @@ export function GameLogDialog({
         </>
       }
     >
-      <table className="game-log">
+      <table className={log.table} data-game-log="">
         <thead>
           <tr>
             <th>Modus</th>
-            <th className="game-log__number">Spiele</th>
-            <th className="game-log__number">beendet</th>
-            <th className="game-log__number">abgebrochen</th>
-            <th className="game-log__when">zuletzt</th>
+            <th className={log.number}>Spiele</th>
+            <th className={log.number}>beendet</th>
+            <th className={log.number}>abgebrochen</th>
+            <th className={log.when}>zuletzt</th>
           </tr>
         </thead>
         <tbody>
           {statistics.modes.map((mode) => (
             <tr key={mode.quizModeId}>
               <td>{mode.label}</td>
-              <td className="game-log__number">{mode.total}</td>
-              <td className="game-log__number">{mode.completed}</td>
-              <td className="game-log__number">{mode.aborted}</td>
-              <td className="game-log__when">{formatDate(mode.lastPlayedIso)}</td>
+              <td className={log.number}>{mode.total}</td>
+              <td className={log.number}>{mode.completed}</td>
+              <td className={log.number}>{mode.aborted}</td>
+              <td className={log.when}>{formatDate(mode.lastPlayedIso)}</td>
             </tr>
           ))}
         </tbody>
         <tfoot>
           <tr>
             <td>Gesamt</td>
-            <td className="game-log__number">{total}</td>
-            <td className="game-log__number">
+            <td className={log.number}>{total}</td>
+            <td className={log.number}>
               {statistics.modes.reduce((sum, mode) => sum + mode.completed, 0)}
             </td>
-            <td className="game-log__number">{statistics.modes.reduce((sum, mode) => sum + mode.aborted, 0)}</td>
+            <td className={log.number}>{statistics.modes.reduce((sum, mode) => sum + mode.aborted, 0)}</td>
             <td />
           </tr>
         </tfoot>
       </table>
 
-      <p className="dialog__note">
+      <p className={styles.note}>
         {statistics.countingSinceIso
           ? `Gezählt seit ${formatDate(statistics.countingSinceIso)}.`
           : 'Gezählt seit der ersten Inbetriebnahme.'}
       </p>
       {confirming && (
-        <p className="dialog__note dialog__note--warning">
+        <p className={`${styles.note} ${styles.noteWarning}`}>
           Die Zählung beginnt neu. Die gespielten Spiele bleiben mit Punktestand und Protokoll in der Datenbank.
         </p>
       )}

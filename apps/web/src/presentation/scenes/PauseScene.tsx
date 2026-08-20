@@ -4,15 +4,16 @@
  * Bewusst ohne jede Fragen- oder Loesungsinformation: In dieser Phase hat der Server
  * die naechste Frage zwar bereits gezogen, sendet sie aber nicht an den Buehnenscreen.
  */
+import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
 export function PauseScene({ view }: SceneProps) {
   const logo = view.theme.startVisualUrl ?? view.theme.logoUrl
   return (
-    <div className="scene scene--pause">
-      {logo ? <img className="pause__logo" src={logo} alt="" /> : <div className="pause__placeholder">Quiz</div>}
+    <div className={`${styles.scene} ${styles.pause}`}>
+      {logo ? <img className={styles.pauseLogo} src={logo} alt="" /> : <div className={styles.pausePlaceholder}>Quiz</div>}
       {view.progress.total > 0 && (
-        <p className="pause__progress">
+        <p className={styles.pauseProgress}>
           Frage {Math.min(view.progress.current, view.progress.total)} von {view.progress.total}
         </p>
       )}
@@ -21,7 +22,7 @@ export function PauseScene({ view }: SceneProps) {
         * inhaltliche Wort auf diesem Screen - Fragetext, Optionen und Bild
         * bleiben bis zur Frageszene beim Server.
         */}
-      {view.upcomingCategoryLabel && <p className="pause__category">{view.upcomingCategoryLabel}</p>}
+      {view.upcomingCategoryLabel && <p className={styles.pauseCategory}>{view.upcomingCategoryLabel}</p>}
     </div>
   )
 }

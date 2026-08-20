@@ -12,6 +12,8 @@
 import {
   contentThresholds,
   missingColorTokens,
+  presentationNeedsImage,
+  presentationNeedsOptions,
   questionSchema,
   quizConfigSchema,
   type MediaAsset,
@@ -290,8 +292,7 @@ type AddIssue = (severity: IssueSeverity, code: string, message: string, subject
 
 function validateAnswerModel(question: Question, add: AddIssue): void {
   const options = question.options ?? []
-  const isChoiceType =
-    question.presentationType === 'text-choice' || question.presentationType === 'image-choice'
+  const isChoiceType = presentationNeedsOptions(question.presentationType)
 
   /*
    * Eine deaktivierte Frage liegt in keinem Fragenpool und kann die Show nicht
@@ -371,8 +372,7 @@ function validateMedia(
   missingMediaSeverity: IssueSeverity,
   add: AddIssue,
 ): void {
-  const requiresImage =
-    question.presentationType === 'image-choice' || question.presentationType === 'image-reveal'
+  const requiresImage = presentationNeedsImage(question.presentationType)
   const requiresVideo = question.presentationType === 'video-then-question'
 
   const check = (assetId: string | undefined, kind: 'image' | 'video', required: boolean) => {

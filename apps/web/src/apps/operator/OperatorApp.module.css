@@ -1,0 +1,161 @@
+/*
+ * Rahmen der Operatoransicht: Kopfzeile, Raster aus Vorschau, Seitenspalte und
+ * Bedienleiste, dazu der Fussbereich.
+ *
+ * BEWUSST EIGENE FARBEN: Der Bedienrahmen traegt `--ui-*` und bleibt in jedem
+ * Quizmodus dieselbe dunkle Flaeche - der Operator soll seine Tasten blind
+ * finden, und die Buehnenvorschau soll als einziges helles Feld herausstechen.
+ */
+
+.operator {
+  font-family: var(--font-ui);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--ui-page);
+}
+.loading {
+  display: grid;
+  place-items: center;
+  gap: var(--gap);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 12px 16px;
+  background: var(--ui-surface-quiet);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.sessionCode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+  margin-right: 6px;
+}
+.sessionLabel {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted);
+}
+.sessionValue {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text);
+}
+
+.headerLeft,
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  grid-template-areas:
+    'preview side'
+    'controls controls';
+  gap: var(--gap);
+  padding: 16px;
+  flex: 1;
+}
+.mainStart {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: 'start preview';
+  align-items: start;
+}
+.preview {
+  grid-area: preview;
+}
+.side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.controlsArea {
+  grid-area: controls;
+}
+.startArea {
+  grid-area: start;
+}
+.previewFrame {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+  .main,
+  .mainStart {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'preview'
+      'side'
+      'controls';
+  }
+  .mainStart {
+    grid-template-areas:
+      'start'
+      'preview';
+  }
+}
+
+/* Punktekorrektur des Operators - liegt ueber der Vorschau, nie auf der Buehne */
+.scoreAdjust {
+  display: flex;
+  gap: 0.3cqw;
+  align-self: center;
+}
+.scoreAdjust .button {
+  /* Quadratisch: Breite und Hoehe kommen aus derselben Groesse. */
+  width: 2.6cqw;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4cqw;
+  line-height: 1;
+}
+
+/* Fussbereich: Diagnose links, Spielprotokoll rechts aussen. */
+.footer {
+  margin-top: auto;
+  padding: 0 16px;
+  background: var(--ui-surface-quiet);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+/* Wie die Diagnosezeile daneben: stille Textzeile statt Schaltflaeche. */
+.logOpen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  background: none;
+  border: 0;
+  color: var(--ui-text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.logOpen:hover {
+  color: var(--ui-text);
+}
+.logIcon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}

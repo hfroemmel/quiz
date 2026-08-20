@@ -20,6 +20,7 @@
 import { useEffect, useRef } from 'react'
 import { animationClips, type AnimationClipId } from '../presentation/animationAssets.ts'
 import { prefersReducedMotion } from '../presentation/animationPresets.ts'
+import styles from './AnimationClip.module.css'
 
 interface AnimationClipProps {
   clipId: AnimationClipId
@@ -49,7 +50,7 @@ export function AnimationClip({ clipId, className, restartKey }: AnimationClipPr
   return (
     <video
       ref={videoRef}
-      className={className ? `animation-clip ${className}` : 'animation-clip'}
+      className={className ? `${styles.clip} ${className}` : styles.clip}
       src={clip.url}
       width={clip.sourceSizePx}
       height={clip.sourceSizePx}

@@ -1,0 +1,133 @@
+/* ------------------------------------------------------------------ *
+ * Keyframes - Dauer und Easing kommen aus dem Uebergangsregistry
+ * ------------------------------------------------------------------ */
+
+@keyframes option-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes scene-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes question-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes correct-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/*
+ * Falsch: ruhiges Aufblenden, kein seitliches Wackeln.
+ * Die Aussage traegt die gelieferte Bewegtgrafik in der Mitte; die Szene darunter
+ * bleibt still, damit die Grafik nicht mitwandert.
+ */
+@keyframes incorrect-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes solution-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes result-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* Klassen, die das Uebergangsregistry setzt. */
+.scene-fade,
+.video-enter {
+  animation: scene-fade-in var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.question-enter,
+.reveal-enter {
+  animation: question-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.feedback-correct {
+  animation: correct-pulse var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.feedback-incorrect {
+  animation: incorrect-appear var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.solution-reveal {
+  animation: solution-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.result-celebration {
+  animation: result-pop var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+
+/*
+ * Reduced-Motion-Fallback.
+ *
+ * Die Dauern werden zusaetzlich in JavaScript reduziert (`effectiveDurationMs`),
+ * damit auch die vom Registry gesetzten Timer kuerzer sind. Hier wird ergaenzend
+ * jede Bewegung entfernt - der Inhalt bleibt vollstaendig sichtbar.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .scene-fade,
+  .video-enter,
+  .question-enter,
+  .reveal-enter,
+  .feedback-correct,
+  .feedback-incorrect,
+  .solution-reveal,
+  .result-celebration {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .button {
+    transition: none;
+  }
+}
+

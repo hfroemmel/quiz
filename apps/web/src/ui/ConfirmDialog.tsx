@@ -6,6 +6,7 @@
  * damit nie versehentlich mit der Eingabetaste ausloesbar.
  */
 import { Dialog } from './Dialog.tsx'
+import styles from './Dialog.module.css'
 
 interface ConfirmDialogProps {
   title: string
@@ -41,7 +42,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      <p className="dialog__message">{message}</p>
+      <p className={styles.message}>{message}</p>
     </Dialog>
   )
 }

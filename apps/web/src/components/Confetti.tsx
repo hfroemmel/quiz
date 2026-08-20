@@ -9,7 +9,8 @@
  * im Stylesheet vollstaendig ausgeblendet.
  */
 import { confettiOverlayUrl } from '../presentation/animationAssets.ts'
+import styles from './Confetti.module.css'
 
 export function Confetti() {
-  return <img className="confetti" src={confettiOverlayUrl} alt="" aria-hidden="true" />
+  return <img className={styles.confetti} data-confetti="" src={confettiOverlayUrl} alt="" aria-hidden="true" />
 }

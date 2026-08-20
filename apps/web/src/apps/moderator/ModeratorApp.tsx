@@ -18,6 +18,7 @@ import { useQuizConnection } from '../../client/useQuizConnection.ts'
 import { useRevealClock } from '../../client/useRevealClock.ts'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 import { themeVariables } from '../../presentation/StageScreen.tsx'
+import styles from './ModeratorApp.module.css'
 
 const CODE_STORAGE_KEY = 'quiz.moderator.session-code'
 
@@ -27,7 +28,7 @@ export function ModeratorApp() {
 
   if (!code) {
     return (
-      <div className="moderator moderator--login">
+      <div className={`${styles.moderator} ${styles.login}`}>
         <h1>Moderatoransicht</h1>
         <p>Bitte den Session-Code eingeben, der im Operatorfenster angezeigt wird.</p>
         <form
@@ -40,7 +41,7 @@ export function ModeratorApp() {
           }}
         >
           <input
-            className="moderator__code-input"
+            className={styles.codeInput}
             inputMode="numeric"
             autoFocus
             value={draft}
@@ -79,7 +80,7 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
 
   if (!view) {
     return (
-      <div className="moderator moderator--login">
+      <div className={`${styles.moderator} ${styles.login}`}>
         <p>{connected ? 'Warte auf den Quizserver...' : 'Verbindung wird aufgebaut...'}</p>
         {failedAttempts > 1 && (
           <button className="button" onClick={onReset}>
@@ -93,19 +94,19 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
   const can = (type: Parameters<typeof view.allowedCommands.includes>[0]) => view.allowedCommands.includes(type)
 
   return (
-    <div className="moderator" style={themeVariables(view)}>
+    <div className={styles.moderator} data-moderator="" style={themeVariables(view)}>
       <ConnectionBanner connected={connected} rejection={lastRejection} onDismiss={clearRejection} />
 
-      <header className="moderator__header">
+      <header className={styles.header}>
         {/*
           * Der Moderator liest, er praesentiert nicht: Der Punktestand steht als
           * Textzeile, nicht als Buehnenkachel (docs/screens.md).
           */}
-        <div className="moderator__scores">
+        <div className={styles.scores}>
           {view.playerScores.map((score) => (
             <span
               key={score.playerId}
-              className={`moderator__score ${score.active ? 'moderator__score--active' : ''}`}
+              className={`${styles.score} ${score.active ? styles.scoreActive : ''}`}
             >
               {score.label}: <strong>{score.score}</strong>
               {score.locked && ' (gesperrt)'}
@@ -113,27 +114,27 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
           ))}
         </div>
         {view.progress.total > 0 && (
-          <span className="moderator__progress">
+          <span>
             Frage {Math.min(view.progress.current, view.progress.total)}/{view.progress.total}
           </span>
         )}
       </header>
 
-      <main className="moderator__main">
-        <p className="moderator__hint">{view.nextStepHint}</p>
+      <main className={styles.main}>
+        <p className={styles.hint} data-moderator-hint="">{view.nextStepHint}</p>
 
         {view.question && (
-          <section className="moderator__question">
+          <section className={styles.question}>
             <h2>{view.question.prompt}</h2>
             {view.visibleOptions && (
-              <ul className="moderator__options">
+              <ul className={styles.options}>
                 {view.visibleOptions.map((option) => (
                   <li
                     key={option.id}
                     className={[
-                      option.id === view.privateSolution?.correctOptionId ? 'moderator__option--correct' : '',
+                      option.id === view.privateSolution?.correctOptionId ? styles.optionCorrect : '',
                       // Bereits als falsch bewertet - fuer die zweite Chance verbraucht.
-                      option.state === 'chosen-incorrect' ? 'moderator__option--used' : '',
+                      option.state === 'chosen-incorrect' ? styles.optionUsed : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -147,16 +148,16 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
         )}
 
         {view.privateSolution && (
-          <section className="moderator__solution">
-            <p className="moderator__answer">{view.privateSolution.answerText}</p>
+          <section className={styles.solution}>
+            <p className={styles.answer} data-moderator-answer="">{view.privateSolution.answerText}</p>
             {view.explanation?.summary && <p>{view.explanation.summary}</p>}
             {view.explanation?.moderatorNotes && (
-              <p className="moderator__notes">Regiehinweis: {view.explanation.moderatorNotes}</p>
+              <p className={styles.notes}>Regiehinweis: {view.explanation.moderatorNotes}</p>
             )}
           </section>
         )}
 
-        <section className="moderator__status">
+        <section className={styles.status}>
           {view.reveal && (
             <span>
               Enthuellung: {reveal.countdownSeconds} s
@@ -177,7 +178,7 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
         </section>
       </main>
 
-      <footer className="moderator__actions">
+      <footer className={styles.actions} data-moderator-actions="">
         {can('OPEN_BUZZER') && (
           <button className="button button--large" onClick={() => send({ type: 'OPEN_BUZZER' })}>
             Antworten einblenden

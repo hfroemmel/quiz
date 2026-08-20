@@ -10,26 +10,29 @@
 import { useState } from 'react'
 import type { Command, CommandType, OperatorQuizViewModel } from '@quiz/contracts'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
-import { optionLetter } from '../../ui/OptionBar.tsx'
+import { optionLetter } from '../../presentation/stage/answerState.ts'
+import styles from './OperatorControls.module.css'
 
 interface Props {
   view: OperatorQuizViewModel
   send: (command: Command) => void
+  /** Rasterzelle im Rahmen - wo das Bauteil sitzt, weiss der Rahmen. */
+  className?: string
 }
 
-export function OperatorControls({ view, send }: Props) {
+export function OperatorControls({ view, send, className }: Props) {
   const [confirmReset, setConfirmReset] = useState(false)
   const can = (type: CommandType) => view.allowedCommands.includes(type)
   const question = view.privateSolution
   const answering = view.answering
 
   return (
-    <section className="controls" aria-label="Steuerung">
+    <section className={[styles.controls, className].filter(Boolean).join(' ')} data-controls="" aria-label="Steuerung">
       {/* --- Runde freigeben --- */}
       {(can('OPEN_BUZZER') || can('START_IMAGE_REVEAL')) && (
-        <div className="controls__group">
-          <h3 className="controls__title">Runde</h3>
-          <div className="controls__row">
+        <div className={styles.group}>
+          <h3 className={styles.title}>Runde</h3>
+          <div className={styles.row}>
             {/*
               * Der Zwischenschritt: Erst steht nur die Frage, der Moderator liest
               * sie vor. Antwortmoeglichkeiten bzw. Enthuellung erscheinen auf
@@ -51,9 +54,9 @@ export function OperatorControls({ view, send }: Props) {
 
       {/* --- Spieler bestimmen --- */}
       {(can('SELECT_PLAYER_MANUALLY') || can('RESET_BUZZER')) && (
-        <div className="controls__group">
-          <h3 className="controls__title">Spielerauswahl</h3>
-          <div className="controls__row">
+        <div className={styles.group}>
+          <h3 className={styles.title}>Spielerauswahl</h3>
+          <div className={styles.row}>
             {can('SELECT_PLAYER_MANUALLY') &&
               view.playerScores.map((score) => (
                 <button
@@ -83,11 +86,11 @@ export function OperatorControls({ view, send }: Props) {
 
       {/* --- Antwort einloggen und auswerten --- */}
       {(can('LOG_OPTION_ANSWER') || can('MARK_MANUAL_ANSWER')) && (
-        <div className="controls__group">
-          <h3 className="controls__title">Antwort einloggen</h3>
+        <div className={styles.group}>
+          <h3 className={styles.title}>Antwort einloggen</h3>
 
           {can('LOG_OPTION_ANSWER') && view.visibleOptions && (
-            <div className="controls__row controls__row--options">
+            <div className={`${styles.row} ${styles.rowOptions}`} data-option-buttons="">
               {view.visibleOptions.map((option, index) => {
                 const isCorrect = option.id === question?.correctOptionId
                 const isLogged = answering?.loggedOptionId === option.id
@@ -99,7 +102,8 @@ export function OperatorControls({ view, send }: Props) {
                 return (
                   <button
                     key={option.id}
-                    className={`button button--option ${isLogged ? 'button--selected' : ''} ${isCorrect ? 'button--marks-correct' : ''}`}
+                    className={`button button--option ${isLogged ? 'button--selected' : ''}`}
+                    data-marks-correct={isCorrect ? '' : undefined}
                     disabled={isUsedUp}
                     onClick={() => send({ type: 'LOG_OPTION_ANSWER', optionId: option.id })}
                     // Der Antworttext steht bereits auf der Buehne. Die Taste traegt
@@ -116,7 +120,7 @@ export function OperatorControls({ view, send }: Props) {
           )}
 
           {can('MARK_MANUAL_ANSWER') && (
-            <div className="controls__row">
+            <div className={styles.row}>
               <button
                 className={`button button--correct ${answering?.loggedManualVerdict === 'correct' ? 'button--selected' : ''}`}
                 onClick={() => send({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })}
@@ -136,9 +140,9 @@ export function OperatorControls({ view, send }: Props) {
 
       {/* --- Aufloesen --- */}
       {(can('RESOLVE_ATTEMPT') || can('RESOLVE_WITHOUT_ANSWER') || can('PASS_SECOND_CHANCE')) && (
-        <div className="controls__group">
-          <h3 className="controls__title">Auflösen</h3>
-          <div className="controls__row">
+        <div className={styles.group}>
+          <h3 className={styles.title}>Auflösen</h3>
+          <div className={styles.row}>
             {can('RESOLVE_ATTEMPT') && (
               <button
                 className="button button--primary"
@@ -165,9 +169,9 @@ export function OperatorControls({ view, send }: Props) {
 
       {/* --- Bilderkennen --- */}
       {(can('PAUSE_IMAGE_REVEAL') || can('RESUME_IMAGE_REVEAL') || can('REVEAL_IMAGE_COMPLETELY')) && (
-        <div className="controls__group">
-          <h3 className="controls__title">Bildenthüllung</h3>
-          <div className="controls__row">
+        <div className={styles.group}>
+          <h3 className={styles.title}>Bildenthüllung</h3>
+          <div className={styles.row}>
             {can('PAUSE_IMAGE_REVEAL') && (
               <button className="button" onClick={() => send({ type: 'PAUSE_IMAGE_REVEAL' })}>
                 Enthüllung pausieren
@@ -195,9 +199,9 @@ export function OperatorControls({ view, send }: Props) {
 
       {/* --- Video --- */}
       {(can('START_VIDEO') || can('PAUSE_VIDEO') || can('SHOW_QUESTION_AFTER_VIDEO')) && (
-        <div className="controls__group">
-          <h3 className="controls__title">Video</h3>
-          <div className="controls__row">
+        <div className={styles.group}>
+          <h3 className={styles.title}>Video</h3>
+          <div className={styles.row}>
             {can('START_VIDEO') && (
               <button className="button button--primary" onClick={() => send({ type: 'START_VIDEO' })}>
                 Video starten
@@ -214,7 +218,7 @@ export function OperatorControls({ view, send }: Props) {
               </button>
             )}
             {can('SEEK_VIDEO') && (
-              <label className="controls__seek">
+              <label className={styles.seek}>
                 Position
                 <input
                   type="range"
@@ -238,7 +242,7 @@ export function OperatorControls({ view, send }: Props) {
 
       {/* --- Weiter --- */}
       {can('CONTINUE') && (
-        <div className="controls__group controls__group--continue">
+        <div className={styles.group}>
           <button className="button button--large button--primary" onClick={() => send({ type: 'CONTINUE' })}>
             {view.progress.current >= view.progress.total ? 'Weiter zum Ergebnis' : 'Weiter zur nächsten Frage'}
           </button>

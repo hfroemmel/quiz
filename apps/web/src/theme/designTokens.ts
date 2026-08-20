@@ -42,27 +42,28 @@ export const stageDesignColors: DesignColors = {
 
 /**
  * Farbwelt des Kinderquiz - Papier, Tinte und die Signalfarben der Illustration.
- * Werte aus `implementation/design-tokens.json` des Assetpakets.
+ * Werte aus `boxes.css` des Boxen-Assetpakets; dieselben Werte stehen im
+ * Quizpaket (`content/source/config.json`, Theme `kids`).
  */
 export const kidsDesignColors: DesignColors = {
   pageTop: '#A9D5EF',
   pageBottom: '#D9D7F2',
   stageTop: '#A9D5EF',
   stageBottom: '#D9D7F2',
-  controls: '#FFF8E8',
-  tile: '#FFF8E8',
-  tileDisabled: '#F5EAD5',
-  tileQuiet: '#F5EAD5',
-  option: '#FFF8E8',
-  accent: '#E63339',
+  controls: '#F4EBD8',
+  tile: '#F4EBD8',
+  tileDisabled: '#EADDC2',
+  tileQuiet: '#EADDC2',
+  option: '#F4EBD8',
+  accent: '#D61E1E',
   accentQuiet: '#D98B93',
-  primary: '#E63339',
-  solution: '#50C79A',
-  solutionChip: '#FFD83D',
-  correct: '#50C79A',
+  primary: '#D61E1E',
+  solution: '#6FBE6B',
+  solutionChip: '#F9CD36',
+  correct: '#6FBE6B',
   incorrect: '#D98B93',
-  text: '#172538',
-  textMuted: 'rgba(23, 37, 56, 0.6)',
+  text: '#0E090C',
+  textMuted: 'rgba(14, 9, 12, 0.6)',
 }
 
 /** Bisheriges Graustufensystem - Rueckfallebene fuer Themes ohne eigene Werte. */

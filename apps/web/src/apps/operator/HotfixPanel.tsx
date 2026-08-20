@@ -10,8 +10,9 @@
  */
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
-import { optionLetter } from '../../ui/OptionBar.tsx'
+import { optionLetter } from '../../presentation/stage/answerState.ts'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
+import styles from './HotfixPanel.module.css'
 
 export function HotfixPanel({
   view,
@@ -84,18 +85,18 @@ export function HotfixPanel({
   const applyMode = immediate ? 'immediate-confirmed' : 'next-use'
 
   return (
-    <section className="hotfix">
+    <section className={styles.hotfix}>
       <button type="button" className="button button--technical" onClick={() => setOpen((value) => !value)}>
         {open ? 'Fragenkorrektur schließen' : 'Fehlerhafte Frage korrigieren'}
       </button>
 
       {open && (
-        <div className="hotfix__body">
-          <p className="hotfix__note">
+        <div className={styles.body}>
+          <p className={styles.note}>
             Aenderungen werden als lokaler Hotfix gespeichert. Das Basispaket bleibt unverändert.
           </p>
 
-          <div className="controls__row">
+          <div className={styles.buttonRow}>
             {canSkip && (
               <button
                 className="button"
@@ -130,10 +131,10 @@ export function HotfixPanel({
                 <div className="field">
                   <span>Antwortmöglichkeiten</span>
                   {editable.options.map((option, index) => (
-                    <div key={option.id} className="hotfix__option">
-                      <span className="hotfix__option-marker">{optionLetter(index)}</span>
+                    <div key={option.id} className={styles.option}>
+                      <span className={styles.marker}>{optionLetter(index)}</span>
                       <input
-                        className="hotfix__option-text"
+                        className={styles.text}
                         aria-label={`Antwort ${optionLetter(index)}`}
                         value={optionTexts[option.id] ?? option.text}
                         onChange={(event) =>
@@ -142,7 +143,7 @@ export function HotfixPanel({
                       />
                       <input
                         type="radio"
-                        className="hotfix__option-correct"
+                        className={styles.correct}
                         name="hotfix-correct-option"
                         title="als richtige Antwort markieren"
                         aria-label={`Antwort ${optionLetter(index)} ist richtig`}

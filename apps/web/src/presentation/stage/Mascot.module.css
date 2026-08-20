@@ -1,0 +1,34 @@
+/*
+ * Figurenebene. In der Buehne der Erwachsenen bleibt sie leer; die Kinderwelt
+ * stellt Karlchen an den rechten Rand.
+ */
+
+.mascot {
+  position: absolute;
+  pointer-events: none;
+}
+
+/*
+ * Karlchen steht am unteren rechten Rand der GANZEN Ansicht, nicht in der
+ * Fragezeile: In der Referenz steht die Figur auf dem Boden neben den
+ * Antworten, praesentiert mit dem ausgestreckten Fluegel nach links zu ihnen
+ * hinueber und reicht dabei bis weit ueber die halbe Bildhoehe.
+ *
+ * In den breiten Formaten beruehrt sie den Text ohnehin nie.
+ */
+/* Die Figur gehoert zur Komposition von Frage und Loesung. */
+:global(.stage--kids.stage--scene-question) .mascot,
+:global(.stage--kids.stage--scene-solution) .mascot {
+  right: 0.8cqw;
+  bottom: 9cqh;
+  /*
+   * Zwischen Grund und Inhalt: In schmalen Ansichten darf die Figur hinter die
+   * Inhaltsflaeche rutschen statt zu verschwinden. Kopfzeile und Szene liegen
+   * auf Ebene 1 und bleiben deshalb immer vor ihr.
+   */
+  z-index: 0;
+  /* Rund die Haelfte der Bildhoehe - die Quelle traegt 1131 Pixel. */
+  height: 51cqh;
+  aspect-ratio: 927 / 1131;
+  background: url('/assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
+}

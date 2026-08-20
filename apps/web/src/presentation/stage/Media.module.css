@@ -1,0 +1,133 @@
+/*
+ * Bildrahmen der Buehne.
+ *
+ * Die GROESSE gehoert zur Szene und ist in beiden Welten gleich; nur die
+ * Rahmung unterscheidet sich. In der Kinderwelt uebernimmt in Frage und Loesung
+ * das Raster die Groesse - dort tritt das Eigenmass zurueck.
+ */
+
+.media {
+  position: relative;
+  flex: 0 0 auto;
+}
+.inline,
+.solution {
+  width: 25cqw;
+  aspect-ratio: 4 / 3;
+}
+.reveal {
+  width: 34cqw;
+  aspect-ratio: 4 / 3;
+}
+/*
+ * Portraet: fast quadratisch - so, wie ein Mensch auf einem Querformatfoto
+ * sitzt, wenn man ihn beschneidet. Der Ausschnitt liegt etwas ueber der Mitte,
+ * weil Gesichter im oberen Drittel eines Bildes stehen.
+ *
+ * Als einziges Medium bemisst es sich nach der HOEHE der Buehne: Es ist der
+ * Inhalt der Frage und soll den Raum unter der Kopfzeile fuellen. Die Breite
+ * folgt daraus - so bleibt der Ausschnitt in jedem Seitenverhaeltnis derselbe,
+ * statt bei flachen Buehnen unten herauszuragen.
+ */
+.portrait {
+  height: 66cqh;
+  aspect-ratio: 64 / 62;
+}
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Platz fuer eine hervorschauende Figur - nur die Kinderwelt fuellt ihn. */
+.peek {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehne der Erwachsenen: Milchglaskante ohne Kontur
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default) .media {
+  overflow: hidden;
+  border-radius: var(--stage-radius);
+  background: var(--color-tile);
+}
+/*
+ * Das Portraet ist das Herz der Ansicht und bekommt deshalb als einziges Medium
+ * eine sichtbare Fassung: eine haarfeine helle Kante, damit es sich auch von
+ * einem hellen Motiv her gegen den dunklen Grund absetzt.
+ */
+:global(.stage--default) .portrait {
+  border-radius: calc(var(--stage-radius) * 1.6);
+  box-shadow: inset 0 0 0 0.12cqw rgb(255 255 255 / 0.22);
+}
+:global(.stage--default) .portrait .image {
+  object-position: center 30%;
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinderwelt: gezeichneter Portraetrahmen
+ * ------------------------------------------------------------------ */
+
+:global(.stage--kids) .media {
+  isolation: isolate;
+  padding: 0.9cqw;
+}
+:global(.stage--kids) .media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 3.75cqw;
+  border-image: url('/assets/kinderquiz/boxes/frame-portrait.svg') 72 fill / 3.75cqw / 0 stretch;
+  pointer-events: none;
+}
+/*
+ * Der einzige Radius dieser Welt. Das Foto ist kein gezeichnetes Bauteil,
+ * sondern Inhalt, der IM Rahmen liegt; ohne diesen Beschnitt wuerden seine
+ * rechtwinkligen Ecken aus der gerundeten Innenform der Rahmenzeichnung
+ * herausstehen. `clip-path` greift NACH dem Filter und haelt beim Bilderkennen
+ * auch die Weichzeichnung im Rahmen - `border-radius` allein taete das nicht.
+ */
+:global(.stage--kids) .image {
+  border-radius: 1cqw;
+  clip-path: inset(0 round 1cqw);
+}
+/* Beim Bilderkennen sitzt das Foto tiefer im Rahmen: die Unschaerfe schmiert. */
+:global(.stage--kids) .reveal {
+  padding: 1.7cqw;
+}
+/*
+ * In Frage und Loesung bestimmt das Raster der Kopfzone die Groesse - das
+ * Eigenmass wuerde die Zelle sprengen und die Fuge zur Fragetafel schliessen.
+ * `min-width: 0` haelt die automatische Mindestgroesse der Rasterzelle in
+ * Schach, die sonst auf die Eigenbreite des Fotos waechst.
+ */
+:global(.stage--kids.stage--scene-question) .media,
+:global(.stage--kids.stage--scene-solution) .media {
+  width: auto;
+  aspect-ratio: auto;
+  min-width: 0;
+  min-height: 0;
+}
+/*
+ * Karlchen schaut ueber die obere Bildkante: etwas rechts der Mitte wie im
+ * Entwurf - links darueber steht die Wortmarke. Er liegt HINTER der
+ * gezeichneten Rahmenflaeche, und seine Unterkante steckt ein Stueck weit
+ * dahinter: genau dadurch wirkt der gerade Anschnitt der Zeichnung wie ein
+ * Griff auf dem Rand. Die Zeichnung endet bei 90,6 Prozent der Bilddatei -
+ * darunter liegt durchsichtiger Rand, der herausgerechnet wird.
+ */
+:global(.stage--kids.stage--scene-question) .peek {
+  left: 68%;
+  bottom: 100%;
+  z-index: -2;
+  width: min(50%, 300px);
+  aspect-ratio: 1365 / 768;
+  transform: translate(-50%, calc(9.4% + 0.7cqw));
+  background: url('/assets/kinderquiz/characters/karlchen-mini.svg') no-repeat center / contain;
+}

@@ -17,6 +17,15 @@ Engine gibt es dafuer **keinen** Sondercode - insbesondere nicht fuer `kids` ode
 }
 ```
 
+Ein Theme kann ueber `skin` waehlen, in welcher **Gestaltungswelt** es steht:
+`default` (die Buehne, Voreinstellung) oder `kids` (die illustrierte
+Karlchen-Welt). Mehr Welten gibt es nicht - eine neue braeuchte eigene
+Zeichnungen und eigene Regeln in jedem Bauteilmodul. Wer nur andere Farben will,
+braucht kein `skin`, sondern nur eigene `colors`.
+
+Ein Modus ohne eigene Farbwuensche verweist einfach auf ein vorhandenes Theme;
+so macht es `Saarbruecken` mit `"themeId": "default"`.
+
 2. Den Modus ergaenzen:
 
 ```jsonc
@@ -48,7 +57,7 @@ Modus ist ein konfigurierter Filter.
   "id": "saarbruecken",
   "label": "Saarbrücken",
   "questionFilter": { "legacyModes": ["adults", "kids"], "categoryIds": ["saarbruecken"] },
-  "themeId": "regional",
+  "themeId": "default",
   "allowedPresetIds": ["regional"]
 }
 ```

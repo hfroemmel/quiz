@@ -1,0 +1,44 @@
+/*
+ * Countdownring des Bilderkennens.
+ *
+ * Der Ring zeigt denselben Fortschritt wie die Bildschaerfe - beide kommen aus
+ * derselben Ableitung. Hier steht nur, wie er aussieht.
+ */
+
+.ring {
+  position: relative;
+  width: 18cqw;
+  aspect-ratio: 1;
+}
+.svg {
+  width: 100%;
+  height: 100%;
+}
+.track {
+  stroke: var(--color-tileDisabled);
+}
+.arc {
+  stroke: var(--color-text);
+}
+.seconds {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 4cqw;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kinderwelt: Tinte statt Weiss, Ziffern in der Serifenschrift der Zahlen. */
+:global(.stage--kids) .arc {
+  stroke: var(--kids-ink);
+}
+:global(.stage--kids) .track {
+  stroke: rgb(14 9 12 / 0.15);
+}
+:global(.stage--kids) .seconds {
+  font-family: var(--kids-numeric);
+  font-weight: 700;
+}

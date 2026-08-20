@@ -11,9 +11,25 @@ import { OperatorApp } from './apps/operator/OperatorApp.tsx'
 import { StageApp } from './apps/stage/StageApp.tsx'
 import { ModeratorApp } from './apps/moderator/ModeratorApp.tsx'
 import { PreviewApp } from './apps/preview/PreviewApp.tsx'
-import './styles.css'
-// Illustrierte Kinderwelt - greift ausschliesslich innerhalb von `.stage--kids`.
-import './styles/kids.css'
+/*
+ * Globale Stylesheets - bewusst KEINE Module.
+ *
+ *   tokens    Farb- und Massvariablen am Wurzelelement
+ *   base      Schriften, Reset, Grundtypografie
+ *   controls  Schaltflaechen und Formularfelder des Bedienrahmens
+ *   motion    Keyframes und Uebergangsklassen; das Uebergangsregistry setzt
+ *             ihre Namen als Zeichenkette und braucht sie deshalb ungehasht
+ *   stage     Wurzelklassen der Buehne (`.stage--default`, `.stage--kids`,
+ *             `.stage--bright`) - der Schalter, auf den alle Bauteilmodule
+ *             ueber `:global(...)` zugreifen
+ *
+ * Alles Bauteilhafte liegt als `*.module.css` neben seiner Komponente.
+ */
+import './styles/tokens.css'
+import './styles/base.css'
+import './styles/controls.css'
+import './styles/motion.css'
+import './styles/stage.css'
 
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/'

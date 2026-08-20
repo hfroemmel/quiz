@@ -9,7 +9,7 @@ import { expect, type Page } from '@playwright/test'
 
 export async function openOperator(page: Page): Promise<Page> {
   await page.goto('/operator')
-  await expect(page.locator('.operator')).toBeVisible()
+  await expect(page.locator('[data-operator]')).toBeVisible()
   return page
 }
 
@@ -27,12 +27,12 @@ export async function openStage(page: Page): Promise<Page> {
  * jedem Spiel derselbe Weg gegangen, den auch der Operator nimmt.
  */
 export async function resetToStartPanel(operator: Page): Promise<void> {
-  if (await operator.locator('.start-panel').count()) return
+  if (await operator.locator('[data-start-panel]').count()) return
 
   const backToStart = operator.getByRole('button', { name: 'Zurück zur Startansicht' })
   if (await backToStart.count()) {
     await backToStart.click()
-    await expect(operator.locator('.start-panel')).toBeVisible()
+    await expect(operator.locator('[data-start-panel]')).toBeVisible()
     return
   }
 
@@ -40,20 +40,20 @@ export async function resetToStartPanel(operator: Page): Promise<void> {
   if (await abort.count()) {
     await abort.click()
     // Die Rueckfrage liegt in der Anwendung, nicht im Browser.
-    await operator.locator('.dialog').getByRole('button', { name: 'Spiel beenden' }).click()
-    await expect(operator.locator('.start-panel')).toBeVisible()
+    await operator.locator('[data-dialog]').getByRole('button', { name: 'Spiel beenden' }).click()
+    await expect(operator.locator('[data-start-panel]')).toBeVisible()
   }
 }
 
 export async function startGame(operator: Page, options: { mode?: string; preset?: string } = {}): Promise<void> {
   await resetToStartPanel(operator)
-  await expect(operator.locator('.start-panel')).toBeVisible()
-  const selects = operator.locator('.start-panel__form select')
+  await expect(operator.locator('[data-start-panel]')).toBeVisible()
+  const selects = operator.locator('[data-start-form] select')
   await selects.nth(0).selectOption(options.mode ?? 'adults')
   await selects.nth(1).selectOption(options.preset ?? 'medium')
   await operator.getByRole('button', { name: 'Spiel starten' }).click()
   // Der Pausenscreen laeuft kurz, danach steht die erste Frage.
-  await expect(operator.locator('.controls')).toBeVisible()
+  await expect(operator.locator('[data-controls]')).toBeVisible()
   await waitForQuestionReady(operator)
 }
 
@@ -93,7 +93,7 @@ export async function buzz(operator: Page, player: 1 | 2): Promise<void> {
 
 /** Loggt die richtige Antwort ein - im Operatorfenster als "richtig" markiert. */
 export async function logCorrectOption(operator: Page): Promise<void> {
-  await operator.locator('.button--marks-correct').first().click()
+  await operator.locator('[data-marks-correct]').first().click()
 }
 
 export async function logIncorrectOption(operator: Page): Promise<void> {
@@ -103,7 +103,7 @@ export async function logIncorrectOption(operator: Page): Promise<void> {
    * Gewaehlt wird deshalb die erste noch offene falsche Antwort.
    */
   await operator
-    .locator('.controls__row--options .button--option:not(.button--marks-correct):not([disabled])')
+    .locator('[data-option-buttons] .button--option:not([data-marks-correct]):not([disabled])')
     .first()
     .click()
 }
@@ -118,7 +118,7 @@ export async function resolveAttempt(operator: Page): Promise<void> {
  * gewartet.
  */
 export async function continueGame(operator: Page): Promise<void> {
-  await operator.locator('.controls button:has-text("Weiter zu")').click()
+  await operator.locator('[data-controls] button:has-text("Weiter zu")').click()
   // Nach der letzten Frage folgt die Ergebnisansicht, sonst der Pausenscreen.
   if ((await currentPhase(operator)) !== 'result') await waitForQuestionReady(operator)
 }
@@ -131,7 +131,7 @@ export async function scores(operator: Page): Promise<number[]> {
    * zum neuen Wert hoch, der Datenwert steht sofort auf dem Serverstand. Sonst
    * haenge der Test an der Laufzeit einer Animation.
    */
-  return operator.locator('.score-tile').evaluateAll((nodes) =>
+  return operator.locator('[data-score]').evaluateAll((nodes) =>
     nodes.map((node) => Number((node as HTMLElement).dataset['score'])),
   )
 }
@@ -175,7 +175,7 @@ export async function startReveal(operator: Page): Promise<void> {
  * Weg.
  */
 async function waitForAnswerControls(operator: Page) {
-  const options = operator.locator('.controls__row--options .button--option')
+  const options = operator.locator('[data-option-buttons] .button--option')
   const manual = operator.getByRole('button', { name: /^Antwort war (richtig|falsch)$/ })
   await expect(options.first().or(manual.first())).toBeVisible()
   return { options, manual }

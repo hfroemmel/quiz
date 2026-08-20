@@ -28,9 +28,11 @@ import { FeedbackScene } from './scenes/FeedbackScene.tsx'
 import { SolutionScene } from './scenes/SolutionScene.tsx'
 import { ResultScene } from './scenes/ResultScene.tsx'
 import { StartScene } from './scenes/StartScene.tsx'
-import { StageHeader, type StageHeaderSlots } from './StageHeader.tsx'
-import { KidsQuizScreen, kidsScreenCovers } from './kids/KidsQuizScreen.tsx'
-import { kidsAssets, kidsPreloadImages } from './kids/kidsAssets.ts'
+import { StageHeader, type StageHeaderSlots } from './stage/StageHeader.tsx'
+import { Mascot } from './stage/Mascot.tsx'
+import { kidsPreloadImages } from './stage/kidsAssets.ts'
+import { useStageTheme } from './stageTheme.ts'
+import stage from './stage/Stage.module.css'
 import type { SceneProps } from './scenes/sceneProps.ts'
 
 export interface StageScreenProps {
@@ -108,8 +110,15 @@ export function StageScreen({
    * `packages/contracts/src/content.ts`). Ein neuer Modus bekommt die
    * Kinderwelt damit ohne Codeaenderung.
    */
-  const kids = view.theme.skin === 'kids'
-  const kidsScreen = kids && kidsScreenCovers(view)
+  const skin = view.theme.skin ?? 'default'
+  const kids = skin === 'kids'
+  /*
+   * Helle oder dunkle Fassung - nur die Buehne der Erwachsenen kennt beide. Die
+   * Kinderwelt bringt ihr eigenes Papier mit und bleibt davon unberuehrt.
+   */
+  const [stageTheme] = useStageTheme()
+  // Die Kinderwelt bringt ihr eigenes Papier mit - dort gibt es nichts zu waehlen.
+  const theme = kids ? null : stageTheme
 
   /*
    * Zeichnungen der Kinderwelt einmal in den Browsercache holen.
@@ -129,14 +138,19 @@ export function StageScreen({
   return (
     <SoundProvider enabled={view.soundEnabled} isAudioMaster={isAudioMaster}>
       <div
-        className={`stage stage--${variant} stage--scene-${view.scene} ${kids ? 'stage--kids' : ''}`}
-        style={{
-          ...themeVariables(view),
-          ...transitionStyle(transition),
-          ...(kids ? { ['--kids-scene' as string]: `url(${kidsAssets.scene})`, ['--kids-grain' as string]: `url(${kidsAssets.paperGrain})` } : {}),
-        }}
+        /*
+          * Die Gestaltungswelt steht als EINZIGE Klasse an der Buehne. Alles
+          * darunter - Kopfzeile, Fragetafel, Antwortzeilen - traegt in beiden
+          * Welten dasselbe Markup; unterschieden wird ausschliesslich hier.
+          */
+        className={['stage', `stage--${skin}`, theme && `stage--${theme}`, `stage--${variant}`, `stage--scene-${view.scene}`]
+          .filter(Boolean)
+          .join(' ')}
+        style={transitionStyle(transition)}
         data-scene={view.scene}
-        data-skin={view.theme.skin ?? 'stage'}
+        data-presentation={view.question?.presentationType}
+        data-skin={skin}
+        data-theme={theme ?? skin}
         data-phase={view.phase}
         data-transition={transition?.id ?? 'none'}
       >
@@ -150,23 +164,28 @@ export function StageScreen({
           *
           * `aria-hidden`: reine Dekoration, kein Inhalt.
           */}
-        {view.question?.imageUrl && !kids && (
+        {view.question?.imageUrl && (
           <div
-            className={`stage__backdrop ${isRevealing(view) ? 'stage__backdrop--veiled' : ''}`}
+            className={stage.backdrop}
+            data-veiled={String(isRevealing(view))}
             style={{ backgroundImage: `url(${view.question.imageUrl})` }}
             aria-hidden="true"
           />
         )}
 
-        {/* Die Kinderansicht bringt ihre eigene Kopfzeile mit. */}
-        {!kidsScreen && <StageHeader view={view} slots={headerSlots} />}
+        <StageHeader view={view} slots={headerSlots} />
 
-        <div key={entryKey} className={`scene-root ${activeClass} ${transition?.classNames?.to ?? ''}`}>
-          {kidsScreen ? <KidsQuizScreen view={view} /> : renderScene(view, sceneProps, isAudioMaster, onReport)}
+        <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
+          {renderScene(view, sceneProps, isAudioMaster, onReport)}
         </div>
 
-        {/* Papierkoernung ganz oben - dekorativ, nimmt keine Klicks entgegen. */}
-        {kids && <div className="stage__grain" aria-hidden="true" />}
+        {/*
+          * Figuren- und Koernungsebene. Beide sind reine Dekoration und stehen
+          * in jeder Welt im Markup; ob dort etwas zu sehen ist, entscheidet
+          * allein das Stylesheet.
+          */}
+        <Mascot />
+        <div className={stage.grain} aria-hidden="true" />
       </div>
     </SoundProvider>
   )
@@ -209,8 +228,15 @@ function renderScene(
 
 /**
  * Theme des aktiven Quizmodus als CSS-Custom-Properties.
+ *
  * Damit kann das Kinderquiz ein eigenes Farbsystem besitzen, ohne dass irgendwo im
  * Code eine Modus-Sonderbehandlung noetig waere.
+ *
+ * WICHTIG - GEHOERT AUF DEN RAHMEN, NICHT AUF DIE BUEHNE: Die Werte kommen als
+ * Inline-Stil, und ein Inline-Stil schlaegt jede Klassenregel. Stuenden sie an
+ * der Buehne selbst, koennte `.stage--bright` seine Farben nicht mehr setzen.
+ * Vom umgebenden Rahmen aus werden sie geerbt - und eine Angabe am Element
+ * sticht jeden geerbten Wert.
  */
 export function themeVariables(view: PublicQuizViewModel): Record<string, string> {
   const variables: Record<string, string> = {}

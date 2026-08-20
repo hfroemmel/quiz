@@ -7,10 +7,27 @@ braucht ein neuer redaktioneller Wunsch daher gar keinen neuen Typ.
 
 | Wunsch | Loesung ohne neuen Typ |
 |---|---|
-| „Politiker erkennen“ | `image-choice` mit Pflichtbild - es ist keine eigene Geschaeftslogik |
 | Bild mit muendlicher Antwort | `image-reveal` mit `manual-correct-incorrect` |
 | Frage ohne Optionen | `evaluationMode: "manual-correct-incorrect"` plus `acceptedAnswerText` |
 | Video vor der Frage | `video-then-question` - zwei Phasen derselben Frage |
+
+## Ein Typ, der nur anders aussieht
+
+Manche Typen unterscheiden sich ausschliesslich in der Anordnung. `person` - die
+Frage nach einer abgebildeten Person - spielt wie `image-choice`, zeigt das Bild
+aber gross neben Rubrik, Frage und Antworten. Solche Typen brauchen weder Phasen
+noch Befehle noch Scoring:
+
+1. **Contracts** - Wert in `questionPresentationTypes` ergaenzen und in den
+   Praedikaten `presentationNeedsOptions` / `presentationNeedsImage` einordnen.
+   Diese beiden Funktionen sind die einzige Quelle dafuer, was ein Typ mitbringen
+   muss - Validierung und UI lesen sie, niemand fuehrt eigene Listen.
+2. **Praesentation** - Anordnung in `QuestionComposition` ergaenzen. Frage- und
+   Loesungsszene bleiben unveraendert, weil beide dieses Bauteil benutzen.
+3. **Daten und Tests** - Fragen umstellen, `pnpm content:validate && pnpm
+   content:build`, Szene in `test/e2e/presentation.spec.ts` aufnehmen.
+
+Alles Weitere - Phasen, Buzzerregeln, Projektion, Befehle - bleibt unberuehrt.
 
 ## Wenn ein echter neuer Typ noetig ist
 

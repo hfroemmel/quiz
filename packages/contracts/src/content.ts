@@ -12,14 +12,38 @@
 import { z } from 'zod'
 import { contentThresholds } from './config.ts'
 
-/** Praesentationsform einer Frage auf dem Buehnenscreen. */
+/**
+ * Praesentationsform einer Frage auf dem Buehnenscreen.
+ *
+ * `person` ist eine Auswahlfrage mit Bild wie `image-choice` - sie unterscheidet
+ * sich ausschliesslich in der Komposition: Das Portraet traegt die Ansicht und
+ * steht gross links, Frage und Antworten stehen daneben. Fachlich laeuft sie
+ * durch dieselben Regeln.
+ */
 export const questionPresentationTypes = [
   'text-choice',
   'image-choice',
+  'person',
   'image-reveal',
   'video-then-question',
 ] as const
 export type QuestionPresentationType = (typeof questionPresentationTypes)[number]
+
+/**
+ * Braucht dieser Fragetyp Antwortoptionen?
+ *
+ * EINZIGE QUELLE DIESER ENTSCHEIDUNG - Validierung und Inhaltspflege fragen
+ * hier. Wer einen Typ ergaenzt, muss ihn hier einsortieren; eine vergessene
+ * Aufzaehlung an anderer Stelle faellt sonst erst im Betrieb auf.
+ */
+export function presentationNeedsOptions(type: QuestionPresentationType): boolean {
+  return type === 'text-choice' || type === 'image-choice' || type === 'person'
+}
+
+/** Braucht dieser Fragetyp ein Bild? */
+export function presentationNeedsImage(type: QuestionPresentationType): boolean {
+  return type === 'image-choice' || type === 'person' || type === 'image-reveal'
+}
 
 /** Wie ein Versuch bewertet wird. */
 export const evaluationModes = ['option-comparison', 'manual-correct-incorrect'] as const
@@ -159,13 +183,13 @@ export type DifficultyPreset = z.infer<typeof difficultyPresetSchema>
  * Modus-Sonderbehandlung, die die Spezifikation ausschliesst. So waehlt die
  * Konfiguration die Welt, und ein neuer Modus bekommt sie ohne Codeaenderung.
  */
-export const themeSkins = ['stage', 'kids'] as const
+export const themeSkins = ['default', 'kids'] as const
 export type ThemeSkin = (typeof themeSkins)[number]
 
 export const quizThemeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  /** Gestaltungswelt. Fehlt sie, gilt die dunkle Buehne. */
+  /** Gestaltungswelt: `default` oder `kids`. Fehlt sie, gilt `default`. */
   skin: z.enum(themeSkins).optional(),
   /** CSS-Custom-Properties ohne fuehrende Bindestriche, z. B. `accent`. */
   colors: z.record(z.string(), z.string()),

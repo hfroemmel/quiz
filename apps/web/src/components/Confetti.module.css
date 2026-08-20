@@ -1,0 +1,19 @@
+/* Konfetti: Vollflaechengrafik ueber der Szene, ohne Platz zu nehmen. */
+.confetti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/*
+ * Bei reduzierter Bewegung entfaellt das Konfetti ganz. Es traegt keine
+ * Information - wer Bewegung meidet, verliert nichts.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}

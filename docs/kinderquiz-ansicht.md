@@ -26,25 +26,39 @@ Die Welt haengt am **Theme**, nicht am Modusnamen:
 { "id": "kids", "skin": "kids", "colors": { … } }
 ```
 
-`quizThemeSchema.skin` (`stage` | `kids`) wird ueber das View-Modell an die
-Buehne durchgereicht. `StageScreen` liest `view.theme.skin` - im Client steht
-nirgends ein Modusname. Ein weiterer Modus bekommt die Kinderwelt damit ohne
-Codeaenderung.
+`quizThemeSchema.skin` (`default` | `kids`) wird ueber das View-Modell an die
+Buehne durchgereicht. `StageScreen` macht daraus die EINZIGE Klasse, in der sich
+die beiden Welten unterscheiden:
+
+```text
+.stage.stage--default   .stage.stage--kids
+```
+
+Im Client steht nirgends ein Modusname, und es gibt keine kinderspezifischen
+Komponenten mehr: Kopfzeile, Fragetafel und Antwortzeilen sind dieselben
+Bauteile wie auf der Buehne der Erwachsenen. Jedes Bauteil bringt beide Welten
+in seinem eigenen CSS-Modul mit (`:global(.stage--kids)`). Ein weiterer Modus
+bekommt die Kinderwelt damit ohne Codeaenderung.
 
 ## 3. Dateien
 
 ```text
 apps/web/public/assets/kinderquiz/     Assetpaket (boxes/, characters/, fonts/)
-apps/web/src/styles/kids.css           Farben, Layout, Zustaende, Breakpoints
-apps/web/src/presentation/kids/
-├── kidsAssets.ts                      einzige Stelle mit Assetpfaden
-├── answerVisualState.ts               einzige Ableitung des Antwortzustands
-├── KidsSurface.tsx                    gezeichnete Flaeche hinter beliebigem Inhalt
-├── KidsQuizScreen.tsx                 Komposition, Szenenabdeckung
-├── QuizHeader.tsx                     Wortmarke, Spielerkarten, Fragenzaehler
-├── QuestionStage.tsx                  Fragebild, Fragepanel, Karlchen
-└── AnswerList.tsx                     Antwortzeilen (eine Komponente fuer alle vier)
+apps/web/src/styles/stage.css          Wurzelklassen und Token beider Welten
+apps/web/src/presentation/stage/
+├── StageHeader.tsx / .module.css      Wortmarke, Spielerkarten, Fragenzaehler
+├── Score.tsx / .module.css            Punktekarte
+├── Counter.tsx / .module.css          Fragenzaehler
+├── QuestionHead.tsx / .module.css     Fragebild und Fragetafel
+├── Media.tsx / .module.css            Bildrahmen samt hervorschauender Figur
+├── AnswerList.tsx / .module.css       Antwortzeilen
+├── Mascot.tsx / .module.css           Figurenebene
+├── answerState.ts                     einzige Ableitung des Antwortzustands
+└── kidsAssets.ts                      Liste der vorzuladenden Zeichnungen
 ```
+
+Die Adressen der Zeichnungen stehen in den Stylesheets der Bauteile, nicht im
+Markup: Welche Zeichnung ein Zustand traegt, ist eine Frage der Gestaltung.
 
 ## 4. Ebenen
 
@@ -133,9 +147,10 @@ geben nichts her - sie sind der Inhalt, um den es geht.
 ### Masseinheiten
 
 Das Assetpaket nennt seine Werte in `vw`/`vh` und meint den Buehnenscreen im
-Vollbild. Umgesetzt sind sie in `cqw`/`cqh`: Bei Vollbild ist das derselbe Wert,
-und zusaetzlich stimmt die Komposition in der kleinen Operatorvorschau. Kein Wert
-wird doppelt gepflegt.
+Vollbild. Umgesetzt sind sie als REINE Containermasse (`cqw`/`cqh`, ohne
+`clamp`-Grenzen): Bei Vollbild ist das derselbe Wert, jede kleinere Buehne -
+auch die Operatorvorschau - ist eine exakt proportionale Verkleinerung. Kein
+Wert wird doppelt gepflegt, und kein Pixeldeckel verschiebt die Komposition.
 
 ### Schmalere Ansichten
 
@@ -190,10 +205,14 @@ Fuer die Belastungsprobe hat die Entwicklungsvorschau den Schalter
 
 ## 9. Offene Punkte
 
-1. **Nur Frage und Loesung sind gestaltet.** Pausenscreen, Rueckmeldung,
-   Enthuellung, Video, Start und Ergebnis behalten ihre gemeinsame Komposition
-   und stehen auf dem illustrierten Grund mit Papierfarben. Das Boxen-Paket
-   enthaelt fuer diese Szenen keine Vorlagen.
+1. **Frage und Loesung haben eigene Komponenten.** Pausenscreen, Rueckmeldung,
+   Enthuellung, Video, Start und Ergebnis behalten ihre gemeinsame Komposition,
+   sind aber in der Kinderwelt umgezeichnet (`kids.css`, Abschnitt "Kopfzeile
+   der gemeinsamen Szenen"): Spielergruppen und Fragezaehler tragen die
+   Kartenzeichnungen per `border-image`, das Enthuellungsfoto steht im
+   gezeichneten Portraetrahmen (die Unschaerfe haelt ein `clip-path` im
+   Rahmen), der Hinweis zur zweiten Chance ist der gelbe Chip, und die grossen
+   Ergebniskacheln stehen auf Papier.
 2. **Ein einziger Radius bleibt**: der Beschnitt des Fragefotos
    (`.kids-media__image`). Er ist aus der Innenkontur von `media-frame.svg`
    abgelesen und verhindert, dass rechtwinklige Fotoecken aus der gerundeten

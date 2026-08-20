@@ -1,0 +1,117 @@
+/* ------------------------------------------------------------------ *
+ * Buttons
+ * ------------------------------------------------------------------ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius);
+  background: var(--ui-control);
+  color: var(--ui-text);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+  text-decoration: none;
+}
+.button:hover:not(:disabled) {
+  border-color: var(--ui-accent);
+}
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.button--primary {
+  background: var(--ui-accent);
+  color: var(--ui-text);
+  border-color: transparent;
+  font-weight: 700;
+}
+.button--large {
+  padding: 16px 24px;
+  font-size: 1.05rem;
+}
+.button--tiny {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+.button--correct {
+  border-color: var(--ui-correct);
+}
+.button--incorrect {
+  border-color: var(--ui-incorrect);
+}
+.button--selected {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+.button--option {
+  /* Traegt nur den Buchstaben - der Antworttext steht auf der Buehne. */
+  justify-content: space-between;
+  align-items: center;
+}
+.button__marker {
+  display: inline-grid;
+}
+.button__flag {
+  margin-left: auto;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ui-correct);
+}
+
+/* ------------------------------------------------------------------ *
+ * Formularfelder
+ * ------------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.field > span {
+  font-size: 0.85rem;
+  color: var(--ui-text-muted);
+}
+select {
+  /*
+   * Eigener Chevron statt des Systempfeils: Nur so laesst sich der Abstand zum
+   * Rand steuern - der Systempfeil klebt sonst am Rahmen.
+   */
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 20px top 55%,
+    right 14px top 55%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--ui-border);
+  /* `background-color`, nicht `background`: Die Kurzform wuerde das Chevron
+     der Auswahlfelder wieder entfernen. */
+  background-color: var(--ui-input);
+}
+.field select {
+  padding-right: 40px;
+}
+.field--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
