@@ -9,10 +9,15 @@
  * `allowedCommands` des View-Modells abgeleitet.
  */
 import { z } from 'zod'
-import { playerCounts, playerIds, type PlayerCount, type PlayerId } from './state.ts'
+import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state.ts'
 import { patchableQuestionFieldsSchema } from './content.ts'
 
-export const actorRoles = ['operator', 'moderator', 'system', 'buzzer'] as const
+/**
+ * `player` ist die Rolle der Spieler am Touchgeraet. Sie darf genau zwei Dinge:
+ * ein Selbstbedienungsspiel beginnen oder beenden und eine Antwort antippen.
+ * Kein Einloggen, kein Aufloesen, kein Weiterschalten - das sind Operatorrechte.
+ */
+export const actorRoles = ['operator', 'moderator', 'system', 'buzzer', 'player'] as const
 export type ActorRole = (typeof actorRoles)[number]
 
 const playerIdSchema = z.enum(playerIds as unknown as [PlayerId, ...PlayerId[]])
@@ -36,6 +41,8 @@ export const commandSchema = z.discriminatedUnion('type', [
     playerCount: playerCountSchema.optional(),
     /** Beschriftungen in Spielerreihenfolge. Fehlende Eintraege werden ergaenzt. */
     playerLabels: z.array(z.string().min(1)).min(1).max(playerCounts.length).optional(),
+    /** Ohne Angabe wird ein vom Operator gesteuertes Spiel gestartet. */
+    flowProfile: z.enum(flowProfiles).optional(),
   }),
   /** Buzzer fuer die aktuelle Frage freigeben. */
   z.object({ type: z.literal('OPEN_BUZZER') }),
@@ -45,6 +52,19 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('SELECT_PLAYER_MANUALLY'), playerId: playerIdSchema }),
   /** Genannte Multiple-Choice-Option einloggen (Bewertung `option-comparison`). */
   z.object({ type: z.literal('LOG_OPTION_ANSWER'), optionId: z.string().min(1) }),
+  /**
+   * Selbstbedienung: Ein Spieler tippt seine Antwort selbst an.
+   *
+   * Der Befehl fasst bewusst zusammen, was beim Operator drei Schritte sind -
+   * Zuschlag, Einloggen, Auswerten. Sonst entschiede beim gleichzeitigen Tippen
+   * zweier Spieler nicht der erste Griff, sondern die Laufzeit dreier Nachrichten.
+   * Der Server entscheidet damit in EINER Transaktion, wer die Frage bekommt.
+   */
+  z.object({
+    type: z.literal('ANSWER_BY_PLAYER'),
+    playerId: playerIdSchema,
+    optionId: z.string().min(1),
+  }),
   /** Muendliche Antwort manuell bewerten (Bewertung `manual-correct-incorrect`). */
   z.object({ type: z.literal('MARK_MANUAL_ANSWER'), verdict: z.enum(['correct', 'incorrect']) }),
   /** Den eingeloggten Versuch verbindlich auswerten und Punkte buchen. */
@@ -142,11 +162,12 @@ export type CommandEnvelope = z.infer<typeof commandEnvelopeSchema>
  * ausschliesslich beim Operator.
  */
 export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
-  START_GAME: ['operator'],
+  START_GAME: ['operator', 'player'],
   OPEN_BUZZER: ['operator', 'moderator'],
   BUZZ: ['operator', 'buzzer'],
   SELECT_PLAYER_MANUALLY: ['operator'],
   LOG_OPTION_ANSWER: ['operator'],
+  ANSWER_BY_PLAYER: ['player'],
   MARK_MANUAL_ANSWER: ['operator'],
   RESOLVE_ATTEMPT: ['operator', 'moderator'],
   RESOLVE_WITHOUT_ANSWER: ['operator', 'moderator'],
@@ -161,12 +182,12 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   SEEK_VIDEO: ['operator'],
   RESTART_VIDEO: ['operator'],
   SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator'],
-  REPORT_VIDEO_STATUS: ['operator', 'system'],
+  REPORT_VIDEO_STATUS: ['operator', 'system', 'player'],
   ADJUST_SCORE: ['operator'],
   CONTINUE: ['operator', 'moderator'],
-  ABORT_GAME: ['operator'],
+  ABORT_GAME: ['operator', 'player'],
   SKIP_QUESTION: ['operator'],
-  SET_SOUND_ENABLED: ['operator'],
+  SET_SOUND_ENABLED: ['operator', 'player'],
   ADVANCE_TIMED_PHASE: ['system', 'operator'],
   RESUME_GAME: ['operator'],
   DISCARD_RESUMABLE_GAME: ['operator'],
@@ -200,6 +221,9 @@ export const revisionExemptCommands: ReadonlySet<CommandType> = new Set<CommandT
   // Physisches Buzzerereignis bzw. dessen manueller Fallback.
   'BUZZ',
   'SELECT_PLAYER_MANUALLY',
+  // Der Fingertipp auf eine Antwort ist genauso ein physisches Ereignis: Der
+  // Spieler entscheidet nach dem, was er sieht, nicht nach einer Revision.
+  'ANSWER_BY_PLAYER',
   // Serverinterner Timer; gegen Doppelausloesung schuetzt die `transitionId`.
   'ADVANCE_TIMED_PHASE',
   // Reine Statusmeldung des Mediums, keine Spielentscheidung.
@@ -220,6 +244,7 @@ export const commandRejectionReasons = [
   'buzzer-closed',
   'player-locked',
   'buzzer-already-taken',
+  'wrong-flow-profile',
   'no-pending-attempt',
   'attempt-already-resolved',
   'answer-not-logged',

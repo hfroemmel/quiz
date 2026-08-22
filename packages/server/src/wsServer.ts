@@ -37,7 +37,7 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
     }
 
     const requestedRole = url.searchParams.get('role') ?? 'stage'
-    const role: ClientRole = ['operator', 'moderator', 'stage'].includes(requestedRole)
+    const role: ClientRole = ['operator', 'moderator', 'stage', 'player'].includes(requestedRole)
       ? (requestedRole as ClientRole)
       : 'stage'
 
@@ -62,6 +62,8 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
   function register(socket: WebSocket, role: ClientRole, local: boolean): void {
     const connection: Connection = { socket, clientId: `${role}-${randomUUID()}`, role, audioMaster: false, isLocal: local }
     connections.add(connection)
+    // Der Buehnenclient handelt nie selbst; seine wenigen Meldungen sind
+    // Systemmeldungen. Alle anderen Rollen gibt es auch als Akteur.
     service.registerClient(connection.clientId, role === 'stage' ? 'system' : role)
     assignAudioMaster()
 

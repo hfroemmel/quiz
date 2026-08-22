@@ -119,6 +119,81 @@ describe('Befehl, Transaktion und Verteilung', () => {
   })
 })
 
+describe('Selbstbedienung am Geraet', () => {
+  /** Startet ein Selbstbedienungsspiel so, wie es der Touchclient tut. */
+  function startSelfService(target: TestRig): void {
+    const result = target.send(
+      { type: 'START_GAME', quizModeId: 'adults', presetId: 'medium', flowProfile: 'self-service' },
+      'player',
+    )
+    expect(result.ok).toBe(true)
+    target.settle()
+  }
+
+  it('laesst einen Spieler kein vom Operator gesteuertes Spiel starten', () => {
+    const target = rig()
+    const result = target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }, 'player')
+
+    expect(result.ok).toBe(false)
+    expect(result.rejection?.reason).toBe('wrong-flow-profile')
+  })
+
+  it('laesst einen Spieler keine Antwort einloggen und nichts auswerten', () => {
+    const target = rig()
+    startSelfService(target)
+
+    for (const command of [
+      { type: 'LOG_OPTION_ANSWER', optionId: 'option_1' },
+      { type: 'RESOLVE_ATTEMPT' },
+      { type: 'CONTINUE' },
+      { type: 'ADJUST_SCORE', playerId: 'player-1', direction: 'increase' },
+    ] as const) {
+      const result = target.send(command, 'player')
+      expect(result.ok, command.type).toBe(false)
+      expect(result.rejection?.reason, command.type).toBe('forbidden-role')
+    }
+  })
+
+  it('laesst den Operator keine Antwort antippen', () => {
+    const target = rig()
+    startSelfService(target)
+
+    const result = target.send({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'option_1' })
+    expect(result.ok).toBe(false)
+    expect(result.rejection?.reason).toBe('forbidden-role')
+  })
+
+  it('gibt der Spieleransicht die moeglichen Befehle, aber nie die Loesung', () => {
+    const target = rig()
+    startSelfService(target)
+
+    const player = target.service.snapshotFor('player')
+    expect(player.allowedCommands).toContain('ANSWER_BY_PLAYER')
+    expect(player.allowedCommands).not.toContain('RESOLVE_ATTEMPT')
+    // Dieselbe Sicherheitsregel wie beim Buehnenscreen.
+    expect(player.visibleSolution).toBeUndefined()
+    expect(JSON.stringify(player)).not.toContain('privateSolution')
+    expect(player.visibleOptions?.every((option) => option.state === undefined)).toBe(true)
+  })
+
+  it('spielt eine Frage ohne einen einzigen Operatorbefehl bis zur Loesung durch', () => {
+    const target = rig()
+    startSelfService(target)
+
+    const question = target.service.authoritativeState!.currentQuestion!.question
+    const result = target.send(
+      { type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: question.correctOptionId! },
+      'player',
+    )
+    expect(result.ok).toBe(true)
+    expect(target.service.authoritativeState!.players[0]!.score).toBe(100)
+
+    // Punkte, Versuch und Protokoll liegen in derselben Transaktion wie sonst auch.
+    expect(target.store.countRows('score_transactions')).toBe(1)
+    expect(target.store.countRows('attempts')).toBe(1)
+  })
+})
+
 describe('Rollenabhaengige View-Modelle', () => {
   it('sendet dem Buehnenscreen niemals die Loesung, bevor sie oeffentlich ist', () => {
     const target = rig()

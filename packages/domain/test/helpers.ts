@@ -8,6 +8,7 @@
 import {
   gameTiming,
   type Command,
+  type FlowProfile,
   type GameState,
   type PlayerCount,
   type Question,
@@ -154,15 +155,21 @@ export function createHarness(
  * Ohne Angabe entsteht ein Duell - genau wie im Buehnenbetrieb, der die
  * Spielerzahl nicht mitschickt.
  */
-export function startGame(harness: Harness, options: { playerCount?: PlayerCount; playerLabels?: string[] } = {}): GameState {
+export function startGame(
+  harness: Harness,
+  options: { playerCount?: PlayerCount; playerLabels?: string[]; flowProfile?: FlowProfile } = {},
+): GameState {
   harness.dispatch({
     type: 'START_GAME',
     quizModeId: 'adults',
     presetId: 'medium',
     ...(options.playerCount === undefined ? {} : { playerCount: options.playerCount }),
     ...(options.playerLabels === undefined ? {} : { playerLabels: options.playerLabels }),
+    ...(options.flowProfile === undefined ? {} : { flowProfile: options.flowProfile }),
   })
-  harness.settle()
+  // Nur den Pausenscreen ablaufen lassen. Bei Selbstbedienung wuerde `settle()`
+  // das ganze Spiel durchspielen, weil dort jeder Uebergang eingeplant ist.
+  harness.advance(gameTiming.pauseScreenMs)
   return harness.state!
 }
 

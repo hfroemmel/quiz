@@ -25,6 +25,8 @@ import {
   type GamePhase,
   type GameState,
   type PrivateSolution,
+  type ActorRole,
+  type PlayerQuizViewModel,
 } from '@quiz/contracts'
 import { activePlayerId } from './buzzer.ts'
 import { allowedCommandsForRole } from './allowedCommands.ts'
@@ -41,7 +43,7 @@ export interface ProjectionContext {
   /** Begruendung der aktuellen Fragenauswahl - nur fuer Operator-Diagnose. */
   selectionRationale?: string
   auditSummary?: AuditEntry[]
-  connectedClients?: { role: 'operator' | 'moderator' | 'system' | 'buzzer'; clientId: string }[]
+  connectedClients?: { role: ActorRole; clientId: string }[]
   sessionCode?: string
   lanUrls?: string[]
   warnings?: string[]
@@ -177,6 +179,21 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     revision: state.revision,
   }
   return view
+}
+
+/**
+ * Ansicht der Spieler am Touchgeraet.
+ *
+ * SICHERHEITSREGEL wie beim Buehnenscreen: Es ist die oeffentliche Ansicht. Die
+ * Loesung wird erst in der Loesungsszene uebertragen, Erklaerungen und
+ * Regiehinweise nie. Dazu kommt allein die Liste der jetzt moeglichen Befehle,
+ * damit der Touchclient seine Bedienbarkeit nicht selbst herleitet.
+ */
+export function projectPlayer(state: GameState | null, ctx: ProjectionContext): PlayerQuizViewModel {
+  return {
+    ...projectPublic(state, ctx),
+    allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
+  }
 }
 
 export function projectModerator(state: GameState | null, ctx: ProjectionContext): ModeratorQuizViewModel {

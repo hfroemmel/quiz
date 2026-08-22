@@ -61,6 +61,31 @@ darf. Im Einzelspiel gibt es ihn nicht, deshalb folgt dort nach dem Fehlversuch
 sofort `solution`. Entschieden wird das an genau einer Stelle -
 `eligibleOpponent` in `packages/domain/src/buzzer.ts`.
 
+### Steuerprofil
+
+`START_GAME` traegt optional `flowProfile`; ohne Angabe steuert ein Operator
+(`operated`). Die Phasen sind in beiden Profilen dieselben - es gibt keine zweite
+Zustandsmaschine. Unterschiedlich ist nur, wer einen Uebergang ausloest:
+
+| Stelle | `operated` | `self-service` |
+|---|---|---|
+| Frage erscheint | Operator gibt den Buzzer frei | Einstiegsphase ist bereits `buzzer-open` |
+| Antwort | Operator loggt ein und loest auf | ein Fingertipp: `ANSWER_BY_PLAYER` wertet sofort aus |
+| nach der Loesung | Operator drueckt `Weiter` | eingeplanter Uebergang nach `solutionHoldMs` |
+| Videofrage | Operator startet und blendet um | startet nach `videoLeadInMs`, die Frage folgt aus der gemeldeten Laufzeit |
+
+Alle automatischen Uebergaenge nutzen dieselbe Mechanik wie Feedback und
+Pausenscreen: `pendingTransition` mit serverseitiger Fallbackzeit. Eine
+ausbleibende Meldung eines Browsers kann den Ablauf deshalb nicht anhalten.
+
+Der Uebergang aus `solution` ist dabei kein Phasenwechsel, sondern dieselbe
+Entscheidung wie `CONTINUE`: naechste Frage ziehen oder Ergebnis zeigen.
+
+Fragen, die nur ein Mensch bewerten kann (`manual-correct-incorrect`), koennen am
+Geraet nicht aufgeloest werden. Wird eine solche Frage im Selbstbedienungsbetrieb
+gezogen, zieht der Server einen Ersatz und protokolliert das. Verhindern soll das
+die Inhaltsvalidierung; diese Stelle ist das Sicherheitsnetz.
+
 Auch das Ergebnis haengt an der Spielerzahl: Im Duell gewinnt der hoehere
 Punktestand (bei Gleichstand Unentschieden), im Einzelspiel gibt es weder Gewinner
 noch Unentschieden, sondern Punktestand und Trefferzahl. Welche Fassung gilt, sagt

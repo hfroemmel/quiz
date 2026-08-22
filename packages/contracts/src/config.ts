@@ -51,6 +51,29 @@ export const gameTiming = {
   pauseScreenMs: 1_200,
 } as const
 
+/**
+ * Timings, die es nur im Selbstbedienungsprofil gibt.
+ *
+ * Sie ersetzen genau die Stellen, an denen sonst ein Mensch weiterschaltet. Sie
+ * sind deshalb fachlich relevant und stehen hier - nicht in der Praesentation.
+ */
+export const selfServiceTiming = {
+  /**
+   * Wie lange die Loesung stehen bleibt, bevor es von selbst weitergeht.
+   *
+   * Lang genug, um die richtige Antwort zu lesen, kurz genug, dass niemand vor
+   * einem stehenden Bildschirm wartet.
+   */
+  solutionHoldMs: 4_000,
+  /** Kurzer Vorlauf, bevor ein Video von selbst startet. */
+  videoLeadInMs: 500,
+  /**
+   * Wie lange nach dem Ende eines Videos die Frage erscheint. Der Server plant den
+   * Wechsel aus der gemeldeten Laufzeit; dieser Zuschlag deckt Ausspielverzoegerungen ab.
+   */
+  videoTailMs: 400,
+} as const
+
 /** Parameter des Auswahlalgorithmus (Spezifikation 17.2). */
 export const selectionTuning = {
   /** Mindestgroesse des Kandidatenfensters unter den am laengsten nicht genutzten Fragen. */
@@ -80,3 +103,4 @@ export const contentThresholds = {
 
 export type ScoringRules = typeof scoringRules
 export type GameTiming = typeof gameTiming
+export type SelfServiceTiming = typeof selfServiceTiming

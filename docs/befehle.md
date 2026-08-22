@@ -11,7 +11,7 @@ Beide werten `allowedCommands` aus dem View-Modell aus.
 interface CommandEnvelope {
   commandId: string        // eindeutig; Wiederholungen werden idempotent beantwortet
   command: Command         // diskriminierte Union
-  actor: { clientId: string; role: 'operator' | 'moderator' | 'system' | 'buzzer' }
+  actor: { clientId: string; role: 'operator' | 'moderator' | 'system' | 'buzzer' | 'player' }
   expectedRevision: number // Revision, auf der der Client entschieden hat
   issuedAtClient?: string
 }
@@ -27,22 +27,29 @@ interface CommandEnvelope {
 6. Zustand, Punktebuchung, Nutzung und Auditlog in EINER Transaktion speichern
 7. Revision erhoehen und rollenabhaengige Snapshots verteilen
 
-## Spielerzahl
+## Spielerzahl und Steuerprofil
 
-`START_GAME` traegt optional `playerCount` (1 oder 2) und `playerLabels`. Ohne
-Angabe entsteht ein Duell; der Buehnenbetrieb schickt die Spielerzahl deshalb
-nicht mit. Die Auswirkungen stehen in
+`START_GAME` traegt optional `playerCount` (1 oder 2), `playerLabels` und
+`flowProfile` (`operated` oder `self-service`). Ohne Angabe entsteht ein Duell,
+das ein Operator steuert; der Buehnenbetrieb schickt deshalb nichts davon mit.
+Die Auswirkungen stehen in
 [zustandsmaschine.md](zustandsmaschine.md#spielerzahl).
+
+Die Rolle `player` darf ausdruecklich nur Spiele in Selbstbedienung starten. Das
+prueft die Anwendungsschicht (`@quiz/runtime`), nicht die Oberflaeche: Ein Spiel,
+das auf einen Operator wartet, den es am Geraet nicht gibt, waere sonst
+startbar.
 
 ## Tabelle
 
 | Befehl | erlaubte Rollen | Revisionspruefung |
 |---|---|---|
-| `START_GAME` | operator | ja |
+| `START_GAME` | operator, player | ja |
 | `OPEN_BUZZER` | operator, moderator | ja |
 | `BUZZ` | operator, buzzer | nein |
 | `SELECT_PLAYER_MANUALLY` | operator | nein |
 | `LOG_OPTION_ANSWER` | operator | ja |
+| `ANSWER_BY_PLAYER` | player | nein |
 | `MARK_MANUAL_ANSWER` | operator | ja |
 | `RESOLVE_ATTEMPT` | operator, moderator | ja |
 | `RESOLVE_WITHOUT_ANSWER` | operator, moderator | ja |
@@ -57,12 +64,12 @@ nicht mit. Die Auswirkungen stehen in
 | `SEEK_VIDEO` | operator | ja |
 | `RESTART_VIDEO` | operator | ja |
 | `SHOW_QUESTION_AFTER_VIDEO` | operator, moderator | ja |
-| `REPORT_VIDEO_STATUS` | operator, system | nein |
+| `REPORT_VIDEO_STATUS` | operator, system, player | nein |
 | `ADJUST_SCORE` | operator | ja |
 | `CONTINUE` | operator, moderator | ja |
-| `ABORT_GAME` | operator | ja |
+| `ABORT_GAME` | operator, player | ja |
 | `SKIP_QUESTION` | operator | ja |
-| `SET_SOUND_ENABLED` | operator | ja |
+| `SET_SOUND_ENABLED` | operator, player | ja |
 | `ADVANCE_TIMED_PHASE` | system, operator | nein |
 | `RESUME_GAME` | operator | ja |
 | `DISCARD_RESUMABLE_GAME` | operator | ja |
@@ -82,7 +89,15 @@ Freigabe und Spielersperre werden bei jedem Ereignis frisch geprueft, und nach d
 ersten angenommenen Buzzer wird jeder weitere abgewiesen.
 
 Ausgenommen sind ausschliesslich `BUZZ`, `SELECT_PLAYER_MANUALLY`,
-`ADVANCE_TIMED_PHASE` (durch `transitionId` geschuetzt) und `REPORT_VIDEO_STATUS`.
+`ANSWER_BY_PLAYER`, `ADVANCE_TIMED_PHASE` (durch `transitionId` geschuetzt) und
+`REPORT_VIDEO_STATUS`.
+
+`ANSWER_BY_PLAYER` steht aus demselben Grund auf dieser Liste: Ein Fingertipp ist
+ein physisches Ereignis. Der Befehl fasst zusaetzlich zusammen, was beim Operator
+drei Schritte sind - Zuschlag, Einloggen, Auswerten. Sonst entschiede beim
+gleichzeitigen Tippen zweier Spieler nicht der erste Griff, sondern die Laufzeit
+dreier Nachrichten. Ueber den Zuschlag urteilt dieselbe Funktion wie beim
+Hardware-Buzzer (`evaluateBuzz`); es gibt keine zweite Fairnessregel.
 
 ## Rollen im Klartext
 
@@ -101,6 +116,14 @@ zuruecksetzen. Moderatoraktionen erscheinen im Operatorprotokoll.
 **Buehnenclients** duerfen ueberhaupt keine Steuerbefehle senden. Einzige Ausnahme ist
 `REPORT_VIDEO_STATUS`, damit ein Medienfehler den Operator erreicht.
 
+**Spieler** (Touchgeraet, nur auf dem Geraet selbst erreichbar) duerfen genau das,
+was Spieler brauchen: ein Selbstbedienungsspiel beginnen und beenden, eine Antwort
+antippen, den Ton schalten und den Medienstatus melden. Sie duerfen **nicht**
+einloggen, bewerten, aufloesen, weiterschalten, Punkte korrigieren oder Fragen
+ueberspringen - diese Schritte gibt es in ihrem Ablauf nicht, weil der Server sie
+selbst einplant. Die Spieleransicht bekommt dieselben oeffentlichen Daten wie der
+Buehnenscreen; die Loesung erreicht sie erst in der Loesungsszene.
+
 ## Ablehnungsgruende
 
 | Grund | Bedeutung |
@@ -108,6 +131,7 @@ zuruecksetzen. Moderatoraktionen erscheinen im Operatorprotokoll.
 | `invalid-payload` | Schema oder Referenz ungueltig |
 | `forbidden-role` | Rolle darf diesen Befehl nicht ausloesen |
 | `revision-conflict` | Der Spielstand hat sich inzwischen geaendert |
+| `wrong-flow-profile` | Der Befehl passt nicht zum Steuerprofil des Spiels |
 | `invalid-phase` | In dieser Phase gibt es diese Aktion nicht |
 | `no-active-game` | Es laeuft kein Spiel |
 | `buzzer-closed` / `buzzer-already-taken` / `player-locked` | Buzzerregeln |

@@ -4,7 +4,7 @@
  * Alle Tests laufen ohne Electron, React oder echte Systemzeit.
  */
 import { describe, expect, it } from 'vitest'
-import { gameTiming, scoringRules } from '@quiz/contracts'
+import { gameTiming, scoringRules, selfServiceTiming } from '@quiz/contracts'
 import { buzzIn, createHarness, makeQuestion, startGame } from './helpers.ts'
 import { determineResult } from '../src/scoring.ts'
 import { availableCommands } from '../src/allowedCommands.ts'
@@ -588,6 +588,160 @@ describe('Einzelspiel', () => {
     harness.settle()
 
     expect(determineResult(harness.state!).solo).toEqual({ correctAnswers: 1, questionCount: 1 })
+  })
+})
+
+describe('Selbstbedienung', () => {
+  const selfService = { flowProfile: 'self-service' } as const
+
+  it('oeffnet die Antwortflaechen ohne Freigabe durch einen Operator', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    expect(harness.state!.phase).toBe('buzzer-open')
+    expect(harness.state!.buzzer.open).toBe(true)
+  })
+
+  it('wertet eine angetippte Antwort sofort aus', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+
+    // Zuschlag, Einloggen und Auswerten in einem Schritt: direkt die Feedbackphase.
+    expect(harness.state!.phase).toBe('attempt-feedback')
+    expect(harness.state!.players[0]!.score).toBe(scoringRules.firstAnswerPoints)
+    // Das Protokoll haelt fest, wie der Zuschlag zustande kam.
+    expect(harness.events.some((event) => event.category === 'buzzer' && event.message.includes('Antippen'))).toBe(true)
+
+    harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
+    expect(harness.state!.phase).toBe('solution')
+  })
+
+  it('der zweite Fingertipp im selben Moment wird abgewiesen', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'b' })
+    const rejection = harness.expectReject({ type: 'ANSWER_BY_PLAYER', playerId: 'player-2', optionId: 'a' })
+
+    expect(rejection.reason).toBe('buzzer-already-taken')
+    // Der zweite Spieler bekommt keine Punkte fuer den zu spaeten Tipp.
+    expect(harness.state!.players[1]!.score).toBe(0)
+  })
+
+  it('die zweite Chance gehoert dem anderen Spieler und nur ihm', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'b' })
+    harness.advance(gameTiming.incorrectFeedbackMs)
+    expect(harness.state!.phase).toBe('second-chance')
+
+    const rejection = harness.expectReject({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    expect(rejection.reason).toBe('player-locked')
+
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-2', optionId: 'a' })
+    expect(harness.state!.players[1]!.score).toBe(scoringRules.secondChancePoints)
+  })
+
+  it('schaltet nach der Loesung von selbst zur naechsten Frage', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
+    expect(harness.state!.phase).toBe('solution')
+    expect(harness.state!.currentSlotIndex).toBe(0)
+
+    harness.advance(selfServiceTiming.solutionHoldMs)
+    expect(harness.state!.currentSlotIndex).toBe(1)
+    expect(harness.state!.phase).toBe('pause-screen')
+
+    harness.advance(gameTiming.pauseScreenMs)
+    expect(harness.state!.phase).toBe('buzzer-open')
+  })
+
+  it('erreicht die Ergebnisansicht ohne einen einzigen Operatorbefehl', () => {
+    const harness = createHarness([normalQuestion('q1'), normalQuestion('q2')])
+    startGame(harness, selfService)
+
+    for (let question = 0; question < 2; question += 1) {
+      harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+      harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
+      harness.advance(selfServiceTiming.solutionHoldMs)
+      harness.advance(gameTiming.pauseScreenMs)
+    }
+
+    expect(harness.state!.phase).toBe('result')
+    expect(harness.state!.status).toBe('completed')
+    expect(harness.state!.players[0]!.score).toBe(2 * scoringRules.firstAnswerPoints)
+  })
+
+  it('bietet keine Operatorbefehle an', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    const commands = availableCommands(harness.state)
+    expect(commands).toContain('ANSWER_BY_PLAYER')
+    expect(commands).not.toContain('OPEN_BUZZER')
+    expect(commands).not.toContain('LOG_OPTION_ANSWER')
+    expect(commands).not.toContain('RESOLVE_ATTEMPT')
+    expect(commands).not.toContain('CONTINUE')
+    expect(commands).not.toContain('ADJUST_SCORE')
+  })
+
+  it('ein vom Operator gesteuertes Spiel nimmt keine angetippten Antworten an', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    harness.dispatch({ type: 'OPEN_BUZZER' })
+
+    const rejection = harness.expectReject({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    expect(rejection.reason).toBe('wrong-flow-profile')
+  })
+
+  it('ueberspringt Fragen, die ein Mensch bewerten muesste, und protokolliert das', () => {
+    const harness = createHarness([revealQuestion('muendlich-1')], { spare: [normalQuestion('ersatz-1')] })
+    startGame(harness, selfService)
+
+    expect(harness.state!.currentQuestion!.question.id).toBe('ersatz-1')
+    expect(harness.events.some((event) => event.message.includes('muendlich-1'))).toBe(true)
+  })
+
+  it('weist den Start ab, wenn keine beantwortbare Frage uebrig bleibt', () => {
+    const harness = createHarness([revealQuestion('muendlich-1')])
+    const rejection = harness.expectReject({
+      type: 'START_GAME',
+      quizModeId: 'adults',
+      presetId: 'medium',
+      flowProfile: 'self-service',
+    })
+    expect(rejection.reason).toBe('no-candidate-question')
+  })
+
+  it('startet das Video von selbst und blendet danach die Frage ein', () => {
+    const harness = createHarness([videoQuestion('video-1')])
+    startGame(harness, selfService)
+    expect(harness.state!.phase).toBe('video-ready')
+
+    harness.advance(selfServiceTiming.videoLeadInMs)
+    expect(harness.state!.phase).toBe('video-playing')
+
+    // Der Client meldet die Laufzeit; daraus plant der Server den Wechsel.
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    harness.advance(5_000 + selfServiceTiming.videoTailMs)
+
+    expect(harness.state!.phase).toBe('buzzer-open')
+    expect(harness.state!.video!.status).toBe('ended')
+  })
+
+  it('blendet die Frage sofort ein, wenn das Video nicht abgespielt werden kann', () => {
+    const harness = createHarness([videoQuestion('video-1')])
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
+    harness.advance(0)
+
+    expect(harness.state!.phase).toBe('buzzer-open')
   })
 })
 

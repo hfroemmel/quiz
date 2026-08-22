@@ -262,7 +262,7 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 | **0** | `packages/presentation` herausloesen, `apps/web` umstellen — **erledigt** | reine Verschiebung; `pnpm typecheck`, `pnpm test` (108) und `pnpm test:e2e` (32) unveraendert gruen |
 | **1** | `packages/runtime` aus `packages/server` herausloesen — **erledigt** | `packages/server` haengt nur noch als Transportadapter dran; keine Verhaltensaenderung |
 | **2** | Spielerzahl 1-2 im Kern (Contracts, Engine, Projektion, Szenen) — **erledigt** | neue Domaintests: Einzelspieler ohne zweite Chance, Solo-Ergebnis; Buehne weiterhin zweispielrig |
-| **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
+| **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge — **erledigt** | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
 | **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
 | **5** | `apps/kiosk`: Electron-Vollbild, Attract-Screen, Leerlauf-Aufsicht, Inhaltsfilter fuer Selbstbedienung, `image-reveal` freischalten | Geraet spielt einen Tag durch, ohne dass jemand eingreift |
 | **6** | Einbettungsvertrag haerten (CSS-Kapselung, Lebenszyklus, Pause, `onFinished`), Beispielshell als erster fremder Nutzer, Dokumentation | Zwei Instanzen nacheinander in derselben Shell hinterlassen keine Timer, keine Sockets, keine Stile |
@@ -310,6 +310,35 @@ Zwei Regeln haengen an der Spielerzahl, und beide an genau einer Stelle:
 Die Entwicklungsvorschau hat dafuer einen Schalter „Einzelspiel", damit die
 Solo-Darstellung pruefbar ist, obwohl der Operator noch keine Einzelspiele
 startet. Das deckt die Bildregression mit ab.
+
+### Stand nach Stufe 3
+
+Der Kern ist damit touchfaehig; es fehlt nur noch die Oberflaeche dafuer.
+
+* **Ablaufprofil** `operated` | `self-service` im Spielzustand, gesetzt beim Start.
+  Ohne Angabe entsteht ein vom Operator gesteuertes Spiel. Die automatischen
+  Uebergaenge stehen an einer Stelle (`scheduleSelfServiceFollowUp`) und nutzen
+  dieselbe Mechanik mit serverseitiger Fallbackzeit wie Feedback und Pausenscreen.
+  Der Uebergang aus der Loesung ist bewusst kein Phasenwechsel, sondern dieselbe
+  Entscheidung wie `CONTINUE`.
+* **Rolle `player`** mit genau vier Rechten: Selbstbedienungsspiel starten und
+  beenden, antworten, Ton und Medienstatus. Kein Einloggen, kein Aufloesen, kein
+  Weiterschalten. Die Ansicht (`PlayerQuizViewModel`) ist die oeffentliche Ansicht
+  plus `allowedCommands` - dieselbe Sicherheitsregel wie beim Buehnenscreen.
+  Erreichbar ist die Rolle nur ueber Loopback, also auf dem Geraet selbst.
+* **`ANSWER_BY_PLAYER`** fasst Zuschlag, Einloggen und Auswerten in einer
+  Serverentscheidung zusammen und ist wie der Buzzer revisionsfrei. Ueber den
+  Zuschlag urteilt weiterhin `evaluateBuzz` - es gibt keine zweite Fairnessregel.
+* **Sicherheitsnetz Inhalte:** Eine Frage, die nur ein Mensch bewerten kann, wird
+  im Selbstbedienungsbetrieb uebersprungen und protokolliert, statt den Ablauf
+  anzuhalten. Der eigentliche Filter kommt mit Stufe 5.
+* **Videofragen** laufen ohne Operator: Das Video startet nach kurzem Vorlauf von
+  selbst, der Wechsel zur Frage folgt aus der vom Client gemeldeten Laufzeit, und
+  ein nicht abspielbares Video blendet die Frage sofort ein.
+
+Offen bleibt bewusst die Bedienoberflaeche: Es gibt noch keinen Touchclient. Der
+Kern laesst sich vollstaendig ohne ihn pruefen - genau dafuer sind die Regeltests
+da.
 
 ## 7. Getroffene Entscheidungen
 

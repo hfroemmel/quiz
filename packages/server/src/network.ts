@@ -56,6 +56,15 @@ export function checkAccess(input: {
       : { allowed: false, message: 'Die Operatoransicht ist nur auf dem Veranstaltungslaptop verfuegbar.' }
   }
 
+  if (input.role === 'player') {
+    // Die Spielersicht gehoert zum Geraet, auf dem gespielt wird - Kiosk oder
+    // Multigame-Anwendung. Ueber das Netz waere sie ein zweiter, unbeaufsichtigter
+    // Zugang zum laufenden Spiel.
+    return local
+      ? { allowed: true }
+      : { allowed: false, message: 'Die Spieleransicht ist nur auf dem Geraet selbst verfuegbar.' }
+  }
+
   if (input.role === 'moderator') {
     return input.code === input.sessionCode
       ? { allowed: true }

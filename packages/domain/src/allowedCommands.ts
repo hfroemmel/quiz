@@ -10,9 +10,14 @@
  * weiterhin die Engine beim Verarbeiten des Befehls.
  */
 import { roleMayIssue, type ActorRole, type CommandType, type GameState } from '@quiz/contracts'
+import { isSelfServiceAnswerPhase } from './buzzer.ts'
 
 export function availableCommands(state: GameState | null): CommandType[] {
   const list = new Set<CommandType>()
+
+  if (state?.status === 'active' && state.flowProfile === 'self-service') {
+    return selfServiceCommands(state)
+  }
 
   if (!state || state.status !== 'active') {
     list.add('START_GAME')
@@ -119,6 +124,26 @@ export function availableCommands(state: GameState | null): CommandType[] {
       // Waehrend der Feedbacksequenz gibt es bewusst keine Aktion: der Wechsel
       // laeuft ueber die definierte Fallbackzeit des Servers.
       break
+  }
+
+  return [...list]
+}
+
+/**
+ * Selbstbedienung: bewusst eine eigene, sehr kurze Liste.
+ *
+ * Sie entsteht NICHT durch Filtern der Operatorliste. Der Ablauf am Touchgeraet
+ * kennt die Schritte des Operators gar nicht - es gibt kein Freigeben, kein
+ * Einloggen, kein Aufloesen und kein Weiterschalten, weil der Server diese
+ * Uebergaenge selbst einplant. Eine gefilterte Liste wuerde das verschleiern und
+ * bei jeder neuen Operatoraktion erneut durchdacht werden muessen.
+ */
+function selfServiceCommands(state: GameState): CommandType[] {
+  const list = new Set<CommandType>(['SET_SOUND_ENABLED', 'ABORT_GAME'])
+
+  if (isSelfServiceAnswerPhase(state.phase)) list.add('ANSWER_BY_PLAYER')
+  if (state.currentQuestion?.question.presentationType === 'video-then-question') {
+    list.add('REPORT_VIDEO_STATUS')
   }
 
   return [...list]

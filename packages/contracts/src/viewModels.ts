@@ -144,6 +144,18 @@ export interface PublicQuizViewModel {
   revision: number
 }
 
+/**
+ * Ansicht der Spieler am Touchgeraet.
+ *
+ * Sie ist die oeffentliche Ansicht - die Loesung wird also auch hier erst in der
+ * Loesungsszene uebertragen - plus der Liste der gerade moeglichen Befehle. Damit
+ * leitet auch der Touchclient seine Bedienbarkeit aus dem Server ab und baut die
+ * Regeln nicht nach.
+ */
+export interface PlayerQuizViewModel extends PublicQuizViewModel {
+  allowedCommands: CommandType[]
+}
+
 /** Nur fuer Operator und Moderator. Niemals an Buehnenclients. */
 export interface PrivateSolution {
   answerText: string
@@ -217,6 +229,7 @@ export interface CatalogViewModel {
 
 export type RoleViewModel = {
   stage: PublicQuizViewModel
+  player: PlayerQuizViewModel
   moderator: ModeratorQuizViewModel
   operator: OperatorQuizViewModel
 }
@@ -225,13 +238,15 @@ export type ViewModelForRole<R extends ActorRole> = R extends 'operator'
   ? OperatorQuizViewModel
   : R extends 'moderator'
     ? ModeratorQuizViewModel
-    : PublicQuizViewModel
+    : R extends 'player'
+      ? PlayerQuizViewModel
+      : PublicQuizViewModel
 
 /* ------------------------------------------------------------------ *
  * WebSocket-Protokoll
  * ------------------------------------------------------------------ */
 
-export type ClientRole = 'operator' | 'moderator' | 'stage'
+export type ClientRole = 'operator' | 'moderator' | 'stage' | 'player'
 
 /** Nachrichten Server -> Client. */
 export type ServerMessage =
@@ -242,7 +257,11 @@ export type ServerMessage =
    * entfernte Praesentationsclients starten stumm.
    */
   | { type: 'client-info'; audioMaster: boolean }
-  | { type: 'snapshot'; role: ClientRole; view: PublicQuizViewModel | ModeratorQuizViewModel | OperatorQuizViewModel }
+  | {
+      type: 'snapshot'
+      role: ClientRole
+      view: PublicQuizViewModel | PlayerQuizViewModel | ModeratorQuizViewModel | OperatorQuizViewModel
+    }
   | { type: 'command-accepted'; commandId: string; revision: number }
   | { type: 'command-rejected'; commandId: string; reason: string; message: string; currentRevision: number }
   | { type: 'error'; message: string }

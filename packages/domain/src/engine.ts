@@ -18,17 +18,21 @@
 import {
   gameTiming,
   isImageReveal,
+  isSelfServiceAnswerable,
   playerIds,
   scoringRules,
+  selfServiceTiming,
   type AnswerAttempt,
   type Command,
   type CommandRejection,
+  type FlowProfile,
   type GamePhase,
   type GameState,
   type PlayerCount,
   type PlayerId,
   type PlayerState,
   type RuntimeQuestion,
+  type SelfServiceTiming,
 } from '@quiz/contracts'
 import { eligibleOpponent, evaluateBuzz } from './buzzer.ts'
 import {
@@ -80,6 +84,7 @@ export interface EngineContext {
   newId: (prefix: string) => string
   questionSource: QuestionSource
   timing?: typeof gameTiming
+  selfServiceTiming?: SelfServiceTiming
   /** Globaler Soundstatus, den ein neu gestartetes Spiel uebernimmt. */
   initialSoundEnabled?: boolean
 }
@@ -122,7 +127,7 @@ export type EngineResult =
 
 export function reduce(state: GameState | null, command: Command, ctx: EngineContext): EngineResult {
   const timing = ctx.timing ?? gameTiming
-  const work = new Draft(state, ctx, timing)
+  const work = new Draft(state, ctx, timing, ctx.selfServiceTiming ?? selfServiceTiming)
 
   switch (command.type) {
     case 'START_GAME':
@@ -171,6 +176,9 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 
     case 'LOG_OPTION_ANSWER':
       return logAnswer(work, { optionId: command.optionId })
+
+    case 'ANSWER_BY_PLAYER':
+      return answerByPlayer(work, command.playerId, command.optionId)
 
     case 'MARK_MANUAL_ANSWER':
       return logAnswer(work, { verdict: command.verdict })
@@ -307,7 +315,13 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 
 function startGame(
   work: Draft,
-  command: { quizModeId: string; presetId: string; playerCount?: PlayerCount; playerLabels?: string[] },
+  command: {
+    quizModeId: string
+    presetId: string
+    playerCount?: PlayerCount
+    playerLabels?: string[]
+    flowProfile?: FlowProfile
+  },
 ): EngineResult {
   const { quizModeId, presetId, playerLabels } = command
   if (work.state && work.state.status === 'active') {
@@ -321,6 +335,8 @@ function startGame(
   // Ohne Angabe ist ein Spiel ein Duell. Der Buehnenbetrieb bleibt damit
   // unveraendert, ohne dass er die Spielerzahl mitschicken muss.
   const playerCount: PlayerCount = command.playerCount ?? 2
+  // Ohne Angabe steuert ein Mensch - der Buehnenbetrieb bleibt damit unveraendert.
+  const flowProfile: FlowProfile = command.flowProfile ?? 'operated'
   const players: PlayerState[] = playerIds
     .slice(0, playerCount)
     .map((id, index) => createPlayer(id, playerLabels?.[index] ?? `Spieler ${index + 1}`))
@@ -332,6 +348,7 @@ function startGame(
     revision: 0,
     quizModeId,
     presetId,
+    flowProfile,
     totalQuestions: slotCount,
     currentSlotIndex: 0,
     selectedQuestionIds: [],
@@ -348,7 +365,8 @@ function startGame(
   work.log(
     'game',
     `Spiel gestartet: Modus "${quizModeId}", Preset "${presetId}", ${slotCount} Fragen, ` +
-      `${playerCount === 1 ? 'Einzelspiel' : 'Duell'}.`,
+      `${playerCount === 1 ? 'Einzelspiel' : 'Duell'}, ` +
+      `${flowProfile === 'self-service' ? 'Selbstbedienung' : 'vom Operator gesteuert'}.`,
   )
 
   const selection = drawQuestionForCurrentSlot(work, [])
@@ -368,7 +386,17 @@ function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual
     return reject(decision.reason ?? 'buzzer-closed', decision.message ?? 'Buzzer nicht moeglich.')
   }
 
-  const label = work.state.players.find((player) => player.id === playerId)!.label
+  claimPlayer(work, playerId, via)
+  return work.commit()
+}
+
+/**
+ * Der Zuschlag selbst - ohne Commit, damit ihn beide Wege teilen koennen: der
+ * Buzzer des Operators und der Fingertipp eines Spielers. Die Pruefung, ob der
+ * Zuschlag erlaubt ist, steht in `evaluateBuzz` und passiert VOR diesem Aufruf.
+ */
+function claimPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual' | 'touch'): void {
+  const label = work.state!.players.find((player) => player.id === playerId)!.label
   const wasRevealRunning = work.phase === 'reveal-running'
 
   work.mutate((draft) => {
@@ -381,11 +409,82 @@ function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual
     draft.phase = 'answer-locked'
     draft.attempts.push(createAttempt(work, draft, playerId))
   })
-  work.log('buzzer', `${label} hat den Zuschlag (${via === 'hardware' ? 'Buzzer' : 'manuell'}).`, {
-    playerId,
-    via,
+  work.log('buzzer', `${label} hat den Zuschlag (${describeVia(via)}).`, { playerId, via })
+}
+
+/**
+ * Uebersetzt eine abgelehnte Buzzerentscheidung in eine Begruendung fuer Spieler.
+ *
+ * Am Geraet steht kein Operator: "Zuerst die Antwortphase freigeben" waere dort
+ * sinnlos. Der haeufigste Fall am geteilten Bildschirm ist das Wettrennen zweier
+ * Finger - dann laeuft bereits die Auswertung des schnelleren Tipps.
+ *
+ * Die Entscheidung selbst wird hier nicht angetastet, nur ihre Begruendung.
+ */
+function rejectTouch(phase: GamePhase, decision: ReturnType<typeof evaluateBuzz>): EngineResult {
+  if (phase === 'attempt-feedback') {
+    return reject('buzzer-already-taken', 'Der andere Spieler war schneller.')
+  }
+  if (decision.reason === 'invalid-phase') {
+    return reject('invalid-phase', 'Antworten ist gerade nicht moeglich.')
+  }
+  return reject(decision.reason ?? 'buzzer-closed', decision.message ?? 'Antworten ist gerade nicht moeglich.')
+}
+
+function describeVia(via: 'hardware' | 'manual' | 'touch'): string {
+  if (via === 'hardware') return 'Buzzer'
+  return via === 'manual' ? 'manuell' : 'Antippen'
+}
+
+/**
+ * Selbstbedienung: Ein Spieler tippt eine Antwort an.
+ *
+ * Zuschlag, Einloggen und Auswerten passieren hier in EINEM Schritt. Genau das ist
+ * der Zweck des Befehls: Tippen zwei Spieler fast gleichzeitig, entscheidet die
+ * Reihenfolge der Befehlsannahme im Server - nicht die Laufzeit dreier Nachrichten.
+ * Die Zulaessigkeitspruefung ist dieselbe wie beim Hardware-Buzzer (`evaluateBuzz`),
+ * damit es keine zweite Fairnessregel gibt.
+ */
+function answerByPlayer(work: Draft, playerId: PlayerId, optionId: string): EngineResult {
+  const guard = work.requireActiveGame()
+  if (guard) return guard
+  if (work.state!.flowProfile !== 'self-service') {
+    return reject(
+      'wrong-flow-profile',
+      'In diesem Spiel bewertet der Operator die Antworten. Antippen ist hier nicht vorgesehen.',
+    )
+  }
+
+  const question = work.state!.currentQuestion?.question
+  if (!question) return reject('invalid-phase', 'Es ist gerade keine Frage aktiv.')
+  if (!isSelfServiceAnswerable(question)) {
+    return reject('invalid-phase', 'Diese Frage laesst sich nicht durch Antippen beantworten.')
+  }
+  if (!question.options!.some((option) => option.id === optionId)) {
+    return reject('invalid-payload', 'Diese Antwortoption gehoert nicht zur Frage.')
+  }
+
+  if (work.phase === 'second-chance') {
+    // Die zweite Chance gehoert bereits einem bestimmten Spieler; um den Zuschlag
+    // wird nicht erneut gespielt. Deshalb faellt hier keine Buzzerentscheidung.
+    const open = pendingAttempt(work.state!)
+    if (!open || open.playerId !== playerId) {
+      return reject('player-locked', 'Die zweite Chance liegt beim anderen Spieler.')
+    }
+  } else {
+    // Ueber den Zuschlag entscheidet dieselbe Regel wie beim Hardware-Buzzer.
+    // Es gibt bewusst keine zweite Fairnessregel fuer das Touchgeraet.
+    const decision = evaluateBuzz(work.state!, playerId)
+    if (!decision.allowed) return rejectTouch(work.phase, decision)
+    claimPlayer(work, playerId, 'touch')
+  }
+
+  const attempt = pendingAttempt(work.state!)!
+  work.mutate((draft) => {
+    draft.attempts.find((entry) => entry.id === attempt.id)!.loggedOptionId = optionId
   })
-  return work.commit()
+  // Verglichen wird immer gegen `correctOptionId`, nie gegen eine Position.
+  return finishAttempt(work, attempt, optionId === question.correctOptionId ? 'correct' : 'incorrect')
 }
 
 function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' | 'incorrect' }): EngineResult {
@@ -694,6 +793,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
           `Video konnte nicht abgespielt werden: ${command.error}. Frage ueberspringen oder ohne Video weiterfuehren.`,
         )
       }
+      scheduleSelfServiceVideoEnd(work, command.error !== undefined)
       return work.commit()
     }
     case 'SHOW_QUESTION_AFTER_VIDEO': {
@@ -799,9 +899,20 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
     // Doppelklick kann keinen Uebergang zweimal ausloesen.
     return reject('invalid-phase', 'Dieser Uebergang ist bereits abgeschlossen.')
   }
+  // Aus der Loesung heraus ist der faellige Uebergang kein Phasenwechsel, sondern
+  // dieselbe Entscheidung wie "Weiter": naechste Frage ziehen oder Ergebnis zeigen.
+  if (work.phase === 'solution') return handleContinue(work)
+
   applyPhase(work, pending.nextPhase)
   return work.commit()
 }
+
+/**
+ * Wie oft im Selbstbedienungsbetrieb hoechstens ein Ersatz gezogen wird, bevor der
+ * Befehl mit klarer Begruendung abgewiesen wird. Ohne Grenze koennte ein Pool ohne
+ * auswertbare Fragen die Auswahl endlos beschaeftigen.
+ */
+const MAX_SELF_SERVICE_RETRIES = 10
 
 /* ------------------------------------------------------------------ *
  * Phasenuebergaenge
@@ -812,7 +923,9 @@ function questionEntryPhase(state: GameState): GamePhase {
   const type = state.currentQuestion?.question.presentationType
   if (type === 'video-then-question') return 'video-ready'
   if (type === 'image-reveal') return 'reveal-running'
-  return 'question-presented'
+  // Bei Selbstbedienung gibt niemand den Buzzer frei: Die Antwortflaechen sind
+  // sofort aktiv. Es ist dieselbe Phase, sie beginnt nur ohne Zwischenschritt.
+  return state.flowProfile === 'self-service' ? 'buzzer-open' : 'question-presented'
 }
 
 /**
@@ -859,6 +972,32 @@ function applyPhase(work: Draft, phase: GamePhase): void {
         draft.buzzer = { open: false }
         break
       }
+      case 'buzzer-open': {
+        // Bei Selbstbedienung wird diese Phase automatisch angesteuert; der Buzzer
+        // muss dabei genauso oeffnen wie beim Befehl des Operators.
+        draft.phase = 'buzzer-open'
+        draft.buzzer = { open: true }
+        // Folgt die Frage auf ein Video, ist das Video damit beendet - dieselbe
+        // Buchfuehrung wie bei `SHOW_QUESTION_AFTER_VIDEO` des Operators.
+        if (draft.video?.status === 'playing') {
+          const elapsed = draft.video.startedAtServerMs ? work.ctx.nowMs - draft.video.startedAtServerMs : 0
+          draft.video = {
+            ...draft.video,
+            status: 'ended',
+            positionMs: draft.video.positionMs + elapsed,
+            startedAtServerMs: undefined,
+          }
+        }
+        break
+      }
+      case 'video-playing': {
+        draft.phase = 'video-playing'
+        draft.buzzer = { open: false }
+        if (draft.video) {
+          draft.video = { ...draft.video, status: 'playing', startedAtServerMs: work.ctx.nowMs }
+        }
+        break
+      }
       default:
         draft.phase = phase
     }
@@ -878,6 +1017,58 @@ function applyPhase(work: Draft, phase: GamePhase): void {
   } else {
     work.log('phase', `Phase: ${phase}.`)
   }
+
+  scheduleSelfServiceFollowUp(work, phase)
+}
+
+/**
+ * Uebergaenge, die im Selbstbedienungsprofil niemand von Hand ausloest.
+ *
+ * Es entsteht dabei keine neue Mechanik: Es sind dieselben zeitgesteuerten
+ * Uebergaenge mit serverseitiger Fallbackzeit, die es fuer Feedback und
+ * Pausenscreen schon gibt. Nur der Ausloeser fehlt - deshalb plant ihn der Server.
+ */
+function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
+  const state = work.state
+  if (!state || state.flowProfile !== 'self-service' || state.status !== 'active') return
+
+  if (phase === 'solution') {
+    // Die Loesung bleibt kurz stehen; danach faellt dieselbe Entscheidung wie bei
+    // "Weiter" des Operators: naechste Frage oder Ergebnis.
+    work.scheduleTimedTransition('pause-screen', work.selfServiceTiming.solutionHoldMs, 'solution-to-next')
+    return
+  }
+
+  if (phase === 'video-ready') {
+    // Ohne Operator startet das Video von selbst, nach kurzem Vorlauf.
+    work.scheduleTimedTransition('video-playing', work.selfServiceTiming.videoLeadInMs, 'video-auto-start')
+  }
+}
+
+/**
+ * Selbstbedienung: Wann endet die Videophase?
+ *
+ * Der Server hat keine eigene Sicht auf das Medium, deshalb plant er den Wechsel
+ * aus der Laufzeit, die der Client meldet. Massgeblich bleibt trotzdem der
+ * serverseitige Timer - eine ausbleibende Meldung des Browsers kann den Ablauf
+ * nicht anhalten. Laesst sich das Video gar nicht abspielen, erscheint die Frage
+ * sofort; ohne Operator gibt es sonst niemanden, der darauf reagieren koennte.
+ */
+function scheduleSelfServiceVideoEnd(work: Draft, hasError: boolean): void {
+  const state = work.state
+  if (!state || state.flowProfile !== 'self-service' || state.status !== 'active') return
+  if (!['video-ready', 'video-playing'].includes(state.phase)) return
+
+  if (hasError) {
+    work.scheduleTimedTransition('buzzer-open', 0, 'video-error-to-question')
+    return
+  }
+
+  const video = state.video
+  if (state.phase !== 'video-playing' || !video?.durationMs) return
+  const played = video.positionMs + (video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0)
+  const remainingMs = Math.max(0, video.durationMs - played)
+  work.scheduleTimedTransition('buzzer-open', remainingMs + work.selfServiceTiming.videoTailMs, 'video-to-question')
 }
 
 /**
@@ -889,13 +1080,55 @@ function drawQuestionForCurrentSlot(
   additionalExclusions: string[],
 ): { ok: true } | { ok: false; rejection: EngineResult } {
   const state = work.state!
-  const response = work.ctx.questionSource.selectForSlot({
+  const selfService = state.flowProfile === 'self-service'
+  const exclusions = [...additionalExclusions]
+
+  let response = work.ctx.questionSource.selectForSlot({
     quizModeId: state.quizModeId,
     presetId: state.presetId,
     slotIndex: state.currentSlotIndex,
-    excludeQuestionIds: [...state.selectedQuestionIds, ...additionalExclusions],
+    excludeQuestionIds: [...state.selectedQuestionIds, ...exclusions],
     excludeRepetitionGroupIds: [...state.selectedRepetitionGroupIds],
   })
+
+  /*
+   * Selbstbedienung: Eine Frage, die nur ein Mensch bewerten kann - eine
+   * muendliche Antwort - laesst sich am Touchgeraet nicht aufloesen. Sie wuerde
+   * den Ablauf anhalten, weil niemand da ist, der sie beenden koennte.
+   *
+   * Sie wird deshalb wie eine uebersprungene Frage behandelt und ein Ersatz
+   * gezogen. Verhindern soll das die Inhaltsvalidierung: Ein Kiosk-Preset filtert
+   * auf auswertbare Fragen. Diese Stelle ist das Sicherheitsnetz, nicht der Plan -
+   * und sie schweigt nicht, sondern schreibt jeden Fall ins Protokoll.
+   */
+  let guard = 0
+  while (response.ok && selfService && !isSelfServiceAnswerable(response.runtimeQuestion.question)) {
+    const unusable = response.runtimeQuestion.question.id
+    exclusions.push(unusable)
+    work.log(
+      'content',
+      `Frage ${unusable} braucht eine Bewertung durch einen Menschen und wurde im Selbstbedienungsbetrieb uebersprungen.`,
+      { questionId: unusable, reason: 'not-self-service-answerable' },
+    )
+    if ((guard += 1) > MAX_SELF_SERVICE_RETRIES) {
+      return {
+        ok: false,
+        rejection: reject(
+          'no-candidate-question',
+          'Fuer diesen Fragenplatz gibt es keine Frage, die ohne Operator beantwortet werden kann. ' +
+            'Bitte das Preset auf auswertbare Fragen einschraenken.',
+        ),
+      }
+    }
+    response = work.ctx.questionSource.selectForSlot({
+      quizModeId: state.quizModeId,
+      presetId: state.presetId,
+      slotIndex: state.currentSlotIndex,
+      excludeQuestionIds: [...state.selectedQuestionIds, ...exclusions],
+      excludeRepetitionGroupIds: [...state.selectedRepetitionGroupIds],
+    })
+  }
+
   if (!response.ok) {
     return { ok: false, rejection: reject('no-candidate-question', response.message) }
   }
@@ -904,7 +1137,7 @@ function drawQuestionForCurrentSlot(
   work.mutate((draft) => {
     // Eine uebersprungene Frage bleibt fuer dieses Spiel gesperrt, damit sie nicht
     // direkt wieder gezogen wird.
-    for (const excluded of additionalExclusions) {
+    for (const excluded of exclusions) {
       if (!draft.selectedQuestionIds.includes(excluded)) draft.selectedQuestionIds.push(excluded)
     }
     draft.currentQuestion = runtime
@@ -999,6 +1232,7 @@ class Draft {
     initial: GameState | null,
     readonly ctx: EngineContext,
     readonly timing: typeof gameTiming,
+    readonly selfServiceTiming: SelfServiceTiming,
   ) {
     this.state = initial ? structuredClone(initial) : null
   }

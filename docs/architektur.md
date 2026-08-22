@@ -43,6 +43,7 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | Phasenwechsel | `packages/domain/src/engine.ts` |
 | Fragenauswahl, Wiederholungsvermeidung | `packages/domain/src/selection.ts` |
 | Was der Buehnenscreen sehen darf | `packages/domain/src/projection.ts` |
+| Automatische Uebergaenge der Selbstbedienung | `scheduleSelfServiceFollowUp` in `packages/domain/src/engine.ts` |
 | Verfuegbare Buttons je Phase | `packages/domain/src/allowedCommands.ts` |
 | Datenbankschema | `packages/persistence/src/migrations.ts` |
 | Animationsdauer, Easing, Soundmarke | `packages/presentation/src/transitions/` |
