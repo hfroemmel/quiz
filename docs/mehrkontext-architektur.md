@@ -259,8 +259,8 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 
 | Stufe | Inhalt | Ergebnis / Testkriterium |
 |---|---|---|
-| **0** | `packages/presentation` herausloesen, `apps/web` umstellen | reine Verschiebung; `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` unveraendert gruen |
-| **1** | `packages/runtime` aus `packages/server` herausloesen | `packages/server` haengt nur noch als Transportadapter dran; keine Verhaltensaenderung |
+| **0** | `packages/presentation` herausloesen, `apps/web` umstellen — **erledigt** | reine Verschiebung; `pnpm typecheck`, `pnpm test` (108) und `pnpm test:e2e` (32) unveraendert gruen |
+| **1** | `packages/runtime` aus `packages/server` herausloesen — **erledigt** | `packages/server` haengt nur noch als Transportadapter dran; keine Verhaltensaenderung |
 | **2** | Spielerzahl 1-2 im Kern (Contracts, Engine, Projektion, Szenen) | neue Domaintests: Einzelspieler ohne zweite Chance, Solo-Ergebnis; Buehne weiterhin zweispielrig |
 | **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
 | **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
@@ -269,6 +269,26 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 
 Stufen 0 und 1 sind mechanisch und risikoarm, kosten aber die Grundlage fuer alles
 Weitere. Stufe 3 ist die fachlich anspruchsvollste.
+
+### Stand nach Stufe 0 und 1
+
+Beide Stufen sind umgesetzt und aendern kein Verhalten.
+
+* `packages/presentation` enthaelt die Buehnenflaeche samt Szenen, Uebergaengen,
+  Bausteinen, Bewegtgrafiken und eigenem Stylesheet. Zugriff nur ueber
+  `src/index.ts`; das Stylesheet der Bedienoberflaechen ist getrennt. Die
+  Farbtoken gelten jetzt an `:root, .stage`, damit sie auch als Gast in einer
+  fremden Anwendung tragen.
+* `packages/runtime` enthaelt `QuizService`, `ContentService` und den neuen
+  gemeinsamen Zusammenbau `createQuizRuntime()`. `packages/server` ist nur noch
+  Transport: HTTP, WebSocket, Zugriffsregeln.
+* Zwei Nebenbefunde wurden mitgenommen: `apps/web` wurde von keinem
+  Typecheck-Projekt geprueft (jetzt Teil von `pnpm typecheck`), und das Muster
+  `runtime/` in `.gitignore` war nicht verankert - es haette das neue Quellpaket
+  mit ignoriert.
+
+Damit steht die Paketstruktur fuer Stufe 2 (Spielerzahl) und Stufe 3
+(Ablaufprofil), die als erste den Kern fachlich veraendern.
 
 ## 7. Getroffene Entscheidungen
 
