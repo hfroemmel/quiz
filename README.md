@@ -75,6 +75,7 @@ Die ausfuehrliche Fassung steht in [`docs/operator-kurzanleitung.md`](docs/opera
 ```text
 apps/
   desktop/     Electron: Hauptprozess, Preload, Fenster, Geraeteintegration
+  kiosk/       Electron-Vollbild: das Quiz alleinstehend auf einem Touchgeraet
   web/         React: Operator, Buehne, Moderator, Entwicklungsvorschau
 packages/
   contracts/   Typen, Laufzeitschemas, Befehle, View-Modelle, zentrale Konfiguration

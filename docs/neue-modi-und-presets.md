@@ -37,6 +37,40 @@ Der Modus erscheint danach automatisch in der Startansicht des Operators - die L
 kommt aus `view.catalog` und damit aus validierter Konfiguration, nicht aus
 UI-Konstanten.
 
+## Presets fuer das Touchgeraet
+
+Am Touchgeraet gibt es niemanden, der eine muendliche Antwort bewerten koennte.
+Ein Preset ist dort deshalb nur spielbar, wenn **jeder** Fragenplatz auf
+auswertbare Fragen filtert:
+
+```jsonc
+{
+  "id": "touch-easy",
+  "label": "Leicht",
+  "slots": [
+    {
+      "id": "einstieg",
+      "label": "Einstieg",
+      "filters": {
+        "difficultyIds": ["easy"],
+        "presentationTypes": ["text-choice", "image-choice"],
+        "evaluationModes": ["option-comparison"]
+      }
+    }
+    // ... weitere Plaetze, jeder mit "evaluationModes"
+  ]
+}
+```
+
+Die Eignung wird aus den Filtern abgeleitet, nicht zusaetzlich erklaert - eine
+zweite Angabe koennte davon abweichen. Der Validierungsbericht weist sie je
+Preset aus („Fuer das Touchgeraet geeignet"), und die Startauswahl am Geraet
+zeigt ausschliesslich geeignete Presets.
+
+Ein Bilderkennen-Fragenplatz gehoert deshalb nicht in ein Touch-Preset: Seine
+Fragen werden muendlich beantwortet. Bilderkennen mit Antwortoptionen waere
+dagegen spielbar - dafuer braucht es entsprechende Fragen im Bestand.
+
 ## Regionale Auswahl ohne Sondercode
 
 In den Altdaten sind `adults` und `kids` Werte des Feldes `mode`, `Saarbruecken`

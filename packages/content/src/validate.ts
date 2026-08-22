@@ -11,6 +11,7 @@
  */
 import {
   contentThresholds,
+  isSelfServicePreset,
   missingColorTokens,
   questionSchema,
   quizConfigSchema,
@@ -47,6 +48,11 @@ export interface PresetCoverage {
   slots: SlotCoverage[]
   /** Wie viele Spiele sind ohne Wiederholung moeglich? Minimum ueber alle Poolgruppen. */
   gamesWithoutRepetition: number
+  /**
+   * Taugt dieses Preset fuer das Touchgeraet? Nur dann, wenn jeder Fragenplatz
+   * ausschliesslich Fragen zulaesst, die ohne Operator auswertbar sind.
+   */
+  selfServiceCapable: boolean
 }
 
 export interface ContentStatistics {
@@ -500,7 +506,13 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
         )
       }
 
-      coverage.push({ modeId: mode.id, presetId: preset.id, slots, gamesWithoutRepetition })
+      coverage.push({
+        modeId: mode.id,
+        presetId: preset.id,
+        slots,
+        gamesWithoutRepetition,
+        selfServiceCapable: isSelfServicePreset(preset),
+      })
     }
   }
 

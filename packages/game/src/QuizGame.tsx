@@ -16,6 +16,7 @@ import type { PlayerCount, PlayerId, PlayerQuizViewModel } from '@quiz/contracts
 import { useQuizConnection } from '@quiz/client'
 import { StageScreen, themeVariables } from '@quiz/presentation'
 import { AnswerPad } from './AnswerPad.tsx'
+import { useIdleWatch } from './useIdleWatch.ts'
 import { GameStart } from './GameStart.tsx'
 import { canAnswer } from './answering.ts'
 
@@ -40,9 +41,18 @@ export interface QuizGameProps {
    * entsprechende Knopf; fehlt er, gibt es kein Zurueck - so wie im Kiosk.
    */
   onExit?: () => void
+  /**
+   * Leerlauf-Aufsicht: Wird waehrend eines laufenden Spiels so lange nichts
+   * beruehrt, wird es abgebrochen und die Auswahl kehrt zurueck.
+   *
+   * Ohne diesen Wert gibt es keine Aufsicht. Am unbeaufsichtigten Geraet ist sie
+   * noetig, weil bewusst kein Zeitdruck auf einer Frage liegt: Ohne sie bliebe
+   * ein Geraet mit einer offenen Frage stehen, bis jemand kommt.
+   */
+  idleTimeoutMs?: number
 }
 
-export function QuizGame({ quizModeId, onFinished, onExit }: QuizGameProps) {
+export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
   const { view, send, connected, audioMaster, serverNow } = useQuizConnection<PlayerQuizViewModel>('player')
   const reportedGameRef = useRef<string | null>(null)
   /**
@@ -69,6 +79,15 @@ export function QuizGame({ quizModeId, onFinished, onExit }: QuizGameProps) {
       questionCount: view.progress.total,
     })
   }, [view, onFinished])
+
+  const idle = useIdleWatch({
+    ...(idleTimeoutMs === undefined ? {} : { timeoutMs: idleTimeoutMs }),
+    active: Boolean(view && view.scene !== 'start'),
+    onIdle: () => {
+      send({ type: 'ABORT_GAME' })
+      setShowChoice(false)
+    },
+  })
 
   if (!view) {
     return (
@@ -113,7 +132,7 @@ export function QuizGame({ quizModeId, onFinished, onExit }: QuizGameProps) {
   const players = view.playerScores
 
   return (
-    <div className="quiz-game" style={themeVariables(view)}>
+    <div className="quiz-game" style={themeVariables(view)} onPointerDown={idle.notice}>
       {!connected && <span className="quiz-game__offline" title="Keine Verbindung" aria-hidden="true" />}
 
       {/* Zweiter Spieler sitzt gegenueber: eigene Leiste, um 180 Grad gedreht. */}

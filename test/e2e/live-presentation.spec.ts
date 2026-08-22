@@ -52,6 +52,14 @@ test('doppelte Bewertung bucht keine doppelten Punkte', async ({ page }) => {
     await operator.getByRole('button', { name: 'Antwort war richtig' }).click()
   }
 
+  /*
+   * Erst warten, bis die eingeloggte Antwort vom Server zurueck ist: Vorher ist
+   * "Aufloesen und bewerten" bewusst deaktiviert, und ein Klick darauf ginge ins
+   * Leere - der Test wuerde dann nicht den Doppelklick pruefen, sondern das
+   * Timing der Verbindung.
+   */
+  await expect(operator.getByRole('button', { name: 'Aufloesen und bewerten' })).toBeEnabled()
+
   // Doppelklick im selben Tick auf "Aufloesen und bewerten".
   await operator.evaluate(() => {
     const button = [...document.querySelectorAll<HTMLButtonElement>('.controls button')].find((entry) =>

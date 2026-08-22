@@ -37,6 +37,7 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | `@quiz/game` | Das spielbare Quiz am Touchgeraet: Startauswahl, Antwortflaechen, Ergebnis | Spielregeln |
 | `apps/web` | Einstiegspunkte je Rolle, Verbindung, Bedienoberflaechen von Operator und Moderator | Spielregeln |
 | `apps/desktop` | Fenster, Displays, Preload-Bruecke, Prozessstart | Spielregeln |
+| `apps/kiosk` | Ein Vollbildfenster mit der Spieleransicht, Laufzeit auf Loopback | Spielregeln, Operatorfunktionen |
 
 ## Wo aendere ich was?
 

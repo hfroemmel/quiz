@@ -41,6 +41,14 @@ test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ p
   const labels = await page.locator('.game-start__label').allInnerTexts()
   expect(labels).toEqual(['Wie viele spielen?', 'Wie schwer?'])
 
+  /*
+   * Zur Wahl stehen nur Presets, die am Geraet auch spielbar sind. Die
+   * Buehnenpresets enthalten einen Bilderkennen-Fragenplatz; dessen Fragen
+   * muesste ein Mensch bewerten, und hier steht keiner.
+   */
+  const presets = await page.locator('.game-start__choice').nth(1).locator('.game-start__option').allInnerTexts()
+  expect(presets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
+
   // Der Quizmodus gehoert zur Aufstellung, nicht auf den Bildschirm der Spieler.
   await expect(page.getByRole('button', { name: 'Allein' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Zu zweit' })).toBeVisible()
@@ -76,6 +84,19 @@ test('Duell: die zweite Leiste liegt gegenueber, und wer zuerst tippt, hat geant
   // Der Spieler, der getippt hat, ist fuer diese Frage durch - in jedem Ausgang.
   await expect(page.locator('.answer-pad[data-player="player-2"]')).toHaveAttribute('data-enabled', 'false')
   await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'buzzer-open')
+})
+
+test('die Leerlauf-Aufsicht gibt das Geraet wieder frei', async ({ page }) => {
+  await resetServer(page)
+  // Zwei Sekunden statt zwei Minuten - die Aufsicht kommt als Betriebsangabe herein.
+  await page.goto('/play?idle=2')
+  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator(enabledPad).first()).toBeVisible({ timeout: 20_000 })
+
+  // Niemand tippt mehr: Das Spiel wird abgebrochen und die Auswahl kehrt zurueck.
+  await expect(page.locator('.game-start')).toBeVisible({ timeout: 20_000 })
 })
 
 test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis', async ({ page }) => {

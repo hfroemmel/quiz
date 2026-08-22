@@ -22,9 +22,11 @@
     "server": "tsx packages/server/src/main.ts",
     "dev": "concurrently -n web,server -c cyan,magenta \"pnpm --filter @quiz/web dev\" \"pnpm server\"",
     "dev:desktop": "pnpm --filter @quiz/desktop dev",
+    "dev:kiosk": "pnpm --filter @quiz/kiosk dev",
     "build": "pnpm content:validate && pnpm --filter @quiz/web build",
     "build:dev": "pnpm content:validate:dev && pnpm --filter @quiz/web build",
     "build:desktop": "pnpm build && pnpm --filter @quiz/desktop build",
+    "build:kiosk": "pnpm build && pnpm --filter @quiz/kiosk build",
     "lint": "tsc -b --force tsconfig.json && tsc -p packages/client/tsconfig.json && tsc -p packages/presentation/tsconfig.json && tsc -p packages/game/tsconfig.json && tsc -p apps/web/tsconfig.json",
     "desktop:rebuild-native": "pnpm --filter @quiz/desktop rebuild:native",
     "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs"

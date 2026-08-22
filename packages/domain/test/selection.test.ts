@@ -72,6 +72,23 @@ describe('Slotfilter', () => {
     ).toBe(false)
   })
 
+  it('filtert auf das Bewertungsverfahren - die Grundlage des Kioskbetriebs', () => {
+    const muendlich = makeQuestion({
+      id: 'q-muendlich',
+      evaluationMode: 'manual-correct-incorrect',
+      options: undefined,
+      correctOptionId: undefined,
+      acceptedAnswerText: ['Bundestag'],
+    })
+    const auswertbar = makeQuestion({ id: 'q-auswertbar' })
+    const rule = slot({ filters: { evaluationModes: ['option-comparison'] } })
+
+    expect(matchesSlot(auswertbar, rule)).toBe(true)
+    expect(matchesSlot(muendlich, rule)).toBe(false)
+    // Ohne Filter bleibt beides zulaessig - so laeuft die Buehne.
+    expect(matchesSlot(muendlich, slot())).toBe(true)
+  })
+
   it('behandelt fehlende Filter als "beliebig" - kein Sonderwert "random" noetig', () => {
     const question = makeQuestion({ id: 'q1' })
     expect(matchesSlot(question, slot({ filters: {} }))).toBe(true)

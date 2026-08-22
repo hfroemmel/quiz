@@ -1,0 +1,76 @@
+/**
+ * Electron-Hauptprozess des Kioskbetriebs.
+ *
+ * Verantwortung - und nur diese:
+ *   - die Quizlaufzeit im selben Prozess starten, ausschliesslich auf Loopback;
+ *   - ein einziges Vollbildfenster oeffnen, das die Spieleransicht zeigt;
+ *   - das Fenster wieder aufmachen, falls es geschlossen wird.
+ *
+ * Es gibt hier bewusst kein Operatorfenster, kein Menue und keine LAN-Freigabe.
+ * Ein Kioskgeraet steht im Foyer: Was dort erreichbar ist, ist die Spieleransicht -
+ * sonst nichts.
+ *
+ * SICHERHEIT (Spezifikation 30): Der Renderer laeuft mit `contextIsolation: true`
+ * und ohne `nodeIntegration`. Es gibt keine Preload-Bruecke, weil die Spieleransicht
+ * keine Fensterfunktionen braucht. Alles Fachliche laeuft ueber denselben
+ * WebSocket-Vertrag wie bei jedem anderen Client.
+ */
+import { app, BrowserWindow } from 'electron'
+import { startServer, type RunningServer } from '@quiz/server'
+
+/** Quizmodus des Geraets. Er gehoert zur Aufstellung, nicht auf den Spielbildschirm. */
+const quizMode = process.env['QUIZ_KIOSK_MODE'] ?? 'adults'
+
+/**
+ * Leerlauf-Aufsicht in Sekunden. Ohne sie bliebe ein Geraet mit einer offenen
+ * Frage stehen, wenn die Spieler weggehen - auf einer Frage liegt bewusst kein
+ * Zeitdruck.
+ */
+const idleSeconds = Number(process.env['QUIZ_KIOSK_IDLE_SECONDS'] ?? 120)
+
+let running: RunningServer | null = null
+let window: BrowserWindow | null = null
+
+function createWindow(): BrowserWindow {
+  const created = new BrowserWindow({
+    kiosk: true,
+    fullscreen: true,
+    autoHideMenuBar: true,
+    backgroundColor: '#555555',
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  })
+
+  const params = new URLSearchParams({ mode: quizMode, idle: String(idleSeconds) })
+  void created.loadURL(`http://127.0.0.1:${running!.port}/play?${params.toString()}`)
+
+  // Ein geschlossenes Fenster darf das Geraet nicht dunkel zuruecklassen.
+  created.on('closed', () => {
+    window = null
+    if (!app.isReady()) return
+    window = createWindow()
+  })
+  return created
+}
+
+app.whenReady().then(async () => {
+  /*
+   * `127.0.0.1` ist hier keine Vorsichtsmassnahme, sondern Voraussetzung: Die
+   * Spielerrolle wird ausschliesslich ueber Loopback angenommen. Ein Kioskgeraet
+   * oeffnet damit keinen Zugang zum laufenden Spiel ins Netz.
+   */
+  running = await startServer({ host: '127.0.0.1', port: 0 })
+  window = createWindow()
+})
+
+app.on('window-all-closed', () => {
+  // Auf dem Kioskgeraet gibt es nichts, wohin man zurueckkehren koennte.
+  if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('before-quit', () => {
+  void running?.close()
+})

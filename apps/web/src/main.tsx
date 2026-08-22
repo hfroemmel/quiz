@@ -26,12 +26,26 @@ function App() {
     case '/preview':
       return <PreviewApp />
     /*
-     * Selbstbedienung am Touchgeraet. Dieselbe Komponente betreibt spaeter der
-     * Kiosk und die Multigame-Anwendung; hier ist sie ueber den lokalen Server
+     * Selbstbedienung am Touchgeraet. Dieselbe Komponente betreibt der Kiosk und
+     * spaeter die Multigame-Anwendung; hier ist sie ueber den lokalen Server
      * erreichbar und damit im Browser spielbar.
+     *
+     * Zwei Betriebsangaben kommen als Abfrageparameter, damit der Kiosk sein
+     * Fenster ohne eigenen Build konfigurieren kann:
+     *   ?mode=adults   Quizmodus des Geraets
+     *   ?idle=120      Leerlauf-Aufsicht in Sekunden
      */
-    case '/play':
-      return <QuizGame />
+    case '/play': {
+      const params = new URLSearchParams(window.location.search)
+      const mode = params.get('mode')
+      const idleSeconds = Number(params.get('idle'))
+      return (
+        <QuizGame
+          {...(mode ? { quizModeId: mode } : {})}
+          {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
+        />
+      )
+    }
     default:
       return <OperatorApp />
   }

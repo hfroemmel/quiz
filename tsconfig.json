@@ -7,6 +7,7 @@
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts",
     "apps/desktop/src/**/*.ts",
+    "apps/kiosk/src/**/*.ts",
     "scripts/**/*.ts"
   ],
   // Die Praesentationsschicht braucht JSX und DOM-Typen und wird deshalb

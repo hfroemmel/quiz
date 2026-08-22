@@ -264,7 +264,7 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 | **2** | Spielerzahl 1-2 im Kern (Contracts, Engine, Projektion, Szenen) — **erledigt** | neue Domaintests: Einzelspieler ohne zweite Chance, Solo-Ergebnis; Buehne weiterhin zweispielrig |
 | **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge — **erledigt** | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
 | **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen — **erledigt** | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
-| **5** | `apps/kiosk`: Electron-Vollbild, Attract-Screen, Leerlauf-Aufsicht, Inhaltsfilter fuer Selbstbedienung, `image-reveal` freischalten | Geraet spielt einen Tag durch, ohne dass jemand eingreift |
+| **5** | `apps/kiosk`: Electron-Vollbild, Leerlauf-Aufsicht, Inhaltsfilter fuer Selbstbedienung — **erledigt** | Geraet spielt einen Tag durch, ohne dass jemand eingreift |
 | **6** | Einbettungsvertrag haerten (CSS-Kapselung, Lebenszyklus, Pause, `onFinished`), Beispielshell als erster fremder Nutzer, Dokumentation | Zwei Instanzen nacheinander in derselben Shell hinterlassen keine Timer, keine Sockets, keine Stile |
 
 Stufen 0 und 1 sind mechanisch und risikoarm, kosten aber die Grundlage fuer alles
@@ -375,6 +375,42 @@ Offen bleibt der Ausstieg: Am Geraet gibt es bewusst keinen "Beenden"-Knopf,
 solange kein Gastgeber da ist, in den zurueckgesprungen werden koennte. Im Kiosk
 uebernimmt das die Leerlauf-Aufsicht (Stufe 5), im eingebetteten Betrieb der
 `onExit`-Rueckruf.
+
+### Stand nach Stufe 5
+
+Der Kioskbetrieb steht: `apps/kiosk` startet die Laufzeit auf `127.0.0.1` und
+oeffnet ein einziges Vollbildfenster mit der Spieleransicht. Kein Operatorfenster,
+kein Menue, keine LAN-Freigabe, kein eigener Renderer-Build - das Fenster laedt
+`/play` vom lokalen Server.
+
+Die Ursache der beiden Fehler aus Stufe 4 ist damit behoben, nicht nur ihr
+Symptom:
+
+* **Fragenplaetze filtern auf das Bewertungsverfahren.** Neu ist
+  `evaluationModes` im Slotfilter. Ein Preset gilt als touchtauglich, wenn jeder
+  seiner Fragenplaetze auf `option-comparison` filtert. Abgeleitet, nicht
+  zusaetzlich erklaert - eine zweite Angabe koennte abweichen.
+* **Drei Touch-Presets** (Leicht, Mittel, Schwer) liegen im Quizpaket. Sie
+  enthalten keinen Bilderkennen-Platz und haben je Fragenplatz mindestens zwoelf
+  Kandidaten; der Validierungsbericht weist die Eignung je Preset aus.
+* **Die Startauswahl zeigt nur Spielbares.** Der Katalog der Spieleransicht
+  enthaelt ausschliesslich touchtaugliche Presets und Modi, die mindestens eines
+  davon erlauben. Das Geraet muss davon nichts wissen.
+* **Leerlauf-Aufsicht** im Spielpaket: Beruehrt waehrend eines Spiels laenger als
+  die eingestellte Frist niemand den Bildschirm, wird abgebrochen und die Auswahl
+  kehrt zurueck. Sie haengt an der Komponente selbst, nicht an einem globalen
+  Listener - als Gast in fremden Anwendungen darf sie nichts am Fenster
+  registrieren.
+
+Nebenbei kam eine vorbestehende Flakiness ans Licht: Der E2E-Test „doppelte
+Bewertung bucht keine doppelten Punkte" klickte auf eine Schaltflaeche, die bis
+zur Antwort des Servers deaktiviert ist. Er wartet jetzt darauf und prueft damit
+wieder das, was er pruefen soll.
+
+`image-reveal` am Geraet bleibt offen: Es ist technisch spielbar - die
+Enthuellung laeuft, ein Tipp friert sie ein -, aber der Bestand enthaelt dazu nur
+muendlich zu beantwortende Fragen. Dafuer braucht es Bilderkennen-Fragen mit
+Antwortoptionen; das ist eine redaktionelle Aufgabe, keine Codeaufgabe.
 
 ## 7. Getroffene Entscheidungen
 

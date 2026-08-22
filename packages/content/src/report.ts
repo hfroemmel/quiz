@@ -42,6 +42,11 @@ export function formatValidationReport(result: ValidationResult, options: Report
   for (const preset of result.coverage) {
     push(`### Modus "${preset.modeId}" / Preset "${preset.presetId}"`)
     push(`Spiele ohne Wiederholung: ${preset.gamesWithoutRepetition}`)
+    push(
+      preset.selfServiceCapable
+        ? 'Fuer das Touchgeraet geeignet: ja'
+        : 'Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)',
+    )
     for (const slot of preset.slots) {
       const competing = slot.competingSlotIds.length
         ? ` | konkurriert mit: ${slot.competingSlotIds.join(', ')}`
