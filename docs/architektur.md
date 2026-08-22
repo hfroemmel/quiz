@@ -54,6 +54,11 @@ Beide sind nach Abschnitt 20.3 der Spezifikation ausdruecklich zulaessig
    React-Einstiegspunkte im selben Paket; eine Paketgrenze haette hier keine fachliche
    Grenze abgebildet, aber den Build verkompliziert.
 
+   Diese Bedingung endet mit der Mehrkontext-Ausbaustufe: Sobald Kiosk und
+   Multigame-Einbettung dieselben Szenen nutzen, gibt es drei Nutzer und die
+   Paketgrenze bildet eine echte Grenze ab. Siehe
+   [mehrkontext-architektur.md](mehrkontext-architektur.md).
+
 2. **Kein eigenes Paket `packages/ui`.**
    Es gibt bisher nur vier gemeinsam genutzte Bausteine (`ScoreBoard`, `PlayerBadge`,
    `Confetti`, `ConnectionBanner`). Sie liegen unter `apps/web/src/components/`.
