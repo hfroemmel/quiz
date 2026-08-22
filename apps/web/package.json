@@ -10,8 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@quiz/client": "workspace:*",
     "@quiz/contracts": "workspace:*",
-    "@quiz/domain": "workspace:*",
+    "@quiz/game": "workspace:*",
     "@quiz/presentation": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

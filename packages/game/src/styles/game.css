@@ -1,0 +1,244 @@
+/*
+ * Stylesheet des spielbaren Quiz.
+ *
+ * Alles liegt unter `.quiz-game`. Das ist Absicht: Die Komponente ist Gast in
+ * fremden Anwendungen und darf dort nichts ueberschreiben - kein `body`, kein
+ * `:root`, keine Elementselektoren.
+ *
+ * Farben kommen als CSS-Custom-Properties aus dem Theme des Quizmodus; sie setzt
+ * die Komponente am eigenen Wurzelelement (`themeVariables`). Fehlt ein Wert,
+ * greift der Fallback aus `@quiz/presentation/styles.css`.
+ *
+ * Groessen stehen in `clamp()` statt in festen Pixeln: Dasselbe Layout traegt vom
+ * 10-Zoll-Tablet bis zum grossen Touchtisch.
+ */
+
+.quiz-game {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: clamp(6px, 1vh, 14px);
+  padding: clamp(6px, 1vh, 14px);
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+  color: var(--color-text);
+  font-family: var(--font-body);
+  /* Ein Doppeltipp darf nicht zoomen und die Flaeche verschieben. */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.quiz-game--offline {
+  align-items: center;
+  justify-content: center;
+}
+
+/* Verbindungsverlust: derselbe dezente Punkt wie auf der Buehne. */
+.quiz-game__offline {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-incorrect);
+  opacity: 0.7;
+  z-index: 10;
+}
+
+/*
+ * Die Buehnenflaeche in der Mitte ist dieselbe Komposition wie auf dem Beamer.
+ * Sie bekommt den Platz, der nach den Antwortleisten uebrig bleibt.
+ */
+.quiz-game__stage {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.quiz-game__footer {
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 24px);
+  padding: clamp(8px, 2vh, 20px) 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Antwortflaechen
+ *
+ * Vier grosse Ziele in zwei Reihen. Wer zuerst tippt, hat geantwortet -
+ * deshalb ist die ganze Kachel die Schaltflaeche und nicht nur der Text.
+ * ------------------------------------------------------------------ */
+
+.answer-pad {
+  flex: 0 0 auto;
+}
+
+/* Der zweite Spieler sitzt gegenueber. */
+.answer-pad--mirrored {
+  transform: rotate(180deg);
+}
+
+.answer-pad__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(6px, 1.2vh, 14px);
+}
+
+.answer-pad__button {
+  /* Mindestens daumengross, auch auf kleinen Geraeten. */
+  min-height: clamp(64px, 11vh, 128px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.answer-pad__button:disabled {
+  cursor: default;
+}
+
+.answer-pad__button:active:not(:disabled) .answer-pad__option {
+  /* Sofortige Rueckmeldung auf den Tipp - vor jeder Serverantwort. */
+  filter: brightness(1.25);
+}
+
+.answer-pad__option {
+  height: 100%;
+  margin: 0;
+  font-size: clamp(15px, 2.4vh, 30px);
+}
+
+.answer-pad[data-enabled='false'] .answer-pad__option {
+  opacity: 0.55;
+}
+
+/* ------------------------------------------------------------------ *
+ * Startauswahl
+ * ------------------------------------------------------------------ */
+
+.game-start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vh, 36px);
+  height: 100%;
+  padding: clamp(12px, 3vh, 40px);
+  text-align: center;
+}
+
+.game-start__visual {
+  max-height: 22vh;
+  max-width: 60vw;
+  object-fit: contain;
+}
+
+.game-start__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 5vh, 56px);
+}
+
+.game-start__choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.5vh, 16px);
+  width: 100%;
+}
+
+.game-start__label {
+  margin: 0;
+  font-size: clamp(14px, 2vh, 22px);
+  font-weight: normal;
+  color: var(--color-textMuted);
+}
+
+.game-start__options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 20px);
+}
+
+.game-start__option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: clamp(120px, 22vw, 240px);
+  min-height: clamp(64px, 10vh, 110px);
+  padding: clamp(8px, 1.5vh, 18px) clamp(12px, 2vw, 28px);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  background: var(--color-tile);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: clamp(18px, 2.8vh, 32px);
+  cursor: pointer;
+}
+
+/* Die Auswahl ist der Zustand der Schaltflaeche, nicht eine zweite Markierung. */
+.game-start__option[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accentQuiet);
+}
+
+.game-start__hint {
+  font-family: var(--font-body);
+  font-size: clamp(11px, 1.5vh, 16px);
+  color: var(--color-textMuted);
+}
+
+.game-start__actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 24px);
+}
+
+.game-start__go {
+  min-height: clamp(56px, 9vh, 96px);
+  padding: 0 clamp(24px, 5vw, 64px);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 3.2vh, 38px);
+  cursor: pointer;
+}
+
+.game-start__go:disabled {
+  background: var(--color-tileDisabled);
+  color: var(--color-textMuted);
+  cursor: default;
+}
+
+.game-start__leave {
+  min-height: clamp(56px, 9vh, 96px);
+  padding: 0 clamp(16px, 3vw, 40px);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-tileQuiet);
+  color: var(--color-textMuted);
+  font-family: var(--font-heading);
+  font-size: clamp(16px, 2.4vh, 28px);
+  cursor: pointer;
+}
+
+/*
+ * Reduzierte Bewegung: Die Buehne regelt ihre Uebergaenge selbst; hier entfaellt
+ * nur die Tipp-Rueckmeldung, die sonst kurz aufblitzt.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .answer-pad__button:active:not(:disabled) .answer-pad__option {
+    filter: none;
+  }
+}

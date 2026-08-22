@@ -11,5 +11,5 @@
   ],
   // Die Praesentationsschicht braucht JSX und DOM-Typen und wird deshalb
   // ueber ihr eigenes Projekt geprueft (siehe Skript "typecheck").
-  "exclude": ["**/node_modules", "**/dist", "packages/presentation"]
+  "exclude": ["**/node_modules", "**/dist", "packages/presentation", "packages/client", "packages/game"]
 }

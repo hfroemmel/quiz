@@ -51,12 +51,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@quiz/client':
+        specifier: workspace:*
+        version: link:../../packages/client
       '@quiz/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
-      '@quiz/domain':
+      '@quiz/game':
         specifier: workspace:*
-        version: link:../../packages/domain
+        version: link:../../packages/game
       '@quiz/presentation':
         specifier: workspace:*
         version: link:../../packages/presentation
@@ -79,6 +82,19 @@ importers:
       vite:
         specifier: ^6.0.7
         version: 6.4.3(@types/node@22.20.1)(tsx@4.23.12)
+
+  packages/client:
+    dependencies:
+      '@quiz/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.31
 
   packages/content:
     dependencies:
@@ -103,6 +119,28 @@ importers:
       '@quiz/contracts':
         specifier: workspace:*
         version: link:../contracts
+
+  packages/game:
+    dependencies:
+      '@quiz/client':
+        specifier: workspace:*
+        version: link:../client
+      '@quiz/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@quiz/presentation':
+        specifier: workspace:*
+        version: link:../presentation
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.31
+      vite:
+        specifier: ^6.0.7
+        version: 6.4.3(@types/node@22.20.1)(tsx@4.23.12)
 
   packages/persistence:
     dependencies:

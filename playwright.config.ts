@@ -29,7 +29,7 @@ export default defineConfig({
   projects: [
     {
       name: 'live',
-      testMatch: /(game-flows|live-presentation)\.spec\.ts$/,
+      testMatch: /(game-flows|live-presentation|touch-play)\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], baseURL: `http://localhost:${PORT}` },
     },
     {

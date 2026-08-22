@@ -3,9 +3,11 @@
 ## Schichten und Abhaengigkeitsrichtung
 
 ```text
-Anwendungen (apps/web, apps/desktop)
+Anwendungen (apps/web, apps/desktop) / fremde Gastgeber
         ↓
-Praesentationsschicht (packages/presentation)
+Spielpaket           (packages/game: Touchansicht)
+        ↓
+Praesentationsschicht (packages/presentation)  ·  Verbindung (packages/client)
         ↓
 Transportadapter      (packages/server: HTTP, WebSocket)
         ↓
@@ -31,6 +33,8 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | `@quiz/runtime` | Befehlsverarbeitung, Idempotenz, Timer, Wiederherstellung, Inhaltszugriff, Snapshots | Transport, Oberflaeche, Spielregeln (delegiert an Domain) |
 | `@quiz/server` | HTTP-Auslieferung, WebSocket-Verteilung, Sitzungen und Zugriffsregeln | Befehlsverarbeitung (delegiert an Runtime) |
 | `@quiz/presentation` | Buehnenflaeche: Szenen, Uebergaenge, Soundmarken, Stylesheet der Buehne | Verbindung, Befehle, Spielregeln |
+| `@quiz/client` | Verbindung zum Server: WebSocket, Reconnect, Befehlsversand - fuer alle Rollen | Darstellung, Spielregeln |
+| `@quiz/game` | Das spielbare Quiz am Touchgeraet: Startauswahl, Antwortflaechen, Ergebnis | Spielregeln |
 | `apps/web` | Einstiegspunkte je Rolle, Verbindung, Bedienoberflaechen von Operator und Moderator | Spielregeln |
 | `apps/desktop` | Fenster, Displays, Preload-Bruecke, Prozessstart | Spielregeln |
 

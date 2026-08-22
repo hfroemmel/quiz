@@ -8,7 +8,10 @@ nur eingesetzt - dasselbe Paket bedienen spaeter auch Kiosk und
 Multigame-Einbettung.
 
 Ein Build bedient alle Rollen; die Rolle ergibt sich aus dem Pfad (`/operator`,
-`/stage`, `/moderator`, `/preview`).
+`/stage`, `/moderator`, `/preview`, `/play`).
+
+`/play` ist die Selbstbedienung am Touchgeraet: dieselbe Komponente aus
+`@quiz/game`, die spaeter der Kiosk und eine Multigame-Anwendung einbinden.
 
 ```text
 src/
@@ -17,7 +20,7 @@ src/
   apps/stage/       Buehnenscreen (nur oeffentliche Daten)
   apps/moderator/   Moderatoransicht (Session-Code, vier Aktionen)
   apps/preview/     Entwicklungsvorschau fuer Szenen und Uebergaenge
-  client/           WebSocket-Anbindung, Buzzer-Tasten, Desktop-Bruecke
+  client/           Buzzer-Tasten und Desktop-Bruecke (die Verbindung liegt in @quiz/client)
   components/       Bausteine der Bedienoberflaeche (Verbindungsbanner)
   styles.css        Stylesheet der Bedienoberflaechen; die Buehne bringt ihres selbst mit
 ```
@@ -34,5 +37,5 @@ src/
   `useBuzzerKeys`); Listener, Timer und Abonnements werden zuverlaessig bereinigt.
 * Animationsdauern stehen nie im JSX, sondern kommen aus dem Uebergangsregistry.
 
-**Abhaengigkeiten:** `@quiz/contracts` (Typen), `@quiz/domain` (reine Reveal-Mathematik),
-`@quiz/presentation` (Buehnenflaeche), `react`, `react-dom`.
+**Abhaengigkeiten:** `@quiz/contracts` (Typen), `@quiz/client` (Verbindung),
+`@quiz/presentation` (Buehnenflaeche), `@quiz/game` (Touchansicht), `react`, `react-dom`.

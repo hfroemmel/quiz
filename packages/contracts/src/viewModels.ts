@@ -154,6 +154,12 @@ export interface PublicQuizViewModel {
  */
 export interface PlayerQuizViewModel extends PublicQuizViewModel {
   allowedCommands: CommandType[]
+  /**
+   * Nur fuer die Startansicht am Geraet: was dort gewaehlt werden kann. Wie beim
+   * Operator kommt die Liste aus validierter Konfiguration, nicht aus Konstanten
+   * in der Oberflaeche.
+   */
+  catalog: CatalogViewModel
 }
 
 /** Nur fuer Operator und Moderator. Niemals an Buehnenclients. */

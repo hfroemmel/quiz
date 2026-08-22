@@ -263,7 +263,7 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 | **1** | `packages/runtime` aus `packages/server` herausloesen — **erledigt** | `packages/server` haengt nur noch als Transportadapter dran; keine Verhaltensaenderung |
 | **2** | Spielerzahl 1-2 im Kern (Contracts, Engine, Projektion, Szenen) — **erledigt** | neue Domaintests: Einzelspieler ohne zweite Chance, Solo-Ergebnis; Buehne weiterhin zweispielrig |
 | **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge — **erledigt** | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
-| **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
+| **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen — **erledigt** | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
 | **5** | `apps/kiosk`: Electron-Vollbild, Attract-Screen, Leerlauf-Aufsicht, Inhaltsfilter fuer Selbstbedienung, `image-reveal` freischalten | Geraet spielt einen Tag durch, ohne dass jemand eingreift |
 | **6** | Einbettungsvertrag haerten (CSS-Kapselung, Lebenszyklus, Pause, `onFinished`), Beispielshell als erster fremder Nutzer, Dokumentation | Zwei Instanzen nacheinander in derselben Shell hinterlassen keine Timer, keine Sockets, keine Stile |
 
@@ -339,6 +339,42 @@ Der Kern ist damit touchfaehig; es fehlt nur noch die Oberflaeche dafuer.
 Offen bleibt bewusst die Bedienoberflaeche: Es gibt noch keinen Touchclient. Der
 Kern laesst sich vollstaendig ohne ihn pruefen - genau dafuer sind die Regeltests
 da.
+
+### Stand nach Stufe 4
+
+Das Quiz ist am Touchgeraet spielbar: unter `/play` im Browser gegen den lokalen
+Server, mit derselben Komponente, die spaeter der Kiosk und eine
+Multigame-Anwendung einbinden.
+
+* **`packages/game`** liefert `<QuizGame/>` mit Startauswahl, Antwortflaechen und
+  Ergebnis. Die Flaeche in der Mitte ist dieselbe Komposition wie auf dem Beamer;
+  ergaenzt wird nur, was es dort nicht gibt.
+* **`packages/client`** enthaelt die Verbindung, die vorher in `apps/web` lag.
+  Buehne, Operator, Moderator und Touchgeraet benutzen jetzt dieselbe - eine
+  zweite Fassung waere eine zweite Reconnect- und Befehlslogik gewesen.
+* **Startauswahl:** Spielerzahl und Schwierigkeit, mehr nicht. Der Quizmodus
+  gehoert zur Aufstellung und kommt als Vorgabe herein.
+* **Buehnenvariante `touch`:** Die Antwortoptionen erscheinen nicht doppelt. Sie
+  liegen als Schaltflaechen vor den Spielern; die Buehne zeigt Frage, Bild,
+  Punktestand und Loesung.
+
+Der Testlauf des vollstaendigen Spiels deckte zwei echte Fehler auf, die beide
+behoben sind:
+
+1. **Stillstand am Geraet.** Jedes ausgelieferte Preset enthaelt einen reinen
+   Bilderkennen-Fragenplatz. Dessen Fragen brauchen eine Bewertung durch einen
+   Menschen - im Kiosk blieb das Spiel dort stehen. Ein solcher Fragenplatz wird
+   jetzt uebersprungen und protokolliert; findet sich gar keine beantwortbare
+   Frage mehr, endet das Spiel mit dem Ergebnis statt einzufrieren. Der
+   eigentliche Filter bleibt Aufgabe von Stufe 5.
+2. **Unehrliches Ergebnis.** "2 von 7 richtig" stimmte nicht, wenn ein
+   Fragenplatz uebersprungen wurde. Gezaehlt werden jetzt die tatsaechlich
+   gestellten Fragen, nicht die Fragenplaetze des Presets.
+
+Offen bleibt der Ausstieg: Am Geraet gibt es bewusst keinen "Beenden"-Knopf,
+solange kein Gastgeber da ist, in den zurueckgesprungen werden koennte. Im Kiosk
+uebernimmt das die Leerlauf-Aufsicht (Stufe 5), im eingebetteten Betrieb der
+`onExit`-Rueckruf.
 
 ## 7. Getroffene Entscheidungen
 

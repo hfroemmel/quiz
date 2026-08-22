@@ -19,10 +19,11 @@ import { OptionBar, optionLetter } from '../ui/OptionBar.tsx'
 import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
-export function QuestionScene({ view }: SceneProps) {
+export function QuestionScene({ view, variant }: SceneProps) {
   const question = view.question
   if (!question) return null
-  const options = view.visibleOptions ?? []
+  // Am Touchgeraet stehen die Optionen als Schaltflaechen vor den Spielern.
+  const options = variant === 'touch' ? [] : view.visibleOptions ?? []
 
   return (
     <div className={`scene scene--question ${question.imageUrl ? 'scene--question-with-image' : ''}`}>

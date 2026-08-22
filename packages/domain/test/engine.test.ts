@@ -707,6 +707,36 @@ describe('Selbstbedienung', () => {
     expect(harness.events.some((event) => event.message.includes('muendlich-1'))).toBe(true)
   })
 
+  it('ueberspringt einen Fragenplatz, der gar keine beantwortbare Frage enthaelt', () => {
+    // Genau der Fall der ausgelieferten Presets: ein reiner Bilderkennen-Platz.
+    const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich'), normalQuestion('q3')])
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
+    harness.advance(selfServiceTiming.solutionHoldMs)
+    harness.advance(gameTiming.pauseScreenMs)
+
+    // Platz 2 faellt weg, gespielt wird direkt Platz 3.
+    expect(harness.state!.currentQuestion!.question.id).toBe('q3')
+    expect(harness.state!.phase).toBe('buzzer-open')
+    expect(harness.events.some((event) => event.message.includes('Fragenplatz 2'))).toBe(true)
+  })
+
+  it('endet mit dem Ergebnis, wenn keine beantwortbare Frage mehr folgt', () => {
+    const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich')])
+    startGame(harness, { ...selfService, playerCount: 1 })
+
+    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
+    harness.advance(selfServiceTiming.solutionHoldMs)
+
+    // Kein Stillstand am Geraet: Das Spiel endet mit dem, was gespielt wurde.
+    expect(harness.state!.phase).toBe('result')
+    expect(harness.state!.status).toBe('completed')
+    expect(determineResult(harness.state!).solo).toEqual({ correctAnswers: 1, questionCount: 1 })
+  })
+
   it('weist den Start ab, wenn keine beantwortbare Frage uebrig bleibt', () => {
     const harness = createHarness([revealQuestion('muendlich-1')])
     const rejection = harness.expectReject({

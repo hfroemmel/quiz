@@ -18,13 +18,16 @@ import { OptionBar, optionLetter } from '../ui/OptionBar.tsx'
 import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
-export function SolutionScene({ view }: SceneProps) {
+export function SolutionScene({ view, variant }: SceneProps) {
   const solution = view.visibleSolution
   if (!solution) return null
 
   const options = view.visibleOptions ?? []
   const correctIndex = options.findIndex((option) => option.state === 'correct')
-  const remaining = options.filter((option) => option.state !== 'correct')
+  // Die richtige Antwort steht auch am Touchgeraet gross auf der Flaeche. Die
+  // uebrigen Optionen nicht: Sie liegen dort bereits als Schaltflaechen, dort
+  // sogar mit demselben Zustand.
+  const remaining = variant === 'touch' ? [] : options.filter((option) => option.state !== 'correct')
 
   return (
     <div className="scene scene--solution">

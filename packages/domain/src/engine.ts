@@ -850,12 +850,43 @@ function handleContinue(work: Draft): EngineResult {
     draft.currentSlotIndex += 1
   })
   const selection = drawQuestionForCurrentSlot(work, [])
-  if (!selection.ok) return selection.rejection
+  if (!selection.ok) {
+    /*
+     * Ohne Operator gibt es niemanden, der auf eine gescheiterte Auswahl
+     * reagieren koennte. Ein stehengebliebener Bildschirm waere das schlechteste
+     * Ergebnis, deshalb endet das Spiel hier mit dem, was gespielt wurde.
+     */
+    if (state.flowProfile === 'self-service') return finishGameEarly(work)
+    return selection.rejection
+  }
 
   work.mutate((draft) => {
     draft.phase = 'pause-screen'
   })
   work.scheduleTimedTransition(questionEntryPhase(work.state!), work.timing.pauseScreenMs, 'pause-to-question')
+  return work.commit()
+}
+
+/**
+ * Beendet ein Selbstbedienungsspiel, fuer das keine beantwortbare Frage mehr
+ * gefunden wurde. Gewertet wird, was gespielt wurde.
+ */
+function finishGameEarly(work: Draft): EngineResult {
+  const played = work.state!.currentSlotIndex
+  work.mutate((draft) => {
+    // `totalQuestions` bleibt die Zahl der Fragenplaetze des Presets. Wie viele
+    // Fragen tatsaechlich gestellt wurden, leitet das Ergebnis aus den Versuchen ab.
+    draft.currentSlotIndex = Math.max(0, played - 1)
+    draft.phase = 'result'
+    draft.status = 'completed'
+    draft.buzzer = { open: false }
+    draft.pendingTransition = undefined
+  })
+  work.log(
+    'content',
+    `Keine weitere Frage verfuegbar, die ohne Operator beantwortet werden kann. Das Spiel endet nach ${played} Fragen.`,
+    { playedQuestions: played },
+  )
   return work.commit()
 }
 
@@ -908,11 +939,12 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
 }
 
 /**
- * Wie oft im Selbstbedienungsbetrieb hoechstens ein Ersatz gezogen wird, bevor der
- * Befehl mit klarer Begruendung abgewiesen wird. Ohne Grenze koennte ein Pool ohne
- * auswertbare Fragen die Auswahl endlos beschaeftigen.
+ * Notbremse fuer die Suche nach einer beantwortbaren Frage im
+ * Selbstbedienungsbetrieb. Regulaer endet die Suche von selbst, weil bereits
+ * gezogene Fragen ausgeschlossen werden und die Fragenplaetze zu Ende gehen.
+ * Diese Grenze schuetzt allein vor einer fehlerhaften Auswahlquelle.
  */
-const MAX_SELF_SERVICE_RETRIES = 10
+const MAX_SELF_SERVICE_DRAWS = 200
 
 /* ------------------------------------------------------------------ *
  * Phasenuebergaenge
@@ -1083,50 +1115,74 @@ function drawQuestionForCurrentSlot(
   const selfService = state.flowProfile === 'self-service'
   const exclusions = [...additionalExclusions]
 
-  let response = work.ctx.questionSource.selectForSlot({
-    quizModeId: state.quizModeId,
-    presetId: state.presetId,
-    slotIndex: state.currentSlotIndex,
-    excludeQuestionIds: [...state.selectedQuestionIds, ...exclusions],
-    excludeRepetitionGroupIds: [...state.selectedRepetitionGroupIds],
-  })
-
-  /*
-   * Selbstbedienung: Eine Frage, die nur ein Mensch bewerten kann - eine
-   * muendliche Antwort - laesst sich am Touchgeraet nicht aufloesen. Sie wuerde
-   * den Ablauf anhalten, weil niemand da ist, der sie beenden koennte.
-   *
-   * Sie wird deshalb wie eine uebersprungene Frage behandelt und ein Ersatz
-   * gezogen. Verhindern soll das die Inhaltsvalidierung: Ein Kiosk-Preset filtert
-   * auf auswertbare Fragen. Diese Stelle ist das Sicherheitsnetz, nicht der Plan -
-   * und sie schweigt nicht, sondern schreibt jeden Fall ins Protokoll.
-   */
-  let guard = 0
-  while (response.ok && selfService && !isSelfServiceAnswerable(response.runtimeQuestion.question)) {
-    const unusable = response.runtimeQuestion.question.id
-    exclusions.push(unusable)
-    work.log(
-      'content',
-      `Frage ${unusable} braucht eine Bewertung durch einen Menschen und wurde im Selbstbedienungsbetrieb uebersprungen.`,
-      { questionId: unusable, reason: 'not-self-service-answerable' },
-    )
-    if ((guard += 1) > MAX_SELF_SERVICE_RETRIES) {
-      return {
-        ok: false,
-        rejection: reject(
-          'no-candidate-question',
-          'Fuer diesen Fragenplatz gibt es keine Frage, die ohne Operator beantwortet werden kann. ' +
-            'Bitte das Preset auf auswertbare Fragen einschraenken.',
-        ),
-      }
-    }
-    response = work.ctx.questionSource.selectForSlot({
+  const draw = () =>
+    work.ctx.questionSource.selectForSlot({
       quizModeId: state.quizModeId,
       presetId: state.presetId,
       slotIndex: state.currentSlotIndex,
       excludeQuestionIds: [...state.selectedQuestionIds, ...exclusions],
       excludeRepetitionGroupIds: [...state.selectedRepetitionGroupIds],
     })
+
+  let response = draw()
+
+  /*
+   * Selbstbedienung: Eine Frage, die nur ein Mensch bewerten kann - eine
+   * muendliche Antwort - laesst sich am Touchgeraet nicht aufloesen. Sie wuerde
+   * den Ablauf anhalten, weil niemand da ist, der ihn beenden koennte.
+   *
+   * Deshalb wird sie wie eine uebersprungene Frage behandelt. Taugt der ganze
+   * Fragenplatz nicht - ein Preset mit einem reinen Bilderkennen-Platz ist genau
+   * dieser Fall -, wird der Platz uebersprungen und der naechste versucht.
+   *
+   * Verhindern soll beides die Inhaltsvalidierung: Ein Kiosk-Preset filtert auf
+   * auswertbare Fragen. Diese Stelle ist das Sicherheitsnetz, nicht der Plan -
+   * und sie schweigt nicht, sondern schreibt jeden Fall ins Protokoll.
+   */
+  if (selfService) {
+    let guard = 0
+    for (;;) {
+      if (response.ok && isSelfServiceAnswerable(response.runtimeQuestion.question)) break
+      if ((guard += 1) > MAX_SELF_SERVICE_DRAWS) {
+        return { ok: false, rejection: reject('no-candidate-question', 'Die Fragenauswahl kommt zu keinem Ergebnis.') }
+      }
+
+      if (response.ok) {
+        // Einzelne Frage taugt nicht: naechsten Kandidaten desselben Platzes ziehen.
+        const unusable = response.runtimeQuestion.question.id
+        exclusions.push(unusable)
+        work.log(
+          'content',
+          `Frage ${unusable} braucht eine Bewertung durch einen Menschen und wurde im Selbstbedienungsbetrieb uebersprungen.`,
+          { questionId: unusable, reason: 'not-self-service-answerable' },
+        )
+        response = draw()
+        continue
+      }
+
+      // Der ganze Fragenplatz taugt nicht. Gibt es keinen weiteren, entscheidet
+      // der Aufrufer, was das bedeutet: kein Spielstart bzw. vorzeitiges Ende.
+      if (state.currentSlotIndex + 1 >= state.totalQuestions) {
+        return {
+          ok: false,
+          rejection: reject(
+            'no-candidate-question',
+            'Fuer diesen Fragenplatz gibt es keine Frage, die ohne Operator beantwortet werden kann. ' +
+              'Bitte das Preset auf auswertbare Fragen einschraenken.',
+          ),
+        }
+      }
+      const skipped = state.currentSlotIndex + 1
+      work.mutate((draft) => {
+        draft.currentSlotIndex += 1
+      })
+      work.log(
+        'content',
+        `Fragenplatz ${skipped} enthaelt keine Frage, die ohne Operator beantwortet werden kann, und wurde uebersprungen.`,
+        { slotIndex: skipped - 1, reason: 'slot-not-self-service-answerable' },
+      )
+      response = draw()
+    }
   }
 
   if (!response.ok) {

@@ -13,6 +13,7 @@
 /* Die Buehnenflaeche selbst. */
 export { StageScreen, themeVariables, type StageScreenProps } from './StageScreen.tsx'
 export { type StageHeaderSlots } from './StageHeader.tsx'
+export { type StageVariant } from './scenes/sceneProps.ts'
 
 /* Enthuellungsuhr: aus dem Serverstand abgeleitete Anzeigewerte. */
 export { useRevealClock, type RevealDisplay } from './useRevealClock.ts'
@@ -36,6 +37,11 @@ export {
   prefersReducedMotion,
   type PresentationTiming,
 } from './animationPresets.ts'
+
+/* Bausteine, die auch ausserhalb der Buehne gebraucht werden - etwa fuer die
+   Antwortflaechen am Touchgeraet, damit dort dieselbe Optik entsteht. */
+export { OptionBar, optionLetter, type OptionTone } from './ui/OptionBar.tsx'
+export { Tile, type TileTone, type TileSize } from './ui/Tile.tsx'
 
 /* Farbtoken des Designsystems als Fallback ausserhalb eines laufenden Spiels. */
 export { greyDesignColors, designFontStack } from './designTokens.ts'

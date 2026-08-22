@@ -11,7 +11,7 @@
  * sendet Befehle; ueber Zulaessigkeit und Wirkung entscheidet der Server.
  */
 import { useEffect, useState } from 'react'
-import { useQuizConnection } from '../../client/useQuizConnection.ts'
+import { useQuizConnection } from '@quiz/client'
 import { useBuzzerKeys } from '../../client/useBuzzerKeys.ts'
 import { StageScreen, themeVariables, unlockAudio } from '@quiz/presentation'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'

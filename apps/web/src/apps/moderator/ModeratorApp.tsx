@@ -14,7 +14,7 @@
  */
 import { useEffect, useState } from 'react'
 import type { ModeratorQuizViewModel } from '@quiz/contracts'
-import { useQuizConnection } from '../../client/useQuizConnection.ts'
+import { useQuizConnection } from '@quiz/client'
 import { themeVariables, useRevealClock } from '@quiz/presentation'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
 

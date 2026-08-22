@@ -1,6 +1,11 @@
 /**
  * WebSocket-Anbindung der Clients.
  *
+ * Sie ist fuer alle Rollen dieselbe: Operator, Moderator, Buehne und die Spieler
+ * am Touchgeraet. Deshalb liegt sie in einem eigenen Paket und nicht in einer
+ * Anwendung - eine zweite Fassung waere eine zweite Reconnect- und
+ * Befehlslogik.
+ *
  * Verantwortung dieses Hooks - und nur diese:
  *  - Verbindung aufbauen, ueberwachen und sauber wieder abbauen;
  *  - eingehende Snapshots in React-State ueberfuehren;
@@ -15,6 +20,7 @@ import type {
   Command,
   ModeratorQuizViewModel,
   OperatorQuizViewModel,
+  PlayerQuizViewModel,
   PublicQuizViewModel,
   ServerMessage,
 } from '@quiz/contracts'
@@ -145,6 +151,8 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
         envelope: {
           commandId: createCommandId(),
           command,
+          // Der Buehnenclient handelt nie selbst; seine einzige Meldung ist eine
+          // Systemmeldung. Alle anderen Rollen gibt es auch als Akteur.
           actor: { clientId: clientIdRef.current, role: role === 'stage' ? 'system' : role },
           expectedRevision: revisionRef.current,
           issuedAtClient: new Date().toISOString(),
@@ -165,6 +173,7 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
 export type OperatorConnection = QuizConnection<OperatorQuizViewModel>
 export type ModeratorConnection = QuizConnection<ModeratorQuizViewModel>
 export type StageConnection = QuizConnection<PublicQuizViewModel>
+export type PlayerConnection = QuizConnection<PlayerQuizViewModel>
 
 function createCommandId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()

@@ -193,6 +193,7 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
   return {
     ...projectPublic(state, ctx),
     allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
+    catalog: buildCatalog(ctx),
   }
 }
 

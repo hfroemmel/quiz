@@ -79,7 +79,7 @@ export function determineResult(state: GameState): GameResult {
       mode: 'solo',
       winnerPlayerId: null,
       isDraw: false,
-      solo: { correctAnswers: countCorrectAnswers(state), questionCount: state.totalQuestions },
+      solo: { correctAnswers: countCorrectAnswers(state), questionCount: countPlayedQuestions(state) },
     }
   }
   if (!first) return { mode: 'duel', winnerPlayerId: null, isDraw: true }
@@ -94,9 +94,25 @@ export function determineResult(state: GameState): GameResult {
  * Frage erlaubt, richtig ist eine Frage aber trotzdem nur einmal.
  */
 function countCorrectAnswers(state: GameState): number {
-  const solved = new Set<number>()
+  return countSlots(state, (attempt) => attempt.outcome === 'correct')
+}
+
+/**
+ * Tatsaechlich gestellte Fragen - nicht die Zahl der Fragenplaetze.
+ *
+ * Beides faellt auseinander, wenn ein Fragenplatz uebersprungen wurde, weil er im
+ * Selbstbedienungsbetrieb keine beantwortbare Frage enthielt. "2 von 7 richtig"
+ * waere dann falsch, obwohl nur sechs Fragen gestellt wurden.
+ */
+function countPlayedQuestions(state: GameState): number {
+  return countSlots(state, () => true)
+}
+
+/** Anzahl der Fragenplaetze, auf die ein passender Versuch entfaellt. */
+function countSlots(state: GameState, matches: (attempt: AnswerAttempt) => boolean): number {
+  const slots = new Set<number>()
   for (const attempt of state.attempts) {
-    if (attempt.outcome === 'correct') solved.add(attempt.slotIndex)
+    if (matches(attempt)) slots.add(attempt.slotIndex)
   }
-  return solved.size
+  return slots.size
 }

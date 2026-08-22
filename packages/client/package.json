@@ -1,0 +1,17 @@
+{
+  "name": "@quiz/client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Verbindung zum Quizserver: WebSocket, Reconnect, Befehlsversand - fuer alle Rollen dieselbe",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@quiz/contracts": "workspace:*",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18"
+  }
+}

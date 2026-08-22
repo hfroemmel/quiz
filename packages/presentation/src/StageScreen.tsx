@@ -27,7 +27,7 @@ import { SolutionScene } from './scenes/SolutionScene.tsx'
 import { ResultScene } from './scenes/ResultScene.tsx'
 import { StartScene } from './scenes/StartScene.tsx'
 import { StageHeader, type StageHeaderSlots } from './StageHeader.tsx'
-import type { SceneProps } from './scenes/sceneProps.ts'
+import type { SceneProps, StageVariant } from './scenes/sceneProps.ts'
 
 export interface StageScreenProps {
   view: PublicQuizViewModel
@@ -36,8 +36,11 @@ export interface StageScreenProps {
   isAudioMaster: boolean
   /** Der Buehnenclient darf ausschliesslich Medienstatus zurueckmelden. */
   onReport?: (command: Command) => void
-  /** Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
-  variant?: 'stage' | 'preview'
+  /**
+   * Wo die Flaeche steht. Die Operatorvorschau ist dieselbe Komposition in
+   * kleiner Flaeche, `touch` dieselbe Komposition ueber den Antwortflaechen.
+   */
+  variant?: StageVariant
   /**
    * Bedienelemente des Operators, die im Entwurf ueber der Flaeche liegen.
    *
@@ -56,7 +59,7 @@ export function StageScreen({
   headerSlots,
 }: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
-  const sceneProps: SceneProps = { view, reveal, serverNow }
+  const sceneProps: SceneProps = { view, reveal, serverNow, variant }
 
   const feedbackVariant = view.feedback?.outcome === 'correct' ? 'correct' : 'incorrect'
   const previousScene = useRef<PublicQuizViewModel['scene'] | undefined>(undefined)

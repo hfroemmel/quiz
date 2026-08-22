@@ -82,6 +82,8 @@ packages/
   content/     Quizdaten: Legacy-Import, Validierung, Pakete, Hotfix-Overlay
   persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme
   presentation/ Buehnenflaeche: Szenen, Uebergaenge, Bausteine, Stylesheet
+  client/      Verbindung zum Server: WebSocket, Reconnect, Befehlsversand
+  game/        spielbares Quiz als einbettbare Komponente (Touchgeraet)
   runtime/     Anwendungsschicht: Befehlsverarbeitung, Timer, Wiederherstellung
   server/      Transport des Buehnenbetriebs: HTTP-Auslieferung und WebSocket
 content/
