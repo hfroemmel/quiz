@@ -261,7 +261,7 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 |---|---|---|
 | **0** | `packages/presentation` herausloesen, `apps/web` umstellen — **erledigt** | reine Verschiebung; `pnpm typecheck`, `pnpm test` (108) und `pnpm test:e2e` (32) unveraendert gruen |
 | **1** | `packages/runtime` aus `packages/server` herausloesen — **erledigt** | `packages/server` haengt nur noch als Transportadapter dran; keine Verhaltensaenderung |
-| **2** | Spielerzahl 1-2 im Kern (Contracts, Engine, Projektion, Szenen) | neue Domaintests: Einzelspieler ohne zweite Chance, Solo-Ergebnis; Buehne weiterhin zweispielrig |
+| **2** | Spielerzahl 1-2 im Kern (Contracts, Engine, Projektion, Szenen) — **erledigt** | neue Domaintests: Einzelspieler ohne zweite Chance, Solo-Ergebnis; Buehne weiterhin zweispielrig |
 | **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
 | **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
 | **5** | `apps/kiosk`: Electron-Vollbild, Attract-Screen, Leerlauf-Aufsicht, Inhaltsfilter fuer Selbstbedienung, `image-reveal` freischalten | Geraet spielt einen Tag durch, ohne dass jemand eingreift |
@@ -289,6 +289,27 @@ Beide Stufen sind umgesetzt und aendern kein Verhalten.
 
 Damit steht die Paketstruktur fuer Stufe 2 (Spielerzahl) und Stufe 3
 (Ablaufprofil), die als erste den Kern fachlich veraendern.
+
+### Stand nach Stufe 2
+
+`GameState.players` ist ein Array mit einem oder zwei Eintraegen; `START_GAME`
+traegt optional `playerCount`. Ohne Angabe entsteht ein Duell - der
+Buehnenbetrieb bleibt damit unveraendert und muss nichts mitschicken.
+
+Zwei Regeln haengen an der Spielerzahl, und beide an genau einer Stelle:
+
+* **Zweite Chance** nur, wenn es einen anderen Spieler gibt, der bei dieser Frage
+  noch antworten darf (`eligibleOpponent` in `buzzer.ts`). Im Einzelspiel folgt
+  nach dem Fehlversuch sofort die Loesung. Beim Bilderkennen bleiben mehrere
+  Versuche desselben Spielers erlaubt - diese Regel haengt am Fragetyp, nicht an
+  der Spielerzahl.
+* **Ergebnis** ueber `result.mode`: Im Duell Gewinner oder Unentschieden, im
+  Einzelspiel Punktestand und Trefferzahl. Die Ergebnisszene entscheidet daran,
+  was sie zeigt - sie zaehlt nicht die Punktestaende.
+
+Die Entwicklungsvorschau hat dafuer einen Schalter „Einzelspiel", damit die
+Solo-Darstellung pruefbar ist, obwohl der Operator noch keine Einzelspiele
+startet. Das deckt die Bildregression mit ab.
 
 ## 7. Getroffene Entscheidungen
 

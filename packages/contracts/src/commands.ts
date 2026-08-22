@@ -9,13 +9,16 @@
  * `allowedCommands` des View-Modells abgeleitet.
  */
 import { z } from 'zod'
-import { playerIds, type PlayerId } from './state.ts'
+import { playerCounts, playerIds, type PlayerCount, type PlayerId } from './state.ts'
 import { patchableQuestionFieldsSchema } from './content.ts'
 
 export const actorRoles = ['operator', 'moderator', 'system', 'buzzer'] as const
 export type ActorRole = (typeof actorRoles)[number]
 
 const playerIdSchema = z.enum(playerIds as unknown as [PlayerId, ...PlayerId[]])
+const playerCountSchema = z.union(
+  playerCounts.map((count) => z.literal(count)) as unknown as [z.ZodLiteral<PlayerCount>, z.ZodLiteral<PlayerCount>],
+)
 
 /**
  * Alle Befehle als diskriminierte Union. Neue Befehle werden hier ergaenzt; der
@@ -26,7 +29,13 @@ export const commandSchema = z.discriminatedUnion('type', [
     type: z.literal('START_GAME'),
     quizModeId: z.string().min(1),
     presetId: z.string().min(1),
-    playerLabels: z.tuple([z.string().min(1), z.string().min(1)]).optional(),
+    /**
+     * Ohne Angabe wird ein Duell gestartet. Der Buehnenbetrieb laesst das Feld
+     * deshalb weg; das Einzelspiel gibt es ausdruecklich an.
+     */
+    playerCount: playerCountSchema.optional(),
+    /** Beschriftungen in Spielerreihenfolge. Fehlende Eintraege werden ergaenzt. */
+    playerLabels: z.array(z.string().min(1)).min(1).max(playerCounts.length).optional(),
   }),
   /** Buzzer fuer die aktuelle Frage freigeben. */
   z.object({ type: z.literal('OPEN_BUZZER') }),

@@ -41,7 +41,7 @@ describe('Befehl, Transaktion und Verteilung', () => {
     playQuestion(target, 'correct-first')
     expect(target.store.countRows('score_transactions')).toBe(1)
     expect(target.store.countRows('attempts')).toBe(1)
-    expect(target.service.authoritativeState!.players[0].score).toBe(100)
+    expect(target.service.authoritativeState!.players[0]!.score).toBe(100)
   })
 
   it('vergibt bei doppelter Command-ID keine doppelten Punkte', () => {
@@ -63,7 +63,7 @@ describe('Befehl, Transaktion und Verteilung', () => {
 
     expect(first.ok).toBe(true)
     expect(second.ok).toBe(true)
-    expect(target.service.authoritativeState!.players[0].score).toBe(100)
+    expect(target.service.authoritativeState!.players[0]!.score).toBe(100)
     expect(target.store.countRows('score_transactions')).toBe(1)
   })
 
@@ -211,8 +211,8 @@ describe('Wiederherstellung nach Serverneustart', () => {
     rigs.push(target)
     target.send({ type: 'RESUME_GAME' })
 
-    expect(target.service.authoritativeState!.players[0].score).toBe(100)
-    expect(target.service.authoritativeState!.players[1].score).toBe(100)
+    expect(target.service.authoritativeState!.players[0]!.score).toBe(100)
+    expect(target.service.authoritativeState!.players[1]!.score).toBe(100)
   })
 
   it('stellt eine laufende Enthuellung als pausiert wieder her', () => {

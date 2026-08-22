@@ -4,6 +4,9 @@
  * Der hoehere Punktestand gewinnt, bei Gleichstand erscheint "Unentschieden". Es gibt
  * bewusst keine manuelle Gewinnerauswahl und keine automatische Entscheidungsfrage.
  *
+ * Im Einzelspiel gibt es weder Gewinner noch Unentschieden. Welche Fassung gilt,
+ * entscheidet `result.mode` aus dem Server - nicht die Anzahl der Punktestaende.
+ *
  * Pokal und Konfetti laufen nur bei einem Gewinner - beides ist reine Darstellung.
  * Korrigiert der Operator danach Punkte, berechnet der Server das Ergebnis
  * deterministisch neu und diese Ansicht folgt einfach dem neuen Snapshot.
@@ -12,6 +15,7 @@
  * Punkte innen. Sie zaehlen ebenfalls hoch - korrigiert der Operator hier noch
  * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
+import type { PublicResult } from '@quiz/contracts'
 import { Confetti } from '../ui/Confetti.tsx'
 import { AnimationClip } from '../ui/AnimationClip.tsx'
 import { ScoreTile } from '../ScoreTile.tsx'
@@ -21,6 +25,8 @@ import type { SceneProps } from './sceneProps.ts'
 export function ResultScene({ view }: SceneProps) {
   const result = view.result
   if (!result) return null
+
+  if (result.mode === 'solo') return <SoloResult result={result} />
 
   const winner = result.scores.find((score) => score.playerId === result.winnerPlayerId)
   const [playerOne, playerTwo] = result.scores
@@ -49,6 +55,36 @@ export function ResultScene({ view }: SceneProps) {
           <div className="result__group result__group--mirrored">
             <ScoreTile score={playerTwo.score} size="result" />
             <Tile label="Spieler" value={playerTwo.label.replace(/\D+/g, '') || '2'} size="result" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Einzelspiel: kein Pokal, kein Konfetti, kein Gegner - nur das eigene Ergebnis.
+ *
+ * Die Trefferzahl kommt aus dem Server; sie wird hier nicht aus den Punkten
+ * zurueckgerechnet, weil eine richtige Antwort je nach Versuch verschieden viele
+ * Punkte wert ist.
+ */
+function SoloResult({ result }: { result: PublicResult }) {
+  const player = result.scores[0]
+
+  return (
+    <div className="scene scene--result scene--result-solo">
+      <p className="result__label">Ergebnis</p>
+      {result.solo && (
+        <h2 className="result__winner">
+          {result.solo.correctAnswers} von {result.solo.questionCount} richtig
+        </h2>
+      )}
+
+      <div className="result__scores">
+        {player && (
+          <div className="result__group">
+            <ScoreTile score={player.score} size="result" />
           </div>
         )}
       </div>

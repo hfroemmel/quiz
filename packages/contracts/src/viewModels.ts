@@ -101,10 +101,19 @@ export interface PublicFeedback {
 }
 
 export interface PublicResult {
-  /** `null` bedeutet Unentschieden. Es gibt keine manuelle Gewinnerauswahl. */
+  /**
+   * Im Einzelspiel gibt es weder Gewinner noch Unentschieden, sondern nur das
+   * eigene Ergebnis. Die Ergebnisszene entscheidet daran, was sie zeigt - sie
+   * leitet es nicht aus der Anzahl der Punktestaende ab.
+   */
+  mode: 'duel' | 'solo'
+  /** `null` bedeutet Unentschieden - und im Einzelspiel immer. */
   winnerPlayerId: PlayerId | null
+  /** Im Einzelspiel immer `false`. */
   isDraw: boolean
   scores: PublicScore[]
+  /** Nur im Einzelspiel: wie viele Fragen richtig beantwortet wurden. */
+  solo?: { correctAnswers: number; questionCount: number }
 }
 
 export interface PublicQuizViewModel {

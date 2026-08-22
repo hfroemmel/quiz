@@ -18,17 +18,19 @@
 import {
   gameTiming,
   isImageReveal,
+  playerIds,
   scoringRules,
   type AnswerAttempt,
   type Command,
   type CommandRejection,
   type GamePhase,
   type GameState,
+  type PlayerCount,
   type PlayerId,
   type PlayerState,
   type RuntimeQuestion,
 } from '@quiz/contracts'
-import { evaluateBuzz } from './buzzer.ts'
+import { eligibleOpponent, evaluateBuzz } from './buzzer.ts'
 import {
   applyScoreDelta,
   attemptsForCurrentQuestion,
@@ -124,7 +126,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 
   switch (command.type) {
     case 'START_GAME':
-      return startGame(work, command.quizModeId, command.presetId, command.playerLabels)
+      return startGame(work, command)
 
     case 'SET_SOUND_ENABLED': {
       if (!work.state) return reject('no-active-game', 'Es laeuft gerade kein Spiel.')
@@ -305,10 +307,9 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 
 function startGame(
   work: Draft,
-  quizModeId: string,
-  presetId: string,
-  playerLabels: [string, string] | undefined,
+  command: { quizModeId: string; presetId: string; playerCount?: PlayerCount; playerLabels?: string[] },
 ): EngineResult {
+  const { quizModeId, presetId, playerLabels } = command
   if (work.state && work.state.status === 'active') {
     return reject('invalid-phase', 'Es laeuft bereits ein Spiel. Bitte zuerst beenden.')
   }
@@ -317,10 +318,12 @@ function startGame(
     return reject('invalid-payload', 'Diese Kombination aus Quizmodus und Schwierigkeits-Preset gibt es nicht.')
   }
 
-  const players: [PlayerState, PlayerState] = [
-    createPlayer('player-1', playerLabels?.[0] ?? 'Spieler 1'),
-    createPlayer('player-2', playerLabels?.[1] ?? 'Spieler 2'),
-  ]
+  // Ohne Angabe ist ein Spiel ein Duell. Der Buehnenbetrieb bleibt damit
+  // unveraendert, ohne dass er die Spielerzahl mitschicken muss.
+  const playerCount: PlayerCount = command.playerCount ?? 2
+  const players: PlayerState[] = playerIds
+    .slice(0, playerCount)
+    .map((id, index) => createPlayer(id, playerLabels?.[index] ?? `Spieler ${index + 1}`))
   const fresh: GameState = {
     gameId: work.ctx.newId('game'),
     eventDayId: work.ctx.eventDayId,
@@ -342,7 +345,11 @@ function startGame(
   }
 
   work.replaceState(fresh)
-  work.log('game', `Spiel gestartet: Modus "${quizModeId}", Preset "${presetId}", ${slotCount} Fragen.`)
+  work.log(
+    'game',
+    `Spiel gestartet: Modus "${quizModeId}", Preset "${presetId}", ${slotCount} Fragen, ` +
+      `${playerCount === 1 ? 'Einzelspiel' : 'Duell'}.`,
+  )
 
   const selection = drawQuestionForCurrentSlot(work, [])
   if (!selection.ok) return selection.rejection
@@ -564,8 +571,10 @@ function nextPhaseAfterAttempt(
   // Stelle weiter, beide Spieler duerfen erneut buzzern.
   if (imageReveal) return 'reveal-running'
   // Normale Frage: nach dem ersten Fehlversuch bekommt der andere Spieler die
-  // zweite Chance; nach dem zweiten Fehlversuch folgt die Loesung.
-  return attempt.attemptNumber === 1 ? 'second-chance' : 'solution'
+  // zweite Chance; nach dem zweiten Fehlversuch folgt die Loesung. Im Einzelspiel
+  // gibt es keinen anderen Spieler - dort folgt sofort die Loesung.
+  const opponent = eligibleOpponent(work.state!, attempt.playerId)
+  return attempt.attemptNumber === 1 && opponent ? 'second-chance' : 'solution'
 }
 
 function resetBuzzer(work: Draft): EngineResult {

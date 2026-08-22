@@ -58,9 +58,45 @@ export function applyScoreDelta(currentScore: number, delta: number): { score: n
   return { score, effectiveDelta: score - currentScore }
 }
 
-/** Ergebnis eines abgeschlossenen Spiels. Deterministisch aus den Punktestaenden. */
-export function determineResult(state: GameState): { winnerPlayerId: PlayerId | null; isDraw: boolean } {
+export interface GameResult {
+  mode: 'duel' | 'solo'
+  winnerPlayerId: PlayerId | null
+  isDraw: boolean
+  solo?: { correctAnswers: number; questionCount: number }
+}
+
+/**
+ * Ergebnis eines abgeschlossenen Spiels. Deterministisch aus dem Zustand.
+ *
+ * Im Duell gewinnt der hoehere Punktestand, bei Gleichstand gibt es ein
+ * Unentschieden. Im Einzelspiel gibt es beides nicht: dort zaehlt der eigene
+ * Punktestand und wie viele Fragen richtig beantwortet wurden.
+ */
+export function determineResult(state: GameState): GameResult {
   const [first, second] = state.players
-  if (first.score === second.score) return { winnerPlayerId: null, isDraw: true }
-  return { winnerPlayerId: first.score > second.score ? first.id : second.id, isDraw: false }
+  if (!second) {
+    return {
+      mode: 'solo',
+      winnerPlayerId: null,
+      isDraw: false,
+      solo: { correctAnswers: countCorrectAnswers(state), questionCount: state.totalQuestions },
+    }
+  }
+  if (!first) return { mode: 'duel', winnerPlayerId: null, isDraw: true }
+  if (first.score === second.score) return { mode: 'duel', winnerPlayerId: null, isDraw: true }
+  return { mode: 'duel', winnerPlayerId: first.score > second.score ? first.id : second.id, isDraw: false }
+}
+
+/**
+ * Richtig beantwortete Fragen - nicht richtige Versuche.
+ *
+ * Der Unterschied ist beim Bilderkennen sichtbar: Dort sind mehrere Versuche je
+ * Frage erlaubt, richtig ist eine Frage aber trotzdem nur einmal.
+ */
+function countCorrectAnswers(state: GameState): number {
+  const solved = new Set<number>()
+  for (const attempt of state.attempts) {
+    if (attempt.outcome === 'correct') solved.add(attempt.slotIndex)
+  }
+  return solved.size
 }

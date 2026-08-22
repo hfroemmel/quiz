@@ -37,12 +37,13 @@ export function PreviewApp() {
   const [feedbackOutcome, setFeedbackOutcome] = useState<'correct' | 'incorrect'>('correct')
   const [revealElapsedMs, setRevealElapsedMs] = useState(3_000)
   const [draw, setDraw] = useState(false)
+  const [solo, setSolo] = useState(false)
   // Neu montieren, um denselben Uebergang erneut abzuspielen.
   const [runId, setRunId] = useState(0)
 
   const view = useMemo(
-    () => buildSampleView({ scene, themeId, feedbackOutcome, revealElapsedMs, draw }),
-    [scene, themeId, feedbackOutcome, revealElapsedMs, draw],
+    () => buildSampleView({ scene, themeId, feedbackOutcome, revealElapsedMs, draw, solo }),
+    [scene, themeId, feedbackOutcome, revealElapsedMs, draw, solo],
   )
 
   if (!import.meta.env.DEV) {
@@ -110,12 +111,18 @@ export function PreviewApp() {
           </label>
         )}
 
-        {scene === 'result' && (
+        {scene === 'result' && !solo && (
           <label className="field field--checkbox">
             <input type="checkbox" checked={draw} onChange={(event) => setDraw(event.target.checked)} />
             <span>Unentschieden (kein Konfetti)</span>
           </label>
         )}
+
+        {/* Das Einzelspiel ist dieselbe Buehne mit einem Spieler - hier zum Pruefen. */}
+        <label className="field field--checkbox">
+          <input type="checkbox" checked={solo} onChange={(event) => setSolo(event.target.checked)} />
+          <span>Einzelspiel (ein Spieler)</span>
+        </label>
 
         <button className="button button--primary" onClick={() => setRunId((value) => value + 1)}>
           Uebergang erneut abspielen
@@ -186,11 +193,14 @@ function buildSampleView(input: {
   feedbackOutcome: 'correct' | 'incorrect'
   revealElapsedMs: number
   draw: boolean
+  solo: boolean
 }): PublicQuizViewModel {
   const serverTimeMs = 1_700_000_000_000
   const scores = [
     { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false },
-    { playerId: 'player-2' as const, label: 'Spieler 2', score: input.draw ? 200 : 150, active: false, locked: false },
+    ...(input.solo
+      ? []
+      : [{ playerId: 'player-2' as const, label: 'Spieler 2', score: input.draw ? 200 : 150, active: false, locked: false }]),
   ]
 
   const base: PublicQuizViewModel = {
@@ -268,11 +278,20 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'result',
-        result: {
-          winnerPlayerId: input.draw ? null : 'player-1',
-          isDraw: input.draw,
-          scores,
-        },
+        result: input.solo
+          ? {
+              mode: 'solo',
+              winnerPlayerId: null,
+              isDraw: false,
+              scores,
+              solo: { correctAnswers: 5, questionCount: 7 },
+            }
+          : {
+              mode: 'duel',
+              winnerPlayerId: input.draw ? null : 'player-1',
+              isDraw: input.draw,
+              scores,
+            },
       }
     case 'pause':
       return { ...base, phase: 'pause-screen' }

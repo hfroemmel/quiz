@@ -85,9 +85,30 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await expect(page.locator('.result__label')).toHaveText('Gewinner')
     await expect(page.locator('.confetti')).toHaveCount(1)
 
-    await page.locator('.field--checkbox input').check()
+    await page.getByLabel('Unentschieden (kein Konfetti)').check()
     await expect(page.locator('.result__label')).toHaveText('Unentschieden')
     await expect(page.locator('.confetti')).toHaveCount(0)
+  })
+
+  test('Einzelspiel zeigt eine Spielergruppe statt zweier', async ({ page }) => {
+    await selectScene(page, 'question')
+    await expect(page.locator('.stage-header__player')).toHaveCount(2)
+
+    await page.getByLabel('Einzelspiel (ein Spieler)').check()
+    await expect(page.locator('.stage-header__player')).toHaveCount(1)
+    await expect(page.locator('.stage-header__player--mirrored')).toHaveCount(0)
+  })
+
+  test('Ergebnis im Einzelspiel zeigt Treffer statt Gewinner', async ({ page }) => {
+    await selectScene(page, 'result')
+    await page.getByLabel('Einzelspiel (ein Spieler)').check()
+
+    await expect(page.locator('.result__label')).toHaveText('Ergebnis')
+    await expect(page.locator('.result__winner')).toHaveText('5 von 7 richtig')
+    // Ohne Gegner gibt es weder Pokal noch Konfetti.
+    await expect(page.locator('.confetti')).toHaveCount(0)
+    await expect(page.locator('.result__trophy')).toHaveCount(0)
+    await expect(page.locator('.result__group')).toHaveCount(1)
   })
 })
 
@@ -191,4 +212,14 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
       })
     })
   }
+
+  test('Szene result im Einzelspiel', async ({ page }) => {
+    await selectScene(page, 'result')
+    await page.getByLabel('Einzelspiel (ein Spieler)').check()
+    await page.waitForTimeout(300)
+    await expect(page.locator('.preview__stage')).toHaveScreenshot('scene-result-solo.png', {
+      maxDiffPixelRatio: 0.02,
+      animations: 'disabled',
+    })
+  })
 })

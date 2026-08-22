@@ -87,7 +87,14 @@ export function OperatorApp() {
       </button>
     </div>
   )
-  const scoreControls = { beforePlayerOne: adjust('player-1'), afterPlayerTwo: adjust('player-2') }
+  // Nur fuer Spieler, die es im laufenden Spiel wirklich gibt: Im Einzelspiel
+  // waere eine Korrekturtaste fuer Spieler 2 eine Taste ohne Wirkung.
+  const hasPlayer = (playerId: 'player-1' | 'player-2') =>
+    view.playerScores.some((score) => score.playerId === playerId)
+  const scoreControls = {
+    ...(hasPlayer('player-1') ? { beforePlayerOne: adjust('player-1') } : {}),
+    ...(hasPlayer('player-2') ? { afterPlayerTwo: adjust('player-2') } : {}),
+  }
 
   return (
     <div className="operator" style={themeVariables(view)}>

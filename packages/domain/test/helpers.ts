@@ -5,7 +5,14 @@
  * das Verhalten der Zustandsmaschine unabhaengig vom Auswahlalgorithmus geprueft
  * werden kann. Die Auswahl selbst hat eigene Tests (`selection.test.ts`).
  */
-import { gameTiming, type Command, type GameState, type Question, type RuntimeQuestion } from '@quiz/contracts'
+import {
+  gameTiming,
+  type Command,
+  type GameState,
+  type PlayerCount,
+  type Question,
+  type RuntimeQuestion,
+} from '@quiz/contracts'
 import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine.ts'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
@@ -141,9 +148,20 @@ export function createHarness(
   return harness
 }
 
-/** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */
-export function startGame(harness: Harness): GameState {
-  harness.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' })
+/**
+ * Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht.
+ *
+ * Ohne Angabe entsteht ein Duell - genau wie im Buehnenbetrieb, der die
+ * Spielerzahl nicht mitschickt.
+ */
+export function startGame(harness: Harness, options: { playerCount?: PlayerCount; playerLabels?: string[] } = {}): GameState {
+  harness.dispatch({
+    type: 'START_GAME',
+    quizModeId: 'adults',
+    presetId: 'medium',
+    ...(options.playerCount === undefined ? {} : { playerCount: options.playerCount }),
+    ...(options.playerLabels === undefined ? {} : { playerLabels: options.playerLabels }),
+  })
   harness.settle()
   return harness.state!
 }
