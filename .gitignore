@@ -7,8 +7,10 @@ dist-electron/
 release/
 *.tsbuildinfo
 
-# Laufzeitdaten des lokalen Servers (SQLite, Logs, Exporte)
-runtime/
+# Laufzeitdaten des lokalen Servers (SQLite, Logs, Exporte).
+# Der fuehrende Schraegstrich ist wichtig: ohne ihn wuerde das Muster auch
+# packages/runtime/ erfassen, also ein Quellpaket.
+/runtime/
 *.sqlite
 *.sqlite-journal
 *.sqlite-wal

@@ -82,7 +82,8 @@ packages/
   content/     Quizdaten: Legacy-Import, Validierung, Pakete, Hotfix-Overlay
   persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme
   presentation/ Buehnenflaeche: Szenen, Uebergaenge, Bausteine, Stylesheet
-  server/      lokaler Server: Befehlsverarbeitung, Sitzungen, WebSocket, Auslieferung
+  runtime/     Anwendungsschicht: Befehlsverarbeitung, Timer, Wiederherstellung
+  server/      Transport des Buehnenbetriebs: HTTP-Auslieferung und WebSocket
 content/
   source/      redaktionelle Quelle (JSON) und Medien
   dist/        gebautes, versioniertes Quizpaket - einzige Laufzeitquelle

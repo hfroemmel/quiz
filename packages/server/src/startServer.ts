@@ -1,19 +1,17 @@
 /**
- * Zusammenbau des lokalen Quizservers.
+ * Zusammenbau des lokalen Quizservers: die Laufzeit aus `@quiz/runtime` plus
+ * HTTP-Auslieferung und WebSocket-Verteilung.
  *
  * Reihenfolge beim Start (Spezifikation 23.3):
- *   1. aktive Quizpaketversion pruefen und laden
- *   2. Datenbank oeffnen und migrieren
- *   3. letzten aktiven Veranstaltungstag ermitteln
- *   4. unvollstaendiges Spiel erkennen und vorbereiten
+ *   1. bis 4. uebernimmt `createQuizRuntime`: Quizpaket, Datenbank,
+ *      Veranstaltungstag und ein unvollstaendiges Spiel
  *   5. Clients ausliefern und Verbindungen annehmen
  */
 import { createServer, type Server } from 'node:http'
 import { join } from 'node:path'
-import { contentPackageDir, repositoryRoot, runtimeDir } from '@quiz/content'
-import { QuizStore } from '@quiz/persistence'
-import { ContentService } from './contentService.ts'
-import { QuizService } from './quizService.ts'
+import { repositoryRoot } from '@quiz/content'
+import type { QuizStore } from '@quiz/persistence'
+import { createQuizRuntime, type QuizService } from '@quiz/runtime'
 import { createRequestHandler } from './httpServer.ts'
 import { attachWebSocketServer } from './wsServer.ts'
 import { createSessionCode, localNetworkUrls } from './network.ts'
@@ -41,17 +39,15 @@ export interface RunningServer {
 export async function startServer(options: StartOptions = {}): Promise<RunningServer> {
   const port = options.port ?? Number(process.env['QUIZ_PORT'] ?? 4319)
   const host = options.host ?? process.env['QUIZ_HOST'] ?? '0.0.0.0'
-  const packageDir = options.packageDir ?? process.env['QUIZ_PACKAGE_DIR'] ?? contentPackageDir
-  const databaseFile = options.databaseFile ?? process.env['QUIZ_DB'] ?? join(runtimeDir, 'quiz.sqlite')
   const webDistDir = options.webDistDir ?? join(repositoryRoot, 'apps', 'web', 'dist')
   const sessionCode = options.sessionCode ?? createSessionCode()
 
-  const store = new QuizStore(databaseFile)
-  const content = new ContentService(packageDir, [])
-  // Bereits gespeicherte Live-Hotfixes sofort als Overlay anwenden.
-  content.applyPatchOverlay(store.loadPatches())
-
-  const service = new QuizService({ store, content, sessionCode })
+  const runtime = createQuizRuntime({
+    ...(options.packageDir === undefined ? {} : { packageDir: options.packageDir }),
+    ...(options.databaseFile === undefined ? {} : { databaseFile: options.databaseFile }),
+    sessionCode,
+  })
+  const { service, store, content } = runtime
   store.appendAudit({
     atMs: Date.now(),
     actorRole: 'system',
@@ -82,10 +78,9 @@ export async function startServer(options: StartOptions = {}): Promise<RunningSe
     sessionCode,
     lanUrls,
     async close() {
-      service.stopTimers()
       closeWebSockets()
       await new Promise<void>((resolve) => httpServer.close(() => resolve()))
-      store.close()
+      runtime.close()
     },
   }
 }

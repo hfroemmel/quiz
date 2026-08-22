@@ -139,6 +139,21 @@ importers:
         specifier: ^6.0.7
         version: 6.4.3(@types/node@22.20.1)(tsx@4.23.12)
 
+  packages/runtime:
+    dependencies:
+      '@quiz/content':
+        specifier: workspace:*
+        version: link:../content
+      '@quiz/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@quiz/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@quiz/persistence':
+        specifier: workspace:*
+        version: link:../persistence
+
   packages/server:
     dependencies:
       '@quiz/content':
@@ -153,6 +168,9 @@ importers:
       '@quiz/persistence':
         specifier: workspace:*
         version: link:../persistence
+      '@quiz/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       ws:
         specifier: ^8.18.0
         version: 8.21.3

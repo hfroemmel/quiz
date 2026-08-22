@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Lokaler Quizserver: Befehlsverarbeitung, Sitzungen, WebSocket-Verteilung, Auslieferung der Clients",
+  "description": "Transportadapter des Buehnenbetriebs: HTTP-Auslieferung, WebSocket-Verteilung, Zugriffsregeln",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -12,6 +12,7 @@
     "@quiz/contracts": "workspace:*",
     "@quiz/domain": "workspace:*",
     "@quiz/persistence": "workspace:*",
+    "@quiz/runtime": "workspace:*",
     "ws": "^8.18.0"
   },
   "devDependencies": {

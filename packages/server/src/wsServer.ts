@@ -13,7 +13,7 @@ import { randomUUID } from 'node:crypto'
 import type { Server } from 'node:http'
 import { WebSocketServer, type WebSocket } from 'ws'
 import { PROTOCOL_VERSION, type ClientMessage, type ClientRole, type ServerMessage } from '@quiz/contracts'
-import type { QuizService } from './quizService.ts'
+import type { QuizService } from '@quiz/runtime'
 import { checkAccess, isLoopback } from './network.ts'
 
 interface Connection {

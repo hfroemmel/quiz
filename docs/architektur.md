@@ -3,11 +3,13 @@
 ## Schichten und Abhaengigkeitsrichtung
 
 ```text
-Anwendungen (apps/web, apps/desktop) / Serveradapter
+Anwendungen (apps/web, apps/desktop)
         ↓
 Praesentationsschicht (packages/presentation)
         ↓
-Application Services  (packages/server)
+Transportadapter      (packages/server: HTTP, WebSocket)
+        ↓
+Application Services  (packages/runtime)
         ↓
 Domain und Contracts  (packages/domain, packages/contracts)
 
@@ -26,7 +28,8 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | `@quiz/domain` | Zustandsmaschine, Scoring, Buzzerregeln, Fragenauswahl, Projektion | Dateisystem, Netzwerk, Zeitquelle |
 | `@quiz/content` | Legacy-Import, Validierung, Paketbau, Hotfix-Overlay | Spielregeln, Netzwerk |
 | `@quiz/persistence` | SQLite-Schema, Migrationen, transaktionale Uebernahme | Spielregeln |
-| `@quiz/server` | Befehlsverarbeitung, Sitzungen, WebSocket, Auslieferung, Timer | Spielregeln (delegiert an Domain) |
+| `@quiz/runtime` | Befehlsverarbeitung, Idempotenz, Timer, Wiederherstellung, Inhaltszugriff, Snapshots | Transport, Oberflaeche, Spielregeln (delegiert an Domain) |
+| `@quiz/server` | HTTP-Auslieferung, WebSocket-Verteilung, Sitzungen und Zugriffsregeln | Befehlsverarbeitung (delegiert an Runtime) |
 | `@quiz/presentation` | Buehnenflaeche: Szenen, Uebergaenge, Soundmarken, Stylesheet der Buehne | Verbindung, Befehle, Spielregeln |
 | `apps/web` | Einstiegspunkte je Rolle, Verbindung, Bedienoberflaechen von Operator und Moderator | Spielregeln |
 | `apps/desktop` | Fenster, Displays, Preload-Bruecke, Prozessstart | Spielregeln |
@@ -66,8 +69,8 @@ Paketgrenze eine fachliche Grenze ab. Siehe
 
 ```text
 Client (Operator / Moderator / Buzzer)
-  → WebSocket-Nachricht mit CommandEnvelope
-  → QuizService: Schema, Idempotenz, Rolle, Revision
+  → WebSocket-Nachricht mit CommandEnvelope   (@quiz/server)
+  → QuizService: Schema, Idempotenz, Rolle, Revision   (@quiz/runtime)
   → Domain-Engine: reduce(state, command, ctx)
   → QuizStore: EINE Transaktion (Zustand + Punkte + Nutzung + Audit + Revision)
   → Broadcast rollenabhaengiger Snapshots an alle Clients
@@ -80,6 +83,6 @@ letzte konsistente Zustand erhalten und der Operator bekommt eine Klartextmeldun
 
 | Port | Definiert in | Implementiert von |
 |---|---|---|
-| `QuestionSource` | `packages/domain/src/engine.ts` | `packages/server/src/contentService.ts` |
+| `QuestionSource` | `packages/domain/src/engine.ts` | `packages/runtime/src/contentService.ts` |
 | Zeit (`nowMs`) | `EngineContext` | Server bzw. Fake-Clock in Tests |
 | Zufall (`Rng`) | `packages/domain/src/selection.ts` | Server bzw. `createSeededRng` in Tests |
