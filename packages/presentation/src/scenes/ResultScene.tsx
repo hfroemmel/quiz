@@ -12,10 +12,10 @@
  * Punkte innen. Sie zaehlen ebenfalls hoch - korrigiert der Operator hier noch
  * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
-import { Confetti } from '../../components/Confetti.tsx'
-import { AnimationClip } from '../../ui/AnimationClip.tsx'
+import { Confetti } from '../ui/Confetti.tsx'
+import { AnimationClip } from '../ui/AnimationClip.tsx'
 import { ScoreTile } from '../ScoreTile.tsx'
-import { Tile } from '../../ui/Tile.tsx'
+import { Tile } from '../ui/Tile.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
 export function ResultScene({ view }: SceneProps) {

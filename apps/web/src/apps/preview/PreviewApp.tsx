@@ -11,12 +11,9 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
-import { greyDesignColors } from '../../theme/designTokens.ts'
+import { StageScreen, greyDesignColors, prefersReducedMotion, transitions } from '@quiz/presentation'
 import type { PublicQuizViewModel, PublicScene } from '@quiz/contracts'
 import { gameTiming } from '@quiz/contracts'
-import { StageScreen } from '../../presentation/StageScreen.tsx'
-import { transitions } from '../../presentation/transitions/registry.ts'
-import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
 
 /**
  * Themes der Vorschau.

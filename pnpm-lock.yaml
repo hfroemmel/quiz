@@ -57,6 +57,9 @@ importers:
       '@quiz/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@quiz/presentation':
+        specifier: workspace:*
+        version: link:../../packages/presentation
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -116,6 +119,25 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.12
         version: 7.6.13
+
+  packages/presentation:
+    dependencies:
+      '@quiz/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@quiz/domain':
+        specifier: workspace:*
+        version: link:../domain
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.31
+      vite:
+        specifier: ^6.0.7
+        version: 6.4.3(@types/node@22.20.1)(tsx@4.23.12)
 
   packages/server:
     dependencies:

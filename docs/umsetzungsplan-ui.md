@@ -111,7 +111,7 @@ des Entwurfs, ohne dass ein Layout umgebaut ist.
 - die Inhaltsvalidierung meldet ein unvollstaendiges Theme als **Fehler**
 - `content/source/config.json` traegt den Tokensatz fuer alle drei Modi; Kinder
   und Saarbruecken erben ihn, bis die eigenen Farbsysteme geliefert sind
-- `apps/web/src/theme/designTokens.ts` haelt dieselben Werte getippt fuer
+- `packages/presentation/src/designTokens.ts` haelt dieselben Werte getippt fuer
   Vorschau und CSS-Fallback
 - Serifenschrift durchgehend, Radius auf 6 px
 
@@ -120,7 +120,7 @@ des Entwurfs, ohne dass ein Layout umgebaut ist.
 
 ### P2 - Primitive — **erledigt**
 
-`Tile`, `OptionBar`, `ProgressRing`, `MediaFrame` unter `apps/web/src/ui/`.
+`Tile`, `OptionBar`, `ProgressRing`, `MediaFrame` unter `packages/presentation/src/ui/`.
 Jedes Bauteil kennt nur Tokens und seine Varianten; keines liest das
 View-Modell oder sendet Befehle.
 

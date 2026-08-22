@@ -15,9 +15,8 @@
 import { useEffect, useState } from 'react'
 import type { ModeratorQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
-import { useRevealClock } from '../../client/useRevealClock.ts'
+import { themeVariables, useRevealClock } from '@quiz/presentation'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
-import { themeVariables } from '../../presentation/StageScreen.tsx'
 
 const CODE_STORAGE_KEY = 'quiz.moderator.session-code'
 

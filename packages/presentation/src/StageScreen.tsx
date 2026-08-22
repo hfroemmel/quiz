@@ -15,7 +15,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Command, PublicQuizViewModel } from '@quiz/contracts'
-import { useRevealClock } from '../client/useRevealClock.ts'
+import { useRevealClock } from './useRevealClock.ts'
 import { playCue } from './soundCues.ts'
 import { effectiveDurationMs, transitionFor, transitionStyle } from './transitions/registry.ts'
 import { PauseScene } from './scenes/PauseScene.tsx'

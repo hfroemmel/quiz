@@ -2,7 +2,7 @@
 
 Dieser Katalog beschreibt jede Bewegung, die die Anwendung zeigt. Die Abschnitte
 A bis F sind freigegeben und werden eins zu eins in
-`apps/web/src/presentation/transitions/` eingetragen.
+`packages/presentation/src/transitions/` eingetragen.
 
 Wie Animationen technisch angelegt und geaendert werden, steht in
 [`docs/animationen.md`](animationen.md). Diese Datei legt fest, **was** sich
@@ -50,7 +50,7 @@ erscheinen.
 | `score-count-up` | Punktestand aendert sich | 600 ms | entfaellt | Ziffern zaehlen vom alten zum neuen Snapshotwert | `score` |
 | `score-stars` | Punktestand **steigt** | 1000 ms | entfaellt | gelieferte Grafik `stars.webm` laeuft ueber der Punktekachel | - |
 
-Beide sind in `apps/web/src/presentation/ScoreTile.tsx` umgesetzt. Die Animation
+Beide sind in `packages/presentation/src/ScoreTile.tsx` umgesetzt. Die Animation
 erzeugt keinen eigenen Wert: Sie interpoliert zwischen zwei Snapshotwerten und
 endet immer exakt auf dem Serverwert. Trifft mitten im Zaehlen ein neuer
 Snapshot ein, laeuft sie von der aktuellen Anzeige aus auf den neuen Zielwert.
@@ -66,7 +66,7 @@ Punktgewinn und der Haken zusammen gelesen werden (bestaetigt).
 Richtig und Falsch werden **nicht** im Code gezeichnet, sondern kommen als
 gelieferte Dateien. Sie liegen als VP9-WebM mit Alphakanal vor, 500 x 500 Bildpunkte,
 30 Bilder je Sekunde, ohne Tonspur, und sind ueber
-`apps/web/src/presentation/animationAssets.ts` zentral registriert.
+`packages/presentation/src/animationAssets.ts` zentral registriert.
 
 | Datei | Laenge | Aussage vollstaendig nach | Verlauf |
 |---|---|---|---|

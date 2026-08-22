@@ -3,7 +3,9 @@
 ## Schichten und Abhaengigkeitsrichtung
 
 ```text
-UI (React) / Electron / Serveradapter
+Anwendungen (apps/web, apps/desktop) / Serveradapter
+        ↓
+Praesentationsschicht (packages/presentation)
         ↓
 Application Services  (packages/server)
         ↓
@@ -25,7 +27,8 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | `@quiz/content` | Legacy-Import, Validierung, Paketbau, Hotfix-Overlay | Spielregeln, Netzwerk |
 | `@quiz/persistence` | SQLite-Schema, Migrationen, transaktionale Uebernahme | Spielregeln |
 | `@quiz/server` | Befehlsverarbeitung, Sitzungen, WebSocket, Auslieferung, Timer | Spielregeln (delegiert an Domain) |
-| `apps/web` | Rendern von View-Modellen, Senden von Befehlen, Praesentation | Spielregeln |
+| `@quiz/presentation` | Buehnenflaeche: Szenen, Uebergaenge, Soundmarken, Stylesheet der Buehne | Verbindung, Befehle, Spielregeln |
+| `apps/web` | Einstiegspunkte je Rolle, Verbindung, Bedienoberflaechen von Operator und Moderator | Spielregeln |
 | `apps/desktop` | Fenster, Displays, Preload-Bruecke, Prozessstart | Spielregeln |
 
 ## Wo aendere ich was?
@@ -39,30 +42,25 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | Was der Buehnenscreen sehen darf | `packages/domain/src/projection.ts` |
 | Verfuegbare Buttons je Phase | `packages/domain/src/allowedCommands.ts` |
 | Datenbankschema | `packages/persistence/src/migrations.ts` |
-| Animationsdauer, Easing, Soundmarke | `apps/web/src/presentation/transitions/` |
+| Animationsdauer, Easing, Soundmarke | `packages/presentation/src/transitions/` |
 | Fachlich relevante Timings | `gameTiming` in `packages/contracts/src/config.ts` |
 
-## Zwei bewusste Abweichungen von der Spezifikation
+## Eine bewusste Abweichung von der Spezifikation
 
-Beide sind nach Abschnitt 20.3 der Spezifikation ausdruecklich zulaessig
-(„Separate Pakete sind nur sinnvoll, wenn sie eine echte fachliche Grenze abbilden“).
+Sie ist nach Abschnitt 20.3 der Spezifikation ausdruecklich zulaessig
+(„Separate Pakete sind nur sinnvoll, wenn sie eine echte fachliche Grenze abbilden").
 
-1. **Kein eigenes Paket `packages/presentation`.**
-   Die Praesentationsschicht liegt unter `apps/web/src/presentation/` und behaelt exakt
-   die in Abschnitt 22.2 vorgeschlagene innere Struktur (`scenes/`, `transitions/`,
-   `animationPresets.ts`, `soundCues.ts`, `README.md`). Einziger Nutzer sind die
-   React-Einstiegspunkte im selben Paket; eine Paketgrenze haette hier keine fachliche
-   Grenze abgebildet, aber den Build verkompliziert.
+**Kein eigenes Paket `packages/ui`.**
+Die Bausteine der Buehne (`Tile`, `OptionBar`, `ProgressRing`, `MediaFrame`,
+`AnimationClip`, `Confetti`) liegen unter `packages/presentation/src/ui/`. Sie haben
+genau einen Nutzer - die Szenen im selben Paket. `ConnectionBanner` gehoert zur
+Bedienoberflaeche und bleibt in `apps/web/src/components/`.
 
-   Diese Bedingung endet mit der Mehrkontext-Ausbaustufe: Sobald Kiosk und
-   Multigame-Einbettung dieselben Szenen nutzen, gibt es drei Nutzer und die
-   Paketgrenze bildet eine echte Grenze ab. Siehe
-   [mehrkontext-architektur.md](mehrkontext-architektur.md).
-
-2. **Kein eigenes Paket `packages/ui`.**
-   Es gibt bisher nur vier gemeinsam genutzte Bausteine (`ScoreBoard`, `PlayerBadge`,
-   `Confetti`, `ConnectionBanner`). Sie liegen unter `apps/web/src/components/`.
-   Abstrahiert wird erst, wenn ein zweiter echter Nutzer existiert.
+Die frueher hier vermerkte zweite Abweichung - kein eigenes Paket
+`packages/presentation` - ist mit der Mehrkontext-Ausbaustufe entfallen: Buehne,
+Kiosk und Multigame-Einbettung sind drei echte Nutzer, damit bildet die
+Paketgrenze eine fachliche Grenze ab. Siehe
+[mehrkontext-architektur.md](mehrkontext-architektur.md).
 
 ## Fluss eines Befehls
 

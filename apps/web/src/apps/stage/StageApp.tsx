@@ -12,7 +12,7 @@
 import { useEffect } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
-import { StageScreen } from '../../presentation/StageScreen.tsx'
+import { StageScreen } from '@quiz/presentation'
 import { toggleOwnFullscreen } from '../../client/desktopBridge.ts'
 
 export function StageApp() {

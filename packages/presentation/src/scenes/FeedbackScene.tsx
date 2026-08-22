@@ -13,7 +13,7 @@
  * Der Punktestand wird bewusst NICHT hier angezeigt: Er zaehlt waehrend dieser
  * Animation in der Punktekachel der Kopfzeile hoch (Designergaenzung).
  */
-import { AnimationClip } from '../../ui/AnimationClip.tsx'
+import { AnimationClip } from '../ui/AnimationClip.tsx'
 import type { SceneProps } from './sceneProps.ts'
 
 export function FeedbackScene({ view }: SceneProps) {

@@ -17,7 +17,7 @@
 import type { ReactNode } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import { ScoreTile } from './ScoreTile.tsx'
-import { Tile } from '../ui/Tile.tsx'
+import { Tile } from './ui/Tile.tsx'
 
 export interface StageHeaderSlots {
   /** Vor der Gruppe von Spieler 1 - im Entwurf die Punktekorrektur. */

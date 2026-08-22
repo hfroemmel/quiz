@@ -13,8 +13,8 @@
  * Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach einem
  * Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
-import { MediaFrame } from '../../ui/MediaFrame.tsx'
-import { ProgressRing } from '../../ui/ProgressRing.tsx'
+import { MediaFrame } from '../ui/MediaFrame.tsx'
+import { ProgressRing } from '../ui/ProgressRing.tsx'
 import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 

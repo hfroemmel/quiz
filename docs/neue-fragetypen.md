@@ -40,7 +40,7 @@ braucht ein neuer redaktioneller Wunsch daher gar keinen neuen Typ.
    Neue Befehle in `commandSchema` **und** `commandRoles` eintragen, danach in
    `allowedCommands.ts` einer Phase zuordnen.
 
-8. **Praesentation** - `apps/web/src/presentation/scenes/`:
+8. **Praesentation** - `packages/presentation/src/scenes/`:
    Neue Szene anlegen und in `StageScreen.tsx` einhaengen. Uebergang im Registry
    registrieren (siehe [animationen.md](animationen.md)).
 

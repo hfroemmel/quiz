@@ -59,7 +59,7 @@ erkennt den Fall und nennt den passenden Befehl im Klartext.
   Punkte lassen sich manuell korrigieren.
 * **Sound wird synthetisiert** (Web Audio) statt aus Dateien geladen. Das haelt den
   Offline-Betrieb einfach; wer echte Klaenge will, ersetzt `playCue` in
-  `apps/web/src/presentation/soundCues.ts`.
+  `packages/presentation/src/soundCues.ts`.
 * **Screenshot-Baselines sind plattformabhaengig.** Auf einem neuen System einmalig
   `npx playwright test --project=preview --update-snapshots`.
 * **Vollbildsteuerung des Buehnenfensters aus dem Operatorfenster** funktioniert nur in

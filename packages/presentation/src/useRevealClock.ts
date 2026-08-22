@@ -13,7 +13,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PublicRevealState } from '@quiz/contracts'
 import { revealBlurPx, revealCountdownSeconds, revealProgress } from '@quiz/domain'
-import { revealMaxBlurPx } from '../presentation/animationPresets.ts'
+import { revealMaxBlurPx } from './animationPresets.ts'
 
 export interface RevealDisplay {
   progress: number

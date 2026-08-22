@@ -75,12 +75,13 @@ Die ausfuehrliche Fassung steht in [`docs/operator-kurzanleitung.md`](docs/opera
 ```text
 apps/
   desktop/     Electron: Hauptprozess, Preload, Fenster, Geraeteintegration
-  web/         React: Operator, Buehne, Moderator, Entwicklungsvorschau, Praesentation
+  web/         React: Operator, Buehne, Moderator, Entwicklungsvorschau
 packages/
   contracts/   Typen, Laufzeitschemas, Befehle, View-Modelle, zentrale Konfiguration
   domain/      Spielregeln: Zustandsmaschine, Scoring, Buzzer, Fragenauswahl
   content/     Quizdaten: Legacy-Import, Validierung, Pakete, Hotfix-Overlay
   persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme
+  presentation/ Buehnenflaeche: Szenen, Uebergaenge, Bausteine, Stylesheet
   server/      lokaler Server: Befehlsverarbeitung, Sitzungen, WebSocket, Auslieferung
 content/
   source/      redaktionelle Quelle (JSON) und Medien

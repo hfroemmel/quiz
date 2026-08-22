@@ -22,9 +22,9 @@ schickt anschliessend `ADVANCE_TIMED_PHASE`.
 ## Wo liegt was?
 
 ```text
-apps/web/src/assets/animations/   gelieferte Bewegtgrafiken (WebM mit Alpha, SVG)
-apps/web/src/ui/AnimationClip.tsx Abspielbaustein, kennt keinen Spielzustand
-apps/web/src/presentation/
+packages/presentation/src/assets/animations/   gelieferte Bewegtgrafiken (WebM mit Alpha, SVG)
+packages/presentation/src/ui/AnimationClip.tsx Abspielbaustein, kennt keinen Spielzustand
+packages/presentation/src/
   animationAssets.ts       Registry der gelieferten Dateien: Laenge und Zeitpunkt
                            der vollstaendigen Aussage (`payoffMs`)
   animationPresets.ts      zentrale Timings und Easings
@@ -69,7 +69,7 @@ Reduced-Motion-Fallback und was aus Fairnessgruenden fest ist.
 5. in der Entwicklungsansicht `/preview` pruefen
 6. visuellen Regressionstest aktualisieren (`test/e2e/presentation.spec.ts`)
 
-Die zugehoerige CSS-Klasse kommt in `apps/web/src/styles.css`; Dauer, Verzoegerung und
+Die zugehoerige CSS-Klasse kommt in `packages/presentation/src/styles/presentation.css`; Dauer, Verzoegerung und
 Easing werden dort **nicht** hart geschrieben, sondern ueber `--transition-duration`,
 `--transition-delay` und `--transition-easing` aus dem Registry gesetzt.
 

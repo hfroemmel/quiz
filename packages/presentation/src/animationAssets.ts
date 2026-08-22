@@ -17,12 +17,12 @@
  * laufen. Sonst schneidet der Zustandswechsel mitten in die Aussage hinein.
  * Deshalb steht der Wert hier und nicht als Kommentar in einer Komponente.
  */
-import correctClip from '../assets/animations/correct.webm'
-import wrongClip from '../assets/animations/wrong.webm'
-import trophyClip from '../assets/animations/trophy.webm'
-import starsClip from '../assets/animations/stars.webm'
-import questionMarksClip from '../assets/animations/question-marks.webm'
-import confettiSvg from '../assets/animations/confetti.svg'
+import correctClip from './assets/animations/correct.webm'
+import wrongClip from './assets/animations/wrong.webm'
+import trophyClip from './assets/animations/trophy.webm'
+import starsClip from './assets/animations/stars.webm'
+import questionMarksClip from './assets/animations/question-marks.webm'
+import confettiSvg from './assets/animations/confetti.svg'
 
 export interface AnimationClipAsset {
   id: string

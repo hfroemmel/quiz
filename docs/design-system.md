@@ -256,13 +256,13 @@ keine Icon-Schriftart und keine externen Symboldateien.
 |---|---|---|
 | `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | Startbild Erwachsene: Adler bei 8 % Deckkraft, darueber das `?`. Der Titel ist Text der Anwendung, nicht Teil der Grafik |
 | `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | Startbild Kinder, 1024 x 828, randfuellend |
-| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | Bewegtgrafiken, VP9 mit Alphakanal, 500 x 500, 30 fps, ohne Ton |
-| `confetti.svg` | `apps/web/src/assets/animations/` | animiertes SVG fuer die Ergebnisansicht |
+| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `packages/presentation/src/assets/animations/` | Bewegtgrafiken, VP9 mit Alphakanal, 500 x 500, 30 fps, ohne Ton |
+| `confetti.svg` | `packages/presentation/src/assets/animations/` | animiertes SVG fuer die Ergebnisansicht |
 
 Die Startbilder sind Inhalt des Quizpakets und werden ueber
 `mode.startVisualAssetId` zugeordnet - ein neuer Modus braucht dafuer keine
 Codeaenderung. Die Bewegtgrafiken gehoeren zur Praesentationsschicht und sind in
-`apps/web/src/presentation/animationAssets.ts` mit Laenge und Zeitpunkt der
+`packages/presentation/src/animationAssets.ts` mit Laenge und Zeitpunkt der
 vollstaendigen Aussage registriert.
 
 **Offene Zulieferung:** Startbild fuer den Modus `Saarbruecken`; bis dahin bleibt

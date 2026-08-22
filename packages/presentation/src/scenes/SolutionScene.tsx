@@ -13,8 +13,8 @@
  * Alle hier sichtbaren Daten kommen aus `visibleSolution` bzw. `visibleOptions`, die
  * der Server ausschliesslich in dieser Szene mitsendet.
  */
-import { MediaFrame } from '../../ui/MediaFrame.tsx'
-import { OptionBar, optionLetter } from '../../ui/OptionBar.tsx'
+import { MediaFrame } from '../ui/MediaFrame.tsx'
+import { OptionBar, optionLetter } from '../ui/OptionBar.tsx'
 import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 

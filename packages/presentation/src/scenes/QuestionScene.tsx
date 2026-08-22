@@ -14,8 +14,8 @@
  * "Starten". Der Zustand einer Option kommt ebenfalls vom Server.
  */
 import { presentationTiming } from '../animationPresets.ts'
-import { MediaFrame } from '../../ui/MediaFrame.tsx'
-import { OptionBar, optionLetter } from '../../ui/OptionBar.tsx'
+import { MediaFrame } from '../ui/MediaFrame.tsx'
+import { OptionBar, optionLetter } from '../ui/OptionBar.tsx'
 import { QuestionHead } from './QuestionHead.tsx'
 import type { SceneProps } from './sceneProps.ts'
 

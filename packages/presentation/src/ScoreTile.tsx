@@ -17,8 +17,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { animationClips } from './animationAssets.ts'
 import { prefersReducedMotion, presentationTiming } from './animationPresets.ts'
-import { AnimationClip } from '../ui/AnimationClip.tsx'
-import { Tile, type TileSize } from '../ui/Tile.tsx'
+import { AnimationClip } from './ui/AnimationClip.tsx'
+import { Tile, type TileSize } from './ui/Tile.tsx'
 
 export function ScoreTile({ score, size = 'header' }: { score: number; size?: TileSize }) {
   const [displayed, setDisplayed] = useState(score)

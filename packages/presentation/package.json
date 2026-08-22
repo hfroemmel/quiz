@@ -1,0 +1,20 @@
+{
+  "name": "@quiz/presentation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Buehnenflaeche: Szenen, Uebergaenge, Kacheln und Stylesheet - gemeinsam genutzt von Buehne, Kiosk und Multigame-Einbettung",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles/presentation.css"
+  },
+  "dependencies": {
+    "@quiz/contracts": "workspace:*",
+    "@quiz/domain": "workspace:*",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "vite": "^6.0.7"
+  }
+}

@@ -9,7 +9,7 @@
  * Stylesheet; der Effekt beeinflusst keinerlei Spiellogik.
  */
 import { useMemo } from 'react'
-import { confettiDurationMs } from '../presentation/transitions/resultCelebration.ts'
+import { confettiDurationMs } from '../transitions/resultCelebration.ts'
 
 const PIECE_COUNT = 60
 

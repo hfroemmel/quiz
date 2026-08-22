@@ -11,6 +11,7 @@ import { OperatorApp } from './apps/operator/OperatorApp.tsx'
 import { StageApp } from './apps/stage/StageApp.tsx'
 import { ModeratorApp } from './apps/moderator/ModeratorApp.tsx'
 import { PreviewApp } from './apps/preview/PreviewApp.tsx'
+import '@quiz/presentation/styles.css'
 import './styles.css'
 
 function App() {

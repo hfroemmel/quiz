@@ -1,0 +1,680 @@
+/*
+ * Stylesheet der Praesentationsschicht.
+ *
+ * Es beschreibt ausschliesslich die Buehnenflaeche: Kopfzeile, Szenen, Kacheln,
+ * Antwortleisten und die zugehoerigen Keyframes. Bedienoberflaechen - Operator,
+ * Moderator, Entwicklungsvorschau - bleiben im Stylesheet der jeweiligen
+ * Anwendung. Ein Gastgeber (Kiosk oder Multigame-Anwendung) bindet damit nur
+ * diese Datei ein und bekommt nichts Fremdes mit.
+ *
+ * Farben kommen als CSS-Custom-Properties aus dem Theme des aktiven Quizmodus
+ * (siehe `themeVariables` in StageScreen.tsx). Dadurch kann das Kinderquiz ein
+ * eigenes Farbsystem besitzen, ohne dass irgendwo eine Modus-Sonderbehandlung
+ * im Code steht.
+ *
+ * ANIMATIONSDAUERN stehen NICHT hier fest verdrahtet, sondern kommen als
+ * `--transition-duration`, `--transition-delay` und `--transition-easing` aus dem
+ * Uebergangsregistry (`transitions/registry.ts`). So gibt es genau eine Stelle,
+ * an der Timings geaendert werden.
+ */
+
+/*
+ * Die Fallbackwerte gelten am Dokumentwurzelelement UND an der Buehnenflaeche
+ * selbst. Der zweite Selektor ist entscheidend, sobald die Buehne als Gast in
+ * einer fremden Anwendung laeuft: dort gibt es kein `:root` unter unserer
+ * Kontrolle. Das Theme des laufenden Spiels ueberschreibt beide, weil es als
+ * Inline-Stil am selben Element steht.
+ */
+:root,
+.stage {
+  /*
+   * Fallbackwerte des Graustufensystems (docs/design-system.md).
+   *
+   * Im Betrieb ueberschreibt sie das Theme des aktiven Quizmodus. Sie stehen
+   * hier, damit die Oberflaeche auch vor dem ersten Snapshot vollstaendig
+   * gefaerbt ist - eine farblose Flaeche waere auf der Buehne sichtbar.
+   */
+  --color-pageTop: #555555;
+  --color-pageBottom: #6e6e6e;
+  --color-stageTop: #5c5c5c;
+  --color-stageBottom: #757575;
+  --color-controls: #555555;
+  --color-tile: #444444;
+  --color-tileDisabled: #4f4f4f;
+  --color-tileQuiet: #464646;
+  --color-option: #777777;
+  --color-accent: #3693b3;
+  --color-accentQuiet: #4e6a74;
+  --color-primary: #00cc9c;
+  --color-solution: #01a780;
+  --color-solutionChip: #028365;
+  --color-correct: #25a7b0;
+  --color-incorrect: #a62749;
+  --color-text: #ffffff;
+  --color-textMuted: rgba(255, 255, 255, 0.45);
+
+  --font-heading: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-heading);
+
+  /* Fallbacks, falls eine Szene ohne registrierten Uebergang gerendert wird. */
+  --transition-duration: 400ms;
+  --transition-delay: 0ms;
+  --transition-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --radius: 6px;
+  --gap: 16px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buehnenscreen
+ *
+ * Die Buehnenflaeche ist ein CONTAINER: Alle Groessen darin stehen in `cqw`
+ * (Prozent der Flaechenbreite). Dadurch ist die kleine Vorschau im
+ * Operatorfenster dieselbe Komposition wie das Vollbild auf dem Beamer - eine
+ * Zeile Layout, zwei Groessen, keine Geraeteabfragen.
+ * ------------------------------------------------------------------ */
+
+.stage {
+  container-type: size;
+  container-name: stage;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+.stage--preview {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+.scene-root {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.scene {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2cqw;
+  padding: 1cqw 4cqw 4cqw;
+  text-align: center;
+  min-height: 0;
+}
+.scene__hint {
+  margin: 0;
+  color: var(--color-textMuted);
+  font-size: 1.4cqw;
+}
+
+/* Kopfzeile: gespiegelte Punktekacheln, Fragezaehler, Slots des Operators */
+.stage-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2cqw;
+  padding: 2cqw 3cqw 0;
+}
+.stage-header__group {
+  display: flex;
+  align-items: flex-start;
+  gap: 1cqw;
+}
+.stage-header__player {
+  display: flex;
+  gap: 0;
+}
+.stage-header__progress {
+  position: absolute;
+  right: 3cqw;
+  top: 2cqw;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5cqw;
+  padding: 0.4cqw 1cqw 0.8cqw;
+  background: var(--color-tile);
+  border-radius: var(--radius);
+  line-height: 1;
+}
+.tile--active {
+  background: var(--color-accent);
+}
+.tile--quiet {
+  background: var(--color-accentQuiet);
+}
+.tile__label {
+  font-size: 0.9cqw;
+  color: var(--color-textMuted);
+}
+.tile__value {
+  font-size: 2.4cqw;
+  font-family: var(--font-heading);
+  font-variant-numeric: tabular-nums;
+}
+.tile--score {
+  min-width: 7cqw;
+}
+/* Innen aneinanderstossend, aussen abgerundet - die Gruppe wirkt als ein Block. */
+.stage-header__player > *:first-child .tile,
+.stage-header__player > .tile:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.stage-header__player > *:last-child .tile,
+.stage-header__player > .tile:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.tile--result {
+  min-width: 9cqw;
+  padding: 1cqw 2cqw 1.4cqw;
+}
+.tile--result .tile__label {
+  font-size: 1.2cqw;
+}
+.tile--result .tile__value {
+  font-size: 4cqw;
+}
+
+/* Punktekachel mit Sternen: die Grafik liegt ueber der Kachel, ohne Platz zu nehmen */
+.score-tile {
+  position: relative;
+  display: flex;
+}
+.score-tile__stars {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 9cqw;
+  aspect-ratio: 1;
+  transform: translate(-50%, 25%);
+  pointer-events: none;
+}
+
+/* Punktekorrektur des Operators - liegt ueber der Vorschau, nie auf der Buehne */
+.score-adjust {
+  display: flex;
+  gap: 0.3cqw;
+  align-self: center;
+}
+.score-adjust .button {
+  min-width: 2.2cqw;
+  padding: 0.3cqw 0.6cqw;
+  font-size: 1.2cqw;
+  line-height: 1;
+}
+
+/* Start und Pause */
+.scene--start {
+  justify-content: center;
+  gap: 0;
+}
+.start__visual,
+.pause__logo {
+  max-width: 46cqw;
+  max-height: 55cqh;
+  object-fit: contain;
+}
+.start__title {
+  margin: 0;
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+.scene--pause {
+  justify-content: center;
+}
+.pause__logo {
+  opacity: 0.35;
+}
+.pause__progress {
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 2.8cqw;
+  margin: 0;
+}
+.pause__placeholder {
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+}
+
+/* Kopfzone einer Frage: Medium, Rubrik, Fragetext */
+.question-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 2cqw;
+  width: 100%;
+  text-align: left;
+}
+.question-head--wide {
+  flex-direction: column;
+}
+.question-head__text {
+  flex: 1;
+  min-width: 0;
+}
+.question-head__category {
+  margin: 0 0 0.4cqw;
+  font-size: 1.6cqw;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+.question-head__prompt {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 400;
+  line-height: 1.25;
+  font-family: var(--font-heading);
+}
+
+.media-frame {
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--color-tile);
+}
+.media-frame__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-frame--inline {
+  width: 18cqw;
+  aspect-ratio: 4 / 3;
+}
+.media-frame--solution {
+  width: 18cqw;
+  aspect-ratio: 4 / 3;
+}
+.media-frame--reveal {
+  width: 34cqw;
+  aspect-ratio: 4 / 3;
+}
+
+/* Antwortleisten: gestapelt ueber die volle Breite */
+.option-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8cqw;
+}
+.option-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5cqw;
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: option-enter var(--transition-duration) var(--transition-easing) backwards;
+}
+.option-bar__chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.4cqw;
+  padding: 0.8cqw 0;
+  background: var(--color-tile);
+  border-radius: var(--radius);
+  font-family: var(--font-heading);
+  font-size: 1.9cqw;
+  font-weight: 700;
+}
+.option-bar__text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8cqw 1.2cqw;
+  background: var(--color-option);
+  border-radius: var(--radius);
+  font-size: 1.9cqw;
+  font-family: var(--font-heading);
+}
+.option-bar--chosen .option-bar__text {
+  background: var(--color-accent);
+}
+.option-bar--solution .option-bar__text {
+  background: var(--color-solution);
+}
+.option-bar--solution .option-bar__chip {
+  background: var(--color-solutionChip);
+}
+.option-bar--muted .option-bar__text,
+.option-bar--muted .option-bar__chip {
+  color: var(--color-textMuted);
+  background: color-mix(in srgb, var(--color-option) 55%, transparent);
+}
+
+/* Bilderkennen */
+.reveal__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4cqw;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.reveal__countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1cqw;
+}
+.progress-ring {
+  position: relative;
+  width: 18cqw;
+  aspect-ratio: 1;
+}
+.progress-ring__svg {
+  width: 100%;
+  height: 100%;
+}
+.progress-ring__track {
+  stroke: var(--color-tileDisabled);
+}
+.progress-ring__arc {
+  stroke: var(--color-text);
+}
+.progress-ring__seconds {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 4cqw;
+  font-variant-numeric: tabular-nums;
+}
+.reveal__hint {
+  color: var(--color-textMuted);
+  font-size: 1.2cqw;
+}
+
+/* Video */
+.scene--video {
+  justify-content: center;
+}
+.video__frame {
+  width: 70cqw;
+  aspect-ratio: 16 / 9;
+  background: #000000;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.video__frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.video__error {
+  color: var(--color-textMuted);
+  font-size: 1.6cqw;
+}
+
+/* Feedback */
+.scene--feedback {
+  justify-content: center;
+  gap: 1cqw;
+}
+.feedback__symbol {
+  width: 16cqw;
+  aspect-ratio: 1;
+  line-height: 1;
+}
+.animation-clip {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.feedback__label {
+  margin: 0;
+  font-size: 3.8cqw;
+  font-family: var(--font-heading);
+}
+
+/* Loesung */
+.solution__label {
+  margin: 0;
+  align-self: flex-start;
+  font-size: 1.6cqw;
+  color: var(--color-text);
+}
+.solution__answer {
+  width: 100%;
+}
+.solution__note {
+  margin: 0;
+  color: var(--color-textMuted);
+  font-size: 1.4cqw;
+  text-align: left;
+  align-self: flex-start;
+}
+
+/* Ergebnis */
+.scene--result {
+  justify-content: center;
+  gap: 1.2cqw;
+}
+.result__trophy {
+  width: 12cqw;
+  aspect-ratio: 1;
+}
+.result__label {
+  /* Die Aussage steht in der Ueberschrift; das Etikett bleibt fuer Tests und
+     Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.result__winner {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 400;
+  font-family: var(--font-heading);
+}
+.result__scores {
+  display: flex;
+  gap: 1.6cqw;
+}
+.result__group {
+  display: flex;
+}
+.result__group > *:first-child .tile,
+.result__group > .tile:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.result__group > *:last-child .tile,
+.result__group > .tile:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Konfetti */
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.confetti__piece {
+  position: absolute;
+  top: -12px;
+  width: 9px;
+  height: 16px;
+  border-radius: 2px;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+
+/* ------------------------------------------------------------------ *
+ * Keyframes - Dauer und Easing kommen aus dem Uebergangsregistry
+ * ------------------------------------------------------------------ */
+
+@keyframes option-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes scene-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes question-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes correct-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes incorrect-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-14px);
+  }
+  40% {
+    transform: translateX(12px);
+  }
+  60% {
+    transform: translateX(-8px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes solution-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes result-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes confetti-fall {
+  from {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(105vh) rotate(680deg);
+    opacity: 0.9;
+  }
+}
+
+/* Klassen, die das Uebergangsregistry setzt. */
+.scene-fade,
+.video-enter {
+  animation: scene-fade-in var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.question-enter,
+.reveal-enter {
+  animation: question-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.feedback-correct {
+  animation: correct-pulse var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.feedback-incorrect {
+  animation: incorrect-shake var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.solution-reveal {
+  animation: solution-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+.result-celebration {
+  animation: result-pop var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+
+/*
+ * Reduced-Motion-Fallback.
+ *
+ * Die Dauern werden zusaetzlich in JavaScript reduziert (`effectiveDurationMs`),
+ * damit auch die vom Registry gesetzten Timer kuerzer sind. Hier wird ergaenzend
+ * jede Bewegung entfernt - der Inhalt bleibt vollstaendig sichtbar.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .scene-fade,
+  .video-enter,
+  .question-enter,
+  .reveal-enter,
+  .feedback-correct,
+  .feedback-incorrect,
+  .solution-reveal,
+  .result-celebration,
+  .option-bar {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .confetti {
+    display: none;
+  }
+  .button {
+    transition: none;
+  }
+}
