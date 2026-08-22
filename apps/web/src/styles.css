@@ -709,3 +709,103 @@ textarea {
     grid-template-rows: auto 60vh;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Beispielhafte Gastgeberanwendung (/shell)
+ *
+ * Sie hat bewusst ein eigenes Aussehen, das nichts vom Quiz uebernimmt: Nur so
+ * ist im Test erkennbar, ob die eingebettete Komponente in ihrer Flaeche bleibt.
+ * ------------------------------------------------------------------ */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1d2433;
+  color: #e8ecf4;
+  font-family: system-ui, sans-serif;
+}
+
+.shell__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #121722;
+  border-bottom: 2px solid #2f3a52;
+}
+
+.shell__title {
+  margin: 0;
+  font-family: inherit;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+
+.shell__back {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: #3a4a6b;
+  color: inherit;
+  cursor: pointer;
+}
+
+.shell__menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 16px;
+  padding: 24px;
+}
+
+.shell__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 220px;
+  padding: 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #2a3348;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shell__tile--empty {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.shell__tile-name {
+  font-size: 22px;
+}
+
+.shell__tile-note {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.shell__result {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 15px;
+}
+
+/* Das Quiz laeuft in einem Kasten, nicht im Vollbild. */
+.shell__frame {
+  flex: 1;
+  min-height: 0;
+  margin: 16px;
+  border: 2px solid #2f3a52;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.shell--disabled {
+  align-items: center;
+  justify-content: center;
+}

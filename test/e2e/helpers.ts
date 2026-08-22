@@ -44,6 +44,19 @@ export async function resetToStartPanel(operator: Page): Promise<void> {
   }
 }
 
+/**
+ * Bringt den Server in den Ausgangszustand - fuer Tests, die kein laufendes oder
+ * beendetes Spiel erwarten.
+ *
+ * Am Touchgeraet gibt es bewusst keinen Ausstieg; im Kiosk uebernimmt das die
+ * Leerlauf-Aufsicht, im eingebetteten Betrieb der Gastgeber. Fuer den Test geht
+ * deshalb der Operator denselben Weg, den es im Betrieb tatsaechlich gibt.
+ */
+export async function resetServer(page: Page): Promise<void> {
+  const operator = await openOperator(page)
+  await resetToStartPanel(operator)
+}
+
 export async function startGame(operator: Page, options: { mode?: string; preset?: string } = {}): Promise<void> {
   await resetToStartPanel(operator)
   await expect(operator.locator('.start-panel')).toBeVisible()

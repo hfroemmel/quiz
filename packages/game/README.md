@@ -50,7 +50,27 @@ Schaltflaechen vor den Spielern.
 * **Keine Spielregeln.** Ob ein Fingertipp zaehlt, entscheidet der Server. Wer
   gerade antworten darf, wird aus dem View-Modell abgelesen (`locked`,
   `currentPlayer`), nicht aus Regeln hergeleitet.
-* **Gast in fremden Anwendungen.** Alle Stile liegen unter `.quiz-game`; es gibt
-  kein `:root`, kein `body`, keine Elementselektoren und kein Routing.
 * **Grosse Ziele.** Die ganze Kachel ist die Schaltflaeche. Wer zuerst tippt, hat
   geantwortet - das ist der Ersatz fuer den Hardware-Buzzer.
+
+## Einbettungsvertrag
+
+Das Quiz ist Gast. Was es zusagt - und was jeweils dafuer sorgt:
+
+| Zusage | Wie sie gehalten wird | Wie sie geprueft wird |
+|---|---|---|
+| Es faerbt die Gastgeberanwendung nicht um | Alle Stile liegen unter eigenen Klassen. Kein `body`, kein `html`, keine Elementselektoren. Farbtoken gelten am Dokumentwurzelelement nur auf ausdrueckliche Anforderung (`<html class="quiz-tokens">`) | `test/embedding.test.ts` prueft die ausgelieferten Stylesheets selbst |
+| Es bleibt in seiner Flaeche | Die Komponente fuellt ihren Kasten und oeffnet nichts darueber hinaus | `test/e2e/embedding.spec.ts` vergleicht die Kaesten |
+| Es hinterlaesst beim Entfernen nichts | Verbindung, Timer, Bildfolgen und die Audioausgabe werden abgeraeumt | Der Server zaehlt seine Clients: nach zwei Runden steht er wieder auf dem Ausgangswert |
+| Es greift nicht ins Fenster | Keine globalen Listener, kein Routing, kein `window`-Zustand. Beruehrungen fuer die Leerlauf-Aufsicht meldet die Komponente selbst | - |
+| Es meldet nur eigene Ergebnisse | Ein Ergebnis, das beim Einsetzen schon auf dem Server steht, gehoert einer frueheren Partie und wird nicht gemeldet | E2E prueft die Zahl der gemeldeten Runden |
+| Im Hintergrund bleibt es still | Wechselt der Gastgeber Fenster oder Tab, schweigt der Ton | - |
+
+Die Grenze, die dabei ehrlich benannt sein muss: Blendet ein Gastgeber das Quiz
+nur aus (`display: none`), gilt die Seite fuer den Browser weiter als sichtbar.
+Das verlaessliche Mittel bleibt das Entfernen der Komponente - dabei wird alles
+abgeraeumt.
+
+Unter `/shell` liegt eine beispielhafte Gastgeberanwendung (nur im
+Entwicklungsmodus). Sie ist der erste fremde Nutzer dieser Komponente und dient
+zugleich als Pruefstand fuer die Zusagen oben.

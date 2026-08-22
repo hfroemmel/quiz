@@ -265,7 +265,7 @@ Buehnenbetrieb bleibt nach jeder Stufe unveraendert benutzbar.
 | **3** | Ablaufprofil `self-service`, Rolle `player`, `ANSWER_BY_PLAYER`, automatische Uebergaenge — **erledigt** | Domaintests fuer beide Profile; Fairnesstest "zwei Antworten im selben Millisekundenfenster" |
 | **4** | `packages/game`: Touchansicht (geteilter Bildschirm, zweite Seite um 180 Grad gedreht), grosse Trefferflaechen, Start- und Ergebnisscreen — **erledigt** | spielbar im Browser gegen den lokalen Server; Playwright-Test fuer einen kompletten Durchlauf 1 und 2 Spieler |
 | **5** | `apps/kiosk`: Electron-Vollbild, Leerlauf-Aufsicht, Inhaltsfilter fuer Selbstbedienung — **erledigt** | Geraet spielt einen Tag durch, ohne dass jemand eingreift |
-| **6** | Einbettungsvertrag haerten (CSS-Kapselung, Lebenszyklus, Pause, `onFinished`), Beispielshell als erster fremder Nutzer, Dokumentation | Zwei Instanzen nacheinander in derselben Shell hinterlassen keine Timer, keine Sockets, keine Stile |
+| **6** | Einbettungsvertrag haerten (CSS-Kapselung, Lebenszyklus, Pause, `onFinished`), Beispielshell als erster fremder Nutzer, Dokumentation — **erledigt** | Zwei Instanzen nacheinander in derselben Shell hinterlassen keine Timer, keine Sockets, keine Stile |
 
 Stufen 0 und 1 sind mechanisch und risikoarm, kosten aber die Grundlage fuer alles
 Weitere. Stufe 3 ist die fachlich anspruchsvollste.
@@ -406,6 +406,40 @@ Nebenbei kam eine vorbestehende Flakiness ans Licht: Der E2E-Test „doppelte
 Bewertung bucht keine doppelten Punkte" klickte auf eine Schaltflaeche, die bis
 zur Antwort des Servers deaktiviert ist. Er wartet jetzt darauf und prueft damit
 wieder das, was er pruefen soll.
+
+### Stand nach Stufe 6
+
+Der Einbettungsvertrag steht - und er hat sich sofort bezahlt gemacht. Unter
+`/shell` liegt eine beispielhafte Spielesammlung, die das Quiz einbindet,
+verlaesst und erneut einbindet. Sie ist kein Produkt, sondern der erste fremde
+Nutzer und damit der Pruefstand. Der Vertrag selbst steht in
+[packages/game/README.md](../packages/game/README.md).
+
+Vier Fehler kamen dabei ans Licht, die im Buehnenbetrieb nie aufgefallen waeren -
+dort wird die Oberflaeche nie entfernt und wieder eingesetzt:
+
+1. **Zombie-Verbindung.** Der Merker "von uns geschlossen" lag in einem Ref und
+   damit ausserhalb des einzelnen Verbindungsversuchs. Beim schnellen Entfernen
+   und Wiedereinsetzen hielt sich der alte Socket fuer unabsichtlich getrennt und
+   baute eine zweite Verbindung auf, die niemand mehr abraeumte.
+2. **Verwaister Socket.** Das spaet eintreffende `close` eines abgeloesten
+   Sockets loeschte den Verweis auf den aktuellen. Die Bereinigung fand ihn
+   danach nicht mehr - je Einbindung blieb eine offene Verbindung zurueck.
+3. **Fremdes Ergebnis gemeldet.** Stand beim Einsetzen noch das Ergebnis einer
+   frueheren Partie auf dem Server, meldete die Komponente es dem Gastgeber. Der
+   haette eine Punktzahl verbucht, die bei ihm nie gespielt wurde.
+4. **Aufblitzendes Vorgaengerergebnis.** Zwischen "Los geht's" und dem ersten
+   Snapshot des neuen Spiels zeigte der Bildschirm noch den alten Stand. Jetzt
+   steht dort eine neutrale Zwischenansicht.
+
+Dazu kommen die zugesagten Kapselungen: Farbtoken gelten am Dokumentwurzelelement
+nur noch auf ausdrueckliche Anforderung (`<html class="quiz-tokens">`), die
+Audioausgabe wird beim Entfernen freigegeben, und im Hintergrund bleibt es still.
+
+Geprueft wird der Vertrag zweifach: statisch an den ausgelieferten Stylesheets
+(kein `body`, kein `html`, keine Elementselektoren) und im Browser an der
+Beispielsammlung - wobei der Nachweis fuer "nichts bleibt zurueck" vom Server
+kommt, der seine Verbindungen zaehlt.
 
 `image-reveal` am Geraet bleibt offen: Es ist technisch spielbar - die
 Enthuellung laeuft, ein Tipp friert sie ein -, aber der Bestand enthaelt dazu nur

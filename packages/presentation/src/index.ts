@@ -19,7 +19,7 @@ export { type StageVariant } from './scenes/sceneProps.ts'
 export { useRevealClock, type RevealDisplay } from './useRevealClock.ts'
 
 /* Ton: nur der Audio-Master spielt ab, `unlockAudio` loest die Browsersperre. */
-export { playCue, unlockAudio, soundCueIds, type SoundCueId } from './soundCues.ts'
+export { playCue, unlockAudio, releaseAudio, soundCueIds, type SoundCueId } from './soundCues.ts'
 
 /* Uebergaenge und ihre Kennwerte - Grundlage der Entwicklungsvorschau. */
 export {

@@ -115,3 +115,23 @@ export function unlockAudio(): void {
   const ctx = audioContext()
   if (ctx && ctx.state === 'suspended') void ctx.resume()
 }
+
+/**
+ * Gibt die Audioausgabe frei.
+ *
+ * Ein `AudioContext` haelt einen eigenen Audiothread und ueberlebt das Entfernen
+ * der Oberflaeche. In einer eigenstaendigen Anwendung faellt das nicht auf, weil
+ * die Seite ohnehin endet. Als Gast in einer fremden Anwendung waere es ein Rest,
+ * der bei jedem Aufruf des Quiz erneut entstuende - deshalb raeumt das Spielpaket
+ * ihn beim Verlassen ab.
+ */
+export function releaseAudio(): void {
+  const ctx = context
+  context = null
+  if (!ctx) return
+  try {
+    void ctx.close()
+  } catch {
+    // Ein bereits geschlossener Kontext ist kein Fehler.
+  }
+}

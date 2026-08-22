@@ -19,14 +19,19 @@
  */
 
 /*
- * Die Fallbackwerte gelten am Dokumentwurzelelement UND an der Buehnenflaeche
- * selbst. Der zweite Selektor ist entscheidend, sobald die Buehne als Gast in
- * einer fremden Anwendung laeuft: dort gibt es kein `:root` unter unserer
- * Kontrolle. Das Theme des laufenden Spiels ueberschreibt beide, weil es als
+ * Fallbackwerte der Farbtoken.
+ *
+ * Sie gelten an jeder Flaeche, die sie braucht - der Buehne und dem Spielfeld -
+ * und am Dokumentwurzelelement NUR, wenn dieses sie ausdruecklich anfordert
+ * (`<html class="quiz-tokens">`). Genau das ist der Unterschied zwischen einer
+ * eigenstaendigen Anwendung und einem Gast: Ein Gast darf die Token des
+ * Gastgebers nicht ueberschreiben, und `--gap` oder `--radius` sind Namen, die
+ * es dort sehr wahrscheinlich schon gibt.
+ *
+ * Das Theme des laufenden Spiels ueberschreibt die Fallbacks, weil es als
  * Inline-Stil am selben Element steht.
  */
-:root,
-.stage {
+:where(:root.quiz-tokens, .stage, .quiz-game) {
   /*
    * Fallbackwerte des Graustufensystems (docs/design-system.md).
    *

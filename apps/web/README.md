@@ -11,7 +11,12 @@ Ein Build bedient alle Rollen; die Rolle ergibt sich aus dem Pfad (`/operator`,
 `/stage`, `/moderator`, `/preview`, `/play`).
 
 `/play` ist die Selbstbedienung am Touchgeraet: dieselbe Komponente aus
-`@quiz/game`, die spaeter der Kiosk und eine Multigame-Anwendung einbinden.
+`@quiz/game`, die auch der Kiosk und eine Multigame-Anwendung einbinden.
+
+`/shell` ist eine beispielhafte Gastgeberanwendung - eine winzige Spielesammlung,
+die das Quiz einbindet, verlaesst und erneut einbindet. Sie gibt es nur im
+Entwicklungsmodus und sie ist kein Produkt, sondern der Pruefstand fuer den
+Einbettungsvertrag.
 
 ```text
 src/

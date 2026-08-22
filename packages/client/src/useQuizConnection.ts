@@ -60,17 +60,30 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
   /** Abweichung zwischen Server- und lokaler Uhr, aus dem letzten Snapshot. */
   const clockOffsetRef = useRef(0)
   const attemptRef = useRef(0)
-  const closedByUsRef = useRef(false)
 
   useEffect(() => {
-    closedByUsRef.current = false
+    /*
+     * Diese Merker gehoeren zu GENAU diesem Verbindungsversuch und stehen deshalb
+     * bewusst nicht in einem Ref.
+     *
+     * Ein geteilter Merker waere ein Fehler mit Folgen: Wird die Komponente
+     * entfernt und sofort wieder eingesetzt - der Normalfall in einer
+     * Gastgeberanwendung -, setzt der neue Durchlauf den Merker zurueck, bevor
+     * das `close`-Ereignis des alten Sockets eintrifft. Der alte Socket haelte
+     * sich dann fuer unabsichtlich getrennt und baute eine zweite Verbindung auf,
+     * die niemand mehr abraeumt.
+     */
+    let closedByUs = false
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+    /** Der Socket, den GENAU dieser Durchlauf gerade haelt. */
+    let active: WebSocket | null = null
 
     const connect = () => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const params = new URLSearchParams({ role })
       if (sessionCode) params.set('code', sessionCode)
       const socket = new WebSocket(`${protocol}//${window.location.host}/ws?${params.toString()}`)
+      active = socket
       socketRef.current = socket
 
       socket.addEventListener('open', () => {
@@ -117,7 +130,7 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
       })
 
       const scheduleReconnect = () => {
-        if (closedByUsRef.current) return
+        if (closedByUs) return
         const delay = RECONNECT_DELAYS_MS[Math.min(attemptRef.current, RECONNECT_DELAYS_MS.length - 1)]!
         attemptRef.current += 1
         reconnectTimer = setTimeout(connect, delay)
@@ -125,7 +138,13 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
 
       socket.addEventListener('close', () => {
         setConnected(false)
-        socketRef.current = null
+        /*
+         * Nur den eigenen Verweis loeschen. Ein spaet eintreffendes `close` eines
+         * abgeloesten Sockets darf den aktuellen nicht aus dem Ref raeumen - sonst
+         * findet ihn die Bereinigung beim Entfernen der Komponente nicht mehr und
+         * er bleibt offen zurueck.
+         */
+        if (socketRef.current === socket) socketRef.current = null
         scheduleReconnect()
       })
       socket.addEventListener('error', () => socket.close())
@@ -135,10 +154,11 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
 
     // Zuverlaessige Bereinigung: kein Socket und kein Timer ueberlebt das Unmount.
     return () => {
-      closedByUsRef.current = true
+      closedByUs = true
       if (reconnectTimer) clearTimeout(reconnectTimer)
-      socketRef.current?.close()
-      socketRef.current = null
+      active?.close()
+      if (socketRef.current === active) socketRef.current = null
+      active = null
     }
   }, [role, sessionCode])
 

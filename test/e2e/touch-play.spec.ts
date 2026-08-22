@@ -6,20 +6,9 @@
  * haengt es auch am Geraet, wo niemand eingreifen kann.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { openOperator, resetToStartPanel } from './helpers.ts'
+import { resetServer } from './helpers.ts'
 
 const enabledPad = '.answer-pad[data-enabled="true"]'
-
-/**
- * Ein vorheriger Test kann ein Spiel offen gelassen haben. Am Geraet gibt es
- * bewusst keinen Ausstieg - im Kiosk uebernimmt das die Huelle, im eingebetteten
- * Betrieb der Gastgeber. Fuer den Test uebernimmt es der Operator, also der Weg,
- * der im Betrieb tatsaechlich existiert.
- */
-async function resetServer(page: Page): Promise<void> {
-  const operator = await openOperator(page)
-  await resetToStartPanel(operator)
-}
 
 async function openStartScreen(page: Page): Promise<void> {
   await resetServer(page)
