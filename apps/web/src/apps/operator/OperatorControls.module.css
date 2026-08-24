@@ -36,9 +36,3 @@
   flex-wrap: wrap;
 }
 
-.seek {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--ui-text-muted);
-}

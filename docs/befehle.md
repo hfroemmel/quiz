@@ -61,7 +61,6 @@ das auf einen Operator wartet, den es am Geraet nicht gibt, waere sonst startbar
 | `RESET_IMAGE_REVEAL` | operator | ja |
 | `START_VIDEO` | operator | ja |
 | `PAUSE_VIDEO` | operator | ja |
-| `SEEK_VIDEO` | operator | ja |
 | `RESTART_VIDEO` | operator | ja |
 | `SHOW_QUESTION_AFTER_VIDEO` | operator, moderator | ja |
 | `REPORT_VIDEO_STATUS` | operator, system, player | nein |

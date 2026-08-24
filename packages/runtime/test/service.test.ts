@@ -206,6 +206,23 @@ describe('Videofrage', () => {
 
     expect(target.service.snapshotFor('operator').video?.hasError).toBe(true)
   })
+
+  /*
+   * Und sie nimmt sie zurueck, sobald es doch laeuft. Der Client meldet das,
+   * wenn die Wiedergabe wirklich beginnt; ohne diese Rueckname stuende die
+   * Meldung "Video nicht verfuegbar" unter einem laufenden Video.
+   */
+  it('nimmt den Medienfehler zurueck, wenn das Video doch laeuft', () => {
+    const target = rig()
+    expect(target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }).ok).toBe(true)
+    target.settle()
+
+    target.send({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' }, 'system')
+    expect(target.service.snapshotFor('operator').video?.hasError).toBe(true)
+
+    target.send({ type: 'REPORT_VIDEO_STATUS' }, 'system')
+    expect(target.service.snapshotFor('operator').video?.hasError).toBe(false)
+  })
 })
 
 describe('Selbstbedienung am Geraet', () => {

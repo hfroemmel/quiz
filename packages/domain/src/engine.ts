@@ -276,7 +276,6 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 
     case 'START_VIDEO':
     case 'PAUSE_VIDEO':
-    case 'SEEK_VIDEO':
     case 'RESTART_VIDEO':
     case 'REPORT_VIDEO_STATUS':
     case 'SHOW_QUESTION_AFTER_VIDEO':
@@ -777,21 +776,6 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
         draft.phase = 'video-ready'
       })
       work.log('phase', 'Video pausiert.')
-      return work.commit()
-    }
-    case 'SEEK_VIDEO': {
-      if (!['video-ready', 'video-playing'].includes(work.phase)) {
-        return reject('invalid-phase', 'In dieser Phase kann nicht im Video gesprungen werden.')
-      }
-      work.mutate((draft) => {
-        const wasPlaying = draft.video!.status === 'playing'
-        draft.video = {
-          ...draft.video!,
-          positionMs: command.positionMs,
-          startedAtServerMs: wasPlaying ? work.ctx.nowMs : undefined,
-        }
-      })
-      work.log('phase', `Video auf ${Math.round(command.positionMs / 1000)} s gesetzt.`)
       return work.commit()
     }
     case 'RESTART_VIDEO': {

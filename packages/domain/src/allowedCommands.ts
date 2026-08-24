@@ -118,7 +118,6 @@ export function availableCommands(state: GameState | null): CommandType[] {
 
     case 'video-ready':
       list.add('START_VIDEO')
-      list.add('SEEK_VIDEO')
       list.add('RESTART_VIDEO')
       list.add('SHOW_QUESTION_AFTER_VIDEO')
       list.add('SKIP_QUESTION')
@@ -126,7 +125,6 @@ export function availableCommands(state: GameState | null): CommandType[] {
 
     case 'video-playing':
       list.add('PAUSE_VIDEO')
-      list.add('SEEK_VIDEO')
       list.add('RESTART_VIDEO')
       list.add('SHOW_QUESTION_AFTER_VIDEO')
       list.add('SKIP_QUESTION')
