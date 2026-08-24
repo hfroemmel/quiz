@@ -228,7 +228,7 @@ test.describe('Bilderkennen', () => {
    * Desktopanwendung spielt dieselbe Datei. Genau dafuer gibt es die
    * Fehlerbehandlung, die der Ablauf hier mit durchlaeuft.
    */
-  test('7 - Videofrage mit Springen, danach Buzzer und richtige Antwort', async ({ page }) => {
+  test('7 - Videofrage: Buzzersperre, danach Buzzer und richtige Antwort', async ({ page }) => {
     const operator = await openOperator(page)
     await startGame(operator, { holdVideoIntro: true })
     await expectPhase(operator, 'video-ready')
@@ -243,19 +243,6 @@ test.describe('Bilderkennen', () => {
     // Pausieren fuehrt zurueck in die Bereitschaft - eine eigene Pausenphase gibt es nicht.
     await operator.getByRole('button', { name: 'Video pausieren' }).click()
     await expectPhase(operator, 'video-ready')
-
-    /*
-     * Springen im Video. Der Regler reicht bis zu der Laufzeit, die der
-     * Buehnenclient gemeldet hat - ohne sie nur bis zur bereits erreichten Stelle
-     * bzw. eine Sekunde. In dieser Testumgebung laesst sich die Datei nicht
-     * dekodieren, es gibt also keine Laufzeit; geprueft wird deshalb, dass der
-     * Befehl ankommt und der Server die Position uebernimmt. Dass die gemeldete
-     * Laufzeit wirklich beim Operator ankommt, haelt
-     * `packages/runtime/test/service.test.ts` fest.
-     */
-    const seek = operator.locator('[data-controls] input[type="range"]')
-    await seek.fill('1000')
-    await expect(seek).toHaveValue('1000')
 
     await operator.getByRole('button', { name: 'Frage einblenden' }).click()
     await expectPhase(operator, 'question-presented')

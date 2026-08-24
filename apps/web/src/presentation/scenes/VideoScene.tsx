@@ -64,6 +64,13 @@ export function VideoScene({ view, variant, isAudioMaster = true, onReport }: Vi
           setSoundRefused(true)
           return
         }
+        /*
+         * "AbortError" heisst: Ein neuerer Befehl hat den Startversuch abgeloest -
+         * typischerweise ein Pausieren, das waehrend des Anlaufs eintrifft. Das
+         * ist kein Medienfehler, und es als solchen zu melden hinterliesse die
+         * Meldung "Video nicht verfuegbar" unter einem laufenden Video.
+         */
+        if (error.name === 'AbortError') return
         onReport?.({ type: 'REPORT_VIDEO_STATUS', error: error.message })
       })
     }
@@ -92,6 +99,14 @@ export function VideoScene({ view, variant, isAudioMaster = true, onReport }: Vi
               onReport?.({ type: 'REPORT_VIDEO_STATUS', durationMs: event.currentTarget.duration * 1000 })
             }
             onError={() => onReport?.({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' })}
+            /*
+             * Es laeuft - damit ist jede fruehere Fehlermeldung ueberholt. Gemeldet
+             * wird nur dann, wenn wirklich eine steht: Sonst schickte jedes
+             * Fortsetzen einen Befehl, den niemand braucht.
+             */
+            onPlaying={() => {
+              if (video?.hasError) onReport?.({ type: 'REPORT_VIDEO_STATUS' })
+            }}
           />
         )}
         {!question.videoUrl && (

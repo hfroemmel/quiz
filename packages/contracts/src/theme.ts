@@ -102,7 +102,12 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
     accentQuiet: '#005A76', // Petrol, 80 % abgedunkelt
     primary: '#339D6E', // Gruen 80 %
     solution: '#339D6E', // Gruen 80 %
-    solutionChip: '#337D6A', // Dunkelgruen 80 %
+    /*
+     * Derselbe Ton wie die Leiste: Buchstabe und Antwort sind EINE Flaeche, die
+     * nur eine Fuge teilt. Zwei Gruens nebeneinander lasen sich wie zwei
+     * Aussagen - der dunklere Chip wirkte wie ein zweiter Zustand.
+     */
+    solutionChip: '#339D6E', // Gruen 80 %
     correct: '#339AA2', // Tuerkis 80 %
     incorrect: '#9A0030', // Rot, 80 % abgedunkelt
     text: '#FFFFFF',
@@ -159,7 +164,7 @@ export const brightPalette: Partial<DesignColors> = {
   accent: '#0077B6', // Blau 100 %
   primary: '#00854A', // Gruen 100 %
   solution: '#00854A', // Gruen 100 %
-  solutionChip: '#005C45', // Dunkelgruen 100 %
+  solutionChip: '#00854A', // Gruen 100 %, siehe oben
   correct: '#00818B', // Tuerkis 100 %
   incorrect: '#780F2D', // Dunkelrot 100 %
   text: 'rgb(25, 25, 25)',

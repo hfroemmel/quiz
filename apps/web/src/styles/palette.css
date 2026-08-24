@@ -25,7 +25,7 @@
   --color-accentQuiet: #005A76;
   --color-primary: #339D6E;
   --color-solution: #339D6E;
-  --color-solutionChip: #337D6A;
+  --color-solutionChip: #339D6E;
   --color-correct: #339AA2;
   --color-incorrect: #9A0030;
   --color-text: #FFFFFF;
@@ -69,7 +69,7 @@
   --color-accent: #0077B6;
   --color-primary: #00854A;
   --color-solution: #00854A;
-  --color-solutionChip: #005C45;
+  --color-solutionChip: #00854A;
   --color-correct: #00818B;
   --color-incorrect: #780F2D;
   --color-text: rgb(25, 25, 25);

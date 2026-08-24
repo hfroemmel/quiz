@@ -85,7 +85,6 @@ export const commandSchema = z.discriminatedUnion('type', [
 
   z.object({ type: z.literal('START_VIDEO') }),
   z.object({ type: z.literal('PAUSE_VIDEO') }),
-  z.object({ type: z.literal('SEEK_VIDEO'), positionMs: z.number().min(0) }),
   z.object({ type: z.literal('RESTART_VIDEO') }),
   /** Nach der Videophase die eigentliche Frage einblenden. Gleiche Frage, zweite Phase. */
   z.object({ type: z.literal('SHOW_QUESTION_AFTER_VIDEO') }),
@@ -183,7 +182,6 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   RESET_IMAGE_REVEAL: ['operator'],
   START_VIDEO: ['operator'],
   PAUSE_VIDEO: ['operator'],
-  SEEK_VIDEO: ['operator'],
   RESTART_VIDEO: ['operator'],
   SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator'],
   REPORT_VIDEO_STATUS: ['operator', 'system', 'player'],

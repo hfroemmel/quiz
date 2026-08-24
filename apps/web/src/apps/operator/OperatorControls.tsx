@@ -217,27 +217,6 @@ export function OperatorControls({ view, send, className }: Props) {
                 Video neu starten
               </button>
             )}
-            {can('SEEK_VIDEO') && (
-              <label className={styles.seek}>
-                Position
-                {/*
-                 * Der Regler reicht bis zur Laufzeit, die der Buehnenclient
-                 * gemeldet hat. Fehlt sie noch - weil keine Buehne offen ist oder
-                 * das Medium gerade erst laedt -, bleibt nur die bereits
-                 * erreichte Stelle; vorwaerts springen laesst sich dann nicht,
-                 * und das ist ehrlicher als eine erfundene Obergrenze.
-                 */}
-                <input
-                  type="range"
-                  min={0}
-                  max={view.video?.durationMs ?? Math.max(1000, view.video?.positionMs ?? 0)}
-                  step={1000}
-                  value={view.video?.positionMs ?? 0}
-                  onChange={(event) => send({ type: 'SEEK_VIDEO', positionMs: Number(event.target.value) })}
-                />
-                <span>{Math.round((view.video?.positionMs ?? 0) / 1000)} s</span>
-              </label>
-            )}
             {can('SHOW_QUESTION_AFTER_VIDEO') && (
               <button className="button button--primary" onClick={() => send({ type: 'SHOW_QUESTION_AFTER_VIDEO' })}>
                 Frage einblenden
