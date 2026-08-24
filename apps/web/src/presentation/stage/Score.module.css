@@ -105,9 +105,9 @@
  */
 :global(.stage--kids) .score {
   display: grid;
-  grid-template-columns: 47% 1fr;
+  grid-template-columns: 50% 1fr;
   align-items: center;
-  min-width: 13.5cqw;
+  min-width: 15.5cqw;
   min-height: 9.6cqh;
   padding: 0.6cqw 0 0.8cqw;
   position: relative;

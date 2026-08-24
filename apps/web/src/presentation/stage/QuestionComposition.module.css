@@ -20,6 +20,9 @@
   min-height: 0;
   text-align: left;
 }
+:global(.stage--kids) .person {
+  column-gap: 2.5cqw;
+}
 .column {
   display: flex;
   flex-direction: column;

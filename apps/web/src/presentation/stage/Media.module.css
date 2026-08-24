@@ -12,8 +12,8 @@
 }
 .inline,
 .solution {
-  width: 25cqw;
   aspect-ratio: 4 / 3;
+  width: 28cqw;
 }
 .reveal {
   width: 40cqw;
@@ -30,8 +30,8 @@
  * statt bei flachen Buehnen unten herauszuragen.
  */
 .portrait {
-  height: 66cqh;
-  aspect-ratio: 64 / 62;
+  height: 55cqh;
+  aspect-ratio: 1 / 1;
 }
 /*
  * Die Bildflaeche - das Foto und, beim Bilderkennen, die Decke darueber.
@@ -121,10 +121,14 @@
  */
 :global(.stage--kids.stage--scene-question) .media,
 :global(.stage--kids.stage--scene-solution) .media {
-  width: auto;
-  aspect-ratio: auto;
   min-width: 0;
   min-height: 0;
+}
+
+:global(.stage--kids.stage--scene-question) .portrait,
+:global(.stage--kids.stage--scene-solution) .portrait {
+  width: 33cqw;
+  height: 33cqw;
 }
 /*
  * Karlchen schaut ueber die obere Bildkante: etwas rechts der Mitte wie im
@@ -134,12 +138,11 @@
  * Griff auf dem Rand. Die Zeichnung endet bei 90,6 Prozent der Bilddatei -
  * darunter liegt durchsichtiger Rand, der herausgerechnet wird.
  */
-:global(.stage--kids.stage--scene-question) .peek {
-  left: 68%;
-  bottom: 100%;
-  z-index: -2;
-  width: min(50%, 300px);
+:global(.stage--kids) .peek {
+  left: 8cqw;
+  bottom: calc(100% - 2.3cqh);
+  z-index: 2;
+  width: 13cqw;
   aspect-ratio: 1365 / 768;
-  transform: translate(-50%, calc(9.4% + 0.7cqw));
   background: url('/assets/kinderquiz/characters/karlchen-mini.svg') no-repeat center / contain;
 }

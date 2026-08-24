@@ -19,16 +19,10 @@
 /* Die Figur gehoert zur Komposition von Frage und Loesung. */
 :global(.stage--kids.stage--scene-question) .mascot,
 :global(.stage--kids.stage--scene-solution) .mascot {
-  right: 0.8cqw;
-  bottom: 9cqh;
-  /*
-   * Zwischen Grund und Inhalt: In schmalen Ansichten darf die Figur hinter die
-   * Inhaltsflaeche rutschen statt zu verschwinden. Kopfzeile und Szene liegen
-   * auf Ebene 1 und bleiben deshalb immer vor ihr.
-   */
-  z-index: 0;
-  /* Rund die Haelfte der Bildhoehe - die Quelle traegt 1131 Pixel. */
-  height: 51cqh;
+  z-index: 1;
+  right: 1.8cqw;
+  bottom: 4cqh;
+  height: 58cqh;
   aspect-ratio: 927 / 1131;
   background: url('/assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
 }

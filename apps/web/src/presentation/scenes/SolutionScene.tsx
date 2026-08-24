@@ -48,9 +48,6 @@ export function SolutionScene({ view, variant }: SceneProps) {
         mediaVariant="solution"
         rows={rows}
       >
-        <p className={styles.solutionLabel} data-solution-label="">
-          Richtige Antwort:
-        </p>
       </QuestionComposition>
     </div>
   )
