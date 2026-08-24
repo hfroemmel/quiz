@@ -263,18 +263,25 @@ test.describe('Handschrift und Zeichnung', () => {
     const stage = (await page.locator('.stage').boundingBox())!
     const figure = (await page.locator('[data-mascot]').boundingBox())!
 
-    // Rund die halbe Bildhoehe - keine Randgrafik.
+    // Gut die halbe Bildhoehe - keine Randgrafik.
     const share = figure.height / stage.height
-    expect(share).toBeGreaterThanOrEqual(0.42)
-    expect(share).toBeLessThanOrEqual(0.52)
+    expect(share).toBeGreaterThanOrEqual(0.54)
+    expect(share).toBeLessThanOrEqual(0.62)
 
     // Sie steht rechts und auf dem Boden, nicht in der Bildmitte.
     expect(figure.x).toBeGreaterThan(stage.x + stage.width * 0.7)
     expect(figure.y + figure.height).toBeGreaterThan(stage.y + stage.height * 0.85)
 
-    // Und die Antwortzeilen enden davor.
-    const answers = (await page.locator('[data-answers]').boundingBox())!
-    expect(answers.x + answers.width).toBeLessThanOrEqual(figure.x)
+    /*
+     * Und kein Antworttext liegt unter ihr. Die Leisten selbst duerfen der Figur
+     * ein Stueck unterlaufen - der ausgestreckte Fluegel greift ueber ihr leeres
+     * rechtes Ende, genau wie in der Referenz. Nur lesen muss man alles.
+     */
+    const texte = await page.locator('[data-answer-text]').evaluateAll((nodes) =>
+      nodes.map((node) => node.getBoundingClientRect().right),
+    )
+    expect(texte.length).toBeGreaterThan(0)
+    for (const rechts of texte) expect(rechts).toBeLessThanOrEqual(figure.x)
 
     // Dekoration nimmt keine Klicks entgegen.
     for (const selector of ['[data-mascot]', '[data-peek]']) {

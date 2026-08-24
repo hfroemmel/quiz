@@ -15,8 +15,14 @@
   aspect-ratio: 4 / 3;
   width: 28cqw;
 }
+/*
+ * Beim Bilderkennen ist das Bild der ganze Inhalt: Es steht neben dem
+ * Fragetext und nimmt die Haelfte der Buehne ein. Frueher teilte es sich die
+ * Flaeche mit dem Enthuellungsring; seit der weg ist, ruecken die Kacheln in
+ * dessen Platz nach.
+ */
 .reveal {
-  width: 40cqw;
+  height: 70cqh;
   aspect-ratio: 4 / 3;
 }
 /*

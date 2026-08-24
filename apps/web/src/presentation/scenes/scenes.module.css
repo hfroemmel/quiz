@@ -26,10 +26,14 @@
   padding: var(--scene-pad);
 }
 
+/*
+ * Bilderkennen stellt Frage und Bild NEBENEINANDER: Das Bild ist der Inhalt,
+ * ueber den gesprochen wird, und bekommt deshalb die Haelfte der Buehne und die
+ * volle Hoehe. Der Fragetext steht links daneben und laeuft nicht darueber weg.
+ */
 :global(.stage--scene-reveal) .scene {
   flex-direction: row;
-  align-items: flex-start;
-  padding-top: 6cqw;
+  align-items: center;
 }
 
 .start {
@@ -108,33 +112,22 @@
  * nicht das Video: Sonst haette die Vorschau eine andere Komposition als der
  * Saal, und waehrend des Ladens spraenge die Flaeche.
  *
- * Die Hoehe ist gedeckelt, damit das Rechteck nicht unter der Kopfzeile
- * hervorwaechst; `aspect-ratio` gibt ihm die uebliche Breitbildform, in die sich
- * jedes Seitenverhaeltnis einpasst.
+ * `aspect-ratio` gibt ihm die uebliche Breitbildform, in die sich jedes
+ * Seitenverhaeltnis einpasst.
  */
 .videoFrame {
   position: relative;
   /*
-   * DIE HOEHE FUEHRT, DIE BREITE FOLGT. Die Szene ist eine Spalte: Ihre
-   * Hauptachse ist die Hoehe, ihre Querachse die Breite. `flex: 1` gibt dem
-   * Rechteck also die freie Hoehe, `width: auto` laesst der Browser aus dem
-   * Seitenverhaeltnis ausrechnen, und `align-self: center` haelt ihn davon ab,
-   * die Breite stattdessen aufzuziehen.
-   *
-   * Umgekehrt - Breite vorgeben, Hoehe begrenzen - geht NICHT: Ein Flex-Element
-   * wird in der Hauptachse geschrumpft, ohne dass die Breite mitgeht, und der
-   * Platzhalter haette eine andere Form als das Video darin.
+   * `flex: 0 0 auto` ist Pflicht, nicht Geschmack. Die Szene ist eine Spalte,
+   * ihre Hauptachse also die Hoehe: Ein schrumpfbares Element gaebe hier Hoehe
+   * ab, ohne die Breite mitzunehmen - das Rechteck waere flacher als 16:9,
+   * waehrend das Video darin sein eigenes Verhaeltnis behielte. Genau diese
+   * Abweichung prueft der End-to-End-Test.
    */
-  min-height: 0;
-  width: auto;
+  flex: 0 0 auto;
   align-self: center;
-  aspect-ratio: 16 / 9;
-  /*
-   * Die Breitengrenze muss als Hoehengrenze mitgeschrieben werden. Auf einer
-   * schmalen, hohen Flaeche waere sonst die Breite gekappt und die Hoehe stehen
-   * geblieben - ein hochkantes graues Feld mit einem Video quer darin.
-   */
   width: 65cqw;
+  aspect-ratio: 16 / 9;
   border-radius: 1.4cqw;
   background: var(--color-tile);
   overflow: hidden;

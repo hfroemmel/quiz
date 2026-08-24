@@ -131,9 +131,9 @@ Flaeche `answer-incorrect` gedacht.
 - Antwortzeilen und Loesungszeile enden bei 75 % der Breite, damit die
   Figurenflaeche frei bleibt.
 - Karlchen steht am unteren rechten Rand der **ganzen Ansicht**, nicht in der
-  Fragezeile - so steht er wie in der Referenz auf dem Boden. Er ist rund halb
-  so hoch wie die Ansicht (`clamp(240px, 51cqh, 560px)`) und praesentiert mit
-  dem ausgestreckten Fluegel nach links zu den Antworten.
+  Fragezeile - so steht er wie in der Referenz auf dem Boden. Er ist gut halb
+  so hoch wie die Ansicht (`58cqh`) und praesentiert mit dem ausgestreckten
+  Fluegel nach links zu den Antworten.
 - Er erscheint erst, **wenn die Antworten stehen** (`data-answers-shown` an der
   Buehne), und bleibt bis zur Loesung. Solange der Moderator nur die Frage
   vorliest, zeigt sein Fluegel auf eine leere Flaeche - er praesentiert etwas,
@@ -201,7 +201,7 @@ Es gibt **keine gerechnete Fettschrift**: Patrick Hand hat genau einen Schnitt
 - Chip und Antwortkarte als getrennte Flaechen mit sichtbarer Luecke
 - Patrick Hand fuer Text, Melior fuer Zahlen und Buchstaben, beide wirklich geladen
 - sichtbare Fuge zwischen Fragebild und Frageflaeche
-- Karlchen 42 bis 52 Prozent der Bildhoehe, rechts, am Boden, ohne die
+- Karlchen gut die Haelfte der Bildhoehe, rechts, am Boden, ohne die
   Antworten zu beruehren; kleiner Karlchen mittig ueber dem Bildrahmen
 - lange Texte in allen vier Zielformaten: kein Abschneiden, mehrzeilige Frage,
   zweizeilige Antworten, Chip in fester Groesse und mittig

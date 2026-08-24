@@ -15,11 +15,10 @@
  * hinueber und reicht dabei bis weit ueber die halbe Bildhoehe.
  *
  * In den breiten Formaten beruehrt sie den Text ohnehin nie.
- */
-/*
- * Die Figur gehoert zur Komposition von Frage und Loesung - aber erst, wenn die
+ *
+ * Sie gehoert zur Komposition von Frage und Loesung - aber erst, wenn die
  * Antworten stehen. Solange die Frage allein da ist, wird sie vorgelesen; eine
- * Figur, die dabei schon auftritt, zieht den Blick vom Text.
+ * Figur, die dabei schon praesentiert, zeigt auf eine leere Flaeche.
  */
 :global(.stage--kids.stage--scene-question[data-answers-shown='true']) .mascot,
 :global(.stage--kids.stage--scene-solution) .mascot {
