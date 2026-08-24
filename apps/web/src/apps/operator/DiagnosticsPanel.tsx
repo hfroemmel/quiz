@@ -45,7 +45,7 @@ export function DiagnosticsPanel({
           </div>
           <div>
             <dt>Verbundene Clients</dt>
-            <dd>{connectedClients}</dd>
+            <dd data-connected-clients="">{connectedClients}</dd>
           </div>
           {/* Haeufigste Tonfrage im Betrieb: "Warum hoere ich nichts?" */}
           <div>

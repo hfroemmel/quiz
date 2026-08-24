@@ -268,35 +268,58 @@ Oberflaechenstufen werden auf den neuen Bauteilen neu gebaut statt auf den alten
 | **Spielerzahl** | `players` ist ein Array mit ein oder zwei Eintraegen. Zweite Chance nur bei vorhandenem Gegner, Solo-Ergebnis mit Trefferzahl statt Gewinner. |
 | **Ablaufprofil** | `operated` und `self-service` im Spielzustand, Rolle `player`, atomarer Befehl `ANSWER_BY_PLAYER`, automatische Uebergaenge ueber die vorhandene Timer-Mechanik. |
 | **Inhaltsfilter** | `evaluationModes` im Slotfilter, drei Touch-Presets im Quizpaket, Eignung im Validierungsbericht, gefilterter Katalog fuer die Spieleransicht. |
+| **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Antwortleisten, Ergebnis. Die Leisten stehen IN der Buehnenflaeche und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Erreichbar unter `/play`. |
+| **Kiosk** | `apps/kiosk` als Electron-Vollbild: Laufzeit im selben Prozess, nur Loopback, kein Operatorfenster, Leerlauf-Aufsicht als Betriebsangabe. |
+| **Einbettung** | `onFinished`/`onExit`, Abraeumen beim Entfernen, Beispielsammlung unter `/shell` als Pruefstand. |
 
-Der Kern ist damit touchfaehig: Ein Spiel laesst sich ohne einen einzigen
-Operatorbefehl von der ersten Frage bis zum Ergebnis spielen. Geprueft ist das an
-159 Unit-Tests; der Buehnenbetrieb blieb dabei unveraendert, inklusive der
-Bildregression der Buehne.
+Damit sind zwei der drei Kontexte fertig: Ein Spiel laesst sich ohne einen
+einzigen Operatorbefehl von der ersten Frage bis zum Ergebnis spielen - im
+Browser unter `/play` und am Kioskgeraet. Geprueft ist das an 167 Unit-Tests und
+74 End-to-End-Tests, darunter ein vollstaendiges Einzelspiel ohne Operator; der
+Buehnenbetrieb blieb dabei unveraendert, inklusive der Bildregression der Buehne.
 
-### Offen
+Von den vier Fehlern des ersten Anlaufs sind drei beim Wiederaufbau vermieden
+worden - die beiden Socket-Fehler traten nicht wieder auf, weil die
+Verbindungsschicht auf `main` sie bereits behoben hat, und das fremde Ergebnis
+haelt ein eigener Test fest. Der vierte (`pendingStart`) ist als Zwischenzustand
+umgesetzt.
 
-| Stufe | Inhalt | Warum sie noch aussteht |
+### Offen: der dritte Kontext
+
+Was heute geht: Buehne (`/stage` mit Operator) und eigenstaendiges Touchspiel
+(`/play`, Kiosk). Was noch nicht geht: das Quiz als importierbares Bauteil einer
+FREMDEN Anwendung.
+
+Die Beispielsammlung unter `/shell` zeigt den Lebenszyklus bereits vollstaendig -
+einbinden, verlassen, wieder einbinden, ohne Rest - aber sie lebt in derselben
+Anwendung und benutzt deshalb dieselben globalen Stylesheets. Eine fremde
+Anwendung wuerde die mitladen muessen, und dann bekaeme sie mehr, als ihr lieb ist.
+
+| Stufe | Inhalt | Was dabei zu loesen ist |
 |---|---|---|
-| **Paketschnitt der Praesentation** | `apps/web/src/presentation` und `ui/` nach `packages/presentation` | Die Schicht wurde auf `main` gerade neu gebaut. Der Schnitt ist mechanisch, aber er muss auf den neuen Bauteilen erfolgen. |
-| **Verbindung als Paket** | `useQuizConnection` nach `packages/client` | Voraussetzung dafuer, dass Buehne und Touchansicht dieselbe Anbindung benutzen. |
-| **Touchansicht** | `packages/game` mit `<QuizGame/>`: Startauswahl, Antwortflaechen, Ergebnis | Baut auf den beiden Punkten darueber auf. Die Antwortflaechen entstehen aus `AnswerList` statt aus dem entfernten `OptionBar`. |
-| **Kiosk** | `apps/kiosk` als Electron-Vollbild mit Leerlauf-Aufsicht | Braucht die Touchansicht. |
-| **Einbettungsvertrag** | CSS-Kapselung, Lebenszyklus, `onFinished`/`onExit`, Beispielsammlung als Pruefstand | Braucht die Touchansicht. |
+| **Paketschnitt der Praesentation** | `apps/web/src/presentation` und `ui/` nach `packages/presentation` | Ueberwiegend Dateien verschieben. Die Bildregression der Buehne ist das Sicherheitsnetz. |
+| **Verbindung als Paket** | `useQuizConnection` nach `packages/client` | Klein und mechanisch. |
+| **Spielpaket** | `apps/web/src/game` nach `packages/game`, Ausgabe `<QuizGame/>` | Erst danach kann eine fremde Anwendung `import { QuizGame } from '@quiz/game'` schreiben. |
+| **CSS-Kapselung** | Der globale Tokenlayer muss mit | Das ist der eigentliche Punkt, siehe unten. |
 
-Aus dem ersten Anlauf dieser Stufen sind vier Fehler bekannt, die beim
-Wiederaufbau von vornherein vermieden gehoeren - sie fallen nur auf, wenn die
-Oberflaeche entfernt und wieder eingesetzt wird:
+**Die CSS-Kapselung ist die offene Frage.** Alles Bauteilhafte liegt schon in
+CSS-Modulen und kann nichts anfassen, was ihm nicht gehoert. Der globale Layer
+kann es sehr wohl:
 
-1. Ein Merker "von uns geschlossen" ausserhalb des einzelnen Verbindungsversuchs
-   laesst den alten Socket eine zweite Verbindung aufbauen.
-2. Das spaet eintreffende `close` eines abgeloesten Sockets darf nicht den Verweis
-   auf den aktuellen loeschen - sonst bleibt dieser offen zurueck.
-3. Ein Ergebnis, das beim Einsetzen schon auf dem Server steht, gehoert einer
-   frueheren Partie und darf dem Gastgeber nicht als eigenes gemeldet werden.
-4. Zwischen "Los geht's" und dem ersten Snapshot des neuen Spiels darf nicht der
-   alte Stand stehen bleiben - sonst blitzt das Ergebnis der Vorgaenger auf. Die
-   Revision taugt als Signal nicht: Sie zaehlt je Spiel und beginnt neu klein.
+| Datei | Was daran der Gast braucht | Warum sie so nicht mitkann |
+|---|---|---|
+| `palette.css` | die `--color-*`-Rueckfallwerte | setzt sie an `:root` |
+| `tokens.css` | Schriften, Radien, Dauern | setzt sie an `:root` |
+| `stage.css` | `.stage`, `.stage--*` | Klassenselektoren, geht mit |
+| `motion.css` | Keyframes und Uebergangsklassen | geht mit |
+| `base.css` | nichts | Reset mit `*`, `html`, `body` - gehoert dem Gastgeber |
+
+Die Farben reisen ohnehin schon inline mit (`themeVariables` setzt sie am
+Wurzelelement der Komponente); zu loesen ist der Rest von `tokens.css`. Der Weg
+dahin ist eine Anforderungsklasse am eigenen Wurzelelement statt `:root` - und
+ein Test, der genau das festhaelt: Kein Selektor eines mitgelieferten
+Stylesheets darf mit einem Elementnamen, `*`, `html`, `body` oder einem nackten
+`:root` beginnen.
 
 ## 7. Getroffene Entscheidungen
 

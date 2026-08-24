@@ -3,6 +3,7 @@ node_modules/
 # Build-Artefakte der Anwendungen (werden aus den Quellen erzeugt)
 apps/web/dist/
 apps/desktop/dist/
+apps/kiosk/dist/
 dist-electron/
 release/
 *.tsbuildinfo

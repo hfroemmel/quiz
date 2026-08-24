@@ -1,0 +1,108 @@
+/*
+ * Aussehen der Beispielsammlung.
+ *
+ * Es ist bewusst NICHT das Aussehen des Quiz: Andere Farben, andere Schrift,
+ * andere Kacheln. Wuerde das Quiz die Sammlung umfaerben, faellt es genau hier
+ * auf - und das ist der Zweck dieser Datei.
+ *
+ * Farbwerte stehen auch hier nicht: Die Sammlung leiht sich die Bedienfarben des
+ * Operatorrahmens, die aus der Palette kommen.
+ */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ui-page);
+  color: var(--ui-text);
+  font-family: var(--font-ui);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 12px 20px;
+  background: var(--ui-surface-quiet);
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.back {
+  padding: 8px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius);
+  background: var(--ui-control);
+  color: var(--ui-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+/*
+ * Der Kasten, den der Gastgeber dem Quiz gibt. Er ist absichtlich kleiner als
+ * das Fenster: Ein Gast, der sich nicht daran haelt, faellt sofort auf.
+ */
+.frame {
+  flex: 1;
+  min-height: 0;
+  margin: 20px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.menu {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 20px;
+  padding: 20px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  width: 220px;
+  height: 140px;
+  padding: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tileEmpty {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tileName {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.tileNote {
+  font-size: 13px;
+  color: var(--ui-text-muted);
+}
+
+.result {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--ui-text-muted);
+}

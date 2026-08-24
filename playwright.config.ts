@@ -37,9 +37,13 @@ export default defineConfig({
        * Die Entwicklungsvorschau ist bewusst nur im Entwicklungsmodus erreichbar
        * (Spezifikation 22.6). Szenen- und Animationstests laufen deshalb gegen den
        * Vite-Entwicklungsserver, nicht gegen den Produktionsbuild.
+       *
+       * Dasselbe gilt fuer die Beispielsammlung unter `/shell`: Sie ist der
+       * Pruefstand des Einbettungsvertrags und kein Teil der Auslieferung. Ihre
+       * Befehle gehen ueber den Proxy an denselben Testserver.
        */
       name: 'preview',
-      testMatch: /[/\\](presentation|kids-quiz)\.spec\.ts$/,
+      testMatch: /[/\\](presentation|kids-quiz|embedding)\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], baseURL: `http://localhost:${DEV_PORT}` },
     },
   ],

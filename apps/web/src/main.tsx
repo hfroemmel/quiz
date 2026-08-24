@@ -12,6 +12,7 @@ import { StageApp } from './apps/stage/StageApp.tsx'
 import { ModeratorApp } from './apps/moderator/ModeratorApp.tsx'
 import { PreviewApp } from './apps/preview/PreviewApp.tsx'
 import { QuizGame } from './game/QuizGame.tsx'
+import { ShellApp } from './apps/shell/ShellApp.tsx'
 /*
  * Globale Stylesheets - bewusst KEINE Module.
  *
@@ -43,6 +44,12 @@ function App() {
       return <ModeratorApp />
     case '/preview':
       return <PreviewApp />
+    /*
+     * Beispielhafte Gastgeberanwendung. Sie zeigt, wie eine fremde Anwendung das
+     * Quiz einbindet - und dient als Pruefstand fuer den Einbettungsvertrag.
+     */
+    case '/shell':
+      return <ShellApp />
     /*
      * Selbstbedienung am Touchgeraet. Dieselbe Komponente betreibt der Kiosk und
      * spaeter die Multigame-Anwendung; hier ist sie ueber den lokalen Server

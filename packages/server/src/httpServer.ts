@@ -35,7 +35,7 @@ const MIME_TYPES: Record<string, string> = {
 }
 
 /** Routen der Single-Page-Anwendung. Alles andere wird als Datei gesucht. */
-const SPA_ROUTES = new Set(['/', '/operator', '/stage', '/moderator', '/preview', '/play'])
+const SPA_ROUTES = new Set(['/', '/operator', '/stage', '/moderator', '/preview', '/play', '/shell'])
 
 export interface HttpOptions {
   service: QuizService

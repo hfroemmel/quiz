@@ -26,6 +26,8 @@
     "build": "pnpm palette:build && pnpm content:validate && pnpm --filter @quiz/web build",
     "build:dev": "pnpm palette:build && pnpm content:validate:dev && pnpm --filter @quiz/web build",
     "build:desktop": "pnpm build && pnpm --filter @quiz/desktop build",
+    "build:kiosk": "pnpm build && pnpm --filter @quiz/kiosk build",
+    "dev:kiosk": "pnpm --filter @quiz/kiosk dev",
     "lint": "pnpm typecheck",
     "desktop:rebuild-native": "pnpm --filter @quiz/desktop rebuild:native",
     "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs"
