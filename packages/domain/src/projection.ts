@@ -78,9 +78,8 @@ export interface ProjectionContext {
  *
  * Sie folgt der Phase - mit einer Ausnahme, die der Fragetyp vorgibt: Beim
  * Bilderkennen bleibt die Buehne auch dann in der Enthuellungsszene, wenn ein
- * Spieler den Zuschlag hat. Das Bild und der eingefrorene Countdown sind genau
- * das, worueber jetzt gesprochen wird; ein Sprung in das Fragelayout wuerde
- * beides vom Schirm nehmen.
+ * Spieler den Zuschlag hat. Das eingefrorene Bild ist genau das, worueber jetzt
+ * gesprochen wird; ein Sprung in das Fragelayout naehme es vom Schirm.
  */
 export function sceneForPhase(phase: GamePhase, presentationType?: QuestionPresentationType): PublicScene {
   if (presentationType === 'image-reveal' && phase === 'answer-locked') return 'reveal'
@@ -159,14 +158,6 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     scene,
     phase: state.phase,
     theme,
-    secondChance:
-      state.phase === 'second-chance'
-        ? {
-            pointsIfCorrect: pointsForCorrectAnswer(
-              attemptsForCurrentQuestion(state).filter((entry) => entry.outcome === 'incorrect').length,
-            ),
-          }
-        : undefined,
     question: publicQuestion,
     // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
     upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx) : undefined,
@@ -517,7 +508,7 @@ function nextStepHint(state: GameState | null): string {
     case 'buzzer-open':
       return 'Buzzer offen. Wer zuerst drückt, antwortet.'
     case 'reveal-running':
-      return 'Enthüllung läuft. Buzzern bleibt auch nach dem Countdown erlaubt.'
+      return 'Enthüllung läuft. Buzzern bleibt auch nach Ablauf erlaubt.'
     case 'reveal-paused':
       return 'Enthüllung pausiert. Fortsetzen oder Antwort aufnehmen.'
     case 'answer-locked':

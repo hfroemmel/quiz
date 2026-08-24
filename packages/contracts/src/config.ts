@@ -60,14 +60,14 @@ export const gameTiming = {
 /**
  * Das Raster des Bilderkennens.
  *
- * Das Bild liegt unter einer Decke aus Kacheln, die waehrend des Countdowns eine
- * nach der anderen verschwindet. Alle Werte, die diese Aufloesung bestimmen,
+ * Das Bild liegt unter einer Decke aus Kacheln, die waehrend der Enthuellung
+ * eine nach der anderen verschwindet. Alle Werte, die diese Aufloesung bestimmen,
  * stehen hier - Rastergroesse, Reihenfolge und Kachelbewegung. Wer das Bild
  * anders aufdecken will, aendert nichts anderes als diese Zahlen.
  *
  * Warum fachlich und nicht rein visuell: Die Reihenfolge entscheidet, WAS ein
- * Spieler wann sieht. Sie gehoert damit zur Fairness und wird wie der Countdown
- * aus dem Fortschritt abgeleitet, nicht aus einer nebenherlaufenden Animation.
+ * Spieler wann sieht. Sie gehoert damit zur Fairness und wird aus dem
+ * Fortschritt abgeleitet, nicht aus einer nebenherlaufenden Animation.
  */
 export const revealGrid = {
   columns: 6,

@@ -127,7 +127,7 @@ export interface AnswerAttempt {
 /**
  * Enthuellungsuhr des Bilderkennens (Spezifikation 10.2).
  *
- * Countdown und Bildschaerfe werden aus derselben Fortschrittsvariable berechnet.
+ * Jede Anzeige der Enthuellung wird aus derselben Fortschrittsvariable berechnet.
  * Der Server haelt nur Startzeit, bereits verstrichene Zeit und Pausezustand;
  * Clients leiten daraus `progress` ab und rendern fluessig, ohne den Zustand zu aendern.
  */

@@ -39,9 +39,9 @@ Freigabe**. Es liegt unter `content/source/assets/video/` und haengt an der Frag
 `test-video`.
 
 Die Videologik ist vollstaendig umgesetzt und getestet: Buzzersperre waehrend des
-Videos, Start/Pause/Neustart/Springen, `Frage einblenden` als zweite Phase
-derselben Frage, Fehlermeldung mit `Frage ueberspringen` bei nicht ladbarem
-Medium. Der End-to-End-Fall 7 der Spezifikation laeuft.
+Videos, Start/Pause/Neustart, `Frage einblenden` als zweite Phase derselben
+Frage, Fehlermeldung mit `Frage ueberspringen` bei nicht ladbarem Medium. Der
+End-to-End-Fall 7 der Spezifikation laeuft.
 
 Zwei Punkte dazu:
 
@@ -49,11 +49,10 @@ Zwei Punkte dazu:
   AAC nicht (`canPlayType` liefert leer) und zeigt "Video nicht verfuegbar". Im
   ausgelieferten Browser und in der Desktopanwendung spielt dieselbe Datei. Der
   End-to-End-Test prueft deshalb den Ablauf, nicht die Wiedergabe.
-* **Der Positionsregler reicht nur bis zur bereits erreichten Stelle.** Die
-  Spieldauer steht im Serverzustand nicht zur Verfuegung; der Regler behilft sich
-  mit der aktuellen Position. Vorwaerts springen laesst sich damit nicht. Wer das
-  braucht, muss die Dauer in den Zustand aufnehmen - der Buehnenclient kennt sie
-  aus `loadedmetadata`.
+* **Springen im Video gibt es nicht.** Der Operator startet, pausiert und
+  beginnt von vorn. Ein Positionsregler setzte die Spieldauer voraus, und die
+  steht im Serverzustand nicht zur Verfuegung. Wer ihn braucht, muss die Dauer
+  in den Zustand aufnehmen - der Buehnenclient kennt sie aus `loadedmetadata`.
 
 ## Natives SQLite-Modul
 
@@ -86,9 +85,10 @@ scheitert es ohnehin.
 * **Kein allgemeines Undo.** Jede Aenderung ist vollstaendig nachvollziehbar
   (Auditlog, Punktetransaktionen, Hotfix-Bericht), aber es gibt keinen Rueckgaengig-Knopf.
   Punkte lassen sich manuell korrigieren.
-* **Sound wird synthetisiert** (Web Audio) statt aus Dateien geladen. Das haelt den
-  Offline-Betrieb einfach; wer echte Klaenge will, ersetzt `playCue` in
-  `apps/web/src/presentation/soundCues.ts`.
+* **Nicht jede Soundmarke hat eine Datei.** `solution`, `scene-change` und
+  `result` sind angelegt, aber stumm; sobald eine Datei in
+  `apps/web/src/assets/audio/` liegt, nimmt `soundCues.ts` sie ohne
+  Codeaenderung auf.
 * **Screenshot-Baselines sind plattformabhaengig.** Auf einem neuen System einmalig
   `npx playwright test --project=preview --update-snapshots`.
 * **Vollbildsteuerung des Buehnenfensters aus dem Operatorfenster** funktioniert nur in

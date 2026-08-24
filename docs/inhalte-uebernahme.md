@@ -18,8 +18,7 @@ pnpm content:migrate <pfad>/questions.js   # erzeugt content/migrated/ + Bericht
 | Eintraege | 199 |
 | uebernommen | 199 |
 | Bilderkennen (`image-reveal`) | 64 |
-| Bildgestuetzte Auswahl (`image-choice`) | 123 |
-| Portraetfrage (`person`) | 5 |
+| Bildgestuetzte Auswahl (`image-choice`) | 128 |
 | Reine Textauswahl (`text-choice`) | 7 |
 | Schwierigkeiten | leicht 63, mittel 85, schwer 51 |
 | Modi | Erwachsene 143, Kinder 56 |
@@ -27,9 +26,11 @@ pnpm content:migrate <pfad>/questions.js   # erzeugt content/migrated/ + Bericht
 | Wiederholungsgruppen erkannt | 8 |
 | referenzierte Bilddateien | 156 |
 
-Die Migration kennt `person` nicht: Der Legacy-Katalog fuehrt diese Fragen als
-bildgestuetzte Auswahl. Die fuenf Eintraege sind redaktionell nachgezogen - es
-sind genau die Bildfragen, deren Bild eine einzelne Person zeigt.
+Der Legacy-Katalog fuehrt alle Bildfragen als bildgestuetzte Auswahl, und dabei
+bleibt es: Die Anordnung `person` ist eine Gestaltungsentscheidung der Redaktion
+und wird von der Migration nie gesetzt. Im Bestand traegt sie derzeit nur die
+Testfrage `test-person`. Die Kategorie `person` hat damit nichts zu tun - sie
+sagt, worum es geht, nicht, wie die Frage aussieht.
 
 Verteilung der Kategorien: Saarbruecken 64, Institution 36, Person 24, Gebaeude 18,
 Geschichte 13, Aemter 12, Recht 10, Wahl 9, Begriffe 5, Kurioses 4, Erdkunde 2,

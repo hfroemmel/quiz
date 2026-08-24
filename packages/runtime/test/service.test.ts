@@ -499,13 +499,13 @@ describe('Wiederholungsvermeidung ueber mehrere Spiele', () => {
     const zweiteRunde = spielen()
 
     /*
-     * Platz 1 ist der Testplatz fuer die Videofrage und hat genau einen
-     * Kandidaten - er MUSS sich wiederholen. Ueberall sonst ist der Pool gross
-     * genug, dass die Auswahl frische Fragen vorzieht; das gilt auch fuer den
-     * Portraetplatz, hinter dem die echten Personenfragen stehen.
+     * Platz 1 und 2 sind die Testplaetze fuer Video- und Portraetfrage. Hinter
+     * beiden steht genau eine Frage, sie MUESSEN sich also wiederholen. Ab Platz
+     * 3 ist der Pool gross genug, dass die Auswahl frische Fragen vorzieht -
+     * und genau das wird hier gemessen.
      */
-    expect(zweiteRunde[0]).toBe(ersteRunde[0])
-    expect(zweiteRunde.slice(1).filter((id) => ersteRunde.includes(id))).toEqual([])
+    expect(zweiteRunde.slice(0, 2)).toEqual(ersteRunde.slice(0, 2))
+    expect(zweiteRunde.slice(2).filter((id) => ersteRunde.includes(id))).toEqual([])
   })
 })
 

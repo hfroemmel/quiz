@@ -16,6 +16,7 @@ import {
   markCorrect,
   markIncorrect,
   openOperator,
+  offeneKacheln,
   openStage,
   playQuestionCorrect,
   prepareAnswerPhase,
@@ -54,9 +55,6 @@ test.describe('Vollstaendige Spielablaeufe', () => {
 
     // Nach dem ersten Fehlversuch folgt die zweite Chance - nicht die Loesung.
     await expectPhase(operator, 'second-chance')
-    // Der Punktwert steht oeffentlich auf der Buehne, nicht mehr in einer
-    // Anweisungszeile der Bedienleiste.
-    await expect(operator.locator('[data-hint]')).toContainText('50 Punkte')
 
     await markCorrect(operator)
     await resolveAttempt(operator)
@@ -179,18 +177,18 @@ test.describe('Bilderkennen', () => {
     await resolveWithoutAnswer(operator)
     await continueGame(operator)
 
-    // Das Bild steht zunaechst unscharf, damit der Moderator vorlesen kann.
+    // Das Bild steht zunaechst vollstaendig verdeckt, damit der Moderator vorlesen kann.
     await expectPhase(operator, 'reveal-ready')
     await startReveal(operator)
     await expectPhase(operator, 'reveal-running')
-    await expect(stage.locator('[data-seconds]')).toBeVisible()
+    await expect(stage.locator('[data-reveal-tiles]')).toBeVisible()
 
-    // Enthuellung pausieren: der Countdown bleibt stehen.
+    // Enthuellung pausieren: das Bild deckt sich nicht weiter auf.
     await operator.getByRole('button', { name: 'Enthüllung pausieren' }).click()
     await expectPhase(operator, 'reveal-paused')
-    const frozen = await stage.locator('[data-seconds]').textContent()
+    const eingefroren = await offeneKacheln(stage)
     await page.waitForTimeout(1_200)
-    expect(await stage.locator('[data-seconds]').textContent()).toBe(frozen)
+    expect(await offeneKacheln(stage)).toBe(eingefroren)
 
     await operator.getByRole('button', { name: 'Enthüllung fortsetzen' }).click()
     await expectPhase(operator, 'reveal-running')
@@ -314,7 +312,7 @@ test.describe('Bilderkennen', () => {
     expect(await shape(stage)).toBe(await shape(operator))
   })
 
-  test('6 - nach Ablauf des Countdowns bleibt Buzzern erlaubt', async ({ page }) => {
+  test('6 - nach Ablauf der Enthuellung bleibt Buzzern erlaubt', async ({ page }) => {
     const operator = await openOperator(page)
     const stage = await openStage(await page.context().newPage())
     await startGame(operator)
@@ -328,7 +326,7 @@ test.describe('Bilderkennen', () => {
 
     // Statt zehn Sekunden zu warten: vollstaendig aufdecken. Der Buzzer bleibt offen.
     await operator.getByRole('button', { name: 'Bild vollständig aufdecken' }).click()
-    await expect(stage.locator('[data-seconds]')).toHaveText('0')
+    await expect(stage.locator('[data-reveal-tile][data-open="false"]')).toHaveCount(0)
 
     await buzz(operator, 1)
     await expectPhase(operator, 'answer-locked')

@@ -116,11 +116,6 @@ export function OperatorApp() {
         </div>
 
         <div className={styles.headerRight}>
-          {isResult && !wantsStartPanel && (
-            <button className="button button--primary button--tiny" onClick={() => setWantsStartPanel(true)}>
-              Zurück zur Startansicht
-            </button>
-          )}
           {/*
             * Der Session-Code steht dort, wo der Operator ihn im Zweifel sucht:
             * neben den Fensterschaltern. Der Moderator braucht ihn zum Anmelden.
@@ -179,7 +174,12 @@ export function OperatorApp() {
             <HotfixPanel view={view} send={send} questionId={view.questionId} />
           </aside>
 
-          <OperatorControls view={view} send={send} className={styles.controlsArea} />
+          <OperatorControls
+            view={view}
+            send={send}
+            className={styles.controlsArea}
+            onBackToStart={isResult && !wantsStartPanel ? () => setWantsStartPanel(true) : undefined}
+          />
         </main>
       ) : (
         <main className={`${styles.main} ${styles.mainStart}`}>

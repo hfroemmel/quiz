@@ -87,7 +87,7 @@ export function StageScreen({
     () => (cueId: Parameters<typeof playCue>[0]) => playCue(cueId, { enabled: view.soundEnabled, isAudioMaster }),
     [view.soundEnabled, isAudioMaster],
   )
-  useStageSounds(view, reveal, play)
+  useStageSounds(view, play)
 
   const feedbackVariant = view.feedback?.outcome === 'correct' ? 'correct' : 'incorrect'
   const previousScene = useRef<PublicQuizViewModel['scene'] | undefined>(undefined)
@@ -170,6 +170,12 @@ export function StageScreen({
         data-skin={skin}
         data-theme={theme ?? skin}
         data-phase={view.phase}
+        /*
+         * Stehen die Antworten schon auf der Buehne? Die Kinderwelt haengt
+         * Karlchen daran: Er tritt erst auf, wenn es etwas zu waehlen gibt -
+         * waehrend die Frage vorgelesen wird, soll nichts vom Text ablenken.
+         */
+        data-answers-shown={String((view.visibleOptions?.length ?? 0) > 0)}
         data-transition={transition?.id ?? 'none'}
       >
         {/*

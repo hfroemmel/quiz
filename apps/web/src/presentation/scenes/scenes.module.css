@@ -82,22 +82,11 @@
   flex: 1;
   min-height: 0;
 }
-.countdown {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 /*
- * Regiehinweis unter dem Ring - nur in der Operatorvorschau sichtbar.
- * Absolut positioniert, damit sein Erscheinen den Countdown nicht verschiebt.
+ * Regiehinweis unter dem Bild - nur in der Operatorvorschau sichtbar. Er steht
+ * ausserhalb der Bildflaeche, damit sein Erscheinen das Motiv nicht verschiebt.
  */
 .revealHint {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 0.8cqw;
   white-space: nowrap;
   color: var(--color-textMuted);
   font-size: 1.2cqw;

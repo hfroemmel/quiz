@@ -11,6 +11,7 @@ import {
   continueGame,
   currentPhase,
   expectPhase,
+  offeneKacheln,
   openOperator,
   openStage,
   playQuestionCorrect,
@@ -94,15 +95,15 @@ test('Reconnect mitten in der Enthuellung zeigt den korrekten Serverstand', asyn
   // Enthuellung anhalten, damit der erwartete Wert eindeutig ist.
   await operator.getByRole('button', { name: 'Enthüllung pausieren' }).click()
   await expectPhase(operator, 'reveal-paused')
-  const beforeReload = await stage.locator('[data-seconds]').textContent()
+  const vorReload = await offeneKacheln(stage)
 
   // Der Buehnenclient verliert die Verbindung und verbindet neu.
   await stage.reload()
-  await expect(stage.locator('[data-seconds]')).toBeVisible()
+  await expect(stage.locator('[data-reveal-tiles]')).toBeVisible()
 
-  // Er uebernimmt sofort wieder den Serverstand, statt bei 10 neu zu starten.
-  expect(await stage.locator('[data-seconds]').textContent()).toBe(beforeReload)
-  await expect(stage.locator('[data-countdown][data-paused="true"]')).toBeVisible()
+  // Er uebernimmt sofort wieder den Serverstand, statt von vorn aufzudecken.
+  expect(await offeneKacheln(stage)).toBe(vorReload)
+  await expect(stage.locator('[data-paused="true"]')).toBeVisible()
 })
 
 test('ein neu verbundener Buehnenclient bekommt sofort den vollstaendigen Snapshot', async ({ page }) => {

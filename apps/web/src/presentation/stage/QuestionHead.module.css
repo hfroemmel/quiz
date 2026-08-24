@@ -2,8 +2,8 @@
  * Kopfzone einer Frage: Medium und Fragetafel nebeneinander.
  *
  * DREI SZENEN, EIN BAUTEIL: Frage, Enthuellung und Loesung benutzen dieselbe
- * Kopfzone. In der Enthuellung steht das Bild nicht hier, sondern gross neben
- * dem Countdown - dann laeuft der Text ueber die volle Breite.
+ * Kopfzone. In der Enthuellung steht das Bild nicht hier, sondern gross auf der
+ * ganzen Buehne - dann laeuft der Text ueber die volle Breite.
  */
 
 .head {
@@ -55,7 +55,7 @@
  *
  * Die gezeichnete Fragetafel gehoert zur Komposition von Frage und Loesung:
  * Foto links, Tafel rechts, dazwischen eine sichtbare Fuge. In der Enthuellung
- * traegt der Countdown die Flaeche - dort bleibt der Text frei auf dem Grund.
+ * traegt das Bild die Flaeche - dort bleibt der Text frei auf dem Grund.
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .category {

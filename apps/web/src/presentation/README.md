@@ -49,7 +49,7 @@ deshalb stabile Datenattribute: `data-answer`, `data-answer-chip`,
 `data-answer-surface`, `data-answer-text`, `data-panel`, `data-prompt`,
 `data-category`, `data-media`, `data-media-image`, `data-peek`, `data-score`,
 `data-score-value`, `data-counter`, `data-counter-value`, `data-brand`,
-`data-mascot`, `data-hint`. Der Zustand einer Antwortzeile steht in
+`data-mascot`, `data-reveal-tile`. Der Zustand einer Antwortzeile steht in
 `data-state`.
 
 ## Grundregeln
@@ -58,9 +58,9 @@ deshalb stabile Datenattribute: `data-answer`, `data-answer-chip`,
 2. Welche Animation, Dauer, Easing und Soundmarke dazu gehoeren, entscheidet das
    Registry unter `transitions/`.
 3. Der fachliche Phasenwechsel haengt nie an `animationend`.
-4. Countdown und Bildschaerfe stammen aus derselben Fortschrittsvariable
-   (`@quiz/domain/reveal`). Diese Ableitung ist eine Fairnessanforderung und darf
-   nicht veraendert werden.
+4. Welche Kacheln der Enthuellung offen sind, stammt allein aus der
+   Fortschrittsvariablen des Servers (`@quiz/domain/reveal`). Diese Ableitung ist
+   eine Fairnessanforderung und darf nicht veraendert werden.
 5. Fachlich relevante Timings (`correctFeedbackMs`, `incorrectFeedbackMs`,
    `solutionDelayMs`, `imageRevealDurationMs`, `pauseScreenMs`) stammen aus
    `gameTiming` in `@quiz/contracts` und werden hier nur gespiegelt.

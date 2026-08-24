@@ -1,24 +1,26 @@
 /**
  * Bilderkennen mit synchroner Aufloesung (Spezifikation 10).
  *
- * ABLEITUNG DER AUFLOESUNG: `reveal.progress` und `reveal.countdownSeconds` stammen
- * beide aus `useRevealClock` und damit aus demselben Fortschritt. Hier darf niemals
- * eine eigene CSS-Animation das Aufdecken steuern - sonst koennten Countdown und
- * Bild auseinanderlaufen und ein Spieler bekaeme einen Informationsvorteil.
- *
  * Das Bild liegt unter einer Decke aus Kacheln, die eine nach der anderen
- * verschwindet. Am Bild selbst aendert sich nichts: kein Zoom, keine Bewegung
- * (bestaetigte Designvorgabe).
+ * verschwindet. Sie IST die Uhr: Wer sehen will, wie viel Zeit bleibt, sieht auf
+ * das Bild. Eine Zahl daneben gab es frueher, sie ist bewusst entfallen - der
+ * Saal soll auf das Motiv schauen, nicht auf einen Zaehler.
  *
- * VERHALTEN BEI PAUSE UND RECONNECT: Pausiert der Server die Enthuellung, friert der
- * Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach einem
- * Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
+ * ABLEITUNG DER AUFLOESUNG: `reveal.progress` kommt aus `useRevealClock` und damit
+ * aus dem Serverzustand. Hier darf niemals eine eigene CSS-Animation das
+ * Aufdecken steuern - sonst liefe das Bild gegen die Uhr des Servers, und ein
+ * Spieler bekaeme einen Informationsvorteil.
+ *
+ * Am Bild selbst aendert sich nichts: kein Zoom, keine Bewegung (bestaetigte
+ * Designvorgabe).
+ *
+ * VERHALTEN BEI PAUSE UND RECONNECT: Pausiert der Server die Enthuellung, friert
+ * der Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach
+ * einem Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
 import { revealGrid } from '@quiz/contracts'
 import { Media } from '../stage/Media.tsx'
-import { ProgressRing } from '../../ui/ProgressRing.tsx'
 import { QuestionHead } from '../stage/QuestionHead.tsx'
-import { SecondChanceHint } from '../stage/SecondChanceHint.tsx'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
@@ -29,27 +31,21 @@ export function RevealScene({ view, reveal, variant }: SceneProps) {
   const paused = view.reveal?.status === 'paused'
   const finished = reveal.progress >= 1
   /*
-   * Der Hinweis unter dem Ring ist ein Regievermerk: Er sagt dem Operator, warum
-   * der Countdown steht. Der Saal braucht ihn nicht und bekommt ihn deshalb nicht.
-   * Er liegt absolut unter dem Ring, damit sein Erscheinen die Bildhoehe nicht
-   * veraendert und der Countdown nicht springt.
+   * Regievermerk fuer den Operator: Er sagt, warum das Bild steht bzw. dass nach
+   * dem Aufdecken weiterhin gebuzzert werden darf. Der Saal braucht ihn nicht und
+   * bekommt ihn deshalb nicht.
    */
   const hint = variant !== 'preview' ? null : paused ? 'pausiert' : finished ? 'Buzzern weiterhin möglich' : null
 
   return (
-    <div className={`${styles.scene} ${styles.reveal}`} data-fit-box="">
+    <div className={`${styles.scene} ${styles.reveal}`} data-fit-box="" data-paused={String(paused)}>
       <QuestionHead question={question} />
 
       <div className={styles.revealStage}>
-        <div className={styles.countdown} data-countdown="" data-paused={String(paused)}>
-          <ProgressRing remaining={1 - reveal.progress} seconds={reveal.countdownSeconds} paused={paused} />
-          {hint && <span className={styles.revealHint}>{hint}</span>}
-        </div>
-
         <Media src={question.imageUrl} reveal={{ grid: revealGrid, progress: reveal.progress }} variant="reveal" />
       </div>
 
-      {view.secondChance && <SecondChanceHint points={view.secondChance.pointsIfCorrect} />}
+      {hint && <span className={styles.revealHint}>{hint}</span>}
     </div>
   )
 }

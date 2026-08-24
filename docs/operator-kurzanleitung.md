@@ -45,22 +45,22 @@ Zusatzinformationen. Der Saal sieht davon nichts.
 
 ## Bilderkennen
 
-* Das Bild steht zuerst unscharf; die Uhr laeuft erst nach `Enthüllung starten`.
-  Die Vorlesezeit kostet also keine Sekunde des Countdowns.
+* Das Bild steht zuerst vollstaendig verdeckt; es deckt sich erst nach
+  `Enthüllung starten` auf. Die Vorlesezeit kostet also keine Sekunde.
 * Die Enthuellung laeuft dann zehn Sekunden.
-* Ein gueltiger Buzzer friert Bild und Countdown sofort ein.
+* Ein gueltiger Buzzer friert das Bild sofort ein.
 * Nach einer falschen Antwort laeuft die Enthuellung an derselben Stelle weiter,
   **beide** Spieler duerfen erneut buzzern - beliebig oft.
-* Auch nach `0` bleibt Buzzern erlaubt. Der Countdown ist eine Enthuellungsdauer,
-  kein Antwortlimit.
+* Auch nach dem vollstaendigen Aufdecken bleibt Buzzern erlaubt. Die zehn
+  Sekunden sind eine Enthuellungsdauer, kein Antwortlimit.
 * `Bild vollständig aufdecken` deckt sofort auf und sperrt den Buzzer **nicht**.
 * `Enthüllung auf Anfang zurücksetzen` ist eine technische Korrektur und bewusst
   etwas anderes als `zurücksetzen`.
 
 ## Videofragen
 
-Video bewusst starten (kein Autoplay), bei Bedarf pausieren, springen oder neu
-starten. Waehrend des Videos ist der Buzzer gesperrt. Danach `Frage einblenden`,
+Video bewusst starten (kein Autoplay), bei Bedarf pausieren oder neu starten.
+Springen gibt es nicht. Waehrend des Videos ist der Buzzer gesperrt. Danach `Frage einblenden`,
 dann `Antworten einblenden`.
 
 Laesst sich ein Video nicht abspielen, erscheint eine Warnung im Diagnosebereich.

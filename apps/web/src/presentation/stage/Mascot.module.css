@@ -16,8 +16,12 @@
  *
  * In den breiten Formaten beruehrt sie den Text ohnehin nie.
  */
-/* Die Figur gehoert zur Komposition von Frage und Loesung. */
-:global(.stage--kids.stage--scene-question) .mascot,
+/*
+ * Die Figur gehoert zur Komposition von Frage und Loesung - aber erst, wenn die
+ * Antworten stehen. Solange die Frage allein da ist, wird sie vorgelesen; eine
+ * Figur, die dabei schon auftritt, zieht den Blick vom Text.
+ */
+:global(.stage--kids.stage--scene-question[data-answers-shown='true']) .mascot,
 :global(.stage--kids.stage--scene-solution) .mascot {
   right: 0.8cqw;
   bottom: 9cqh;

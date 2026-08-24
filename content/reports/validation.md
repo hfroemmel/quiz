@@ -7,7 +7,7 @@ Ergebnis: BESTANDEN (0 Fehler, 85 Warnungen)
 - Medien: 195
 - Nach Modus: adults=145, kids=58
 - Nach Schwierigkeit: medium=85, easy=65, hard=51
-- Nach Praesentationstyp: image-choice=123, image-reveal=64, text-choice=7, person=6, video-then-question=1
+- Nach Praesentationstyp: image-choice=128, image-reveal=64, text-choice=7, video-then-question=1, person=1
 - Nach Kategorie: saarbruecken=66, institution=36, person=24, gebaeude=18, geschichte=13, aemter=12, recht=10, wahl=9, begriffe=7, kurioses=4, erdkunde=2, fahnen-und-symbole=2
 
 ## Poolabdeckung pro Fragenplatz
@@ -15,55 +15,55 @@ Ergebnis: BESTANDEN (0 Fehler, 85 Warnungen)
 Spiele ohne Wiederholung: 1
 Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
-- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "vertiefung": 104 Kandidaten, 103 Wiederholungsgruppen
 - Platz 5 "steigerung": 60 Kandidaten, 59 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 89 Kandidaten, 89 Wiederholungsgruppen
 - Platz 7 "finale": 101 Kandidaten, 100 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "medium"
 Spiele ohne Wiederholung: 1
 Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
-- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "parlament": 70 Kandidaten, 69 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 65 Kandidaten, 65 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 69 Kandidaten, 69 Wiederholungsgruppen
 - Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "hard"
 Spiele ohne Wiederholung: 1
 Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
-- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 25 Kandidaten, 24 Wiederholungsgruppen
 - Platz 4 "parlament": 76 Kandidaten, 75 Wiederholungsgruppen
 - Platz 5 "steigerung": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: finale
-- Platz 6 "bildauswahl": 30 Kandidaten, 30 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 31 Kandidaten, 31 Wiederholungsgruppen
 - Platz 7 "finale": 41 Kandidaten, 41 Wiederholungsgruppen | konkurriert mit: steigerung
 
 ### Modus "adults" / Preset "mixed"
 Spiele ohne Wiederholung: 1
 Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
-- Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
+- Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
 - Platz 4 "orte": 62 Kandidaten, 62 Wiederholungsgruppen
 - Platz 5 "steigerung": 101 Kandidaten, 100 Wiederholungsgruppen
-- Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
+- Platz 6 "bildauswahl": 89 Kandidaten, 89 Wiederholungsgruppen
 - Platz 7 "finale": 145 Kandidaten, 144 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "touch-easy"
-Spiele ohne Wiederholung: 19
+Spiele ohne Wiederholung: 20
 Fuer das Touchgeraet geeignet: ja
 - Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
-- Platz 2 "wissen": 19 Kandidaten, 19 Wiederholungsgruppen
-- Platz 3 "bildauswahl": 54 Kandidaten, 54 Wiederholungsgruppen
+- Platz 2 "wissen": 20 Kandidaten, 20 Wiederholungsgruppen
+- Platz 3 "bildauswahl": 58 Kandidaten, 58 Wiederholungsgruppen
 - Platz 4 "vertiefung": 61 Kandidaten, 61 Wiederholungsgruppen
 - Platz 5 "mittelfeld": 39 Kandidaten, 39 Wiederholungsgruppen
-- Platz 6 "bildwissen": 35 Kandidaten, 35 Wiederholungsgruppen
+- Platz 6 "bildwissen": 38 Kandidaten, 38 Wiederholungsgruppen
 - Platz 7 "finale": 76 Kandidaten, 76 Wiederholungsgruppen
 
 ### Modus "adults" / Preset "touch-medium"
@@ -71,10 +71,10 @@ Spiele ohne Wiederholung: 19
 Fuer das Touchgeraet geeignet: ja
 - Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
 - Platz 2 "wissen": 39 Kandidaten, 39 Wiederholungsgruppen | konkurriert mit: steigerung
-- Platz 3 "bildauswahl": 35 Kandidaten, 35 Wiederholungsgruppen
+- Platz 3 "bildauswahl": 38 Kandidaten, 38 Wiederholungsgruppen
 - Platz 4 "vertiefung": 76 Kandidaten, 76 Wiederholungsgruppen | konkurriert mit: finale
 - Platz 5 "steigerung": 39 Kandidaten, 39 Wiederholungsgruppen | konkurriert mit: wissen
-- Platz 6 "bildwissen": 65 Kandidaten, 65 Wiederholungsgruppen
+- Platz 6 "bildwissen": 69 Kandidaten, 69 Wiederholungsgruppen
 - Platz 7 "finale": 76 Kandidaten, 76 Wiederholungsgruppen | konkurriert mit: vertiefung
 
 ### Modus "adults" / Preset "touch-hard"
@@ -82,10 +82,10 @@ Spiele ohne Wiederholung: 12
 Fuer das Touchgeraet geeignet: ja
 - Platz 1 "einstieg": 39 Kandidaten, 39 Wiederholungsgruppen
 - Platz 2 "wissen": 76 Kandidaten, 76 Wiederholungsgruppen
-- Platz 3 "bildauswahl": 65 Kandidaten, 65 Wiederholungsgruppen
+- Platz 3 "bildauswahl": 69 Kandidaten, 69 Wiederholungsgruppen
 - Platz 4 "vertiefung": 37 Kandidaten, 37 Wiederholungsgruppen | konkurriert mit: steigerung, finale
 - Platz 5 "steigerung": 37 Kandidaten, 37 Wiederholungsgruppen | konkurriert mit: vertiefung, finale
-- Platz 6 "bildwissen": 30 Kandidaten, 30 Wiederholungsgruppen
+- Platz 6 "bildwissen": 31 Kandidaten, 31 Wiederholungsgruppen
 - Platz 7 "finale": 37 Kandidaten, 37 Wiederholungsgruppen | konkurriert mit: vertiefung, steigerung
 
 ### Modus "kids" / Preset "easy"
@@ -209,16 +209,16 @@ Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten mu
 - [missing-credit] 195: Kein Bildnachweis fuer "img-195".
 - [missing-credit] 197: Kein Bildnachweis fuer "img-197".
 - [small-pool] adults/easy/test-video: Modus "adults" / Preset "easy": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
-- [small-pool] adults/easy/test-person: Modus "adults" / Preset "easy": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [small-pool] adults/easy/test-person: Modus "adults" / Preset "easy": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
 - [few-games-without-repetition] adults/easy: Modus "adults" / Preset "easy": nur 1 Spiele ohne Wiederholung moeglich.
 - [small-pool] adults/medium/test-video: Modus "adults" / Preset "medium": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
-- [small-pool] adults/medium/test-person: Modus "adults" / Preset "medium": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [small-pool] adults/medium/test-person: Modus "adults" / Preset "medium": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
 - [few-games-without-repetition] adults/medium: Modus "adults" / Preset "medium": nur 1 Spiele ohne Wiederholung moeglich.
 - [small-pool] adults/hard/test-video: Modus "adults" / Preset "hard": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
-- [small-pool] adults/hard/test-person: Modus "adults" / Preset "hard": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [small-pool] adults/hard/test-person: Modus "adults" / Preset "hard": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
 - [few-games-without-repetition] adults/hard: Modus "adults" / Preset "hard": nur 1 Spiele ohne Wiederholung moeglich.
 - [small-pool] adults/mixed/test-video: Modus "adults" / Preset "mixed": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
-- [small-pool] adults/mixed/test-person: Modus "adults" / Preset "mixed": Fragenplatz 2 ("test-person") hat nur 6 Kandidaten.
+- [small-pool] adults/mixed/test-person: Modus "adults" / Preset "mixed": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
 - [few-games-without-repetition] adults/mixed: Modus "adults" / Preset "mixed": nur 1 Spiele ohne Wiederholung moeglich.
 - [small-pool] kids/easy/test-video: Modus "kids" / Preset "easy": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
 - [small-pool] kids/easy/test-person: Modus "kids" / Preset "easy": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.

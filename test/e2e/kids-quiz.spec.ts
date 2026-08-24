@@ -240,6 +240,20 @@ test.describe('Handschrift und Zeichnung', () => {
     expect(panel.x - (media.x + media.width)).toBeGreaterThanOrEqual(16)
   })
 
+  /*
+   * Karlchen tritt erst auf, wenn es etwas zu waehlen gibt. Waehrend die Frage
+   * allein dasteht, wird sie vorgelesen - eine Figur wuerde den Blick vom Text
+   * ziehen. Der Schalter dafuer steht an der Buehne, nicht in der Figur.
+   */
+  test('zeigt Karlchen erst, wenn die Antworten stehen', async ({ page }) => {
+    await openKids(page)
+    await expect(page.locator('.stage')).toHaveAttribute('data-answers-shown', 'true')
+    await expect(page.locator('[data-mascot]')).toBeVisible()
+
+    await page.locator('.stage').evaluate((element) => element.setAttribute('data-answers-shown', 'false'))
+    await expect(page.locator('[data-mascot]')).toBeHidden()
+  })
+
   test('stellt Karlchen gross an den rechten Rand, ohne die Antworten zu beruehren', async ({ page }) => {
     await openKids(page)
     await fullBleed(page)

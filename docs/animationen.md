@@ -93,30 +93,28 @@ auseinanderlaufen: Die Loesung erschiene, waehrend die Animation noch laeuft. De
 spiegeln `correctFeedback.ts` und `incorrectFeedback.ts` bewusst `gameTiming` und
 tragen ein `locked`-Feld mit Begruendung.
 
-## Bildaufloesung und Countdown
+## Bildaufloesung
 
-Das Bild liegt unter einer Decke aus Kacheln, die waehrend des Countdowns
-verschwinden. Beides wird aus **derselben** Fortschrittsvariable berechnet:
+Das Bild liegt unter einer Decke aus Kacheln, die waehrend der Enthuellung eine
+nach der anderen verschwindet. Welche Kachel wann faellt, steht im Aufdeckplan
+der Domain und haengt allein am Fortschritt des Servers:
 
 ```text
-progress  = clamp(elapsedMs / durationMs, 0, 1)
-countdown = ceil((1 - progress) × durationSeconds)
-Kachel i  = offen, sobald progress >= plan[i]
+progress = clamp(elapsedMs / durationMs, 0, 1)
+offen    = progress >= plan[kachel]
 ```
 
-Der Aufdeckplan `plan` sagt je Kachel, ab welchem Fortschritt sie faellt. Er
-entsteht in `revealTilePlan` aus drei Zutaten: dem Abstand zum vermuteten Motiv
-(Mitte zuletzt), einer Streuung (damit kein Ring wandert) und einem Startwert aus
-der Bildadresse (damit alle Screens dasselbe Muster zeigen).
+Die Funktionen stehen in `packages/domain/src/reveal.ts`, der Client nutzt sie
+ueber `useRevealClock`. Es darf niemals eine unabhaengige CSS-Animation neben
+einem separaten JavaScript-Timer laufen - sonst bekaeme ein Spieler einen
+Informationsvorteil.
 
-Die Funktionen stehen in `packages/domain/src/reveal.ts`, der Client nutzt sie ueber
-`useRevealClock` und `RevealTiles`. Es darf niemals eine unabhaengige CSS-Animation
-neben einem separaten JavaScript-Timer laufen - sonst bekaeme ein Spieler einen
-Informationsvorteil. Die Kachelblende ist die einzige freie Bewegung: Sie blendet
-eine bereits gefallene Kachel aus, verschiebt aber keinen Zeitpunkt.
+Eine sichtbare Sekundenzahl gibt es nicht mehr: Die Kacheln SIND die Uhr. Der
+Moderator sieht die Restzeit weiterhin in seiner Ansicht.
 
-Anpassbar ist allein `revealGrid` in `packages/contracts/src/config.ts` -
-Rastergroesse, Streuung, vermutetes Motiv und Blendendauer.
+Anpassbar ist das Raster ueber `revealGrid` in
+`packages/contracts/src/config.ts` - Groesse, Streuung, Motivschwerpunkt und die
+Blende einer einzelnen Kachel.
 
 ## Pausieren und Reconnect
 

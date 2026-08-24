@@ -18,9 +18,14 @@ interface Props {
   send: (command: Command) => void
   /** Rasterzelle im Rahmen - wo das Bauteil sitzt, weiss der Rahmen. */
   className?: string
+  /**
+   * Zurueck zur Startansicht. Nur gesetzt, wenn es dorthin auch etwas
+   * zurueckzugehen gibt - also nach dem Ergebnis.
+   */
+  onBackToStart?: () => void
 }
 
-export function OperatorControls({ view, send, className }: Props) {
+export function OperatorControls({ view, send, className, onBackToStart }: Props) {
   const [confirmReset, setConfirmReset] = useState(false)
   const can = (type: CommandType) => view.allowedCommands.includes(type)
   const question = view.privateSolution
@@ -234,10 +239,18 @@ export function OperatorControls({ view, send, className }: Props) {
           </button>
         </div>
       )}
+      {/* --- Nach dem Ergebnis --- */}
+      {onBackToStart && (
+        <div className={styles.group}>
+          <button className="button button--large button--primary" onClick={onBackToStart}>
+            Zurück zur Startansicht
+          </button>
+        </div>
+      )}
       {confirmReset && (
         <ConfirmDialog
           title="Enthüllung zurücksetzen"
-          message="Das Bild wird wieder vollständig unscharf, der Countdown beginnt bei zehn Sekunden. Bereits gebuchte Punkte bleiben unverändert."
+          message="Das Bild wird wieder vollständig verdeckt und deckt sich erneut auf. Bereits gebuchte Punkte bleiben unverändert."
           confirmLabel="Zurücksetzen"
           onConfirm={() => {
             send({ type: 'RESET_IMAGE_REVEAL' })

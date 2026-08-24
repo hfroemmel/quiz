@@ -149,12 +149,6 @@ export interface PublicQuizViewModel {
   currentPlayer?: PlayerId
   progress: { current: number; total: number }
   reveal?: PublicRevealState
-  /**
-   * Zweite Chance: Punktwert des laufenden Versuchs fuer den Hinweis auf der
-   * Buehne. Der Wert kommt aus den Punkteregeln, nie aus einer Zeichenkette im
-   * Client.
-   */
-  secondChance?: { pointsIfCorrect: number }
   video?: PublicVideoState
   result?: PublicResult
   soundEnabled: boolean

@@ -21,7 +21,6 @@
 import { answerRows } from '../stage/answerState.ts'
 import { touchAnswers } from './sceneProps.ts'
 import { QuestionComposition } from '../stage/QuestionComposition.tsx'
-import { SecondChanceHint } from '../stage/SecondChanceHint.tsx'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
@@ -35,9 +34,7 @@ export function QuestionScene({ view, variant }: SceneProps) {
         question={question}
         imageUrl={question.imageUrl}
         rows={touchAnswers(variant) ? [] : answerRows(view.visibleOptions ?? [], view.scene)}
-      >
-        {view.secondChance && <SecondChanceHint points={view.secondChance.pointsIfCorrect} />}
-      </QuestionComposition>
+      />
     </div>
   )
 }

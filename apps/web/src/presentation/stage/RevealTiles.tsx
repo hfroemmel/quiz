@@ -8,8 +8,8 @@
  *
  * WAS HIER NICHT PASSIERT: gerechnet wird nichts. Welche Kachel wann faellt,
  * steht im Aufdeckplan der Domain (`revealTilePlan`); dieses Bauteil vergleicht
- * ihn mit dem Fortschritt. Ein eigener Zeitgeber waere die zweite Wahrheit, die
- * Countdown und Bild auseinanderlaufen liesse.
+ * ihn mit dem Fortschritt. Ein eigener Zeitgeber waere eine zweite Wahrheit
+ * neben der Uhr des Servers - das Bild liefe fuer jeden Zuschauer anders.
  *
  * Die Kacheln liegen in Leserichtung im Raster - Index 0 links oben. Ihre Lage
  * ist damit fest: Eine Kachel deckt immer denselben Bildausschnitt auf.
@@ -21,7 +21,7 @@ import styles from './RevealTiles.module.css'
 
 interface RevealTilesProps {
   grid: RevealGrid
-  /** Fortschritt 0..1 aus derselben Quelle wie der Countdown. */
+  /** Fortschritt 0..1 aus der Enthuellungsuhr des Servers. */
   progress: number
   /**
    * Woraus der Startwert der Reihenfolge stammt - in der Regel die Bildadresse.

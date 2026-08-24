@@ -1,5 +1,5 @@
 /**
- * Enthuellungsuhr: Fake-Clock-Tests fuer Countdown, Rasteraufloesung und
+ * Enthuellungsuhr: Fake-Clock-Tests fuer Restsekunden, Rasteraufloesung und
  * Pausenverhalten (Spezifikation 10.2 und 22.7).
  */
 import { describe, expect, it } from 'vitest'
@@ -22,11 +22,11 @@ import {
 const DURATION = gameTiming.imageRevealDurationMs
 
 describe('Reveal-Uhr', () => {
-  it('leitet Countdown und Rasteraufloesung aus derselben Fortschrittsvariable ab', () => {
+  it('leitet Restsekunden und Rasteraufloesung aus derselben Fortschrittsvariable ab', () => {
     const clock = startReveal(createRevealClock(DURATION), 0)
     const plan = revealTilePlan(revealGrid, revealSeed('bild.webp'))
 
-    // Bei jedem Zeitpunkt muessen Countdown und offene Kacheln zum selben `progress` passen.
+    // Bei jedem Zeitpunkt muessen Restsekunden und offene Kacheln zum selben `progress` passen.
     for (const elapsed of [0, 1_000, 2_500, 5_000, 7_500, 9_999, 10_000]) {
       const progress = revealProgress(clock, elapsed)
       expect(revealCountdownSeconds(clock, elapsed)).toBe(Math.ceil((1 - progress) * (DURATION / 1000)))

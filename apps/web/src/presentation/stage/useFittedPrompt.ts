@@ -39,8 +39,8 @@ const STEPS = 6
 /**
  * Alle Elemente, die innerhalb der Flaeche bleiben muessen.
  *
- * Absolut gesetzte Teile bleiben aussen vor: Der Regiehinweis unter dem
- * Countdown steht bewusst ueber die Kante hinaus, und die Figur der Kinderwelt
+ * Absolut gesetzte Teile bleiben aussen vor: Der Regiehinweis unter dem Bild
+ * steht bewusst ueber die Kante hinaus, und die Figur der Kinderwelt
  * schaut absichtlich aus dem Bild. Beide wuerden die Messung sonst dauerhaft auf
  * "passt nicht" stellen.
  */

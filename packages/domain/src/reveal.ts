@@ -1,7 +1,8 @@
 /**
  * Enthuellungsuhr des Bilderkennens (Spezifikation 10.1 - 10.3).
  *
- * ZENTRALE FAIRNESSREGEL: Countdown und Bildaufloesung werden aus **derselben**
+ * ZENTRALE FAIRNESSREGEL: Jede Anzeige der Enthuellung - das Raster auf der
+ * Buehne wie die Restsekunden beim Moderator - wird aus **derselben**
  * Fortschrittsvariable berechnet. Es darf niemals eine unabhaengige CSS-Animation
  * neben einem separaten JavaScript-Timer laufen. Der Buehnenscreen rendert zwar
  * fluessig mit `requestAnimationFrame`, leitet den Fortschritt aber immer aus
@@ -27,15 +28,18 @@ export function revealElapsedMs(clock: RevealClockState, nowMs: number): number 
   return clamp(clock.elapsedBeforeStartMs + runningFor, 0, clock.durationMs)
 }
 
-/** Normalisierter Fortschritt 0..1. Einzige Basis fuer Countdown und Raster. */
+/** Normalisierter Fortschritt 0..1. Einzige Basis jeder Anzeige. */
 export function revealProgress(clock: RevealClockState, nowMs: number): number {
   if (clock.durationMs <= 0) return 1
   return clamp(revealElapsedMs(clock, nowMs) / clock.durationMs, 0, 1)
 }
 
 /**
- * Sichtbarer Countdown: laeuft von `durationSeconds` bis `0`.
- * `ceil` sorgt dafuer, dass die angezeigte Zahl erst bei exakt 0 Restzeit auf 0 springt.
+ * Restsekunden, von `durationSeconds` bis `0`.
+ *
+ * NUR FUER DIE REGIE: Auf der Buehne steht keine Zahl - dort sind die Kacheln
+ * die Uhr. Der Moderator dagegen muss wissen, wie lange er noch hat.
+ * `ceil` sorgt dafuer, dass die Zahl erst bei exakt 0 Restzeit auf 0 springt.
  */
 export function revealCountdownSeconds(clock: RevealClockState, nowMs: number): number {
   const durationSeconds = clock.durationMs / 1000
@@ -48,7 +52,7 @@ export function revealCountdownSeconds(clock: RevealClockState, nowMs: number): 
  * Das Ergebnis ist ein Feld in LESERICHTUNG - Index 0 ist die Kachel links oben.
  * Die Praesentation vergleicht nur noch `progress >= plan[index]` und braucht
  * keinen eigenen Zeitgeber; damit gilt die Fairnessregel oben auch fuer das
- * Raster: Countdown und Bild stammen aus derselben Variable.
+ * Raster.
  *
  * DIE REIHENFOLGE, in drei Zutaten:
  *

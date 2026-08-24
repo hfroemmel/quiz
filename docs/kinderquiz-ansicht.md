@@ -134,6 +134,11 @@ Flaeche `answer-incorrect` gedacht.
   Fragezeile - so steht er wie in der Referenz auf dem Boden. Er ist rund halb
   so hoch wie die Ansicht (`clamp(240px, 51cqh, 560px)`) und praesentiert mit
   dem ausgestreckten Fluegel nach links zu den Antworten.
+- Er erscheint erst, **wenn die Antworten stehen** (`data-answers-shown` an der
+  Buehne), und bleibt bis zur Loesung. Solange der Moderator nur die Frage
+  vorliest, zeigt sein Fluegel auf eine leere Flaeche - er praesentiert etwas,
+  das es noch nicht gibt. Der kleine Karlchen am Bildrahmen gehoert zur
+  Bildeinfassung und ist davon nicht betroffen.
 - Der kleine Karlchen schaut mittig ueber die obere Bildkante; seine Unterkante
   steckt 8 bis 13 Pixel hinter der Rahmenzeichnung, damit die Haende auf dem
   Rand aufzuliegen scheinen.

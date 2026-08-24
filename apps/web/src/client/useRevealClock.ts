@@ -1,8 +1,9 @@
 /**
  * Fluessige Darstellung der Bildenthuellung.
  *
- * FAIRNESSREGEL (Spezifikation 10.2): Countdown und Bildaufloesung stammen aus
- * DERSELBEN Fortschrittsvariable. Dieser Hook berechnet sie deshalb beide aus
+ * FAIRNESSREGEL (Spezifikation 10.2): Das Raster auf der Buehne und die
+ * Restsekunden beim Moderator stammen aus DERSELBEN Fortschrittsvariable.
+ * Dieser Hook berechnet sie deshalb beide aus
  * `revealProgress` des Domain-Pakets - es gibt keine zweite, unabhaengige
  * CSS-Animation und keinen separaten Timer.
  *

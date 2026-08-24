@@ -35,14 +35,14 @@ damit spaeter niemand raten muss.
 | Punktekacheln | gespiegelt angeordnet |
 | Antwortoptionen | erscheinen erst nach `Starten` |
 | Eingeloggte Antwort | oeffentlich blau markiert |
-| Ring der Enthuellung | laeuft ab, beginnend bei 12 Uhr |
+| Ring der Enthuellung | spaeter wieder gestrichen, siehe Abschnitt 5 |
 | Schwarzer Balken oben | Fensterrahmen des Betriebssystems, kein Bauteil |
 | Moduschips | kommen aus der Konfiguration, Layout auf drei ausgelegt |
 | Aufloesungen | Laptop 16:10, Beamer 16:9 |
 | `Zurücksetzen` | verwirft Spielerzuordnung und eingeloggte Antwort |
 | Punktestand | zaehlt waehrend der Richtig-Animation hoch |
 | Textfrage ohne Bild | Rubrik und Frage ueber volle Breite, Optionen darunter |
-| Zweite Chance | wird sichtbar gekennzeichnet |
+| Zweite Chance | wird sichtbar gekennzeichnet - ueber die Spielerkacheln, ohne eigene Zeile |
 
 ## 2. Ergaenzung zu Abschnitt 12 - oeffentliche und private Anzeige
 
@@ -79,7 +79,7 @@ Zwei Punkte sind dabei keine Anzeigefragen, sondern Fachlogik:
   nicht erst**. Sie stehen also auch nicht im DOM eines Buehnenclients, bevor sie
   jemand sehen soll.
 - In `reveal-ready` laeuft die Enthuellungsuhr nicht. Die Vorlesezeit kostet keine
-  Sekunde des Countdowns - der Zehn-Sekunden-Wert bleibt unangetastet.
+  Sekunde der zehn - der Wert bleibt unangetastet.
 
 Nach einem Fehlversuch beim Bilderkennen geht es zurueck nach `reveal-running`,
 nicht nach `reveal-ready`: Die Frage ist bereits vorgelesen.
@@ -91,7 +91,6 @@ Neu aufgenommen:
 | Feld | Typ | Zweck |
 |---|---|---|
 | `question.categoryLabel` | `string?` | Rubrik ueber dem Fragetext; Label der ersten Kategorie |
-| `secondChance.pointsIfCorrect` | `number?` | Punktwert im Hinweis der zweiten Chance |
 
 Beide Felder sind Anzeigewerte. Sie werden serverseitig projiziert; der Client
 leitet daraus nichts ab und rechnet nichts nach.
@@ -118,10 +117,13 @@ abgeschrieben; siehe `docs/design-system.md`, Abschnitt „Wo die Farben stehen"
   wird zu genau einer Definition unter `transitions/`.
 - Zwei Dauern bleiben an `gameTiming` gebunden und tragen `locked`:
   Richtig- und Falsch-Rueckmeldung.
-- Die Enthuellung bleibt an `packages/domain/src/reveal.ts` gebunden: Ringlaenge
-  und Bildaufloesung stammen aus derselben Fortschrittsvariablen. Neu festgelegt
-  ist allein die **Richtung** des Rings: Beginn bei 12 Uhr, Ablauf im
-  Uhrzeigersinn.
+- Die Enthuellung bleibt an `packages/domain/src/reveal.ts` gebunden: Welche
+  Kacheln offen sind, stammt allein aus der Fortschrittsvariablen des Servers.
+- **Nachtraeglich gestrichen:** der ablaufende Ring und die Sekundenzahl neben
+  dem Bild. Auf der Buehne gibt es keinen sichtbaren Countdown mehr - die
+  fallenden Kacheln sind die Uhr, und ein Zaehler daneben zog den Blick vom
+  Motiv. Der Moderator sieht die Restsekunden weiterhin in seiner Ansicht. Aus
+  demselben Beschluss stammt der Wegfall des Weckertons.
 - Neu: Der Punktestand zaehlt waehrend der Richtig-Animation hoch. Die Animation
   interpoliert zwischen zwei Snapshotwerten und erzeugt nie einen eigenen Wert.
 

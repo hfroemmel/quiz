@@ -28,7 +28,7 @@ bewegt.
 | `scene-fade` | jede → `pause` | 400 ms | 120 ms | standard | Kreuzblende der ganzen Flaeche | `scene-change` |
 | `question-enter` | `pause`/`start` → `question` | 420 ms | 120 ms | emphasized | Medium und Text steigen 12 px auf und blenden ein | `question-appear` |
 | `options-stagger` | innerhalb `question` | 70 ms Versatz je Zeile | 0 ms | standard | Antwortleisten laufen nacheinander von links 16 px ein | - |
-| `reveal-enter` | `question` → `reveal` | 420 ms | 120 ms | emphasized | Ring skaliert von 0,9 auf 1, Bild blendet unscharf ein | `question-appear` |
+| `reveal-enter` | `question` → `reveal` | 420 ms | 120 ms | emphasized | die verdeckte Bildflaeche blendet ein | `question-appear` |
 | `video-enter` | `question` → `video` | 420 ms | 120 ms | standard | Videorahmen blendet ein | `scene-change` |
 | `solution-reveal` | `feedback` → `solution` | 520 ms | 150 ms | emphasized | Loesungsbalken waechst von der Mitte auf volle Breite, Text blendet 120 ms spaeter ein | `solution` |
 | `result-celebration` | `solution` → `result` | 6000 ms | 0 ms | standard | Konfetti faellt, Ergebniskacheln steigen 20 px auf | `result` |
@@ -127,13 +127,13 @@ Der Screen selbst steht `gameTiming.pauseScreenMs` = 3000 ms.
 
 | ID | Dauer | Was sich bewegt | Ton |
 |---|---|---|---|
-| `reveal-progress` | `gameTiming.imageRevealDurationMs` = 10 s | Ringbogen laeuft ab 12 Uhr im Uhrzeigersinn zurueck, Sekundenzahl zaehlt, Kacheln des Rasters verschwinden eine nach der anderen | - |
-| `reveal-pause` | 160 ms | Ring und Bild frieren ein, Pausensymbol blendet ein | - |
-| `reveal-complete` | 300 ms | letzter Bogenrest verschwindet, die letzte Kachel faellt | `question-appear` |
+| `reveal-progress` | `gameTiming.imageRevealDurationMs` = 10 s | Kacheln des Rasters verschwinden eine nach der anderen | - |
+| `reveal-pause` | 160 ms | das Bild friert ein, es kommt keine Kachel hinzu | - |
+| `reveal-complete` | 300 ms | die letzte Kachel faellt | `question-appear` |
 
-**Nicht verhandelbar:** Ring und Aufloesung werden aus **derselben**
-Fortschrittsvariablen berechnet und niemals aus einer eigenstaendigen
-CSS-Animation. Am Bild selbst aendert sich nichts - kein Zoom, keine Bewegung
+**Nicht verhandelbar:** Die Aufloesung wird aus der Fortschrittsvariablen des
+Servers berechnet und niemals aus einer eigenstaendigen CSS-Animation. Einen
+sichtbaren Countdown - Zahl oder Ring - gibt es auf der Buehne nicht. Am Bild selbst aendert sich nichts - kein Zoom, keine Bewegung
 (bestaetigt); es wird nur Stueck fuer Stueck freigegeben. Eine einmal offene
 Kachel bleibt offen und zeigt ihren Ausschnitt sofort vollstaendig.
 
@@ -194,8 +194,6 @@ Die Klaenge kommen als gelieferte Dateien aus `apps/web/src/assets/audio/`.
 | Antwort eingeloggt | `answer-logged` | `decide.mp3` |
 | richtig aufgeloest | `answer-correct` | `correct.mp3` **und** `applause.wav` |
 | falsch aufgeloest | `answer-incorrect` | `wrong.mp3` |
-| jede Sekunde des Countdowns | `countdown-tick` | `tick.mp3` |
-| Countdown abgelaufen | `countdown-end` | `ring.mp3` |
 | Punktestand zaehlt hoch | `score` | `score.mp3` |
 
 Vier Regeln dazu:

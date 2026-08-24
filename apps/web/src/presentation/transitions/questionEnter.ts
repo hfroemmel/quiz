@@ -24,7 +24,7 @@ export const questionEnter: PresentationTransitionDefinition = {
 
 export const revealEnter: PresentationTransitionDefinition = {
   id: 'reveal-enter',
-  description: 'Bilderkennen: unscharfes Bild und Countdown erscheinen gemeinsam.',
+  description: 'Bilderkennen: das verdeckte Bild blendet ein.',
   appliesTo: { from: '*', to: 'reveal' },
   durationMs: 420,
   easing: easings.standard,
@@ -33,7 +33,7 @@ export const revealEnter: PresentationTransitionDefinition = {
   classNames: { active: 'reveal-enter', to: 'scene-enter' },
   locked:
     'Die Einblendung darf laufen, der Enthüllungsfortschritt selbst wird aber ausschließlich ' +
-    'aus dem Serverzustand berechnet. Countdown und Bildschärfe dürfen niemals aus dieser ' +
+    'aus dem Serverzustand berechnet. Welche Kacheln offen sind, darf niemals aus dieser ' +
     'Animation abgeleitet werden.',
 }
 

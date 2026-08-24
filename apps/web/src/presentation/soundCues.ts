@@ -27,10 +27,6 @@ export const soundCueIds = [
   'answer-logged',
   'answer-correct',
   'answer-incorrect',
-  /** Jede volle Sekunde der Enthuellung. */
-  'countdown-tick',
-  /** Der Countdown ist abgelaufen. */
-  'countdown-end',
   'score',
   'solution',
   'scene-change',
@@ -49,8 +45,6 @@ const cueFiles: Record<SoundCueId, string[]> = {
   'answer-logged': ['decide.mp3'],
   'answer-correct': ['correct.mp3', 'applause.wav'],
   'answer-incorrect': ['wrong.mp3'],
-  'countdown-tick': ['tick.mp3'],
-  'countdown-end': ['ring.mp3'],
   score: ['score.mp3'],
   solution: [],
   'scene-change': [],
@@ -105,7 +99,7 @@ export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioM
     try {
       /*
        * Ein noch laufender Cue wird nicht abgewuergt, sondern parallel gespielt.
-       * Beim Ticken des Countdowns ueberlappt sonst jede Sekunde die vorige.
+       * Zwei schnelle Buzzer hintereinander sollen beide klingen.
        */
       const instance = element.paused ? element : (element.cloneNode() as HTMLAudioElement)
       instance.currentTime = 0

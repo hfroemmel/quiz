@@ -23,9 +23,9 @@ alle Uebergaenge in [`docs/animationskatalog.md`](animationskatalog.md).
 | 6 | `attempt-feedback` | `feedback` | Falsch - Symbol fehlt, wird ergaenzt |
 | 5 | `solution` | `solution` | Loesung mit Buchstabenchip |
 | 10 | `solution` | `solution` | Loesung ohne Chip (freie Antwort) |
-| 12 | `reveal-running` | `reveal` | Ring bei 1 s, Bild noch unscharf |
-| 4 | `reveal-running` | `reveal` | Ring bei 7 s |
-| 3, 11 | `reveal-paused` bzw. Ende der Enthuellung | `reveal` | Ring bei 0, Bild scharf |
+| 12 | `reveal-running` | `reveal` | Enthuellung am Anfang, Bild fast ganz verdeckt |
+| 4 | `reveal-running` | `reveal` | Enthuellung kurz vor Schluss |
+| 3, 11 | `reveal-paused` bzw. Ende der Enthuellung | `reveal` | Bild vollstaendig offen |
 | 1 | `result` | `result` | Konfetti, Ergebniskacheln, `Spiel beenden` |
 
 Nicht in den Vorlagen enthalten und deshalb unten entworfen: `pause-screen`,
@@ -95,6 +95,8 @@ Zwei Zeilen:
    | `1. Runde` | `Starten` |
    | `2. Spieler ermitteln` | `Spieler 1`, `Spieler 2`, `zurücksetzen` |
    | `3. Antwort auswählen` | `A B C D` bei Wahlfragen, `Richtig`/`Falsch` bei muendlichen Fragen |
+   | ohne Nummer | `Auflösen` |
+   | ohne Nummer, rechts aussen | `Weiter` bzw. `Spiel beenden`, nach dem Ergebnis `Zurück zur Startansicht` |
 
    Ueber den Gruppen steht nur die Ueberschrift, sonst nichts. Versuchszaehler
    und die Punkte des laufenden Versuchs erscheinen dort **nicht** - der Wert
@@ -110,17 +112,19 @@ Zwei Zeilen:
    Bewertung, also beim Bilderkennen. Bei einer Auswahlfrage waeren sie ein
    zweiter Bewertungsweg neben der eingeloggten Option; die Entscheidung darueber
    faellt serverseitig in `allowedCommands`, nicht in der Oberflaeche.
-   | ohne Nummer | `Auflösen` |
-   | ohne Nummer, rechts aussen | `Weiter` bzw. `Spiel beenden` |
+
+   `Zurück zur Startansicht` steht in derselben Reihe wie `Weiter` und nicht in
+   der Kopfzeile: Es ist die Fortsetzung desselben Ablaufs, nur nach der letzten
+   Frage. Der Operator sucht die naechste Handlung immer an einer Stelle.
 
    Die Gruppen bleiben **immer sichtbar und an derselben Stelle**. Nicht
    erlaubte Tasten werden gesperrt, nie ausgeblendet - der Operator soll seine
    Tasten blind finden.
 
-Der Hinweis `Zweite Chance · 50 Punkte` steht **rechtsbuendig direkt ueber den
-Antwortleisten**, auf `--accent` mit runden Ecken. Er ist kein Nebensatz, sondern
-die Ansage, dass dieser Versuch nur noch halb so viel bringt; seine rechte Kante
-liegt auf der rechten Kante der Antwortleisten.
+Einen Hinweis `Zweite Chance · 50 Punkte` gibt es auf der Buehne **nicht** mehr:
+Der Saal sieht, dass der andere Spieler dran ist, und der halbe Punktwert ist
+eine Regel des Spiels, keine Bildschirmmeldung. Operator und Moderator sehen den
+Wert weiterhin in ihrer Ansicht.
 
 In der zweiten Chance ist eine bereits als falsch bewertete Option **verbraucht**:
 Auf der Buehne steht ihre Leiste zurueckgenommen, im Bedienfeld ist ihre Taste
@@ -298,36 +302,32 @@ festgelegt hat, aber nicht, ob es stimmt.
 ## Enthuellung (`reveal-ready`, `reveal-running`, `reveal-paused`)
 
 - `reveal-ready` ist der Zwischenschritt vor dem Start: Das Bild ist vollstaendig
-  verdeckt, der Ring zeigt die volle Dauer, die Uhr laeuft nicht und niemand
-  kann buzzern. Der Operator startet mit `Enthuellung starten`.
-
-- Links der Ring, rechts das Bild. Der Ring hat aussen die Spur in
-  `--surface-tile-disabled`, darauf den weissen Fortschrittsbogen mit runden
-  Enden; in der Mitte die verbleibenden Sekunden.
-- **Der Bogen beginnt bei 12 Uhr und laeuft im Uhrzeigersinn.** Seine Laenge ist
-  der Restanteil: bei 7 von 10 Sekunden 252 Grad, bei 1 Sekunde 36 Grad. Am Ende
-  bleibt nur die Spur.
-- Das Bild liegt unter einem Raster aus Kacheln (Voreinstellung 6 x 4), die
-  waehrend des Countdowns nacheinander verschwinden. Am Bild selbst aendert sich
+  verdeckt, die Uhr laeuft nicht und niemand kann buzzern. Der Operator startet
+  mit `Enthuellung starten`.
+- Das Bild fuellt die Buehne und liegt unter einem Raster aus Kacheln
+  (Voreinstellung 6 x 4), die
+  waehrend der Enthuellung nacheinander verschwinden. Am Bild selbst aendert sich
   nichts - keine Skalierung, keine Bewegung, keine Deckkraft; eine offene Kachel
   zeigt ihren Ausschnitt sofort vollstaendig und bleibt offen.
 - Die Reihenfolge ist gestreut, haelt die Bildmitte aber bis zuletzt verdeckt.
   Sie haengt an der Bildadresse und ist deshalb auf jedem Screen dieselbe.
-- Ring und Aufloesung stammen aus **einer** Fortschrittsvariablen
+- **Einen sichtbaren Countdown gibt es nicht** - weder eine Zahl noch einen
+  ablaufenden Ring. Die Kacheln sind die Uhr; alles daneben zoege den Blick vom
+  Motiv, um das es gerade geht. Der Moderator sieht die Restsekunden weiterhin
+  in seiner Ansicht.
+- Die Aufloesung stammt aus **einer** Fortschrittsvariablen
   (`packages/domain/src/reveal.ts`). Das ist eine Fairnessregel, keine
   Gestaltungsfrage. Rastergroesse und Streuung stehen in `revealGrid`
   (`packages/contracts/src/config.ts`).
-- Pausiert: Ring und Bild frieren ein, die Sekundenzahl bekommt zusaetzlich das
-  Pausensymbol, damit "eingefroren" nicht mit "sehr langsam" verwechselt wird.
-- Nach Ablauf zeigt der Ring `0`, das Bild ist scharf, die Buzzer bleiben offen.
+- Pausiert: Das Bild friert ein, es kommt keine Kachel hinzu.
+- Nach Ablauf ist das Bild vollstaendig offen, die Buzzer bleiben offen.
 - Buzzert ein Spieler waehrend der Enthuellung, **bleibt die Buehne in dieser
-  Szene** und friert den Countdown ein. Ein Sprung ins Fragelayout wuerde Bild und
-  Ring vom Schirm nehmen, obwohl genau darueber gerade gesprochen wird
+  Szene** und friert das Bild ein. Ein Sprung ins Fragelayout wuerde das Motiv vom
+  Schirm nehmen, obwohl genau darueber gerade gesprochen wird
   (`sceneForPhase` in `packages/domain/src/projection.ts`).
-- Die Worte `pausiert` bzw. `Buzzern weiterhin möglich` unter dem Ring sind
+- Die Worte `pausiert` bzw. `Buzzern weiterhin möglich` unter dem Bild sind
   **Regiehinweise**: Sie stehen nur in der Vorschau des Operators, nie auf der
-  Buehne. Sie liegen absolut unter dem Ring, damit ihr Erscheinen den Countdown
-  nicht verschiebt.
+  Buehne.
 
 ## Rueckmeldung (`attempt-feedback`)
 
@@ -355,10 +355,8 @@ Vorlagenlos, im gezeigten Stil festgelegt; bestaetigt: sichtbar gekennzeichnet.
 - Die Buehnenflaeche behaelt das Fragelayout.
 - Der andere Spieler wird `--accent` markiert und ist am Zug; der erste Spieler
   bleibt sichtbar, seine Spielerkachel steht in `--accent-quiet` mit einem
-  Schlosssymbol.
-- Unter der Kopfzeile erscheint eine schmale Zeile `Zweite Chance · 50 Punkte`
-  in `--text-muted`. Der Punktwert kommt aus `answering.pointsIfCorrect`, nicht
-  aus einer festen Zeichenkette.
+  Schlosssymbol. Diese Markierung ist die gesamte Kennzeichnung - eine Zeile
+  mit dem halben Punktwert gibt es nicht (siehe `Gemeinsamer Rahmen`).
 - Bedienleiste: Gruppe 2 ist gesperrt (der Zug ist gesetzt), Gruppe 3 offen.
 
 ## Loesung (`solution`)

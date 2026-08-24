@@ -462,9 +462,7 @@ Nur sechs Stylesheets sind global, und jedes aus einem Grund:
 | `Media` | Bildrahmen, beim Bilderkennen mit Kacheldecke | `inline`, `reveal`, `solution`, `portrait` |
 | `RevealTiles` | Kacheldecke des Bilderkennens | - |
 | `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
-| `SecondChanceHint` | Hinweis auf die zweite Chance | - |
 | `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
-| `ProgressRing` | Enthuellungsring mit Sekundenzahl | laufend, pausiert |
 
 Jedes Bauteil kennt nur Tokens und seine eigenen Varianten. Kein Bauteil liest
 das View-Modell, keines sendet Befehle, und keines kennt den Namen eines Modus.
@@ -486,6 +484,10 @@ zwischen den Anordnungen; beide Szenen bleiben dadurch gleich aufgebaut.
 | `text-choice` | Rubrik und Frage ueber die volle Breite, Antworten darunter |
 | `image-choice` | Bild links, Rubrik und Frage daneben, Antworten darunter |
 | `person` | Portraet gross links, Rubrik, Frage und Antworten rechts daneben |
+
+Nur der **Praesentationstyp** entscheidet ueber die Anordnung. Die gleichnamige
+Kategorie `person` tut es nicht: Sie sagt, worum es in der Frage geht, und ihre
+Fragen liegen als `image-choice` vor - Bild links, Antworten darunter.
 
 Die Buehne traegt den Typ als `data-presentation`. Bauteile, die sich in einer
 Anordnung anders verhalten muessen - der linksbuendige Antworttext der

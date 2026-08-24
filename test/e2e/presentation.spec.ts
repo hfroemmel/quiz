@@ -77,12 +77,13 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     expect(answers!.y).toBeLessThan(portrait!.y + portrait!.height)
   })
 
-  test('Bilderkennen zeigt Countdown und verdecktes Bild', async ({ page }) => {
+  test('Bilderkennen zeigt ein verdecktes Bild und keinen Countdown', async ({ page }) => {
     await selectScene(page, 'reveal')
-    await expect(page.locator('[data-seconds]')).toBeVisible()
     await expect(page.locator('[data-media][data-variant="reveal"] [data-media-image]')).toBeVisible()
     // Das Bild ist vollstaendig da - was fehlt, ist der Blick darauf.
     await expect(page.locator('[data-reveal-tiles]')).toBeVisible()
+    // Die Kacheln sind die Uhr; eine Zahl daneben gibt es nicht mehr.
+    await expect(page.locator('[data-seconds]')).toHaveCount(0)
   })
 
   test('Videoszene zeigt die Videoflaeche', async ({ page }) => {
@@ -150,37 +151,29 @@ test.describe('Themes', () => {
   })
 })
 
-test.describe('Enthuellung: Countdown und Raster stammen aus derselben Quelle', () => {
-  test('Kacheln und Countdown laufen synchron', async ({ page }) => {
+test.describe('Enthuellung: das Raster folgt dem Fortschritt des Servers', () => {
+  test('die Kacheln folgen dem Fortschritt', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
     const tiles = page.locator('[data-reveal-tiles] [data-reveal-tile]')
 
-    const readState = async () => ({
-      seconds: Number(await page.locator('[data-seconds]').textContent()),
-      offen: await page.locator('[data-reveal-tile][data-open="true"]').count(),
-    })
+    const offen = () => page.locator('[data-reveal-tile][data-open="true"]').count()
 
     // Die Rastergroesse steht in `revealGrid` - hier zaehlt nur, dass ALLE Kacheln da sind.
     const gesamt = await tiles.count()
     expect(gesamt).toBeGreaterThan(1)
 
     await slider.fill('0')
-    const start = await readState()
-    expect(start.seconds).toBe(10)
     // Zu Beginn ist das Bild vollstaendig verdeckt.
-    expect(start.offen).toBe(0)
+    expect(await offen()).toBe(0)
 
+    // Halber Fortschritt, halbes Bild - dieselbe Variable wie im Server.
     await slider.fill('5000')
-    const mitte = await readState()
-    expect(mitte.seconds).toBe(5)
-    // Halber Fortschritt, halbes Bild - dieselbe Variable.
-    expect(mitte.offen).toBe(Math.floor(gesamt / 2))
+    expect(await offen()).toBe(Math.floor(gesamt / 2))
 
+    // Bei null Sekunden ist nichts mehr verdeckt.
     await slider.fill('10000')
-    const ende = await readState()
-    expect(ende.seconds).toBe(0)
-    expect(ende.offen).toBe(gesamt)
+    expect(await offen()).toBe(gesamt)
   })
 
   test('einmal offene Kacheln bleiben offen', async ({ page }) => {

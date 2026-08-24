@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "1.0.20",
-  "createdAt": "2026-08-24T19:05:41.287Z",
+  "contentVersion": "1.0.22",
+  "createdAt": "2026-08-24T20:55:15.750Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
   "assets": [
@@ -1549,5 +1549,5 @@
       "checksum": "863e1732306ee16ebae683ce83f341f2"
     }
   ],
-  "checksum": "c199e82c153106322eae8810440a023e9e5d8040df3d972d5ebaece5a52f6252"
+  "checksum": "21e08fb4bd092301ba9dcde1e693e434240807ccfa58a7428a65c720dbbc19c2"
 }

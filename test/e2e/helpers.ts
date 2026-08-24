@@ -258,3 +258,13 @@ export async function sessionCode(page: Page): Promise<string> {
   const body = (await response.json()) as { sessionCode: string }
   return body.sessionCode
 }
+
+/**
+ * Wie viele Kacheln des Bilderkennens schon offen sind.
+ *
+ * Seit der Countdown von der Buehne verschwunden ist, ist das die einzige
+ * sichtbare Uhr - und die ehrlichere: Sie misst, was der Saal wirklich sieht.
+ */
+export async function offeneKacheln(stage: Page): Promise<number> {
+  return stage.locator('[data-reveal-tile][data-open="true"]').count()
+}
