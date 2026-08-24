@@ -114,7 +114,7 @@ describe('Normale Multiple-Choice-Frage', () => {
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
     expect(harness.state!.phase).toBe('attempt-feedback')
-    expect(harness.state!.players[0].score).toBe(scoringRules.firstAnswerPoints)
+    expect(harness.state!.players[0]!.score).toBe(scoringRules.firstAnswerPoints)
 
     harness.settle()
     expect(harness.state!.phase).toBe('solution')
@@ -135,9 +135,9 @@ describe('Normale Multiple-Choice-Frage', () => {
     harness.settle()
     // Die Loesung erscheint bewusst noch nicht.
     expect(harness.state!.phase).toBe('second-chance')
-    expect(harness.state!.players[0].lockedForCurrentQuestion).toBe(true)
-    expect(harness.state!.players[1].lockedForCurrentQuestion).toBe(false)
-    expect(harness.state!.players[0].score).toBe(0)
+    expect(harness.state!.players[0]!.lockedForCurrentQuestion).toBe(true)
+    expect(harness.state!.players[1]!.lockedForCurrentQuestion).toBe(false)
+    expect(harness.state!.players[0]!.score).toBe(0)
   })
 
   it('nur der zweite Spieler ist in der zweiten Chance berechtigt', () => {
@@ -196,7 +196,7 @@ describe('Normale Multiple-Choice-Frage', () => {
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
     harness.settle()
 
-    expect(harness.state!.players[1].score).toBe(scoringRules.secondChancePoints)
+    expect(harness.state!.players[1]!.score).toBe(scoringRules.secondChancePoints)
     expect(harness.state!.phase).toBe('solution')
   })
 
@@ -212,8 +212,8 @@ describe('Normale Multiple-Choice-Frage', () => {
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
     harness.settle()
 
-    expect(harness.state!.players[0].score).toBe(0)
-    expect(harness.state!.players[1].score).toBe(0)
+    expect(harness.state!.players[0]!.score).toBe(0)
+    expect(harness.state!.players[1]!.score).toBe(0)
     expect(harness.state!.phase).toBe('solution')
   })
 
@@ -227,7 +227,7 @@ describe('Normale Multiple-Choice-Frage', () => {
 
     harness.dispatch({ type: 'PASS_SECOND_CHANCE' })
     expect(harness.state!.phase).toBe('solution')
-    expect(harness.state!.players[1].score).toBe(0)
+    expect(harness.state!.players[1]!.score).toBe(0)
   })
 
   it('erlaubt jederzeit das Aufloesen ohne Buzzer und ohne Antwort', () => {
@@ -236,8 +236,8 @@ describe('Normale Multiple-Choice-Frage', () => {
     // Es gibt keine verbindliche Wartezeit vor dem Aufloesen.
     harness.dispatch({ type: 'RESOLVE_WITHOUT_ANSWER' })
     expect(harness.state!.phase).toBe('solution')
-    expect(harness.state!.players[0].score).toBe(0)
-    expect(harness.state!.players[1].score).toBe(0)
+    expect(harness.state!.players[0]!.score).toBe(0)
+    expect(harness.state!.players[1]!.score).toBe(0)
     expect(harness.state!.attempts.at(-1)!.outcome).toBe('no-answer')
   })
 
@@ -336,8 +336,8 @@ describe('Bilderkennen mit Enthuellung', () => {
       expect(harness.state!.phase).toBe('reveal-running')
     }
     expect(harness.state!.attempts.filter((attempt) => attempt.outcome === 'incorrect')).toHaveLength(5)
-    expect(harness.state!.players[0].score).toBe(0)
-    expect(harness.state!.players[1].score).toBe(0)
+    expect(harness.state!.players[0]!.score).toBe(0)
+    expect(harness.state!.players[1]!.score).toBe(0)
   })
 
   it('gibt 100 Punkte ohne Fehlversuch und 50 Punkte nach einem Fehlversuch', () => {
@@ -347,7 +347,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     clean.dispatch({ type: 'BUZZ', playerId: 'player-1' })
     clean.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
     clean.dispatch({ type: 'RESOLVE_ATTEMPT' })
-    expect(clean.state!.players[0].score).toBe(100)
+    expect(clean.state!.players[0]!.score).toBe(100)
 
     const afterMiss = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(afterMiss)
@@ -359,7 +359,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     afterMiss.dispatch({ type: 'BUZZ', playerId: 'player-2' })
     afterMiss.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
     afterMiss.dispatch({ type: 'RESOLVE_ATTEMPT' })
-    expect(afterMiss.state!.players[1].score).toBe(50)
+    expect(afterMiss.state!.players[1]!.score).toBe(50)
   })
 
   it('vollstaendige Enthuellung sperrt den Buzzer nicht', () => {
@@ -443,9 +443,9 @@ describe('Weiter, Ergebnis und Abbruch', () => {
     harness.settle()
     playCorrect(harness, 'player-2')
 
-    expect(harness.state!.players[0].score).toBe(100)
-    expect(harness.state!.players[1].score).toBe(100)
-    expect(determineResult(harness.state!)).toEqual({ winnerPlayerId: null, isDraw: true })
+    expect(harness.state!.players[0]!.score).toBe(100)
+    expect(harness.state!.players[1]!.score).toBe(100)
+    expect(determineResult(harness.state!)).toEqual({ mode: 'duel', winnerPlayerId: null, isDraw: true })
   })
 
   it('ein abgebrochenes Spiel zeigt kein Ergebnis', () => {
@@ -468,10 +468,10 @@ describe('Manuelle Punktkorrektur', () => {
     const step = scoringRules.manualAdjustmentStep
 
     harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'increase' })
-    expect(harness.state!.players[1].score).toBe(step)
+    expect(harness.state!.players[1]!.score).toBe(step)
 
     harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'decrease' })
-    expect(harness.state!.players[1].score).toBe(0)
+    expect(harness.state!.players[1]!.score).toBe(0)
 
     // Unter null wird nicht korrigiert; der Befehl wird verstaendlich abgewiesen.
     expect(harness.expectReject({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'decrease' }).reason).toBe(
@@ -499,7 +499,7 @@ describe('Manuelle Punktkorrektur', () => {
     for (let index = 0; index < steps; index += 1) {
       harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'increase' })
     }
-    expect(determineResult(harness.state!)).toEqual({ winnerPlayerId: null, isDraw: true })
+    expect(determineResult(harness.state!)).toEqual({ mode: 'duel', winnerPlayerId: null, isDraw: true })
     expect(availableCommands(harness.state)).toContain('ADJUST_SCORE')
   })
 })
@@ -514,7 +514,7 @@ describe('Doppelte Ereignisse und veraltete Uebergaenge', () => {
 
     // Zweiter Klick auf "Aufloesen" waehrend der Feedbackanimation.
     expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('invalid-phase')
-    expect(harness.state!.players[0].score).toBe(100)
+    expect(harness.state!.players[0]!.score).toBe(100)
   })
 
   it('ein doppelt gemeldeter Uebergang loest nicht zweimal aus', () => {
@@ -546,6 +546,95 @@ describe('Frage ueberspringen', () => {
     expect(harness.state!.currentQuestion!.question.id).toBe('ersatz-1')
     expect(harness.state!.selectedQuestionIds).toContain('q1')
     expect(harness.state!.currentSlotIndex).toBe(0)
+  })
+})
+
+describe('Einzelspiel', () => {
+  it('ohne Angabe entsteht weiterhin ein Duell', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    expect(harness.state!.players).toHaveLength(2)
+  })
+
+  it('startet mit genau einem Spieler und uebernimmt dessen Beschriftung', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, { playerCount: 1, playerLabels: ['Mia'] })
+
+    expect(harness.state!.players).toHaveLength(1)
+    expect(harness.state!.players[0]!.id).toBe('player-1')
+    expect(harness.state!.players[0]!.label).toBe('Mia')
+  })
+
+  it('kennt keinen zweiten Spieler - dessen Buzzer wird abgewiesen', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, { playerCount: 1 })
+    releaseRound(harness)
+
+    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-2' }).reason).toBe('invalid-payload')
+  })
+
+  it('hat keine zweite Chance: nach der falschen Antwort folgt sofort die Loesung', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, { playerCount: 1 })
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+
+    expect(harness.state!.phase).toBe('solution')
+    expect(harness.state!.players[0]!.score).toBe(scoringRules.noPoints)
+  })
+
+  it('im Duell bleibt die zweite Chance unveraendert erhalten', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+
+    expect(harness.state!.phase).toBe('second-chance')
+  })
+
+  it('liefert ein Solo-Ergebnis: kein Gewinner, kein Unentschieden, Trefferzahl', () => {
+    const harness = createHarness([normalQuestion('q1'), normalQuestion('q2')])
+    startGame(harness, { playerCount: 1 })
+
+    playCorrect(harness, 'player-1')
+    harness.dispatch({ type: 'CONTINUE' })
+    harness.settle()
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+    harness.dispatch({ type: 'CONTINUE' })
+    harness.settle()
+
+    expect(harness.state!.phase).toBe('result')
+    expect(determineResult(harness.state!)).toEqual({
+      mode: 'solo',
+      winnerPlayerId: null,
+      isDraw: false,
+      solo: { correctAnswers: 1, questionCount: 2 },
+    })
+  })
+
+  it('zaehlt je Frage hoechstens einen Treffer, auch bei mehreren Versuchen', () => {
+    const harness = createHarness([revealQuestion('r1')])
+    startGame(harness, { playerCount: 1 })
+
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'incorrect' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+    harness.dispatch({ type: 'CONTINUE' })
+    harness.settle()
+
+    expect(determineResult(harness.state!).solo).toEqual({ correctAnswers: 1, questionCount: 1 })
   })
 })
 

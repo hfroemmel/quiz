@@ -10,6 +10,7 @@ import {
   gameTiming,
   type Command,
   type GameState,
+  type PlayerCount,
   type PublicQuizViewModel,
   type Question,
   type QuizConfig,
@@ -180,8 +181,17 @@ const testConfig: QuizConfig = {
 }
 
 /** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */
-export function startGame(harness: Harness): GameState {
-  harness.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' })
+export function startGame(
+  harness: Harness,
+  options: { playerCount?: PlayerCount; playerLabels?: string[] } = {},
+): GameState {
+  harness.dispatch({
+    type: 'START_GAME',
+    quizModeId: 'adults',
+    presetId: 'medium',
+    ...(options.playerCount === undefined ? {} : { playerCount: options.playerCount }),
+    ...(options.playerLabels === undefined ? {} : { playerLabels: options.playerLabels }),
+  })
   harness.settle()
   return harness.state!
 }

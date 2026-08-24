@@ -27,6 +27,13 @@ interface CommandEnvelope {
 6. Zustand, Punktebuchung, Nutzung und Auditlog in EINER Transaktion speichern
 7. Revision erhoehen und rollenabhaengige Snapshots verteilen
 
+## Spielerzahl
+
+`START_GAME` traegt optional `playerCount` (1 oder 2) und `playerLabels`. Ohne
+Angabe entsteht ein Duell; der Buehnenbetrieb schickt die Spielerzahl deshalb
+nicht mit. Die Auswirkungen stehen in
+[zustandsmaschine.md](zustandsmaschine.md#spielerzahl).
+
 ## Tabelle
 
 | Befehl | erlaubte Rollen | Revisionspruefung |

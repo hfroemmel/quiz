@@ -56,6 +56,16 @@ export type GamePhase = (typeof gamePhases)[number]
 export type PlayerId = 'player-1' | 'player-2'
 export const playerIds: readonly PlayerId[] = ['player-1', 'player-2']
 
+/**
+ * Erlaubte Spielerzahlen.
+ *
+ * Ein Spiel hat entweder zwei Spieler (Duell, der Buehnenbetrieb) oder einen
+ * (Einzelspiel auf dem Touchgeraet). Beides ist derselbe Ablauf; die Spielerzahl
+ * entscheidet nur, ob es eine zweite Chance und einen Gewinner gibt.
+ */
+export const playerCounts = [1, 2] as const
+export type PlayerCount = (typeof playerCounts)[number]
+
 export interface PlayerState {
   id: PlayerId
   label: string
@@ -173,7 +183,11 @@ export interface GameState {
   selectedRepetitionGroupIds: string[]
   currentQuestion?: RuntimeQuestion
 
-  players: [PlayerState, PlayerState]
+  /**
+   * Ein oder zwei Spieler, in fester Reihenfolge (`player-1`, `player-2`).
+   * Die Laenge wird beim Spielstart festgelegt und aendert sich danach nicht.
+   */
+  players: PlayerState[]
   buzzer: BuzzerState
   attempts: AnswerAttempt[]
   reveal?: RevealClockState

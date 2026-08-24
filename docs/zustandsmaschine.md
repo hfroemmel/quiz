@@ -63,6 +63,20 @@ Das ist keine reine Anzeigefrage: In `question-presented` uebertraegt der Server
 die Antwortmoeglichkeiten gar nicht erst, und in `reveal-ready` laeuft die Uhr
 nicht. Die Vorlesezeit kostet also keine Sekunde des Countdowns.
 
+### Spielerzahl
+
+Ein Spiel hat ein oder zwei Spieler (`START_GAME` mit `playerCount`; ohne Angabe
+zwei). Die Phasen sind in beiden Faellen dieselben, nur die zweite Chance haengt
+daran: Sie setzt einen anderen Spieler voraus, der bei dieser Frage noch antworten
+darf. Im Einzelspiel gibt es ihn nicht, deshalb folgt dort nach dem Fehlversuch
+sofort `solution`. Entschieden wird das an genau einer Stelle -
+`eligibleOpponent` in `packages/domain/src/buzzer.ts`.
+
+Auch das Ergebnis haengt an der Spielerzahl: Im Duell gewinnt der hoehere
+Punktestand (bei Gleichstand Unentschieden), im Einzelspiel gibt es weder Gewinner
+noch Unentschieden, sondern Punktestand und Trefferzahl. Welche Fassung gilt, sagt
+`result.mode` im View-Modell - die Oberflaeche zaehlt nicht die Punktestaende.
+
 ## Bilderkennen
 
 ```text

@@ -5,7 +5,7 @@
  * Hardware-Buzzer (Tasten `A`/`B`) und die manuelle Spielerauswahl des Operators
  * laufen durch dieselbe Pruefung, damit der Fallback nicht andere Regeln hat.
  */
-import type { CommandRejectionReason, GamePhase, GameState, PlayerId } from '@quiz/contracts'
+import type { CommandRejectionReason, GamePhase, GameState, PlayerId, PlayerState } from '@quiz/contracts'
 
 /**
  * Phasen, in denen der Server ueberhaupt Buzzer-Ereignisse annimmt.
@@ -79,6 +79,17 @@ export function evaluateBuzz(state: GameState, playerId: PlayerId): BuzzDecision
     }
   }
   return { allowed: true }
+}
+
+/**
+ * Ein anderer Spieler, der bei dieser Frage noch antworten darf.
+ *
+ * Das ist die einzige Stelle, an der entschieden wird, ob es eine zweite Chance
+ * gibt. Im Einzelspiel gibt es niemanden - deshalb faellt die zweite Chance dort
+ * weg, ohne dass die Zustandsmaschine einen Sonderfall braucht.
+ */
+export function eligibleOpponent(state: GameState, playerId: PlayerId | null): PlayerState | undefined {
+  return state.players.find((player) => player.id !== playerId && !player.lockedForCurrentQuestion)
 }
 
 /** Der Spieler, der aktuell antworten darf - unabhaengig davon, wie er bestimmt wurde. */
