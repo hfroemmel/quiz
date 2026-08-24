@@ -37,7 +37,7 @@ export function RevealScene({ view, reveal, variant }: SceneProps) {
   const hint = variant !== 'preview' ? null : paused ? 'pausiert' : finished ? 'Buzzern weiterhin möglich' : null
 
   return (
-    <div className={`${styles.scene} ${styles.reveal}`}>
+    <div className={`${styles.scene} ${styles.reveal}`} data-fit-box="">
       <QuestionHead question={question} />
 
       <div className={styles.revealStage}>

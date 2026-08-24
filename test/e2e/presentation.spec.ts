@@ -226,6 +226,141 @@ test.describe('Reduzierte Bewegung', () => {
   })
 })
 
+/*
+ * Lange Fragen (Spezifikation 22.1).
+ *
+ * Der Fall aus dem Betrieb: Eine Frage ueber mehrere Zeilen schob die unteren
+ * Antwortzeilen aus dem Bild. Im Saal fehlten dann schlicht die Antworten C und
+ * D, und nichts daran sah nach einem Fehler aus.
+ *
+ * Gemessen wird die AUSSAGE - steht noch etwas ueber der Inhaltskante der Szene?
+ * - und nicht eine bestimmte Schriftgroesse. Welche Groesse herauskommt, haengt
+ * an Bild, Antwortlaenge und Zielformat; festzulegen waere sie nur eine zweite
+ * Abschrift der Rechnung, die der Anpassung selbst zugrunde liegt.
+ */
+test.describe('Lange Fragen', () => {
+  const VIEWPORTS = [
+    { name: '1920x1080', width: 1920, height: 1080 },
+    { name: '1280x720', width: 1280, height: 720 },
+  ] as const
+
+  /** Blendet die Bedienspalte aus - danach hat die Buehne die ganze Flaeche. */
+  async function fullBleed(page: Page): Promise<void> {
+    await page.addStyleTag({
+      content:
+        '[data-preview]{grid-template-columns:1fr !important}[data-preview-panel]{position:absolute;opacity:0;pointer-events:none}',
+    })
+  }
+
+  /** Groesster Ueberstand ueber die Inhaltskante der Szene, in Pixeln. */
+  async function overshoot(page: Page): Promise<number> {
+    return await page.locator('[data-fit-box]').evaluate((box) => {
+      const limit = box.getBoundingClientRect().bottom - Number.parseFloat(getComputedStyle(box).paddingBottom)
+      let worst = 0
+      for (const node of box.querySelectorAll('*')) {
+        const position = getComputedStyle(node).position
+        // Absolut gesetzte Teile stehen bewusst ueber der Kante - siehe Regiehinweis.
+        if (position === 'absolute' || position === 'fixed') continue
+        worst = Math.max(worst, node.getBoundingClientRect().bottom - limit)
+      }
+      return Math.round(worst)
+    })
+  }
+
+  /*
+   * Der Schalter wird ueber das DOM bedient, nicht ueber einen Klick: Nach
+   * `fullBleed` nimmt die Bedienspalte keine Zeigereingaben mehr an, damit sie
+   * die Buehnenflaeche nicht verdeckt.
+   */
+  async function toggleLongText(page: Page): Promise<void> {
+    await page
+      .getByRole('checkbox', { name: /Lange Texte/ })
+      .evaluate((element) => (element as HTMLInputElement).click())
+  }
+
+  async function promptSize(page: Page): Promise<number> {
+    return await page
+      .locator('[data-prompt]')
+      .evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))
+  }
+
+  for (const viewport of VIEWPORTS) {
+    test(`Portraetfrage haelt alle vier Antworten im Bild - ${viewport.name}`, async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+      await selectScene(page, 'question')
+      await selectQuestionType(page, 'person')
+      await page.getByRole('checkbox', { name: /Lange Texte/ }).check()
+      await fullBleed(page)
+      await page.waitForTimeout(400)
+
+      expect(await overshoot(page)).toBeLessThanOrEqual(2)
+      await expect(page.locator('[data-answer]')).toHaveCount(4)
+    })
+  }
+
+  test('verkleinert die Frage nur so weit wie noetig', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'person')
+    await fullBleed(page)
+    await page.waitForTimeout(400)
+
+    // Eine kurze Frage passt ohnehin und bleibt deshalb in voller Groesse.
+    const base = await promptSize(page)
+    expect(base).toBeCloseTo(1920 * 0.028, 0)
+
+    await toggleLongText(page)
+    await page.waitForTimeout(400)
+    const fitted = await promptSize(page)
+
+    expect(fitted).toBeLessThan(base)
+    // Und nicht ins Bodenlose: Unter der Untergrenze waere sie im Saal unlesbar.
+    expect(fitted).toBeGreaterThanOrEqual(base * 0.55 - 1)
+  })
+
+  test('laesst die Frage gross, wenn das Verkleinern nichts bringt', async ({ page }) => {
+    /*
+     * Bei der Bildfrage tragen die langen ANTWORTEN den Ueberstand. Die Frage
+     * kleiner zu setzen wuerde daran nichts aendern - eine winzige Frage UND ein
+     * Ueberstand waeren zweimal schlecht.
+     */
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'image-choice')
+    await fullBleed(page)
+    await page.waitForTimeout(400)
+    const base = await promptSize(page)
+
+    await toggleLongText(page)
+    await page.waitForTimeout(400)
+
+    expect(await promptSize(page)).toBeCloseTo(base, 0)
+  })
+
+  test('laesst eine kurze Frage in jeder Szene unangetastet', async ({ page }) => {
+    /*
+     * Die Gegenprobe zur Anpassung: Eine kurze Frage passt in jeder Szene und
+     * muss deshalb ihre Grundgroesse behalten. Waere die Messung vom Einlauf der
+     * Antwortzeilen abhaengig - die stehen waehrend der Animation tiefer als am
+     * Ende -, bliebe die Frage danach zu klein, obwohl sie laengst passt.
+     */
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await fullBleed(page)
+
+    for (const scene of ['question', 'solution'] as const) {
+      await selectScene(page, scene)
+      await selectQuestionType(page, 'person')
+      // Die Flaeche mitten im Einlauf aendern - im Betrieb der Sprung ins
+      // Vollbild. Das stoesst eine zweite Messung an, waehrend die Zeilen noch
+      // unterwegs sind.
+      await page.setViewportSize({ width: 1900, height: 1080 })
+      await page.setViewportSize({ width: 1920, height: 1080 })
+      await page.waitForTimeout(600)
+      expect(await promptSize(page), `Szene ${scene}`).toBeCloseTo(1920 * 0.028, 0)
+    }
+  })
+})
+
 test.describe('Screenshot-Regression zentraler Zustaende', () => {
   // Animationen werden fuer die Aufnahme abgeschaltet, damit die Bilder stabil sind.
   test.beforeEach(async ({ page }) => {

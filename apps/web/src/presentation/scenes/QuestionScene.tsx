@@ -24,7 +24,7 @@ export function QuestionScene({ view }: SceneProps) {
   if (!question) return null
 
   return (
-    <div className={`${styles.scene} ${styles.question}`}>
+    <div className={`${styles.scene} ${styles.question}`} data-fit-box="">
       <QuestionComposition
         question={question}
         imageUrl={question.imageUrl}

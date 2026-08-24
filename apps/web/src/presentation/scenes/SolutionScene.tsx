@@ -36,7 +36,7 @@ export function SolutionScene({ view }: SceneProps) {
         [{ id: 'solution', text: solution.answerText, state: 'correct' }]
 
   return (
-    <div className={`${styles.scene} ${styles.solution}`}>
+    <div className={`${styles.scene} ${styles.solution}`} data-fit-box="">
       <QuestionComposition
         question={question}
         imageUrl={solution.imageUrl ?? question.imageUrl}
