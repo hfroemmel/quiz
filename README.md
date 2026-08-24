@@ -101,6 +101,7 @@ Abhaengigkeiten.
 | Thema | Datei |
 |---|---|
 | Architektur und Modulverantwortungen | [docs/architektur.md](docs/architektur.md) |
+| Ein Kern, drei Kontexte (Buehne, Touchgeraet, Multigame) | [docs/mehrkontext-architektur.md](docs/mehrkontext-architektur.md) |
 | Phasen und Zustandsdiagramm | [docs/zustandsmaschine.md](docs/zustandsmaschine.md) |
 | Alle Befehle und Rollenrechte | [docs/befehle.md](docs/befehle.md) |
 | Quizpaket-Schema mit Beispiel | [docs/quizpaket.md](docs/quizpaket.md) |
