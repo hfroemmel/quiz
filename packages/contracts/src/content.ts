@@ -121,6 +121,18 @@ export function isChoiceQuestion(question: Pick<Question, 'options'>): boolean {
   return (question.options?.length ?? 0) >= contentThresholds.minChoiceOptionCount
 }
 
+/**
+ * Kann diese Frage ohne Operator beantwortet werden?
+ *
+ * Nur Fragen mit Antwortoptionen, die gegen `correctOptionId` verglichen werden.
+ * Eine muendliche Antwort braucht jemanden, der sie bewertet - im Kiosk gibt es
+ * niemanden. Diese Regel steht hier, weil sowohl die Inhaltsvalidierung als auch
+ * die Zustandsmaschine sie brauchen und es sie deshalb genau einmal geben darf.
+ */
+export function isSelfServiceAnswerable(question: Question): boolean {
+  return question.evaluationMode === 'option-comparison' && (question.options?.length ?? 0) > 0
+}
+
 export const mediaAssetSchema = z.object({
   id: idSchema,
   kind: z.enum(['image', 'video', 'audio']),

@@ -12,7 +12,7 @@ ohne UI und mit Fake-Clock.
 |---|---|
 | `engine.ts` | `reduce(state, command, ctx)` - die autoritative Zustandsmaschine |
 | `scoring.ts` | Punkteregeln, Punktedeckelung, Ergebnisermittlung |
-| `buzzer.ts` | Buzzer-Berechtigung; Hardware und manuelle Auswahl teilen sich diese Pruefung |
+| `buzzer.ts` | Buzzer-Berechtigung; Hardware, manuelle Auswahl und Fingertipp teilen sich diese Pruefung |
 | `reveal.ts` | Enthuellungsuhr; Countdown und Bildschaerfe stammen aus derselben Variable |
 | `selection.ts` | Fragenauswahl, Wiederholungsvermeidung, Optionsreihenfolge |
 | `allowedCommands.ts` | ableitbare Befehlsliste je Rolle (Clients bauen sie nicht nach) |

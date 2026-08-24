@@ -63,6 +63,34 @@ Das ist keine reine Anzeigefrage: In `question-presented` uebertraegt der Server
 die Antwortmoeglichkeiten gar nicht erst, und in `reveal-ready` laeuft die Uhr
 nicht. Die Vorlesezeit kostet also keine Sekunde des Countdowns.
 
+### Steuerprofil
+
+`START_GAME` traegt optional `flowProfile`; ohne Angabe steuert ein Operator
+(`operated`). Die Phasen sind in beiden Profilen dieselben - es gibt keine zweite
+Zustandsmaschine. Unterschiedlich ist nur, wer einen Uebergang ausloest:
+
+| Stelle | `operated` | `self-service` |
+|---|---|---|
+| Frage erscheint | Operator gibt den Buzzer frei | Einstiegsphase ist bereits `buzzer-open` |
+| Bilderkennen | Operator startet die Enthuellung | beginnt direkt in `reveal-running` |
+| Antwort | Operator loggt ein und loest auf | ein Fingertipp: `ANSWER_BY_PLAYER` wertet sofort aus |
+| nach der Loesung | Operator drueckt `Weiter` | eingeplanter Uebergang nach `solutionHoldMs` |
+| Videofrage | Operator startet und blendet um | startet nach `videoLeadInMs`, die Frage folgt aus der gemeldeten Laufzeit |
+
+Alle automatischen Uebergaenge nutzen dieselbe Mechanik wie Feedback und
+Pausenscreen: `pendingTransition` mit serverseitiger Fallbackzeit. Eine
+ausbleibende Meldung eines Browsers kann den Ablauf deshalb nicht anhalten.
+
+Der Uebergang aus `solution` ist dabei kein Phasenwechsel, sondern dieselbe
+Entscheidung wie `CONTINUE`: naechste Frage ziehen oder Ergebnis zeigen.
+
+Fragen, die nur ein Mensch bewerten kann (`manual-correct-incorrect`), koennen am
+Geraet nicht aufgeloest werden. Wird eine solche Frage im Selbstbedienungsbetrieb
+gezogen, zieht der Server einen Ersatz und protokolliert das; taugt ein ganzer
+Fragenplatz nicht, wird er uebersprungen. Findet sich gar keine beantwortbare
+Frage mehr, endet das Spiel mit dem Ergebnis - ein stehengebliebener Bildschirm
+waere am unbeaufsichtigten Geraet das schlechteste Ergebnis.
+
 ### Spielerzahl
 
 Ein Spiel hat ein oder zwei Spieler (`START_GAME` mit `playerCount`; ohne Angabe

@@ -37,7 +37,7 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
     }
 
     const requestedRole = url.searchParams.get('role') ?? 'stage'
-    const role: ClientRole = ['operator', 'moderator', 'stage'].includes(requestedRole)
+    const role: ClientRole = ['operator', 'moderator', 'stage', 'player'].includes(requestedRole)
       ? (requestedRole as ClientRole)
       : 'stage'
 

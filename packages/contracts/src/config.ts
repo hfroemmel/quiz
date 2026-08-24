@@ -94,6 +94,24 @@ export const revealGrid = {
   tileFadeMs: 320,
 } as const
 
+/**
+ * Timings, die es nur im Selbstbedienungsprofil gibt.
+ *
+ * Sie ersetzen genau die Stellen, an denen sonst ein Mensch weiterschaltet. Sie
+ * sind deshalb fachlich relevant und stehen hier - nicht in der Praesentation.
+ */
+export const selfServiceTiming = {
+  /** Wie lange die Loesung stehen bleibt, bevor es von selbst weitergeht. */
+  solutionHoldMs: 4_000,
+  /** Kurzer Vorlauf, bevor ein Video von selbst startet. */
+  videoLeadInMs: 500,
+  /**
+   * Zuschlag nach dem gemeldeten Ende eines Videos, bevor die Frage erscheint.
+   * Er deckt Ausspielverzoegerungen ab.
+   */
+  videoTailMs: 400,
+} as const
+
 /** Parameter des Auswahlalgorithmus (Spezifikation 17.2). */
 export const selectionTuning = {
   /** Mindestgroesse des Kandidatenfensters unter den am laengsten nicht genutzten Fragen. */
@@ -131,6 +149,7 @@ export const contentThresholds = {
 
 export type ScoringRules = typeof scoringRules
 export type GameTiming = typeof gameTiming
+export type SelfServiceTiming = typeof selfServiceTiming
 
 /**
  * Ein Raster, das sich vom voreingestellten unterscheiden darf.

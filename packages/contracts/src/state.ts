@@ -66,6 +66,22 @@ export const playerIds: readonly PlayerId[] = ['player-1', 'player-2']
 export const playerCounts = [1, 2] as const
 export type PlayerCount = (typeof playerCounts)[number]
 
+/**
+ * Wer den Ablauf vorantreibt.
+ *
+ * `operated`      Ein Mensch steuert: Der Operator gibt den Buzzer frei, loggt die
+ *                 Antwort ein, loest auf und schaltet weiter. So laeuft die Buehne.
+ * `self-service`  Niemand steuert: Die Spieler tippen ihre Antwort selbst an, die
+ *                 Auswertung folgt sofort, und die Uebergaenge laufen ueber die
+ *                 zeitgesteuerten Phasen des Servers. So laeuft das Touchgeraet.
+ *
+ * Das Profil ist KEINE zweite Zustandsmaschine. Die Phasen sind in beiden Faellen
+ * dieselben; das Profil entscheidet nur, wer einen Uebergang ausloest und welche
+ * Uebergaenge automatisch eingeplant werden.
+ */
+export const flowProfiles = ['operated', 'self-service'] as const
+export type FlowProfile = (typeof flowProfiles)[number]
+
 export interface PlayerState {
   id: PlayerId
   label: string
@@ -85,7 +101,7 @@ export interface BuzzerState {
   /** Serverzeit der Annahme; dient der Nachvollziehbarkeit der Reihenfolge. */
   acceptedAtMs?: number
   /** Wie der aktive Spieler bestimmt wurde. */
-  acceptedVia?: 'hardware' | 'manual'
+  acceptedVia?: 'hardware' | 'manual' | 'touch'
 }
 
 export type AttemptOutcome = 'correct' | 'incorrect' | 'passed' | 'no-answer'
@@ -175,6 +191,8 @@ export interface GameState {
 
   quizModeId: string
   presetId: string
+  /** Steuerprofil des Spiels. Es wird beim Start festgelegt und aendert sich nicht. */
+  flowProfile: FlowProfile
   totalQuestions: number
   currentSlotIndex: number
   /** Bereits im Spiel eingesetzte Frage-IDs, inklusive der aktuellen. */

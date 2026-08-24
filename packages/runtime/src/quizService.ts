@@ -28,6 +28,7 @@ import {
   type GameState,
   type ModeratorQuizViewModel,
   type OperatorQuizViewModel,
+  type PlayerQuizViewModel,
   type PublicQuizViewModel,
   type QuestionPatch,
 } from '@quiz/contracts'
@@ -35,6 +36,7 @@ import {
   pauseReveal,
   projectModerator,
   projectOperator,
+  projectPlayer,
   projectPublic,
   type ProjectionContext,
 } from '@quiz/domain'
@@ -42,6 +44,12 @@ import { reduce } from '@quiz/domain'
 import { QuizStore } from '@quiz/persistence'
 import { buildChangeReport } from '@quiz/content'
 import { ContentService } from './contentService.ts'
+
+type SnapshotForAnyRole =
+  | PublicQuizViewModel
+  | PlayerQuizViewModel
+  | ModeratorQuizViewModel
+  | OperatorQuizViewModel
 
 export interface DispatchResult {
   ok: boolean
@@ -119,6 +127,9 @@ export class QuizService {
     if (!found) return
 
     const prepared: GameState = structuredClone(found)
+    // Spielstaende aus einer Version vor der Mehrkontext-Ausbaustufe tragen kein
+    // Steuerprofil. Sie stammen zwangslaeufig aus dem Buehnenbetrieb.
+    prepared.flowProfile ??= 'operated'
     if (prepared.reveal?.status === 'running') {
       prepared.reveal = pauseReveal(prepared.reveal, prepared.updatedAtMs)
       // Phase und Uhr muessen zusammenpassen: eine eingefrorene Enthuellung ist
@@ -193,7 +204,22 @@ export class QuizService {
       )
     }
 
-    // 5. Betriebsbefehle laufen nicht durch die Spiel-Engine.
+    // 5. Rollenpolitik, die keine Spielregel ist: Ein Spieler am Touchgeraet darf
+    //    ein Spiel beginnen, aber nur ein selbstbedientes. Sonst koennte er ein
+    //    Spiel starten, das auf einen Operator wartet, den es dort nicht gibt.
+    if (
+      envelope.command.type === 'START_GAME' &&
+      envelope.actor.role === 'player' &&
+      envelope.command.flowProfile !== 'self-service'
+    ) {
+      return this.rejectAndRecord(
+        envelope,
+        'wrong-flow-profile',
+        'Ein Spiel am Gerät läuft immer in Selbstbedienung. Ein vom Operator gesteuertes Spiel kann hier nicht gestartet werden.',
+      )
+    }
+
+    // 6. Betriebsbefehle laufen nicht durch die Spiel-Engine.
     if (isServiceCommand(envelope.command.type)) {
       return this.handleServiceCommand(envelope)
     }
@@ -460,12 +486,14 @@ export class QuizService {
   /** Rollenabhaengiger vollstaendiger Snapshot - auch nach jedem Reconnect. */
   snapshotFor(role: 'operator'): OperatorQuizViewModel
   snapshotFor(role: 'moderator'): ModeratorQuizViewModel
+  snapshotFor(role: 'player'): PlayerQuizViewModel
   snapshotFor(role: 'stage'): PublicQuizViewModel
-  snapshotFor(role: ClientRole): PublicQuizViewModel | ModeratorQuizViewModel | OperatorQuizViewModel
-  snapshotFor(role: ClientRole): PublicQuizViewModel | ModeratorQuizViewModel | OperatorQuizViewModel {
+  snapshotFor(role: ClientRole): SnapshotForAnyRole
+  snapshotFor(role: ClientRole): SnapshotForAnyRole {
     const ctx = this.projectionContext()
     if (role === 'operator') return projectOperator(this.state, ctx)
     if (role === 'moderator') return projectModerator(this.state, ctx)
+    if (role === 'player') return projectPlayer(this.state, ctx)
     return projectPublic(this.state, ctx)
   }
 

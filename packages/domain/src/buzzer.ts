@@ -23,6 +23,18 @@ export function isBuzzablePhase(phase: GamePhase): boolean {
   return buzzablePhases.includes(phase)
 }
 
+/**
+ * Phasen, in denen bei Selbstbedienung eine Antwort angetippt werden kann.
+ *
+ * Es sind die Buzzerphasen plus die zweite Chance: Sie braucht keinen Zuschlag
+ * mehr, ihr Versuch gehoert bereits einem bestimmten Spieler.
+ */
+const answerablePhases: readonly GamePhase[] = [...buzzablePhases, 'second-chance']
+
+export function isSelfServiceAnswerPhase(phase: GamePhase): boolean {
+  return answerablePhases.includes(phase)
+}
+
 export interface BuzzDecision {
   allowed: boolean
   reason?: CommandRejectionReason

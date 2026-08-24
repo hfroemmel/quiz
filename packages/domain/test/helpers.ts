@@ -9,6 +9,7 @@ import {
   designColorTokens,
   gameTiming,
   type Command,
+  type FlowProfile,
   type GameState,
   type PlayerCount,
   type PublicQuizViewModel,
@@ -183,7 +184,7 @@ const testConfig: QuizConfig = {
 /** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */
 export function startGame(
   harness: Harness,
-  options: { playerCount?: PlayerCount; playerLabels?: string[] } = {},
+  options: { playerCount?: PlayerCount; playerLabels?: string[]; flowProfile?: FlowProfile } = {},
 ): GameState {
   harness.dispatch({
     type: 'START_GAME',
@@ -191,8 +192,11 @@ export function startGame(
     presetId: 'medium',
     ...(options.playerCount === undefined ? {} : { playerCount: options.playerCount }),
     ...(options.playerLabels === undefined ? {} : { playerLabels: options.playerLabels }),
+    ...(options.flowProfile === undefined ? {} : { flowProfile: options.flowProfile }),
   })
-  harness.settle()
+  // Nur den Pausenscreen ablaufen lassen. Bei Selbstbedienung wuerde `settle()`
+  // das ganze Spiel durchspielen, weil dort jeder Uebergang eingeplant ist.
+  harness.advance(gameTiming.pauseScreenMs)
   return harness.state!
 }
 
