@@ -117,6 +117,32 @@ export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioM
 }
 
 /**
+ * Gibt alle Klangdateien wieder frei.
+ *
+ * WOFUER: Als Gast in einer fremden Anwendung wird das Quiz eingesetzt und
+ * wieder entfernt - womoeglich oft. Jedes `Audio`-Element haelt einen eigenen
+ * Puffer und ueberlebt das Entfernen der Komponente, weil es hier in einer Karte
+ * liegt und nicht im Baum. Ohne dieses Aufraeumen bliebe von jedem Besuch etwas
+ * zurueck.
+ *
+ * Danach klingt weiterhin alles: Beim naechsten Cue werden die Elemente neu
+ * angelegt. Verloren geht nur die Freigabe durch die Nutzerinteraktion - die
+ * Ansicht holt sie sich beim naechsten Einsetzen erneut.
+ */
+export function releaseAudio(): void {
+  for (const element of elements.values()) {
+    try {
+      element.pause()
+      element.removeAttribute('src')
+      element.load()
+    } catch {
+      // Aufraeumen darf nie blockieren.
+    }
+  }
+  elements.clear()
+}
+
+/**
  * Gibt die Tonausgabe frei.
  *
  * Browser erlauben Audio erst, nachdem in DIESEM Dokument eine Nutzerinteraktion

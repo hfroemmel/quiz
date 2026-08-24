@@ -9,12 +9,16 @@
  * Client das an den Server, damit der Operator eine verstaendliche Meldung und die
  * Aktion "Frage ueberspringen" bekommt.
  *
- * ABGESPIELT WIRD NUR AUF DER BUEHNE. Die Operatorvorschau zeigt denselben
- * Platzhalter in derselben Groesse, aber kein zweites Medium: Ein Video, das an
- * zwei Stellen laeuft, kostet Rechenzeit auf demselben Rechner, laeuft
- * unweigerlich auseinander und meldet Ladefehler doppelt. Was der Operator hier
- * braucht, ist die Komposition - gefahren wird das Video ueber seine Bedienleiste,
- * und was der Saal sieht, steht auf der Buehne.
+ * ABGESPIELT WIRD DORT, WO JEMAND ZUSCHAUT: auf der Buehne und am Touchgeraet.
+ * Die Operatorvorschau zeigt denselben Platzhalter in derselben Groesse, aber kein
+ * zweites Medium: Ein Video, das an zwei Stellen laeuft, kostet Rechenzeit auf
+ * demselben Rechner, laeuft unweigerlich auseinander und meldet Ladefehler
+ * doppelt. Was der Operator hier braucht, ist die Komposition - gefahren wird das
+ * Video ueber seine Bedienleiste, und was der Saal sieht, steht auf der Buehne.
+ *
+ * Am Touchgeraet gibt es keine Vorschau daneben: Dort IST diese Flaeche das Bild.
+ * Und es ist zugleich der Client, der die Laufzeit meldet - ohne ihn wuesste der
+ * Server im Selbstbedienungsbetrieb nicht, wann das Video zu Ende ist.
  */
 import { useEffect, useRef, useState } from 'react'
 import type { Command } from '@quiz/contracts'
@@ -31,7 +35,7 @@ export function VideoScene({ view, variant, isAudioMaster = true, onReport }: Vi
   const elementRef = useRef<HTMLVideoElement | null>(null)
   const question = view.question
   const video = view.video
-  const plays = variant === 'stage'
+  const plays = variant !== 'preview'
 
   /*
    * Der Browser hat die hoerbare Wiedergabe verweigert.

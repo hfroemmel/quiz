@@ -17,6 +17,37 @@
   display: flex;
   align-items: stretch;
 }
+/*
+ * Zeile als Schaltflaeche (Touchgeraet).
+ *
+ * Sie bringt KEINE eigene Gestaltung mit, sondern nimmt die Aufteilung der
+ * Buehnenzeile auf: Chip und Flaeche liegen genauso nebeneinander. So sehen die
+ * Zeilen an beiden Orten gleich aus, obwohl es hier eine Schaltflaeche ist.
+ *
+ * `touch-action: manipulation` nimmt die Wartezeit auf den Doppeltipp heraus -
+ * am Tisch wird schnell getippt, und eine halbe Sekunde Verzoegerung fuehlt sich
+ * an wie ein verschluckter Tipp.
+ */
+.touch {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.touch:disabled {
+  cursor: default;
+}
 .chip {
   display: flex;
   align-items: center;

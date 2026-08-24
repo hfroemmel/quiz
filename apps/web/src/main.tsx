@@ -11,6 +11,7 @@ import { OperatorApp } from './apps/operator/OperatorApp.tsx'
 import { StageApp } from './apps/stage/StageApp.tsx'
 import { ModeratorApp } from './apps/moderator/ModeratorApp.tsx'
 import { PreviewApp } from './apps/preview/PreviewApp.tsx'
+import { QuizGame } from './game/QuizGame.tsx'
 /*
  * Globale Stylesheets - bewusst KEINE Module.
  *
@@ -42,6 +43,27 @@ function App() {
       return <ModeratorApp />
     case '/preview':
       return <PreviewApp />
+    /*
+     * Selbstbedienung am Touchgeraet. Dieselbe Komponente betreibt der Kiosk und
+     * spaeter die Multigame-Anwendung; hier ist sie ueber den lokalen Server
+     * erreichbar und damit im Browser spielbar.
+     *
+     * Zwei Betriebsangaben kommen als Abfrageparameter, damit der Kiosk sein
+     * Fenster ohne eigenen Build einrichten kann:
+     *   ?mode=adults   Quizmodus des Geraets
+     *   ?idle=120      Leerlauf-Aufsicht in Sekunden
+     */
+    case '/play': {
+      const params = new URLSearchParams(window.location.search)
+      const mode = params.get('mode')
+      const idleSeconds = Number(params.get('idle'))
+      return (
+        <QuizGame
+          {...(mode ? { quizModeId: mode } : {})}
+          {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
+        />
+      )
+    }
     default:
       return <OperatorApp />
   }

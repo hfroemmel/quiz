@@ -45,6 +45,18 @@ export async function resetToStartPanel(operator: Page): Promise<void> {
   }
 }
 
+/**
+ * Alle Tests teilen sich einen Server. Ein Spiel aus einem frueheren Test wuerde
+ * die naechste Ansicht mit einer laufenden Partie begruessen statt mit dem
+ * Anfang - besonders die Spieleransicht, die keinen Operator hat, der das
+ * geradezieht.
+ */
+export async function resetServer(page: Page): Promise<void> {
+  const operator = await openOperator(await page.context().newPage())
+  await resetToStartPanel(operator)
+  await operator.close()
+}
+
 export async function startGame(
   operator: Page,
   options: { mode?: string; preset?: string; holdVideoIntro?: boolean } = {},

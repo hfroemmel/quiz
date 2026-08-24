@@ -1,0 +1,261 @@
+/*
+ * Das spielbare Quiz am Touchgeraet.
+ *
+ * DREI SCHICHTEN, EINE FLAECHE: oben die Leiste des Gegenuebers (gedreht), in der
+ * Mitte dieselbe Buehnenkomposition wie auf dem Beamer, unten die eigene Leiste.
+ * Im Einzelspiel entfaellt die obere.
+ *
+ * Groessen stehen in `clamp()` statt in festen Pixeln: Dasselbe Layout traegt vom
+ * 10-Zoll-Tablet bis zum grossen Touchtisch. Die Buehne in der Mitte rechnet
+ * dagegen weiter in `cqw` gegen sich selbst - sie ist ein eigener Container und
+ * bleibt davon unberuehrt.
+ *
+ * Farben kommen als Custom Properties aus dem Theme des Quizmodus; sie setzt die
+ * Komponente am eigenen Wurzelelement (`themeVariables`). Hier steht deshalb -
+ * wie ueberall - kein einziger Farbwert.
+ */
+
+/*
+ * Aussenkasten des Quiz.
+ *
+ * Er traegt nur die Flaeche und den Verbindungspunkt; die Gestaltung kommt aus
+ * der Buehne darin. Das ist zugleich die Zusage an den Gastgeber: Das Quiz
+ * bleibt in dem Kasten, den es bekommt.
+ */
+.game {
+  position: relative;
+  height: 100%;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  /* Ein Doppeltipp darf nicht zoomen und die Flaeche verschieben. */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Start- und Wartebild stehen ohne Buehne da und bringen ihren Grund mit. */
+.startScreen,
+.waiting {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+}
+
+.waiting {
+  align-items: center;
+  justify-content: center;
+}
+.startScreen {
+  justify-content: center;
+}
+
+/* Verbindungsverlust: derselbe dezente Punkt wie auf der Buehne. */
+.offline {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-incorrect);
+  opacity: 0.7;
+  z-index: 10;
+}
+
+/*
+ * Die Buehnenflaeche in der Mitte bekommt den Platz, der nach den Antwortleisten
+ * uebrig bleibt - und gibt ihn wieder her, wenn eine zweite Leiste dazukommt.
+ */
+.footer {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 24px);
+  padding: clamp(8px, 2vh, 20px) 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Antwortflaechen
+ * ------------------------------------------------------------------ */
+
+/*
+ * Die Zeilen selbst kommen aus `AnswerList` und sehen deshalb aus wie im Saal.
+ * Hier steht nur, was am Geraet anders ist: Die Leiste gibt nichts vom Platz her,
+ * jede Zeile ist mindestens daumengross, und der zweite Spieler sitzt gegenueber.
+ */
+/*
+ * Die Leiste steht INNERHALB der Buehnenflaeche (siehe `StageScreen.pads`).
+ * Zustaende, Buchstabenchip und Zeichnung bringen die Zeilen deshalb selbst mit;
+ * hier steht nur, was am Geraet dazukommt.
+ *
+ * SIE TEILT SICH DIE HOEHE MIT DER SZENE, statt eine feste Zeilenhoehe zu
+ * verlangen. Sonst entscheidet die Zahl der Spieler darueber, ob die Frage noch
+ * ins Bild passt: Zwei Leisten mit fester Hoehe lassen fuer die Frage nichts
+ * uebrig, und im Einzelspiel bliebe die halbe Flaeche leer.
+ */
+.pad {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  /* Etwas Luft zum Bildrand - sonst klebt die letzte Zeile an der Kante. */
+  padding: 1cqh var(--scene-pad);
+}
+.pad [data-answers] {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Der zweite Spieler sitzt gegenueber. */
+.mirrored {
+  transform: rotate(180deg);
+}
+
+/*
+ * Jede Zeile nimmt denselben Anteil - und mindestens so viel, dass sie am Tisch
+ * mit dem Daumen zu treffen ist.
+ */
+.pad [data-answer] {
+  flex: 1;
+  /*
+   * Die Untergrenze greift nur auf sehr flachen Geraeten. Sie muss deutlich
+   * unter dem gleichmaessigen Anteil liegen: Vier Zeilen, die zusammen mehr
+   * verlangen, als die Leiste hoch ist, laufen unten aus dem Bild - und dann
+   * fehlt ausgerechnet Antwort D.
+   */
+  min-height: 4cqh;
+}
+
+/* Antworten gerade nicht moeglich: Die ganze Leiste tritt zurueck. */
+.pad[data-enabled='false'] {
+  opacity: 0.55;
+}
+
+/* Sofortige Rueckmeldung auf den Tipp - vor jeder Serverantwort. */
+.pad [data-answer-button]:active:not(:disabled) [data-answer-surface] {
+  filter: brightness(1.25);
+}
+
+/* ------------------------------------------------------------------ *
+ * Startauswahl
+ * ------------------------------------------------------------------ */
+
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vh, 36px);
+  height: 100%;
+  padding: clamp(12px, 3vh, 40px);
+  text-align: center;
+}
+
+.visual {
+  max-height: 22vh;
+  max-width: 60vw;
+  object-fit: contain;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 5vh, 56px);
+  font-weight: 400;
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.5vh, 16px);
+  width: 100%;
+}
+
+.choiceLabel {
+  margin: 0;
+  font-size: clamp(14px, 2vh, 22px);
+  font-weight: 400;
+  color: var(--color-textMuted);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 20px);
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: clamp(120px, 22vw, 240px);
+  min-height: clamp(64px, 10vh, 110px);
+  padding: clamp(8px, 1.5vh, 18px) clamp(12px, 2vw, 28px);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  background: var(--color-tile);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: clamp(18px, 2.8vh, 32px);
+  cursor: pointer;
+}
+
+/* Die Auswahl ist der Zustand der Schaltflaeche, nicht eine zweite Markierung. */
+.option[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accentQuiet);
+}
+
+.hint {
+  font-family: var(--font-ui);
+  font-size: clamp(11px, 1.5vh, 16px);
+  color: var(--color-textMuted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 24px);
+}
+
+.go {
+  min-height: clamp(56px, 9vh, 96px);
+  padding: 0 clamp(24px, 5vw, 64px);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: var(--stage-inkOnStrong);
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 3.2vh, 38px);
+  cursor: pointer;
+}
+
+.go:disabled {
+  background: var(--color-tileDisabled);
+  color: var(--color-textMuted);
+  cursor: default;
+}
+
+.leave {
+  min-height: clamp(56px, 9vh, 96px);
+  padding: 0 clamp(16px, 3vw, 40px);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-tileQuiet);
+  color: var(--color-textMuted);
+  font-family: var(--font-heading);
+  font-size: clamp(16px, 2.4vh, 28px);
+  cursor: pointer;
+}
+
+/*
+ * Reduzierte Bewegung: Die Buehne regelt ihre Uebergaenge selbst; hier entfaellt
+ * nur die Tipp-Rueckmeldung, die sonst kurz aufblitzt.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .pad [data-answer-button]:active:not(:disabled) [data-answer-surface] {
+    filter: none;
+  }
+}

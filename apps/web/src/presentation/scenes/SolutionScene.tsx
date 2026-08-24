@@ -18,12 +18,13 @@
  * der Server ausschliesslich in dieser Szene mitsendet.
  */
 import { answerRows } from '../stage/answerState.ts'
+import { touchAnswers } from './sceneProps.ts'
 import { QuestionComposition } from '../stage/QuestionComposition.tsx'
 import type { AnswerRow } from '../stage/AnswerList.tsx'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
-export function SolutionScene({ view }: SceneProps) {
+export function SolutionScene({ view, variant }: SceneProps) {
   const solution = view.visibleSolution
   const question = view.question
   if (!solution || !question) return null
@@ -31,7 +32,11 @@ export function SolutionScene({ view }: SceneProps) {
   const options = view.visibleOptions ?? []
   const rows: AnswerRow[] =
     options.length > 0
-      ? answerRows(options, view.scene)
+      ? // Am Touchgeraet traegt die Antwortleiste die Loesungsfarbe; hier waeren
+        // dieselben vier Zeilen ein zweites Mal auf dem Tisch.
+        touchAnswers(variant)
+        ? []
+        : answerRows(options, view.scene)
       : // Freie Antwort - etwa beim Bilderkennen: eine Zeile, kein Buchstabe.
         [{ id: 'solution', text: solution.answerText, state: 'correct' }]
 

@@ -13,7 +13,7 @@
  * Uebergang doppelt ausloesen, weil der Uebergang an der Szenen-IDENTITAET haengt
  * (Szene + Transition-ID des Servers), nicht am Eintreffen einer Nachricht.
  */
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Command, PublicQuizViewModel } from '@quiz/contracts'
 import { useRevealClock } from '../client/useRevealClock.ts'
 import { playCue } from './soundCues.ts'
@@ -42,8 +42,11 @@ export interface StageScreenProps {
   isAudioMaster: boolean
   /** Der Buehnenclient darf ausschliesslich Medienstatus zurueckmelden. */
   onReport?: (command: Command) => void
-  /** Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
-  variant?: 'stage' | 'preview'
+  /**
+   * Dieselbe Komposition in einer anderen Flaeche: klein in der Operatorvorschau,
+   * zwischen den Antwortleisten am Touchgeraet.
+   */
+  variant?: 'stage' | 'preview' | 'touch'
   /**
    * Bedienelemente des Operators, die im Entwurf ueber der Flaeche liegen.
    *
@@ -51,6 +54,20 @@ export interface StageScreenProps {
    * Das Buehnenfenster uebergibt nichts und zeigt sie deshalb nie.
    */
   headerSlots?: StageHeaderSlots
+  /**
+   * Antwortflaechen der Spieler am Touchgeraet - oben die Leiste des
+   * Gegenuebers, unten die eigene.
+   *
+   * WARUM SIE IN DIE BUEHNE GEHOEREN und nicht darum herum: Die Antwortzeilen
+   * sind ein Buehnenbauteil. Ihre Zustaende, ihr Buchstabenchip und die
+   * gezeichneten Karten der Kinderwelt haengen alle an der Weltklasse, und ihre
+   * Groessen stehen in Containereinheiten der Buehnenflaeche. Ausserhalb stuenden
+   * sie ohne beides da - als nackter Text.
+   *
+   * Am Touchgeraet ist deshalb die GANZE Geraeteflaeche die Buehne; die Szene ist
+   * der Teil dazwischen.
+   */
+  pads?: { top?: ReactNode; bottom?: ReactNode }
 }
 
 export function StageScreen({
@@ -60,6 +77,7 @@ export function StageScreen({
   onReport,
   variant = 'stage',
   headerSlots,
+  pads,
 }: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
   const sceneProps: SceneProps = { view, reveal, serverNow, variant }
@@ -175,9 +193,13 @@ export function StageScreen({
 
         <StageHeader view={view} slots={headerSlots} />
 
+        {pads?.top}
+
         <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
           {renderScene(view, sceneProps, isAudioMaster, onReport)}
         </div>
+
+        {pads?.bottom}
 
         {/*
           * Figuren- und Koernungsebene. Beide sind reine Dekoration und stehen
