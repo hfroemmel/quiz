@@ -383,6 +383,9 @@ function buildSampleView(input: {
         ...base,
         phase: 'result',
         result: {
+          // Die Vorschau zeigt die Buehne des Zweikampfs; das Einzelspiel hat
+          // seine eigene Ergebnisszene und keinen Vorschaufall.
+          mode: 'duel',
           winnerPlayerId: input.draw ? null : 'player-1',
           isDraw: input.draw,
           scores,

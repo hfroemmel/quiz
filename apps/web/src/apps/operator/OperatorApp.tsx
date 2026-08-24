@@ -16,7 +16,7 @@ import { useBuzzerKeys } from '../../client/useBuzzerKeys.ts'
 import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import { useStageTheme } from '../../presentation/stageTheme.ts'
 import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
-import { unlockAudio } from '../../presentation/soundCues.ts'
+import { useAudioUnlock } from '../../presentation/useAudioUnlock.ts'
 import { requestStageFullscreen } from '../../client/desktopBridge.ts'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
 import { GameLogDialog } from './GameLogDialog.tsx'
@@ -38,7 +38,8 @@ import styles from './OperatorApp.module.css'
 
 export function OperatorApp() {
   const connection = useQuizConnection<OperatorQuizViewModel>('operator')
-  const { view, send, connected, lastRejection, clearRejection, serverNow, audioMaster } = connection
+  const { view, send, connected, lastRejection, clearRejection, serverNow, audioMaster, notifyAudioReady } =
+    connection
 
   // Der Hardware-Buzzer ist nur sinnvoll, solange ein Spiel laeuft. Die Entprellung
   // steckt im Hook; ueber Gueltigkeit entscheidet weiterhin der Server.
@@ -55,19 +56,8 @@ export function OperatorApp() {
   }, [view?.phase])
 
   // Browser erlauben Tonausgabe erst nach einer Nutzerinteraktion in diesem Fenster.
-  useEffect(() => {
-    const unlock = () => {
-      unlockAudio()
-      window.removeEventListener('pointerdown', unlock)
-      window.removeEventListener('keydown', unlock)
-    }
-    window.addEventListener('pointerdown', unlock)
-    window.addEventListener('keydown', unlock)
-    return () => {
-      window.removeEventListener('pointerdown', unlock)
-      window.removeEventListener('keydown', unlock)
-    }
-  }, [])
+  // Ohne geoeffnete Buehne - oder solange dort niemand geklickt hat - klingt es hier.
+  useAudioUnlock(notifyAudioReady)
 
   if (!view) {
     return (

@@ -146,7 +146,16 @@ test('der Buehnenscreen erhaelt die Loesung erst in der Loesungsszene', async ({
   await expect(stage.locator('[data-answer][data-state="correct"] [data-answer-text]')).toHaveText(privateAnswer)
 })
 
-test('ohne Buehnenfenster gibt der Operator den Ton aus und tritt ihn danach ab', async ({ page }) => {
+/*
+ * Die Tonhoheit folgt nicht der Rolle, sondern der Freigabe.
+ *
+ * Der Fall aus dem Betrieb: Buehne und Operator liefen im Browser, den Ton hatte
+ * die Buehne - und weil in DEREN Fenster nie jemand klickt, verweigerte der
+ * Browser dort jede Wiedergabe. Die Veranstaltung blieb still, ohne dass
+ * irgendwo ein Fehler zu sehen war. Seitdem bekommt die Buehne den Ton erst,
+ * wenn sie gemeldet hat, dass sie ihn ueberhaupt ausgeben darf.
+ */
+test('die Tonhoheit geht an das Fenster, das wirklich klingen darf', async ({ page }) => {
   const operator = await openOperator(page)
   const audioState = operator.locator('[data-diagnostics-facts] [data-audio-master]')
   await operator.locator('[data-diagnostics-summary]').click()
@@ -154,8 +163,12 @@ test('ohne Buehnenfenster gibt der Operator den Ton aus und tritt ihn danach ab'
   // Allein im Betrieb - sonst gaebe es ueberhaupt keinen Ton.
   await expect(audioState).toHaveAttribute('data-audio-master', 'true')
 
-  // Sobald die Buehne da ist, gehoert ihr der Ton. Es klingt immer nur ein Client.
+  // Ein blosses Buehnenfenster genuegt nicht: Dort wurde noch nicht geklickt.
   const stage = await openStage(await page.context().newPage())
+  await expect(audioState).toHaveAttribute('data-audio-master', 'true')
+
+  // Nach dem ersten Klick in der Buehne gehoert ihr der Ton. Es klingt immer nur ein Client.
+  await stage.locator('body').click({ position: { x: 5, y: 5 } })
   await expect(audioState).toHaveAttribute('data-audio-master', 'false')
 
   // Faellt die Buehne weg, uebernimmt der Operator wieder.

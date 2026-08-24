@@ -107,6 +107,65 @@
 .video {
   justify-content: center;
 }
+/*
+ * Platzhalter und Videoflaeche sind DASSELBE Rechteck.
+ *
+ * Es steht in der Operatorvorschau und auf der Buehne gleich - nur liegt auf der
+ * Buehne ein Medium darin. Deshalb bestimmt der Platzhalter die Groesse und
+ * nicht das Video: Sonst haette die Vorschau eine andere Komposition als der
+ * Saal, und waehrend des Ladens spraenge die Flaeche.
+ *
+ * Die Hoehe ist gedeckelt, damit das Rechteck nicht unter der Kopfzeile
+ * hervorwaechst; `aspect-ratio` gibt ihm die uebliche Breitbildform, in die sich
+ * jedes Seitenverhaeltnis einpasst.
+ */
+.videoFrame {
+  position: relative;
+  /*
+   * DIE HOEHE FUEHRT, DIE BREITE FOLGT. Die Szene ist eine Spalte: Ihre
+   * Hauptachse ist die Hoehe, ihre Querachse die Breite. `flex: 1` gibt dem
+   * Rechteck also die freie Hoehe, `width: auto` laesst der Browser aus dem
+   * Seitenverhaeltnis ausrechnen, und `align-self: center` haelt ihn davon ab,
+   * die Breite stattdessen aufzuziehen.
+   *
+   * Umgekehrt - Breite vorgeben, Hoehe begrenzen - geht NICHT: Ein Flex-Element
+   * wird in der Hauptachse geschrumpft, ohne dass die Breite mitgeht, und der
+   * Platzhalter haette eine andere Form als das Video darin.
+   */
+  flex: 1 1 auto;
+  min-height: 0;
+  width: auto;
+  align-self: center;
+  aspect-ratio: 16 / 9;
+  /*
+   * Die Breitengrenze muss als Hoehengrenze mitgeschrieben werden. Auf einer
+   * schmalen, hohen Flaeche waere sonst die Breite gekappt und die Hoehe stehen
+   * geblieben - ein hochkantes graues Feld mit einem Video quer darin.
+   */
+  max-width: 86cqw;
+  max-height: calc(86cqw * 9 / 16);
+  border-radius: 1.4cqw;
+  background: var(--color-tile);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/*
+ * `contain` statt `cover`: Ein Video wird nicht beschnitten. Was an den Seiten
+ * frei bleibt, zeigt den Platzhalter - das ist gewollt und sieht wie ein Rahmen aus.
+ */
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.videoMissing {
+  margin: 0;
+  color: var(--color-textMuted);
+  font-family: var(--font-heading);
+  font-size: 1.8cqw;
+}
 .videoError {
   color: var(--color-textMuted);
   font-size: 1.6cqw;
@@ -239,6 +298,7 @@
 :global(.stage--kids) .startTitle,
 :global(.stage--kids) .pausePlaceholder,
 :global(.stage--kids) .videoError,
+:global(.stage--kids) .videoMissing,
 :global(.stage--kids) .revealHint {
   font-family: var(--kids-hand);
   font-weight: 400;

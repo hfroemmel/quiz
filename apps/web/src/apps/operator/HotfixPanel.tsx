@@ -7,6 +7,12 @@
  *
  * "Erst beim naechsten Einsatz" ist der Standard. Nur mit "Jetzt uebernehmen" geht
  * eine Aenderung sofort auf den Buehnenscreen.
+ *
+ * KEIN EINGABEFELD FUER DEN GRUND. Das Protokoll haelt ohnehin fest, WAS sich
+ * geaendert hat - das ist die Auskunft, die der Aenderungsbericht braucht. Ein
+ * Freitextfeld mitten in der Show kostet Zeit, bleibt in der Praxis leer und
+ * stand zwischen Fragetext und Uebernehmen. Der Grund wird deshalb aus dem
+ * Vorgang abgeleitet.
  */
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
@@ -31,7 +37,6 @@ export function HotfixPanel({
   const [correctId, setCorrectId] = useState<string | null>(null)
   /** Freie Antwort - dasselbe Prinzip: leer heisst "unveraendert". */
   const [answerText, setAnswerText] = useState('')
-  const [reason, setReason] = useState('')
   const [immediate, setImmediate] = useState(false)
   const [confirmDisable, setConfirmDisable] = useState(false)
 
@@ -100,7 +105,7 @@ export function HotfixPanel({
             {canSkip && (
               <button
                 className="button"
-                onClick={() => send({ type: 'SKIP_QUESTION', reason: reason || 'Operator hat übersprungen' })}
+                onClick={() => send({ type: 'SKIP_QUESTION', reason: 'Operator hat übersprungen' })}
               >
                 Frage überspringen
               </button>
@@ -163,10 +168,6 @@ export function HotfixPanel({
                   />
                 </label>
               )}
-              <label className="field">
-                <span>Grund (wird protokolliert)</span>
-                <input value={reason} onChange={(event) => setReason(event.target.value)} />
-              </label>
               <label className="field field--checkbox">
                 <input type="checkbox" checked={immediate} onChange={(event) => setImmediate(event.target.checked)} />
                 <span>Jetzt übernehmen (auch auf dem laufenden Bühnenscreen)</span>
@@ -185,7 +186,7 @@ export function HotfixPanel({
                       ...(correctChanged && correctId ? { correctOptionId: correctId } : {}),
                       ...(answerChanged ? { acceptedAnswerText: acceptedEntries } : {}),
                     },
-                    reason: reason || 'Textkorrektur',
+                    reason: 'Textkorrektur',
                     applyMode,
                   })
                   setPrompt('')
@@ -210,7 +211,7 @@ export function HotfixPanel({
               type: 'APPLY_QUESTION_PATCH',
               questionId,
               changes: { enabled: false },
-              reason: reason || 'Frage fehlerhaft',
+              reason: 'Frage fehlerhaft',
               applyMode: 'next-use',
             })
             setConfirmDisable(false)

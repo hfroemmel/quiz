@@ -171,6 +171,43 @@ describe('Befehl, Transaktion und Verteilung', () => {
   })
 })
 
+describe('Videofrage', () => {
+  /*
+   * Die gemeldete Laufzeit ist nicht nur Zierde: Sie ist die einzige Obergrenze,
+   * die der Positionsregler des Operators hat. Fehlte sie in der Projektion,
+   * reichte der Regler nur bis zur bereits erreichten Stelle - vorwaerts springen
+   * waere unmoeglich, und zwar ohne dass irgendetwas nach einem Fehler aussieht.
+   */
+  it('reicht die vom Buehnenclient gemeldete Laufzeit an den Operator weiter', () => {
+    const target = rig()
+    expect(target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }).ok).toBe(true)
+    target.settle()
+    expect(target.service.authoritativeState?.phase).toBe('video-ready')
+    expect(target.service.snapshotFor('operator').video?.durationMs).toBeUndefined()
+
+    target.send({ type: 'REPORT_VIDEO_STATUS', durationMs: 42_000 }, 'system')
+
+    expect(target.service.snapshotFor('operator').video?.durationMs).toBe(42_000)
+    // Auch die Buehne bekommt sie - dieselbe Projektion fuer alle Rollen.
+    expect(target.service.snapshotFor('stage').video?.durationMs).toBe(42_000)
+  })
+
+  /*
+   * Eine Fehlermeldung des Clients bleibt eine Fehlermeldung: Sie setzt das Video
+   * zurueck, damit der Operator eine verstaendliche Lage und die Aktion
+   * "Frage ueberspringen" vorfindet.
+   */
+  it('haelt einen gemeldeten Medienfehler fest', () => {
+    const target = rig()
+    expect(target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }).ok).toBe(true)
+    target.settle()
+
+    target.send({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' }, 'system')
+
+    expect(target.service.snapshotFor('operator').video?.hasError).toBe(true)
+  })
+})
+
 describe('Selbstbedienung am Geraet', () => {
   /**
    * Startet ein Selbstbedienungsspiel so, wie es der Touchclient tut.

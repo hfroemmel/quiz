@@ -30,6 +30,13 @@ export interface QuizConnection<TView extends PublicQuizViewModel> {
   connected: boolean
   /** Nur ein Client spielt Sounds ab. */
   audioMaster: boolean
+  /**
+   * Meldet dem Server, dass dieses Fenster hoerbar Ton ausgeben darf.
+   *
+   * Der Server waehlt danach die Tonhoheit aus. Der Aufruf ist beliebig oft
+   * moeglich; nach einem Reconnect wird die Meldung selbsttaetig wiederholt.
+   */
+  notifyAudioReady(): void
   lastRejection: Rejection | null
   clearRejection(): void
   send(command: Command): void
@@ -55,6 +62,8 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
   const clockOffsetRef = useRef(0)
   const attemptRef = useRef(0)
   const closedByUsRef = useRef(false)
+  /** Einmal freigegebener Ton bleibt frei - die Meldung ueberlebt jeden Reconnect. */
+  const audioReadyRef = useRef(false)
 
   useEffect(() => {
     closedByUsRef.current = false
@@ -72,6 +81,9 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
         if (socketRef.current !== socket) return socket.close()
         attemptRef.current = 0
         setConnected(true)
+        // Der Server fuehrt die Freigabe je Verbindung - nach einem Reconnect
+        // weiss er nichts mehr davon und wuerde sonst wieder stumm schalten.
+        if (audioReadyRef.current) socket.send(JSON.stringify({ type: 'audio-ready' }))
       })
 
       socket.addEventListener('message', (event) => {
@@ -178,12 +190,18 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
     )
   }, [role])
 
+  const notifyAudioReady = useCallback(() => {
+    audioReadyRef.current = true
+    const socket = socketRef.current
+    if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'audio-ready' }))
+  }, [])
+
   const serverNow = useCallback(() => Date.now() + clockOffsetRef.current, [])
   const clearRejection = useCallback(() => setLastRejection(null), [])
 
   return useMemo(
-    () => ({ view, connected, audioMaster, lastRejection, clearRejection, send, serverNow }),
-    [view, connected, audioMaster, lastRejection, clearRejection, send, serverNow],
+    () => ({ view, connected, audioMaster, notifyAudioReady, lastRejection, clearRejection, send, serverNow }),
+    [view, connected, audioMaster, notifyAudioReady, lastRejection, clearRejection, send, serverNow],
   )
 }
 

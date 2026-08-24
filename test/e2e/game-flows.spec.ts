@@ -5,7 +5,7 @@
  * DevTools. Damit belegen sie zugleich das Abnahmekriterium "Ein vollstaendiges Spiel
  * mit sieben Fragen kann ohne manuellen Eingriff durchgefuehrt werden".
  */
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import {
   buzz,
   continueGame,
@@ -245,10 +245,13 @@ test.describe('Bilderkennen', () => {
     await expectPhase(operator, 'video-ready')
 
     /*
-     * Springen im Video. Der Regler reicht heute nur bis zur bereits erreichten
-     * Stelle bzw. eine Sekunde - die Spieldauer steht im Zustand nicht zur
-     * Verfuegung. Geprueft wird deshalb, dass der Befehl ankommt und der Server
-     * die Position uebernimmt, nicht eine bestimmte Sprungweite.
+     * Springen im Video. Der Regler reicht bis zu der Laufzeit, die der
+     * Buehnenclient gemeldet hat - ohne sie nur bis zur bereits erreichten Stelle
+     * bzw. eine Sekunde. In dieser Testumgebung laesst sich die Datei nicht
+     * dekodieren, es gibt also keine Laufzeit; geprueft wird deshalb, dass der
+     * Befehl ankommt und der Server die Position uebernimmt. Dass die gemeldete
+     * Laufzeit wirklich beim Operator ankommt, haelt
+     * `packages/runtime/test/service.test.ts` fest.
      */
     const seek = operator.locator('[data-controls] input[type="range"]')
     await seek.fill('1000')
@@ -274,6 +277,54 @@ test.describe('Bilderkennen', () => {
     await continueGame(operator)
     await expect(operator.locator('[data-counter-value]')).toContainText('2/7')
     await expect(operator.locator('.stage').first()).toHaveAttribute('data-presentation', 'person')
+  })
+
+  /*
+   * Die Fragenkorrektur hat KEIN Feld fuer den Grund mehr. Es stand mitten im
+   * Formular, blieb in der Praxis leer, und was sich geaendert hat, steht ohnehin
+   * im Protokoll. Der Test haelt die Entfernung fest, damit sie nicht beim
+   * naechsten Ausbau des Formulars zurueckkommt.
+   */
+  test('die Fragenkorrektur fragt nicht nach einem Grund', async ({ page }) => {
+    const operator = await openOperator(page)
+    await startGame(operator)
+
+    await operator.getByRole('button', { name: 'Fehlerhafte Frage korrigieren' }).click()
+    await expect(operator.getByText('Fragetext')).toBeVisible()
+    await expect(operator.getByText('Grund')).toHaveCount(0)
+  })
+
+  /*
+   * Der Platzhalter steht in BEIDEN Ansichten und in derselben Form; abgespielt
+   * wird nur auf der Buehne.
+   *
+   * Ein zweites Medium in der Operatorvorschau liefe auf demselben Rechner mit,
+   * ginge unweigerlich auseinander und meldete jeden Ladefehler ein zweites Mal.
+   * Was der Operator hier braucht, ist die Komposition - gefahren wird das Video
+   * ueber seine Bedienleiste, und was der Saal sieht, steht auf der Buehne.
+   *
+   * Dieser Test ist bewusst von Fall 7 getrennt: Sobald eine Buehne offen ist,
+   * meldet sie in dieser Testumgebung den Dekodierfehler, und der Server setzt
+   * das Video zurueck. Der Ablauf laesst sich dann nicht mehr fahren - die
+   * Aufteilung der Flaechen dagegen schon.
+   */
+  test('das Video laeuft nur auf der Buehne, der Operator sieht den Platzhalter', async ({ page }) => {
+    const operator = await openOperator(page)
+    const stage = await openStage(await page.context().newPage())
+    await startGame(operator, { holdVideoIntro: true })
+    await expectPhase(operator, 'video-ready')
+
+    await expect(stage.locator('[data-video-placeholder]')).toBeVisible()
+    await expect(operator.locator('[data-video-placeholder]')).toBeVisible()
+    await expect(stage.locator('video')).toHaveCount(1)
+    await expect(operator.locator('video')).toHaveCount(0)
+
+    // Dieselbe Form in beiden Ansichten - nur in unterschiedlicher Groesse.
+    const shape = async (target: Page) => {
+      const box = await target.locator('[data-video-placeholder]').boundingBox()
+      return Number((box!.width / box!.height).toFixed(2))
+    }
+    expect(await shape(stage)).toBe(await shape(operator))
   })
 
   test('6 - nach Ablauf des Countdowns bleibt Buzzern erlaubt', async ({ page }) => {

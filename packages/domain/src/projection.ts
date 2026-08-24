@@ -195,6 +195,9 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
       ? {
           status: state.video.status,
           positionMs: videoPositionMs(state, ctx.nowMs),
+          // Erst die gemeldete Laufzeit macht den Positionsregler des Operators
+          // brauchbar - ohne sie reicht er nur bis zur bereits erreichten Stelle.
+          durationMs: state.video.durationMs,
           hasError: Boolean(state.video.error),
         }
       : undefined,

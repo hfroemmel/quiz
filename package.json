@@ -8,7 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "typecheck": "tsc -b --force tsconfig.json",
+    "typecheck": "tsc -b --force tsconfig.json && tsc -p apps/web/tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
@@ -26,7 +26,7 @@
     "build": "pnpm palette:build && pnpm content:validate && pnpm --filter @quiz/web build",
     "build:dev": "pnpm palette:build && pnpm content:validate:dev && pnpm --filter @quiz/web build",
     "build:desktop": "pnpm build && pnpm --filter @quiz/desktop build",
-    "lint": "tsc -b --force tsconfig.json",
+    "lint": "pnpm typecheck",
     "desktop:rebuild-native": "pnpm --filter @quiz/desktop rebuild:native",
     "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs"
   },

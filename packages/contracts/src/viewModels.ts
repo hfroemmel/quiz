@@ -96,6 +96,14 @@ export interface PublicRevealState {
 export interface PublicVideoState {
   status: 'idle' | 'playing' | 'paused' | 'ended'
   positionMs: number
+  /**
+   * Laufzeit des Mediums, sobald der Buehnenclient sie gemeldet hat.
+   *
+   * Sie steht hier, weil der Operator ohne sie NICHT VORWAERTS SPRINGEN kann:
+   * Sein Regler braucht eine obere Grenze, und die kannte bisher nur der
+   * Buehnenclient. Vor der ersten Meldung bleibt sie offen.
+   */
+  durationMs?: number
   hasError: boolean
 }
 
@@ -327,5 +335,14 @@ export type ServerMessage =
 export type ClientMessage =
   | { type: 'command'; envelope: unknown }
   | { type: 'ping'; sentAtMs: number }
+  /**
+   * Dieses Fenster darf hoerbar Ton ausgeben.
+   *
+   * Browser sperren die Tonausgabe, bis in DEM Fenster einmal geklickt oder
+   * getippt wurde. Ohne diese Meldung koennte der Server die Tonhoheit einem
+   * Fenster geben, das gar nicht klingen darf - dann bleibt die ganze
+   * Veranstaltung still, ohne dass jemand einen Fehler sieht.
+   */
+  | { type: 'audio-ready' }
 
 export const PROTOCOL_VERSION = 1

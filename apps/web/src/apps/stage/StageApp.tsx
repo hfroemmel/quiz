@@ -14,11 +14,12 @@ import type { PublicQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection.ts'
 import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
 import styles from './StageApp.module.css'
-import { unlockAudio } from '../../presentation/soundCues.ts'
+import { useAudioUnlock } from '../../presentation/useAudioUnlock.ts'
 import { toggleOwnFullscreen } from '../../client/desktopBridge.ts'
 
 export function StageApp() {
-  const { view, send, connected, audioMaster, serverNow } = useQuizConnection<PublicQuizViewModel>('stage')
+  const { view, send, connected, audioMaster, notifyAudioReady, serverNow } =
+    useQuizConnection<PublicQuizViewModel>('stage')
 
   // Vollbild direkt am Buehnenrechner: Taste F oder Doppelklick.
   useEffect(() => {
@@ -30,24 +31,12 @@ export function StageApp() {
   }, [])
 
   /*
-   * Die Tonhoheit liegt normalerweise hier. Im Browser bleibt die Ausgabe aber
-   * gesperrt, bis in DIESEM Fenster einmal geklickt oder getippt wurde - deshalb
-   * dieselbe Freigabe wie im Operatorfenster. In der Desktop-Anwendung ist die
-   * Wiedergabe ohnehin erlaubt; der Aufruf ist dort wirkungslos.
+   * Die Tonhoheit liegt normalerweise hier - aber nur, wenn dieses Fenster auch
+   * wirklich klingen darf. Die Freigabe und ihre Meldung an den Server stehen im
+   * Hook; in der Desktop-Anwendung ist sie sofort da, im Browser nach dem ersten
+   * Klick in DIESEM Fenster.
    */
-  useEffect(() => {
-    const unlock = () => {
-      unlockAudio()
-      window.removeEventListener('pointerdown', unlock)
-      window.removeEventListener('keydown', unlock)
-    }
-    window.addEventListener('pointerdown', unlock)
-    window.addEventListener('keydown', unlock)
-    return () => {
-      window.removeEventListener('pointerdown', unlock)
-      window.removeEventListener('keydown', unlock)
-    }
-  }, [])
+  useAudioUnlock(notifyAudioReady)
 
   if (!view) {
     return (

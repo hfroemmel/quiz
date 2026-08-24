@@ -14,6 +14,7 @@ import type { Server } from 'node:http'
 import { WebSocketServer, type WebSocket } from 'ws'
 import { PROTOCOL_VERSION, type ClientMessage, type ClientRole, type ServerMessage } from '@quiz/contracts'
 import type { QuizService } from '@quiz/runtime'
+import { chooseAudioMaster } from './audioMaster.ts'
 import { checkAccess, isLoopback } from './network.ts'
 
 interface Connection {
@@ -22,6 +23,13 @@ interface Connection {
   role: ClientRole
   /** Nur ein Client spielt Sounds ab, damit sie nicht mehrfach zeitversetzt kommen. */
   audioMaster: boolean
+  /**
+   * Der Client hat gemeldet, dass sein Fenster hoerbar Ton ausgeben darf.
+   *
+   * Bis dahin gilt er als stumm: Ein Browserfenster ohne Nutzerinteraktion
+   * verweigert jede Wiedergabe, und ein stummer Master ist so gut wie kein Master.
+   */
+  audioReady: boolean
   isLocal: boolean
 }
 
@@ -60,7 +68,14 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
   })
 
   function register(socket: WebSocket, role: ClientRole, local: boolean): void {
-    const connection: Connection = { socket, clientId: `${role}-${randomUUID()}`, role, audioMaster: false, isLocal: local }
+    const connection: Connection = {
+      socket,
+      clientId: `${role}-${randomUUID()}`,
+      role,
+      audioMaster: false,
+      audioReady: false,
+      isLocal: local,
+    }
     connections.add(connection)
     service.registerClient(connection.clientId, role === 'stage' ? 'system' : role)
     assignAudioMaster()
@@ -84,6 +99,15 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
         return
       }
       if (message.type === 'ping') return
+      if (message.type === 'audio-ready') {
+        // Die Meldung kommt nach jedem Verbindungsaufbau erneut; der Server fuehrt
+        // dazu keinen Verlauf, sondern nur den aktuellen Stand je Verbindung.
+        if (!connection.audioReady) {
+          connection.audioReady = true
+          assignAudioMaster()
+        }
+        return
+      }
       if (message.type !== 'command') return
 
       // Der Buehnenclient darf ausschliesslich Medienstatus melden - keine Steuerbefehle.
@@ -131,22 +155,12 @@ export function attachWebSocketServer(httpServer: Server, service: QuizService, 
     })
   }
 
-  /**
-   * Waehlt genau einen Audio-Master.
-   *
-   * Reihenfolge: lokaler Buehnenclient, sonst irgendein Buehnenclient, sonst der
-   * Operator. Der letzte Schritt ist wichtig fuer Proben und fuer den Betrieb im
-   * reinen Browser: Ohne geoeffnetes Buehnenfenster gaebe es sonst ueberhaupt
-   * keinen Ton. Sobald eine Buehne dazukommt, gibt der Operator die Tonhoheit
-   * wieder ab - es klingt immer nur genau ein Client.
-   */
+  /** Setzt die Wahl aus `chooseAudioMaster` durch und meldet jede Aenderung. */
   function assignAudioMaster(): void {
     const candidates = [...connections].filter(
       (connection) => connection.role === 'stage' || connection.role === 'operator',
     )
-    const stages = candidates.filter((connection) => connection.role === 'stage')
-    const pool = stages.length > 0 ? stages : candidates.filter((connection) => connection.role === 'operator')
-    const preferred = pool.find((connection) => connection.isLocal) ?? pool[0]
+    const preferred = chooseAudioMaster(candidates)
     for (const connection of candidates) {
       const shouldBeMaster = connection === preferred
       if (connection.audioMaster !== shouldBeMaster) {
