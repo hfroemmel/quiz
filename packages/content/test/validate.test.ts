@@ -13,6 +13,12 @@ function fullColorSet(): Record<string, string> {
   return Object.fromEntries(designColorTokens.map((token) => [token, '#000000']))
 }
 
+/**
+ * Fragenplatz der Testkonfiguration - vor der Schemapruefung, deshalb bewusst
+ * offen: Jeder Test kombiniert die Filter, die er braucht.
+ */
+type TestSlot = { id: string; label?: string; filters: Record<string, unknown> }
+
 const baseConfig = {
   questionsPerGame: 2,
   difficulties: [{ id: 'easy', label: 'Leicht' }],
@@ -25,7 +31,7 @@ const baseConfig = {
       slots: [
         { id: 'text', filters: { presentationTypes: ['text-choice'] } },
         { id: 'bild', filters: { presentationTypes: ['image-reveal'] } },
-      ],
+      ] as TestSlot[],
     },
   ],
   modes: [{ id: 'adults', label: 'Erwachsene', questionFilter: {}, themeId: 'default', allowedPresetIds: ['standard'] }],
@@ -209,6 +215,21 @@ describe('Inhaltswarnungen', () => {
       revealQuestion,
     ])
     expect(result.warnings.some((issue) => issue.code === 'similar-without-group')).toBe(false)
+  })
+
+  it('meldet, ob ein Preset am Touchgeraet spielbar ist', () => {
+    const touchSlot = (id: string): TestSlot => ({ id, filters: { evaluationModes: ['option-comparison'] } })
+    const touchPreset = { id: 'touch', label: 'Touch', slots: [touchSlot('a'), touchSlot('b')] }
+    const result = validate([question({ id: 'q1' }), question({ id: 'q2' }), revealQuestion], {
+      presets: [...baseConfig.presets, touchPreset],
+      modes: [{ ...baseConfig.modes[0]!, allowedPresetIds: ['standard', 'touch'] }],
+    })
+
+    const standard = result.coverage.find((entry) => entry.presetId === 'standard')!
+    const touch = result.coverage.find((entry) => entry.presetId === 'touch')!
+    // Das Buehnenpreset enthaelt einen Bilderkennen-Platz mit muendlicher Antwort.
+    expect(standard.selfServiceCapable).toBe(false)
+    expect(touch.selfServiceCapable).toBe(true)
   })
 
   it('berechnet Poolabdeckung und moegliche Spiele ohne Wiederholung', () => {

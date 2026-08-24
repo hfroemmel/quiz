@@ -166,12 +166,32 @@ export const questionSlotRuleSchema = z.object({
     .object({
       difficultyIds: z.array(idSchema).optional(),
       presentationTypes: z.array(z.enum(questionPresentationTypes)).optional(),
+      /**
+       * Bewertungsverfahren. Ein Fragenplatz fuer das Touchgeraet filtert auf
+       * `option-comparison`: Eine muendlich zu bewertende Frage koennte dort
+       * niemand aufloesen.
+       */
+      evaluationModes: z.array(z.enum(evaluationModes)).optional(),
       categoryIds: z.array(idSchema).optional(),
       tags: z.array(idSchema).optional(),
     })
     .default({}),
 })
 export type QuestionSlotRule = z.infer<typeof questionSlotRuleSchema>
+
+/**
+ * Taugt dieses Preset fuer die Selbstbedienung am Touchgeraet?
+ *
+ * Nur wenn JEDER Fragenplatz ausschliesslich auswertbare Fragen zulaesst. Das
+ * wird aus den Filtern abgeleitet und nicht zusaetzlich erklaert: Eine zweite
+ * Angabe koennte von den Filtern abweichen, und dann waere unklar, welche gilt.
+ */
+export function isSelfServicePreset(preset: DifficultyPreset): boolean {
+  return preset.slots.every(
+    (slot) =>
+      slot.filters.evaluationModes?.length === 1 && slot.filters.evaluationModes[0] === 'option-comparison',
+  )
+}
 
 export const difficultyPresetSchema = z.object({
   id: idSchema,

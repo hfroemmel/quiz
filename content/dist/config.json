@@ -488,6 +488,305 @@
           "filters": {}
         }
       ]
+    },
+    {
+      "id": "touch-easy",
+      "label": "Leicht",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "difficultyIds": [
+              "easy",
+              "medium"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "vertiefung",
+          "label": "Vertiefung",
+          "filters": {
+            "difficultyIds": [
+              "easy",
+              "medium"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "mittelfeld",
+          "label": "Mittelfeld",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "bildwissen",
+          "label": "Bildwissen",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "finale",
+          "label": "Finale",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch-medium",
+      "label": "Mittel",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "easy"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "vertiefung",
+          "label": "Vertiefung",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "steigerung",
+          "label": "Steigerung",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "bildwissen",
+          "label": "Bildwissen",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "finale",
+          "label": "Finale",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "touch-hard",
+      "label": "Schwer",
+      "slots": [
+        {
+          "id": "einstieg",
+          "label": "Einstieg",
+          "filters": {
+            "difficultyIds": [
+              "medium"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "wissen",
+          "label": "Wissen",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "bildauswahl",
+          "label": "Bildauswahl",
+          "filters": {
+            "difficultyIds": [
+              "medium",
+              "hard"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "vertiefung",
+          "label": "Vertiefung",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "steigerung",
+          "label": "Steigerung",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "bildwissen",
+          "label": "Bildwissen",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ],
+            "presentationTypes": [
+              "image-choice"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        },
+        {
+          "id": "finale",
+          "label": "Finale",
+          "filters": {
+            "difficultyIds": [
+              "hard"
+            ],
+            "evaluationModes": [
+              "option-comparison"
+            ]
+          }
+        }
+      ]
     }
   ],
   "modes": [
@@ -502,7 +801,10 @@
         "easy",
         "medium",
         "hard",
-        "mixed"
+        "mixed",
+        "touch-easy",
+        "touch-medium",
+        "touch-hard"
       ]
     },
     {
@@ -513,7 +815,9 @@
       "startVisualAssetId": "start-kids",
       "allowedPresetIds": [
         "easy",
-        "mixed"
+        "mixed",
+        "touch-easy",
+        "touch-medium"
       ]
     },
     {

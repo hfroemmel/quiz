@@ -31,6 +31,7 @@ import {
   type PrivateSolution,
   type ActorRole,
   type PlayerQuizViewModel,
+  isSelfServicePreset,
 } from '@quiz/contracts'
 import { activePlayerId } from './buzzer.ts'
 import { allowedCommandsForRole } from './allowedCommands.ts'
@@ -227,7 +228,27 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
   return {
     ...projectPublic(state, ctx),
     allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
-    catalog: buildCatalog(ctx),
+    catalog: buildPlayerCatalog(ctx),
+  }
+}
+
+/**
+ * Katalog fuer das Touchgeraet: nur Presets, die dort auch spielbar sind, und nur
+ * Modi, die mindestens eines davon erlauben.
+ *
+ * Damit steht am Geraet keine Schwierigkeitsstufe zur Wahl, die auf halber
+ * Strecke einen Operator braeuchte - und der Client muss nichts darueber wissen.
+ */
+function buildPlayerCatalog(ctx: ProjectionContext): CatalogViewModel {
+  const full = buildCatalog(ctx)
+  const playable = new Set(ctx.config.presets.filter(isSelfServicePreset).map((preset) => preset.id))
+
+  return {
+    ...full,
+    presets: full.presets.filter((preset) => playable.has(preset.id)),
+    modes: full.modes
+      .map((mode) => ({ ...mode, allowedPresetIds: mode.allowedPresetIds.filter((id) => playable.has(id)) }))
+      .filter((mode) => mode.allowedPresetIds.length > 0),
   }
 }
 

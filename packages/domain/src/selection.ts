@@ -108,9 +108,10 @@ function matchesLegacyModes(question: Question, legacyModes: string[] | undefine
 /** Erfuellt die Frage alle Filter des Fragenplatzes? Fehlender Filter = beliebig. */
 export function matchesSlot(question: Question, slot: QuestionSlotRule): boolean {
   if (!question.enabled) return false
-  const { difficultyIds, presentationTypes, categoryIds, tags } = slot.filters
+  const { difficultyIds, presentationTypes, evaluationModes, categoryIds, tags } = slot.filters
   if (difficultyIds?.length && !difficultyIds.includes(question.difficultyId)) return false
   if (presentationTypes?.length && !presentationTypes.includes(question.presentationType)) return false
+  if (evaluationModes?.length && !evaluationModes.includes(question.evaluationMode)) return false
   if (categoryIds?.length && !categoryIds.some((id) => question.categoryIds.includes(id))) return false
   if (tags?.length && !tags.every((tag) => question.tags.includes(tag))) return false
   return true

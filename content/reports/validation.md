@@ -13,6 +13,7 @@ Ergebnis: BESTANDEN (0 Fehler, 85 Warnungen)
 ## Poolabdeckung pro Fragenplatz
 ### Modus "adults" / Preset "easy"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
@@ -23,6 +24,7 @@ Spiele ohne Wiederholung: 1
 
 ### Modus "adults" / Preset "medium"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
@@ -33,6 +35,7 @@ Spiele ohne Wiederholung: 1
 
 ### Modus "adults" / Preset "hard"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 25 Kandidaten, 24 Wiederholungsgruppen
@@ -43,6 +46,7 @@ Spiele ohne Wiederholung: 1
 
 ### Modus "adults" / Preset "mixed"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 6 Kandidaten, 6 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 47 Kandidaten, 46 Wiederholungsgruppen
@@ -51,8 +55,42 @@ Spiele ohne Wiederholung: 1
 - Platz 6 "bildauswahl": 84 Kandidaten, 84 Wiederholungsgruppen
 - Platz 7 "finale": 145 Kandidaten, 144 Wiederholungsgruppen
 
+### Modus "adults" / Preset "touch-easy"
+Spiele ohne Wiederholung: 19
+Fuer das Touchgeraet geeignet: ja
+- Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
+- Platz 2 "wissen": 19 Kandidaten, 19 Wiederholungsgruppen
+- Platz 3 "bildauswahl": 54 Kandidaten, 54 Wiederholungsgruppen
+- Platz 4 "vertiefung": 61 Kandidaten, 61 Wiederholungsgruppen
+- Platz 5 "mittelfeld": 39 Kandidaten, 39 Wiederholungsgruppen
+- Platz 6 "bildwissen": 35 Kandidaten, 35 Wiederholungsgruppen
+- Platz 7 "finale": 76 Kandidaten, 76 Wiederholungsgruppen
+
+### Modus "adults" / Preset "touch-medium"
+Spiele ohne Wiederholung: 19
+Fuer das Touchgeraet geeignet: ja
+- Platz 1 "einstieg": 22 Kandidaten, 22 Wiederholungsgruppen
+- Platz 2 "wissen": 39 Kandidaten, 39 Wiederholungsgruppen | konkurriert mit: steigerung
+- Platz 3 "bildauswahl": 35 Kandidaten, 35 Wiederholungsgruppen
+- Platz 4 "vertiefung": 76 Kandidaten, 76 Wiederholungsgruppen | konkurriert mit: finale
+- Platz 5 "steigerung": 39 Kandidaten, 39 Wiederholungsgruppen | konkurriert mit: wissen
+- Platz 6 "bildwissen": 65 Kandidaten, 65 Wiederholungsgruppen
+- Platz 7 "finale": 76 Kandidaten, 76 Wiederholungsgruppen | konkurriert mit: vertiefung
+
+### Modus "adults" / Preset "touch-hard"
+Spiele ohne Wiederholung: 12
+Fuer das Touchgeraet geeignet: ja
+- Platz 1 "einstieg": 39 Kandidaten, 39 Wiederholungsgruppen
+- Platz 2 "wissen": 76 Kandidaten, 76 Wiederholungsgruppen
+- Platz 3 "bildauswahl": 65 Kandidaten, 65 Wiederholungsgruppen
+- Platz 4 "vertiefung": 37 Kandidaten, 37 Wiederholungsgruppen | konkurriert mit: steigerung, finale
+- Platz 5 "steigerung": 37 Kandidaten, 37 Wiederholungsgruppen | konkurriert mit: vertiefung, finale
+- Platz 6 "bildwissen": 30 Kandidaten, 30 Wiederholungsgruppen
+- Platz 7 "finale": 37 Kandidaten, 37 Wiederholungsgruppen | konkurriert mit: vertiefung, steigerung
+
 ### Modus "kids" / Preset "easy"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
@@ -63,6 +101,7 @@ Spiele ohne Wiederholung: 1
 
 ### Modus "kids" / Preset "mixed"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 17 Kandidaten, 17 Wiederholungsgruppen
@@ -71,8 +110,31 @@ Spiele ohne Wiederholung: 1
 - Platz 6 "bildauswahl": 39 Kandidaten, 39 Wiederholungsgruppen
 - Platz 7 "finale": 58 Kandidaten, 58 Wiederholungsgruppen
 
+### Modus "kids" / Preset "touch-easy"
+Spiele ohne Wiederholung: 12
+Fuer das Touchgeraet geeignet: ja
+- Platz 1 "einstieg": 14 Kandidaten, 14 Wiederholungsgruppen
+- Platz 2 "wissen": 12 Kandidaten, 12 Wiederholungsgruppen
+- Platz 3 "bildauswahl": 32 Kandidaten, 32 Wiederholungsgruppen
+- Platz 4 "vertiefung": 34 Kandidaten, 34 Wiederholungsgruppen
+- Platz 5 "mittelfeld": 20 Kandidaten, 20 Wiederholungsgruppen
+- Platz 6 "bildwissen": 20 Kandidaten, 20 Wiederholungsgruppen
+- Platz 7 "finale": 27 Kandidaten, 27 Wiederholungsgruppen
+
+### Modus "kids" / Preset "touch-medium"
+Spiele ohne Wiederholung: 10
+Fuer das Touchgeraet geeignet: ja
+- Platz 1 "einstieg": 14 Kandidaten, 14 Wiederholungsgruppen
+- Platz 2 "wissen": 20 Kandidaten, 20 Wiederholungsgruppen | konkurriert mit: steigerung
+- Platz 3 "bildauswahl": 20 Kandidaten, 20 Wiederholungsgruppen
+- Platz 4 "vertiefung": 27 Kandidaten, 27 Wiederholungsgruppen | konkurriert mit: finale
+- Platz 5 "steigerung": 20 Kandidaten, 20 Wiederholungsgruppen | konkurriert mit: wissen
+- Platz 6 "bildwissen": 27 Kandidaten, 27 Wiederholungsgruppen
+- Platz 7 "finale": 27 Kandidaten, 27 Wiederholungsgruppen | konkurriert mit: vertiefung
+
 ### Modus "saarbruecken" / Preset "regional"
 Spiele ohne Wiederholung: 1
+Fuer das Touchgeraet geeignet: nein (enthaelt Fragen, die ein Mensch bewerten muss)
 - Platz 1 "test-video": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 2 "test-person": 1 Kandidaten, 1 Wiederholungsgruppen
 - Platz 3 "bilderkennen": 14 Kandidaten, 14 Wiederholungsgruppen
