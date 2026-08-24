@@ -89,17 +89,17 @@
   --kids-pad: 1.8cqw;
   --kids-gap: 1cqw;
   /* Sichtbare Fuge zwischen Foto und Fragetafel - sie duerfen sich nie beruehren. */
-  --kids-stage-gap: 1.4cqw;
+  --kids-stage-gap: 2.5cqw;
   /* Luecke zwischen Buchstabenchip und Antwortkarte. */
   --kids-chip-gap: 0.9cqw;
   --kids-content-width: 75%;
 
   /* Schriftgroessen des Assetpakets, in Containereinheiten. */
-  --kids-size-question: 2.6cqw;
-  --kids-size-answer: 1.75cqw;
-  --kids-size-category: 1.15cqw;
+  --kids-size-question: 2.8cqw;
+  --kids-size-answer: 2.1cqw;
+  --kids-size-category: 1.75cqw;
   --kids-size-score: 3.4cqw;
-  --kids-size-label: 0.95cqw;
+  --kids-size-label: 1.25cqw;
 
   --kids-motion-normal: 260ms;
   --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);

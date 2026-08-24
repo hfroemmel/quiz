@@ -22,7 +22,7 @@
 .category {
   margin: 0 0 0.6cqw;
   font-family: var(--font-ui);
-  font-size: 1.15cqw;
+  font-size: var(--kids-size-category);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--color-accent);

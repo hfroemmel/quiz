@@ -11,7 +11,6 @@ export function PauseScene({ view }: SceneProps) {
   const logo = view.theme.startVisualUrl ?? view.theme.logoUrl
   return (
     <div className={`${styles.scene} ${styles.pause}`}>
-      {logo ? <img className={styles.pauseLogo} src={logo} alt="" /> : <div className={styles.pausePlaceholder}>Quiz</div>}
       {view.progress.total > 0 && (
         <p className={styles.pauseProgress}>
           Frage {Math.min(view.progress.current, view.progress.total)} von {view.progress.total}

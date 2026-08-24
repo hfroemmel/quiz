@@ -26,6 +26,12 @@
   padding: var(--scene-pad);
 }
 
+:global(.stage--scene-reveal) .scene {
+  flex-direction: row;
+  align-items: flex-start;
+  padding-top: 6cqw;
+}
+
 .start {
   justify-content: center;
   --scene-gap: 0;
@@ -46,9 +52,7 @@
 .pause {
   justify-content: center;
 }
-.pauseLogo {
-  opacity: 0.35;
-}
+
 .pauseProgress {
   color: var(--color-text);
   font-family: var(--font-heading);
@@ -121,7 +125,6 @@
    * wird in der Hauptachse geschrumpft, ohne dass die Breite mitgeht, und der
    * Platzhalter haette eine andere Form als das Video darin.
    */
-  flex: 1 1 auto;
   min-height: 0;
   width: auto;
   align-self: center;
@@ -131,8 +134,7 @@
    * schmalen, hohen Flaeche waere sonst die Breite gekappt und die Hoehe stehen
    * geblieben - ein hochkantes graues Feld mit einem Video quer darin.
    */
-  max-width: 86cqw;
-  max-height: calc(86cqw * 9 / 16);
+  width: 65cqw;
   border-radius: 1.4cqw;
   background: var(--color-tile);
   overflow: hidden;
@@ -267,7 +269,7 @@
   --scene-align: flex-start;
   --scene-text-align: left;
   /* Die Kopfzeile bringt ihren eigenen oberen Abstand mit. */
-  padding-top: var(--kids-gap);
+  padding-top: 2cqw;
 }
 :global(.stage--kids) .solutionLabel {
   font-family: var(--kids-hand);
