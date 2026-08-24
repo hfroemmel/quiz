@@ -10,7 +10,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { resolveAssetPath } from '@quiz/content'
-import type { QuizService } from './quizService.ts'
+import type { QuizService } from '@quiz/runtime'
 import { placeholderSvg } from './placeholderMedia.ts'
 import { isLoopback } from './network.ts'
 

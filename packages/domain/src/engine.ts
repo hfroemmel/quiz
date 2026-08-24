@@ -309,7 +309,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'RESET_GAME_STATISTICS':
     case 'APPLY_QUESTION_PATCH':
       // Betriebs- und Wiederherstellungsbefehle sind bewusst keine Spielregeln.
-      // Sie werden in der Anwendungsschicht (`@quiz/server`) behandelt, weil sie
+      // Sie werden in der Anwendungsschicht (`@quiz/runtime`) behandelt, weil sie
       // Inhalt, Datenbank und Veranstaltungstag betreffen - nicht den Spielablauf.
       return reject('unknown-command', 'Dieser Befehl wird nicht von der Spiel-Engine verarbeitet.')
 

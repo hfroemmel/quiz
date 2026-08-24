@@ -1,25 +1,28 @@
 # @quiz/server
 
-**Verantwortung:** Anwendungsschicht des lokalen Quizservers. Verbindet Engine,
-Inhalt, Persistenz und Zeit. Enthaelt selbst **keine** Spielregeln.
+**Verantwortung:** Transportadapter des Buehnenbetriebs. Er liefert die Clients aus,
+verteilt Snapshots und regelt den Zugriff im LAN.
+
+Die Befehlsverarbeitung selbst steht in `@quiz/runtime`; dieses Paket haengt nur
+HTTP und WebSocket davor. Spielregeln enthaelt es erst recht keine.
 
 | Datei | Verantwortung |
 |---|---|
-| `quizService.ts` | Befehlsverarbeitung, Idempotenz, Revision, Timer, Wiederherstellung, Snapshots |
-| `contentService.ts` | Quizpaket laden, Hotfix-Overlay, `QuestionSource` fuer die Engine, Asset-URLs |
 | `httpServer.ts` | Auslieferung der Clients, Medien, Session- und Exportendpunkte |
 | `wsServer.ts` | WebSocket: Rollenpruefung, Snapshots, Befehle, Audio-Master |
 | `network.ts` | Session-Code, Loopback-Erkennung, LAN-Adressen, Zugriffsregeln |
-| `startServer.ts` | Zusammenbau und Start |
+| `placeholderMedia.ts` | Ersatzbild fuer fehlende Mediendateien |
+| `startServer.ts` | Laufzeit starten, HTTP und WebSocket anhaengen, Port oeffnen |
 | `main.ts` | Einstiegspunkt `pnpm server` |
 
-**Abhaengigkeiten:** `@quiz/contracts`, `@quiz/domain`, `@quiz/content`,
-`@quiz/persistence`, `ws`.
+**Abhaengigkeiten:** `@quiz/runtime` (Anwendungsschicht), `@quiz/contracts`,
+`@quiz/content`, `@quiz/persistence`, `ws`.
 
 ## Verarbeitungsreihenfolge
 
-1. Schema (Zod) → 2. Idempotenz (`commandId`) → 3. Rolle → 4. Revision →
-5. Domain-Engine → 6. eine Datenbanktransaktion → 7. Broadcast
+Sie steht in `@quiz/runtime`: Schema → Idempotenz → Rolle → Revision →
+Domain-Engine → eine Datenbanktransaktion. Erst danach verteilt dieser Adapter
+die neuen Snapshots.
 
 ## Zugriffsregeln
 

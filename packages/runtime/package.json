@@ -1,0 +1,16 @@
+{
+  "name": "@quiz/runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Anwendungsschicht: Befehlsverarbeitung, Inhaltszugriff, Timer und Projektion - ohne Transport",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@quiz/content": "workspace:*",
+    "@quiz/contracts": "workspace:*",
+    "@quiz/domain": "workspace:*",
+    "@quiz/persistence": "workspace:*"
+  }
+}

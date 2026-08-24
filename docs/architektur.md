@@ -3,9 +3,11 @@
 ## Schichten und Abhaengigkeitsrichtung
 
 ```text
-UI (React) / Electron / Serveradapter
+UI (React) / Electron
         ↓
-Application Services  (packages/server)
+Transportadapter      (packages/server: HTTP, WebSocket)
+        ↓
+Application Services  (packages/runtime)
         ↓
 Domain und Contracts  (packages/domain, packages/contracts)
 
@@ -24,7 +26,8 @@ alle Regeltests mit Fake-Clock und ohne UI.
 | `@quiz/domain` | Zustandsmaschine, Scoring, Buzzerregeln, Fragenauswahl, Projektion | Dateisystem, Netzwerk, Zeitquelle |
 | `@quiz/content` | Legacy-Import, Validierung, Paketbau, Hotfix-Overlay | Spielregeln, Netzwerk |
 | `@quiz/persistence` | SQLite-Schema, Migrationen, transaktionale Uebernahme | Spielregeln |
-| `@quiz/server` | Befehlsverarbeitung, Sitzungen, WebSocket, Auslieferung, Timer | Spielregeln (delegiert an Domain) |
+| `@quiz/runtime` | Befehlsverarbeitung, Idempotenz, Timer, Wiederherstellung, Inhaltszugriff, Snapshots | Transport, Oberflaeche, Spielregeln (delegiert an Domain) |
+| `@quiz/server` | HTTP-Auslieferung, WebSocket-Verteilung, Sitzungen und Zugriffsregeln | Befehlsverarbeitung (delegiert an Runtime) |
 | `apps/web` | Rendern von View-Modellen, Senden von Befehlen, Praesentation | Spielregeln |
 | `apps/desktop` | Fenster, Displays, Preload-Bruecke, Prozessstart | Spielregeln |
 
@@ -77,6 +80,6 @@ letzte konsistente Zustand erhalten und der Operator bekommt eine Klartextmeldun
 
 | Port | Definiert in | Implementiert von |
 |---|---|---|
-| `QuestionSource` | `packages/domain/src/engine.ts` | `packages/server/src/contentService.ts` |
+| `QuestionSource` | `packages/domain/src/engine.ts` | `packages/runtime/src/contentService.ts` |
 | Zeit (`nowMs`) | `EngineContext` | Server bzw. Fake-Clock in Tests |
 | Zufall (`Rng`) | `packages/domain/src/selection.ts` | Server bzw. `createSeededRng` in Tests |

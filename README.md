@@ -81,7 +81,8 @@ packages/
   domain/      Spielregeln: Zustandsmaschine, Scoring, Buzzer, Fragenauswahl
   content/     Quizdaten: Legacy-Import, Validierung, Pakete, Hotfix-Overlay
   persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme
-  server/      lokaler Server: Befehlsverarbeitung, Sitzungen, WebSocket, Auslieferung
+  runtime/     Anwendungsschicht: Befehlsverarbeitung, Timer, Wiederherstellung
+  server/      Transport des Buehnenbetriebs: HTTP-Auslieferung und WebSocket
 content/
   source/      redaktionelle Quelle (JSON) und Medien
   dist/        gebautes, versioniertes Quizpaket - einzige Laufzeitquelle
