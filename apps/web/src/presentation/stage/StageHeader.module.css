@@ -53,6 +53,21 @@
   top: 2cqw;
 }
 
+/*
+ * Am Touchgeraet steht in der Kopfzeile nur die Wortmarke: Punkte und Zaehler
+ * sind unten bei den Buzzern. Sie darf deshalb nicht mehr aus der Zeile
+ * herausgeloest sein - ohne Karten haette die Kopfzeile sonst keine Hoehe, und
+ * die Szene liefe darueber hinweg.
+ */
+:global(.stage--default.stage--touch) .header {
+  justify-content: flex-start;
+  padding: 2cqh 4cqw 0;
+}
+:global(.stage--default.stage--touch) .brand {
+  position: static;
+  width: 13cqw;
+}
+
 /* ------------------------------------------------------------------ *
  * Kinderwelt: alles steht in der Zeile, in drei Spalten
  * ------------------------------------------------------------------ */

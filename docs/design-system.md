@@ -290,6 +290,13 @@ Drei Namensraeume, drei Zustaendigkeiten:
 | `--stage-*` | der Lage, nicht dem Thema - in jedem Modus gleich | `--stage-inkOnStrong` |
 | `--ui-*` | dem Bedienrahmen - bleibt dunkel, egal welcher Modus laeuft | `--ui-surface` |
 
+Zu `--stage-*` gehoeren auch `--stage-playerOne` und `--stage-playerTwo`, die
+beiden Spielerfarben des Touchgeraets: Rot links, Blau rechts. Sie wechseln
+bewusst NICHT mit dem Modus - an ihnen erkennt ein Spieler seine Ecke, und
+gehoerte sie in einem anderen Modus einer anderen Farbe, schluege er daneben.
+Aus je einer Farbe leitet das Stylesheet alles Weitere ab: Der Grund des Buzzers
+ist derselbe Ton, in den Buehnengrund gemischt.
+
 Die drei Modi der Startansicht (`Kinder`, `Erwachsene`, `Saarbruecken`) kommen aus
 `catalog.modes`. Das Layout ist auf drei Eintraege ausgelegt; mehr Eintraege
 laufen in eine zweite Zeile, statt die Leiste zu stauchen.
@@ -464,6 +471,7 @@ Nur sechs Stylesheets sind global, und jedes aus einem Grund:
 | `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
 | `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
 | `Buzzer` | Meldeflaeche eines Spielers am Touchgeraet | links, rechts; frei, am Zug, zurueckgenommen |
+| `PlayerFoot` | Fussleiste des Touchgeraets: beide Spielerecken und der Zaehler | - |
 
 Am Touchgeraet sind die Zeilen der `AnswerList` Schaltflaechen - dieselbe Liste,
 nur mit `onSelect`. Es gibt bewusst keine zweite Zeilenkomponente fuer das
@@ -475,7 +483,22 @@ am Geraet etwas zum Treffen. Sie bekommt deshalb deutlich mehr Polsterung nach
 oben und unten - ueber `padding` und nicht ueber eine feste Zeilenhoehe, damit
 eine zweizeilige Antwort mitwaechst statt aus ihrer Kachel zu laufen. Der
 Buchstabe wird entsprechend breiter, sonst stuende er als schmaler Streifen
-neben einer breiten Kachel.
+neben einer breiten Kachel. In der Kinderwelt entfaellt das: Die gezeichnete
+Karte ist ohnehin daumengross und bringt ihre Hoehe selbst mit.
+
+### Die Szene am Touchgeraet
+
+Unter der Szene liegt dort die Fussleiste, es bleibt also eine Flaeche, die viel
+breiter als hoch ist. Alle Buehnenmasse stehen aber in Containereinheiten und
+sind fuer 16:9 entworfen - in einem flachen Kasten waechst jedes `cqw`-Mass
+gegenueber der verfuegbaren Hoehe, bis Bild und Frage die Antworten
+hinausdruecken.
+
+Die Szene behaelt deshalb ihr Seitenverhaeltnis, nimmt sich davon die Hoehe und
+ist zugleich ihr eigener Container (`container-type: size`). Im Zentrum gilt
+damit GENAU dieselbe Komposition wie im Saal, nur kleiner; was rechts und links
+uebrig bleibt, ist ihr Rand. Kein Bauteil braucht ein zweites Mass fuer das
+Geraet.
 
 Jedes Bauteil kennt nur Tokens und seine eigenen Varianten. Kein Bauteil liest
 das View-Modell, keines sendet Befehle, und keines kennt den Namen eines Modus.

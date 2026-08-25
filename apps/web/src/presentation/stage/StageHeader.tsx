@@ -11,6 +11,10 @@
  * In der Ergebnisansicht entfallen Karten und Zaehler - die Werte stehen dort
  * gross in der Szene. Die Slots bleiben an ihrer Stelle, damit die
  * Korrekturtasten des Operators nicht wandern.
+ *
+ * AM TOUCHGERAET BLEIBT NUR DIE WORTMARKE. Dort stehen Punkte und Zaehler unten
+ * bei den Buzzern, weil sie zu der Ecke gehoeren, in der der Spieler steht -
+ * dieselben Bauteile, nur an einem anderen Platz (`game/PlayerFoot.tsx`).
  */
 import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
@@ -26,11 +30,19 @@ export interface StageHeaderSlots {
   afterPlayerTwo?: ReactNode
 }
 
-export function StageHeader({ view, slots }: { view: PublicQuizViewModel; slots?: StageHeaderSlots }) {
+export function StageHeader({
+  view,
+  slots,
+  variant,
+}: {
+  view: PublicQuizViewModel
+  slots?: StageHeaderSlots
+  variant?: 'stage' | 'preview' | 'touch'
+}) {
   // Die Startansicht hat weder Punktestand noch Zaehler - und keine Korrektur.
   if (view.scene === 'start') return null
 
-  const showsScores = view.scene !== 'result' && view.playerScores.length > 0
+  const showsScores = variant !== 'touch' && view.scene !== 'result' && view.playerScores.length > 0
   const showsCounter = showsScores && view.progress.total > 0
   const [playerOne, playerTwo] = view.playerScores
 

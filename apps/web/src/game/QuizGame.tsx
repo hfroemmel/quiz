@@ -7,7 +7,7 @@
  *
  * Die Flaeche in der Mitte ist DIESELBE Komposition wie auf dem Beamer
  * (`StageScreen`). Diese Ansicht ergaenzt nur, was es dort nicht gibt: die
- * Buzzer der Spieler links und rechts und die Auswahl davor.
+ * Fussleiste mit den beiden Spielerecken und die Auswahl davor.
  *
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
@@ -17,8 +17,8 @@ import { useQuizConnection } from '../client/useQuizConnection.ts'
 import { StageScreen, themeVariables } from '../presentation/StageScreen.tsx'
 import { releaseAudio } from '../presentation/soundCues.ts'
 import { useAudioUnlock } from '../presentation/useAudioUnlock.ts'
-import { Buzzer } from './Buzzer.tsx'
 import { GameStart } from './GameStart.tsx'
+import { PlayerFoot } from './PlayerFoot.tsx'
 import { assignedPlayer, canAnswer } from './answering.ts'
 import { useHostVisible } from './useHostVisible.ts'
 import { useIdleWatch } from './useIdleWatch.ts'
@@ -250,21 +250,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
         },
       }
 
-  const buzzer = (index: 0 | 1, side: 'left' | 'right') => {
-    const player = players[index]
-    // Im Einzelspiel gibt es nichts zu erstreiten, und nach dem Spiel niemanden.
-    if (finished || !player || players.length < 2) return undefined
-    return (
-      <Buzzer
-        playerId={player.playerId}
-        label={player.label}
-        side={side}
-        enabled={!turn && canAnswer(view, player.playerId)}
-        armed={turn === player.playerId}
-        onBuzz={setBuzzed}
-      />
-    )
-  }
+
 
   return (
     <div className={styles.game} data-quiz-game="" onPointerDown={idle.notice}>
@@ -282,9 +268,6 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
         variant="touch"
         {...(answering ? { answering } : {})}
         pads={{
-          // Beide Spieler stehen nebeneinander: jeder Buzzer an seiner Seite.
-          ...(buzzer(0, 'left') ? { left: buzzer(0, 'left') } : {}),
-          ...(buzzer(1, 'right') ? { right: buzzer(1, 'right') } : {}),
           bottom: finished ? (
             <div className={styles.footer}>
               <button type="button" className={styles.go} onClick={() => setShowChoice(true)}>
@@ -296,7 +279,14 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
                 </button>
               )}
             </div>
-          ) : undefined,
+          ) : (
+            <PlayerFoot
+              view={view}
+              turn={turn}
+              canBuzz={(playerId) => canAnswer(view, playerId)}
+              onBuzz={setBuzzed}
+            />
+          ),
         }}
       />
     </div>

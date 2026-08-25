@@ -76,76 +76,107 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buzzer
+ * Fussleiste: die beiden Spielerecken und der Zaehler
  * ------------------------------------------------------------------ */
 
 /*
- * Die beiden Buzzer stehen INNERHALB der Buehnenflaeche (siehe
- * `StageScreen.pads`) und rechnen deshalb wie alles dort in Containereinheiten:
- * Dieselbe Aufteilung traegt vom Tablet bis zum grossen Touchtisch.
+ * Die Leiste steht INNERHALB der Buehnenflaeche (siehe `StageScreen.pads`) und
+ * rechnet deshalb wie alles dort in Containereinheiten: Dieselbe Aufteilung
+ * traegt vom Tablet bis zum grossen Touchtisch.
  *
- * SIE HABEN EINE FESTE BREITE, die Szene bekommt den Rest. Waeren sie
- * mitwachsende Flexkinder, schoebe eine lange Frage sie zusammen - und die
- * Trefferflaeche, auf die es beim Buzzern allein ankommt, haenge am Fragetext.
+ * SIE GIBT NICHTS HER. Die Szene darueber ist nachgiebig - eine lange Frage
+ * verkleinert sich, bevor die Hand des Spielers weniger Platz bekommt.
  */
-.buzzer {
+.foot {
   flex: 0 0 auto;
-  width: 16cqw;
-  margin: 2cqh 1.5cqw;
+  position: relative;
+  z-index: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1cqh;
-  border: 0.4cqh solid transparent;
-  border-radius: var(--stage-radius);
-  background: var(--color-tile);
-  color: var(--color-text);
-  font-family: var(--font-heading);
-  cursor: pointer;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2cqw;
+  padding: 0 4cqw 3cqh;
 }
 
-.buzzerLabel {
-  font-size: 2.4cqw;
-  line-height: 1.2;
-  text-align: center;
+.corner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2cqh;
+  width: 17cqw;
+}
+/* Die Karte des zweiten Spielers steht in ihrer Ecke aussen. */
+.corner[data-corner='right'] {
+  align-items: flex-end;
 }
 
 /*
- * Der Zuschlag ist geholt: Diese Seite ist am Zug, die andere tritt zurueck.
- * Beides steht am Buzzer und nicht nur an den Antworten - wer gedrueckt hat,
- * schaut zuerst auf seine eigene Flaeche.
+ * Der Buzzer.
+ *
+ * Grosse Flaeche, ein Wort, die Farbe des Spielers: Wer buzzert, schaut dabei
+ * auf die Frage und nicht auf seine Hand, und die Ecke muss sich blind treffen
+ * lassen.
+ *
+ * Der Grund ist derselbe Spielerton, in den Buehnengrund gemischt - dunkel
+ * genug, dass die weisse Schrift traegt, und ohne einen zweiten Farbwert.
+ * Die Kante darum ist der reine Ton: Sie sagt, wem die Ecke gehoert.
  */
+.buzzer {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 14cqh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.35cqh solid var(--player-color);
+  border-radius: var(--stage-radius);
+  background: color-mix(in srgb, var(--player-color) 30%, var(--color-stageBottom));
+  color: var(--stage-inkOnStrong);
+  font-family: var(--font-ui);
+  font-size: 1.5cqw;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.buzzer[data-side='left'] {
+  --player-color: var(--stage-playerOne);
+}
+.buzzer[data-side='right'] {
+  --player-color: var(--stage-playerTwo);
+}
+
+/* Der Zuschlag ist geholt: Die Flaeche brennt durch, die Kante wird breiter. */
 .buzzer[data-armed='true'] {
-  border-color: var(--color-accent);
-  background: var(--color-accentQuiet);
+  background: color-mix(in srgb, var(--player-color) 75%, var(--color-stageBottom));
 }
 
 /* Buzzern gerade nicht moeglich - der Zug ist vergeben oder die Frage laeuft noch. */
 .buzzer[data-enabled='false'][data-armed='false'] {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: default;
 }
 
 /* Sofortige Rueckmeldung auf den Druck - vor jeder Serverantwort. */
 .buzzer:active:not(:disabled) {
-  filter: brightness(1.25);
+  filter: brightness(1.3);
 }
 
 /*
  * Kinderwelt: dieselbe gezeichnete Karte wie eine Antwort.
  *
- * Eine glatte Flaeche in `--color-tile` verschwaende dort fast - der Grund ist
- * helles Papier, und das Kachelcremeweiss liegt kaum darueber. Die Zeichnung
- * kommt aus demselben Boxenpaket wie die Antwortkarten; die rote Variante
- * markiert den Zuschlag, so wie sie in den Antworten die Auswahl markiert.
+ * Eine glatte Flaeche verschwaende dort fast - der Grund ist helles Papier. Die
+ * Zeichnung kommt aus demselben Boxenpaket wie die Antwortkarten; die rote
+ * Variante markiert den Zuschlag, so wie sie in den Antworten die Auswahl
+ * markiert.
  */
 :global(.stage--kids) .buzzer {
   border: 0;
   background: none;
   position: relative;
   isolation: isolate;
+  color: var(--kids-ink);
   font-family: var(--kids-hand);
+  letter-spacing: 0.08em;
 }
 :global(.stage--kids) .buzzer::before {
   content: '';
@@ -164,7 +195,7 @@
 :global(.stage--kids) .buzzer[data-armed='true']::before {
   border-image-source: url('/assets/kinderquiz/boxes/answer-box-b.svg');
 }
-:global(.stage--kids) .buzzer[data-armed='true'] .buzzerLabel {
+:global(.stage--kids) .buzzer[data-armed='true'] {
   color: var(--stage-inkOnStrong);
 }
 

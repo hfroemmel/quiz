@@ -55,18 +55,18 @@ export interface StageScreenProps {
    */
   headerSlots?: StageHeaderSlots
   /**
-   * Bedienflaechen des Touchgeraets: die Buzzer der beiden Spieler links und
-   * rechts der Szene, darunter der Abschluss des Ergebnisses.
+   * Fussleiste des Touchgeraets: die beiden Spielerecken mit Punkten und
+   * Buzzern, nach dem Spiel der Abschluss.
    *
-   * WARUM SIE IN DIE BUEHNE GEHOEREN und nicht darum herum: Sie tragen die
+   * WARUM SIE IN DIE BUEHNE GEHOERT und nicht darum herum: Sie traegt die
    * Farben und Groessen der Buehne - beides steht in Custom Properties und
-   * Containereinheiten der Buehnenflaeche. Ausserhalb stuenden sie ohne beides
+   * Containereinheiten der Buehnenflaeche. Ausserhalb stuende sie ohne beides
    * da.
    *
    * Am Touchgeraet ist deshalb die GANZE Geraeteflaeche die Buehne; die Szene
-   * ist der Teil dazwischen.
+   * ist der Teil ueber der Leiste.
    */
-  pads?: { left?: ReactNode; right?: ReactNode; bottom?: ReactNode }
+  pads?: { bottom?: ReactNode }
   /** Nur am Touchgeraet: macht die Antwortzeilen der Szene zu Schaltflaechen. */
   answering?: SceneAnswering
 }
@@ -199,19 +199,10 @@ export function StageScreen({
           />
         )}
 
-        <StageHeader view={view} slots={headerSlots} />
+        <StageHeader view={view} slots={headerSlots} variant={variant} />
 
-        {/*
-          * Eine Reihe, drei Plaetze: Buzzer, Szene, Buzzer. Auf dem Beamer sind
-          * die beiden aeusseren leer, und die Reihe ist dann nichts weiter als
-          * der Kasten, in dem die Szene ohnehin stuende.
-          */}
-        <div className={stage.sceneRow}>
-          {pads?.left}
-          <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
-            {renderScene(view, sceneProps, isAudioMaster, onReport)}
-          </div>
-          {pads?.right}
+        <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
+          {renderScene(view, sceneProps, isAudioMaster, onReport)}
         </div>
 
         {pads?.bottom}

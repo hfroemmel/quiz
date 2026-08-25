@@ -107,26 +107,62 @@ test('Duell: zwei Buzzer, und wer zuerst drueckt, bekommt die Antworten', async 
   await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'buzzer-open')
 })
 
-test('die Szene bleibt zwischen den Buzzern, und nichts ueberdeckt sich', async ({ page }) => {
+test('die Szene bleibt ueber der Fussleiste - in jeder Aufloesung', async ({ page }) => {
   /*
-   * Die Buzzer haben eine feste Breite, die Szene bekommt den Rest. Waeren sie
-   * mitwachsende Flexkinder, schoebe eine lange Frage sie zusammen - oder die
-   * Antwortzeilen liefen unter einen Buzzer, und der Tipp landete auf der
-   * falschen Flaeche.
+   * Die Fussleiste gibt nichts her: Sie traegt Punktestand und Buzzer, und die
+   * Hand des Spielers darf nicht kleiner werden, weil eine Frage lang ist.
+   * Nachgiebig ist die Szene darueber. Laeuft sie trotzdem hinein, verschwindet
+   * ausgerechnet Antwort D hinter einer Punktekarte - ohne dass etwas nach
+   * einem Fehler aussieht.
+   *
+   * Geprueft wird in allen Zielformaten: Die Flaeche ueber der Leiste ist viel
+   * breiter als hoch, und genau dort rechnen sich Groessen in Containerbreiten
+   * am leichtesten aus dem Bild.
    */
   await startGame(page, 'Zu zweit')
 
-  const links = (await page.locator('[data-buzzer][data-side="left"]').boundingBox())!
-  const rechts = (await page.locator('[data-buzzer][data-side="right"]').boundingBox())!
-  const buehne = (await page.locator('.stage').boundingBox())!
+  for (const [breite, hoehe] of [
+    [1920, 1080],
+    [1280, 720],
+    [1024, 768],
+  ]) {
+    await page.setViewportSize({ width: breite, height: hoehe })
+    // Ein Frame fuer den Umbruch - die Frage misst sich nach der Groesse neu.
+    await page.waitForTimeout(300)
 
-  const zeilen = await page.locator('[data-answer]').all()
-  expect(zeilen.length).toBeGreaterThanOrEqual(4)
-  for (const zeile of zeilen) {
-    const box = (await zeile.boundingBox())!
-    expect(Math.round(box.x)).toBeGreaterThanOrEqual(Math.round(links.x + links.width))
-    expect(Math.round(box.x + box.width)).toBeLessThanOrEqual(Math.round(rechts.x))
-    expect(Math.round(box.y + box.height)).toBeLessThanOrEqual(Math.round(buehne.y + buehne.height))
+    const fuss = (await page.locator('[data-player-foot]').boundingBox())!
+    const zeilen = await page.locator('[data-answer]').all()
+    expect(zeilen.length, `${breite}x${hoehe}`).toBeGreaterThanOrEqual(4)
+    for (const zeile of zeilen) {
+      const box = (await zeile.boundingBox())!
+      expect(Math.round(box.y + box.height), `${breite}x${hoehe}`).toBeLessThanOrEqual(Math.round(fuss.y))
+    }
+  }
+})
+
+test('Punkte und Zaehler stehen unten bei den Buzzern, nicht in der Kopfzeile', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+
+  const fuss = page.locator('[data-player-foot]')
+  await expect(fuss.locator('[data-score]')).toHaveCount(2)
+  await expect(fuss.locator('[data-counter]')).toHaveCount(1)
+  // Die Kopfzeile traegt am Geraet nur noch die Wortmarke.
+  await expect(page.locator('header [data-score]')).toHaveCount(0)
+  await expect(page.locator('[data-brand]')).toBeVisible()
+
+  /*
+   * Jede Ecke gehoert einem Spieler: Die Punktekarte steht ueber SEINEM Buzzer
+   * und auf derselben Seite. Daran - und nicht am Lesen - erkennt er im Spiel,
+   * wo er hinschlagen muss.
+   */
+  for (const [seite, nummer] of [
+    ['left', '1'],
+    ['right', '2'],
+  ]) {
+    const karte = (await page.locator(`[data-score][data-player="${nummer}"]`).boundingBox())!
+    const buzzer = (await page.locator(`[data-buzzer][data-side="${seite}"]`).boundingBox())!
+    expect(Math.round(karte.x), seite).toBe(Math.round(buzzer.x))
+    expect(karte.y + karte.height, seite).toBeLessThanOrEqual(buzzer.y + 1)
   }
 })
 

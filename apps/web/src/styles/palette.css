@@ -33,6 +33,8 @@
   --stage-inkOnStrong: #ffffff;
   --stage-edge: rgb(255 255 255 / 0.22);
   --stage-inkOutline: #000000;
+  --stage-playerOne: #b03a3a;
+  --stage-playerTwo: #3742a8;
   --ui-page: #0d0f13;
   --ui-surface: #171b21;
   --ui-surface-quiet: #12151a;

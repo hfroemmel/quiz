@@ -192,6 +192,21 @@ export const stageExtras = {
    * stellenweise verschwinden - im Saal aus zwanzig Metern zuerst.
    */
   inkOutline: '#000000',
+  /**
+   * Die beiden Spielerfarben des Touchgeraets.
+   *
+   * Sie gehoeren KEINEM Modus: Rot links, Blau rechts ist die aelteste Art,
+   * zwei Seiten auseinanderzuhalten, und muss in jeder Farbwelt dieselbe
+   * bleiben. Wechselte sie mit dem Modus, gehoerte die eigene Ecke am Geraet
+   * ploetzlich einer anderen Farbe - und genau daran orientiert sich, wer
+   * gleich auf seinen Buzzer schlaegt.
+   *
+   * Aus diesen beiden Werten leitet sich alles Weitere im Stylesheet ab: Der
+   * dunkle Grund des Buzzers ist derselbe Ton, in den Buehnengrund gemischt.
+   * Deshalb steht hier je Spieler genau EINE Farbe.
+   */
+  playerOne: '#b03a3a',
+  playerTwo: '#3742a8',
 } as const
 
 /* ------------------------------------------------------------------ *

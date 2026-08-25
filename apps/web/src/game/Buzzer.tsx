@@ -1,10 +1,9 @@
 /**
  * Buzzer eines Spielers am Touchgeraet.
  *
- * Er ersetzt die frueheren Antwortleisten: Beide Spieler stehen nebeneinander
- * vor demselben Bildschirm, jeder hat seine Flaeche an seiner Seite, und die
- * vier Antworten stehen genau einmal in der Mitte. Wer zuerst drueckt, bekommt
- * sie.
+ * Beide Spieler stehen nebeneinander vor demselben Bildschirm; jeder hat seine
+ * Ecke unten an seiner Seite, und die vier Antworten stehen genau einmal in der
+ * Mitte. Wer zuerst drueckt, bekommt sie.
  *
  * WARUM DER ZUSCHLAG HIER FAELLT und nicht auf dem Server: Beide Buzzer liegen
  * auf EINEM Geraet, es gibt also kein Rennen zwischen zwei Clients, das ein
@@ -12,10 +11,9 @@
  * er bekommt mit der Antwort auch den Spieler und weist sie ab, wenn dieser
  * nicht antworten darf.
  *
- * Die Flaeche ist absichtlich riesig und traegt nur den Namen: Am Geraet wird
- * schnell und ungenau gedrueckt, und wer buzzert, schaut dabei auf die Frage,
- * nicht auf seine Hand. Der Punktestand steht in der Kopfzeile und gehoert nicht
- * ein zweites Mal hierher.
+ * Die Flaeche traegt nur ein Wort. Am Geraet wird schnell und ungenau gedrueckt,
+ * und wer buzzert, schaut dabei auf die Frage, nicht auf seine Hand; wem die
+ * Ecke gehoert, sagt die Farbe und die Punktekarte darueber.
  */
 import type { PlayerId } from '@quiz/contracts'
 import styles from './Game.module.css'
@@ -50,7 +48,7 @@ export function Buzzer({ playerId, label, side, enabled, armed, onBuzz }: Buzzer
       onPointerDown={() => onBuzz(playerId)}
       aria-label={`${label} buzzern`}
     >
-      <span className={styles.buzzerLabel}>{label}</span>
+      Buzzern
     </button>
   )
 }

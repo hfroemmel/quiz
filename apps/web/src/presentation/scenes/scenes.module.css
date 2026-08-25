@@ -31,17 +31,6 @@
  * ueber den gesprochen wird, und bekommt deshalb die Haelfte der Buehne und die
  * volle Hoehe. Der Fragetext steht links daneben und laeuft nicht darueber weg.
  */
-/*
- * Am Touchgeraet steht die Szene in der Mitte ihrer Spalte.
- *
- * Zwischen den Buzzern ist die Spalte hoch und schmal; oben angeschlagen liesse
- * eine kurze Frage die untere Haelfte leer, und der Blick der beiden Spieler
- * ginge an der Aufgabe vorbei ins Nichts.
- */
-:global(.stage--touch) .scene {
-  justify-content: center;
-}
-
 :global(.stage--scene-reveal) .scene {
   flex-direction: row;
   align-items: center;

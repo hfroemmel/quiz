@@ -280,16 +280,18 @@
  * Geraet ihr eigener Container (`Stage.module.css`). Die Zeilen wachsen also
  * mit der Flaeche zwischen den Buzzern.
  *
- * Die Regel gilt fuer beide Welten: Was hier steht, ist keine Gestaltungsfrage,
- * sondern die Groesse eines Fingers.
+ * NUR IN DER BUEHNE DER ERWACHSENEN. Die gezeichnete Karte der Kinderwelt ist
+ * ohnehin daumengross - sie bringt ihre Hoehe selbst mit. Noch einmal
+ * Polsterung obendrauf draengte die Fragezeile darueber zusammen, bis der Text
+ * unten aus seiner Tafel lief.
  */
-:global(.stage--touch) .answers {
-  gap: 1.8cqh;
+:global(.stage--default.stage--touch) .answers {
+  gap: 1.9cqh;
 }
-:global(.stage--touch) .surface,
-:global(.stage--touch) .chip {
-  padding-top: 2.6cqh;
-  padding-bottom: 2.6cqh;
+:global(.stage--default.stage--touch) .surface,
+:global(.stage--default.stage--touch) .chip {
+  padding-top: 2.8cqh;
+  padding-bottom: 2.8cqh;
 }
 /*
  * Der Buchstabe waechst in der Hoehe mit und braucht deshalb auch Breite - sonst
@@ -301,7 +303,7 @@
  * Marke mit festem Seitenverhaeltnis.
  */
 :global(.stage--default.stage--touch) .chip {
-  min-width: 8.5cqh;
+  min-width: 7cqh;
 }
 
 /*
