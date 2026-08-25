@@ -14,6 +14,19 @@
  */
 import type { PlayerId, PlayerQuizViewModel } from '@quiz/contracts'
 
+/**
+ * Wem gehoert der laufende Versuch, ohne dass jemand buzzern muesste?
+ *
+ * In der zweiten Chance steht der Spieler bereits fest - der Server hat ihn
+ * bestimmt. Und im Einzelspiel gibt es niemanden, gegen den man sich melden
+ * koennte: Dort sind die Antworten offen, sobald der Server sie annimmt.
+ */
+export function assignedPlayer(view: PlayerQuizViewModel): PlayerId | null {
+  if (view.phase === 'second-chance') return view.currentPlayer ?? null
+  if (view.playerScores.length === 1) return view.playerScores[0]?.playerId ?? null
+  return null
+}
+
 export function canAnswer(view: PlayerQuizViewModel, playerId: PlayerId): boolean {
   if (!view.allowedCommands.includes('ANSWER_BY_PLAYER')) return false
 

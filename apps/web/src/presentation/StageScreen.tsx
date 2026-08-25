@@ -33,7 +33,7 @@ import { Mascot } from './stage/Mascot.tsx'
 import { kidsPreloadImages } from './stage/kidsAssets.ts'
 import { useStageTheme } from './stageTheme.ts'
 import stage from './stage/Stage.module.css'
-import type { SceneProps } from './scenes/sceneProps.ts'
+import type { SceneAnswering, SceneProps } from './scenes/sceneProps.ts'
 
 export interface StageScreenProps {
   view: PublicQuizViewModel
@@ -44,7 +44,7 @@ export interface StageScreenProps {
   onReport?: (command: Command) => void
   /**
    * Dieselbe Komposition in einer anderen Flaeche: klein in der Operatorvorschau,
-   * zwischen den Antwortleisten am Touchgeraet.
+   * zwischen den Buzzern am Touchgeraet.
    */
   variant?: 'stage' | 'preview' | 'touch'
   /**
@@ -55,19 +55,20 @@ export interface StageScreenProps {
    */
   headerSlots?: StageHeaderSlots
   /**
-   * Antwortflaechen der Spieler am Touchgeraet - oben die Leiste des
-   * Gegenuebers, unten die eigene.
+   * Bedienflaechen des Touchgeraets: die Buzzer der beiden Spieler links und
+   * rechts der Szene, darunter der Abschluss des Ergebnisses.
    *
-   * WARUM SIE IN DIE BUEHNE GEHOEREN und nicht darum herum: Die Antwortzeilen
-   * sind ein Buehnenbauteil. Ihre Zustaende, ihr Buchstabenchip und die
-   * gezeichneten Karten der Kinderwelt haengen alle an der Weltklasse, und ihre
-   * Groessen stehen in Containereinheiten der Buehnenflaeche. Ausserhalb stuenden
-   * sie ohne beides da - als nackter Text.
+   * WARUM SIE IN DIE BUEHNE GEHOEREN und nicht darum herum: Sie tragen die
+   * Farben und Groessen der Buehne - beides steht in Custom Properties und
+   * Containereinheiten der Buehnenflaeche. Ausserhalb stuenden sie ohne beides
+   * da.
    *
-   * Am Touchgeraet ist deshalb die GANZE Geraeteflaeche die Buehne; die Szene ist
-   * der Teil dazwischen.
+   * Am Touchgeraet ist deshalb die GANZE Geraeteflaeche die Buehne; die Szene
+   * ist der Teil dazwischen.
    */
-  pads?: { top?: ReactNode; bottom?: ReactNode }
+  pads?: { left?: ReactNode; right?: ReactNode; bottom?: ReactNode }
+  /** Nur am Touchgeraet: macht die Antwortzeilen der Szene zu Schaltflaechen. */
+  answering?: SceneAnswering
 }
 
 export function StageScreen({
@@ -78,9 +79,10 @@ export function StageScreen({
   variant = 'stage',
   headerSlots,
   pads,
+  answering,
 }: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
-  const sceneProps: SceneProps = { view, reveal, serverNow, variant }
+  const sceneProps: SceneProps = { view, reveal, serverNow, variant, ...(answering ? { answering } : {}) }
 
   // Klaenge, die innerhalb einer Szene entstehen - siehe `useStageSounds`.
   const play = useMemo(
@@ -199,10 +201,17 @@ export function StageScreen({
 
         <StageHeader view={view} slots={headerSlots} />
 
-        {pads?.top}
-
-        <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
-          {renderScene(view, sceneProps, isAudioMaster, onReport)}
+        {/*
+          * Eine Reihe, drei Plaetze: Buzzer, Szene, Buzzer. Auf dem Beamer sind
+          * die beiden aeusseren leer, und die Reihe ist dann nichts weiter als
+          * der Kasten, in dem die Szene ohnehin stuende.
+          */}
+        <div className={stage.sceneRow}>
+          {pads?.left}
+          <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
+            {renderScene(view, sceneProps, isAudioMaster, onReport)}
+          </div>
+          {pads?.right}
         </div>
 
         {pads?.bottom}

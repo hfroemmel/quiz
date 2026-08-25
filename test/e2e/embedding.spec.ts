@@ -97,9 +97,9 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung', async ({ page 
   const deadline = Date.now() + 180_000
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
-    const pad = page.locator('[data-answer-pad][data-enabled="true"] [data-answer-button]').first()
-    if (await pad.isVisible().catch(() => false)) {
-      await pad.click({ timeout: 2_000 }).catch(() => undefined)
+    const zeile = page.locator('[data-answers] [data-answer-button]:not([disabled])').first()
+    if (await zeile.isVisible().catch(() => false)) {
+      await zeile.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
     await page.waitForTimeout(300)

@@ -49,8 +49,8 @@ deshalb stabile Datenattribute: `data-answer`, `data-answer-chip`,
 `data-answer-surface`, `data-answer-text`, `data-panel`, `data-prompt`,
 `data-category`, `data-media`, `data-media-image`, `data-peek`, `data-score`,
 `data-score-value`, `data-counter`, `data-counter-value`, `data-brand`,
-`data-mascot`, `data-reveal-tile`. Der Zustand einer Antwortzeile steht in
-`data-state`.
+`data-mascot`, `data-reveal-tile`, am Touchgeraet zusaetzlich `data-buzzer`.
+Der Zustand einer Antwortzeile steht in `data-state`.
 
 ## Grundregeln
 

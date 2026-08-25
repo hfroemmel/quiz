@@ -7,7 +7,7 @@
  *
  * Die Flaeche in der Mitte ist DIESELBE Komposition wie auf dem Beamer
  * (`StageScreen`). Diese Ansicht ergaenzt nur, was es dort nicht gibt: die
- * Antwortflaechen der Spieler und die Auswahl davor.
+ * Buzzer der Spieler links und rechts und die Auswahl davor.
  *
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
@@ -17,9 +17,9 @@ import { useQuizConnection } from '../client/useQuizConnection.ts'
 import { StageScreen, themeVariables } from '../presentation/StageScreen.tsx'
 import { releaseAudio } from '../presentation/soundCues.ts'
 import { useAudioUnlock } from '../presentation/useAudioUnlock.ts'
-import { AnswerPad } from './AnswerPad.tsx'
+import { Buzzer } from './Buzzer.tsx'
 import { GameStart } from './GameStart.tsx'
-import { canAnswer } from './answering.ts'
+import { assignedPlayer, canAnswer } from './answering.ts'
 import { useHostVisible } from './useHostVisible.ts'
 import { useIdleWatch } from './useIdleWatch.ts'
 import styles from './Game.module.css'
@@ -101,6 +101,21 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
    * bei einem neuen wieder klein.
    */
   const [pendingStart, setPendingStart] = useState(false)
+
+  /**
+   * Wer hat den Zuschlag geholt?
+   *
+   * Der einzige Spielzustand, den dieser Client selbst haelt - und nur, weil
+   * beide Buzzer auf demselben Geraet liegen (siehe `Buzzer`). Er verfaellt,
+   * sobald der Server keine Antwort mehr annimmt: Damit ist die naechste Frage
+   * wieder fuer beide offen, und nach einem Fehlversuch beim Bilderkennen auch
+   * dieselbe.
+   */
+  const [buzzed, setBuzzed] = useState<PlayerId | null>(null)
+  const answersOpen = view?.allowedCommands.includes('ANSWER_BY_PLAYER') ?? false
+  useEffect(() => {
+    if (!answersOpen) setBuzzed(null)
+  }, [answersOpen])
 
   /*
    * Beim Einsetzen der Komponente kann auf dem Server noch das Ergebnis einer
@@ -211,22 +226,42 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
     )
   }
 
-  const options = view.visibleOptions ?? []
   const players = view.playerScores
-  const answer = (playerId: PlayerId, optionId: string) => send({ type: 'ANSWER_BY_PLAYER', playerId, optionId })
+  /*
+   * Am Zug ist, wem der Versuch ohnehin gehoert - sonst, wer gebuzzert hat. Der
+   * Server prueft es erneut; hier entscheidet es nur, welche Flaeche stumpf ist.
+   */
+  const assigned = assignedPlayer(view)
+  const turn = assigned ?? buzzed
+  /*
+   * Die Zeilen sind waehrend des ganzen Spiels Schaltflaechen, auch bevor jemand
+   * gebuzzert hat - dann eben gesperrte. Erschienen die Knoepfe erst mit dem
+   * Zuschlag, baute sich die Liste mitten in der Frage neu auf, und ein Finger,
+   * der schon unterwegs ist, traefe ins Leere.
+   */
+  const answering = finished
+    ? undefined
+    : {
+        disabled: !turn || !canAnswer(view, turn),
+        label: turn ? `Antworten ${players.find((entry) => entry.playerId === turn)?.label ?? ''}`.trim() : 'Antworten',
+        onSelect: (optionId: string) => {
+          // Ohne Zuschlag ist die Zeile gesperrt; der Server wiese sie ohnehin ab.
+          if (turn) send({ type: 'ANSWER_BY_PLAYER', playerId: turn, optionId })
+        },
+      }
 
-  const pad = (index: 0 | 1, mirrored?: boolean) => {
+  const buzzer = (index: 0 | 1, side: 'left' | 'right') => {
     const player = players[index]
-    if (finished || !player) return undefined
+    // Im Einzelspiel gibt es nichts zu erstreiten, und nach dem Spiel niemanden.
+    if (finished || !player || players.length < 2) return undefined
     return (
-      <AnswerPad
+      <Buzzer
         playerId={player.playerId}
         label={player.label}
-        options={options}
-        scene={view.scene}
-        enabled={canAnswer(view, player.playerId)}
-        {...(mirrored ? { mirrored: true } : {})}
-        onAnswer={answer}
+        side={side}
+        enabled={!turn && canAnswer(view, player.playerId)}
+        armed={turn === player.playerId}
+        onBuzz={setBuzzed}
       />
     )
   }
@@ -245,9 +280,11 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
         isAudioMaster={audioMaster && hostVisible}
         onReport={send}
         variant="touch"
+        {...(answering ? { answering } : {})}
         pads={{
-          // Zweiter Spieler sitzt gegenueber: eigene Leiste, um 180 Grad gedreht.
-          ...(pad(1, true) ? { top: pad(1, true) } : {}),
+          // Beide Spieler stehen nebeneinander: jeder Buzzer an seiner Seite.
+          ...(buzzer(0, 'left') ? { left: buzzer(0, 'left') } : {}),
+          ...(buzzer(1, 'right') ? { right: buzzer(1, 'right') } : {}),
           bottom: finished ? (
             <div className={styles.footer}>
               <button type="button" className={styles.go} onClick={() => setShowChoice(true)}>
@@ -259,9 +296,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
                 </button>
               )}
             </div>
-          ) : (
-            pad(0)
-          ),
+          ) : undefined,
         }}
       />
     </div>

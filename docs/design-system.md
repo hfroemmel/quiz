@@ -463,6 +463,12 @@ Nur sechs Stylesheets sind global, und jedes aus einem Grund:
 | `RevealTiles` | Kacheldecke des Bilderkennens | - |
 | `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
 | `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
+| `Buzzer` | Meldeflaeche eines Spielers am Touchgeraet | links, rechts; frei, am Zug, zurueckgenommen |
+
+Am Touchgeraet sind die Zeilen der `AnswerList` Schaltflaechen - dieselbe Liste,
+nur mit `onSelect`. Es gibt bewusst keine zweite Zeilenkomponente fuer das
+Geraet: Zustaende, Buchstabenchip und die gezeichneten Karten der Kinderwelt
+sollen sich nie auseinanderentwickeln.
 
 Jedes Bauteil kennt nur Tokens und seine eigenen Varianten. Kein Bauteil liest
 das View-Modell, keines sendet Befehle, und keines kennt den Namen eines Modus.

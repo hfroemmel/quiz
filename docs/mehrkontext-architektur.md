@@ -268,7 +268,7 @@ Oberflaechenstufen werden auf den neuen Bauteilen neu gebaut statt auf den alten
 | **Spielerzahl** | `players` ist ein Array mit ein oder zwei Eintraegen. Zweite Chance nur bei vorhandenem Gegner, Solo-Ergebnis mit Trefferzahl statt Gewinner. |
 | **Ablaufprofil** | `operated` und `self-service` im Spielzustand, Rolle `player`, atomarer Befehl `ANSWER_BY_PLAYER`, automatische Uebergaenge ueber die vorhandene Timer-Mechanik. |
 | **Inhaltsfilter** | `evaluationModes` im Slotfilter, drei Touch-Presets im Quizpaket, Eignung im Validierungsbericht, gefilterter Katalog fuer die Spieleransicht. |
-| **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Antwortleisten, Ergebnis. Die Leisten stehen IN der Buehnenflaeche und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Erreichbar unter `/play`. |
+| **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Buzzer, Ergebnis. Beide Spieler stehen nebeneinander; links und rechts der Szene liegt je ein Buzzer, die vier Antworten stehen einmal in der Mitte und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Erreichbar unter `/play`. |
 | **Kiosk** | `apps/kiosk` als Electron-Vollbild: Laufzeit im selben Prozess, nur Loopback, kein Operatorfenster, Leerlauf-Aufsicht als Betriebsangabe. |
 | **Einbettung** | `onFinished`/`onExit`, Abraeumen beim Entfernen, Beispielsammlung unter `/shell` als Pruefstand. |
 
@@ -328,7 +328,7 @@ Stylesheets darf mit einem Elementnamen, `*`, `html`, `body` oder einem nackten
 | Plattform der Touch-Variante | Electron-Kiosk, wie `apps/desktop` |
 | Einbettung in die Multigame-App | React-Komponente aus einem Workspace-Paket |
 | Einzelspielerregeln | wie im Duell, nur ohne Gegner: kein Zeitdruck, kein Leben-/Streak-System |
-| Zwei Spieler auf einem Geraet | geteilter Bildschirm, gegenueberliegend, wer zuerst tippt hat geantwortet |
+| Zwei Spieler auf einem Geraet | beide stehen nebeneinander vor demselben Bild: je ein Buzzer aussen, die Antworten einmal in der Mitte, wer zuerst drueckt bekommt sie. Frueher lagen sich zwei gespiegelte Antwortleisten gegenueber - dieselben vier Antworten standen dann doppelt auf dem Geraet. |
 | Auswahl am Geraet | Spielerzahl und Schwierigkeit; der Quizmodus gehoert zur Aufstellung |
 
 ## 8. Offene Punkte

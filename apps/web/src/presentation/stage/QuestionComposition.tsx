@@ -20,6 +20,7 @@ import { AnswerList, type AnswerRow } from './AnswerList.tsx'
 import { Media } from './Media.tsx'
 import { QuestionHead } from './QuestionHead.tsx'
 import styles from './QuestionComposition.module.css'
+import type { SceneAnswering } from '../scenes/sceneProps.ts'
 
 interface QuestionCompositionProps {
   question: PublicQuestion
@@ -27,6 +28,8 @@ interface QuestionCompositionProps {
   imageUrl?: string
   mediaVariant?: 'inline' | 'solution'
   rows: AnswerRow[]
+  /** Nur am Touchgeraet: macht die Zeilen zu Schaltflaechen. */
+  answering?: SceneAnswering
   /** Steht zwischen Frage und Antworten. */
   children?: ReactNode
 }
@@ -36,8 +39,16 @@ export function QuestionComposition({
   imageUrl,
   mediaVariant = 'inline',
   rows,
+  answering,
   children,
 }: QuestionCompositionProps) {
+  /*
+   * Die Liste bekommt entweder beides oder nichts: Ein `onSelect` ohne die
+   * Angabe, wer tippen darf, machte auf dem Beamer aus Anzeigezeilen Knoepfe.
+   */
+  const list = answering
+    ? { onSelect: answering.onSelect, disabled: answering.disabled, label: answering.label }
+    : {}
   /*
    * Ohne Bild gibt es nichts, wonach sich die Portraetanordnung richten koennte -
    * die Bildspalte bliebe leer und die Frage stuende zusammengedraengt daneben.
@@ -51,7 +62,7 @@ export function QuestionComposition({
         <div className={styles.column}>
           <QuestionHead question={question} />
           {children}
-          <AnswerList rows={rows} />
+          <AnswerList rows={rows} {...list} />
         </div>
       </div>
     )
@@ -61,7 +72,7 @@ export function QuestionComposition({
     <>
       <QuestionHead question={question} imageUrl={imageUrl} variant={mediaVariant} />
       {children}
-      <AnswerList rows={rows} />
+      <AnswerList rows={rows} {...list} />
     </>
   )
 }

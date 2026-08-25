@@ -2,6 +2,22 @@
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import type { RevealDisplay } from '../../client/useRevealClock.ts'
 
+/**
+ * Die Antwortzeilen sind Schaltflaechen.
+ *
+ * Nur am Touchgeraet gesetzt. Dort steht kein Operator daneben: Wer am Zug ist,
+ * tippt seine Antwort in derselben Liste an, die im Saal nur anzeigt. Es gibt
+ * bewusst keine zweite Liste je Spieler - vier Antworten stehen einmal auf dem
+ * Tisch, und der Zuschlag entscheidet, wem sie gerade gehoeren.
+ */
+export interface SceneAnswering {
+  /** Niemand hat den Zuschlag oder der Server nimmt gerade nichts an. */
+  disabled: boolean
+  /** Vorlesewerkzeuge sollen wissen, wessen Antworten das gerade sind. */
+  label: string
+  onSelect(optionId: string): void
+}
+
 export interface SceneProps {
   view: PublicQuizViewModel
   reveal: RevealDisplay
@@ -19,14 +35,5 @@ export interface SceneProps {
    * Touchgeraet ist in dieser Hinsicht wie die Buehne: Wer davorsitzt, spielt.
    */
   variant: 'stage' | 'preview' | 'touch'
-}
-
-/**
- * Uebernehmen die Antwortleisten der Spieler die Antworten?
- *
- * Am Touchgeraet ja - dort sind sie die Schaltflaechen, auf die getippt wird.
- * Die Szene laesst sie dann weg, statt sie ein zweites Mal zu zeigen.
- */
-export function touchAnswers(variant: SceneProps['variant']): boolean {
-  return variant === 'touch'
+  answering?: SceneAnswering
 }

@@ -1,9 +1,10 @@
 /*
  * Das spielbare Quiz am Touchgeraet.
  *
- * DREI SCHICHTEN, EINE FLAECHE: oben die Leiste des Gegenuebers (gedreht), in der
- * Mitte dieselbe Buehnenkomposition wie auf dem Beamer, unten die eigene Leiste.
- * Im Einzelspiel entfaellt die obere.
+ * DREI SPALTEN, EINE FLAECHE: links und rechts der Buzzer je eines Spielers, in
+ * der Mitte dieselbe Buehnenkomposition wie auf dem Beamer. Im Einzelspiel
+ * entfallen beide Buzzer - es gibt niemanden, gegen den man sich melden koennte,
+ * und die Antworten sind sofort offen.
  *
  * Groessen stehen in `clamp()` statt in festen Pixeln: Dasselbe Layout traegt vom
  * 10-Zoll-Tablet bis zum grossen Touchtisch. Die Buehne in der Mitte rechnet
@@ -75,63 +76,59 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Antwortflaechen
+ * Buzzer
  * ------------------------------------------------------------------ */
 
 /*
- * Die Zeilen selbst kommen aus `AnswerList` und sehen deshalb aus wie im Saal.
- * Hier steht nur, was am Geraet anders ist: Die Leiste gibt nichts vom Platz her,
- * jede Zeile ist mindestens daumengross, und der zweite Spieler sitzt gegenueber.
- */
-/*
- * Die Leiste steht INNERHALB der Buehnenflaeche (siehe `StageScreen.pads`).
- * Zustaende, Buchstabenchip und Zeichnung bringen die Zeilen deshalb selbst mit;
- * hier steht nur, was am Geraet dazukommt.
+ * Die beiden Buzzer stehen INNERHALB der Buehnenflaeche (siehe
+ * `StageScreen.pads`) und rechnen deshalb wie alles dort in Containereinheiten:
+ * Dieselbe Aufteilung traegt vom Tablet bis zum grossen Touchtisch.
  *
- * SIE TEILT SICH DIE HOEHE MIT DER SZENE, statt eine feste Zeilenhoehe zu
- * verlangen. Sonst entscheidet die Zahl der Spieler darueber, ob die Frage noch
- * ins Bild passt: Zwei Leisten mit fester Hoehe lassen fuer die Frage nichts
- * uebrig, und im Einzelspiel bliebe die halbe Flaeche leer.
+ * SIE HABEN EINE FESTE BREITE, die Szene bekommt den Rest. Waeren sie
+ * mitwachsende Flexkinder, schoebe eine lange Frage sie zusammen - und die
+ * Trefferflaeche, auf die es beim Buzzern allein ankommt, haenge am Fragetext.
  */
-.pad {
-  flex: 1 1 0;
-  min-height: 0;
+.buzzer {
+  flex: 0 0 auto;
+  width: 16cqw;
+  margin: 2cqh 1.5cqw;
   display: flex;
-  /* Etwas Luft zum Bildrand - sonst klebt die letzte Zeile an der Kante. */
-  padding: 1cqh var(--scene-pad);
-}
-.pad [data-answers] {
-  flex: 1;
-  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1cqh;
+  border: 0.4cqh solid transparent;
+  border-radius: var(--stage-radius);
+  background: var(--color-tile);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  cursor: pointer;
 }
 
-/* Der zweite Spieler sitzt gegenueber. */
-.mirrored {
-  transform: rotate(180deg);
+.buzzerLabel {
+  font-size: 2.4cqw;
+  line-height: 1.2;
+  text-align: center;
 }
 
 /*
- * Jede Zeile nimmt denselben Anteil - und mindestens so viel, dass sie am Tisch
- * mit dem Daumen zu treffen ist.
+ * Der Zuschlag ist geholt: Diese Seite ist am Zug, die andere tritt zurueck.
+ * Beides steht am Buzzer und nicht nur an den Antworten - wer gedrueckt hat,
+ * schaut zuerst auf seine eigene Flaeche.
  */
-.pad [data-answer] {
-  flex: 1;
-  /*
-   * Die Untergrenze greift nur auf sehr flachen Geraeten. Sie muss deutlich
-   * unter dem gleichmaessigen Anteil liegen: Vier Zeilen, die zusammen mehr
-   * verlangen, als die Leiste hoch ist, laufen unten aus dem Bild - und dann
-   * fehlt ausgerechnet Antwort D.
-   */
-  min-height: 4cqh;
+.buzzer[data-armed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accentQuiet);
 }
 
-/* Antworten gerade nicht moeglich: Die ganze Leiste tritt zurueck. */
-.pad[data-enabled='false'] {
-  opacity: 0.55;
+/* Buzzern gerade nicht moeglich - der Zug ist vergeben oder die Frage laeuft noch. */
+.buzzer[data-enabled='false'][data-armed='false'] {
+  opacity: 0.4;
+  cursor: default;
 }
 
-/* Sofortige Rueckmeldung auf den Tipp - vor jeder Serverantwort. */
-.pad [data-answer-button]:active:not(:disabled) [data-answer-surface] {
+/* Sofortige Rueckmeldung auf den Druck - vor jeder Serverantwort. */
+.buzzer:active:not(:disabled) {
   filter: brightness(1.25);
 }
 
@@ -255,7 +252,7 @@
  * nur die Tipp-Rueckmeldung, die sonst kurz aufblitzt.
  */
 @media (prefers-reduced-motion: reduce) {
-  .pad [data-answer-button]:active:not(:disabled) [data-answer-surface] {
+  .buzzer:active:not(:disabled) {
     filter: none;
   }
 }

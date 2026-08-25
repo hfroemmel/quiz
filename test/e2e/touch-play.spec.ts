@@ -8,7 +8,9 @@
 import { expect, test, type Page } from '@playwright/test'
 import { resetServer } from './helpers.ts'
 
-const enabledPad = '[data-answer-pad][data-enabled="true"]'
+/** Die Antwortzeilen der Szene sind da und tippbar. */
+const offeneAntwort = '[data-answers] [data-answer-button]:not([disabled])'
+const freierBuzzer = '[data-buzzer][data-enabled="true"]'
 
 async function openStartScreen(page: Page): Promise<void> {
   await resetServer(page)
@@ -21,7 +23,17 @@ async function startGame(page: Page, players: 'Allein' | 'Zu zweit', preset = 'L
   await page.getByRole('button', { name: players }).click()
   await page.getByRole('button', { name: new RegExp(`^${preset}`) }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
-  await expect(page.locator(enabledPad).first()).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+}
+
+/**
+ * Antworten, wie es am Geraet zugeht: im Duell erst buzzern, dann tippen.
+ *
+ * Im Einzelspiel gibt es keinen Buzzer - dort steht der Spieler ohnehin fest.
+ */
+async function antworte(page: Page, seite?: 'left' | 'right'): Promise<void> {
+  if (seite) await page.locator(`[data-buzzer][data-side="${seite}"]`).click()
+  await page.locator(offeneAntwort).first().click()
 }
 
 test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ page }) => {
@@ -43,14 +55,14 @@ test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ p
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
 })
 
-test('Einzelspiel: eine Antwortleiste, und die Frage laeuft nach dem Tipp von selbst weiter', async ({ page }) => {
+test('Einzelspiel: kein Buzzer, und die Frage laeuft nach dem Tipp von selbst weiter', async ({ page }) => {
   await startGame(page, 'Allein')
 
-  await expect(page.locator('[data-answer-pad]')).toHaveCount(1)
-  await expect(page.locator('[data-answer-pad][data-mirrored="true"]')).toHaveCount(0)
+  // Gegen wen sollte man sich melden? Die Antworten sind sofort offen.
+  await expect(page.locator('[data-buzzer]')).toHaveCount(0)
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
 
-  await page.locator(`${enabledPad} [data-answer-button]`).first().click()
+  await antworte(page)
 
   // Ohne Operator: Auswertung, Loesung und naechste Frage laufen selbst.
   await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'solution', { timeout: 20_000 })
@@ -59,54 +71,62 @@ test('Einzelspiel: eine Antwortleiste, und die Frage laeuft nach dem Tipp von se
 
 test('die Antworten stehen genau einmal auf dem Tisch - als Schaltflaechen', async ({ page }) => {
   /*
-   * Die Buehne zeigt die Antworten in der Szene, das Geraet in den Leisten. Beides
-   * zugleich hiesse: dieselben vier Antworten doppelt, und getippt werden koennte
-   * nur auf einer der beiden Fassungen.
+   * EINE Liste, auch im Duell. Frueher hatte jeder Spieler seine eigene; dieselben
+   * vier Antworten standen dann doppelt da, und getippt werden konnte nur auf
+   * einer der beiden Fassungen.
    */
-  await startGame(page, 'Allein')
-
-  const pad = page.locator('[data-answer-pad]')
-  const rows = await pad.locator('[data-answer]').count()
-  expect(rows).toBeGreaterThan(1)
-  // Ausserhalb der Leiste steht keine zweite Fassung derselben Antworten.
-  expect(await page.locator('[data-answer]').count()).toBe(rows)
-  // Und jede Zeile ist eine echte Schaltflaeche, keine Flaeche mit Klickfaenger.
-  await expect(pad.locator('[data-answer-button]')).toHaveCount(rows)
-})
-
-test('Duell: die zweite Leiste liegt gegenueber, und wer zuerst tippt, hat geantwortet', async ({ page }) => {
   await startGame(page, 'Zu zweit')
 
-  // Zwei Leisten, die des zweiten Spielers um 180 Grad gedreht.
-  await expect(page.locator('[data-answer-pad]')).toHaveCount(2)
-  const mirrored = page.locator('[data-answer-pad][data-mirrored="true"]')
-  await expect(mirrored).toHaveCount(1)
-  expect(await mirrored.evaluate((node) => getComputedStyle(node).transform)).toBe('matrix(-1, 0, 0, -1, 0, 0)')
-  await expect(page.locator(enabledPad)).toHaveCount(2)
+  await expect(page.locator('[data-answers]')).toHaveCount(1)
+  const rows = await page.locator('[data-answer]').count()
+  expect(rows).toBeGreaterThan(1)
+  // Und jede Zeile ist eine echte Schaltflaeche, keine Flaeche mit Klickfaenger.
+  await expect(page.locator('[data-answer-button]')).toHaveCount(rows)
+})
 
-  await mirrored.locator('[data-answer-button]').first().click()
+test('Duell: zwei Buzzer, und wer zuerst drueckt, bekommt die Antworten', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+
+  // Beide Spieler stehen nebeneinander: ein Buzzer je Seite, beide offen.
+  await expect(page.locator('[data-buzzer]')).toHaveCount(2)
+  await expect(page.locator(freierBuzzer)).toHaveCount(2)
+  // Solange niemand gedrueckt hat, gehoeren die Antworten niemandem.
+  await expect(page.locator(offeneAntwort)).toHaveCount(0)
+
+  await page.locator('[data-buzzer][data-side="right"]').click()
+
+  // Der Zuschlag steht am Buzzer selbst, und der andere tritt zurueck.
+  await expect(page.locator('[data-buzzer][data-side="right"]')).toHaveAttribute('data-armed', 'true')
+  await expect(page.locator(freierBuzzer)).toHaveCount(0)
+  const rows = await page.locator('[data-answer]').count()
+  await expect(page.locator(offeneAntwort)).toHaveCount(rows)
+
+  await page.locator(offeneAntwort).first().click()
 
   // Der Spieler, der getippt hat, ist fuer diese Frage durch - in jedem Ausgang.
-  await expect(page.locator('[data-answer-pad][data-player="player-2"]')).toHaveAttribute('data-enabled', 'false')
   await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'buzzer-open')
 })
 
-test('alle Antwortzeilen bleiben im Bild - auch mit zwei Leisten', async ({ page }) => {
+test('die Szene bleibt zwischen den Buzzern, und nichts ueberdeckt sich', async ({ page }) => {
   /*
-   * Zwei Leisten und die Szene teilen sich eine Flaeche. Waere eine davon fest
-   * bemessen, liefe die letzte Zeile unten aus dem Bild - und ausgerechnet
-   * Antwort D fehlte, ohne dass etwas nach einem Fehler aussieht.
+   * Die Buzzer haben eine feste Breite, die Szene bekommt den Rest. Waeren sie
+   * mitwachsende Flexkinder, schoebe eine lange Frage sie zusammen - oder die
+   * Antwortzeilen liefen unter einen Buzzer, und der Tipp landete auf der
+   * falschen Flaeche.
    */
   await startGame(page, 'Zu zweit')
 
-  const bottom = await page.locator('.stage').evaluate((stage) => stage.getBoundingClientRect().bottom)
-  const rows = await page.locator('[data-answer]').all()
-  // Zwei Leisten mit denselben Antworten - wie viele es sind, sagt die Frage.
-  expect(rows.length).toBeGreaterThanOrEqual(4)
-  expect(rows.length % 2).toBe(0)
-  for (const row of rows) {
-    const box = (await row.boundingBox())!
-    expect(Math.round(box.y + box.height)).toBeLessThanOrEqual(Math.round(bottom))
+  const links = (await page.locator('[data-buzzer][data-side="left"]').boundingBox())!
+  const rechts = (await page.locator('[data-buzzer][data-side="right"]').boundingBox())!
+  const buehne = (await page.locator('.stage').boundingBox())!
+
+  const zeilen = await page.locator('[data-answer]').all()
+  expect(zeilen.length).toBeGreaterThanOrEqual(4)
+  for (const zeile of zeilen) {
+    const box = (await zeile.boundingBox())!
+    expect(Math.round(box.x)).toBeGreaterThanOrEqual(Math.round(links.x + links.width))
+    expect(Math.round(box.x + box.width)).toBeLessThanOrEqual(Math.round(rechts.x))
+    expect(Math.round(box.y + box.height)).toBeLessThanOrEqual(Math.round(buehne.y + buehne.height))
   }
 })
 
@@ -122,7 +142,7 @@ test('die Leerlauf-Aufsicht gibt das Geraet wieder frei', async ({ page }) => {
   await page.getByRole('button', { name: 'Allein' }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
-  await expect(page.locator(enabledPad).first()).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
 
   // Niemand tippt mehr: Das Spiel wird abgebrochen und die Auswahl kehrt zurueck.
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 25_000 })
@@ -141,11 +161,11 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
   const deadline = Date.now() + 180_000
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
-    const pad = page.locator(`${enabledPad} [data-answer-button]`).first()
-    if (await pad.isVisible().catch(() => false)) {
+    const zeile = page.locator(offeneAntwort).first()
+    if (await zeile.isVisible().catch(() => false)) {
       // Kurzer Anlauf: Zwischen Pruefung und Tipp kann die Flaeche verschwinden,
       // etwa weil das Spiel in diesem Moment endet.
-      await pad.click({ timeout: 2_000 }).catch(() => undefined)
+      await zeile.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
     await page.waitForTimeout(300)

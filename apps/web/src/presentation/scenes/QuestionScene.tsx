@@ -13,18 +13,17 @@
  * nichts um. Sie erscheinen erst, wenn der Server sie mitsendet - also nach
  * "Starten". Der Zustand einer Option kommt ebenfalls vom Server.
  *
- * AM TOUCHGERAET STEHEN DIE ANTWORTEN NICHT HIER. Dort sind sie die
- * Antwortleisten der Spieler - einmal je Tischseite und als Schaltflaechen.
- * Zeigte die Szene sie zusaetzlich, staenden dieselben vier Antworten doppelt
- * auf dem Tisch, und getippt werden koennte nur auf einer der beiden Fassungen.
+ * AM TOUCHGERAET SIND DIESELBEN ZEILEN SCHALTFLAECHEN. Sie stehen genau einmal
+ * da; wer sie antippen darf, sagt `answering`. Eine eigene Liste je Spieler gab
+ * es frueher - vier Antworten standen dann doppelt auf dem Tisch, und getippt
+ * werden konnte nur auf einer der beiden Fassungen.
  */
 import { answerRows } from '../stage/answerState.ts'
-import { touchAnswers } from './sceneProps.ts'
 import { QuestionComposition } from '../stage/QuestionComposition.tsx'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
-export function QuestionScene({ view, variant }: SceneProps) {
+export function QuestionScene({ view, answering }: SceneProps) {
   const question = view.question
   if (!question) return null
 
@@ -33,7 +32,8 @@ export function QuestionScene({ view, variant }: SceneProps) {
       <QuestionComposition
         question={question}
         imageUrl={question.imageUrl}
-        rows={touchAnswers(variant) ? [] : answerRows(view.visibleOptions ?? [], view.scene)}
+        rows={answerRows(view.visibleOptions ?? [], view.scene)}
+        {...(answering ? { answering } : {})}
       />
     </div>
   )

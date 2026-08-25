@@ -34,21 +34,42 @@
   background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
 }
 
-/* Alles Inhaltliche liegt ueber dem Hintergrund. */
-.sceneRoot {
+/*
+ * Die Reihe unter der Kopfzeile: aussen die Buzzer des Touchgeraets, in der
+ * Mitte die Szene. Ohne Buzzer - also im Saal und in der Vorschau - hat sie
+ * genau ein Kind und verhaelt sich wie die Szene selbst.
+ */
+.sceneRow {
   position: relative;
   z-index: 1;
   flex: 1;
   display: flex;
+  align-items: stretch;
   min-height: 0;
 }
+
+/* Alles Inhaltliche liegt ueber dem Hintergrund. */
+.sceneRoot {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
 /*
- * Am Touchgeraet teilt sich die Szene die Flaeche mit den Antwortleisten. Sie
- * bekommt etwas mehr als eine Leiste: In ihr stehen Bild UND Frage, waehrend
- * eine Leiste nur vier Zeilen traegt.
+ * AM TOUCHGERAET IST DIE SZENE IHR EIGENER CONTAINER.
+ *
+ * Alle Groessen der Buehne stehen in `cqw`/`cqh` und rechnen sonst gegen die
+ * ganze Flaeche. Neben den Buzzern bleibt davon aber nur die Mitte uebrig - ein
+ * Bild mit 40 Prozent der GERAETEBREITE liefe dort in den Buzzer hinein.
+ *
+ * Diese eine Zeile verkleinert deshalb alles im Zentrum auf einmal und in
+ * denselben Verhaeltnissen: Jede `cqw`-Angabe eines Bauteils bezieht sich hier
+ * auf die Szene statt auf das Geraet. Ohne sie muesste jedes Bauteil eine eigene
+ * Touchgroesse mitbringen - genau das, was die Buehne nicht tut.
  */
 :global(.stage--touch) .sceneRoot {
-  flex: 1.5;
+  container-type: size;
 }
 
 /* Koernungsebene ganz oben - nur die Kinderwelt fuellt sie. */
