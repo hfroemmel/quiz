@@ -266,6 +266,44 @@
   opacity: 0.55;
 }
 
+/* ------------------------------------------------------------------ *
+ * Touchgeraet: dieselben Zeilen, aber als Trefferflaechen
+ * ------------------------------------------------------------------ */
+
+/*
+ * Im Saal sind die Zeilen etwas zum Lesen, am Geraet etwas zum Treffen. Sie
+ * bekommen deshalb deutlich mehr Hoehe - und zwar ueber die Polsterung und
+ * nicht ueber eine feste Zeilenhoehe: Eine zweizeilige Antwort waechst so mit,
+ * statt aus ihrer Kachel zu laufen.
+ *
+ * Die Masse stehen in `cqh` und rechnen damit gegen die Szene, denn die ist am
+ * Geraet ihr eigener Container (`Stage.module.css`). Die Zeilen wachsen also
+ * mit der Flaeche zwischen den Buzzern.
+ *
+ * Die Regel gilt fuer beide Welten: Was hier steht, ist keine Gestaltungsfrage,
+ * sondern die Groesse eines Fingers.
+ */
+:global(.stage--touch) .answers {
+  gap: 1.8cqh;
+}
+:global(.stage--touch) .surface,
+:global(.stage--touch) .chip {
+  padding-top: 2.6cqh;
+  padding-bottom: 2.6cqh;
+}
+/*
+ * Der Buchstabe waechst in der Hoehe mit und braucht deshalb auch Breite - sonst
+ * steht er als schmaler Streifen neben einer breiten Kachel. Die Breite steht in
+ * derselben Einheit wie die Zeilenhoehe, damit das Feld in jeder Flaeche
+ * annaehernd quadratisch bleibt.
+ *
+ * Die Kinderwelt bleibt aussen vor: Ihr Buchstabenfeld ist eine gezeichnete
+ * Marke mit festem Seitenverhaeltnis.
+ */
+:global(.stage--default.stage--touch) .chip {
+  min-width: 8.5cqh;
+}
+
 /*
  * Helle Fassung: Auf den farbigen Flaechen wird der Text hell. Im Dunkeln
  * traegt er ohnehin die helle Textfarbe; auf Papier waere er dort dunkel auf

@@ -139,6 +139,12 @@ Flaeche `answer-incorrect` gedacht.
   vorliest, zeigt sein Fluegel auf eine leere Flaeche - er praesentiert etwas,
   das es noch nicht gibt. Der kleine Karlchen am Bildrahmen gehoert zur
   Bildeinfassung und ist davon nicht betroffen.
+- **Am Touchgeraet steht er gar nicht.** Dort gehoeren die aeusseren Draittel den
+  Buzzern der beiden Spieler, und die Figur deckte einen davon zu. Ohne sie muss
+  auch nichts mehr fuer sie frei bleiben: `--kids-content-width` steht dort auf
+  100 Prozent, Frage und Antworten nehmen die ganze Mitte. Der Buzzer selbst
+  traegt die gezeichnete Antwortkarte des Boxenpakets - eine glatte Flaeche in
+  `--tile` verschwaende auf dem hellen Papier.
 - Der kleine Karlchen schaut mittig ueber die obere Bildkante; seine Unterkante
   steckt 8 bis 13 Pixel hinter der Rahmenzeichnung, damit die Haende auf dem
   Rand aufzuliegen scheinen.

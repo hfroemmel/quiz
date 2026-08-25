@@ -470,6 +470,13 @@ nur mit `onSelect`. Es gibt bewusst keine zweite Zeilenkomponente fuer das
 Geraet: Zustaende, Buchstabenchip und die gezeichneten Karten der Kinderwelt
 sollen sich nie auseinanderentwickeln.
 
+Was sich dort aendert, ist die Groesse: Im Saal ist eine Zeile etwas zum Lesen,
+am Geraet etwas zum Treffen. Sie bekommt deshalb deutlich mehr Polsterung nach
+oben und unten - ueber `padding` und nicht ueber eine feste Zeilenhoehe, damit
+eine zweizeilige Antwort mitwaechst statt aus ihrer Kachel zu laufen. Der
+Buchstabe wird entsprechend breiter, sonst stuende er als schmaler Streifen
+neben einer breiten Kachel.
+
 Jedes Bauteil kennt nur Tokens und seine eigenen Varianten. Kein Bauteil liest
 das View-Modell, keines sendet Befehle, und keines kennt den Namen eines Modus.
 Damit ist jede visuelle Aenderung eine Aenderung an genau einer Datei.

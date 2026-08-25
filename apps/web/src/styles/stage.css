@@ -140,6 +140,16 @@
  * Veraendert werden nur Groessen, Abstaende und die Figurenflaeche.
  * ------------------------------------------------------------------ */
 
+/*
+ * Am Touchgeraet steht keine Figur auf der Buehne (siehe `Mascot.module.css`):
+ * Links und rechts liegen die Buzzer, und Karlchen deckte den rechten zu. Ohne
+ * ihn muss auch nichts mehr fuer ihn frei bleiben - Frage und Antworten nehmen
+ * die ganze Breite der Mitte.
+ */
+.stage--kids.stage--touch {
+  --kids-content-width: 100%;
+}
+
 @container stage (max-width: 1099px) {
   .stage--kids {
     --kids-content-width: 86%;

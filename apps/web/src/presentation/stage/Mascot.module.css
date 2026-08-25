@@ -29,3 +29,14 @@
   aspect-ratio: 927 / 1131;
   background: url('/assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
 }
+
+/*
+ * Am Touchgeraet nicht. Dort gehoeren die aeusseren Draittel den Buzzern, und
+ * die Figur stuende genau auf einem davon - sie deckte ihn zu, und der Spieler
+ * druckte auf einen Fluegel. Der kleine Karlchen am Bildrahmen bleibt: Er
+ * gehoert zur Bildeinfassung und steht niemandem im Weg.
+ */
+:global(.stage--kids.stage--touch.stage--scene-question) .mascot,
+:global(.stage--kids.stage--touch.stage--scene-solution) .mascot {
+  display: none;
+}

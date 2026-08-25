@@ -132,6 +132,42 @@
   filter: brightness(1.25);
 }
 
+/*
+ * Kinderwelt: dieselbe gezeichnete Karte wie eine Antwort.
+ *
+ * Eine glatte Flaeche in `--color-tile` verschwaende dort fast - der Grund ist
+ * helles Papier, und das Kachelcremeweiss liegt kaum darueber. Die Zeichnung
+ * kommt aus demselben Boxenpaket wie die Antwortkarten; die rote Variante
+ * markiert den Zuschlag, so wie sie in den Antworten die Auswahl markiert.
+ */
+:global(.stage--kids) .buzzer {
+  border: 0;
+  background: none;
+  position: relative;
+  isolation: isolate;
+  font-family: var(--kids-hand);
+}
+:global(.stage--kids) .buzzer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.25cqw;
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-a.svg');
+  border-image-slice: 24 fill;
+  border-image-width: 1.25cqw;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+:global(.stage--kids) .buzzer[data-armed='true']::before {
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-b.svg');
+}
+:global(.stage--kids) .buzzer[data-armed='true'] .buzzerLabel {
+  color: var(--stage-inkOnStrong);
+}
+
 /* ------------------------------------------------------------------ *
  * Startauswahl
  * ------------------------------------------------------------------ */
