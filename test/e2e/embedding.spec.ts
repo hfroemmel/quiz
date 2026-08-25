@@ -102,6 +102,12 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung', async ({ page 
       await zeile.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
+    // Nach der Loesung wartet das Geraet auf "Weiter".
+    const knopf = page.locator('[data-continue]')
+    if (await knopf.isVisible().catch(() => false)) {
+      await knopf.click({ timeout: 2_000 }).catch(() => undefined)
+      continue
+    }
     await page.waitForTimeout(300)
   }
   await expect(stage).toHaveAttribute('data-scene', 'result', { timeout: 30_000 })

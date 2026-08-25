@@ -972,12 +972,16 @@ function questionEntryPhase(state: GameState): GamePhase {
   if (type === 'video-then-question') return 'video-ready'
   /*
    * Bei Selbstbedienung gibt es niemanden, der die Frage vorliest und danach
-   * freigibt: Die Antwortflaechen sind sofort aktiv, die Enthuellung laeuft
-   * sofort an. Es sind dieselben Phasen, sie beginnen nur ohne Zwischenschritt.
+   * freigibt. Die Frage steht deshalb trotzdem erst allein da - nur gibt sie
+   * nicht der Operator frei, sondern eine feste Frist (`questionLeadInMs`).
+   * Es sind dieselben Phasen; ersetzt ist allein der Ausloeser.
+   *
+   * Die Enthuellung laeuft dagegen sofort an: Dort IST das Bild die Frage, und
+   * eine Wartezeit davor zeigte nur ein verdecktes Bild ohne Aufgabe.
    */
   const selfService = state.flowProfile === 'self-service'
   if (type === 'image-reveal') return selfService ? 'reveal-running' : 'reveal-ready'
-  return selfService ? 'buzzer-open' : 'question-presented'
+  return 'question-presented'
 }
 
 /**
@@ -1049,6 +1053,16 @@ function applyPhase(work: Draft, phase: GamePhase): void {
       case 'question-presented': {
         draft.phase = 'question-presented'
         draft.buzzer = { open: false }
+        // Folgt die Frage auf ein Video, ist das Video damit beendet.
+        if (draft.video?.status === 'playing') {
+          const elapsed = draft.video.startedAtServerMs ? work.ctx.nowMs - draft.video.startedAtServerMs : 0
+          draft.video = {
+            ...draft.video,
+            status: 'ended',
+            positionMs: draft.video.positionMs + elapsed,
+            startedAtServerMs: undefined,
+          }
+        }
         break
       }
       case 'video-ready': {
@@ -1090,12 +1104,22 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
   const state = work.state
   if (!state || state.flowProfile !== 'self-service' || state.status !== 'active') return
 
-  if (phase === 'solution') {
-    // Die Loesung bleibt kurz stehen; danach faellt dieselbe Entscheidung wie bei
-    // "Weiter" des Operators: naechste Frage oder Ergebnis.
-    work.scheduleTimedTransition('pause-screen', work.selfServiceTiming.solutionHoldMs, 'solution-to-next')
+  if (phase === 'question-presented') {
+    /*
+     * Erst die Frage, dann die Antworten. Der Server schickt die Optionen
+     * waehrend dieser Frist gar nicht mit (`projection.ts`), und der Buzzer ist
+     * zu - es gibt also nichts zu treffen, bevor jemand gelesen hat.
+     */
+    work.scheduleTimedTransition('buzzer-open', work.selfServiceTiming.questionLeadInMs, 'question-to-answers')
     return
   }
+
+  /*
+   * NACH DER LOESUNG PLANT DER SERVER NICHTS. Weiter geht es allein durch
+   * `CONTINUE` eines Spielers - dieselbe Entscheidung wie beim "Weiter" des
+   * Operators. Ein eingeplanter Uebergang naehme dem, der gerade liest, warum
+   * seine Antwort falsch war, das Bild unter den Augen weg.
+   */
 
   if (phase === 'video-ready') {
     // Ohne Operator startet das Video von selbst, nach kurzem Vorlauf.
@@ -1118,7 +1142,7 @@ function scheduleSelfServiceVideoEnd(work: Draft, hasError: boolean): void {
   if (!['video-ready', 'video-playing'].includes(state.phase)) return
 
   if (hasError) {
-    work.scheduleTimedTransition('buzzer-open', 0, 'video-error-to-question')
+    work.scheduleTimedTransition('question-presented', 0, 'video-error-to-question')
     return
   }
 
@@ -1126,7 +1150,11 @@ function scheduleSelfServiceVideoEnd(work: Draft, hasError: boolean): void {
   if (state.phase !== 'video-playing' || !video?.durationMs) return
   const played = video.positionMs + (video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0)
   const remainingMs = Math.max(0, video.durationMs - played)
-  work.scheduleTimedTransition('buzzer-open', remainingMs + work.selfServiceTiming.videoTailMs, 'video-to-question')
+  work.scheduleTimedTransition(
+    'question-presented',
+    remainingMs + work.selfServiceTiming.videoTailMs,
+    'video-to-question',
+  )
 }
 
 /**

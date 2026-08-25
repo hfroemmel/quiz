@@ -8,6 +8,7 @@
 import {
   designColorTokens,
   gameTiming,
+  selfServiceTiming,
   type Command,
   type FlowProfile,
   type GameState,
@@ -197,6 +198,13 @@ export function startGame(
   // Nur den Pausenscreen ablaufen lassen. Bei Selbstbedienung wuerde `settle()`
   // das ganze Spiel durchspielen, weil dort jeder Uebergang eingeplant ist.
   harness.advance(gameTiming.pauseScreenMs)
+  /*
+   * Bei Selbstbedienung steht danach zuerst nur die Frage. Die Tests unten
+   * beginnen fast alle bei der offenen Antwort; wer die Frist selbst pruefen
+   * will, startet ohne diesen Helfer. Eine Videofrage bleibt unberuehrt - dort
+   * kommt die Frist erst nach dem Video.
+   */
+  if (harness.state?.phase === 'question-presented') harness.advance(selfServiceTiming.questionLeadInMs)
   return harness.state!
 }
 

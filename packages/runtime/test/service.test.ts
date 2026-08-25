@@ -262,13 +262,20 @@ describe('Selbstbedienung am Geraet', () => {
     for (const command of [
       { type: 'LOG_OPTION_ANSWER', optionId: 'option_1' },
       { type: 'RESOLVE_ATTEMPT' },
-      { type: 'CONTINUE' },
       { type: 'ADJUST_SCORE', playerId: 'player-1', direction: 'increase' },
     ] as const) {
       const result = target.send(command, 'player')
       expect(result.ok, command.type).toBe(false)
       expect(result.rejection?.reason, command.type).toBe('forbidden-role')
     }
+
+    /*
+     * `Weiter` DARF ein Spieler senden - am Geraet haelt die Loesung an, bis er
+     * es tut. Nur eben nicht mittendrin: Die Phase weist es ab, nicht die Rolle.
+     */
+    const zuFrueh = target.send({ type: 'CONTINUE' }, 'player')
+    expect(zuFrueh.ok).toBe(false)
+    expect(zuFrueh.rejection?.reason).toBe('invalid-phase')
   })
 
   it('laesst den Operator keine Antwort antippen', () => {

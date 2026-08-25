@@ -285,6 +285,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
               turn={turn}
               canBuzz={(playerId) => canAnswer(view, playerId)}
               onBuzz={setBuzzed}
+              onContinue={() => send({ type: 'CONTINUE' })}
             />
           ),
         }}

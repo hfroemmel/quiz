@@ -101,8 +101,17 @@ export const revealGrid = {
  * sind deshalb fachlich relevant und stehen hier - nicht in der Praesentation.
  */
 export const selfServiceTiming = {
-  /** Wie lange die Loesung stehen bleibt, bevor es von selbst weitergeht. */
-  solutionHoldMs: 4_000,
+  /**
+   * Wie lange nur die Frage steht, bevor die Antworten erscheinen.
+   *
+   * Am Geraet liest niemand die Frage vor. Diese Pause ist der Ersatz dafuer:
+   * Sie gibt beiden Spielern Zeit, die Frage ueberhaupt zu lesen, bevor der
+   * schnellere Daumen ueber die Antworten entscheidet. Waehrenddessen sind die
+   * Buzzer geschlossen - der Server schickt die Optionen noch gar nicht mit.
+   *
+   * Wer sie aendert, aendert die Fairness des Spiels, nicht sein Tempo.
+   */
+  questionLeadInMs: 2_500,
   /** Kurzer Vorlauf, bevor ein Video von selbst startet. */
   videoLeadInMs: 500,
   /**

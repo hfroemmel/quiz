@@ -98,6 +98,82 @@
   padding: 0 4cqw 3cqh;
 }
 
+/*
+ * Mittelspalte: Hinweisfeld ueber dem Zaehler.
+ *
+ * Das Feld hat eine FESTE Hoehe. Sein Inhalt wechselt zwischen einem Satz und
+ * einem Knopf, und beides ist verschieden hoch - ohne feste Hoehe rutschten
+ * Frage, Antworten und Zaehler bei jedem Wechsel ein Stueck, und zwar genau in
+ * dem Moment, in dem jemand mit dem Finger zielt.
+ */
+.middle {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2cqh;
+  min-width: 0;
+}
+.notice {
+  height: 9cqh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.noticeText {
+  font-family: var(--font-ui);
+  font-size: 1.6cqw;
+  color: var(--color-textMuted);
+  text-align: center;
+}
+
+/*
+ * `Weiter` ist der einzige Knopf, der beiden Spielern gehoert: Er steht in der
+ * Mitte und traegt deshalb keine Spielerfarbe, sondern die Handlungsfarbe der
+ * Buehne.
+ */
+.continue {
+  height: 100%;
+  padding: 0 5cqw;
+  border: 0;
+  border-radius: var(--stage-radius);
+  background: var(--color-primary);
+  color: var(--stage-inkOnStrong);
+  font-family: var(--font-heading);
+  font-size: 2cqw;
+  cursor: pointer;
+}
+.continue:active {
+  filter: brightness(1.2);
+}
+
+/* In der Kinderwelt ist auch dieser Knopf eine gezeichnete Karte. */
+:global(.stage--kids) .continue {
+  background: none;
+  color: var(--kids-ink);
+  font-family: var(--kids-hand);
+  position: relative;
+  isolation: isolate;
+}
+:global(.stage--kids) .continue::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1.25cqw;
+  border-image-source: url('/assets/kinderquiz/boxes/answer-box-a.svg');
+  border-image-slice: 24 fill;
+  border-image-width: 1.25cqw;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+:global(.stage--kids) .noticeText {
+  font-family: var(--kids-hand);
+  color: var(--kids-ink);
+}
+
 .corner {
   display: flex;
   flex-direction: column;

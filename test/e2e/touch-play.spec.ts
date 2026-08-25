@@ -36,6 +36,11 @@ async function antworte(page: Page, seite?: 'left' | 'right'): Promise<void> {
   await page.locator(offeneAntwort).first().click()
 }
 
+/** Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. */
+async function weiter(page: Page): Promise<void> {
+  await page.locator('[data-continue]').click()
+}
+
 test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ page }) => {
   await openStartScreen(page)
 
@@ -55,18 +60,86 @@ test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ p
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
 })
 
-test('Einzelspiel: kein Buzzer, und die Frage laeuft nach dem Tipp von selbst weiter', async ({ page }) => {
+test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ page }) => {
+  /*
+   * Am Geraet liest niemand die Frage vor. Die Frist davor ist der Ersatz: Wer
+   * noch liest, soll nicht vom schnelleren Daumen ueberholt werden. Solange sie
+   * laeuft, sind die Antworten nicht einmal auf der Leitung.
+   */
+  await openStartScreen(page)
+  await page.getByRole('button', { name: 'Zu zweit' }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+
+  await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'question-presented', { timeout: 30_000 })
+  await expect(page.locator('[data-prompt]')).toBeVisible()
+  await expect(page.locator('[data-answer]')).toHaveCount(0)
+  await expect(page.locator('[data-buzzer][data-enabled="true"]')).toHaveCount(0)
+
+  // Erst mit den Antworten geht der Buzzer auf.
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
+  await expect(page.locator(freierBuzzer)).toHaveCount(2)
+})
+
+test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
+  await startGame(page, 'Allein')
+  const stage = page.locator('.stage')
+  const frage = await page.locator('[data-prompt]').first().innerText()
+
+  await antworte(page)
+  await expect(stage).toHaveAttribute('data-scene', 'solution', { timeout: 20_000 })
+
+  /*
+   * Und bleibt dort. Frueher plante der Server hier einen Uebergang ein; wer
+   * gerade noch las, warum seine Antwort falsch war, verlor das Bild.
+   */
+  await page.waitForTimeout(8_000)
+  await expect(stage).toHaveAttribute('data-scene', 'solution')
+  await expect(page.locator('[data-prompt]').first()).toHaveText(frage)
+  // Aufgeloest heisst: niemand buzzert mehr und niemand tippt mehr.
+  await expect(page.locator(freierBuzzer)).toHaveCount(0)
+  await expect(page.locator(offeneAntwort)).toHaveCount(0)
+
+  await weiter(page)
+  await expect(stage).toHaveAttribute('data-scene', 'pause', { timeout: 20_000 })
+})
+
+test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) => {
   await startGame(page, 'Allein')
 
-  // Gegen wen sollte man sich melden? Die Antworten sind sofort offen.
+  const feld = page.locator('[data-notice]')
+  const leer = (await feld.boundingBox())!
+  const zaehler = (await page.locator('[data-counter]').boundingBox())!
+
+  await antworte(page)
+  await expect(page.locator('[data-continue]')).toBeVisible({ timeout: 20_000 })
+
+  /*
+   * Feld und Zaehler stehen exakt wie vorher. Ohne feste Hoehe rutschte alles
+   * darueber ein Stueck, sobald aus dem Hinweis ein Knopf wird - und zwar in
+   * dem Moment, in dem jemand mit dem Finger zielt.
+   */
+  const mitKnopf = (await feld.boundingBox())!
+  expect(Math.round(mitKnopf.height)).toBe(Math.round(leer.height))
+  expect(Math.round(mitKnopf.y)).toBe(Math.round(leer.y))
+  const zaehlerDanach = (await page.locator('[data-counter]').boundingBox())!
+  expect(Math.round(zaehlerDanach.y)).toBe(Math.round(zaehler.y))
+})
+
+test('Einzelspiel: kein Buzzer, und die Auswertung laeuft ohne Operator', async ({ page }) => {
+  await startGame(page, 'Allein')
+
+  // Gegen wen sollte man sich melden? Sobald die Antworten stehen, sind sie offen.
   await expect(page.locator('[data-buzzer]')).toHaveCount(0)
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
 
   await antworte(page)
 
-  // Ohne Operator: Auswertung, Loesung und naechste Frage laufen selbst.
+  // Bewertung und Loesung laufen von selbst - nur der Schritt danach nicht.
+  await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'feedback', { timeout: 20_000 })
   await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'solution', { timeout: 20_000 })
-  await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'pause', { timeout: 25_000 })
+  await expect(page.locator('[data-continue]')).toBeVisible()
 })
 
 test('die Antworten stehen genau einmal auf dem Tisch - als Schaltflaechen', async ({ page }) => {
@@ -202,6 +275,12 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
       // Kurzer Anlauf: Zwischen Pruefung und Tipp kann die Flaeche verschwinden,
       // etwa weil das Spiel in diesem Moment endet.
       await zeile.click({ timeout: 2_000 }).catch(() => undefined)
+      continue
+    }
+    // Nach der Loesung wartet das Geraet auf einen Tipp - auch im Einzelspiel.
+    const knopf = page.locator('[data-continue]')
+    if (await knopf.isVisible().catch(() => false)) {
+      await knopf.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
     await page.waitForTimeout(300)

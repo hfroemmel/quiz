@@ -71,15 +71,25 @@ Zustandsmaschine. Unterschiedlich ist nur, wer einen Uebergang ausloest:
 
 | Stelle | `operated` | `self-service` |
 |---|---|---|
-| Frage erscheint | Operator gibt den Buzzer frei | Einstiegsphase ist bereits `buzzer-open` |
+| Frage erscheint | Operator gibt den Buzzer frei | `question-presented`, dann nach `questionLeadInMs` von selbst `buzzer-open` |
 | Bilderkennen | Operator startet die Enthuellung | beginnt direkt in `reveal-running` |
 | Antwort | Operator loggt ein und loest auf | ein Fingertipp: `ANSWER_BY_PLAYER` wertet sofort aus |
-| nach der Loesung | Operator drueckt `Weiter` | eingeplanter Uebergang nach `solutionHoldMs` |
+| nach der Loesung | Operator drueckt `Weiter` | ein SPIELER drueckt `Weiter` (`CONTINUE`); eingeplant wird hier nichts |
 | Videofrage | Operator startet und blendet um | startet nach `videoLeadInMs`, die Frage folgt aus der gemeldeten Laufzeit |
 
 Alle automatischen Uebergaenge nutzen dieselbe Mechanik wie Feedback und
 Pausenscreen: `pendingTransition` mit serverseitiger Fallbackzeit. Eine
 ausbleibende Meldung eines Browsers kann den Ablauf deshalb nicht anhalten.
+
+Zwei Stellen sind bewusst NICHT eingeplant, sondern verlangen einen Tipp:
+
+- **Vor den Antworten** wartet der Server `questionLeadInMs`. Am Geraet liest
+  niemand die Frage vor; diese Frist ist der Ersatz dafuer. Solange sie laeuft,
+  ist der Buzzer zu und die Optionen gehen nicht einmal auf die Leitung.
+- **Nach der Loesung** wartet der Server auf `CONTINUE` eines Spielers. Ein
+  eingeplanter Uebergang naehme dem, der gerade liest, warum seine Antwort
+  falsch war, das Bild unter den Augen weg. Bleibt das Geraet dabei stehen,
+  greift die Leerlauf-Aufsicht der Huelle.
 
 Der Uebergang aus `solution` ist dabei kein Phasenwechsel, sondern dieselbe
 Entscheidung wie `CONTINUE`: naechste Frage ziehen oder Ergebnis zeigen.

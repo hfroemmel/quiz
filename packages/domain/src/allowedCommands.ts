@@ -156,6 +156,12 @@ function selfServiceCommands(state: GameState): CommandType[] {
   const list = new Set<CommandType>(['SET_SOUND_ENABLED', 'ABORT_GAME'])
 
   if (isSelfServiceAnswerPhase(state.phase)) list.add('ANSWER_BY_PLAYER')
+  /*
+   * Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. Frueher plante
+   * der Server hier einen Uebergang ein; wer gerade noch las, warum seine
+   * Antwort falsch war, verlor dabei das Bild unter den Augen.
+   */
+  if (state.phase === 'solution') list.add('CONTINUE')
   if (state.currentQuestion?.question.presentationType === 'video-then-question') {
     list.add('REPORT_VIDEO_STATUS')
   }

@@ -6,8 +6,13 @@
  * man davor. Punktestand und Buzzer gehoeren dorthin, wo die Hand ist - unten,
  * in der Ecke des Spielers, dem sie gehoert.
  *
- *   [Spieler 1 | Punkte]        [Frage 6/7]        [Punkte | Spieler 2]
- *   [    BUZZERN     ]                             [     BUZZERN     ]
+ *   [Spieler 1 | Punkte]     [Hinweis oder "Weiter"]     [Punkte | Spieler 2]
+ *   [    BUZZERN     ]           [Frage 6/7]            [     BUZZERN     ]
+ *
+ * Ueber dem Zaehler liegt EIN Feld fuer beides: den kurzen Spielhinweis und den
+ * Knopf, mit dem es weitergeht. Es hat eine feste Hoehe, damit der Wechsel
+ * zwischen Satz und Knopf nichts darueber verschiebt - Frage und Antworten
+ * duerfen nicht springen, waehrend jemand zielt.
  *
  * Punktekarte und Zaehler sind DIESELBEN Bauteile wie auf der Buehne. Sie tragen
  * hier nur die Farbe ihres Spielers; alles andere - Aufbau, Hochzaehlen,
@@ -26,9 +31,25 @@ interface PlayerFootProps {
   /** Darf dieser Spieler den Zuschlag ueberhaupt holen? */
   canBuzz(playerId: PlayerId): boolean
   onBuzz(playerId: PlayerId): void
+  /** Naechste Frage anfordern - nur nach der Loesung moeglich. */
+  onContinue(): void
 }
 
-export function PlayerFoot({ view, turn, canBuzz, onBuzz }: PlayerFootProps) {
+/**
+ * Der Satz, der gerade im Hinweisfeld steht.
+ *
+ * Es ist die einzige Stelle, an der das Geraet die Spieler anspricht, und sie
+ * bleibt bewusst karg: In der zweiten Chance wechselt der Zug auf den anderen
+ * Spieler, ohne dass er gebuzzert haette - das saehe er sonst nirgends.
+ * Alles andere sagt der Bildschirm von selbst.
+ */
+function hinweis(view: PlayerQuizViewModel): string | null {
+  if (view.phase !== 'second-chance') return null
+  const gegner = view.playerScores.find((entry) => entry.playerId === view.currentPlayer)
+  return gegner ? `${gegner.label}, du darfst es jetzt auch versuchen` : null
+}
+
+export function PlayerFoot({ view, turn, canBuzz, onBuzz, onContinue }: PlayerFootProps) {
   const [playerOne, playerTwo] = view.playerScores
   if (!playerOne) return null
 
@@ -55,10 +76,27 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz }: PlayerFootProps) {
     </div>
   )
 
+  const text = hinweis(view)
+  const weiter = view.allowedCommands.includes('CONTINUE')
+
   return (
     <div className={styles.foot} data-player-foot="">
       {ecke(playerOne, 'left')}
-      {view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} />}
+
+      <div className={styles.middle}>
+        {/* Feste Hoehe, wechselnder Inhalt - siehe oben. */}
+        <div className={styles.notice} data-notice="">
+          {weiter ? (
+            <button type="button" className={styles.continue} data-continue="" onClick={onContinue}>
+              Weiter
+            </button>
+          ) : (
+            text && <span className={styles.noticeText}>{text}</span>
+          )}
+        </div>
+        {view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} />}
+      </div>
+
       {playerTwo && ecke(playerTwo, 'right')}
     </div>
   )

@@ -4,7 +4,7 @@
  * Alle Tests laufen ohne Electron, React oder echte Systemzeit.
  */
 import { describe, expect, it } from 'vitest'
-import { gameTiming, scoringRules, selfServiceTiming } from '@quiz/contracts'
+import { gameTiming, roleMayIssue, scoringRules, selfServiceTiming } from '@quiz/contracts'
 import { buzzIn, createHarness, makeQuestion, releaseRound, startGame } from './helpers.ts'
 import { determineResult } from '../src/scoring.ts'
 import { availableCommands } from '../src/allowedCommands.ts'
@@ -706,7 +706,24 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.players[1]!.score).toBe(scoringRules.secondChancePoints)
   })
 
-  it('schaltet nach der Loesung von selbst zur naechsten Frage', () => {
+  it('zeigt erst die Frage allein und oeffnet die Antworten nach der Frist', () => {
+    const harness = createHarness(sevenNormal())
+    harness.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium', ...selfService })
+    harness.advance(gameTiming.pauseScreenMs)
+
+    // Die Frage steht, der Buzzer ist zu, und die Optionen gehen nicht einmal raus.
+    expect(harness.state!.phase).toBe('question-presented')
+    expect(harness.state!.buzzer.open).toBe(false)
+    expect(availableCommands(harness.state)).not.toContain('ANSWER_BY_PLAYER')
+    expect(harness.publicView().visibleOptions).toBeUndefined()
+
+    harness.advance(selfServiceTiming.questionLeadInMs)
+    expect(harness.state!.phase).toBe('buzzer-open')
+    expect(availableCommands(harness.state)).toContain('ANSWER_BY_PLAYER')
+    expect(harness.publicView().visibleOptions).toHaveLength(4)
+  })
+
+  it('bleibt auf der Loesung stehen, bis ein Spieler weitergeht', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
     harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
@@ -714,11 +731,21 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.phase).toBe('solution')
     expect(harness.state!.currentSlotIndex).toBe(0)
 
-    harness.advance(selfServiceTiming.solutionHoldMs)
+    /*
+     * Beliebig lange warten aendert nichts - das ist der Punkt: Wer liest,
+     * warum seine Antwort falsch war, verliert das Bild nicht unter den Augen.
+     */
+    harness.advance(60_000)
+    expect(harness.state!.phase).toBe('solution')
+    expect(harness.state!.currentSlotIndex).toBe(0)
+
+    expect(availableCommands(harness.state)).toContain('CONTINUE')
+    expect(roleMayIssue('player', 'CONTINUE')).toBe(true)
+    harness.dispatch({ type: 'CONTINUE' })
     expect(harness.state!.currentSlotIndex).toBe(1)
 
     harness.advance(gameTiming.pauseScreenMs)
-    expect(harness.state!.phase).toBe('buzzer-open')
+    expect(harness.state!.phase).toBe('question-presented')
   })
 
   it('erreicht die Ergebnisansicht ohne einen einzigen Operatorbefehl', () => {
@@ -728,8 +755,9 @@ describe('Selbstbedienung', () => {
     for (let question = 0; question < 2; question += 1) {
       harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
       harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
-      harness.advance(selfServiceTiming.solutionHoldMs)
-      harness.advance(gameTiming.pauseScreenMs)
+      // `Weiter` kommt vom Spieler selbst, nicht vom Operator.
+      harness.dispatch({ type: 'CONTINUE' })
+      harness.advance(gameTiming.pauseScreenMs + selfServiceTiming.questionLeadInMs)
     }
 
     expect(harness.state!.phase).toBe('result')
@@ -746,8 +774,9 @@ describe('Selbstbedienung', () => {
     expect(commands).not.toContain('OPEN_BUZZER')
     expect(commands).not.toContain('LOG_OPTION_ANSWER')
     expect(commands).not.toContain('RESOLVE_ATTEMPT')
-    expect(commands).not.toContain('CONTINUE')
     expect(commands).not.toContain('ADJUST_SCORE')
+    // `CONTINUE` gibt es hier auch nicht - es gehoert allein der Loesung.
+    expect(commands).not.toContain('CONTINUE')
   })
 
   it('ein vom Operator gesteuertes Spiel nimmt keine angetippten Antworten an', () => {
@@ -775,7 +804,7 @@ describe('Selbstbedienung', () => {
 
     harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
-    harness.advance(selfServiceTiming.solutionHoldMs)
+    harness.dispatch({ type: 'CONTINUE' })
     harness.advance(gameTiming.pauseScreenMs)
 
     expect(harness.state!.currentQuestion!.question.id).toBe('q3')
@@ -788,7 +817,7 @@ describe('Selbstbedienung', () => {
 
     harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
-    harness.advance(selfServiceTiming.solutionHoldMs)
+    harness.dispatch({ type: 'CONTINUE' })
 
     expect(harness.state!.phase).toBe('result')
     expect(determineResult(harness.state!).solo).toEqual({ correctAnswers: 1, questionCount: 1 })
@@ -816,8 +845,12 @@ describe('Selbstbedienung', () => {
     harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
     harness.advance(5_000 + selfServiceTiming.videoTailMs)
 
-    expect(harness.state!.phase).toBe('buzzer-open')
+    // Auch nach einem Video steht die Frage zuerst allein da.
+    expect(harness.state!.phase).toBe('question-presented')
     expect(harness.state!.video!.status).toBe('ended')
+
+    harness.advance(selfServiceTiming.questionLeadInMs)
+    expect(harness.state!.phase).toBe('buzzer-open')
   })
 
   it('blendet die Frage sofort ein, wenn das Video nicht abgespielt werden kann', () => {
@@ -827,7 +860,7 @@ describe('Selbstbedienung', () => {
     harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
     harness.advance(0)
 
-    expect(harness.state!.phase).toBe('buzzer-open')
+    expect(harness.state!.phase).toBe('question-presented')
   })
 })
 

@@ -112,10 +112,10 @@ Uebergaenge automatisch eingeplant werden**. Die Phasen selbst bleiben identisch
 
 | Stelle | `operated` (heute) | `self-service` (neu) |
 |---|---|---|
-| Frage sichtbar | Operator gibt Buzzer frei | Antwortflaechen sind sofort aktiv (`buzzer-open` direkt) |
+| Frage sichtbar | Operator gibt Buzzer frei | die Frage steht `questionLeadInMs` allein, dann oeffnet der Server die Antworten |
 | Antwort | Operator loggt ein, loest auf | Spieler tippt: ein Befehl, sofortige Auswertung |
-| Nach der Loesung | Operator drueckt "Weiter" | eingeplanter Uebergang nach `solutionHoldMs` |
-| Videofrage | Operator startet und blendet um | laeuft automatisch, danach automatisch die Frage |
+| Nach der Loesung | Operator drueckt "Weiter" | ein SPIELER drueckt "Weiter" - der Server plant hier nichts ein |
+| Videofrage | Operator startet und blendet um | laeuft automatisch, danach die Frage - auch sie zuerst allein |
 | Bilderkennen | Operator kann pausieren | laeuft durch, Tippen friert wie ein Buzzer ein |
 
 Technisch braucht es dafuer **keine neue Mechanik**: die vorhandene

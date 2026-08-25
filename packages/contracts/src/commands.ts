@@ -186,7 +186,11 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator'],
   REPORT_VIDEO_STATUS: ['operator', 'system', 'player'],
   ADJUST_SCORE: ['operator'],
-  CONTINUE: ['operator', 'moderator'],
+  /*
+   * `player` ist die Selbstbedienung: Dort haelt die Loesung an, bis jemand
+   * `Weiter` tippt. Ohne diese Rolle bliebe das Geraet nach jeder Frage stehen.
+   */
+  CONTINUE: ['operator', 'moderator', 'player'],
   ABORT_GAME: ['operator', 'player'],
   SKIP_QUESTION: ['operator'],
   SET_SOUND_ENABLED: ['operator', 'player'],
