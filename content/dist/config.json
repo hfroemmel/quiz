@@ -64,64 +64,26 @@
       "label": "Fahnen und Symbole"
     }
   ],
+  "pools": [
+    {
+      "id": "bundestag",
+      "label": "Bundestag"
+    },
+    {
+      "id": "saarbruecken",
+      "label": "Saarbrücken"
+    }
+  ],
   "themes": [
     {
       "id": "default",
       "label": "Erwachsene",
-      "colors": {
-        "pageTop": "#12161A",
-        "pageBottom": "#171C21",
-        "stageTop": "#171C21",
-        "stageBottom": "#293139",
-        "controls": "#12161A",
-        "tile": "rgba(255, 255, 255, 0.09)",
-        "tileDisabled": "rgba(255, 255, 255, 0.05)",
-        "tileQuiet": "rgba(255, 255, 255, 0.06)",
-        "option": "rgba(255, 255, 255, 0.05)",
-        "accent": "#3392C5",
-        "accentQuiet": "#005A76",
-        "primary": "#339D6E",
-        "solution": "#339D6E",
-        "solutionChip": "#339D6E",
-        "correct": "#339AA2",
-        "incorrect": "#9A0030",
-        "text": "#FFFFFF",
-        "textMuted": "rgba(255, 255, 255, 0.6)"
-      },
-      "typography": {
-        "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
-        "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
-      },
       "presentationAnimationSetId": "standard"
     },
     {
       "id": "kids",
       "label": "Kinder",
       "skin": "kids",
-      "colors": {
-        "pageTop": "#A9D5EF",
-        "pageBottom": "#D9D7F2",
-        "stageTop": "#A9D5EF",
-        "stageBottom": "#D9D7F2",
-        "controls": "#F4EBD8",
-        "tile": "#F4EBD8",
-        "tileDisabled": "#EADDC2",
-        "tileQuiet": "#EADDC2",
-        "option": "#F4EBD8",
-        "accent": "#D61E1E",
-        "accentQuiet": "#D98B93",
-        "primary": "#D61E1E",
-        "solution": "#6FBE6B",
-        "solutionChip": "#F9CD36",
-        "correct": "#6FBE6B",
-        "incorrect": "#D98B93",
-        "text": "#0E090C",
-        "textMuted": "rgba(14, 9, 12, 0.6)"
-      },
-      "typography": {
-        "headingFont": "'Patrick Hand', 'Comic Sans MS', cursive",
-        "bodyFont": "'Patrick Hand', 'Comic Sans MS', cursive"
-      },
       "presentationAnimationSetId": "standard"
     }
   ],
@@ -134,7 +96,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -143,7 +105,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -152,7 +114,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -180,7 +142,7 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -205,7 +167,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -214,7 +176,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -223,7 +185,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -259,7 +221,7 @@
               "medium",
               "hard"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -283,7 +245,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -292,7 +254,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -305,7 +267,7 @@
               "medium",
               "hard"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -338,7 +300,7 @@
             "difficultyIds": [
               "hard"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -362,7 +324,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -371,7 +333,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -380,7 +342,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -410,7 +372,7 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -430,7 +392,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -439,7 +401,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -448,7 +410,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -477,7 +439,7 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -512,7 +474,7 @@
             "difficultyIds": [
               "easy"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -528,7 +490,7 @@
               "easy",
               "medium"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -568,7 +530,7 @@
             "difficultyIds": [
               "medium"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -626,7 +588,7 @@
             "difficultyIds": [
               "medium"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -667,7 +629,7 @@
               "medium",
               "hard"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -727,7 +689,7 @@
               "medium",
               "hard"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -766,7 +728,7 @@
             "difficultyIds": [
               "hard"
             ],
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ],
             "evaluationModes": [
@@ -789,11 +751,10 @@
       ]
     }
   ],
-  "modes": [
+  "audiences": [
     {
       "id": "adults",
       "label": "Erwachsene",
-      "questionFilter": {},
       "themeId": "default",
       "startVisualAssetId": "start-adults",
       "startTitle": "Bundestags-Quiz",
@@ -804,13 +765,13 @@
         "mixed",
         "touch-easy",
         "touch-medium",
-        "touch-hard"
+        "touch-hard",
+        "regional"
       ]
     },
     {
       "id": "kids",
       "label": "Kinder",
-      "questionFilter": {},
       "themeId": "kids",
       "startVisualAssetId": "start-kids",
       "allowedPresetIds": [
@@ -818,24 +779,6 @@
         "mixed",
         "touch-easy",
         "touch-medium"
-      ]
-    },
-    {
-      "id": "saarbruecken",
-      "label": "Saarbrücken",
-      "questionFilter": {
-        "legacyModes": [
-          "adults",
-          "kids"
-        ],
-        "categoryIds": [
-          "saarbruecken"
-        ]
-      },
-      "themeId": "default",
-      "startTitle": "Bundestags-Quiz",
-      "allowedPresetIds": [
-        "regional"
       ]
     }
   ]

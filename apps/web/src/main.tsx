@@ -57,16 +57,16 @@ function App() {
      *
      * Zwei Betriebsangaben kommen als Abfrageparameter, damit der Kiosk sein
      * Fenster ohne eigenen Build einrichten kann:
-     *   ?mode=adults   Quizmodus des Geraets
-     *   ?idle=120      Leerlauf-Aufsicht in Sekunden
+     *   ?audience=adults   Zielgruppe des Geraets
+     *   ?idle=120          Leerlauf-Aufsicht in Sekunden
      */
     case '/play': {
       const params = new URLSearchParams(window.location.search)
-      const mode = params.get('mode')
+      const audience = params.get('audience')
       const idleSeconds = Number(params.get('idle'))
       return (
         <QuizGame
-          {...(mode ? { quizModeId: mode } : {})}
+          {...(audience ? { audience } : {})}
           {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
         />
       )

@@ -1,10 +1,19 @@
-# Neue Quizmodi und Schwierigkeits-Presets
+# Neue Zielgruppen, Pools und Schwierigkeits-Presets
 
-Modi und Presets sind reine Konfiguration in `content/source/config.json`. In der
-Engine gibt es dafuer **keinen** Sondercode - insbesondere nicht fuer `kids` oder
-`Saarbruecken`.
+Zielgruppen, Fragenpools und Presets sind reine Konfiguration in
+`content/source/config.json`. In der Engine gibt es dafuer **keinen**
+Sondercode - insbesondere nicht fuer `kids` oder `Saarbruecken`.
 
-## Neuen Quizmodus anlegen
+Seit Schema v2 sind die drei Achsen getrennt:
+
+* **Zielgruppe** (`audiences`): fuer wen gespielt wird. Sie traegt Theme,
+  Startgrafik und die erlaubten Presets.
+* **Fragenpool** (`pools`): welcher Inhaltsbestand gezogen wird. Die Fragen
+  nennen ihre Pools selbst (`poolIds`); welche Pools ein Spiel zieht,
+  entscheidet `START_GAME` - ohne Angabe spielen alle mit.
+* **Preset**: die dramaturgische Ablaufkonfiguration der Fragenplaetze.
+
+## Neue Zielgruppe anlegen
 
 1. Optional ein Theme ergaenzen:
 
@@ -12,7 +21,6 @@ Engine gibt es dafuer **keinen** Sondercode - insbesondere nicht fuer `kids` ode
 {
   "id": "senioren",
   "label": "Seniorenquiz",
-  "colors": { "accent": "#e8b84b" },
   "logoAssetId": "logo-senioren"
 }
 ```
@@ -20,37 +28,45 @@ Engine gibt es dafuer **keinen** Sondercode - insbesondere nicht fuer `kids` ode
 Ein Theme kann ueber `skin` waehlen, in welcher **Gestaltungswelt** es steht:
 `default` (die Buehne, Voreinstellung) oder `kids` (die illustrierte
 Karlchen-Welt). Mehr Welten gibt es nicht - eine neue braeuchte eigene
-Zeichnungen und eigene Regeln in jedem Bauteilmodul. Wer nur andere Farben will,
-braucht kein `skin`, sondern nur eigene `colors`.
+Zeichnungen und eigene Regeln in jedem Bauteilmodul.
 
-`colors` nennt ausschliesslich **Abweichungen**. Alles Uebrige erbt das Theme aus
-der Farbtafel seiner Gestaltungswelt (`packages/contracts/src/theme.ts`); beim
-Bauen wird der vollstaendige Satz eingesetzt. Ein Theme ohne `colors` sieht
-deshalb aus wie seine Welt - das ist der Normalfall, `default` und `kids` machen
-es so.
+Farben und Schriften stehen NICHT im Quizpaket: Darstellung ist Sache des
+Gastgebers und kommt aus der Theme-Schicht der Oberflaeche (`quiz-themes`,
+Werte aus `packages/contracts/src/theme.ts`). Das Paket nennt nur die Welt.
 
-Ein Modus ohne eigene Farbwuensche verweist einfach auf ein vorhandenes Theme;
-so macht es `Saarbruecken` mit `"themeId": "default"`.
+Eine Zielgruppe ohne eigene Gestaltungswuensche verweist einfach auf ein
+vorhandenes Theme (`"themeId": "default"`).
 
-2. Den Modus ergaenzen:
+2. Die Zielgruppe ergaenzen:
 
 ```jsonc
 {
   "id": "senioren",
   "label": "Senioren",
-  "questionFilter": { "categoryIds": [], "tags": [] },
   "themeId": "senioren",
   "startVisualAssetId": "start-senioren",
   "allowedPresetIds": ["easy", "mixed"]
 }
 ```
 
-3. Fragen dem Modus zuordnen (`"modeIds": ["senioren"]`).
+3. Fragen der Zielgruppe zuordnen (`"audiences": ["senioren"]`).
 4. `pnpm content:validate && pnpm content:build`.
 
-Der Modus erscheint danach automatisch in der Startansicht des Operators - die Liste
-kommt aus `view.catalog` und damit aus validierter Konfiguration, nicht aus
-UI-Konstanten.
+Die Zielgruppe erscheint danach automatisch in der Startansicht des Operators -
+die Liste kommt aus `view.catalog` und damit aus validierter Konfiguration,
+nicht aus UI-Konstanten.
+
+## Regionale Auswahl: ein Pool, kein Sondercode
+
+`Saarbruecken` ist ein **Fragenpool**. Die regionalen Fragen tragen
+`"poolIds": ["saarbruecken"]`, alle uebrigen `"poolIds": ["bundestag"]`; der
+Pool selbst steht mit Kennung und Beschriftung in `pools`. Ein regionales Spiel
+startet der Operator als Zielgruppe seiner Wahl plus Pool `Saarbrücken` plus
+Preset `regional` - Theme und Spielregeln bleiben unveraendert.
+
+Ein neuer Pool braucht damit drei Handgriffe: Eintrag in `pools`, `poolIds` an
+den Fragen, fertig. Die Startansicht des Operators zeigt die Poolauswahl von
+selbst, sobald es mehr als einen Pool gibt.
 
 ## Presets fuer das Touchgeraet
 
@@ -86,24 +102,6 @@ Fragen dort Antwortoptionen haben: Die Enthuellung laeuft, ein Tipp friert sie
 ein. Muendlich zu beantwortende Bildfragen werden im Selbstbedienungsbetrieb
 uebersprungen.
 
-## Regionale Auswahl ohne Sondercode
-
-In den Altdaten sind `adults` und `kids` Werte des Feldes `mode`, `Saarbruecken`
-dagegen eine Kategorie. Beides laesst sich mit demselben Mechanismus abbilden: Ein
-Modus ist ein konfigurierter Filter.
-
-```jsonc
-{
-  "id": "saarbruecken",
-  "label": "Saarbrücken",
-  "questionFilter": { "legacyModes": ["adults", "kids"], "categoryIds": ["saarbruecken"] },
-  "themeId": "default",
-  "allowedPresetIds": ["regional"]
-}
-```
-
-`legacyModes` erlaubt, Fragen mitzunehmen, die noch die alten Modus-IDs tragen.
-
 ## Neues Preset anlegen
 
 Ein Preset ist eine **dramaturgische Ablaufkonfiguration**, kein globaler Filter.
@@ -114,13 +112,13 @@ Ein Preset ist eine **dramaturgische Ablaufkonfiguration**, kein globaler Filter
   "id": "kurzformat",
   "label": "Kurzformat",
   "slots": [
-    { "id": "einstieg",     "filters": { "difficultyIds": ["easy"], "presentationTypes": ["text-choice"] } },
+    { "id": "einstieg",     "filters": { "difficultyIds": ["easy"], "questionTypes": ["text-choice"] } },
     { "id": "wissen",       "filters": { "categoryIds": ["wissenschaft", "natur"] } },
-    { "id": "bilderkennen", "filters": { "presentationTypes": ["image-reveal"] } },
+    { "id": "bilderkennen", "filters": { "questionTypes": ["image-reveal"] } },
     { "id": "mittelfeld",   "filters": { "difficultyIds": ["medium"] } },
     { "id": "steigerung",   "filters": { "difficultyIds": ["hard"] } },
-    { "id": "bildauswahl",  "filters": { "presentationTypes": ["image-choice"] } },
-    { "id": "finale",       "filters": { "categoryIds": ["saarbruecken"] } }
+    { "id": "bildauswahl",  "filters": { "questionTypes": ["image-choice"] } },
+    { "id": "finale",       "filters": {} }
   ]
 }
 ```
@@ -129,13 +127,13 @@ Regeln:
 
 * Die Anzahl der Slots muss `questionsPerGame` entsprechen; sonst bricht der Build ab.
 * Fehlende Filter bedeuten „beliebig“.
-* Slots mit **identischem** Filter konkurrieren um denselben Pool. Unterschiedliche
+* Slots mit **identischem** Filter konkurrieren um denselben Bestand. Unterschiedliche
   Filter erhoehen die Zahl wiederholungsfreier Spiele deutlich.
 * Der Preset-Name ist kein automatischer Filter.
 
-Danach das Preset in `allowedPresetIds` der gewuenschten Modi eintragen und
+Danach das Preset in `allowedPresetIds` der gewuenschten Zielgruppen eintragen und
 `pnpm content:validate` ausfuehren. Nicht erfuellbare Fragenplaetze sind harte Fehler,
-zu kleine Pools erzeugen Warnungen mit konkreter Kandidatenzahl.
+zu kleine Bestaende erzeugen Warnungen mit konkreter Kandidatenzahl.
 
 ## Fragenanzahl aendern
 

@@ -57,7 +57,8 @@ import {
 
 /** Anfrage der Engine an die Anwendungsschicht: Frage fuer einen Fragenplatz ziehen. */
 export interface SlotRequest {
-  quizModeId: string
+  audience: string
+  poolIds?: string[] | undefined
   presetId: string
   slotIndex: number
   excludeQuestionIds: string[]
@@ -74,7 +75,7 @@ export type SlotResponse =
  */
 export interface QuestionSource {
   /** Anzahl Fragenplaetze der Kombination, oder `null` wenn sie nicht existiert. */
-  slotCountFor(quizModeId: string, presetId: string): number | null
+  slotCountFor(audience: string, presetId: string): number | null
   selectForSlot(request: SlotRequest): SlotResponse
 }
 
@@ -334,20 +335,21 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 function startGame(
   work: Draft,
   command: {
-    quizModeId: string
+    audience: string
+    poolIds?: string[]
     presetId: string
     playerCount?: PlayerCount
     playerLabels?: string[]
     flowProfile?: FlowProfile
   },
 ): EngineResult {
-  const { quizModeId, presetId, playerLabels } = command
+  const { audience, poolIds, presetId, playerLabels } = command
   if (work.state && work.state.status === 'active') {
     return reject('invalid-phase', 'Es läuft bereits ein Spiel. Bitte zuerst beenden.')
   }
-  const slotCount = work.ctx.questionSource.slotCountFor(quizModeId, presetId)
+  const slotCount = work.ctx.questionSource.slotCountFor(audience, presetId)
   if (slotCount === null) {
-    return reject('invalid-payload', 'Diese Kombination aus Quizmodus und Schwierigkeits-Preset gibt es nicht.')
+    return reject('invalid-payload', 'Diese Kombination aus Zielgruppe und Schwierigkeits-Preset gibt es nicht.')
   }
 
   // Ohne Angabe ist ein Spiel ein Duell. Der Buehnenbetrieb bleibt damit
@@ -364,7 +366,8 @@ function startGame(
     status: 'active',
     phase: 'pause-screen',
     revision: 0,
-    quizModeId,
+    audience,
+    ...(poolIds === undefined ? {} : { poolIds }),
     presetId,
     flowProfile,
     totalQuestions: slotCount,
@@ -380,7 +383,8 @@ function startGame(
   }
 
   work.replaceState(fresh)
-  work.log('game', `Spiel gestartet: Modus "${quizModeId}", Preset "${presetId}", ${slotCount} Fragen.`)
+  const poolNote = poolIds?.length ? `, Pools ${poolIds.join('+')}` : ''
+  work.log('game', `Spiel gestartet: Zielgruppe "${audience}"${poolNote}, Preset "${presetId}", ${slotCount} Fragen.`)
 
   const selection = drawQuestionForCurrentSlot(work, [])
   if (!selection.ok) return selection.rejection
@@ -553,7 +557,7 @@ function finishAttempt(
 ): EngineResult {
   const state = work.state!
   const question = state.currentQuestion!.question
-  const imageReveal = isImageReveal(question.presentationType)
+  const imageReveal = isImageReveal(question.questionType)
   const previousFailures = countFailedAttemptsForCurrentQuestion(state)
   const points = outcome === 'correct' ? pointsForCorrectAnswer(previousFailures) : scoringRules.noPoints
 
@@ -663,7 +667,7 @@ function resetBuzzer(work: Draft): EngineResult {
     draft.buzzer = { open: true }
     // Sperren aus bereits ausgewerteten Fehlversuchen bleiben bestehen - sie sind
     // eine Spielregel, keine Buzzer-Zuordnung.
-    draft.phase = isImageReveal(question.question.presentationType)
+    draft.phase = isImageReveal(question.question.questionType)
       ? draft.reveal?.status === 'paused'
         ? 'reveal-paused'
         : 'reveal-running'
@@ -676,7 +680,7 @@ function resetBuzzer(work: Draft): EngineResult {
 function handleVideoCommand(work: Draft, command: Command): EngineResult {
   if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const question = work.state.currentQuestion
-  if (!question || question.question.presentationType !== 'video-then-question') {
+  if (!question || question.question.questionType !== 'video-then-question') {
     return reject('invalid-phase', 'Die aktuelle Frage ist keine Videofrage.')
   }
 
@@ -895,7 +899,7 @@ const MAX_SELF_SERVICE_DRAWS = 200
 
 /** In welcher Phase startet die aktuelle Frage nach dem Pausenscreen? */
 function questionEntryPhase(state: GameState): GamePhase {
-  const type = state.currentQuestion?.question.presentationType
+  const type = state.currentQuestion?.question.questionType
   if (type === 'video-then-question') return 'video-ready'
   /*
    * Bei Selbstbedienung gibt es niemanden, der die Frage vorliest und danach
@@ -1098,7 +1102,8 @@ function drawQuestionForCurrentSlot(
 
   const draw = () =>
     work.ctx.questionSource.selectForSlot({
-      quizModeId: state.quizModeId,
+      audience: state.audience,
+      ...(state.poolIds === undefined ? {} : { poolIds: state.poolIds }),
       presetId: state.presetId,
       slotIndex: state.currentSlotIndex,
       excludeQuestionIds: [...state.selectedQuestionIds, ...exclusions],
@@ -1185,11 +1190,11 @@ function drawQuestionForCurrentSlot(
     // Frageweiter Reset - genau eine Stelle.
     for (const player of draft.players) player.lockedForCurrentQuestion = false
     draft.buzzer = { open: false }
-    draft.reveal = isImageReveal(runtime.question.presentationType)
+    draft.reveal = isImageReveal(runtime.question.questionType)
       ? createRevealClock(work.timing.imageRevealDurationMs)
       : undefined
     draft.video =
-      runtime.question.presentationType === 'video-then-question'
+      runtime.question.questionType === 'video-then-question'
         ? { status: 'idle', positionMs: 0 }
         : undefined
   })
@@ -1310,7 +1315,7 @@ class Draft {
     const guard = this.requireActiveGame()
     if (guard) return guard
     const question = this.state!.currentQuestion
-    if (!question || !isImageReveal(question.question.presentationType) || !this.state!.reveal) {
+    if (!question || !isImageReveal(question.question.questionType) || !this.state!.reveal) {
       return reject('invalid-phase', 'Die aktuelle Frage ist keine Bilderkennen-Frage.')
     }
     return null

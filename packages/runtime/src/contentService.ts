@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { applyPatches, loadQuizPackage } from '@quiz/content'
 import type { Question, QuestionPatch, QuizPackage, RuntimeQuestion } from '@quiz/contracts'
 import {
-  poolForMode,
+  poolForGame,
   repetitionKey,
   selectQuestionForSlot,
   shuffleOptionOrder,
@@ -125,25 +125,25 @@ export class ContentService {
     const config = this.quizPackage.config
 
     return {
-      slotCountFor: (quizModeId, presetId) => {
-        const mode = config.modes.find((entry) => entry.id === quizModeId)
-        if (!mode || !mode.allowedPresetIds.includes(presetId)) return null
+      slotCountFor: (audience, presetId) => {
+        const audienceConfig = config.audiences.find((entry) => entry.id === audience)
+        if (!audienceConfig || !audienceConfig.allowedPresetIds.includes(presetId)) return null
         const preset = config.presets.find((entry) => entry.id === presetId)
         return preset ? preset.slots.length : null
       },
 
       selectForSlot: (request: SlotRequest): SlotResponse => {
-        const mode = config.modes.find((entry) => entry.id === request.quizModeId)
+        const audienceConfig = config.audiences.find((entry) => entry.id === request.audience)
         const preset = config.presets.find((entry) => entry.id === request.presetId)
         const slot = preset?.slots[request.slotIndex]
-        if (!mode || !preset || !slot) {
-          return { ok: false, message: 'Quizmodus, Preset oder Fragenplatz ist nicht konfiguriert.' }
+        if (!audienceConfig || !preset || !slot) {
+          return { ok: false, message: 'Zielgruppe, Preset oder Fragenplatz ist nicht konfiguriert.' }
         }
 
         const result = selectQuestionForSlot({
           slot,
           slotIndex: request.slotIndex,
-          pool: poolForMode(questions, mode),
+          pool: poolForGame(questions, { audience: request.audience, poolIds: request.poolIds }),
           excludeQuestionIds: new Set(request.excludeQuestionIds),
           excludeRepetitionGroupIds: new Set(request.excludeRepetitionGroupIds),
           usage,

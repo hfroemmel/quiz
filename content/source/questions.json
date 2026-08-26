@@ -1,16 +1,20 @@
 [
   {
     "id": "0",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Land stellt im Europäischen Parlament die meisten Abgeordneten?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Deutschland"
@@ -25,16 +29,20 @@
   },
   {
     "id": "1",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt das Gebäude in Berlin, in dem die Abgeordneten des Deutschen Bundestages tagen?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Reichstagsgebäude"
@@ -49,16 +57,20 @@
   },
   {
     "id": "2",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Er ist das Herzstück des Deutschen Bundestages. Hier werden Gesetze verabschiedet. Wie heißt der Raum?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Plenarsaal"
@@ -73,16 +85,20 @@
   },
   {
     "id": "3",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "An welchem Fluss befindet sich dieses Gebäude?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Spree"
@@ -97,16 +113,20 @@
   },
   {
     "id": "4",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie nennt man die 900 Meter lange über die Spree reichende Aneinanderreihung dieser Regierungs- und Parlamentsgebäude?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "\"Band des Bundes\""
@@ -121,16 +141,20 @@
   },
   {
     "id": "5",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Konstruktion hat der Architekt Sir Norman Foster aus Stahl und Glas zusammen mit Fachingenieuren entworfen?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Reichstagskuppel"
@@ -145,16 +169,20 @@
   },
   {
     "id": "6",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Das gesuchte Gebäude wird auch als „Gedächtnis des Parlaments“ bezeichnet und gilt als Informations- und Dienstleistungszentrum des Deutschen Bundestages.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Marie-Elisabeth-Lüders-Haus"
@@ -169,16 +197,20 @@
   },
   {
     "id": "7",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was steht im Giebel des Westportals des Reichstagsgebäudes?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Die Inschrift: \"Dem Deutschen Volke\""
@@ -193,16 +225,21 @@
   },
   {
     "id": "8",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-1",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Der 3. Oktober wird in Deutschland ganz besonders gefeiert. Was fand am 03.10.1990 statt?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Deutsche Wiedervereinigung"
@@ -213,21 +250,24 @@
     "explanation": {
       "summary": "Der Mauerfall fand bereits am 09.11.1989 statt."
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-1"
+    "enabled": true
   },
   {
     "id": "9",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was geschah in der Nacht vom 27. auf den 28. Februar 1933?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Der \"Reichstagsbrand\""
@@ -242,16 +282,20 @@
   },
   {
     "id": "10",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Verfassungsorgan Deutschlands wird als einziges direkt vom Staatsvolk gewählt?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Deutscher Bundestag"
@@ -266,16 +310,20 @@
   },
   {
     "id": "11",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Aus welchen Parteien bestand die \"Ampelkoalition\"?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "SPD (rot), FDP (gelb), Bündnis90/Die Grünen (grün)"
@@ -290,16 +338,20 @@
   },
   {
     "id": "12",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Im Volksmund liebevoll als \"Fette Henne\" bezeichnet, wurde das gesuchte Wandrelief zum Symbol des Deutschen Parlaments.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Bundestagsadler"
@@ -314,16 +366,20 @@
   },
   {
     "id": "13",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt das Gebäude mit den runden Sitzungssälen, in denen 24 Fachausschüsse und weitere Gremien tagen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -354,16 +410,20 @@
   },
   {
     "id": "14",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist keine Aufgabe des Deutschen Bundestages?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -394,16 +454,20 @@
   },
   {
     "id": "15",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Bedingungen müssen erfüllt sein, damit eine Partei in den Bundestag einziehen kann?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -434,16 +498,20 @@
   },
   {
     "id": "16",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer oder was gehört nicht zum Deutschen Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -472,16 +540,20 @@
   },
   {
     "id": "17",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche der staatlichen Gewalten wird durch den Bundestag repräsentiert?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -512,16 +584,20 @@
   },
   {
     "id": "18",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Ihre Aufgabe ist es, Gesetzesvorlagen inhaltlich zu beraten und Beschlüsse im Plenum vorzubereiten. Sie konzentrieren sich jeweils auf bestimmte Politikfelder.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Die Ausschüsse"
@@ -536,16 +612,20 @@
   },
   {
     "id": "19",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Mitglieder dieses Bundestag-Gremiums sind nicht unbedingt die ältesten Parlamentarier, wohl aber sehr erfahrene. Welches Gremium ist gemeint?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Der Ältestenrat des Deutschen Bundestages"
@@ -560,16 +640,20 @@
   },
   {
     "id": "20",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Gesucht wird ein Ausschuss des Deutschen Bundestages, der die Verzahnung der Arbeit auf nationaler und europäischer Ebene sicherstellt.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Ausschuss für die Angelegenheiten der Europäischen Union"
@@ -584,16 +668,20 @@
   },
   {
     "id": "21",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer war die erste Präsidentin des Deutschen Bundestages?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -624,16 +712,20 @@
   },
   {
     "id": "22",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wen bezeichnet man im politischen System der Bundesrepublik umgangssprachlich als die „Anwalt der Soldaten“?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -664,16 +756,20 @@
   },
   {
     "id": "23",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Amt wurde im Deutschen Bundestag 2021 geschaffen und seitdem von Evelyn Zupke übernommen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -704,16 +800,20 @@
   },
   {
     "id": "24",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Fläche entspricht am ehesten der Glasfläche (einseitig) der Reichstagskuppel?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -744,16 +844,20 @@
   },
   {
     "id": "25",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchem Artikel des Grundgesetzes steht: \"Alle Staatsgewalt geht vom Volke aus\"?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -784,16 +888,20 @@
   },
   {
     "id": "26",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche der nachgenannten Abstimmungen wird im Plenum des Deutschen Bundestages NICHT angewandt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -824,16 +932,20 @@
   },
   {
     "id": "27",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist unter einem \"Hammelsprung\" zu verstehen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -864,16 +976,20 @@
   },
   {
     "id": "28",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt das Abgeordneten-Recht auf freie Rede im Parlament, das vor dienstlicher oder gerichtlicher Verfolgung wegen Äußerungen im Plenum oder im Ausschuss schützt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -904,16 +1020,20 @@
   },
   {
     "id": "29",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Nach welchen Grundsätzen erfolgt laut Grundgesetz die Wahl zum Deutschen Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -944,16 +1064,20 @@
   },
   {
     "id": "30",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist das \"Konstruktive Misstrauensvotum\"?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -984,16 +1108,20 @@
   },
   {
     "id": "31",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Ständige Ausschüsse hat der Bundestag in der aktuellen (21.) Wahlperiode?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1024,16 +1152,20 @@
   },
   {
     "id": "32",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wozu dient eine Regierungsbefragung?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1064,16 +1196,20 @@
   },
   {
     "id": "33",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Aufgabe hat eine Enquetekommission?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1104,16 +1240,20 @@
   },
   {
     "id": "34",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Abgeordnete sitzen aktuell im Deutschen Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1144,16 +1284,20 @@
   },
   {
     "id": "35",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Nach welchem Verfahren wird die Sitzverteilung des Bundestages berechnet?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1184,16 +1328,20 @@
   },
   {
     "id": "36",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Der Bundestag hat in Berlin eine eigene Postleitzahl. Welche ist das?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1224,16 +1372,20 @@
   },
   {
     "id": "37",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer war der erste Präsident des Deutschen Bundestages?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1264,16 +1416,20 @@
   },
   {
     "id": "38",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In der wievielten Legislaturperiode befindet sich der Deutsche Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1302,16 +1458,20 @@
   },
   {
     "id": "39",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Das Amt steht in der Rangfolge der Repräsentanten der Verfassungsorgane nach dem Bundespräsidenten an zweiter Stelle. Welches Amt ist gemeint?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Präsidentin/Präsident des Deutschen Bundestages"
@@ -1326,16 +1486,20 @@
   },
   {
     "id": "40",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Es handelt sich um den größten Parlamentsneubau, der im Januar 2002 fertiggestellt wurde. An der Spreepromenade wird das Haus von Glasscheiben begrenzt, auf denen 19 Grundrechtsartikel des Grundgesetzes mit Laser eingraviert sind. Wie heißt das Haus?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Jakob-Kaiser-Haus"
@@ -1350,16 +1514,20 @@
   },
   {
     "id": "41",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt der Ausschuss, an den sich jeder in Deutschland mit Problemen, Sorgen und Ideen wenden kann?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Petitionsausschuss des Deutschen Bundestages"
@@ -1374,16 +1542,20 @@
   },
   {
     "id": "42",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Gesucht wird der Name eines deutschen Politikers, der von 2005 bis 2017 Präsident des Deutschen Bundestages war.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Prof. Dr. Norbert Lammert"
@@ -1396,16 +1568,20 @@
   },
   {
     "id": "43",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Gesucht wird der Name eines deutschen Politikers, der von 2017 bis 2021 Präsident des Deutschen Bundestages war.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Dr. Wolfgang Schäuble"
@@ -1420,16 +1596,20 @@
   },
   {
     "id": "44",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Gesucht wird der Name einer deutschen Politikerin, die von 2022 bis 2025 Präsidentin des Deutschen Bundestages war.",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Bärbel Bas"
@@ -1442,16 +1622,20 @@
   },
   {
     "id": "45",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die amtierende Präsidentin des Deutschen Bundestags?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Julia Klöckner"
@@ -1464,16 +1648,20 @@
   },
   {
     "id": "46",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Politiker ist seit 2025 Vorsitzender der CDU/CSU-Bundestagsfraktion?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Jens Spahn"
@@ -1486,16 +1674,20 @@
   },
   {
     "id": "47",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Politikerer ist aktuell Vorsitzender der SPD-Bundestagsfraktion?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Dr. Matthias Miersch"
@@ -1508,16 +1700,21 @@
   },
   {
     "id": "48",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-2",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Politikerin ist eine der beiden Vorsitzenden der Bundestagsfraktion Bündnis 90/Die Grünen?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Katharina Dröge"
@@ -1528,21 +1725,25 @@
     "explanation": {
       "summary": "Studium der Volkswirtschaftslehre \nSeit 2013 Mitglied des Deutschen Bundestags\nSeit 2000 Mitglied bei Bündnis 90/Die Grünen\nSeit 2021 Fraktionsvorsitzende der Grünen Bundestagsfraktion (derzeit zusammen mit Britta Haßelmann)"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-2"
+    "enabled": true
   },
   {
     "id": "49",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-2",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Politikerin ist eine der beiden Vorsitzenden der Bundestagsfraktion Bündnis 90/Die Grünen?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Britta Haßelmann"
@@ -1553,21 +1754,24 @@
     "explanation": {
       "summary": "Diplom-Sozialarbeiterin\nSeit 1989 für die Grünen aktiv, seit 1994 Mitglied der Partei. 2000 bis 2006 Landesvorsitzende Bündnis 90/Die Grünen in Nordrhein-Westfalen. Seit 2005 Mitglied im Deutschen Bundestag. Seit 2023 Fraktionsvorsitzende der Grünen Bundestagsfraktion (derzeit zusammen mit Katharina Dröge)."
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-2"
+    "enabled": true
   },
   {
     "id": "50",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Politikerin ist eine der beiden Vorsitzenden der Bundestagsfraktion Die Linke?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Heidi Reichinnek"
@@ -1580,16 +1784,20 @@
   },
   {
     "id": "51",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Politiker ist einer der beiden Vorsitzenden der Bundestagsfraktion Die Linke?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Sören Pellmann"
@@ -1602,16 +1810,20 @@
   },
   {
     "id": "52",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Er ist einer der beiden Vorsitzenden der AfD-Bundestagsfraktion. Wie heißt er?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Tino Chrupalla"
@@ -1626,16 +1838,20 @@
   },
   {
     "id": "53",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Sie ist eine der beiden Fraktionsvorsitzenden der AfD-Bundestagsfraktion. Wie heißt sie?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Dr. Alice Weidel"
@@ -1650,16 +1866,20 @@
   },
   {
     "id": "54",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist der Ältestenrat?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1690,16 +1910,20 @@
   },
   {
     "id": "55",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wann kam es in Deutschland durch ein Misstrauensvotum zur Ablösung eines amtierenden Bundeskanzlers?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1728,16 +1952,20 @@
   },
   {
     "id": "56",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist im Bundestag die absolute Mehrheit?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1768,16 +1996,20 @@
   },
   {
     "id": "57",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Worin besteht der Unterschied zwischen Partei und Fraktion?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1808,16 +2040,20 @@
   },
   {
     "id": "58",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer kann keinen Gesetzesentwurf einbringen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1848,16 +2084,20 @@
   },
   {
     "id": "59",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ermöglicht das Initiativrecht im Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1888,16 +2128,20 @@
   },
   {
     "id": "60",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Mitarbeiter arbeiten in der Verwaltung des Bundestages?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1926,16 +2170,20 @@
   },
   {
     "id": "61",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wofür ist die Zweitstimme bei der Bundestagswahl entscheidend?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1964,16 +2212,20 @@
   },
   {
     "id": "62",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Seit wann darf man in Deutschland ab dem 18. Lebensjahr wählen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2004,16 +2256,20 @@
   },
   {
     "id": "63",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "erdkunde"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die Hauptstadt von Deutschland?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Berlin"
@@ -2028,16 +2284,20 @@
   },
   {
     "id": "64",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "fahnen-und-symbole"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Aus welchen Farben setzt sich die deutsche Flagge zusammen?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Schwarz, rot, gold (gelb)"
@@ -2052,16 +2312,20 @@
   },
   {
     "id": "65",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Farbe hat der Adler, der im Plenarsaal hängt?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Silber"
@@ -2076,16 +2340,20 @@
   },
   {
     "id": "66",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo finden Sitzungen des Deutschen Bundestags statt?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Im Reichstagsgebäude"
@@ -2098,16 +2366,20 @@
   },
   {
     "id": "67",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Farbe haben die Schuhe von Karlchen Adler?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Rot"
@@ -2120,16 +2392,20 @@
   },
   {
     "id": "68",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "An welchem Wochentag wird traditionell in Deutschland gewählt?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Am Sonntag"
@@ -2142,16 +2418,20 @@
   },
   {
     "id": "69",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "fahnen-und-symbole"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie wird das Wappentier des Deutschen Bundestages genannt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2182,16 +2462,20 @@
   },
   {
     "id": "70",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Gebäude gehört nicht zum Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2220,16 +2504,20 @@
   },
   {
     "id": "71",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist die Aufgabe der deutschen Abgeordneten?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2260,16 +2548,20 @@
   },
   {
     "id": "72",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Ab welchem Alter kann man in Deutschland den Bundestag wählen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2298,16 +2590,21 @@
   },
   {
     "id": "73",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-1",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Der 3. Oktober wird in Deutschland ganz besonders gefeiert. Was fand am 03.10.1990 statt?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Wiedervereinigung des geteilten Deutschlands"
@@ -2318,21 +2615,24 @@
     "explanation": {
       "summary": "Am 9. November 1989 fiel die Mauer, die Ost- und Westdeutschland voneinander trennte. Die offizielle Wiedervereinigung fand allerdings erst ein Jahr später statt: am 3. Oktober 1990. Seitdem ist dieser Tag ein Feiertag."
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-1"
+    "enabled": true
   },
   {
     "id": "74",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wofür steht die Abkürzung KiKo?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Kinderkommission"
@@ -2347,16 +2647,20 @@
   },
   {
     "id": "75",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie nennt man die Chefin vom Deutschen Bundestag?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Bundestagspräsidentin"
@@ -2371,16 +2675,20 @@
   },
   {
     "id": "76",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "begriffe"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist mit dem Wort \"Parlament\" gemeint?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2409,16 +2717,20 @@
   },
   {
     "id": "77",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "begriffe"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie nennt sich ein bestimmtes Abstimmungsverfahren im Deutschen Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2449,16 +2761,20 @@
   },
   {
     "id": "78",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "begriffe"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was versteht man unter Diäten für Abgeordnete?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2487,16 +2803,20 @@
   },
   {
     "id": "79",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wann wurde das Reichstagsgebäude gebaut (Fertigstellung)?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2527,16 +2847,20 @@
   },
   {
     "id": "80",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Abgeordnete gibt es im Deutschen Bundestag momentan?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2567,16 +2891,20 @@
   },
   {
     "id": "81",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Farbe haben die Stühle im Plenarsaal?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Reichstagsblau (lila)"
@@ -2591,16 +2919,20 @@
   },
   {
     "id": "82",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchem deutschen Gesetz sind die Grundrechte verankert?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Im Grundgesetz"
@@ -2613,16 +2945,20 @@
   },
   {
     "id": "83",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo befinden sich meistens die Wahllokale?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2651,16 +2987,20 @@
   },
   {
     "id": "84",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo können Wähler ungestört ihre Stimme abgeben?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "In einer Wahlkabine"
@@ -2673,16 +3013,20 @@
   },
   {
     "id": "85",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Kreuze setzt man auf seinen Stimmzettel zur Bundestagswahl?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "2"
@@ -2697,16 +3041,20 @@
   },
   {
     "id": "86",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "begriffe"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie kann man in der Demokratie eine Gruppe von Menschen mit ähnlichen politischen Meinungen nennen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2735,16 +3083,20 @@
   },
   {
     "id": "87",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "begriffe"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was heißt \"Demokratie\" wörtlich?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2773,16 +3125,20 @@
   },
   {
     "id": "88",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "erdkunde"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Aus wie vielen Bundesländern besteht Deutschland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2811,16 +3167,20 @@
   },
   {
     "id": "89",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie lautet die offizielle Bezeichnung eines Abgeordneten im Deutschen\nBundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2851,16 +3211,20 @@
   },
   {
     "id": "90",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt das deutsche Parlament?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2889,16 +3253,20 @@
   },
   {
     "id": "91",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißen die Freunde von Karlchen Adler?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2927,16 +3295,20 @@
   },
   {
     "id": "92",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches ist kein Kinderrecht in der Kinderrechtskonvention?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -2967,16 +3339,20 @@
   },
   {
     "id": "93",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Am 20. Juni 1991 stimmte der Bundestag für den Umzug des Parlaments nach Berlin. Wie viel „Umzugsgut“ trat die Reise von Bonn nach Berlin an?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3007,16 +3383,20 @@
   },
   {
     "id": "94",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Seit wann ist der Umweltschutz als Staatsziel im deutschen Grundgesetz festgelegt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3047,16 +3427,20 @@
   },
   {
     "id": "95",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wann fand die erste Bundestagswahl statt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3087,16 +3471,20 @@
   },
   {
     "id": "96",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wann trat der erste Deutsche Bundestag zusammen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3127,16 +3515,20 @@
   },
   {
     "id": "97",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer beschloss das Grundgesetz?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Der Parlamentarische Rat"
@@ -3151,16 +3543,20 @@
   },
   {
     "id": "98",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo tagte der Deutsche Bundestag, bevor er nach Berlin zog?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3191,16 +3587,20 @@
   },
   {
     "id": "99",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchem Jahr ist der Deutsche Bundestag von Bonn nach Berlin umgezogen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3231,16 +3631,20 @@
   },
   {
     "id": "100",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie lautet der erste Satz des Artikel 1 des Grundgesetzes?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Die Würde des Menschen ist unantastbar."
@@ -3255,16 +3659,20 @@
   },
   {
     "id": "101",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo wird die Urschrift – das Original-Grundgesetz – aufbewahrt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3295,16 +3703,20 @@
   },
   {
     "id": "102",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist das Grundgesetz?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3335,16 +3747,20 @@
   },
   {
     "id": "103",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo sind die Grundrechte für Deutschland aufgeschrieben?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3375,16 +3791,20 @@
   },
   {
     "id": "104",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Der Alterspräsident des Deutschen Bundestages …",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3415,16 +3835,20 @@
   },
   {
     "id": "105",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele fraktionslose Abgeordnete gibt es aktuell im Deutschen Bundestag?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3455,16 +3879,20 @@
   },
   {
     "id": "106",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Fraktionen sind aktuell im Bundestag vertreten?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3495,16 +3923,20 @@
   },
   {
     "id": "107",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer war sowohl Bundestagspräsident als auch Bundespräsident?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3533,16 +3965,20 @@
   },
   {
     "id": "109",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Fraktion ist aktuell die stärkste im Parlament?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3571,16 +4007,20 @@
   },
   {
     "id": "110",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Die Bundestagspräsidentin bzw. der Bundestagspräsident …",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3609,16 +4049,20 @@
   },
   {
     "id": "111",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer war sowohl Parlamentspräsident im Reichstag der Weimarer Republik als auch 1. Alterspräsident im Deutschen Bundestag 1949?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3647,16 +4091,20 @@
   },
   {
     "id": "112",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher dieser Regierungschefs wurde nicht vier Mal vom Bundestag zum Bundeskanzler gewählt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3685,16 +4133,20 @@
   },
   {
     "id": "114",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche dieser Politikerinnen war niemals Bundestagspräsidentin?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3723,16 +4175,20 @@
   },
   {
     "id": "115",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Fraktionen oder Gruppen im Bundestag haben einen Frauenanteil von mindestens 50 %?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3764,16 +4220,20 @@
   },
   {
     "id": "116",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer verhüllte im Sommer 1995 für zwei Wochen das Reichstagsgebäude?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3802,16 +4262,20 @@
   },
   {
     "id": "117",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Friedrich Merz ist der wievielte Bundeskanzler in der 75-jährigen Geschichte der Bundesrepublik?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3843,16 +4307,20 @@
   },
   {
     "id": "118",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "aemter"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Der Ältestenrat im Bundestag besteht  aus …",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3881,16 +4349,20 @@
   },
   {
     "id": "119",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Die Spirale, die die Besucher in der Reichstagskuppel auf die Aussichtsplattform führt, hat eine Länge von …",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3919,16 +4391,20 @@
   },
   {
     "id": "120",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchen Abständen finden normalerweise die Bundestagswahlen statt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3957,16 +4433,20 @@
   },
   {
     "id": "121",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Die Fläche des Bundestagsadlers im Plenarsaal ist ungefähr so groß wie:",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -3995,16 +4475,20 @@
   },
   {
     "id": "122",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "wahl"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Muss man verraten, welche Partei man gewählt hat?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4033,16 +4517,20 @@
   },
   {
     "id": "123",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was ist kein Grundrecht?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4071,16 +4559,20 @@
   },
   {
     "id": "124",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie lange dauerte die kürzeste Bundestagsrede?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4111,16 +4603,20 @@
   },
   {
     "id": "125",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie lange dauerte die längste Rede in einem deutschen Parlament?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4151,16 +4647,20 @@
   },
   {
     "id": "126",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "person"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche internationale Persönlichkeit hat am 17.03.2022 im Plenarsaal des Deutschen Bundestages eine Videoansprache gehalten?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Präsident der Ukraine Wolodymir Selenskyj"
@@ -4175,16 +4675,20 @@
   },
   {
     "id": "127",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Artikel des Grundgesetzes sind unveränderbar?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4215,16 +4719,20 @@
   },
   {
     "id": "128",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "institution"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches ist das wichtigste Organ der Legislative in Deutschland laut Grundgesetz?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Der Bundestag"
@@ -4237,16 +4745,20 @@
   },
   {
     "id": "129",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "kurioses"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Glaubst du, dass der Bundestag einen eigenen Fußballverein hat?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4277,16 +4789,20 @@
   },
   {
     "id": "130",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "recht"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Darf man als Kind die Abgeordneten für den Bundestag wählen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4317,16 +4833,20 @@
   },
   {
     "id": "131",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Menschen besichtigen jedes Jahr (ungefähr) die Reichstagskuppel?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4357,16 +4877,20 @@
   },
   {
     "id": "132",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "kurioses"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Klänge sind vor Sitzungen an Donnerstagen im Plenarsaal zu hören?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4397,16 +4921,20 @@
   },
   {
     "id": "133",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "kurioses"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Tiere werden seit 2015 im Bundestag gehalten?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Bienen"
@@ -4421,16 +4949,20 @@
   },
   {
     "id": "134",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "geschichte"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was passierte in der Nacht vom 27. auf den 28. Februar 1933 mit dem Reichstagsgebäude?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4461,16 +4993,20 @@
   },
   {
     "id": "135",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "kurioses"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Das Reichstagsgebäude kann auf eine wechselvolle Geschichte zurückblicken. Es war nicht nur Parlamentssitz. In den letzten Jahren des Zweiten Weltkrieges kam ihm eine besondere Funktion zu. Welche war das?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4501,16 +5037,20 @@
   },
   {
     "id": "136",
-    "modeIds": [
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "gebaeude"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer oder was ist der \"Lange Eugen\"?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Ein Hochhaus in Bonn, welches die Abgeordnetenbüros beherbergte"
@@ -4525,16 +5065,20 @@
   },
   {
     "id": "137",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche aus Saarbrücken stammende Sängerin wurde in den 1980er- und 90er-Jahren zur Pop-Ikone?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Sandra"
@@ -4549,16 +5093,20 @@
   },
   {
     "id": "138",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer ist seit April 2022 Ministerpräsidentin des Saarlandes?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Anke Rehlinger"
@@ -4573,16 +5121,20 @@
   },
   {
     "id": "139",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches ist die älteste erhaltene Brücke in Saarbrücken?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Alte Brücke über die Saar"
@@ -4597,16 +5149,20 @@
   },
   {
     "id": "140",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die bekannte barocke Kirche in Alt-Saarbrücken?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Ludwigskirche"
@@ -4621,16 +5177,21 @@
   },
   {
     "id": "141",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-3",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches historische Zentrum gehört zu Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4657,21 +5218,24 @@
     "explanation": {
       "summary": "https://www.saarbruecken.de/kultur/stadtgeschichte/stengelarchitektur/stengel_werke_in_saarbruecken/st_johanner_markt"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-3"
+    "enabled": true
   },
   {
     "id": "142",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo befindet sich der Saarländische Rundfunk in Saarbrücken?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Auf dem Halberg"
@@ -4686,16 +5250,20 @@
   },
   {
     "id": "143",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Sehenswürdigkeit südwestlich des Saarlands ist UNESCO‑Welterbe?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Völklinger Hütte (Eisenwerk)"
@@ -4710,16 +5278,20 @@
   },
   {
     "id": "144",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Region des Saarlands ist besonders für Weinbau bekannt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4750,16 +5322,20 @@
   },
   {
     "id": "145",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches bekannte UNESCO-Biosphärenreservat liegt im Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4790,16 +5366,20 @@
   },
   {
     "id": "146",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo befindet sich der Landtag des Saarlandes?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4830,16 +5410,20 @@
   },
   {
     "id": "147",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Automobilhersteller hat ein großes Werk im Saarland (Saarlouis)?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4870,16 +5454,20 @@
   },
   {
     "id": "148",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Theaterfestival lockt jedes Jahr ein internationales Publikum in die Landeshauptstadt?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4910,16 +5498,21 @@
   },
   {
     "id": "149",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-4",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo liegt der höchste Punkt Saarbrückens?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4946,21 +5539,24 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Schwarzenbergturm\nhttps://www.saarbruecken.de/leben_in_saarbruecken/freizeit/im_gruenen/schwarzenbergturm_st_johann"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-4"
+    "enabled": true
   },
   {
     "id": "150",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wen oder was nennt man auch scherzhaft den Nebenfluss der Saar?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -4991,16 +5587,20 @@
   },
   {
     "id": "151",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Im Saarland verläuft eine sogenannte Sprachgrenze. Die heißt …",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5027,16 +5627,21 @@
   },
   {
     "id": "152",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-5",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Das bekannteste Wahrzeichen des Saarlandes ist …",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5063,21 +5668,24 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Saarschleife"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-5"
+    "enabled": true
   },
   {
     "id": "153",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Partei stellt aktuell die Landesregierung im Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5108,16 +5716,20 @@
   },
   {
     "id": "154",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Bundesland grenzt als einziges direkt an das Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5148,16 +5760,20 @@
   },
   {
     "id": "155",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt der Landtag des Saarlandes?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5188,16 +5804,21 @@
   },
   {
     "id": "156",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-6",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die bekannte Flussschleife bei Mettlach?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5224,21 +5845,25 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Saarschleife"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-6"
+    "enabled": true
   },
   {
     "id": "157",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-7",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Nachbarländer grenzen an das Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5265,21 +5890,24 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Saarland"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-7"
+    "enabled": true
   },
   {
     "id": "158",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchem Landkreis liegt die Saarschleife?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5310,16 +5938,20 @@
   },
   {
     "id": "159",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Tier ist im Wappen von Saarbrücken zu sehen?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Löwe"
@@ -5334,16 +5966,21 @@
   },
   {
     "id": "160",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-8",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Fluss fließt durch Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5370,21 +6007,24 @@
     "explanation": {
       "summary": "https://www.saarbruecken.de/leben_in_saarbruecken/freizeit/erlebnis_saar"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-8"
+    "enabled": true
   },
   {
     "id": "161",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche saarländische Stadt ist bekannt für ihre Keramik (z. B. Villeroy & Boch)?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5415,16 +6055,20 @@
   },
   {
     "id": "162",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die Grenze zwischen Deutschland und Frankreich bei Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5455,16 +6099,20 @@
   },
   {
     "id": "163",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Nachbarregion in Frankreich ist eng mit dem Saarland verbunden?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5492,16 +6140,20 @@
   },
   {
     "id": "164",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchem Jahr vereinigten sich die (zuvor selbstständigen) Städte Saarbrücken, St. Johann und Malstatt-Burbach zur \"Großstadt Saarbrücken\"?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5529,16 +6181,20 @@
   },
   {
     "id": "165",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was stand zwischen 1947 und 1956 in den Reisepässen der Saarländer im Feld \"Nationalität\"?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5564,16 +6220,20 @@
   },
   {
     "id": "166",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wann wurde Saarbrücken erstmals urkundlich als \"Sarabrucca\" erwähnt?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5601,16 +6261,20 @@
   },
   {
     "id": "167",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Katastrophe zerstörte Saarbrücken im Jahr 1677 nahezu vollständig?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5641,16 +6305,20 @@
   },
   {
     "id": "168",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Barock-Architekt prägte das Erscheinungsbild Saarbrückens im 18. Jahrhundert?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5678,16 +6346,20 @@
   },
   {
     "id": "169",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wer ordnete um 1546/49  den Bau der Alten Brücke an?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5715,16 +6387,20 @@
   },
   {
     "id": "170",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wann wurde die Völklinger Hütte stillgelegt?",
-    "presentationType": "text-choice",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5752,16 +6428,20 @@
   },
   {
     "id": "171",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher saarländische Politiker war von 2013 bis 2018 Bundesjustizminister?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Heiko Maas"
@@ -5776,16 +6456,20 @@
   },
   {
     "id": "172",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher ehemalige Minister wurde in Saarlouis geboren?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5816,16 +6500,20 @@
   },
   {
     "id": "173",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt ein bekannter saarländischer Kabarettist?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5856,16 +6544,20 @@
   },
   {
     "id": "174",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Brücke gab Saarbrücken seinen Namen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5896,16 +6588,20 @@
   },
   {
     "id": "175",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Gegen wen spielte die deutsche Nationalmannschaft 1954 in Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5936,16 +6632,20 @@
   },
   {
     "id": "176",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie hieß das Saarland zwischen 1947 und 1956 politisch?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -5976,16 +6676,20 @@
   },
   {
     "id": "177",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Ministerpräsident regierte das Saarland von 1985 bis 1998?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Oskar Lafontaine (SPD)"
@@ -6000,16 +6704,20 @@
   },
   {
     "id": "178",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher starke Wirtschaftssektor prägte das Saarland vor allem in der Mitte des 20. Jahrhunderts?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6040,16 +6748,20 @@
   },
   {
     "id": "179",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Aus wie vielen Städten entstand das heutige Saarbrücken im Jahr 1909?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6080,16 +6792,20 @@
   },
   {
     "id": "180",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Was bedeutet der Name \"Sarabrucca\" ursprünglich laut gängiger Deutungen?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6120,16 +6836,20 @@
   },
   {
     "id": "181",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie viele Menschen leben ungefähr in Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6160,16 +6880,20 @@
   },
   {
     "id": "182",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche französische Stadt liegt direkt an der Grenze zu Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6200,16 +6924,20 @@
   },
   {
     "id": "183",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "In welchem Jahr trat das Saarland der Bundesrepublik als 10. Bundesland bei?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6240,16 +6968,20 @@
   },
   {
     "id": "184",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie hoch ist der höchste Berg im Saarland (Dollberg)?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6280,16 +7012,20 @@
   },
   {
     "id": "185",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Saarbrücker Politikerin war Verteidigungsministerin Deutschlands?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Annegret Kramp-Karrenbauer"
@@ -6304,16 +7040,20 @@
   },
   {
     "id": "186",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die Hauptstadt des Saarlandes?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6344,16 +7084,20 @@
   },
   {
     "id": "187",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Freizeitpark liegt bei Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6384,16 +7128,20 @@
   },
   {
     "id": "188",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt eine bekannte Kirche in Alt-Saarbrücken?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Ludwigskirche"
@@ -6408,16 +7156,21 @@
   },
   {
     "id": "189",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-3",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches historische Zentrum gehört zu Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6444,21 +7197,24 @@
     "explanation": {
       "summary": "https://www.saarbruecken.de/kultur/stadtgeschichte/stengelarchitektur/stengel_werke_in_saarbruecken/st_johanner_markt"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-3"
+    "enabled": true
   },
   {
     "id": "190",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Automobilhersteller hat ein großes Werk im Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6489,16 +7245,21 @@
   },
   {
     "id": "191",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-4",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wo liegt der höchste Punkt Saarbrückens?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6525,21 +7286,25 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Schwarzenbergturm\nhttps://www.saarbruecken.de/leben_in_saarbruecken/freizeit/im_gruenen/schwarzenbergturm_st_johann"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-4"
+    "enabled": true
   },
   {
     "id": "192",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-5",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Das bekannteste Wahrzeichen des Saarlandes ist …",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "... die Saarschleife."
@@ -6550,21 +7315,24 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Saarschleife"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-5"
+    "enabled": true
   },
   {
     "id": "193",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "hard",
-    "categoryIds": [
+    "difficulty": "hard",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Bundesland grenzt als einziges direkt an das Saarland im Norden?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6595,16 +7363,21 @@
   },
   {
     "id": "194",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-6",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die bekannte Flussschleife bei Mettlach?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6631,21 +7404,25 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Saarschleife"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-6"
+    "enabled": true
   },
   {
     "id": "195",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-7",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welche Nachbarländer grenzen an das Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6672,21 +7449,24 @@
     "explanation": {
       "summary": "https://de.wikipedia.org/wiki/Saarland"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-7"
+    "enabled": true
   },
   {
     "id": "196",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welches Tier ist im Wappen von Saarbrücken abgebildet?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Löwe"
@@ -6701,16 +7481,20 @@
   },
   {
     "id": "197",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt der größte Fußballverein im Saarland?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6741,16 +7525,21 @@
   },
   {
     "id": "198",
-    "modeIds": [
+    "repetitionGroupId": "gruppe-8",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher Fluss fließt durch Saarbrücken?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6777,21 +7566,24 @@
     "explanation": {
       "summary": "https://www.saarbruecken.de/leben_in_saarbruecken/freizeit/erlebnis_saar"
     },
-    "enabled": true,
-    "repetitionGroupId": "gruppe-8"
+    "enabled": true
   },
   {
     "id": "199",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "medium",
-    "categoryIds": [
+    "difficulty": "medium",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Welcher See im Saarland ist ein beliebter Badesee?",
-    "presentationType": "image-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6822,16 +7614,20 @@
   },
   {
     "id": "200",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "saarbruecken"
     ],
     "tags": [],
+    "locale": "de-DE",
     "prompt": "Wie heißt die älteste Brücke Saarbrückens?",
-    "presentationType": "image-reveal",
+    "questionType": "image-reveal",
     "evaluationMode": "manual-correct-incorrect",
     "acceptedAnswerText": [
       "Alte Brücke über die Saar"
@@ -6846,20 +7642,24 @@
   },
   {
     "id": "test-video",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults",
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "begriffe",
       "saarbruecken"
     ],
     "tags": [
       "testfrage"
     ],
+    "locale": "de-DE",
     "prompt": "Lorem ipsum dolor sit amet: Was zeigt das Video?",
-    "presentationType": "video-then-question",
+    "questionType": "video-then-question",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -6890,20 +7690,24 @@
   },
   {
     "id": "test-person",
-    "modeIds": [
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
       "adults",
       "kids"
     ],
-    "difficultyId": "easy",
-    "categoryIds": [
+    "difficulty": "easy",
+    "categories": [
       "begriffe",
       "saarbruecken"
     ],
     "tags": [
       "testfrage"
     ],
+    "locale": "de-DE",
     "prompt": "Lorem ipsum: Wer ist diese Person?",
-    "presentationType": "person",
+    "questionType": "person",
     "evaluationMode": "option-comparison",
     "options": [
       {

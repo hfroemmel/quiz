@@ -48,7 +48,7 @@ export function ShellApp() {
             * haelt.
             */}
           <QuizGame
-            quizModeId="adults"
+            audience="adults"
             idleTimeoutMs={120_000}
             onFinished={(result) => {
               setLastResult(result)

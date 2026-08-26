@@ -6,7 +6,6 @@
  * werden kann. Die Auswahl selbst hat eigene Tests (`selection.test.ts`).
  */
 import {
-  designColorTokens,
   gameTiming,
   selfServiceTiming,
   type Command,
@@ -23,12 +22,14 @@ import { projectPublic } from '../src/projection'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
   return {
-    modeIds: ['adults'],
-    difficultyId: 'medium',
-    categoryIds: ['general'],
+    poolIds: ['bundestag'],
+    audiences: ['adults'],
+    difficulty: 'medium',
+    categories: ['general'],
     tags: [],
+    locale: 'de-DE',
     prompt: `Frage ${overrides.id}`,
-    presentationType: 'text-choice',
+    questionType: 'text-choice',
     evaluationMode: 'option-comparison',
     options: [
       { id: 'a', text: 'Antwort A' },
@@ -171,15 +172,10 @@ const testConfig: QuizConfig = {
   questionsPerGame: 7,
   difficulties: [{ id: 'medium', label: 'Mittel' }],
   categories: [{ id: 'general', label: 'Allgemein' }],
-  themes: [
-    {
-      id: 'default',
-      label: 'Standard',
-      colors: Object.fromEntries(designColorTokens.map((token) => [token, '#000000'])) as QuizConfig['themes'][number]['colors'],
-    },
-  ],
+  pools: [{ id: 'bundestag', label: 'Bundestag' }],
+  themes: [{ id: 'default', label: 'Standard' }],
   presets: [{ id: 'medium', label: 'Mittel', slots: [{ id: 'text', filters: {} }] }],
-  modes: [{ id: 'adults', label: 'Erwachsene', questionFilter: {}, themeId: 'default', allowedPresetIds: ['medium'] }],
+  audiences: [{ id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['medium'] }],
 }
 
 /** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */
@@ -189,7 +185,7 @@ export function startGame(
 ): GameState {
   harness.dispatch({
     type: 'START_GAME',
-    quizModeId: 'adults',
+    audience: 'adults',
     presetId: 'medium',
     ...(options.playerCount === undefined ? {} : { playerCount: options.playerCount }),
     ...(options.playerLabels === undefined ? {} : { playerLabels: options.playerLabels }),

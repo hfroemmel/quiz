@@ -251,15 +251,15 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
   /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */
-  resumable?: { gameId: string; quizModeId: string; presetId: string; progress: string }
-  /** Verfuegbare Modi und Presets aus validierter Konfiguration, nicht aus UI-Konstanten. */
+  resumable?: { gameId: string; audience: string; presetId: string; progress: string }
+  /** Verfuegbare Zielgruppen, Pools und Presets aus validierter Konfiguration. */
   catalog: CatalogViewModel
-  /** Gespielte Spiele je Quizmodus. Liegt in der Datenbank, nicht im Browser. */
+  /** Gespielte Spiele je Zielgruppe. Liegt in der Datenbank, nicht im Browser. */
   statistics: GameStatisticsViewModel
 }
 
 /**
- * Spielprotokoll: wie viele Spiele in welchem Modus bereits gelaufen sind.
+ * Spielprotokoll: wie viele Spiele je Zielgruppe bereits gelaufen sind.
  *
  * Gezaehlt wird ueber Veranstaltungstage hinweg - das Protokoll beantwortet
  * "was haben wir mit diesem Aufbau schon gespielt", nicht "was lief heute".
@@ -270,8 +270,8 @@ export interface GameStatisticsViewModel {
    * ersten Inbetriebnahme.
    */
   countingSinceIso?: string
-  modes: {
-    quizModeId: string
+  audiences: {
+    audience: string
     label: string
     /** Alle begonnenen Spiele, einschliesslich abgebrochener und laufender. */
     total: number
@@ -284,13 +284,15 @@ export interface GameStatisticsViewModel {
 
 export interface CatalogViewModel {
   questionsPerGame: number
-  modes: {
+  audiences: {
     id: string
     label: string
     themeId: string
     startVisualUrl?: string
     allowedPresetIds: string[]
   }[]
+  /** Waehlbare Fragenpools - "Saarbruecken" ist genau so einer. */
+  pools: { id: string; label: string }[]
   presets: { id: string; label: string; slotCount: number }[]
 }
 

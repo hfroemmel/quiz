@@ -28,7 +28,7 @@ import { startServer, type RunningServer } from '@quiz/server'
 const repoWurzel = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 
 /** Quizmodus des Geraets. Er gehoert zur Aufstellung, nicht auf den Spielbildschirm. */
-const quizMode = process.env['QUIZ_KIOSK_MODE'] ?? 'adults'
+const audience = process.env['QUIZ_KIOSK_AUDIENCE'] ?? 'adults'
 
 /**
  * Leerlauf-Aufsicht in Sekunden. Ohne sie bliebe ein Geraet mit einer offenen
@@ -59,7 +59,7 @@ function createWindow(): BrowserWindow {
     },
   })
 
-  const params = new URLSearchParams({ mode: quizMode, idle: String(idleSeconds) })
+  const params = new URLSearchParams({ audience, idle: String(idleSeconds) })
   void created.loadURL(`http://127.0.0.1:${running!.port}/play?${params.toString()}`)
 
   // Ein geschlossenes Fenster darf das Geraet nicht dunkel zuruecklassen.

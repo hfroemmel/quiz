@@ -19,7 +19,6 @@ import {
   selectionTuning,
   type Question,
   type QuestionSlotRule,
-  type QuizMode,
 } from '@quiz/contracts'
 
 /** Zufallsquelle: injizierbar, damit Tests deterministisch laufen. */
@@ -48,7 +47,7 @@ export interface UsageSummary {
 export interface SelectionInput {
   slot: QuestionSlotRule
   slotIndex: number
-  /** Bereits nach Modus gefilterter Pool. */
+  /** Bereits nach Zielgruppe und Pools gefilterte Grundmenge. */
   pool: Question[]
   /** Im aktuellen Spiel bereits verwendete Frage-IDs. */
   excludeQuestionIds: ReadonlySet<string>
@@ -86,33 +85,33 @@ export function repetitionKey(question: Question): string {
   return question.repetitionGroupId ?? question.id
 }
 
-/** Pool eines Quizmodus. Der Modus ist ein konfigurierter Filter, kein Sondercode. */
-export function poolForMode(questions: Question[], mode: QuizMode): Question[] {
-  const filter = mode.questionFilter
+/**
+ * Grundmenge eines Spiels: Zielgruppe plus (optional) gewaehlte Pools.
+ *
+ * Beides sind DATENFELDER der Fragen (Schema v2) - kein Sondercode, keine
+ * konfigurierten Filterausdruecke. Ohne `poolIds` spielt jeder Pool mit; so
+ * bleibt "alles" der Normalfall und "Saarbruecken" eine bewusste Auswahl.
+ */
+export function poolForGame(
+  questions: Question[],
+  game: { audience: string; poolIds?: string[] | undefined },
+): Question[] {
   return questions.filter((question) => {
     if (!question.enabled) return false
-    if (!question.modeIds.includes(mode.id) && !matchesLegacyModes(question, filter.legacyModes)) return false
-    if (filter.categoryIds?.length && !filter.categoryIds.some((id) => question.categoryIds.includes(id))) {
-      return false
-    }
-    if (filter.tags?.length && !filter.tags.some((tag) => question.tags.includes(tag))) return false
+    if (!question.audiences.includes(game.audience)) return false
+    if (game.poolIds?.length && !game.poolIds.some((id) => question.poolIds.includes(id))) return false
     return true
   })
-}
-
-function matchesLegacyModes(question: Question, legacyModes: string[] | undefined): boolean {
-  if (!legacyModes?.length) return false
-  return legacyModes.some((mode) => question.modeIds.includes(mode))
 }
 
 /** Erfuellt die Frage alle Filter des Fragenplatzes? Fehlender Filter = beliebig. */
 export function matchesSlot(question: Question, slot: QuestionSlotRule): boolean {
   if (!question.enabled) return false
-  const { difficultyIds, presentationTypes, evaluationModes, categoryIds, tags } = slot.filters
-  if (difficultyIds?.length && !difficultyIds.includes(question.difficultyId)) return false
-  if (presentationTypes?.length && !presentationTypes.includes(question.presentationType)) return false
+  const { difficultyIds, questionTypes, evaluationModes, categoryIds, tags } = slot.filters
+  if (difficultyIds?.length && !difficultyIds.includes(question.difficulty)) return false
+  if (questionTypes?.length && !questionTypes.includes(question.questionType)) return false
   if (evaluationModes?.length && !evaluationModes.includes(question.evaluationMode)) return false
-  if (categoryIds?.length && !categoryIds.some((id) => question.categoryIds.includes(id))) return false
+  if (categoryIds?.length && !categoryIds.some((id) => question.categories.includes(id))) return false
   if (tags?.length && !tags.every((tag) => question.tags.includes(tag))) return false
   return true
 }
@@ -153,7 +152,7 @@ export function selectQuestionForSlot(input: SelectionInput): SelectionResult {
       rationale,
       message:
         matching.length === 0
-          ? `Für den Fragenplatz "${slot.id}" gibt es im gewählten Modus keine passende Frage. Bitte anderes Preset oder anderen Modus wählen.`
+          ? `Für den Fragenplatz "${slot.id}" gibt es in der gewählten Auswahl keine passende Frage. Bitte anderes Preset oder andere Auswahl wählen.`
           : `Alle passenden Fragen für "${slot.id}" wurden in diesem Spiel bereits verwendet. Bitte Preset anpassen oder Fragenpool erweitern.`,
     }
   }

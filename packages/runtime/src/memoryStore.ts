@@ -28,7 +28,7 @@ interface EventDayEntry {
 
 interface GameEntry {
   gameId: string
-  quizModeId: string
+  audience: string
   status: GameState['status']
   createdAtIso: string
   updatedAtIso: string
@@ -103,7 +103,7 @@ export class MemoryQuizStore implements QuizStorePort {
     const existing = this.games.get(state.gameId)
     this.games.set(state.gameId, {
       gameId: state.gameId,
-      quizModeId: state.quizModeId,
+      audience: state.audience,
       status: state.status,
       createdAtIso: existing?.createdAtIso ?? nowIso,
       updatedAtIso: nowIso,
@@ -185,12 +185,12 @@ export class MemoryQuizStore implements QuizStorePort {
 
   /* ---------------- Spielprotokoll ---------------- */
 
-  gameCountsByMode(sinceIso: string | null): GameCountRow[] {
+  gameCountsByAudience(sinceIso: string | null): GameCountRow[] {
     const byMode = new Map<string, GameCountRow>()
     for (const entry of this.games.values()) {
       if (sinceIso && entry.createdAtIso < sinceIso) continue
-      const row = byMode.get(entry.quizModeId) ?? {
-        quizModeId: entry.quizModeId,
+      const row = byMode.get(entry.audience) ?? {
+        audience: entry.audience,
         total: 0,
         completed: 0,
         aborted: 0,
@@ -199,7 +199,7 @@ export class MemoryQuizStore implements QuizStorePort {
       if (entry.status === 'completed') row.completed += 1
       if (entry.status === 'aborted') row.aborted += 1
       if (!row.lastAtIso || entry.createdAtIso > row.lastAtIso) row.lastAtIso = entry.createdAtIso
-      byMode.set(entry.quizModeId, row)
+      byMode.set(entry.audience, row)
     }
     return [...byMode.values()]
   }

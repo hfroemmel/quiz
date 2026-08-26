@@ -31,8 +31,8 @@ import styles from './Game.module.css'
 export type { QuizGameResult }
 
 export interface QuizGameProps {
-  /** Quizmodus, in dem dieses Geraet spielt. Ohne Angabe der erste des Katalogs. */
-  quizModeId?: string
+  /** Zielgruppe, in der dieses Geraet spielt. Ohne Angabe die erste des Katalogs. */
+  audience?: string
   /** Ergebnis eines beendeten Spiels - fuer die Bestenliste des Gastgebers. */
   onFinished?: (result: QuizGameResult) => void
   /**
@@ -51,7 +51,7 @@ export interface QuizGameProps {
   idleTimeoutMs?: number
 }
 
-export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
+export function QuizGame({ audience, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
   const { runtime, snapshot } = useQuizRuntime<PlayerQuizViewModel>('player')
   const view = snapshot?.view ?? null
   const connected = snapshot?.connection.connected ?? false
@@ -155,7 +155,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
     )
   }
 
-  const modeId = quizModeId ?? view.catalog.modes[0]?.id ?? ''
+  const audienceId = audience ?? view.catalog.audiences[0]?.id ?? ''
   // Ohne laufendes oder beendetes Spiel zeigt der Server die Startszene.
   const hasGame = view.scene !== 'start'
   const finished = view.scene === 'result'
@@ -166,7 +166,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
     clearRejection()
     // Ein zweiter Tipp waehrend des Startens legt kein zweites Spiel an: Der
     // Server weist ihn ab, weil dann bereits ein Spiel laeuft.
-    send({ type: 'START_GAME', quizModeId: modeId, presetId, playerCount, flowProfile: 'self-service' })
+    send({ type: 'START_GAME', audience: audienceId, presetId, playerCount, flowProfile: 'self-service' })
   }
 
   const leave = () => {
@@ -179,7 +179,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
   if (!pendingStart && (showChoice || !hasGame)) {
     return (
       <div className={`${styles.game} ${styles.startScreen}`} style={themeVariables(themeForView(view))} data-quiz-game="">
-        <GameStart view={view} quizModeId={modeId} onStart={start} onExit={onExit} />
+        <GameStart view={view} audience={audienceId} onStart={start} onExit={onExit} />
       </div>
     )
   }

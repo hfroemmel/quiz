@@ -37,13 +37,13 @@ export interface UsageRow {
   usedAtMs: number
 }
 
-/** Eine Zeile des Spielprotokolls: alle Spiele eines Quizmodus. */
+/** Eine Zeile des Spielprotokolls: alle Spiele einer Zielgruppe. */
 export interface GameCountRow {
-  quizModeId: string
+  audience: string
   total: number
   completed: number
   aborted: number
-  /** Zeitpunkt des zuletzt begonnenen Spiels dieses Modus. */
+  /** Zeitpunkt des zuletzt begonnenen Spiels dieser Zielgruppe. */
   lastAtIso?: string
 }
 
@@ -82,7 +82,7 @@ export interface QuizStorePort {
   loadPatches(): QuestionPatch[]
 
   /* Spielprotokoll */
-  gameCountsByMode(sinceIso: string | null): GameCountRow[]
+  gameCountsByAudience(sinceIso: string | null): GameCountRow[]
 
   /* Einstellungen */
   getSetting(key: string): string | null

@@ -6,7 +6,7 @@ laedt. Es entsteht aus `content/source/` und liegt gebaut unter `content/dist/`.
 ```text
 content/dist/
   manifest.json     Version, Zeitstempel, Medienliste, Pruefsumme
-  config.json       Modi, Presets, Themes, Kategorien, Schwierigkeiten
+  config.json       Zielgruppen, Pools, Presets, Themes, Kategorien, Schwierigkeiten
   questions.json    alle Fragen, nach ID sortiert
   assets.json       Medienverzeichnis
   assets/           Bilder und Videos
@@ -16,7 +16,7 @@ content/dist/
 
 ```jsonc
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "contentVersion": "1.0.1",
   "createdAt": "2026-08-18T05:36:00.000Z",
   "questionsFile": "questions.json",
@@ -36,13 +36,15 @@ bearbeiten“ technisch erkennbar. Live-Korrekturen laufen stattdessen ueber Hot
 {
   "id": "a-m-02",
   "repetitionGroupId": "hauptstadt-australien",   // optional: inhaltlich gleiche Varianten
-  "modeIds": ["adults"],
-  "difficultyId": "medium",
-  "categoryIds": ["geografie"],
+  "poolIds": ["bundestag"],                       // Fragenpools: die Achse der Inhaltsauswahl
+  "audiences": ["adults"],                        // Zielgruppen (frueher modeIds)
+  "difficulty": "medium",
+  "categories": ["geografie"],
   "tags": [],
+  "locale": "de-DE",
 
   "prompt": "Welche Stadt ist die Hauptstadt Australiens?",
-  "presentationType": "text-choice",              // text-choice | image-choice | person | image-reveal | video-then-question
+  "questionType": "text-choice",                  // text-choice | image-choice | person | image-reveal | video-then-question
   "evaluationMode": "option-comparison",          // option-comparison | manual-correct-incorrect
 
   "options": [
@@ -103,26 +105,27 @@ beliebige lokale Dateien zeigen.
   "questionsPerGame": 7,                 // genau eine Quelle der Wahrheit
   "difficulties": [{ "id": "easy", "label": "Leicht" }],
   "categories":   [{ "id": "geografie", "label": "Geografie" }],
+  "pools": [
+    { "id": "bundestag", "label": "Bundestag" },
+    { "id": "saarbruecken", "label": "Saarbrücken" }   // "Saarbruecken" ist NUR ein Pool
+  ],
   "themes": [{
     "id": "kids",
     "label": "Kinderquiz",
-    "skin": "kids",
-    "colors": { "accent": "#ffd93d" },   // NUR Abweichungen von der Welt des skin
-    "logoAssetId": "logo-kids",
-    "typography": { "headingFont": "…", "bodyFont": "…" }
+    "skin": "kids",                      // Gestaltungswelt; Farben und Schriften liefert der Gastgeber
+    "logoAssetId": "logo-kids"
   }],
   "presets": [{
     "id": "medium",
     "label": "Mittel",
     "slots": [
-      { "id": "einstieg", "filters": { "difficultyIds": ["easy"], "presentationTypes": ["text-choice"] } }
+      { "id": "einstieg", "filters": { "difficultyIds": ["easy"], "questionTypes": ["text-choice"] } }
       // … genau questionsPerGame Eintraege
     ]
   }],
-  "modes": [{
+  "audiences": [{
     "id": "kids",
     "label": "Kinder",
-    "questionFilter": { "categoryIds": [], "tags": [] },
     "themeId": "kids",
     "startVisualAssetId": "start-kids",
     "allowedPresetIds": ["easy", "mixed"]
@@ -132,3 +135,8 @@ beliebige lokale Dateien zeigen.
 
 Fehlende Filter bedeuten „beliebig“. Ein Sonderwert wie der String `random` ist
 deshalb nicht noetig.
+
+Welche Pools ein Spiel zieht, entscheidet `START_GAME` (`audience`, optional
+`poolIds`); ohne Angabe spielen alle Pools mit. Das Quizpaket traegt seit
+Schema v2 KEINE Farben und Schriften mehr - Darstellung ist Sache des
+Gastgebers (`quiz-themes`).

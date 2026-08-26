@@ -14,7 +14,6 @@ import {
   questionSchema,
   quizConfigSchema,
   quizPackageManifestSchema,
-  resolveThemeColors,
   type MediaAsset,
   type Question,
   type QuizConfig,
@@ -113,22 +112,12 @@ export function buildPackage(options: BuildOptions): BuildResult {
     return { manifest: emptyManifest(options), validation, outDir: options.outDir, missingAssetFiles: [] }
   }
 
-  const sourceConfig = quizConfigSchema.parse(source.config)
   /*
-   * Die Themes verlassen die Quelle mit ihren Abweichungen und kommen mit dem
-   * vollstaendigen Farbsatz ins Paket. Nur so bleibt das Paket allein lesbar:
-   * Server und Client sehen fertige Farben, ohne die Farbdatei zu kennen.
-   *
-   * DER ZWEITE `parse` IST PFLICHT, nicht Zierde: Die Pruefsumme laeuft ueber
-   * `JSON.stringify`, und dort zaehlt die Reihenfolge der Schluessel. Ein
-   * ergaenztes `colors` stuende am Ende des Objekts, waehrend der Ladeweg es
-   * ueber das Schema an seinen Platz sortiert - das Paket wuerde beim Start mit
-   * "Pruefsumme stimmt nicht" abgewiesen.
+   * Seit Schema v2 traegt das Paket KEINE Farben und Schriften mehr - Darstellung
+   * ist Sache des Gastgebers (`quiz-themes`). Das Paket nennt nur die
+   * Gestaltungswelt (`skin`) und die Branding-Assets.
    */
-  const config: QuizConfig = quizConfigSchema.parse({
-    ...sourceConfig,
-    themes: sourceConfig.themes.map((theme) => ({ ...theme, colors: resolveThemeColors(theme) })),
-  })
+  const config: QuizConfig = quizConfigSchema.parse(source.config)
   const questions = questionSchema.array().parse(source.questions)
 
   // Normalisierung: stabile Sortierung, damit Builds reproduzierbar sind.

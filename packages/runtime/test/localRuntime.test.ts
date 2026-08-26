@@ -65,7 +65,7 @@ describe('LocalQuizRuntime', () => {
     // Lokal gibt es keine Verbindungsfrage und keine Konkurrenz um den Ton.
     expect(runtime.getSnapshot().connection).toEqual({ connected: true, audioMaster: true })
 
-    runtime.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium', flowProfile: 'self-service' })
+    runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
     if (runtime.service.authoritativeState?.phase === 'video-playing') {
       runtime.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 1_000 })
@@ -106,7 +106,7 @@ describe('LocalQuizRuntime', () => {
     const saved: MemoryQuizStoreSnapshot[] = []
     const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })
 
-    runtime.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium', flowProfile: 'self-service' })
+    runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     runtime.dispatch({ type: 'SET_SOUND_ENABLED', enabled: false })
     runtime.dispatch({ type: 'ABORT_GAME' })
     // `dispose` schreibt einen noch ausstehenden Stand, bevor er verloren ginge.
@@ -115,8 +115,8 @@ describe('LocalQuizRuntime', () => {
 
     const restored = createRuntime({ restoreFrom: saved.at(-1)! }).runtime
     expect(restored.getSnapshot().view!.soundEnabled).toBe(false)
-    expect(restored.store.gameCountsByMode(null)).toEqual([
-      expect.objectContaining({ quizModeId: 'adults', total: 1, aborted: 1 }),
+    expect(restored.store.gameCountsByAudience(null)).toEqual([
+      expect.objectContaining({ audience: 'adults', total: 1, aborted: 1 }),
     ])
     restored.dispose()
   })

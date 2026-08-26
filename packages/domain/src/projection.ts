@@ -58,16 +58,16 @@ export interface ProjectionContext {
    * damit der Operatorclient weiterhin nur `allowedCommands` auswerten muss.
    */
   additionalOperatorCommands?: import('@quiz/contracts').CommandType[]
-  /** Modus, dessen Theme auf der Startansicht gezeigt wird, solange kein Spiel laeuft. */
-  previewModeId?: string
+  /** Zielgruppe, deren Theme die Startansicht zeigt, solange kein Spiel laeuft. */
+  previewAudienceId?: string
   /** Globaler Soundstatus, solange kein Spiel laeuft. */
   soundEnabled?: boolean
   /**
-   * Rohzahlen des Spielprotokolls aus der Datenbank, je Quizmodus. Die Zuordnung
-   * zu lesbaren Modusnamen passiert hier in der Projektion - dieselbe Regel wie
+   * Rohzahlen des Spielprotokolls aus der Datenbank, je Zielgruppe. Die Zuordnung
+   * zu lesbaren Namen passiert hier in der Projektion - dieselbe Regel wie
    * bei Rubriken: rohe IDs kommen nicht in die Oberflaeche.
    */
-  gameCounts?: { quizModeId: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
+  gameCounts?: { audience: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
   /** Zeitpunkt, ab dem das Protokoll zaehlt. */
   statisticsSinceIso?: string
 }
@@ -128,7 +128,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     }
   }
 
-  const scene = sceneForPhase(state.phase, state.currentQuestion?.question.presentationType)
+  const scene = sceneForPhase(state.phase, state.currentQuestion?.question.questionType)
   const runtime = state.currentQuestion
   const question = runtime?.question
   const active = activePlayerId(state)
@@ -138,7 +138,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     showsQuestion && question
       ? {
           prompt: question.prompt,
-          presentationType: question.presentationType,
+          presentationType: question.questionType,
           imageUrl: ctx.assetUrl(question.media?.imageAssetId),
           videoUrl: scene === 'video' ? ctx.assetUrl(question.media?.videoAssetId) : undefined,
           categoryLabel: categoryLabel(question, ctx),
@@ -227,7 +227,7 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
 
 /**
  * Katalog fuer das Touchgeraet: nur Presets, die dort auch spielbar sind, und nur
- * Modi, die mindestens eines davon erlauben.
+ * Zielgruppen, die mindestens eines davon erlauben.
  *
  * Damit steht am Geraet keine Schwierigkeitsstufe zur Wahl, die auf halber
  * Strecke einen Operator braeuchte - und der Client muss nichts darueber wissen.
@@ -239,9 +239,9 @@ function buildPlayerCatalog(ctx: ProjectionContext): CatalogViewModel {
   return {
     ...full,
     presets: full.presets.filter((preset) => playable.has(preset.id)),
-    modes: full.modes
-      .map((mode) => ({ ...mode, allowedPresetIds: mode.allowedPresetIds.filter((id) => playable.has(id)) }))
-      .filter((mode) => mode.allowedPresetIds.length > 0),
+    audiences: full.audiences
+      .map((entry) => ({ ...entry, allowedPresetIds: entry.allowedPresetIds.filter((id) => playable.has(id)) }))
+      .filter((entry) => entry.allowedPresetIds.length > 0),
   }
 }
 
@@ -356,20 +356,20 @@ function publicOptions(state: GameState, scene: PublicScene): PublicOption[] | u
 }
 
 /**
- * Spielprotokoll: jeder konfigurierte Modus erscheint, auch mit null Spielen.
+ * Spielprotokoll: jede konfigurierte Zielgruppe erscheint, auch mit null Spielen.
  *
  * Ein fehlender Eintrag waere zweideutig - "noch nie gespielt" sieht dann aus wie
- * "Modus gibt es nicht mehr".
+ * "Zielgruppe gibt es nicht mehr".
  */
 function gameStatistics(ctx: ProjectionContext): GameStatisticsViewModel {
-  const byMode = new Map((ctx.gameCounts ?? []).map((entry) => [entry.quizModeId, entry]))
+  const byAudience = new Map((ctx.gameCounts ?? []).map((entry) => [entry.audience, entry]))
   return {
     countingSinceIso: ctx.statisticsSinceIso,
-    modes: ctx.config.modes.map((mode) => {
-      const counts = byMode.get(mode.id)
+    audiences: ctx.config.audiences.map((audienceConfig) => {
+      const counts = byAudience.get(audienceConfig.id)
       return {
-        quizModeId: mode.id,
-        label: mode.label,
+        audience: audienceConfig.id,
+        label: audienceConfig.label,
         total: counts?.total ?? 0,
         completed: counts?.completed ?? 0,
         aborted: counts?.aborted ?? 0,
@@ -397,7 +397,7 @@ function correctAnswerText(state: GameState): string {
  * eine rohe ID auf die Buehne zu bringen.
  */
 function categoryLabel(question: Question, ctx: ProjectionContext): string | undefined {
-  const first = question.categoryIds[0]
+  const first = question.categories[0]
   if (!first) return undefined
   return ctx.config.categories.find((category) => category.id === first)?.label
 }
@@ -446,17 +446,18 @@ function videoWarnings(state: GameState | null): string[] {
 }
 
 function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTheme {
-  const modeId = state?.quizModeId ?? ctx.previewModeId
-  const mode = ctx.config.modes.find((entry) => entry.id === modeId) ?? ctx.config.modes[0]!
-  const theme = ctx.config.themes.find((entry) => entry.id === mode.themeId) ?? ctx.config.themes[0]!
+  const audienceId = state?.audience ?? ctx.previewAudienceId
+  const audienceConfig =
+    ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
+  const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId) ?? ctx.config.themes[0]!
   // Farben und Schriften stehen bewusst nicht im View-Modell - Darstellung ist
   // Sache des Gastgebers und kommt aus dessen Theme-Schicht.
   return {
     id: theme.id,
     skin: theme.skin,
     logoUrl: ctx.assetUrl(theme.logoAssetId),
-    startVisualUrl: ctx.assetUrl(mode.startVisualAssetId ?? theme.logoAssetId),
-    startTitle: mode.startTitle,
+    startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId ?? theme.logoAssetId),
+    startTitle: audienceConfig.startTitle,
     presentationAnimationSetId: theme.presentationAnimationSetId,
   }
 }
@@ -464,13 +465,14 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
 function buildCatalog(ctx: ProjectionContext): CatalogViewModel {
   return {
     questionsPerGame: ctx.config.questionsPerGame,
-    modes: ctx.config.modes.map((mode) => ({
-      id: mode.id,
-      label: mode.label,
-      themeId: mode.themeId,
-      startVisualUrl: ctx.assetUrl(mode.startVisualAssetId),
-      allowedPresetIds: mode.allowedPresetIds,
+    audiences: ctx.config.audiences.map((audienceConfig) => ({
+      id: audienceConfig.id,
+      label: audienceConfig.label,
+      themeId: audienceConfig.themeId,
+      startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId),
+      allowedPresetIds: audienceConfig.allowedPresetIds,
     })),
+    pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: pool.label })),
     presets: ctx.config.presets.map((preset) => ({
       id: preset.id,
       label: preset.label,
@@ -481,7 +483,7 @@ function buildCatalog(ctx: ProjectionContext): CatalogViewModel {
 
 /** Klartexthinweis, was als naechstes passiert - hilft Moderator und Operator. */
 function nextStepHint(state: GameState | null): string {
-  if (!state) return 'Modus und Preset wählen, dann "Spiel starten".'
+  if (!state) return 'Zielgruppe und Preset wählen, dann "Spiel starten".'
   if (state.status === 'aborted') return 'Spiel abgebrochen. Zurück zur Startansicht.'
   if (state.status === 'completed') return 'Ergebnis sichtbar. Punkte können noch korrigiert werden.'
 

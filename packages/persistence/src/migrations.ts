@@ -138,6 +138,16 @@ export const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'audience-statt-quizmodus',
+    sql: `
+      -- Schema v2: Aus dem Quizmodus wird die Zielgruppe; Pools sind eine eigene
+      -- Achse und stehen im Spielzustand, nicht in einer eigenen Spalte.
+      ALTER TABLE games RENAME COLUMN quiz_mode_id TO audience;
+      ALTER TABLE question_usage RENAME COLUMN quiz_mode_id TO audience;
+    `,
+  },
 ]
 
 export function runMigrations(db: Database): number[] {

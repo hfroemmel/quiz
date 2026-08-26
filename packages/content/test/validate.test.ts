@@ -2,16 +2,11 @@
  * Inhaltsvalidierung (Spezifikation 24.4 und 17.5) und Hotfix-Overlay (25).
  */
 import { describe, expect, it } from 'vitest'
-import { designColorTokens, type MediaAsset, type Question, type QuestionPatch } from '@quiz/contracts'
+import type { MediaAsset, Question, QuestionPatch } from '@quiz/contracts'
 import { validateContent } from '../src/validate'
 import { applyPatches, buildChangeReport, findUnreconciledPatches } from '../src/hotfix'
 
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
-
-/** Ein Theme muss alle Farbtoken tragen; die Werte selbst sind hier egal. */
-function fullColorSet(): Record<string, string> {
-  return Object.fromEntries(designColorTokens.map((token) => [token, '#000000']))
-}
 
 /**
  * Fragenplatz der Testkonfiguration - vor der Schemapruefung, deshalb bewusst
@@ -23,28 +18,31 @@ const baseConfig = {
   questionsPerGame: 2,
   difficulties: [{ id: 'easy', label: 'Leicht' }],
   categories: [{ id: 'allgemein', label: 'Allgemein' }],
-  themes: [{ id: 'default', label: 'Standard', colors: fullColorSet() }],
+  pools: [{ id: 'bundestag', label: 'Bundestag' }],
+  themes: [{ id: 'default', label: 'Standard' }],
   presets: [
     {
       id: 'standard',
       label: 'Standard',
       slots: [
-        { id: 'text', filters: { presentationTypes: ['text-choice'] } },
-        { id: 'bild', filters: { presentationTypes: ['image-reveal'] } },
+        { id: 'text', filters: { questionTypes: ['text-choice'] } },
+        { id: 'bild', filters: { questionTypes: ['image-reveal'] } },
       ] as TestSlot[],
     },
   ],
-  modes: [{ id: 'adults', label: 'Erwachsene', questionFilter: {}, themeId: 'default', allowedPresetIds: ['standard'] }],
+  audiences: [{ id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['standard'] }],
 }
 
 function question(overrides: Partial<Question> & { id: string }): Question {
   return {
-    modeIds: ['adults'],
-    difficultyId: 'easy',
-    categoryIds: ['allgemein'],
+    poolIds: ['bundestag'],
+    audiences: ['adults'],
+    difficulty: 'easy',
+    categories: ['allgemein'],
     tags: [],
+    locale: 'de-DE',
     prompt: `Frage ${overrides.id}`,
-    presentationType: 'text-choice',
+    questionType: 'text-choice',
     evaluationMode: 'option-comparison',
     options: [
       { id: 'o1', text: 'A' },
@@ -61,7 +59,7 @@ function question(overrides: Partial<Question> & { id: string }): Question {
 
 const revealQuestion = question({
   id: 'r1',
-  presentationType: 'image-reveal',
+  questionType: 'image-reveal',
   evaluationMode: 'manual-correct-incorrect',
   options: undefined,
   correctOptionId: undefined,
@@ -164,7 +162,7 @@ describe('Schemafehler brechen den Build ab', () => {
   })
 
   it('erkennt unbekannte Referenzen', () => {
-    const result = validate([question({ id: 'q1', categoryIds: ['gibt-es-nicht'], difficultyId: 'unbekannt' }), revealQuestion])
+    const result = validate([question({ id: 'q1', categories: ['gibt-es-nicht'], difficulty: 'unbekannt' }), revealQuestion])
     expect(result.errors.some((issue) => issue.code === 'category-reference')).toBe(true)
     expect(result.errors.some((issue) => issue.code === 'difficulty-reference')).toBe(true)
   })
@@ -222,7 +220,7 @@ describe('Inhaltswarnungen', () => {
     const touchPreset = { id: 'touch', label: 'Touch', slots: [touchSlot('a'), touchSlot('b')] }
     const result = validate([question({ id: 'q1' }), question({ id: 'q2' }), revealQuestion], {
       presets: [...baseConfig.presets, touchPreset],
-      modes: [{ ...baseConfig.modes[0]!, allowedPresetIds: ['standard', 'touch'] }],
+      audiences: [{ ...baseConfig.audiences[0]!, allowedPresetIds: ['standard', 'touch'] }],
     })
 
     const standard = result.coverage.find((entry) => entry.presetId === 'standard')!
@@ -324,25 +322,11 @@ describe('Fehlende Mediendateien', () => {
   })
 })
 
-describe('Themes muessen vollstaendig sein', () => {
-  /*
-   * Vollstaendig heisst nicht selbst geschrieben: Ein Theme nennt nur, was von
-   * seiner Gestaltungswelt abweicht, und erbt den Rest aus der Palette.
-   */
-  it('laesst ein Theme einzelne Farben ueberschreiben', () => {
+describe('Themes ohne Darstellung', () => {
+  it('nimmt ein Theme ohne Farben und Schriften an - Darstellung gehoert dem Gastgeber', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
-      themes: [{ id: 'default', label: 'Standard', colors: { accent: '#3693B3' } }],
+      themes: [{ id: 'default', label: 'Standard' }],
     })
-    expect(result.errors.find((entry) => entry.code === 'theme-tokens')).toBeUndefined()
     expect(result.ok).toBe(true)
-  })
-
-  it('meldet eine leer gelassene Farbe als Fehler', () => {
-    const result = validate([question({ id: 'q1' }), revealQuestion], {
-      themes: [{ id: 'default', label: 'Standard', colors: { pageTop: '' } }],
-    })
-    const issue = result.errors.find((entry) => entry.code === 'theme-tokens')
-    expect(issue?.message).toContain('pageTop')
-    expect(result.ok).toBe(false)
   })
 })

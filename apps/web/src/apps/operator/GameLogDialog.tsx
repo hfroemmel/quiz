@@ -1,5 +1,5 @@
 /**
- * Spielprotokoll: wie viele Spiele je Quizmodus bereits gelaufen sind.
+ * Spielprotokoll: wie viele Spiele je Zielgruppe bereits gelaufen sind.
  *
  * Die Zahlen kommen aus der Datenbank des Servers, nicht aus dem Browser. Sie
  * ueberleben deshalb das Schliessen des Fensters, einen Neustart der Anwendung
@@ -29,7 +29,7 @@ export function GameLogDialog({
   // Zweistufig statt zweiter Dialog: ein Popup ueber dem Popup waere unbedienbar.
   const [confirming, setConfirming] = useState(false)
 
-  const total = statistics.modes.reduce((sum, mode) => sum + mode.total, 0)
+  const total = statistics.audiences.reduce((sum, entry) => sum + entry.total, 0)
 
   return (
     <Dialog
@@ -62,7 +62,7 @@ export function GameLogDialog({
       <table className={log.table} data-game-log="">
         <thead>
           <tr>
-            <th>Modus</th>
+            <th>Zielgruppe</th>
             <th className={log.number}>Spiele</th>
             <th className={log.number}>beendet</th>
             <th className={log.number}>abgebrochen</th>
@@ -70,13 +70,13 @@ export function GameLogDialog({
           </tr>
         </thead>
         <tbody>
-          {statistics.modes.map((mode) => (
-            <tr key={mode.quizModeId}>
-              <td>{mode.label}</td>
-              <td className={log.number}>{mode.total}</td>
-              <td className={log.number}>{mode.completed}</td>
-              <td className={log.number}>{mode.aborted}</td>
-              <td className={log.when}>{formatDate(mode.lastPlayedIso)}</td>
+          {statistics.audiences.map((entry) => (
+            <tr key={entry.audience}>
+              <td>{entry.label}</td>
+              <td className={log.number}>{entry.total}</td>
+              <td className={log.number}>{entry.completed}</td>
+              <td className={log.number}>{entry.aborted}</td>
+              <td className={log.when}>{formatDate(entry.lastPlayedIso)}</td>
             </tr>
           ))}
         </tbody>
@@ -85,9 +85,9 @@ export function GameLogDialog({
             <td>Gesamt</td>
             <td className={log.number}>{total}</td>
             <td className={log.number}>
-              {statistics.modes.reduce((sum, mode) => sum + mode.completed, 0)}
+              {statistics.audiences.reduce((sum, entry) => sum + entry.completed, 0)}
             </td>
-            <td className={log.number}>{statistics.modes.reduce((sum, mode) => sum + mode.aborted, 0)}</td>
+            <td className={log.number}>{statistics.audiences.reduce((sum, entry) => sum + entry.aborted, 0)}</td>
             <td />
           </tr>
         </tfoot>

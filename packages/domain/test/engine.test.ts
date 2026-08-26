@@ -13,7 +13,7 @@ const normalQuestion = (id: string) => makeQuestion({ id })
 const revealQuestion = (id: string) =>
   makeQuestion({
     id,
-    presentationType: 'image-reveal',
+    questionType: 'image-reveal',
     evaluationMode: 'manual-correct-incorrect',
     options: undefined,
     correctOptionId: undefined,
@@ -21,14 +21,14 @@ const revealQuestion = (id: string) =>
     media: { imageAssetId: 'img-1' },
   })
 const videoQuestion = (id: string) =>
-  makeQuestion({ id, presentationType: 'video-then-question', media: { videoAssetId: 'vid-1' } })
+  makeQuestion({ id, questionType: 'video-then-question', media: { videoAssetId: 'vid-1' } })
 
 const sevenNormal = () => Array.from({ length: 7 }, (_, index) => normalQuestion(`q${index + 1}`))
 
 describe('Spielstart und Ablauf', () => {
   it('startet mit Pausenscreen und blendet danach die erste Frage ein', () => {
     const harness = createHarness(sevenNormal())
-    harness.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' })
+    harness.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium' })
 
     expect(harness.state!.phase).toBe('pause-screen')
     expect(harness.state!.totalQuestions).toBe(7)
@@ -668,7 +668,7 @@ describe('Selbstbedienung', () => {
      */
     const tippbaresBild = makeQuestion({
       id: 'bild-mit-optionen',
-      presentationType: 'image-reveal',
+      questionType: 'image-reveal',
       media: { imageAssetId: 'img-1' },
     })
     const harness = createHarness([tippbaresBild, ...sevenNormal().slice(1)])
@@ -760,7 +760,7 @@ describe('Selbstbedienung', () => {
 
   it('zeigt erst die Frage allein und oeffnet die Antworten nach der Frist', () => {
     const harness = createHarness(sevenNormal())
-    harness.dispatch({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium', ...selfService })
+    harness.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', ...selfService })
     harness.advance(gameTiming.pauseScreenMs)
 
     // Die Frage steht, der Buzzer ist zu, und die Optionen gehen nicht einmal raus.
@@ -879,7 +879,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([revealQuestion('nur-muendlich')])
     const rejection = harness.expectReject({
       type: 'START_GAME',
-      quizModeId: 'adults',
+      audience: 'adults',
       presetId: 'medium',
       flowProfile: 'self-service',
     })

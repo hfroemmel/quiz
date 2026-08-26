@@ -2,7 +2,7 @@
  * Startauswahl am Geraet.
  *
  * Zwei Entscheidungen, mehr nicht: Wie viele spielen, und wie schwer soll es sein.
- * Der Quizmodus wird NICHT am Geraet gewaehlt - er gehoert zur Aufstellung und
+ * Die Zielgruppe wird NICHT am Geraet gewaehlt - sie gehoert zur Aufstellung und
  * kommt als Vorgabe herein. Ein Foyergeraet, an dem jemand versehentlich die
  * Kinderwelt einstellt, waere ein Betriebsfehler ohne Bedienung davor.
  *
@@ -16,16 +16,16 @@ import styles from './Game.module.css'
 
 interface GameStartProps {
   view: PlayerQuizViewModel
-  /** Modus, in dem dieses Geraet spielt. */
-  quizModeId: string
+  /** Zielgruppe, in der dieses Geraet spielt. */
+  audience: string
   onStart(input: { playerCount: PlayerCount; presetId: string }): void
   /** Nur gesetzt, wenn das Quiz Gast einer anderen Anwendung ist. */
   onExit?: (() => void) | undefined
 }
 
-export function GameStart({ view, quizModeId, onStart, onExit }: GameStartProps) {
-  const mode = view.catalog.modes.find((entry) => entry.id === quizModeId)
-  const presets = view.catalog.presets.filter((preset) => mode?.allowedPresetIds.includes(preset.id))
+export function GameStart({ view, audience, onStart, onExit }: GameStartProps) {
+  const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
+  const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
   const [playerCount, setPlayerCount] = useState<PlayerCount>(1)
   const [presetId, setPresetId] = useState(presets[0]?.id ?? '')

@@ -87,8 +87,8 @@ describe('Migration ins neue Fragenmodell', () => {
 
   it('unterscheidet Bilderkennen von bildgestuetztem Multiple Choice', () => {
     const result = migrateLegacy({ questionsSource: legacy })
-    expect(result.questions.find((question) => question.id === '48')!.presentationType).toBe('image-reveal')
-    expect(result.questions.find((question) => question.id === '1')!.presentationType).toBe('text-choice')
+    expect(result.questions.find((question) => question.id === '48')!.questionType).toBe('image-reveal')
+    expect(result.questions.find((question) => question.id === '1')!.questionType).toBe('text-choice')
   })
 
   it('erkennt gleiche Fragetexte als Wiederholungsgruppe', () => {
@@ -163,7 +163,7 @@ describe('Feldnamen des gelieferten Katalogs', () => {
 
   it('uebernimmt die Schwierigkeit aus dem Feld "level"', () => {
     const result = migrateLegacy({ questionsSource: delivered })
-    expect(result.questions.map((question) => question.difficultyId)).toEqual(['easy', 'hard'])
+    expect(result.questions.map((question) => question.difficulty)).toEqual(['easy', 'hard'])
   })
 
   it('erkennt die Bilddatei im Feld "img_filename" und den Nachweis in "img_credit"', () => {
@@ -178,7 +178,7 @@ describe('Feldnamen des gelieferten Katalogs', () => {
   it('macht aus der einzigen Legacy-Option des Bilderkennens keine sichtbare Antwortleiste', () => {
     const result = migrateLegacy({ questionsSource: delivered })
     const reveal = result.questions.find((question) => question.id === '0')
-    expect(reveal?.presentationType).toBe('image-reveal')
+    expect(reveal?.questionType).toBe('image-reveal')
     expect(reveal?.evaluationMode).toBe('manual-correct-incorrect')
     expect(reveal?.options).toBeUndefined()
     expect(reveal?.correctOptionId).toBeUndefined()

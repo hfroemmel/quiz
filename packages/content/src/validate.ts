@@ -5,15 +5,17 @@
  *  - `error`   -> der Build muss abbrechen. Diese Faelle wuerden die Show gefaehrden.
  *  - `warning` -> bewusste redaktionelle Freigabe noetig, der Build laeuft weiter.
  *
- * Ein Auswahlalgorithmus kann einen unzureichenden Pool nicht kaschieren. Deshalb
- * berechnet die Validierung zusaetzlich pro Modus, Preset und Fragenplatz, wie viele
- * Kandidaten es gibt und wie viele Spiele ohne Wiederholung moeglich sind.
+ * Ein Auswahlalgorithmus kann einen unzureichenden Bestand nicht kaschieren.
+ * Deshalb berechnet die Validierung zusaetzlich pro Zielgruppe, Preset und
+ * Fragenplatz, wie viele Kandidaten es gibt und wie viele Spiele ohne
+ * Wiederholung moeglich sind. Gerechnet wird ueber die UNGEFILTERTE Grundmenge
+ * der Zielgruppe: Eine Pool-Einschraenkung ist eine bewusste Auswahl zur
+ * Laufzeit, und einen zu duennen Zuschnitt weist die Engine beim Start
+ * verstaendlich ab - das muss der Build nicht vorwegnehmen.
  */
 import {
   contentThresholds,
   isSelfServicePreset,
-  missingColorTokens,
-  resolveThemeColors,
   presentationNeedsImage,
   presentationNeedsOptions,
   questionSchema,
@@ -22,7 +24,7 @@ import {
   type Question,
   type QuizConfig,
 } from '@quiz/contracts'
-import { matchesSlot, poolForMode, repetitionKey } from '@quiz/domain'
+import { matchesSlot, poolForGame, repetitionKey } from '@quiz/domain'
 
 export type IssueSeverity = 'error' | 'warning'
 
@@ -35,7 +37,7 @@ export interface ValidationIssue {
 }
 
 export interface SlotCoverage {
-  modeId: string
+  audience: string
   presetId: string
   slotIndex: number
   slotId: string
@@ -46,7 +48,7 @@ export interface SlotCoverage {
 }
 
 export interface PresetCoverage {
-  modeId: string
+  audience: string
   presetId: string
   slots: SlotCoverage[]
   /** Wie viele Spiele sind ohne Wiederholung moeglich? Minimum ueber alle Poolgruppen. */
@@ -61,9 +63,10 @@ export interface PresetCoverage {
 export interface ContentStatistics {
   totalQuestions: number
   enabledQuestions: number
-  byMode: Record<string, number>
+  byAudience: Record<string, number>
+  byPool: Record<string, number>
   byDifficulty: Record<string, number>
-  byPresentationType: Record<string, number>
+  byQuestionType: Record<string, number>
   byCategory: Record<string, number>
   repetitionGroups: number
   mediaAssets: number
@@ -138,34 +141,26 @@ export function validateContent(input: ValidationInput): ValidationResult {
 
   const knownDifficulties = new Set(config.difficulties.map((entry) => entry.id))
   const knownCategories = new Set(config.categories.map((entry) => entry.id))
-  const knownModes = new Set(config.modes.map((entry) => entry.id))
+  const knownAudiences = new Set(config.audiences.map((entry) => entry.id))
+  const knownPools = new Set(config.pools.map((entry) => entry.id))
   const knownThemes = new Set(config.themes.map((entry) => entry.id))
   const knownPresets = new Set(config.presets.map((entry) => entry.id))
   const assetsById = new Map(input.assets.map((asset) => [asset.id, asset]))
 
-  for (const mode of config.modes) {
-    if (!knownThemes.has(mode.themeId)) {
-      add('error', 'theme-reference', `Modus "${mode.id}" verweist auf unbekanntes Theme "${mode.themeId}".`, mode.id)
+  for (const audienceConfig of config.audiences) {
+    if (!knownThemes.has(audienceConfig.themeId)) {
+      add('error', 'theme-reference', `Zielgruppe "${audienceConfig.id}" verweist auf unbekanntes Theme "${audienceConfig.themeId}".`, audienceConfig.id)
     }
-    for (const presetId of mode.allowedPresetIds) {
+    for (const presetId of audienceConfig.allowedPresetIds) {
       if (!knownPresets.has(presetId)) {
-        add('error', 'preset-reference', `Modus "${mode.id}" erlaubt unbekanntes Preset "${presetId}".`, mode.id)
+        add('error', 'preset-reference', `Zielgruppe "${audienceConfig.id}" erlaubt unbekanntes Preset "${presetId}".`, audienceConfig.id)
       }
     }
-    if (mode.startVisualAssetId && !assetsById.has(mode.startVisualAssetId)) {
-      add('error', 'asset-reference', `Startgrafik "${mode.startVisualAssetId}" von Modus "${mode.id}" fehlt.`, mode.id)
+    if (audienceConfig.startVisualAssetId && !assetsById.has(audienceConfig.startVisualAssetId)) {
+      add('error', 'asset-reference', `Startgrafik "${audienceConfig.startVisualAssetId}" von Zielgruppe "${audienceConfig.id}" fehlt.`, audienceConfig.id)
     }
   }
   for (const theme of config.themes) {
-    const missingTokens = missingColorTokens(resolveThemeColors(theme))
-    if (missingTokens.length) {
-      add(
-        'error',
-        'theme-tokens',
-        `Theme "${theme.id}" fehlen Farbtoken: ${missingTokens.join(', ')}. Ein unvollstaendiges Theme ergaebe farblose Flaechen auf der Buehne.`,
-        theme.id,
-      )
-    }
     if (theme.logoAssetId && !assetsById.has(theme.logoAssetId)) {
       add('error', 'asset-reference', `Logo "${theme.logoAssetId}" von Theme "${theme.id}" fehlt.`, theme.id)
     }
@@ -200,17 +195,22 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
     seenIds.add(question.id)
 
-    if (!knownDifficulties.has(question.difficultyId)) {
-      add('error', 'difficulty-reference', `Unbekannte Schwierigkeit "${question.difficultyId}".`, question.id)
+    if (!knownDifficulties.has(question.difficulty)) {
+      add('error', 'difficulty-reference', `Unbekannte Schwierigkeit "${question.difficulty}".`, question.id)
     }
-    for (const categoryId of question.categoryIds) {
+    for (const categoryId of question.categories) {
       if (!knownCategories.has(categoryId)) {
         add('error', 'category-reference', `Unbekannte Kategorie "${categoryId}".`, question.id)
       }
     }
-    for (const modeId of question.modeIds) {
-      if (!knownModes.has(modeId)) {
-        add('error', 'mode-reference', `Unbekannter Quizmodus "${modeId}".`, question.id)
+    for (const audienceId of question.audiences) {
+      if (!knownAudiences.has(audienceId)) {
+        add('error', 'audience-reference', `Unbekannte Zielgruppe "${audienceId}".`, question.id)
+      }
+    }
+    for (const poolId of question.poolIds) {
+      if (!knownPools.has(poolId)) {
+        add('error', 'pool-reference', `Unbekannter Fragenpool "${poolId}".`, question.id)
       }
     }
 
@@ -250,9 +250,9 @@ export function validateContent(input: ValidationInput): ValidationResult {
   const coverage = analyseCoverage(config, questions, add)
 
   const reachable = new Set<string>()
-  for (const mode of config.modes) {
-    const pool = poolForMode(questions, mode)
-    for (const presetId of mode.allowedPresetIds) {
+  for (const audienceConfig of config.audiences) {
+    const pool = poolForGame(questions, { audience: audienceConfig.id })
+    for (const presetId of audienceConfig.allowedPresetIds) {
       const preset = config.presets.find((entry) => entry.id === presetId)
       if (!preset) continue
       for (const slot of preset.slots) {
@@ -264,7 +264,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
   }
   for (const question of questions) {
     if (question.enabled && !reachable.has(question.id)) {
-      add('warning', 'unreachable-question', 'Die Frage ist ueber keinen Modus und kein Preset erreichbar.', question.id)
+      add('warning', 'unreachable-question', 'Die Frage ist ueber keine Zielgruppe und kein Preset erreichbar.', question.id)
     }
   }
 
@@ -274,17 +274,23 @@ export function validateContent(input: ValidationInput): ValidationResult {
     if (question.media?.videoAssetId) usedAssetIds.add(question.media.videoAssetId)
   }
   for (const theme of config.themes) if (theme.logoAssetId) usedAssetIds.add(theme.logoAssetId)
-  for (const mode of config.modes) if (mode.startVisualAssetId) usedAssetIds.add(mode.startVisualAssetId)
+  for (const audienceConfig of config.audiences) if (audienceConfig.startVisualAssetId) usedAssetIds.add(audienceConfig.startVisualAssetId)
   for (const asset of input.assets) {
     if (!usedAssetIds.has(asset.id)) {
       add('warning', 'orphan-asset', `Das Medium "${asset.id}" (${asset.filename}) wird nirgends verwendet.`, asset.id)
     }
   }
 
-  const usedCategories = new Set(questions.flatMap((question) => question.categoryIds))
+  const usedCategories = new Set(questions.flatMap((question) => question.categories))
   for (const category of config.categories) {
     if (!usedCategories.has(category.id)) {
       add('warning', 'unused-category', `Die Kategorie "${category.id}" wird von keiner Frage verwendet.`, category.id)
+    }
+  }
+  const usedPools = new Set(questions.flatMap((question) => question.poolIds))
+  for (const pool of config.pools) {
+    if (!usedPools.has(pool.id)) {
+      add('warning', 'unused-pool', `Der Fragenpool "${pool.id}" wird von keiner Frage verwendet.`, pool.id)
     }
   }
 
@@ -299,7 +305,7 @@ type AddIssue = (severity: IssueSeverity, code: string, message: string, subject
 
 function validateAnswerModel(question: Question, add: AddIssue): void {
   const options = question.options ?? []
-  const isChoiceType = presentationNeedsOptions(question.presentationType)
+  const isChoiceType = presentationNeedsOptions(question.questionType)
 
   /*
    * Eine deaktivierte Frage liegt in keinem Fragenpool und kann die Show nicht
@@ -343,7 +349,7 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
     add(
       structural,
       'option-count',
-      `Fragetyp "${question.presentationType}" braucht mindestens ${contentThresholds.minChoiceOptionCount} Antwortoptionen, gefunden: ${options.length}. ` +
+      `Fragetyp "${question.questionType}" braucht mindestens ${contentThresholds.minChoiceOptionCount} Antwortoptionen, gefunden: ${options.length}. ` +
         `Mit weniger ist es keine Auswahlfrage - dann gehoert die Loesung nach "acceptedAnswerText".${draftHint}`,
       question.id,
     )
@@ -352,7 +358,7 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
     add(
       structural,
       'option-count',
-      `Fragetyp "${question.presentationType}" erlaubt hoechstens ${contentThresholds.maxChoiceOptionCount} Antwortoptionen, gefunden: ${options.length}.${draftHint}`,
+      `Fragetyp "${question.questionType}" erlaubt hoechstens ${contentThresholds.maxChoiceOptionCount} Antwortoptionen, gefunden: ${options.length}.${draftHint}`,
       question.id,
     )
   }
@@ -379,13 +385,13 @@ function validateMedia(
   missingMediaSeverity: IssueSeverity,
   add: AddIssue,
 ): void {
-  const requiresImage = presentationNeedsImage(question.presentationType)
-  const requiresVideo = question.presentationType === 'video-then-question'
+  const requiresImage = presentationNeedsImage(question.questionType)
+  const requiresVideo = question.questionType === 'video-then-question'
 
   const check = (assetId: string | undefined, kind: 'image' | 'video', required: boolean) => {
     if (!assetId) {
       if (required) {
-        add('error', 'missing-media', `Fragetyp "${question.presentationType}" verlangt ein Medium (${kind}).`, question.id)
+        add('error', 'missing-media', `Fragetyp "${question.questionType}" verlangt ein Medium (${kind}).`, question.id)
       }
       return
     }
@@ -446,7 +452,7 @@ function validateEditorialWarnings(question: Question, assetsById: Map<string, M
 }
 
 /**
- * Poolabdeckung pro Modus, Preset und Fragenplatz.
+ * Bestandsabdeckung pro Zielgruppe, Preset und Fragenplatz.
  *
  * "Spiele ohne Wiederholung" wird konservativ geschaetzt: Fragenplaetze mit
  * identischem Filter konkurrieren um denselben Pool. Fuer eine solche Gruppe aus
@@ -456,9 +462,9 @@ function validateEditorialWarnings(question: Question, assetsById: Map<string, M
 function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssue): PresetCoverage[] {
   const coverage: PresetCoverage[] = []
 
-  for (const mode of config.modes) {
-    const pool = poolForMode(questions, mode)
-    for (const presetId of mode.allowedPresetIds) {
+  for (const audienceConfig of config.audiences) {
+    const pool = poolForGame(questions, { audience: audienceConfig.id })
+    for (const presetId of audienceConfig.allowedPresetIds) {
       const preset = config.presets.find((entry) => entry.id === presetId)
       if (!preset) continue
 
@@ -480,20 +486,20 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
           add(
             'error',
             'slot-unsatisfiable',
-            `Modus "${mode.id}" / Preset "${preset.id}": Fragenplatz ${slotIndex + 1} ("${slot.id}") hat keinen einzigen Kandidaten.`,
-            `${mode.id}/${preset.id}/${slot.id}`,
+            `Zielgruppe "${audienceConfig.id}" / Preset "${preset.id}": Fragenplatz ${slotIndex + 1} ("${slot.id}") hat keinen einzigen Kandidaten.`,
+            `${audienceConfig.id}/${preset.id}/${slot.id}`,
           )
         } else if (candidates.length < contentThresholds.smallPoolWarning) {
           add(
             'warning',
             'small-pool',
-            `Modus "${mode.id}" / Preset "${preset.id}": Fragenplatz ${slotIndex + 1} ("${slot.id}") hat nur ${candidates.length} Kandidaten.`,
-            `${mode.id}/${preset.id}/${slot.id}`,
+            `Zielgruppe "${audienceConfig.id}" / Preset "${preset.id}": Fragenplatz ${slotIndex + 1} ("${slot.id}") hat nur ${candidates.length} Kandidaten.`,
+            `${audienceConfig.id}/${preset.id}/${slot.id}`,
           )
         }
 
         return {
-          modeId: mode.id,
+          audience: audienceConfig.id,
           presetId: preset.id,
           slotIndex,
           slotId: slot.id,
@@ -516,13 +522,13 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
         add(
           'warning',
           'few-games-without-repetition',
-          `Modus "${mode.id}" / Preset "${preset.id}": nur ${gamesWithoutRepetition} Spiele ohne Wiederholung moeglich.`,
-          `${mode.id}/${preset.id}`,
+          `Zielgruppe "${audienceConfig.id}" / Preset "${preset.id}": nur ${gamesWithoutRepetition} Spiele ohne Wiederholung moeglich.`,
+          `${audienceConfig.id}/${preset.id}`,
         )
       }
 
       coverage.push({
-        modeId: mode.id,
+        audience: audienceConfig.id,
         presetId: preset.id,
         slots,
         gamesWithoutRepetition,
@@ -555,10 +561,11 @@ function buildStatistics(questions: Question[], assets: MediaAsset[]): ContentSt
   return {
     totalQuestions: questions.length,
     enabledQuestions: questions.filter((question) => question.enabled).length,
-    byMode: count(questions.flatMap((question) => question.modeIds)),
-    byDifficulty: count(questions.map((question) => question.difficultyId)),
-    byPresentationType: count(questions.map((question) => question.presentationType)),
-    byCategory: count(questions.flatMap((question) => question.categoryIds)),
+    byAudience: count(questions.flatMap((question) => question.audiences)),
+    byPool: count(questions.flatMap((question) => question.poolIds)),
+    byDifficulty: count(questions.map((question) => question.difficulty)),
+    byQuestionType: count(questions.map((question) => question.questionType)),
+    byCategory: count(questions.flatMap((question) => question.categories)),
     repetitionGroups: new Set(questions.map(repetitionKey)).size,
     mediaAssets: assets.length,
   }
@@ -568,9 +575,10 @@ function emptyStatistics(): ContentStatistics {
   return {
     totalQuestions: 0,
     enabledQuestions: 0,
-    byMode: {},
+    byAudience: {},
+    byPool: {},
     byDifficulty: {},
-    byPresentationType: {},
+    byQuestionType: {},
     byCategory: {},
     repetitionGroups: 0,
     mediaAssets: 0,

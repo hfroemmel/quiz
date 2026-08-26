@@ -539,13 +539,13 @@ export class QuizService {
       lanUrls: this.lanUrls,
       warnings: this.warnings,
       soundEnabled: this.soundEnabled,
-      gameCounts: this.store.gameCountsByMode(statisticsSince),
+      gameCounts: this.store.gameCountsByAudience(statisticsSince),
       statisticsSinceIso: statisticsSince ?? undefined,
       additionalOperatorCommands: additional,
       resumable: this.resumable
         ? {
             gameId: this.resumable.gameId,
-            quizModeId: this.resumable.quizModeId,
+            audience: this.resumable.audience,
             presetId: this.resumable.presetId,
             progress: `Frage ${this.resumable.currentSlotIndex + 1}/${this.resumable.totalQuestions}`,
           }

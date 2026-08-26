@@ -130,14 +130,14 @@ export class QuizStore implements QuizStorePort {
     const transaction = this.db.transaction(() => {
       this.db
         .prepare(
-          `INSERT INTO games (id, event_day_id, quiz_mode_id, preset_id, status, created_at, finished_at)
-           VALUES (@id, @eventDayId, @quizModeId, @presetId, @status, @createdAt, @finishedAt)
+          `INSERT INTO games (id, event_day_id, audience, preset_id, status, created_at, finished_at)
+           VALUES (@id, @eventDayId, @audience, @presetId, @status, @createdAt, @finishedAt)
            ON CONFLICT(id) DO UPDATE SET status = excluded.status, finished_at = excluded.finished_at`,
         )
         .run({
           id: state.gameId,
           eventDayId: state.eventDayId,
-          quizModeId: state.quizModeId,
+          audience: state.audience,
           presetId: state.presetId,
           status: state.status,
           createdAt: nowIso,
@@ -198,7 +198,7 @@ export class QuizStore implements QuizStorePort {
       }
 
       const insertUsage = this.db.prepare(
-        `INSERT INTO question_usage (event_day_id, game_id, question_id, repetition_group_id, slot_id, used_at_ms, quiz_mode_id, preset_id)
+        `INSERT INTO question_usage (event_day_id, game_id, question_id, repetition_group_id, slot_id, used_at_ms, audience, preset_id)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       for (const usage of effects.questionUsages) {
@@ -209,7 +209,7 @@ export class QuizStore implements QuizStorePort {
           usage.repetitionGroupId ?? null,
           usage.slotId,
           input.atMs,
-          state.quizModeId,
+          state.audience,
           state.presetId,
         )
       }
@@ -367,26 +367,26 @@ export class QuizStore implements QuizStorePort {
   /* ---------------- Spielprotokoll ---------------- */
 
   /**
-   * Gespielte Spiele je Quizmodus.
+   * Gespielte Spiele je Zielgruppe.
    *
    * `sinceIso` begrenzt die Zaehlung auf Spiele ab diesem Zeitpunkt. So laesst
    * sich das Protokoll zuruecksetzen, ohne Spiele zu loeschen: Spielstaende,
    * Versuche und Auditlog haengen an denselben Zeilen und wuerden mitgeloescht.
    */
-  gameCountsByMode(sinceIso: string | null): GameCountRow[] {
+  gameCountsByAudience(sinceIso: string | null): GameCountRow[] {
     const rows = this.db
       .prepare(
-        `SELECT quiz_mode_id,
+        `SELECT audience,
                 COUNT(*)                                             AS total,
                 SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,
                 SUM(CASE WHEN status = 'aborted'   THEN 1 ELSE 0 END) AS aborted,
                 MAX(created_at)                                      AS last_at
            FROM games
           WHERE (@since IS NULL OR created_at >= @since)
-       GROUP BY quiz_mode_id`,
+       GROUP BY audience`,
       )
       .all({ since: sinceIso }) as {
-      quiz_mode_id: string
+      audience: string
       total: number
       completed: number
       aborted: number
@@ -394,7 +394,7 @@ export class QuizStore implements QuizStorePort {
     }[]
 
     return rows.map((row) => ({
-      quizModeId: row.quiz_mode_id,
+      audience: row.audience,
       total: row.total,
       completed: row.completed,
       aborted: row.aborted,

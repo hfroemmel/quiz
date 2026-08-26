@@ -25,34 +25,34 @@ afterEach(() => {
  * diese Tests Vorspann, nicht Gegenstand.
  */
 function startGame(target: TestRig, presetId = 'medium'): void {
-  const result = target.send({ type: 'START_GAME', quizModeId: 'adults', presetId })
+  const result = target.send({ type: 'START_GAME', audience: 'adults', presetId })
   expect(result.ok).toBe(true)
   target.settle()
   showQuestionAfterVideo(target)
 }
 
 describe('Spielprotokoll', () => {
-  it('zaehlt gespielte Spiele je Quizmodus und ueberlebt einen Neustart', () => {
+  it('zaehlt gespielte Spiele je Zielgruppe und ueberlebt einen Neustart', () => {
     let target = rig()
-    expect(target.service.snapshotFor('operator').statistics.modes.every((mode) => mode.total === 0)).toBe(true)
+    expect(target.service.snapshotFor('operator').statistics.audiences.every((entry) => entry.total === 0)).toBe(true)
 
     startGame(target)
     target.send({ type: 'ABORT_GAME' })
     startGame(target)
 
     const before = target.service.snapshotFor('operator').statistics
-    const adults = before.modes.find((mode) => mode.quizModeId === 'adults')!
+    const adults = before.audiences.find((entry) => entry.audience === 'adults')!
     expect(adults.label).toBe('Erwachsene')
     expect(adults.total).toBe(2)
     expect(adults.aborted).toBe(1)
-    // Jeder konfigurierte Modus erscheint, auch ohne Spiel.
-    expect(before.modes.length).toBeGreaterThan(1)
-    expect(before.modes.some((mode) => mode.quizModeId === 'kids' && mode.total === 0)).toBe(true)
+    // Jede konfigurierte Zielgruppe erscheint, auch ohne Spiel.
+    expect(before.audiences.length).toBeGreaterThan(1)
+    expect(before.audiences.some((entry) => entry.audience === 'kids' && entry.total === 0)).toBe(true)
 
     // Die Zahlen liegen in der Datenbank, nicht im Browser.
     target = target.restart()
     rigs.push(target)
-    expect(target.service.snapshotFor('operator').statistics.modes.find((mode) => mode.quizModeId === 'adults')!.total).toBe(2)
+    expect(target.service.snapshotFor('operator').statistics.audiences.find((entry) => entry.audience === 'adults')!.total).toBe(2)
   })
 
   it('setzt die Zaehlung zurueck, ohne Spiele zu loeschen', () => {
@@ -65,14 +65,14 @@ describe('Spielprotokoll', () => {
     expect(target.send({ type: 'RESET_GAME_STATISTICS' }).ok).toBe(true)
 
     const after = target.service.snapshotFor('operator').statistics
-    expect(after.modes.every((mode) => mode.total === 0)).toBe(true)
+    expect(after.audiences.every((entry) => entry.total === 0)).toBe(true)
     expect(after.countingSinceIso).toBeDefined()
     // Das Spiel selbst bleibt: An ihm haengen Spielstand, Versuche und Auditlog.
     expect(target.store.countRows('games')).toBe(1)
 
     // Ab jetzt wird wieder gezaehlt.
     startGame(target)
-    expect(target.service.snapshotFor('operator').statistics.modes.find((mode) => mode.quizModeId === 'adults')!.total).toBe(1)
+    expect(target.service.snapshotFor('operator').statistics.audiences.find((entry) => entry.audience === 'adults')!.total).toBe(1)
   })
 })
 
@@ -180,7 +180,7 @@ describe('Videofrage', () => {
    */
   it('reicht die vom Buehnenclient gemeldete Laufzeit an den Operator weiter', () => {
     const target = rig()
-    expect(target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }).ok).toBe(true)
+    expect(target.send({ type: 'START_GAME', audience: 'adults', presetId: 'medium' }).ok).toBe(true)
     target.settle()
     expect(target.service.authoritativeState?.phase).toBe('video-ready')
     expect(target.service.snapshotFor('operator').video?.durationMs).toBeUndefined()
@@ -199,7 +199,7 @@ describe('Videofrage', () => {
    */
   it('haelt einen gemeldeten Medienfehler fest', () => {
     const target = rig()
-    expect(target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }).ok).toBe(true)
+    expect(target.send({ type: 'START_GAME', audience: 'adults', presetId: 'medium' }).ok).toBe(true)
     target.settle()
 
     target.send({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' }, 'system')
@@ -214,7 +214,7 @@ describe('Videofrage', () => {
    */
   it('nimmt den Medienfehler zurueck, wenn das Video doch laeuft', () => {
     const target = rig()
-    expect(target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }).ok).toBe(true)
+    expect(target.send({ type: 'START_GAME', audience: 'adults', presetId: 'medium' }).ok).toBe(true)
     target.settle()
 
     target.send({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' }, 'system')
@@ -235,7 +235,7 @@ describe('Selbstbedienung am Geraet', () => {
    */
   function startSelfService(target: TestRig): void {
     const result = target.send(
-      { type: 'START_GAME', quizModeId: 'adults', presetId: 'medium', flowProfile: 'self-service' },
+      { type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' },
       'player',
     )
     expect(result.ok).toBe(true)
@@ -249,7 +249,7 @@ describe('Selbstbedienung am Geraet', () => {
 
   it('laesst einen Spieler kein vom Operator gesteuertes Spiel starten', () => {
     const target = rig()
-    const result = target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' }, 'player')
+    const result = target.send({ type: 'START_GAME', audience: 'adults', presetId: 'medium' }, 'player')
 
     expect(result.ok).toBe(false)
     expect(result.rejection?.reason).toBe('wrong-flow-profile')
@@ -431,7 +431,7 @@ describe('Wiederherstellung nach Serverneustart', () => {
     let target = rig({ seed: 7 })
     // Das Preset "regional" hat einen Bilderkennen-Platz an Position 3; hier wird
     // gezielt bis dorthin gespielt.
-    target.send({ type: 'START_GAME', quizModeId: 'adults', presetId: 'medium' })
+    target.send({ type: 'START_GAME', audience: 'adults', presetId: 'medium' })
     target.settle()
     playQuestion(target, 'resolve-without-answer')
     target.send({ type: 'CONTINUE' })

@@ -26,9 +26,10 @@ export function formatValidationReport(result: ValidationResult, options: Report
   push(`- Fragen gesamt: ${result.statistics.totalQuestions} (aktiv: ${result.statistics.enabledQuestions})`)
   push(`- Wiederholungsgruppen: ${result.statistics.repetitionGroups}`)
   push(`- Medien: ${result.statistics.mediaAssets}`)
-  push(`- Nach Modus: ${formatCounts(result.statistics.byMode)}`)
+  push(`- Nach Zielgruppe: ${formatCounts(result.statistics.byAudience)}`)
+  push(`- Nach Pool: ${formatCounts(result.statistics.byPool)}`)
   push(`- Nach Schwierigkeit: ${formatCounts(result.statistics.byDifficulty)}`)
-  push(`- Nach Praesentationstyp: ${formatCounts(result.statistics.byPresentationType)}`)
+  push(`- Nach Fragetyp: ${formatCounts(result.statistics.byQuestionType)}`)
   push(`- Nach Kategorie: ${formatCounts(result.statistics.byCategory)}`)
   if (options.previous) {
     const delta = result.statistics.totalQuestions - options.previous.totalQuestions
@@ -40,7 +41,7 @@ export function formatValidationReport(result: ValidationResult, options: Report
 
   push('## Poolabdeckung pro Fragenplatz')
   for (const preset of result.coverage) {
-    push(`### Modus "${preset.modeId}" / Preset "${preset.presetId}"`)
+    push(`### Zielgruppe "${preset.audience}" / Preset "${preset.presetId}"`)
     push(`Spiele ohne Wiederholung: ${preset.gamesWithoutRepetition}`)
     push(
       preset.selfServiceCapable

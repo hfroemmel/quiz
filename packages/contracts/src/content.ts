@@ -86,13 +86,22 @@ export const questionSchema = z.object({
    * Die Wiederholungsvermeidung behandelt die ganze Gruppe wie eine einzige Frage.
    */
   repetitionGroupId: idSchema.optional(),
-  modeIds: z.array(idSchema).min(1),
-  difficultyId: idSchema,
-  categoryIds: z.array(idSchema),
+  /**
+   * Fragenpools, zu denen die Frage gehoert (Schema v2). Ein Pool ist eine
+   * INHALTSAUSWAHL - "Saarbruecken" ist genau das: ein Pool, kein Modus und
+   * keine Kategorie. Welche Pools ein Spiel zieht, entscheidet `START_GAME`.
+   */
+  poolIds: z.array(idSchema).min(1),
+  /** Zielgruppen, fuer die die Frage taugt (frueher `modeIds`). */
+  audiences: z.array(idSchema).min(1),
+  difficulty: idSchema,
+  categories: z.array(idSchema),
   tags: z.array(idSchema),
+  /** BCP-47-Sprachkennung des Frageninhalts, z. B. `de-DE`. */
+  locale: z.string().min(2),
 
   prompt: z.string().min(1),
-  presentationType: z.enum(questionPresentationTypes),
+  questionType: z.enum(questionPresentationTypes),
   evaluationMode: z.enum(evaluationModes),
 
   options: z.array(answerOptionSchema).optional(),
@@ -170,7 +179,7 @@ export const questionSlotRuleSchema = z.object({
   filters: z
     .object({
       difficultyIds: z.array(idSchema).optional(),
-      presentationTypes: z.array(z.enum(questionPresentationTypes)).optional(),
+      questionTypes: z.array(z.enum(questionPresentationTypes)).optional(),
       /**
        * Bewertungsverfahren. Ein Fragenplatz fuer das Touchgeraet filtert auf
        * `option-comparison`: Eine muendlich zu bewertende Frage koennte dort
@@ -223,48 +232,33 @@ export type DifficultyPreset = z.infer<typeof difficultyPresetSchema>
 export const themeSkins = ['default', 'kids'] as const
 export type ThemeSkin = (typeof themeSkins)[number]
 
+/**
+ * Seit Schema v2 traegt das Quizpaket KEINE Farben und Schriften mehr -
+ * Darstellung ist Sache des Gastgebers (`quiz-themes`). Ein Theme nennt nur die
+ * Gestaltungswelt und seine Branding-Assets.
+ */
 export const quizThemeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
   /** Gestaltungswelt: `default` oder `kids`. Fehlt sie, gilt `default`. */
   skin: z.enum(themeSkins).optional(),
-  /**
-   * ABWEICHUNGEN von der Farbwelt des `skin`, nicht der ganze Satz.
-   *
-   * Die Farben stehen in `theme.ts`; ein Theme nennt hier nur, was bei ihm
-   * anders ist. Fehlt das Feld, gilt die Welt unveraendert. Beim Bauen wird der
-   * vollstaendige Satz eingesetzt, damit das Paket allein lesbar bleibt.
-   *
-   * Schluessel sind CSS-Custom-Properties ohne fuehrende Bindestriche.
-   */
-  colors: z.record(z.string(), z.string()).optional(),
   logoAssetId: idSchema.optional(),
-  typography: z
-    .object({
-      headingFont: z.string().optional(),
-      bodyFont: z.string().optional(),
-    })
-    .optional(),
   presentationAnimationSetId: idSchema.optional(),
 })
 export type QuizTheme = z.infer<typeof quizThemeSchema>
 
-export const quizModeSchema = z.object({
+/**
+ * Zielgruppe (Schema v2, frueher "Quizmodus").
+ *
+ * Der alte Modus verquickte drei Dinge: Zielgruppe, Fragenpool und Gestaltung.
+ * Jetzt sind sie getrennt - die Zielgruppe traegt Gestaltung und erlaubte
+ * Presets, die Pools sind eine eigene Achse der Inhaltsauswahl, und die Fragen
+ * nennen beide direkt (`audiences`, `poolIds`). "Saarbruecken" braucht damit
+ * keinen Sondermodus mehr: Es ist ein Pool, waehlbar zu jeder Zielgruppe.
+ */
+export const audienceConfigSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  /**
-   * Ein Modus ist ein konfigurierter Fragenpool. Damit wird der Legacy-Widerspruch
-   * geloest, dass `adults`/`kids` Werte des Feldes `mode` sind, `Saarbruecken`
-   * aber eine Kategorie ist: eine regionale Auswahl ist einfach ein Modus mit
-   * entsprechendem Kategorie-Filter. Kein Sondercode in der Engine.
-   */
-  questionFilter: z
-    .object({
-      legacyModes: z.array(idSchema).optional(),
-      categoryIds: z.array(idSchema).optional(),
-      tags: z.array(idSchema).optional(),
-    })
-    .default({}),
   themeId: idSchema,
   startVisualAssetId: idSchema.optional(),
   /**
@@ -274,7 +268,11 @@ export const quizModeSchema = z.object({
   startTitle: z.string().min(1).optional(),
   allowedPresetIds: z.array(idSchema).min(1),
 })
-export type QuizMode = z.infer<typeof quizModeSchema>
+export type AudienceConfig = z.infer<typeof audienceConfigSchema>
+
+/** Ein Fragenpool ist nur Kennung und Beschriftung - die Fragen nennen ihn selbst. */
+export const questionPoolSchema = z.object({ id: idSchema, label: z.string().min(1) })
+export type QuestionPool = z.infer<typeof questionPoolSchema>
 
 export const categorySchema = z.object({ id: idSchema, label: z.string().min(1) })
 export const difficultySchema = z.object({ id: idSchema, label: z.string().min(1) })
@@ -286,9 +284,10 @@ export const quizConfigSchema = z.object({
   questionsPerGame: z.number().int().min(1).max(30),
   difficulties: z.array(difficultySchema).min(1),
   categories: z.array(categorySchema).min(1),
+  pools: z.array(questionPoolSchema).min(1),
   themes: z.array(quizThemeSchema).min(1),
   presets: z.array(difficultyPresetSchema).min(1),
-  modes: z.array(quizModeSchema).min(1),
+  audiences: z.array(audienceConfigSchema).min(1),
 })
 export type QuizConfig = z.infer<typeof quizConfigSchema>
 
@@ -319,7 +318,7 @@ export interface QuizPackage {
 }
 
 /** Aktuelle Schemaversion des Quizpakets. Aenderungen erfordern eine Migration. */
-export const QUIZ_PACKAGE_SCHEMA_VERSION = '1.0.0'
+export const QUIZ_PACKAGE_SCHEMA_VERSION = '2.0.0'
 
 /* ------------------------------------------------------------------ *
  * Live-Hotfixes (Abschnitt 25)

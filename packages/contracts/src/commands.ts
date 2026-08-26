@@ -32,7 +32,13 @@ const playerCountSchema = z.union(
 export const commandSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('START_GAME'),
-    quizModeId: z.string().min(1),
+    /** Zielgruppe des Spiels (frueher `quizModeId`). */
+    audience: z.string().min(1),
+    /**
+     * Fragenpools, aus denen gezogen wird. Ohne Angabe wird nicht nach Pool
+     * gefiltert - alle Pools der Zielgruppe spielen mit.
+     */
+    poolIds: z.array(z.string().min(1)).min(1).optional(),
     presetId: z.string().min(1),
     /**
      * Ohne Angabe wird ein Duell gestartet. Der Buehnenbetrieb laesst das Feld

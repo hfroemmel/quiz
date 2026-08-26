@@ -4,12 +4,12 @@
  * Randomisierte Faelle verwenden gesetzte Seeds, damit Fehler reproduzierbar sind.
  */
 import { describe, expect, it } from 'vitest'
-import type { Question, QuestionSlotRule, QuizMode } from '@quiz/contracts'
+import type { Question, QuestionSlotRule } from '@quiz/contracts'
 import {
   candidateWindowSize,
   createSeededRng,
   matchesSlot,
-  poolForMode,
+  poolForGame,
   repetitionKey,
   selectQuestionForSlot,
   shuffleOptionOrder,
@@ -50,16 +50,16 @@ describe('Slotfilter', () => {
   it('kombiniert Schwierigkeit, Praesentationstyp, Kategorie und Tags', () => {
     const question = makeQuestion({
       id: 'q1',
-      difficultyId: 'hard',
-      presentationType: 'image-reveal',
-      categoryIds: ['history', 'saarbruecken'],
+      difficulty: 'hard',
+      questionType: 'image-reveal',
+      categories: ['history', 'saarbruecken'],
       tags: ['regional'],
     })
 
     expect(matchesSlot(question, slot({ filters: { difficultyIds: ['hard'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { difficultyIds: ['easy'] } }))).toBe(false)
-    expect(matchesSlot(question, slot({ filters: { presentationTypes: ['image-reveal'] } }))).toBe(true)
-    expect(matchesSlot(question, slot({ filters: { presentationTypes: ['text-choice'] } }))).toBe(false)
+    expect(matchesSlot(question, slot({ filters: { questionTypes: ['image-reveal'] } }))).toBe(true)
+    expect(matchesSlot(question, slot({ filters: { questionTypes: ['text-choice'] } }))).toBe(false)
     expect(matchesSlot(question, slot({ filters: { categoryIds: ['saarbruecken'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { tags: ['regional'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { tags: ['regional', 'fehlt'] } }))).toBe(false)
@@ -100,21 +100,25 @@ describe('Slotfilter', () => {
   })
 })
 
-describe('Modusfilter', () => {
-  it('bildet eine regionale Auswahl ueber Kategorien statt ueber Sondercode ab', () => {
+describe('Grundmenge eines Spiels', () => {
+  it('filtert nach Zielgruppe und laesst ohne Poolauswahl alle Pools mitspielen', () => {
     const questions = [
-      makeQuestion({ id: 'q1', modeIds: ['adults'], categoryIds: ['saarbruecken'] }),
-      makeQuestion({ id: 'q2', modeIds: ['adults'], categoryIds: ['history'] }),
-      makeQuestion({ id: 'q3', modeIds: ['kids'], categoryIds: ['saarbruecken'] }),
+      makeQuestion({ id: 'q1', audiences: ['adults'], poolIds: ['saarbruecken'] }),
+      makeQuestion({ id: 'q2', audiences: ['adults'], poolIds: ['bundestag'] }),
+      makeQuestion({ id: 'q3', audiences: ['kids'], poolIds: ['saarbruecken'] }),
     ]
-    const regional: QuizMode = {
-      id: 'adults',
-      label: 'Saarbruecken',
-      questionFilter: { categoryIds: ['saarbruecken'] },
-      themeId: 'default',
-      allowedPresetIds: ['medium'],
-    }
-    expect(poolForMode(questions, regional).map((question) => question.id)).toEqual(['q1'])
+    expect(poolForGame(questions, { audience: 'adults' }).map((question) => question.id)).toEqual(['q1', 'q2'])
+  })
+
+  it('bildet die regionale Auswahl als reinen Fragenpool ab - ohne Sondercode', () => {
+    const questions = [
+      makeQuestion({ id: 'q1', audiences: ['adults'], poolIds: ['saarbruecken'] }),
+      makeQuestion({ id: 'q2', audiences: ['adults'], poolIds: ['bundestag'] }),
+      makeQuestion({ id: 'q3', audiences: ['kids'], poolIds: ['saarbruecken'] }),
+    ]
+    expect(
+      poolForGame(questions, { audience: 'adults', poolIds: ['saarbruecken'] }).map((question) => question.id),
+    ).toEqual(['q1'])
   })
 })
 
@@ -207,7 +211,7 @@ describe('Wiederholungsvermeidung', () => {
 describe('Fehlerfaelle', () => {
   it('meldet einen nicht erfuellbaren Fragenplatz mit klarer Meldung', () => {
     const result = select({
-      questions: pool(3, () => ({ difficultyId: 'easy' })),
+      questions: pool(3, () => ({ difficulty: 'easy' })),
       rule: slot({ id: 'slot-hart', filters: { difficultyIds: ['hard'] } }),
     })
     expect(result.ok).toBe(false)

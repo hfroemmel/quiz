@@ -235,12 +235,15 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
     seenIds.add(id)
     questions.push({
       id,
-      modeIds: [modeId.value],
-      difficultyId: difficulty.value,
-      categoryIds: categories,
+      // Schema v2: Zielgruppe direkt, Pool aus der Regionalkategorie abgeleitet.
+      audiences: [modeId.value],
+      poolIds: categories.includes('saarbruecken') ? ['saarbruecken'] : ['bundestag'],
+      difficulty: difficulty.value,
+      categories,
       tags: [],
+      locale: 'de-DE',
       prompt,
-      presentationType,
+      questionType: presentationType,
       evaluationMode,
       // Die Legacy-Annahme "option_1 ist richtig" wird hier genau einmal in eine
       // explizite `correctOptionId` uebersetzt und danach nie wieder benoetigt.
@@ -277,7 +280,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       total: rawQuestions.length,
       migrated: questions.length,
       byPresentationType: questions.reduce<Record<string, number>>((acc, question) => {
-        acc[question.presentationType] = (acc[question.presentationType] ?? 0) + 1
+        acc[question.questionType] = (acc[question.questionType] ?? 0) + 1
         return acc
       }, {}),
       repetitionGroups: new Set(questions.map((question) => question.repetitionGroupId).filter(Boolean)).size,

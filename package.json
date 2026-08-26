@@ -18,6 +18,7 @@
     "content:fetch": "tsx packages/content/src/cli/fetch.ts",
     "content:assets": "tsx packages/content/src/cli/generate-demo-assets.ts",
     "content:migrate": "tsx packages/content/src/cli/migrate-legacy.ts",
+    "content:migrate-v2": "tsx packages/content/src/cli/migrate-v2.ts",
     "content:validate": "tsx packages/content/src/cli/validate.ts",
     "content:validate:dev": "tsx packages/content/src/cli/validate.ts --placeholder-media",
     "content:build": "tsx packages/content/src/cli/build.ts",

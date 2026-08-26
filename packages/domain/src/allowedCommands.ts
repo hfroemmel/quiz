@@ -76,7 +76,7 @@ export function availableCommands(state: GameState | null): CommandType[] {
       list.add('RESOLVE_WITHOUT_ANSWER')
       list.add('RESET_BUZZER')
       list.add('SKIP_QUESTION')
-      if (question?.presentationType === 'image-reveal') list.add('REVEAL_IMAGE_COMPLETELY')
+      if (question?.questionType === 'image-reveal') list.add('REVEAL_IMAGE_COMPLETELY')
       break
 
     case 'second-chance':
@@ -168,7 +168,7 @@ function selfServiceCommands(state: GameState): CommandType[] {
    * Antwort falsch war, verlor dabei das Bild unter den Augen.
    */
   if (state.phase === 'solution') list.add('CONTINUE')
-  if (state.currentQuestion?.question.presentationType === 'video-then-question') {
+  if (state.currentQuestion?.question.questionType === 'video-then-question') {
     list.add('REPORT_VIDEO_STATUS')
   }
 

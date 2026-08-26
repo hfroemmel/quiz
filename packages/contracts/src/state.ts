@@ -189,7 +189,10 @@ export interface GameState {
   /** Wird bei jeder akzeptierten Zustandsaenderung erhoeht (optimistische Nebenlaeufigkeit). */
   revision: number
 
-  quizModeId: string
+  /** Zielgruppe des Spiels (frueher `quizModeId`). */
+  audience: string
+  /** Gewaehlte Fragenpools. Fehlt das Feld, wird nicht nach Pool gefiltert. */
+  poolIds?: string[]
   presetId: string
   /** Steuerprofil des Spiels. Es wird beim Start festgelegt und aendert sich nicht. */
   flowProfile: FlowProfile

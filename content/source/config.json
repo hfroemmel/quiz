@@ -64,23 +64,25 @@
       "label": "Fahnen und Symbole"
     }
   ],
+  "pools": [
+    {
+      "id": "bundestag",
+      "label": "Bundestag"
+    },
+    {
+      "id": "saarbruecken",
+      "label": "Saarbrücken"
+    }
+  ],
   "themes": [
     {
       "id": "default",
       "label": "Erwachsene",
-      "typography": {
-        "headingFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif",
-        "bodyFont": "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
-      },
       "presentationAnimationSetId": "standard"
     },
     {
       "id": "kids",
       "label": "Kinder",
-      "typography": {
-        "headingFont": "'Patrick Hand', 'Comic Sans MS', cursive",
-        "bodyFont": "'Patrick Hand', 'Comic Sans MS', cursive"
-      },
       "presentationAnimationSetId": "standard",
       "skin": "kids"
     }
@@ -94,7 +96,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -103,7 +105,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -112,7 +114,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -140,7 +142,7 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -165,7 +167,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -174,7 +176,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -183,7 +185,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -215,12 +217,12 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
-              "image-choice"
-            ],
             "difficultyIds": [
               "medium",
               "hard"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -243,7 +245,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -252,7 +254,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -261,12 +263,12 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
-              "image-reveal"
-            ],
             "difficultyIds": [
               "medium",
               "hard"
+            ],
+            "questionTypes": [
+              "image-reveal"
             ]
           }
         },
@@ -295,11 +297,11 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
-              "image-choice"
-            ],
             "difficultyIds": [
               "hard"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -322,7 +324,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -331,7 +333,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -340,7 +342,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -370,7 +372,7 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -390,7 +392,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "video-then-question"
             ]
           }
@@ -399,7 +401,7 @@
           "id": "test-person",
           "label": "Test: Personenfrage",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "person"
             ]
           }
@@ -408,7 +410,7 @@
           "id": "bilderkennen",
           "label": "Bilderkennen",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-reveal"
             ]
           }
@@ -437,7 +439,7 @@
           "id": "bildauswahl",
           "label": "Bildauswahl",
           "filters": {
-            "presentationTypes": [
+            "questionTypes": [
               "image-choice"
             ]
           }
@@ -472,11 +474,11 @@
             "difficultyIds": [
               "easy"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -488,11 +490,11 @@
               "easy",
               "medium"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -528,11 +530,11 @@
             "difficultyIds": [
               "medium"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -586,11 +588,11 @@
             "difficultyIds": [
               "medium"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -627,11 +629,11 @@
               "medium",
               "hard"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -687,11 +689,11 @@
               "medium",
               "hard"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -726,11 +728,11 @@
             "difficultyIds": [
               "hard"
             ],
-            "presentationTypes": [
-              "image-choice"
-            ],
             "evaluationModes": [
               "option-comparison"
+            ],
+            "questionTypes": [
+              "image-choice"
             ]
           }
         },
@@ -749,13 +751,13 @@
       ]
     }
   ],
-  "modes": [
+  "audiences": [
     {
       "id": "adults",
       "label": "Erwachsene",
-      "questionFilter": {},
       "themeId": "default",
       "startVisualAssetId": "start-adults",
+      "startTitle": "Bundestags-Quiz",
       "allowedPresetIds": [
         "easy",
         "medium",
@@ -763,14 +765,13 @@
         "mixed",
         "touch-easy",
         "touch-medium",
-        "touch-hard"
-      ],
-      "startTitle": "Bundestags-Quiz"
+        "touch-hard",
+        "regional"
+      ]
     },
     {
       "id": "kids",
       "label": "Kinder",
-      "questionFilter": {},
       "themeId": "kids",
       "startVisualAssetId": "start-kids",
       "allowedPresetIds": [
@@ -779,24 +780,6 @@
         "touch-easy",
         "touch-medium"
       ]
-    },
-    {
-      "id": "saarbruecken",
-      "label": "Saarbrücken",
-      "questionFilter": {
-        "legacyModes": [
-          "adults",
-          "kids"
-        ],
-        "categoryIds": [
-          "saarbruecken"
-        ]
-      },
-      "themeId": "default",
-      "allowedPresetIds": [
-        "regional"
-      ],
-      "startTitle": "Bundestags-Quiz"
     }
   ]
 }
