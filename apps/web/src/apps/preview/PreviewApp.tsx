@@ -13,7 +13,8 @@
 import { useMemo, useState } from 'react'
 import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@quiz/contracts'
 import { gameTiming, stagePalettes } from '@quiz/contracts'
-import { StageScreen, themeVariables } from '../../presentation/StageScreen'
+import { StageScreen } from '../../presentation/StageScreen'
+import { themeForView, themeVariables } from '../../theme/sceneTheme'
 import { transitions } from '../../presentation/transitions/registry'
 import { prefersReducedMotion } from '../../presentation/animationPresets'
 import styles from './PreviewApp.module.css'
@@ -188,7 +189,7 @@ export function PreviewApp() {
         </ul>
       </aside>
 
-      <div className={styles.stage} data-preview-stage="" style={themeVariables(view)}>
+      <div className={styles.stage} data-preview-stage="" style={themeVariables(themeForView(view))}>
         <StageScreen key={runId} view={view} serverNow={() => view.serverTimeMs} isAudioMaster={false} />
       </div>
     </div>
@@ -304,7 +305,6 @@ function buildSampleView(input: {
     theme: {
       id: input.themeId,
       skin: SKINS[input.themeId] ?? 'default',
-      colors: stagePalettes[SKINS[input.themeId] ?? 'default'],
       startVisualUrl: previewStartVisual,
       startTitle: 'Bundestags-Quiz',
     },

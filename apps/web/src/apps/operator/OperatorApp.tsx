@@ -13,7 +13,8 @@
 import { useEffect, useState } from 'react'
 import { useQuizConnection } from '../../client/useQuizConnection'
 import { useBuzzerKeys } from '../../client/useBuzzerKeys'
-import { StageScreen, themeVariables } from '../../presentation/StageScreen'
+import { StageScreen } from '../../presentation/StageScreen'
+import { themeForView, themeVariables } from '../../theme/sceneTheme'
 import { useStageTheme } from '../../presentation/stageTheme'
 import { ConnectionBanner } from '../../components/ConnectionBanner'
 import { useAudioUnlock } from '../../presentation/useAudioUnlock'
@@ -105,7 +106,7 @@ export function OperatorApp() {
   const scoreControls = { beforePlayerOne: adjust('player-1'), afterPlayerTwo: adjust('player-2') }
 
   return (
-    <div className={styles.operator} data-operator="" style={themeVariables(view)}>
+    <div className={styles.operator} data-operator="" style={themeVariables(themeForView(view))}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           {view.allowedCommands.includes('ABORT_GAME') && (

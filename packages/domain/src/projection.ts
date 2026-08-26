@@ -9,7 +9,6 @@
  */
 import {
   isChoiceQuestion,
-  resolveThemeColors,
   scoringRules,
   type GameStatisticsViewModel,
   type AuditEntry,
@@ -450,21 +449,14 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
   const modeId = state?.quizModeId ?? ctx.previewModeId
   const mode = ctx.config.modes.find((entry) => entry.id === modeId) ?? ctx.config.modes[0]!
   const theme = ctx.config.themes.find((entry) => entry.id === mode.themeId) ?? ctx.config.themes[0]!
+  // Farben und Schriften stehen bewusst nicht im View-Modell - Darstellung ist
+  // Sache des Gastgebers und kommt aus dessen Theme-Schicht.
   return {
     id: theme.id,
     skin: theme.skin,
-    /*
-     * Im gebauten Paket steht der vollstaendige Satz. Die Aufloesung hier ist
-     * der Guertel zum Hosentraeger: Ein von Hand zusammengestelltes Paket koennte
-     * nur Abweichungen enthalten, und eine fehlende Farbe waere eine farblose
-     * Flaeche auf der Buehne.
-     */
-    colors: resolveThemeColors(theme),
     logoUrl: ctx.assetUrl(theme.logoAssetId),
     startVisualUrl: ctx.assetUrl(mode.startVisualAssetId ?? theme.logoAssetId),
     startTitle: mode.startTitle,
-    headingFont: theme.typography?.headingFont,
-    bodyFont: theme.typography?.bodyFont,
     presentationAnimationSetId: theme.presentationAnimationSetId,
   }
 }

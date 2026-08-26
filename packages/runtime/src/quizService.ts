@@ -40,8 +40,7 @@ import {
   projectPublic,
   type ProjectionContext,
 } from '@quiz/domain'
-import { reduce } from '@quiz/domain'
-import { QuizStore } from '@quiz/persistence'
+import { reduce, type QuizStorePort } from '@quiz/domain'
 import { buildChangeReport } from '@quiz/content'
 import { ContentService } from './contentService'
 
@@ -58,7 +57,7 @@ export interface DispatchResult {
 }
 
 export interface QuizServiceOptions {
-  store: QuizStore
+  store: QuizStorePort
   content: ContentService
   /** Injizierbar fuer Tests. */
   now?: () => number
@@ -91,7 +90,7 @@ export class QuizService {
   private readonly connectedClients = new Map<string, { role: ActorRole; clientId: string }>()
   private readonly warnings: string[] = []
 
-  readonly store: QuizStore
+  readonly store: QuizStorePort
   readonly content: ContentService
   readonly now: () => number
   private readonly random: () => number

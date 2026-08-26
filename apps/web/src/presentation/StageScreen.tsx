@@ -254,24 +254,3 @@ function renderScene(
   }
 }
 
-/**
- * Theme des aktiven Quizmodus als CSS-Custom-Properties.
- *
- * Damit kann das Kinderquiz ein eigenes Farbsystem besitzen, ohne dass irgendwo im
- * Code eine Modus-Sonderbehandlung noetig waere.
- *
- * WICHTIG - GEHOERT AUF DEN RAHMEN, NICHT AUF DIE BUEHNE: Die Werte kommen als
- * Inline-Stil, und ein Inline-Stil schlaegt jede Klassenregel. Stuenden sie an
- * der Buehne selbst, koennte `.stage--bright` seine Farben nicht mehr setzen.
- * Vom umgebenden Rahmen aus werden sie geerbt - und eine Angabe am Element
- * sticht jeden geerbten Wert.
- */
-export function themeVariables(view: PublicQuizViewModel): Record<string, string> {
-  const variables: Record<string, string> = {}
-  for (const [name, value] of Object.entries(view.theme.colors)) {
-    variables[`--color-${name}`] = value
-  }
-  if (view.theme.headingFont) variables['--font-heading'] = view.theme.headingFont
-  if (view.theme.bodyFont) variables['--font-body'] = view.theme.bodyFont
-  return variables
-}

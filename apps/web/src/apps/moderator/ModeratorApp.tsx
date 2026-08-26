@@ -17,7 +17,7 @@ import type { ModeratorQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection'
 import { useRevealClock } from '../../client/useRevealClock'
 import { ConnectionBanner } from '../../components/ConnectionBanner'
-import { themeVariables } from '../../presentation/StageScreen'
+import { themeForView, themeVariables } from '../../theme/sceneTheme'
 import styles from './ModeratorApp.module.css'
 
 const CODE_STORAGE_KEY = 'quiz.moderator.session-code'
@@ -94,7 +94,7 @@ function ModeratorSession({ code, onReset }: { code: string; onReset: () => void
   const can = (type: Parameters<typeof view.allowedCommands.includes>[0]) => view.allowedCommands.includes(type)
 
   return (
-    <div className={styles.moderator} data-moderator="" style={themeVariables(view)}>
+    <div className={styles.moderator} data-moderator="" style={themeVariables(themeForView(view))}>
       <ConnectionBanner connected={connected} rejection={lastRejection} onDismiss={clearRejection} />
 
       <header className={styles.header}>

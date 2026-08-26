@@ -15,41 +15,14 @@ import Database from 'better-sqlite3'
 import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import type { ActorRole, AuditEntry, GameState, QuestionPatch } from '@quiz/contracts'
-import type { DomainEvent, EngineEffects } from '@quiz/domain'
+import type { CommitInput, GameCountRow, QuizStorePort, RecordedCommandResponse, UsageRow } from '@quiz/domain'
 import { runMigrations } from './migrations'
 
-export interface CommitInput {
-  commandId: string
-  actor: { clientId: string; role: ActorRole }
-  state: GameState
-  events: DomainEvent[]
-  effects: EngineEffects
-  atMs: number
-}
+// Die Vertragsformen des Ports werden mit ausgeliefert, damit Konsumenten dieses
+// Adapters nicht zusaetzlich an `@quiz/domain` haengen muessen.
+export type { CommitInput, GameCountRow, RecordedCommandResponse, UsageRow }
 
-export interface RecordedCommandResponse {
-  accepted: boolean
-  revisionAfter: number
-  response: unknown
-}
-
-export interface UsageRow {
-  questionId: string
-  repetitionGroupId: string | null
-  usedAtMs: number
-}
-
-/** Eine Zeile des Spielprotokolls: alle Spiele eines Quizmodus. */
-export interface GameCountRow {
-  quizModeId: string
-  total: number
-  completed: number
-  aborted: number
-  /** Zeitpunkt des zuletzt begonnenen Spiels dieses Modus. */
-  lastAtIso?: string
-}
-
-export class QuizStore {
+export class QuizStore implements QuizStorePort {
   private readonly db: Database.Database
 
   constructor(filePath: string) {

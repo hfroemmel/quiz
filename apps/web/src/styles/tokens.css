@@ -4,7 +4,7 @@
  * HIER STEHT KEINE FARBE. Alle Farbwerte kommen aus
  * `packages/contracts/src/theme.ts` und stehen als erzeugtes Stylesheet in
  * `palette.css`. Im Betrieb ueberschreibt das Theme des aktiven Quizmodus die
- * Buehnenfarben ohnehin (siehe `themeVariables` in StageScreen.tsx) - eine
+ * Buehnenfarben ohnehin (siehe `themeVariables` in theme/sceneTheme.ts) - eine
  * Farbe an dieser Stelle waere deshalb wirkungslos und nur eine zweite
  * Wahrheit.
  *

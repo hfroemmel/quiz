@@ -1,3 +1,5 @@
 export * from './contentService'
 export * from './quizService'
 export * from './createRuntime'
+export * from './memoryStore'
+export * from './localRuntime'

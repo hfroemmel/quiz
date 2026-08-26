@@ -23,11 +23,18 @@ export const publicScenes = [
 ] as const
 export type PublicScene = (typeof publicScenes)[number]
 
+/**
+ * Inhaltsgetriebene Gestaltungsangaben des aktiven Quizmodus.
+ *
+ * BEWUSST OHNE FARBEN UND SCHRIFTEN: Darstellung ist Sache des Gastgebers. Das
+ * View-Modell nennt nur, was aus dem Inhalt kommt - die Gestaltungswelt als
+ * Empfehlung und die Branding-Assets. Farben und Schriften liefert die
+ * Theme-Schicht der Oberflaeche (kuenftig `@hfroemmel/quiz-themes`).
+ */
 export interface PublicTheme {
   id: string
   /** Gestaltungswelt der Buehne. Fehlt sie, gilt die dunkle Buehne. */
   skin?: ThemeSkin
-  colors: Record<string, string>
   logoUrl?: string
   startVisualUrl?: string
   /**
@@ -35,8 +42,6 @@ export interface PublicTheme {
    * enthaelt - so wie beim Kinderquiz.
    */
   startTitle?: string
-  headingFont?: string
-  bodyFont?: string
   presentationAnimationSetId?: string
 }
 

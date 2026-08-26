@@ -11,10 +11,12 @@
  *
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
-import { useEffect, useRef, useState } from 'react'
-import type { PlayerCount, PlayerId, PlayerQuizViewModel } from '@quiz/contracts'
-import { useQuizConnection } from '../client/useQuizConnection'
-import { StageScreen, themeVariables } from '../presentation/StageScreen'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Command, PlayerCount, PlayerQuizViewModel } from '@quiz/contracts'
+import { deriveQuizEvents, type QuizGameResult } from '@quiz/domain'
+import { useQuizRuntime } from '../client/useQuizRuntime'
+import { QuizScene } from '../presentation/QuizScene'
+import { themeForView, themeVariables } from '../theme/sceneTheme'
 import { releaseAudio } from '../presentation/soundCues'
 import { useAudioUnlock } from '../presentation/useAudioUnlock'
 import { GameStart } from './GameStart'
@@ -24,16 +26,9 @@ import { useHostVisible } from './useHostVisible'
 import { useIdleWatch } from './useIdleWatch'
 import styles from './Game.module.css'
 
-export interface QuizGameResult {
-  playerCount: number
-  scores: { playerId: PlayerId; label: string; score: number }[]
-  /** `null` bei Unentschieden und im Einzelspiel. */
-  winnerPlayerId: PlayerId | null
-  isDraw: boolean
-  /** Nur im Einzelspiel gesetzt. */
-  correctAnswers?: number
-  questionCount: number
-}
+// Die Ergebnisform kommt aus der Ereignisableitung der Domain - hier nur
+// weitergereicht, damit Gastgeber sie beim Einbetten importieren koennen.
+export type { QuizGameResult }
 
 export interface QuizGameProps {
   /** Quizmodus, in dem dieses Geraet spielt. Ohne Angabe der erste des Katalogs. */
@@ -56,22 +51,14 @@ export interface QuizGameProps {
   idleTimeoutMs?: number
 }
 
-/**
- * Kennzeichen eines Ergebnisses.
- *
- * Es dient nur dazu, dasselbe Ergebnis nicht zweimal zu melden. Die Revision
- * taugt dafuer nicht: Sie aendert sich nach dem Spielende noch, etwa durch eine
- * Punktekorrektur, und das ist kein zweites Ergebnis.
- */
-function resultKey(view: PlayerQuizViewModel): string {
-  const scores = view.result?.scores.map((score) => score.score).join('-') ?? ''
-  return `${view.progress.total}:${scores}`
-}
-
 export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
-  const { view, send, connected, audioMaster, notifyAudioReady, serverNow, lastRejection, clearRejection } =
-    useQuizConnection<PlayerQuizViewModel>('player')
-  const reportedGameRef = useRef<string | null>(null)
+  const { runtime, snapshot } = useQuizRuntime<PlayerQuizViewModel>('player')
+  const view = snapshot?.view ?? null
+  const connected = snapshot?.connection.connected ?? false
+  const lastRejection = snapshot?.lastRejection ?? null
+  const send = useCallback((command: Command) => void runtime?.dispatch(command), [runtime])
+  const clearRejection = useCallback(() => runtime?.clearRejection(), [runtime])
+  const notifyAudioReady = useCallback(() => runtime?.notifyAudioReady(), [runtime])
   const hostVisible = useHostVisible()
 
   useAudioUnlock(notifyAudioReady)
@@ -111,14 +98,9 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
   useEffect(() => {
     if (!view || greetedRef.current) return
     greetedRef.current = true
-    if (view.scene !== 'result') return
-    setShowChoice(true)
-    /*
-     * Dieses Ergebnis gilt als gemeldet, ohne es zu melden: Es gehoert einer
-     * frueheren Partie. Ein Gastgeber wuerde sonst eine Punktzahl verbuchen, die
-     * bei ihm nie gespielt wurde.
-     */
-    reportedGameRef.current = resultKey(view)
+    // Melden muss hier nichts unterdrueckt werden: Die Ereignisableitung unten
+    // meldet ohnehin nur Ergebnisse, die WAEHREND dieser Sitzung entstehen.
+    if (view.scene === 'result') setShowChoice(true)
   }, [view])
 
   /*
@@ -139,21 +121,21 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
     clearRejection()
   }, [pendingStart, lastRejection, clearRejection])
 
+  /*
+   * Ereignisableitung ueber die GANZE Sitzung - bewusst hier und nicht in der
+   * eingebetteten Buehne: Die Buehne wird beim Startbildschirm ausgesetzt, ein
+   * genau dann eintreffendes Ergebnis ginge ihr verloren. Gemeldet wird je
+   * beendetem Spiel genau einmal, weil das Ergebnis-Ereignis am Szeneneintritt
+   * haengt und nicht an der Revision.
+   */
+  const previousViewRef = useRef<PlayerQuizViewModel | null>(null)
   useEffect(() => {
-    if (!view || view.scene !== 'result' || !view.result) return
-    // Genau einmal je beendetem Spiel melden. Die Revision aendert sich danach
-    // noch, etwa durch eine Punktekorrektur - das ist kein zweites Ergebnis.
-    const key = resultKey(view)
-    if (reportedGameRef.current === key) return
-    reportedGameRef.current = key
-    onFinished?.({
-      playerCount: view.result.scores.length,
-      scores: view.result.scores.map(({ playerId, label, score }) => ({ playerId, label, score })),
-      winnerPlayerId: view.result.winnerPlayerId,
-      isDraw: view.result.isDraw,
-      ...(view.result.solo ? { correctAnswers: view.result.solo.correctAnswers } : {}),
-      questionCount: view.progress.total,
-    })
+    if (!view) return
+    const events = deriveQuizEvents(previousViewRef.current, view)
+    previousViewRef.current = view
+    for (const event of events) {
+      if (event.type === 'game-finished') onFinished?.(event.result)
+    }
   }, [view, onFinished])
 
   const idle = useIdleWatch({
@@ -165,7 +147,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
     },
   })
 
-  if (!view) {
+  if (!view || !runtime) {
     return (
       <div className={`${styles.game} ${styles.waiting}`} data-quiz-game="">
         <p>{connected ? 'Das Quiz wird vorbereitet...' : 'Keine Verbindung zum Quiz.'}</p>
@@ -179,7 +161,6 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
   const finished = view.scene === 'result'
 
   const start = ({ playerCount, presetId }: { playerCount: PlayerCount; presetId: string }) => {
-    reportedGameRef.current = null
     setShowChoice(false)
     setPendingStart(true)
     clearRejection()
@@ -197,7 +178,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
 
   if (!pendingStart && (showChoice || !hasGame)) {
     return (
-      <div className={`${styles.game} ${styles.startScreen}`} style={themeVariables(view)} data-quiz-game="">
+      <div className={`${styles.game} ${styles.startScreen}`} style={themeVariables(themeForView(view))} data-quiz-game="">
         <GameStart view={view} quizModeId={modeId} onStart={start} onExit={onExit} />
       </div>
     )
@@ -205,7 +186,7 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
 
   if (pendingStart) {
     return (
-      <div className={`${styles.game} ${styles.waiting}`} style={themeVariables(view)} data-quiz-game="">
+      <div className={`${styles.game} ${styles.waiting}`} style={themeVariables(themeForView(view))} data-quiz-game="">
         <p>Das Quiz wird vorbereitet...</p>
       </div>
     )
@@ -250,15 +231,13 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
     <div className={styles.game} data-quiz-game="" onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
-      <StageScreen
-        view={view}
-        serverNow={serverNow}
+      <QuizScene
+        runtime={runtime}
         /*
          * Im Hintergrund bleibt es still: Ein verdecktes Quiz darf nicht in die
          * Anwendung hineinklingen, die der Gastgeber gerade zeigt.
          */
-        isAudioMaster={audioMaster && hostVisible}
-        onReport={send}
+        audible={hostVisible}
         variant="touch"
         {...(answering ? { answering } : {})}
         pads={{

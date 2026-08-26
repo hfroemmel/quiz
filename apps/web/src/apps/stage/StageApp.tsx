@@ -12,7 +12,8 @@
 import { useEffect } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
 import { useQuizConnection } from '../../client/useQuizConnection'
-import { StageScreen, themeVariables } from '../../presentation/StageScreen'
+import { StageScreen } from '../../presentation/StageScreen'
+import { themeForView, themeVariables } from '../../theme/sceneTheme'
 import styles from './StageApp.module.css'
 import { useAudioUnlock } from '../../presentation/useAudioUnlock'
 import { toggleOwnFullscreen } from '../../client/desktopBridge'
@@ -47,7 +48,7 @@ export function StageApp() {
   }
 
   return (
-    <div className={styles.host} style={themeVariables(view)} onDoubleClick={() => void toggleOwnFullscreen()}>
+    <div className={styles.host} style={themeVariables(themeForView(view))} onDoubleClick={() => void toggleOwnFullscreen()}>
       {/* Ein Verbindungsverlust darf den Saal nicht mit Technik behelligen: nur ein
           dezenter Punkt, keine Fehlermeldung auf der Buehne. */}
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
