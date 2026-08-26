@@ -9,8 +9,8 @@
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { resolveAssetPath } from '@quiz/content'
-import type { QuizService } from '@quiz/runtime'
+import { resolveAssetPath } from '@hfroemmel/quiz-content'
+import type { QuizService } from '@hfroemmel/quiz-core'
 import { placeholderSvg } from './placeholderMedia'
 import { isLoopback } from './network'
 

@@ -6,7 +6,7 @@
  * erscheinen hier ebenfalls, damit der Operator sie unmittelbar sieht.
  */
 import { useState } from 'react'
-import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
+import type { Command, OperatorQuizViewModel } from '@hfroemmel/quiz-core'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
 import styles from './DiagnosticsPanel.module.css'
 

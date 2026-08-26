@@ -18,8 +18,8 @@ import type {
   OperatorQuizViewModel,
   PublicQuizViewModel,
   QuizSnapshot,
-} from '@quiz/contracts'
-import { RemoteQuizRuntime } from './remoteQuizRuntime'
+} from '@hfroemmel/quiz-core'
+import { RemoteQuizRuntime } from '@hfroemmel/quiz-core'
 
 export interface Rejection {
   reason: string

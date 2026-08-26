@@ -8,10 +8,9 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@quiz/content": "workspace:*",
-    "@quiz/contracts": "workspace:*",
+    "@hfroemmel/quiz-content": "workspace:*",
+    "@hfroemmel/quiz-core": "workspace:*",
     "@quiz/persistence": "workspace:*",
-    "@quiz/runtime": "workspace:*",
     "ws": "^8.18.0"
   },
   "devDependencies": {

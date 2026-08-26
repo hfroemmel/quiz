@@ -14,7 +14,7 @@
  *  2. REIN VISUELL - nur hier definiert. Aenderungen sind gefahrlos moeglich, weil
  *     kein Zustandswechsel davon abhaengt.
  */
-import { gameTiming } from '@quiz/contracts'
+import { gameTiming } from '@hfroemmel/quiz-core'
 
 export const presentationTiming = {
   /* --- fachlich relevant: gespiegelt aus gameTiming, nicht hier aendern --- */

@@ -5,7 +5,7 @@
  * Quellen und Regiehinweise. Der Buehnenscreen bekommt diese Felder serverseitig
  * gar nicht erst uebertragen.
  */
-import type { ModeratorQuizViewModel } from '@quiz/contracts'
+import type { ModeratorQuizViewModel } from '@hfroemmel/quiz-core'
 import styles from './PrivatePanel.module.css'
 
 export function PrivatePanel({ view }: { view: ModeratorQuizViewModel }) {

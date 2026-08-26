@@ -12,7 +12,7 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { mediaAssetSchema } from '@quiz/contracts'
+import { mediaAssetSchema } from '@hfroemmel/quiz-core'
 import { contentDir } from './dirs'
 import { readJson, resolveAssetPath } from '../package'
 

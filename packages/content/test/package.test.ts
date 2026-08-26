@@ -14,7 +14,7 @@
  * Darstellung ist Sache des Gastgebers. Auch das haelt dieser Test fest.
  */
 import { describe, expect, it } from 'vitest'
-import { quizConfigSchema } from '@quiz/contracts'
+import { quizConfigSchema } from '@hfroemmel/quiz-core'
 
 const config = {
   questionsPerGame: 1,

@@ -14,7 +14,7 @@
  * Verbindlich bleibt der Server: Ein trotzdem gesendeter Fingertipp wird dort
  * abgewiesen. Diese Funktionen entscheiden nur, welche Flaeche stumpf aussieht.
  */
-import type { PlayerId, PlayerQuizViewModel } from '@quiz/contracts'
+import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 
 /**
  * Wem gehoert der laufende Versuch?

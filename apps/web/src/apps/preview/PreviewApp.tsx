@@ -11,8 +11,8 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
-import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@quiz/contracts'
-import { gameTiming, stagePalettes } from '@quiz/contracts'
+import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@hfroemmel/quiz-core'
+import { gameTiming, stagePalettes } from '@hfroemmel/quiz-core'
 import { StageScreen } from '../../presentation/StageScreen'
 import { themeForView, themeVariables } from '../../theme/sceneTheme'
 import { transitions } from '../../presentation/transitions/registry'

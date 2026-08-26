@@ -14,7 +14,7 @@
  * und wer buzzert, schaut dabei auf die Frage, nicht auf seine Hand; wem die
  * Ecke gehoert, sagt die Farbe und die Punktekarte darueber.
  */
-import type { PlayerId } from '@quiz/contracts'
+import type { PlayerId } from '@hfroemmel/quiz-core'
 import styles from './Game.module.css'
 
 interface BuzzerProps {

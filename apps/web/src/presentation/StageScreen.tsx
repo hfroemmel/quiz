@@ -14,7 +14,7 @@
  * (Szene + Transition-ID des Servers), nicht am Eintreffen einer Nachricht.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import type { Command, PublicQuizViewModel } from '@quiz/contracts'
+import type { Command, PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import { useRevealClock } from '../client/useRevealClock'
 import { playCue } from './soundCues'
 import { SoundProvider } from './SoundProvider'

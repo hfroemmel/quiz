@@ -9,7 +9,7 @@
  * der jeweiligen Gestaltungswelt gezeichnet wird - grau zurueckgenommen auf der
  * Buehne, gedeckt rot in der Kinderwelt -, entscheidet allein das Stylesheet.
  */
-import type { PublicOption, PublicScene } from '@quiz/contracts'
+import type { PublicOption, PublicScene } from '@hfroemmel/quiz-core'
 
 export const answerStates = ['idle', 'selected', 'correct', 'incorrect', 'disabled'] as const
 export type AnswerState = (typeof answerStates)[number]

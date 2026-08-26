@@ -1,5 +1,5 @@
 /** Gemeinsame Eigenschaften aller Buehnenszenen. */
-import type { PublicQuizViewModel } from '@quiz/contracts'
+import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import type { RevealDisplay } from '../../client/useRevealClock'
 
 /**

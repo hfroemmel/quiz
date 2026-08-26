@@ -23,7 +23,7 @@
  * der Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach
  * einem Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
-import { revealGrid } from '@quiz/contracts'
+import { revealGrid } from '@hfroemmel/quiz-core'
 import { Media } from '../stage/Media'
 import { QuestionHead } from '../stage/QuestionHead'
 import styles from './scenes.module.css'

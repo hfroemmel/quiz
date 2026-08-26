@@ -12,8 +12,8 @@
  * Reconnect-Abweichungen sofort korrigieren.
  */
 import { useEffect, useRef, useState } from 'react'
-import type { PublicRevealState } from '@quiz/contracts'
-import { revealCountdownSeconds, revealProgress } from '@quiz/domain'
+import type { PublicRevealState } from '@hfroemmel/quiz-core'
+import { revealCountdownSeconds, revealProgress } from '@hfroemmel/quiz-core'
 
 export interface RevealDisplay {
   progress: number

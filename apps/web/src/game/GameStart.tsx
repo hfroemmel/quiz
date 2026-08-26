@@ -11,7 +11,7 @@
  * neuen Preset vergessen wuerde.
  */
 import { useState } from 'react'
-import { playerCounts, type PlayerCount, type PlayerQuizViewModel } from '@quiz/contracts'
+import { playerCounts, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import styles from './Game.module.css'
 
 interface GameStartProps {

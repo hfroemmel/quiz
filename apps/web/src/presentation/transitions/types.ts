@@ -9,7 +9,7 @@
  *  - welcher Reduced-Motion-Fallback gilt (`reducedMotionDurationMs`);
  *  - welche Teile aus Fairness- oder Synchronitaetsgruenden fest sind (`locked`).
  */
-import type { PublicScene } from '@quiz/contracts'
+import type { PublicScene } from '@hfroemmel/quiz-core'
 import type { SoundCueId } from '../soundCues'
 
 export interface PresentationTransitionDefinition {

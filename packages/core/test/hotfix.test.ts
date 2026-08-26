@@ -1,0 +1,71 @@
+/**
+ * Hotfix-Overlay (Spezifikation 25): Das Basispaket bleibt unveraendert, die
+ * Korrekturen legen sich zur Laufzeit darueber.
+ */
+import { describe, expect, it } from 'vitest'
+import type { Question, QuestionPatch } from '../src/contracts'
+import { applyPatches, buildChangeReport, findUnreconciledPatches } from '../src/runtime/hotfix'
+import { makeQuestion } from './helpers'
+
+const question = (overrides: Partial<Question> & { id: string }) =>
+  makeQuestion({ options: [
+    { id: 'o1', text: 'A' },
+    { id: 'o2', text: 'B' },
+    { id: 'o3', text: 'C' },
+    { id: 'o4', text: 'D' },
+  ], correctOptionId: 'o1', ...overrides })
+
+describe('Hotfix-Overlay', () => {
+  const base = [question({ id: 'q1', prompt: 'Alter Text' })]
+  const patch: QuestionPatch = {
+    id: 'patch-1',
+    questionId: 'q1',
+    baseContentVersion: '1.0.0',
+    changes: { prompt: 'Korrigierter Text' },
+    reason: 'Tippfehler',
+    createdAt: '2026-08-18T20:00:00.000Z',
+    createdBy: 'operator',
+    applyMode: 'next-use',
+  }
+
+  it('veraendert das Basispaket nicht, sondern legt sich darueber', () => {
+    const result = applyPatches(base, [patch])
+    expect(result.questions[0]!.prompt).toBe('Korrigierter Text')
+    // Der Basisbestand bleibt unangetastet.
+    expect(base[0]!.prompt).toBe('Alter Text')
+  })
+
+  it('laedt eine Frage mit ungueltigem Patch gar nicht', () => {
+    const broken: QuestionPatch = { ...patch, id: 'patch-2', changes: { prompt: '' } }
+    const result = applyPatches(base, [broken])
+    expect(result.questions).toHaveLength(0)
+    expect(result.rejected[0]!.questionId).toBe('q1')
+  })
+
+  it('protokolliert alten und neuen Wert fuer den Export', () => {
+    const report = buildChangeReport(base, [patch])
+    expect(report[0]).toMatchObject({
+      questionId: 'q1',
+      field: 'prompt',
+      oldValue: 'Alter Text',
+      newValue: 'Korrigierter Text',
+      reason: 'Tippfehler',
+      baseContentVersion: '1.0.0',
+    })
+  })
+
+  it('warnt, wenn ein Hotfix in der neuen Kundenquelle fehlt', () => {
+    const newBase = [question({ id: 'q1', prompt: 'Alter Text' })]
+    expect(findUnreconciledPatches([patch], newBase)).toHaveLength(1)
+    const reconciled = [question({ id: 'q1', prompt: 'Korrigierter Text' })]
+    expect(findUnreconciledPatches([patch], reconciled)).toHaveLength(0)
+  })
+})
+
+/**
+ * Fehlende Mediendateien waehrend der Entwicklung.
+ *
+ * Der freigegebene Bildbestand liegt spaeter vor als der Fragenkatalog. Damit die
+ * Entwicklung nicht blockiert, laesst sich die Meldung zur Warnung herabstufen -
+ * fuer den Livebetrieb bleibt sie ein Fehler.
+ */

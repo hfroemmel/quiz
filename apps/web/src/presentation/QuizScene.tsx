@@ -14,8 +14,8 @@
  * Layout heraus - Variablen vererben sich trotzdem.
  */
 import { useCallback, useEffect, useRef, useSyncExternalStore, type ReactNode } from 'react'
-import type { Command, PublicQuizViewModel, QuizRuntime } from '@quiz/contracts'
-import { deriveQuizEvents, type QuizEvent } from '@quiz/domain'
+import type { Command, PublicQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
+import { deriveQuizEvents, type QuizEvent } from '@hfroemmel/quiz-core'
 import { StageScreen } from './StageScreen'
 import type { StageHeaderSlots } from './stage/StageHeader'
 import type { SceneAnswering } from './scenes/sceneProps'

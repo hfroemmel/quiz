@@ -15,7 +15,7 @@
  * Stelle gelesen, damit Frage und Loesung nie auseinanderlaufen.
  */
 import type { ReactNode } from 'react'
-import type { PublicQuestion } from '@quiz/contracts'
+import type { PublicQuestion } from '@hfroemmel/quiz-core'
 import { AnswerList, type AnswerRow } from './AnswerList'
 import { Media } from './Media'
 import { QuestionHead } from './QuestionHead'

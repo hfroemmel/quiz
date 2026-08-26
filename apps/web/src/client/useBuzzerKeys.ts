@@ -13,7 +13,7 @@
  * unnoetigen Netzwerkverkehr und irrefuehrende Ablehnungen im Protokoll.
  */
 import { useEffect, useRef } from 'react'
-import type { Command, PlayerId } from '@quiz/contracts'
+import type { Command, PlayerId } from '@hfroemmel/quiz-core'
 
 const BUZZER_KEYS: Record<string, PlayerId> = { a: 'player-1', b: 'player-2' }
 const DEBOUNCE_MS = 150

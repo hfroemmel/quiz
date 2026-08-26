@@ -17,7 +17,7 @@
  * dieselben Bauteile, nur an einem anderen Platz (`game/PlayerFoot.tsx`).
  */
 import type { CSSProperties, ReactNode } from 'react'
-import type { PublicQuizViewModel } from '@quiz/contracts'
+import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import logoUrl from '../../assets/images/logo.svg'

@@ -1,0 +1,29 @@
+{
+  "name": "@hfroemmel/quiz-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Kern des Quiz-Systems: Vertraege, Engine und Laufzeit - ohne Dateisystem und native Module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  }
+}

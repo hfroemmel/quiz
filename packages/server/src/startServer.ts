@@ -9,7 +9,8 @@
  */
 import { createServer, type Server } from 'node:http'
 import type { QuizStore } from '@quiz/persistence'
-import { createQuizRuntime, type QuizService } from '@quiz/runtime'
+import type { QuizService } from '@hfroemmel/quiz-core'
+import { createQuizRuntime } from './createRuntime'
 import { createRequestHandler } from './httpServer'
 import { attachWebSocketServer } from './wsServer'
 import { createSessionCode, localNetworkUrls } from './network'

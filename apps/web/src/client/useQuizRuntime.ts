@@ -9,8 +9,8 @@
  * selbst ausgeliefert werden.
  */
 import { useEffect, useState } from 'react'
-import type { ClientRole, PublicQuizViewModel, QuizSnapshot } from '@quiz/contracts'
-import { RemoteQuizRuntime } from './remoteQuizRuntime'
+import type { ClientRole, PublicQuizViewModel, QuizSnapshot } from '@hfroemmel/quiz-core'
+import { RemoteQuizRuntime } from '@hfroemmel/quiz-core'
 
 export interface QuizRuntimeHandle<TView extends PublicQuizViewModel> {
   /** `null`, bis der Verbindungsaufbau der Komponente begonnen hat. */

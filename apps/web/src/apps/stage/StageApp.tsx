@@ -10,7 +10,7 @@
  * bestimmte Audio-Master spielt Ton ab.
  */
 import { useEffect } from 'react'
-import type { PublicQuizViewModel } from '@quiz/contracts'
+import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import { useQuizConnection } from '../../client/useQuizConnection'
 import { StageScreen } from '../../presentation/StageScreen'
 import { themeForView, themeVariables } from '../../theme/sceneTheme'

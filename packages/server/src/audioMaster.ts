@@ -16,7 +16,7 @@
  * Tonhoheit wie bisher. Und sobald in einer Buehne einmal geklickt wurde, holt
  * sie sich die Tonhoheit zurueck.
  */
-import type { ClientRole } from '@quiz/contracts'
+import type { ClientRole } from '@hfroemmel/quiz-core'
 
 export interface AudioCandidate {
   role: ClientRole

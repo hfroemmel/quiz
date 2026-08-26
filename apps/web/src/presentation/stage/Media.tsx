@@ -11,7 +11,7 @@
  * Das Foto liegt INNERHALB des Rahmens, nie in einer Rahmengrafik: Es wechselt
  * mit jeder Frage, der Rahmen nie.
  */
-import type { RevealGrid } from '@quiz/contracts'
+import type { RevealGrid } from '@hfroemmel/quiz-core'
 import { RevealTiles } from './RevealTiles'
 import styles from './Media.module.css'
 

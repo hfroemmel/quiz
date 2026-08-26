@@ -11,7 +11,7 @@
  * Die Schriftstapel sind Darstellung und stehen deshalb genau hier, nicht mehr
  * im Quizpaket.
  */
-import { resolveThemeColors, type DesignColors, type PublicQuizViewModel, type ThemeSkin } from '@quiz/contracts'
+import { resolveThemeColors, type DesignColors, type PublicQuizViewModel, type ThemeSkin } from '@hfroemmel/quiz-core'
 
 export interface QuizSceneTheme {
   /** Gestaltungswelt der Buehne - traegt Klassen, Assets und Palette. */

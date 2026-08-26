@@ -13,7 +13,7 @@
  * Die Anwendung muss ohne diesen Client vollstaendig nutzbar bleiben.
  */
 import { useEffect, useState } from 'react'
-import type { ModeratorQuizViewModel } from '@quiz/contracts'
+import type { ModeratorQuizViewModel } from '@hfroemmel/quiz-core'
 import { useQuizConnection } from '../../client/useQuizConnection'
 import { useRevealClock } from '../../client/useRevealClock'
 import { ConnectionBanner } from '../../components/ConnectionBanner'

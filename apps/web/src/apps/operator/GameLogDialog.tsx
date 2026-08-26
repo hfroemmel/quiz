@@ -11,7 +11,7 @@
  */
 import { useState } from 'react'
 import { Dialog } from '../../ui/Dialog'
-import type { Command, GameStatisticsViewModel } from '@quiz/contracts'
+import type { Command, GameStatisticsViewModel } from '@hfroemmel/quiz-core'
 import styles from '../../ui/Dialog.module.css'
 import log from './GameLogDialog.module.css'
 

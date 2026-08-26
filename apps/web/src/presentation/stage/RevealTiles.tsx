@@ -15,8 +15,8 @@
  * ist damit fest: Eine Kachel deckt immer denselben Bildausschnitt auf.
  */
 import { useMemo } from 'react'
-import type { RevealGrid } from '@quiz/contracts'
-import { revealSeed, revealTilePlan } from '@quiz/domain'
+import type { RevealGrid } from '@hfroemmel/quiz-core'
+import { revealSeed, revealTilePlan } from '@hfroemmel/quiz-core'
 import styles from './RevealTiles.module.css'
 
 interface RevealTilesProps {

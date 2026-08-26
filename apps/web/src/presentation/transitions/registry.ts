@@ -12,7 +12,7 @@
  *   5. in der Entwicklungsansicht `/preview` pruefen
  *   6. visuellen Regressionstest aktualisieren (test/e2e/presentation.spec.ts)
  */
-import type { PublicScene } from '@quiz/contracts'
+import type { PublicScene } from '@hfroemmel/quiz-core'
 import { prefersReducedMotion } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'
 import { fadeThroughPause } from './fadeThrough'

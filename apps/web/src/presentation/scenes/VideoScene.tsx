@@ -21,7 +21,7 @@
  * Server im Selbstbedienungsbetrieb nicht, wann das Video zu Ende ist.
  */
 import { useEffect, useRef, useState } from 'react'
-import type { Command } from '@quiz/contracts'
+import type { Command } from '@hfroemmel/quiz-core'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 

@@ -23,8 +23,8 @@ import {
   type MediaAsset,
   type Question,
   type QuizConfig,
-} from '@quiz/contracts'
-import { matchesSlot, poolForGame, repetitionKey } from '@quiz/domain'
+} from '@hfroemmel/quiz-core'
+import { matchesSlot, poolForGame, repetitionKey } from '@hfroemmel/quiz-core'
 
 export type IssueSeverity = 'error' | 'warning'
 

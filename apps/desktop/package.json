@@ -11,7 +11,7 @@
     "rebuild:native": "electron-rebuild -f -w better-sqlite3 -m ../.."
   },
   "dependencies": {
-    "@quiz/content": "workspace:*",
+    "@hfroemmel/quiz-content": "workspace:*",
     "@quiz/server": "workspace:*",
     "better-sqlite3": "^11.8.1"
   },

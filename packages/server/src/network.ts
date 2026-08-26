@@ -10,7 +10,7 @@
  */
 import { networkInterfaces } from 'node:os'
 import { randomInt } from 'node:crypto'
-import type { ClientRole } from '@quiz/contracts'
+import type { ClientRole } from '@hfroemmel/quiz-core'
 
 /** Sechsstelliger Code, der beim Start im Operatorfenster angezeigt wird. */
 export function createSessionCode(): string {

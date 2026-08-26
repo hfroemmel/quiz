@@ -29,7 +29,7 @@ import {
   SoundOffIcon,
   SoundOnIcon,
 } from '../../ui/IconButton'
-import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
+import { scoringRules, type OperatorQuizViewModel } from '@hfroemmel/quiz-core'
 import { OperatorControls } from './OperatorControls'
 import { PrivatePanel } from './PrivatePanel'
 import { StartPanel } from './StartPanel'

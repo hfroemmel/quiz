@@ -15,7 +15,7 @@
  * Punkte innen. Sie zaehlen ebenfalls hoch - korrigiert der Operator hier noch
  * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
-import type { PublicResult } from '@quiz/contracts'
+import type { PublicResult } from '@hfroemmel/quiz-core'
 import { Confetti } from '../../components/Confetti'
 import { Score } from '../stage/Score'
 import styles from './scenes.module.css'

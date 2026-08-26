@@ -26,7 +26,7 @@
  * hier nur die Farbe ihres Spielers; alles andere - Aufbau, Hochzaehlen,
  * gezeichnete Karte der Kinderwelt - kommt unveraendert von dort.
  */
-import type { PlayerId, PlayerQuizViewModel } from '@quiz/contracts'
+import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { Counter } from '../presentation/stage/Counter'
 import { Score } from '../presentation/stage/Score'
 import { Buzzer } from './Buzzer'

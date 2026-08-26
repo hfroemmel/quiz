@@ -11,7 +11,7 @@
  * Bildkomponente uebergeben wurde. Sonst gilt eine Frage ohne Foto als
  * bebildert, und die Fragetafel bekaeme eine Spalte fuer nichts.
  */
-import type { PublicQuestion } from '@quiz/contracts'
+import type { PublicQuestion } from '@hfroemmel/quiz-core'
 import { Media } from './Media'
 import { useFittedPrompt } from './useFittedPrompt'
 import styles from './QuestionHead.module.css'

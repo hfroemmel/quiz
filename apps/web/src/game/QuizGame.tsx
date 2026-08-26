@@ -12,8 +12,8 @@
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Command, PlayerCount, PlayerQuizViewModel } from '@quiz/contracts'
-import { deriveQuizEvents, type QuizGameResult } from '@quiz/domain'
+import type { Command, PlayerCount, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
 import { useQuizRuntime } from '../client/useQuizRuntime'
 import { QuizScene } from '../presentation/QuizScene'
 import { themeForView, themeVariables } from '../theme/sceneTheme'

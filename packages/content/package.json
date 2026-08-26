@@ -1,6 +1,6 @@
 {
-  "name": "@quiz/content",
-  "version": "1.0.0",
+  "name": "@hfroemmel/quiz-content",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "description": "Quizdaten-Pipeline: Legacy-Import, Normalisierung, Validierung, versionierte Pakete, Hotfix-Overlay",
@@ -8,8 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@quiz/contracts": "workspace:*",
-    "@quiz/domain": "workspace:*",
+    "@hfroemmel/quiz-core": "workspace:*",
     "zod": "^3.24.1"
   },
   "files": [
@@ -24,6 +23,8 @@
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
       }
-    }
+    },
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
   }
 }

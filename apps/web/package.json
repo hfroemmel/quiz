@@ -11,8 +11,7 @@
     "palette:build": "tsx scripts/build-palette.ts"
   },
   "dependencies": {
-    "@quiz/contracts": "workspace:*",
-    "@quiz/domain": "workspace:*",
+    "@hfroemmel/quiz-core": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

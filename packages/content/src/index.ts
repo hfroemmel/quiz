@@ -1,6 +1,5 @@
 export * from './validate'
 export * from './package'
-export * from './hotfix'
 export * from './report'
 export * from './legacy/parseLiteral'
 export * from './legacy/migrate'

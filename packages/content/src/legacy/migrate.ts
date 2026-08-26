@@ -18,7 +18,7 @@
  * Die Feldnamen der Altdaten werden tolerant erkannt, weil in den Quellen mehrere
  * Schreibweisen vorkommen (z. B. `Anmerkung` neben `note`).
  */
-import type { AnswerOption, MediaAsset, Question, QuestionPresentationType } from '@quiz/contracts'
+import type { AnswerOption, MediaAsset, Question, QuestionPresentationType } from '@hfroemmel/quiz-core'
 import { extractDeclarations, type LiteralValue } from './parseLiteral'
 
 export interface MigrationNote {

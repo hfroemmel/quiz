@@ -19,7 +19,7 @@ import {
   type QuizConfig,
   type QuizPackage,
   type QuizPackageManifest,
-} from '@quiz/contracts'
+} from '@hfroemmel/quiz-core'
 import { validateContent, type IssueSeverity, type ValidationResult } from './validate'
 
 export const ASSET_DIRECTORY = 'assets'

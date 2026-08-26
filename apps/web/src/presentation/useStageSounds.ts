@@ -13,7 +13,7 @@
  * gesperrtem Buzzer wird abgewiesen - und bleibt damit auch still.
  */
 import { useEffect, useRef } from 'react'
-import type { PublicQuizViewModel } from '@quiz/contracts'
+import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import type { SoundCueId } from './soundCues'
 
 export function useStageSounds(view: PublicQuizViewModel, play: (cueId: SoundCueId) => void): void {

@@ -41,7 +41,7 @@ importers:
 
   apps/desktop:
     dependencies:
-      '@quiz/content':
+      '@hfroemmel/quiz-content':
         specifier: workspace:*
         version: link:../../packages/content
       '@quiz/server':
@@ -60,7 +60,7 @@ importers:
 
   apps/kiosk:
     dependencies:
-      '@quiz/content':
+      '@hfroemmel/quiz-content':
         specifier: workspace:*
         version: link:../../packages/content
       '@quiz/server':
@@ -79,12 +79,9 @@ importers:
 
   apps/web:
     dependencies:
-      '@quiz/contracts':
+      '@hfroemmel/quiz-core':
         specifier: workspace:*
-        version: link:../../packages/contracts
-      '@quiz/domain':
-        specifier: workspace:*
-        version: link:../../packages/domain
+        version: link:../../packages/core
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -107,36 +104,24 @@ importers:
 
   packages/content:
     dependencies:
-      '@quiz/contracts':
+      '@hfroemmel/quiz-core':
         specifier: workspace:*
-        version: link:../contracts
-      '@quiz/domain':
-        specifier: workspace:*
-        version: link:../domain
+        version: link:../core
       zod:
         specifier: ^3.24.1
         version: 3.25.76
 
-  packages/contracts:
+  packages/core:
     dependencies:
       zod:
         specifier: ^3.24.1
         version: 3.25.76
-
-  packages/domain:
-    dependencies:
-      '@quiz/contracts':
-        specifier: workspace:*
-        version: link:../contracts
 
   packages/persistence:
     dependencies:
-      '@quiz/contracts':
+      '@hfroemmel/quiz-core':
         specifier: workspace:*
-        version: link:../contracts
-      '@quiz/domain':
-        specifier: workspace:*
-        version: link:../domain
+        version: link:../core
       better-sqlite3:
         specifier: ^11.8.1
         version: 11.10.0
@@ -145,35 +130,17 @@ importers:
         specifier: ^7.6.12
         version: 7.6.13
 
-  packages/runtime:
-    dependencies:
-      '@quiz/content':
-        specifier: workspace:*
-        version: link:../content
-      '@quiz/contracts':
-        specifier: workspace:*
-        version: link:../contracts
-      '@quiz/domain':
-        specifier: workspace:*
-        version: link:../domain
-      '@quiz/persistence':
-        specifier: workspace:*
-        version: link:../persistence
-
   packages/server:
     dependencies:
-      '@quiz/content':
+      '@hfroemmel/quiz-content':
         specifier: workspace:*
         version: link:../content
-      '@quiz/contracts':
+      '@hfroemmel/quiz-core':
         specifier: workspace:*
-        version: link:../contracts
+        version: link:../core
       '@quiz/persistence':
         specifier: workspace:*
         version: link:../persistence
-      '@quiz/runtime':
-        specifier: workspace:*
-        version: link:../runtime
       ws:
         specifier: ^8.18.0
         version: 8.21.3

@@ -11,7 +11,7 @@ import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const pakete = ['contracts', 'domain', 'content', 'persistence', 'runtime', 'server']
+const pakete = ['core', 'content', 'persistence', 'server']
 const ablage = mkdtempSync(join(tmpdir(), 'quiz-pack-'))
 let fehler = 0
 

@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
-import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
+import type { Command, OperatorQuizViewModel } from '@hfroemmel/quiz-core'
 import shell from './OperatorApp.module.css'
 import styles from './StartPanel.module.css'
 

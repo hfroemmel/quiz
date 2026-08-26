@@ -28,7 +28,7 @@
  * Farben liefert das Theme des laufenden Quiz. Eine Regel hier wuerde ein Theme
  * mit eigenen Farben aussperren.
  */
-import { brightPalette, stageExtras, stagePalettes, uiPalette } from '@quiz/contracts'
+import { brightPalette, stageExtras, stagePalettes, uiPalette } from '@hfroemmel/quiz-core'
 
 const HEADER = `/*
  * ERZEUGT - NICHT VON HAND BEARBEITEN.

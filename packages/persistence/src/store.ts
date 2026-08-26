@@ -14,8 +14,8 @@
 import Database from 'better-sqlite3'
 import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
-import type { ActorRole, AuditEntry, GameState, QuestionPatch } from '@quiz/contracts'
-import type { CommitInput, GameCountRow, QuizStorePort, RecordedCommandResponse, UsageRow } from '@quiz/domain'
+import type { ActorRole, AuditEntry, GameState, QuestionPatch } from '@hfroemmel/quiz-core'
+import type { CommitInput, GameCountRow, QuizStorePort, RecordedCommandResponse, UsageRow } from '@hfroemmel/quiz-core'
 import { runMigrations } from './migrations'
 
 // Die Vertragsformen des Ports werden mit ausgeliefert, damit Konsumenten dieses
