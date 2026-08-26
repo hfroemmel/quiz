@@ -175,9 +175,6 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'SELECT_PLAYER_MANUALLY':
       return acceptPlayer(work, command.playerId, command.type === 'BUZZ' ? 'hardware' : 'manual')
 
-    case 'ANSWER_BY_PLAYER':
-      return answerByPlayer(work, command.playerId, command.optionId)
-
     case 'LOG_OPTION_ANSWER':
       return logAnswer(work, { optionId: command.optionId })
 
@@ -407,11 +404,11 @@ function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual
 }
 
 /**
- * Der Zuschlag selbst - ohne Commit, damit ihn beide Wege teilen koennen: der
- * Buzzer des Operators und der Fingertipp eines Spielers. Die Pruefung, ob der
- * Zuschlag erlaubt ist, steht in `evaluateBuzz` und passiert VOR diesem Aufruf.
+ * Der Zuschlag selbst - ohne Commit, getrennt von der Zulaessigkeitspruefung.
+ * Die Pruefung, ob der Zuschlag erlaubt ist, steht in `evaluateBuzz` und
+ * passiert VOR diesem Aufruf.
  */
-function claimPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual' | 'touch'): void {
+function claimPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual'): void {
   const label = work.state!.players.find((player) => player.id === playerId)!.label
   const wasRevealRunning = work.phase === 'reveal-running'
 
@@ -428,78 +425,8 @@ function claimPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual'
   work.log('buzzer', `${label} hat den Zuschlag (${describeVia(via)}).`, { playerId, via })
 }
 
-function describeVia(via: 'hardware' | 'manual' | 'touch'): string {
-  if (via === 'hardware') return 'Buzzer'
-  return via === 'manual' ? 'manuell' : 'Antippen'
-}
-
-/**
- * Uebersetzt eine abgelehnte Buzzerentscheidung in eine Begruendung fuer Spieler.
- *
- * Am Geraet steht kein Operator: "Zuerst die Antwortphase freigeben" waere dort
- * sinnlos. Der haeufigste Fall am geteilten Bildschirm ist das Wettrennen zweier
- * Finger - dann laeuft bereits die Auswertung des schnelleren Tipps.
- *
- * Die Entscheidung selbst wird hier nicht angetastet, nur ihre Begruendung.
- */
-function rejectTouch(phase: GamePhase, decision: ReturnType<typeof evaluateBuzz>): EngineResult {
-  if (phase === 'attempt-feedback') {
-    return reject('buzzer-already-taken', 'Der andere Spieler war schneller.')
-  }
-  if (decision.reason === 'invalid-phase') {
-    return reject('invalid-phase', 'Antworten ist gerade nicht möglich.')
-  }
-  return reject(decision.reason ?? 'buzzer-closed', decision.message ?? 'Antworten ist gerade nicht möglich.')
-}
-
-/**
- * Selbstbedienung: Ein Spieler tippt eine Antwort an.
- *
- * Zuschlag, Einloggen und Auswerten passieren hier in EINEM Schritt. Genau das ist
- * der Zweck des Befehls: Tippen zwei Spieler fast gleichzeitig, entscheidet die
- * Reihenfolge der Befehlsannahme im Server - nicht die Laufzeit dreier Nachrichten.
- * Die Zulaessigkeitspruefung ist dieselbe wie beim Hardware-Buzzer (`evaluateBuzz`),
- * damit es keine zweite Fairnessregel gibt.
- */
-function answerByPlayer(work: Draft, playerId: PlayerId, optionId: string): EngineResult {
-  const guard = work.requireActiveGame()
-  if (guard) return guard
-  if (work.state!.flowProfile !== 'self-service') {
-    return reject(
-      'wrong-flow-profile',
-      'In diesem Spiel bewertet der Operator die Antworten. Antippen ist hier nicht vorgesehen.',
-    )
-  }
-
-  const question = work.state!.currentQuestion?.question
-  if (!question) return reject('invalid-phase', 'Es ist gerade keine Frage aktiv.')
-  if (!isSelfServiceAnswerable(question)) {
-    return reject('invalid-phase', 'Diese Frage lässt sich nicht durch Antippen beantworten.')
-  }
-  if (!question.options!.some((option) => option.id === optionId)) {
-    return reject('invalid-payload', 'Diese Antwortoption gehört nicht zur Frage.')
-  }
-
-  if (work.phase === 'second-chance') {
-    // Die zweite Chance gehoert bereits einem bestimmten Spieler; um den Zuschlag
-    // wird nicht erneut gespielt. Deshalb faellt hier keine Buzzerentscheidung.
-    const open = pendingAttempt(work.state!)
-    if (!open || open.playerId !== playerId) {
-      return reject('player-locked', 'Die zweite Chance liegt beim anderen Spieler.')
-    }
-  } else {
-    // Ueber den Zuschlag entscheidet dieselbe Regel wie beim Hardware-Buzzer.
-    const decision = evaluateBuzz(work.state!, playerId)
-    if (!decision.allowed) return rejectTouch(work.phase, decision)
-    claimPlayer(work, playerId, 'touch')
-  }
-
-  const attempt = pendingAttempt(work.state!)!
-  work.mutate((draft) => {
-    draft.attempts.find((entry) => entry.id === attempt.id)!.loggedOptionId = optionId
-  })
-  // Verglichen wird immer gegen `correctOptionId`, nie gegen eine Position.
-  return finishAttempt(work, attempt, optionId === question.correctOptionId ? 'correct' : 'incorrect')
+function describeVia(via: 'hardware' | 'manual'): string {
+  return via === 'hardware' ? 'Buzzer' : 'manuell'
 }
 
 function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' | 'incorrect' }): EngineResult {

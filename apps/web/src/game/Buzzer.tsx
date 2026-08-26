@@ -5,11 +5,10 @@
  * Ecke unten an seiner Seite, und die vier Antworten stehen genau einmal in der
  * Mitte. Wer zuerst drueckt, bekommt sie.
  *
- * WARUM DER ZUSCHLAG HIER FAELLT und nicht auf dem Server: Beide Buzzer liegen
- * auf EINEM Geraet, es gibt also kein Rennen zwischen zwei Clients, das ein
- * Schiedsrichter entscheiden muesste. Verbindlich bleibt der Server trotzdem -
- * er bekommt mit der Antwort auch den Spieler und weist sie ab, wenn dieser
- * nicht antworten darf.
+ * Der Zuschlag faellt auf dem Server: Der Knopf sendet nur `BUZZ` mit dem
+ * eigenen Spieler, und der Server nimmt den ersten gueltigen Buzz an - mit
+ * derselben Regel wie beim Hardware-Buzzer der Buehne. Wer zu spaet drueckt,
+ * wird abgewiesen; dieser Client zeigt danach einfach den neuen Stand.
  *
  * Die Flaeche traegt nur ein Wort. Am Geraet wird schnell und ungenau gedrueckt,
  * und wer buzzert, schaut dabei auf die Frage, nicht auf seine Hand; wem die

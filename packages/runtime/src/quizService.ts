@@ -67,6 +67,13 @@ export interface QuizServiceOptions {
   lanUrls?: string[]
 }
 
+/**
+ * Spielbefehle, die ein Spieler nur in der Selbstbedienung ausloesen darf.
+ * `roleMayIssue` kennt nur Rolle und Befehlstyp; das Ablaufprofil des laufenden
+ * Spiels prueft `dispatch`.
+ */
+const playerFlowCommands: readonly CommandType[] = ['BUZZ', 'LOG_OPTION_ANSWER', 'RESOLVE_ATTEMPT', 'CONTINUE']
+
 const SETTING_SOUND = 'sound-enabled'
 /** Ab wann das Spielprotokoll zaehlt. Fehlt der Wert, zaehlt es seit jeher. */
 const SETTING_STATISTICS_SINCE = 'statistics-since'
@@ -216,6 +223,24 @@ export class QuizService {
         envelope,
         'wrong-flow-profile',
         'Ein Spiel am Gerät läuft immer in Selbstbedienung. Ein vom Operator gesteuertes Spiel kann hier nicht gestartet werden.',
+      )
+    }
+
+    //    Dieselbe Politik fuer das laufende Spiel: Die Befehlssequenz Zuschlag ->
+    //    Einloggen -> Bestaetigen -> Weiter ist fuer Spieler nur in der
+    //    Selbstbedienung gedacht. In einem operatorgefuehrten Spiel wuerde ein
+    //    Spielerbefehl dem Operator in die Auswertung greifen. Die Engine kennt
+    //    den Absender nicht, deshalb steht die Wache hier.
+    if (
+      envelope.actor.role === 'player' &&
+      playerFlowCommands.includes(envelope.command.type) &&
+      this.state !== null &&
+      this.state.flowProfile !== 'self-service'
+    ) {
+      return this.rejectAndRecord(
+        envelope,
+        'wrong-flow-profile',
+        'In diesem Spiel führt der Operator durch die Fragen. Antworten am Gerät ist hier nicht vorgesehen.',
       )
     }
 

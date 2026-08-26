@@ -10,7 +10,7 @@
  * weiterhin die Engine beim Verarbeiten des Befehls.
  */
 import { isChoiceQuestion, roleMayIssue, type ActorRole, type CommandType, type GameState } from '@quiz/contracts'
-import { isSelfServiceAnswerPhase } from './buzzer'
+import { isBuzzablePhase, isSelfServiceAnswerPhase } from './buzzer'
 
 export function availableCommands(state: GameState | null): CommandType[] {
   const list = new Set<CommandType>()
@@ -147,15 +147,21 @@ export function availableCommands(state: GameState | null): CommandType[] {
 /**
  * Selbstbedienung: bewusst eine eigene, sehr kurze Liste.
  *
- * Sie entsteht NICHT durch Filtern der Operatorliste. Der Ablauf am Touchgeraet
- * kennt die Schritte des Operators gar nicht - es gibt kein Freigeben, kein
- * Einloggen, kein Aufloesen und kein Weiterschalten, weil der Server diese
- * Uebergaenge selbst einplant. Eine gefilterte Liste wuerde das verschleiern.
+ * Sie entsteht NICHT durch Filtern der Operatorliste. Am Touchgeraet gibt es
+ * kein Freigeben, kein Zuruecksetzen und kein Ueberspringen - der Server plant
+ * diese Uebergaenge selbst ein. Was bleibt, ist dieselbe Befehlssequenz wie am
+ * Operatorpult: Zuschlag holen, Antwort einloggen, Antwort bestaetigen.
  */
 function selfServiceCommands(state: GameState): CommandType[] {
   const list = new Set<CommandType>(['SET_SOUND_ENABLED', 'ABORT_GAME'])
 
-  if (isSelfServiceAnswerPhase(state.phase)) list.add('ANSWER_BY_PLAYER')
+  if (isBuzzablePhase(state.phase) && state.buzzer.open) list.add('BUZZ')
+  if (isSelfServiceAnswerPhase(state.phase)) {
+    list.add('LOG_OPTION_ANSWER')
+    // Bestaetigen ist erst sinnvoll, wenn eine Option eingeloggt ist; das
+    // entscheidet die Engine (`answer-not-logged`), nicht diese Vorschau.
+    list.add('RESOLVE_ATTEMPT')
+  }
   /*
    * Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. Frueher plante
    * der Server hier einen Uebergang ein; wer gerade noch las, warum seine

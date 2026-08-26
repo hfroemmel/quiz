@@ -27,13 +27,15 @@ async function startGame(page: Page, players: 'Allein' | 'Zu zweit', preset = 'L
 }
 
 /**
- * Antworten, wie es am Geraet zugeht: im Duell erst buzzern, dann tippen.
+ * Antworten, wie es am Geraet zugeht: im Duell erst buzzern, dann tippen, dann
+ * abgeben. Erst das Abgeben loest die Wertung aus.
  *
- * Im Einzelspiel gibt es keinen Buzzer - dort steht der Spieler ohnehin fest.
+ * Im Einzelspiel gibt es keinen Buzzer - dort holt der erste Tipp den Zuschlag.
  */
 async function antworte(page: Page, seite?: 'left' | 'right'): Promise<void> {
   if (seite) await page.locator(`[data-buzzer][data-side="${seite}"]`).click()
   await page.locator(offeneAntwort).first().click()
+  await page.locator('[data-confirm]').click()
 }
 
 /** Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. */
@@ -198,7 +200,18 @@ test('Duell: zwei Buzzer, und wer zuerst drueckt, bekommt die Antworten', async 
 
   await page.locator(offeneAntwort).first().click()
 
-  // Der Spieler, der getippt hat, ist fuer diese Frage durch - in jedem Ausgang.
+  /*
+   * Getippt ist nur eingeloggt: Die Antwort ist markiert, der Knopf zum Abgeben
+   * steht bereit, und bis dahin darf der Spieler umentscheiden. Gewertet wird
+   * erst, wenn er abgibt.
+   */
+  await expect(page.locator('[data-confirm]')).toBeVisible()
+  await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'answer-locked')
+
+  await page.locator('[data-confirm]').click()
+
+  // Der Spieler, der abgegeben hat, ist fuer diese Frage durch - in jedem Ausgang.
+  await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'answer-locked')
   await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'buzzer-open')
 })
 
@@ -292,6 +305,15 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
   const deadline = Date.now() + 180_000
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
+    /*
+     * Erst abgeben, dann tippen: Nach einem Tipp bleiben die Zeilen absichtlich
+     * aktiv (umentscheiden), die Frage geht nur ueber das Abgeben weiter.
+     */
+    const abgeben = page.locator('[data-confirm]')
+    if (await abgeben.isVisible().catch(() => false)) {
+      await abgeben.click({ timeout: 2_000 }).catch(() => undefined)
+      continue
+    }
     const zeile = page.locator(offeneAntwort).first()
     if (await zeile.isVisible().catch(() => false)) {
       // Kurzer Anlauf: Zwischen Pruefung und Tipp kann die Flaeche verschwinden,

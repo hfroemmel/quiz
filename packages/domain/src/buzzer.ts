@@ -24,12 +24,12 @@ export function isBuzzablePhase(phase: GamePhase): boolean {
 }
 
 /**
- * Phasen, in denen bei Selbstbedienung eine Antwort angetippt werden kann.
- *
- * Es sind die Buzzerphasen plus die zweite Chance: Sie braucht keinen Zuschlag
- * mehr, ihr Versuch gehoert bereits einem bestimmten Spieler.
+ * Phasen, in denen bei Selbstbedienung eine Antwort angetippt und bestaetigt
+ * werden kann: Ein Versuch ist offen und gehoert bereits einem Spieler. In der
+ * zweiten Chance gibt es keinen Zuschlag mehr, deshalb steht sie hier neben
+ * `answer-locked`.
  */
-const answerablePhases: readonly GamePhase[] = [...buzzablePhases, 'second-chance']
+const answerablePhases: readonly GamePhase[] = ['answer-locked', 'second-chance']
 
 export function isSelfServiceAnswerPhase(phase: GamePhase): boolean {
   return answerablePhases.includes(phase)

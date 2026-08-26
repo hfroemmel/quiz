@@ -73,7 +73,7 @@ Zustandsmaschine. Unterschiedlich ist nur, wer einen Uebergang ausloest:
 |---|---|---|
 | Frage erscheint | Operator gibt den Buzzer frei | `question-presented`, dann nach `questionLeadInMs` von selbst `buzzer-open` |
 | Bilderkennen | Operator startet die Enthuellung | beginnt direkt in `reveal-running` |
-| Antwort | Operator loggt ein und loest auf | ein Fingertipp: `ANSWER_BY_PLAYER` wertet sofort aus |
+| Antwort | Operator loggt ein und loest auf | dieselbe Sequenz durch die Spieler selbst: `BUZZ` sperrt den anderen, `LOG_OPTION_ANSWER` markiert (umentscheidbar), `RESOLVE_ATTEMPT` gibt ab und wertet |
 | nach der Loesung | Operator drueckt `Weiter` | ein SPIELER drueckt `Weiter` (`CONTINUE`); eingeplant wird hier nichts |
 | Videofrage | Operator startet und blendet um | startet nach `videoLeadInMs`, die Frage folgt aus der gemeldeten Laufzeit |
 

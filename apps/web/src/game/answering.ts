@@ -1,40 +1,50 @@
 /**
- * Wer darf gerade antworten?
+ * Wer darf gerade was am Touchgeraet?
  *
- * Die Grundfrage - ist Antworten ueberhaupt moeglich - beantwortet der Server ueber
- * `allowedCommands`. Was dort nicht steht, ist die Zuordnung zu EINEM Spieler, weil
- * die Liste fuer das Spiel gilt und nicht je Flaeche. Diese Zuordnung wird hier aus
- * dem View-Modell abgelesen, nicht aus Spielregeln abgeleitet:
+ * Die Grundfrage - welcher Schritt der Befehlssequenz gerade moeglich ist -
+ * beantwortet der Server ueber `allowedCommands`. Was dort nicht steht, ist die
+ * Zuordnung zu EINEM Spieler, weil die Liste fuer das Spiel gilt und nicht je
+ * Flaeche. Diese Zuordnung wird hier aus dem View-Modell abgelesen, nicht aus
+ * Spielregeln abgeleitet:
  *
- *   `locked`         hat der Server gesetzt, nachdem der Versuch verbraucht war;
- *   `currentPlayer`  ist in der zweiten Chance der Spieler, dem sie gehoert.
+ *   `currentPlayer`  ist der Spieler, dem der offene Versuch gehoert - nach dem
+ *                    Zuschlag genauso wie in der zweiten Chance;
+ *   `locked`         hat der Server gesetzt, nachdem der Versuch verbraucht war.
  *
  * Verbindlich bleibt der Server: Ein trotzdem gesendeter Fingertipp wird dort
- * abgewiesen. Diese Funktion entscheidet nur, welche Flaeche stumpf aussieht.
+ * abgewiesen. Diese Funktionen entscheiden nur, welche Flaeche stumpf aussieht.
  */
 import type { PlayerId, PlayerQuizViewModel } from '@quiz/contracts'
 
 /**
- * Wem gehoert der laufende Versuch, ohne dass jemand buzzern muesste?
+ * Wem gehoert der laufende Versuch?
  *
- * In der zweiten Chance steht der Spieler bereits fest - der Server hat ihn
- * bestimmt. Und im Einzelspiel gibt es niemanden, gegen den man sich melden
- * koennte: Dort sind die Antworten offen, sobald der Server sie annimmt.
+ * Der Server bestimmt ihn: nach einem angenommenen Buzz genauso wie in der
+ * zweiten Chance. Im Einzelspiel gibt es niemanden, gegen den man sich melden
+ * koennte - dort gehoert jede Frage dem einen Spieler, sobald der Server
+ * Antworten annimmt.
  */
 export function assignedPlayer(view: PlayerQuizViewModel): PlayerId | null {
-  if (view.phase === 'second-chance') return view.currentPlayer ?? null
+  if (view.currentPlayer) return view.currentPlayer
   if (view.playerScores.length === 1) return view.playerScores[0]?.playerId ?? null
   return null
 }
 
-export function canAnswer(view: PlayerQuizViewModel, playerId: PlayerId): boolean {
-  if (!view.allowedCommands.includes('ANSWER_BY_PLAYER')) return false
+/** Darf dieser Spieler jetzt den Zuschlag holen? */
+export function canBuzz(view: PlayerQuizViewModel, playerId: PlayerId): boolean {
+  if (!view.allowedCommands.includes('BUZZ')) return false
+  const score = view.playerScores.find((entry) => entry.playerId === playerId)
+  return Boolean(score && !score.locked)
+}
 
+/** Darf dieser Spieler jetzt eine Antwort antippen? */
+export function canAnswer(view: PlayerQuizViewModel, playerId: PlayerId): boolean {
   const score = view.playerScores.find((entry) => entry.playerId === playerId)
   if (!score || score.locked) return false
 
-  // Die zweite Chance gehoert genau einem Spieler; der andere wartet.
-  if (view.phase === 'second-chance') return view.currentPlayer === playerId
+  // Ein offener Versuch nimmt Antworten an - aber nur von seinem Besitzer.
+  if (view.allowedCommands.includes('LOG_OPTION_ANSWER')) return view.currentPlayer === playerId
 
-  return true
+  // Einzelspiel: Zuschlag und Einloggen fallen im selben Fingertipp.
+  return view.playerScores.length === 1 && view.allowedCommands.includes('BUZZ')
 }

@@ -45,12 +45,11 @@ das auf einen Operator wartet, den es am Geraet nicht gibt, waere sonst startbar
 |---|---|---|
 | `START_GAME` | operator, player | ja |
 | `OPEN_BUZZER` | operator, moderator | ja |
-| `BUZZ` | operator, buzzer | nein |
+| `BUZZ` | operator, buzzer, player | nein |
 | `SELECT_PLAYER_MANUALLY` | operator | nein |
-| `LOG_OPTION_ANSWER` | operator | ja |
-| `ANSWER_BY_PLAYER` | player | nein |
+| `LOG_OPTION_ANSWER` | operator, player | nein |
 | `MARK_MANUAL_ANSWER` | operator | ja |
-| `RESOLVE_ATTEMPT` | operator, moderator | ja |
+| `RESOLVE_ATTEMPT` | operator, moderator, player | ja |
 | `RESOLVE_WITHOUT_ANSWER` | operator, moderator | ja |
 | `PASS_SECOND_CHANCE` | operator, moderator | ja |
 | `RESET_BUZZER` | operator | ja |
@@ -65,7 +64,7 @@ das auf einen Operator wartet, den es am Geraet nicht gibt, waere sonst startbar
 | `SHOW_QUESTION_AFTER_VIDEO` | operator, moderator | ja |
 | `REPORT_VIDEO_STATUS` | operator, system, player | nein |
 | `ADJUST_SCORE` | operator | ja |
-| `CONTINUE` | operator, moderator | ja |
+| `CONTINUE` | operator, moderator, player | ja |
 | `ABORT_GAME` | operator, player | ja |
 | `SKIP_QUESTION` | operator | ja |
 | `SET_SOUND_ENABLED` | operator, player | ja |
@@ -89,15 +88,28 @@ Freigabe und Spielersperre werden bei jedem Ereignis frisch geprueft, und nach d
 ersten angenommenen Buzzer wird jeder weitere abgewiesen.
 
 Ausgenommen sind ausschliesslich `BUZZ`, `SELECT_PLAYER_MANUALLY`,
-`ANSWER_BY_PLAYER`, `ADVANCE_TIMED_PHASE` (durch `transitionId` geschuetzt) und
+`LOG_OPTION_ANSWER`, `ADVANCE_TIMED_PHASE` (durch `transitionId` geschuetzt) und
 `REPORT_VIDEO_STATUS`.
 
-`ANSWER_BY_PLAYER` steht aus demselben Grund auf dieser Liste: Ein Fingertipp ist
-ein physisches Ereignis. Der Befehl fasst zusaetzlich zusammen, was beim Operator
-drei Schritte sind - Zuschlag, Einloggen, Auswerten. Sonst entschiede beim
-gleichzeitigen Tippen zweier Spieler nicht der erste Griff, sondern die Laufzeit
-dreier Nachrichten. Ueber den Zuschlag urteilt dieselbe Funktion wie beim
-Hardware-Buzzer (`evaluateBuzz`); es gibt keine zweite Fairnessregel.
+`LOG_OPTION_ANSWER` steht auf dieser Liste, weil das Einloggen am Touchgeraet
+unmittelbar auf den eigenen Buzz folgt - im Einzelspiel sogar im selben
+Fingertipp -, bevor dessen neue Revision den Client erreicht hat. Es ist
+ausserdem keine endgueltige Entscheidung: Die Markierung bleibt bis zum
+Aufloesen umentscheidbar, und der bindende Schritt `RESOLVE_ATTEMPT` behaelt
+die Revisionspruefung. Phase, offener Versuch und verbrauchte Optionen werden
+beim Einloggen ohnehin frisch geprueft.
+
+## Die Selbstbedienungssequenz
+
+Am Touchgeraet gibt es keinen eigenen Antwortbefehl. Die Rolle `player` nutzt
+dieselbe Befehlssequenz wie das Operatorpult: `BUZZ` holt den Zuschlag (der
+erste gueltige sperrt den anderen Spieler; es urteilt dieselbe Funktion wie beim
+Hardware-Buzzer, `evaluateBuzz`), `LOG_OPTION_ANSWER` markiert die Antwort
+oeffentlich und bleibt bis zum Aufloesen umentscheidbar, `RESOLVE_ATTEMPT`
+gibt sie ab und wertet. Nach der Loesung schaltet `CONTINUE` weiter. Diese vier
+Befehle darf ein Spieler nur in Spielen mit `flowProfile: 'self-service'`
+senden; das prueft die Anwendungsschicht (`@quiz/runtime`), weil die Engine den
+Absender nicht kennt.
 
 ## Rollen im Klartext
 

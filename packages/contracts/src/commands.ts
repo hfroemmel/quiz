@@ -52,19 +52,6 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('SELECT_PLAYER_MANUALLY'), playerId: playerIdSchema }),
   /** Genannte Multiple-Choice-Option einloggen (Bewertung `option-comparison`). */
   z.object({ type: z.literal('LOG_OPTION_ANSWER'), optionId: z.string().min(1) }),
-  /**
-   * Selbstbedienung: Ein Spieler tippt seine Antwort selbst an.
-   *
-   * Der Befehl fasst bewusst zusammen, was beim Operator drei Schritte sind -
-   * Zuschlag, Einloggen, Auswerten. Sonst entschiede beim gleichzeitigen Tippen
-   * zweier Spieler nicht der erste Griff, sondern die Laufzeit dreier Nachrichten.
-   * Der Server entscheidet damit in EINER Transaktion, wer die Frage bekommt.
-   */
-  z.object({
-    type: z.literal('ANSWER_BY_PLAYER'),
-    playerId: playerIdSchema,
-    optionId: z.string().min(1),
-  }),
   /** Muendliche Antwort manuell bewerten (Bewertung `manual-correct-incorrect`). */
   z.object({ type: z.literal('MARK_MANUAL_ANSWER'), verdict: z.enum(['correct', 'incorrect']) }),
   /** Den eingeloggten Versuch verbindlich auswerten und Punkte buchen. */
@@ -166,12 +153,21 @@ export type CommandEnvelope = z.infer<typeof commandEnvelopeSchema>
 export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   START_GAME: ['operator', 'player'],
   OPEN_BUZZER: ['operator', 'moderator'],
-  BUZZ: ['operator', 'buzzer'],
+  /*
+   * `player` ist die Selbstbedienung: Dort ersetzt der Bildschirm-Buzzer die
+   * Hardware, und der Zuschlag faellt serverseitig - nicht im Client. Fuer die
+   * drei Folgeschritte gilt dasselbe: Der Spieler markiert seine Antwort
+   * (LOG_OPTION_ANSWER), bestaetigt sie (RESOLVE_ATTEMPT), und erst dann wird
+   * gewertet. Es ist dieselbe Befehlssequenz wie beim Operator - absichtlich:
+   * eine zweite Antwortmechanik hiesse zwei Fairnessregeln.
+   * Ob ein Spiel Spielerbefehle annimmt, entscheidet das Ablaufprofil im
+   * Server (`QuizService`), nicht diese Tabelle.
+   */
+  BUZZ: ['operator', 'buzzer', 'player'],
   SELECT_PLAYER_MANUALLY: ['operator'],
-  LOG_OPTION_ANSWER: ['operator'],
-  ANSWER_BY_PLAYER: ['player'],
+  LOG_OPTION_ANSWER: ['operator', 'player'],
   MARK_MANUAL_ANSWER: ['operator'],
-  RESOLVE_ATTEMPT: ['operator', 'moderator'],
+  RESOLVE_ATTEMPT: ['operator', 'moderator', 'player'],
   RESOLVE_WITHOUT_ANSWER: ['operator', 'moderator'],
   PASS_SECOND_CHANCE: ['operator', 'moderator'],
   RESET_BUZZER: ['operator'],
@@ -228,9 +224,15 @@ export const revisionExemptCommands: ReadonlySet<CommandType> = new Set<CommandT
   // Physisches Buzzerereignis bzw. dessen manueller Fallback.
   'BUZZ',
   'SELECT_PLAYER_MANUALLY',
-  // Der Fingertipp auf eine Antwort ist genauso ein physisches Ereignis: Der
-  // Spieler entscheidet nach dem, was er sieht, nicht nach einer Revision.
-  'ANSWER_BY_PLAYER',
+  /*
+   * Das Einloggen folgt am Touchgeraet unmittelbar auf den eigenen Buzz, bevor
+   * dessen neue Revision den Client erreicht hat. Es ist ausserdem keine
+   * endgueltige Entscheidung: Die Markierung bleibt bis zum Aufloesen
+   * umentscheidbar, und der bindende Schritt RESOLVE_ATTEMPT behaelt die
+   * Revisionspruefung. Phase, offener Versuch und verbrauchte Optionen werden
+   * beim Einloggen ohnehin frisch geprueft.
+   */
+  'LOG_OPTION_ANSWER',
   // Serverinterner Timer; gegen Doppelausloesung schuetzt die `transitionId`.
   'ADVANCE_TIMED_PHASE',
   // Reine Statusmeldung des Mediums, keine Spielentscheidung.

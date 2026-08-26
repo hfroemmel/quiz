@@ -255,19 +255,14 @@ describe('Selbstbedienung am Geraet', () => {
     expect(result.rejection?.reason).toBe('wrong-flow-profile')
   })
 
-  it('laesst einen Spieler keine Antwort einloggen und nichts auswerten', () => {
+  it('laesst einen Spieler nichts korrigieren und nicht zu frueh weitergehen', () => {
     const target = rig()
     startSelfService(target)
 
-    for (const command of [
-      { type: 'LOG_OPTION_ANSWER', optionId: 'option_1' },
-      { type: 'RESOLVE_ATTEMPT' },
-      { type: 'ADJUST_SCORE', playerId: 'player-1', direction: 'increase' },
-    ] as const) {
-      const result = target.send(command, 'player')
-      expect(result.ok, command.type).toBe(false)
-      expect(result.rejection?.reason, command.type).toBe('forbidden-role')
-    }
+    // Punktekorrektur bleibt Operatorsache - auch in der Selbstbedienung.
+    const adjust = target.send({ type: 'ADJUST_SCORE', playerId: 'player-1', direction: 'increase' }, 'player')
+    expect(adjust.ok).toBe(false)
+    expect(adjust.rejection?.reason).toBe('forbidden-role')
 
     /*
      * `Weiter` DARF ein Spieler senden - am Geraet haelt die Loesung an, bis er
@@ -278,13 +273,26 @@ describe('Selbstbedienung am Geraet', () => {
     expect(zuFrueh.rejection?.reason).toBe('invalid-phase')
   })
 
-  it('laesst den Operator keine Antwort antippen', () => {
+  it('weist Spielerbefehle in einem vom Operator gefuehrten Spiel ab', () => {
     const target = rig()
-    startSelfService(target)
+    startGame(target)
 
-    const result = target.send({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'option_1' })
-    expect(result.ok).toBe(false)
-    expect(result.rejection?.reason).toBe('forbidden-role')
+    /*
+     * Die Rollentabelle erlaubt diese Befehle inzwischen auch Spielern - aber
+     * nur fuer die Selbstbedienung. In einem gefuehrten Spiel wuerde ein
+     * Spielerbefehl dem Operator in die Auswertung greifen; diese Politik
+     * prueft der Service, weil die Engine den Absender nicht kennt.
+     */
+    for (const command of [
+      { type: 'BUZZ', playerId: 'player-1' },
+      { type: 'LOG_OPTION_ANSWER', optionId: 'option_1' },
+      { type: 'RESOLVE_ATTEMPT' },
+      { type: 'CONTINUE' },
+    ] as const) {
+      const result = target.send(command, 'player')
+      expect(result.ok, command.type).toBe(false)
+      expect(result.rejection?.reason, command.type).toBe('wrong-flow-profile')
+    }
   })
 
   it('gibt der Spieleransicht die moeglichen Befehle, aber nie die Loesung', () => {
@@ -292,7 +300,8 @@ describe('Selbstbedienung am Geraet', () => {
     startSelfService(target)
 
     const player = target.service.snapshotFor('player')
-    expect(player.allowedCommands).toContain('ANSWER_BY_PLAYER')
+    expect(player.allowedCommands).toContain('BUZZ')
+    // Einloggen und Abgeben kommen erst mit dem Zuschlag.
     expect(player.allowedCommands).not.toContain('RESOLVE_ATTEMPT')
     // Dieselbe Sicherheitsregel wie beim Buehnenscreen.
     expect(player.visibleSolution).toBeUndefined()
@@ -305,11 +314,15 @@ describe('Selbstbedienung am Geraet', () => {
     startSelfService(target)
 
     const question = target.service.authoritativeState!.currentQuestion!.question
-    const result = target.send(
-      { type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: question.correctOptionId! },
-      'player',
-    )
-    expect(result.ok).toBe(true)
+    expect(target.send({ type: 'BUZZ', playerId: 'player-1' }, 'player').ok).toBe(true)
+    expect(target.send({ type: 'LOG_OPTION_ANSWER', optionId: question.correctOptionId! }, 'player').ok).toBe(true)
+
+    // Die markierte Antwort ist fuer alle sichtbar, aber noch nicht gewertet.
+    const marked = target.service.snapshotFor('player')
+    expect(marked.visibleOptions?.some((option) => option.state === 'chosen')).toBe(true)
+    expect(target.service.authoritativeState!.players[0]!.score).toBe(0)
+
+    expect(target.send({ type: 'RESOLVE_ATTEMPT' }, 'player').ok).toBe(true)
     expect(target.service.authoritativeState!.players[0]!.score).toBe(100)
 
     // Punkte, Versuch und Protokoll liegen in derselben Transaktion wie sonst auch.

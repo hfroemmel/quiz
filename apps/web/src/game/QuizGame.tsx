@@ -19,7 +19,7 @@ import { releaseAudio } from '../presentation/soundCues'
 import { useAudioUnlock } from '../presentation/useAudioUnlock'
 import { GameStart } from './GameStart'
 import { PlayerFoot } from './PlayerFoot'
-import { assignedPlayer, canAnswer } from './answering'
+import { assignedPlayer, canAnswer, canBuzz } from './answering'
 import { useHostVisible } from './useHostVisible'
 import { useIdleWatch } from './useIdleWatch'
 import styles from './Game.module.css'
@@ -101,21 +101,6 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
    * bei einem neuen wieder klein.
    */
   const [pendingStart, setPendingStart] = useState(false)
-
-  /**
-   * Wer hat den Zuschlag geholt?
-   *
-   * Der einzige Spielzustand, den dieser Client selbst haelt - und nur, weil
-   * beide Buzzer auf demselben Geraet liegen (siehe `Buzzer`). Er verfaellt,
-   * sobald der Server keine Antwort mehr annimmt: Damit ist die naechste Frage
-   * wieder fuer beide offen, und nach einem Fehlversuch beim Bilderkennen auch
-   * dieselbe.
-   */
-  const [buzzed, setBuzzed] = useState<PlayerId | null>(null)
-  const answersOpen = view?.allowedCommands.includes('ANSWER_BY_PLAYER') ?? false
-  useEffect(() => {
-    if (!answersOpen) setBuzzed(null)
-  }, [answersOpen])
 
   /*
    * Beim Einsetzen der Komponente kann auf dem Server noch das Ergebnis einer
@@ -228,11 +213,11 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
 
   const players = view.playerScores
   /*
-   * Am Zug ist, wem der Versuch ohnehin gehoert - sonst, wer gebuzzert hat. Der
-   * Server prueft es erneut; hier entscheidet es nur, welche Flaeche stumpf ist.
+   * Am Zug ist, wem der offene Versuch gehoert - das sagt der Server. Diesen
+   * Client interessiert es nur dafuer, welche Flaeche stumpf aussieht.
    */
-  const assigned = assignedPlayer(view)
-  const turn = assigned ?? buzzed
+  const turn = assignedPlayer(view)
+  const solo = players.length === 1
   /*
    * Die Zeilen sind waehrend des ganzen Spiels Schaltflaechen, auch bevor jemand
    * gebuzzert hat - dann eben gesperrte. Erschienen die Knoepfe erst mit dem
@@ -246,7 +231,16 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
         label: turn ? `Antworten ${players.find((entry) => entry.playerId === turn)?.label ?? ''}`.trim() : 'Antworten',
         onSelect: (optionId: string) => {
           // Ohne Zuschlag ist die Zeile gesperrt; der Server wiese sie ohnehin ab.
-          if (turn) send({ type: 'ANSWER_BY_PLAYER', playerId: turn, optionId })
+          if (!turn || !canAnswer(view, turn)) return
+          /*
+           * Im Einzelspiel gibt es keinen Buzzerknopf: Der erste Fingertipp holt
+           * den Zuschlag und loggt die Antwort in einem Zug. Das Einloggen ist
+           * revisionsbefreit, deshalb darf es dem eigenen Buzz vorauseilen.
+           */
+          if (solo && !view.allowedCommands.includes('LOG_OPTION_ANSWER')) {
+            send({ type: 'BUZZ', playerId: turn })
+          }
+          send({ type: 'LOG_OPTION_ANSWER', optionId })
         },
       }
 
@@ -283,8 +277,9 @@ export function QuizGame({ quizModeId, onFinished, onExit, idleTimeoutMs }: Quiz
             <PlayerFoot
               view={view}
               turn={turn}
-              canBuzz={(playerId) => canAnswer(view, playerId)}
-              onBuzz={setBuzzed}
+              canBuzz={(playerId) => canBuzz(view, playerId)}
+              onBuzz={(playerId) => send({ type: 'BUZZ', playerId })}
+              onResolve={() => send({ type: 'RESOLVE_ATTEMPT' })}
               onContinue={() => send({ type: 'CONTINUE' })}
             />
           ),

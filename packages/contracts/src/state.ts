@@ -101,7 +101,7 @@ export interface BuzzerState {
   /** Serverzeit der Annahme; dient der Nachvollziehbarkeit der Reihenfolge. */
   acceptedAtMs?: number
   /** Wie der aktive Spieler bestimmt wurde. */
-  acceptedVia?: 'hardware' | 'manual' | 'touch'
+  acceptedVia?: 'hardware' | 'manual'
 }
 
 export type AttemptOutcome = 'correct' | 'incorrect' | 'passed' | 'no-answer'

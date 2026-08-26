@@ -5,8 +5,8 @@
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, roleMayIssue, scoringRules, selfServiceTiming } from '@quiz/contracts'
-import { buzzIn, createHarness, makeQuestion, releaseRound, startGame } from './helpers'
-import { determineResult } from '../src/scoring'
+import { buzzIn, createHarness, makeQuestion, releaseRound, startGame, type Harness } from './helpers'
+import { determineResult, pendingAttempt } from '../src/scoring'
 import { availableCommands } from '../src/allowedCommands'
 
 const normalQuestion = (id: string) => makeQuestion({ id })
@@ -641,6 +641,17 @@ describe('Einzelspiel', () => {
 describe('Selbstbedienung', () => {
   const selfService = { flowProfile: 'self-service' } as const
 
+  /**
+   * Die volle Sequenz eines beantworteten Fingertipps am Geraet: Zuschlag holen,
+   * Antwort einloggen, Antwort abgeben. Es ist dieselbe Befehlsfolge wie am
+   * Operatorpult - genau das ist der Punkt des Umbaus.
+   */
+  const antworte = (harness: Harness, playerId: 'player-1' | 'player-2', optionId: string) => {
+    harness.dispatch({ type: 'BUZZ', playerId })
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+  }
+
   it('oeffnet die Antwortflaechen ohne Freigabe durch einen Operator', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
@@ -667,43 +678,84 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.buzzer.open).toBe(true)
   })
 
-  it('wertet eine angetippte Antwort sofort aus', () => {
+  it('wertet erst, wenn die eingeloggte Antwort abgegeben wird', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    expect(harness.state!.phase).toBe('answer-locked')
+    expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-1')
 
-    // Zuschlag, Einloggen und Auswerten in einem Schritt: direkt die Feedbackphase.
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
+    // Eingeloggt ist nur markiert - gewertet wird erst beim Abgeben.
+    expect(harness.state!.phase).toBe('answer-locked')
+    expect(harness.state!.players[0]!.score).toBe(0)
+
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
     expect(harness.state!.phase).toBe('attempt-feedback')
     expect(harness.state!.players[0]!.score).toBe(scoringRules.firstAnswerPoints)
-    expect(harness.events.some((event) => event.category === 'buzzer' && event.message.includes('Antippen'))).toBe(true)
   })
 
-  it('der zweite Fingertipp im selben Moment wird abgewiesen', () => {
+  it('laesst den Spieler bis zum Abgeben umentscheiden', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'b' })
-    const rejection = harness.expectReject({ type: 'ANSWER_BY_PLAYER', playerId: 'player-2', optionId: 'a' })
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+
+    // Gewertet wird die zuletzt eingeloggte Antwort, nicht die erste.
+    expect(harness.state!.players[0]!.score).toBe(scoringRules.firstAnswerPoints)
+  })
+
+  it('weist das Abgeben ohne eingeloggte Antwort ab', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('answer-not-logged')
+  })
+
+  it('der erste gueltige Buzz sperrt den anderen Spieler', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    const rejection = harness.expectReject({ type: 'BUZZ', playerId: 'player-2' })
 
     expect(rejection.reason).toBe('buzzer-already-taken')
+    expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-1')
     expect(harness.state!.players[1]!.score).toBe(0)
   })
 
-  it('die zweite Chance gehoert dem anderen Spieler und nur ihm', () => {
+  it('die zweite Chance gehoert dem anderen Spieler, ohne neuen Zuschlag', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'b' })
+    antworte(harness, 'player-1', 'b')
     harness.advance(gameTiming.incorrectFeedbackMs)
     expect(harness.state!.phase).toBe('second-chance')
 
-    expect(harness.expectReject({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' }).reason).toBe(
-      'player-locked',
-    )
+    // Um den Zuschlag wird nicht erneut gespielt: Der offene Versuch gehoert
+    // bereits dem anderen Spieler; ein Buzz hat hier nichts mehr zu holen.
+    expect(pendingAttempt(harness.state!)!.playerId).toBe('player-2')
+    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
 
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-2', optionId: 'a' })
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
     expect(harness.state!.players[1]!.score).toBe(scoringRules.secondChancePoints)
+  })
+
+  it('sperrt die bereits falsch bewertete Option in der zweiten Chance', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness, selfService)
+
+    antworte(harness, 'player-1', 'b')
+    harness.advance(gameTiming.incorrectFeedbackMs)
+    expect(harness.state!.phase).toBe('second-chance')
+
+    expect(harness.expectReject({ type: 'LOG_OPTION_ANSWER', optionId: 'b' }).reason).toBe('option-already-answered')
   })
 
   it('zeigt erst die Frage allein und oeffnet die Antworten nach der Frist', () => {
@@ -714,19 +766,19 @@ describe('Selbstbedienung', () => {
     // Die Frage steht, der Buzzer ist zu, und die Optionen gehen nicht einmal raus.
     expect(harness.state!.phase).toBe('question-presented')
     expect(harness.state!.buzzer.open).toBe(false)
-    expect(availableCommands(harness.state)).not.toContain('ANSWER_BY_PLAYER')
+    expect(availableCommands(harness.state)).not.toContain('BUZZ')
     expect(harness.publicView().visibleOptions).toBeUndefined()
 
     harness.advance(selfServiceTiming.questionLeadInMs)
     expect(harness.state!.phase).toBe('buzzer-open')
-    expect(availableCommands(harness.state)).toContain('ANSWER_BY_PLAYER')
+    expect(availableCommands(harness.state)).toContain('BUZZ')
     expect(harness.publicView().visibleOptions).toHaveLength(4)
   })
 
   it('bleibt auf der Loesung stehen, bis ein Spieler weitergeht', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    antworte(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     expect(harness.state!.phase).toBe('solution')
     expect(harness.state!.currentSlotIndex).toBe(0)
@@ -753,7 +805,7 @@ describe('Selbstbedienung', () => {
     startGame(harness, selfService)
 
     for (let question = 0; question < 2; question += 1) {
-      harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+      antworte(harness, 'player-1', 'a')
       harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
       // `Weiter` kommt vom Spieler selbst, nicht vom Operator.
       harness.dispatch({ type: 'CONTINUE' })
@@ -769,24 +821,24 @@ describe('Selbstbedienung', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    const commands = availableCommands(harness.state)
-    expect(commands).toContain('ANSWER_BY_PLAYER')
-    expect(commands).not.toContain('OPEN_BUZZER')
-    expect(commands).not.toContain('LOG_OPTION_ANSWER')
-    expect(commands).not.toContain('RESOLVE_ATTEMPT')
-    expect(commands).not.toContain('ADJUST_SCORE')
+    const offen = availableCommands(harness.state)
+    expect(offen).toContain('BUZZ')
+    // Einloggen und Abgeben gibt es erst, wenn ein Versuch offen ist.
+    expect(offen).not.toContain('LOG_OPTION_ANSWER')
+    expect(offen).not.toContain('RESOLVE_ATTEMPT')
+    expect(offen).not.toContain('OPEN_BUZZER')
+    expect(offen).not.toContain('SELECT_PLAYER_MANUALLY')
+    expect(offen).not.toContain('ADJUST_SCORE')
     // `CONTINUE` gibt es hier auch nicht - es gehoert allein der Loesung.
-    expect(commands).not.toContain('CONTINUE')
-  })
+    expect(offen).not.toContain('CONTINUE')
 
-  it('ein vom Operator gesteuertes Spiel nimmt keine angetippten Antworten an', () => {
-    const harness = createHarness(sevenNormal())
-    startGame(harness)
-    releaseRound(harness)
-
-    expect(harness.expectReject({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' }).reason).toBe(
-      'wrong-flow-profile',
-    )
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    const gesperrt = availableCommands(harness.state)
+    expect(gesperrt).toContain('LOG_OPTION_ANSWER')
+    expect(gesperrt).toContain('RESOLVE_ATTEMPT')
+    expect(gesperrt).not.toContain('BUZZ')
+    expect(gesperrt).not.toContain('RESET_BUZZER')
+    expect(gesperrt).not.toContain('SKIP_QUESTION')
   })
 
   it('ueberspringt Fragen, die ein Mensch bewerten muesste, und protokolliert das', () => {
@@ -802,7 +854,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich'), normalQuestion('q3')])
     startGame(harness, selfService)
 
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    antworte(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     harness.dispatch({ type: 'CONTINUE' })
     harness.advance(gameTiming.pauseScreenMs)
@@ -815,7 +867,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich')])
     startGame(harness, { ...selfService, playerCount: 1 })
 
-    harness.dispatch({ type: 'ANSWER_BY_PLAYER', playerId: 'player-1', optionId: 'a' })
+    antworte(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     harness.dispatch({ type: 'CONTINUE' })
 

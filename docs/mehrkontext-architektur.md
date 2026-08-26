@@ -152,32 +152,32 @@ zusaetzlich `mode: 'duel' | 'solo'`, damit die Ergebnisszene nicht raten muss.
 Betroffen sind ausserdem: `projection.ts` (`playerScores`, `result`),
 `StageHeader`/`ScoreTile` (einspaltige Darstellung) und die Domaintests.
 
-### 4.3 Neue Rolle `player`, ein atomarer Befehl
+### 4.3 Neue Rolle `player`, dieselbe Befehlssequenz
 
-```ts
-z.object({
-  type: z.literal('ANSWER_BY_PLAYER'),
-  playerId: playerIdSchema,
-  optionId: z.string().min(1),
-})
-```
+Die Rolle `player` kommt zusaetzlich in `actorRoles` und `ClientRole`, mit
+Zugang nur ueber Loopback (`checkAccess`).
 
-Rollenrechte: `ANSWER_BY_PLAYER: ['player']`. Zusaetzlich `player` in `actorRoles`
-und `ClientRole`, mit Zugang nur ueber Loopback (`checkAccess`).
-
-Der Befehl fasst drei heutige Schritte in **einer** serverseitigen Entscheidung
-zusammen: Zuschlag pruefen (`evaluateBuzz`), Antwort einloggen, auswerten. Das ist
-der Grund fuer die Zusammenfassung: Wenn zwei Spieler auf demselben Bildschirm
-gleichzeitig tippen, darf nicht die Netzlaufzeit dreier Nachrichten entscheiden.
-Wie `BUZZ` ist der Befehl deshalb `revisionExempt` - er ist ein physisches
-Ereignis, keine Entscheidung auf Basis eines gesehenen Zustands.
+Ein eigener Antwortbefehl existiert nicht (der urspruengliche atomare
+`ANSWER_BY_PLAYER` wurde wieder entfernt). Stattdessen nutzt `player` die
+Operator-Sequenz selbst: `BUZZ` holt den Zuschlag und sperrt den anderen
+Spieler (engine-autoritativ, `evaluateBuzz` wie beim Hardware-Buzzer),
+`LOG_OPTION_ANSWER` markiert die Antwort oeffentlich und bleibt bis zum
+Aufloesen umentscheidbar, `RESOLVE_ATTEMPT` gibt sie ab und wertet - der
+sichtbare Bestaetigungsschritt "Antwort abgeben und aufloesen" am Geraet.
+`BUZZ` und `LOG_OPTION_ANSWER` sind `revisionExempt`: physische Ereignisse
+bzw. deren unmittelbare Folge, keine Entscheidung auf Basis eines gesehenen
+Zustands. Der bindende Schritt `RESOLVE_ATTEMPT` behaelt die
+Revisionspruefung.
 
 Ausserdem darf `player` `START_GAME` senden, aber nur mit
-`flowProfile: 'self-service'`; das prueft die Anwendungsschicht, nicht die
-Oberflaeche.
+`flowProfile: 'self-service'`. Dieselbe Politik gilt fuer die Spielbefehle:
+`BUZZ`, `LOG_OPTION_ANSWER`, `RESOLVE_ATTEMPT` und `CONTINUE` nimmt der Server
+von `player` nur in Selbstbedienungsspielen an. Beides prueft die
+Anwendungsschicht, nicht die Oberflaeche.
 
-Der Buehnenbetrieb bleibt davon vollstaendig unberuehrt: `operator` kann
-`ANSWER_BY_PLAYER` nicht senden, `player` keinen Operatorbefehl.
+Der Buehnenbetrieb bleibt davon vollstaendig unberuehrt: In einem
+operatorgefuehrten Spiel weist der Server jeden Spielerbefehl ab
+(`wrong-flow-profile`), und `player` erreicht keinen Operatorbefehl.
 
 ### 4.4 Inhalte: Welche Fragen taugen fuer Selbstbedienung?
 
@@ -266,7 +266,7 @@ Oberflaechenstufen werden auf den neuen Bauteilen neu gebaut statt auf den alten
 |---|---|
 | **Laufzeitpaket** | `packages/runtime` aus `packages/server` herausgeloest. `createQuizRuntime()` ist der gemeinsame Zusammenbau; `packages/server` ist nur noch Transport. |
 | **Spielerzahl** | `players` ist ein Array mit ein oder zwei Eintraegen. Zweite Chance nur bei vorhandenem Gegner, Solo-Ergebnis mit Trefferzahl statt Gewinner. |
-| **Ablaufprofil** | `operated` und `self-service` im Spielzustand, Rolle `player`, atomarer Befehl `ANSWER_BY_PLAYER`, automatische Uebergaenge ueber die vorhandene Timer-Mechanik. |
+| **Ablaufprofil** | `operated` und `self-service` im Spielzustand, Rolle `player` mit der Operator-Befehlssequenz (`BUZZ`/`LOG_OPTION_ANSWER`/`RESOLVE_ATTEMPT`), automatische Uebergaenge ueber die vorhandene Timer-Mechanik. |
 | **Inhaltsfilter** | `evaluationModes` im Slotfilter, drei Touch-Presets im Quizpaket, Eignung im Validierungsbericht, gefilterter Katalog fuer die Spieleransicht. |
 | **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Fussleiste, Ergebnis. Beide Spieler stehen nebeneinander vor demselben Bild; unten hat jeder seine Ecke aus Punktekarte und Buzzer, in der Mitte liegen Hinweis und `Weiter`. Die vier Antworten stehen einmal darueber und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Im Einzelspiel entfallen Gegner und Buzzer; der Fragezaehler nimmt die frei gewordene rechte Ecke ein, damit die Mitte die Mitte bleibt. Erreichbar unter `/play`. |
 | **Kiosk** | `apps/kiosk` als Electron-Vollbild: Laufzeit im selben Prozess, nur Loopback, kein Operatorfenster, Leerlauf-Aufsicht als Betriebsangabe. |
@@ -350,7 +350,7 @@ Stylesheets darf mit einem Elementnamen, `*`, `html`, `body` oder einem nackten
 | Risiko | Gegenmassnahme |
 |---|---|
 | Der Buehnenablauf bricht durch Kernaenderungen | Jede Regelaenderung wird fuer beide Ablaufprofile getestet; die bestehenden E2E-Tests laufen in jeder Stufe |
-| Der Touch-Client umgeht die Rollenrechte | `player` darf ausschliesslich `ANSWER_BY_PLAYER` und ein eingeschraenktes `START_GAME`; geprueft wird serverseitig |
-| Unfaire Antwort bei gleichzeitigem Tippen | ein atomarer, revisionsfreier Befehl; der Server entscheidet in einer Transaktion |
+| Der Touch-Client umgeht die Rollenrechte | `player` darf nur die Selbstbedienungssequenz und ein eingeschraenktes `START_GAME`; geprueft wird serverseitig |
+| Unfaire Antwort bei gleichzeitigem Tippen | der Zuschlag faellt engine-autoritativ ueber `BUZZ` (revisionsfrei); der Server entscheidet in einer Transaktion |
 | Die eingebettete Komponente stoert die Shell | Kapselungsregeln aus Abschnitt 5.3 als Teil des Vertrags, mit Test auf Mehrfach-Einbindung |
 | Fragen ohne Optionen landen im Kiosk | Filter im Preset plus Validierungswarnung, nicht erst zur Laufzeit |

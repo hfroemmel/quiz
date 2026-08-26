@@ -97,6 +97,12 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung', async ({ page 
   const deadline = Date.now() + 180_000
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
+    // Erst abgeben, dann tippen - nach einem Tipp bleiben die Zeilen aktiv.
+    const abgeben = page.locator('[data-confirm]')
+    if (await abgeben.isVisible().catch(() => false)) {
+      await abgeben.click({ timeout: 2_000 }).catch(() => undefined)
+      continue
+    }
     const zeile = page.locator('[data-answers] [data-answer-button]:not([disabled])').first()
     if (await zeile.isVisible().catch(() => false)) {
       await zeile.click({ timeout: 2_000 }).catch(() => undefined)
