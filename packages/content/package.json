@@ -1,7 +1,6 @@
 {
   "name": "@hfroemmel/quiz-content",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
   "description": "Quizdaten-Pipeline: Legacy-Import, Normalisierung, Validierung, versionierte Pakete, Hotfix-Overlay",
   "exports": {

@@ -1,7 +1,6 @@
 {
   "name": "@hfroemmel/quiz-kiosk",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
   "description": "Das spielbare Quiz als eine Komponente: Startauswahl, Spiel und Ergebnis fuer Kiosk und Einbettung",
   "exports": {
@@ -26,13 +25,22 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
-      }
+      },
+      "./styles.css": "./dist/quiz-kiosk.css"
     }
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  }
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.7",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ]
 }

@@ -11,13 +11,15 @@ import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const pakete = ['core', 'content', 'themes', 'persistence', 'server']
+const pakete = ['core', 'content', 'themes', 'react', 'kiosk', 'persistence', 'server']
 /*
  * Reine CSS- und Asset-Einstiege haben keine Typen - attw prueft nur die
  * JavaScript-Einstiege.
  */
 const attwAusnahmen = {
   themes: ['./palette.css', './fonts.css'],
+  react: ['./styles.css', './styles/stage.css', './styles/motion.css', './assets/*'],
+  kiosk: ['./styles.css'],
 }
 const ablage = mkdtempSync(join(tmpdir(), 'quiz-pack-'))
 let fehler = 0

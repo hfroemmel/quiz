@@ -1,7 +1,6 @@
 {
   "name": "@hfroemmel/quiz-react",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
   "description": "React-Praesentationsschicht der Buehne: QuizScene, Szenen, Klaenge und Verbindungs-Hooks",
   "exports": {
@@ -29,6 +28,9 @@
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
       },
+      "./styles.css": "./dist/quiz-react.css",
+      "./styles/stage.css": "./dist/styles/stage.css",
+      "./styles/motion.css": "./dist/styles/motion.css",
       "./assets/*": "./dist/assets/*"
     }
   },
@@ -36,6 +38,14 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  }
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.7",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "scripts": {
+    "build": "vite build && cp -r src/styles dist/styles && mkdir -p dist/assets && cp -r src/assets/kinderquiz dist/assets/kinderquiz"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ]
 }

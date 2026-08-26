@@ -82,7 +82,7 @@ export class QuizService {
   /** Nach einem Neustart gefundenes unvollstaendiges Spiel - erst nach Operatorentscheidung aktiv. */
   private resumable: GameState | null = null
   private eventDay: { id: string; calendarDate: string }
-  private transitionTimer: NodeJS.Timeout | null = null
+  private transitionTimer: ReturnType<typeof setTimeout> | null = null
   private soundEnabled: boolean
   private selectionRationale: string | undefined
   private readonly listeners = new Set<() => void>()
@@ -471,7 +471,10 @@ export class QuizService {
         expectedRevision: this.currentRevision,
       })
     }, delay)
-    if (typeof this.transitionTimer.unref === 'function') this.transitionTimer.unref()
+    // In Node haelt ein aktiver Timer den Prozess am Leben - `unref` gibt ihn
+    // frei. Im Browser gibt es die Methode nicht; der Zugriff bleibt strukturell.
+    const timer = this.transitionTimer as { unref?: () => void }
+    if (typeof timer.unref === 'function') timer.unref()
   }
 
   /** Fuer Tests und geordnetes Herunterfahren. */
