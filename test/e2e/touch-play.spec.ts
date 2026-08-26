@@ -105,6 +105,28 @@ test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
   await expect(stage).toHaveAttribute('data-scene', 'pause', { timeout: 20_000 })
 })
 
+test('Einzelspiel: der Hinweis steht mittig, der Zaehler aussen', async ({ page }) => {
+  /*
+   * Ohne Gegner faellt die rechte Ecke weg. Der Zaehler nimmt ihren Platz ein,
+   * damit der Hinweis in der Mitte des Bildschirms bleibt - sonst schoebe er
+   * sich mit dem Zaehler nach rechts, und der Knopf laege nicht mehr da, wo ihn
+   * im Duell auch die zweite Hand erwartet.
+   */
+  await startGame(page, 'Allein')
+  await antworte(page)
+  await expect(page.locator('[data-continue]')).toBeVisible({ timeout: 20_000 })
+
+  const breite = page.viewportSize()!.width
+  const knopf = (await page.locator('[data-continue]').boundingBox())!
+  expect(Math.round(knopf.x + knopf.width / 2)).toBe(Math.round(breite / 2))
+
+  // Der Zaehler steht rechts vom Knopf, die Punktekarte links davon.
+  const zaehler = (await page.locator('[data-counter]').boundingBox())!
+  const karte = (await page.locator('[data-score]').boundingBox())!
+  expect(zaehler.x).toBeGreaterThan(knopf.x + knopf.width)
+  expect(karte.x + karte.width).toBeLessThan(knopf.x)
+})
+
 test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) => {
   await startGame(page, 'Allein')
 

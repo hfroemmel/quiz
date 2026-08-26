@@ -6,11 +6,19 @@
  * man davor. Punktestand und Buzzer gehoeren dorthin, wo die Hand ist - unten,
  * in der Ecke des Spielers, dem sie gehoert.
  *
+ * Duell:
  *   [Spieler 1 | Punkte]     [Hinweis oder "Weiter"]     [Punkte | Spieler 2]
  *   [    BUZZERN     ]           [Frage 6/7]            [     BUZZERN     ]
  *
- * Ueber dem Zaehler liegt EIN Feld fuer beides: den kurzen Spielhinweis und den
- * Knopf, mit dem es weitergeht. Es hat eine feste Hoehe, damit der Wechsel
+ * Einzelspiel:
+ *   [Spieler 1 | Punkte]     [Hinweis oder "Weiter"]          [Frage 6/7]
+ *
+ * DREI PLAETZE IN BEIDEN FAELLEN, und der mittlere liegt in beiden auf der
+ * Mitte des Bildschirms. Im Einzelspiel ruecken Buzzer und Gegner weg; damit
+ * der Hinweis trotzdem mittig steht, nimmt der Zaehler den frei gewordenen
+ * dritten Platz ein - statt sich mit dem Hinweis nach rechts zu schieben.
+ *
+ * Hinweis und Knopf teilen sich EIN Feld mit fester Hoehe, damit der Wechsel
  * zwischen Satz und Knopf nichts darueber verschiebt - Frage und Antworten
  * duerfen nicht springen, waehrend jemand zielt.
  *
@@ -78,6 +86,7 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onContinue }: PlayerFo
 
   const text = hinweis(view)
   const weiter = view.allowedCommands.includes('CONTINUE')
+  const zaehler = view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} />
 
   return (
     <div className={styles.foot} data-player-foot="">
@@ -94,10 +103,10 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onContinue }: PlayerFo
             text && <span className={styles.noticeText}>{text}</span>
           )}
         </div>
-        {view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} />}
+        {!solo && zaehler}
       </div>
 
-      {playerTwo && ecke(playerTwo, 'right')}
+      {playerTwo ? ecke(playerTwo, 'right') : <div className={styles.corner} data-corner="right">{zaehler}</div>}
     </div>
   )
 }

@@ -268,7 +268,7 @@ Oberflaechenstufen werden auf den neuen Bauteilen neu gebaut statt auf den alten
 | **Spielerzahl** | `players` ist ein Array mit ein oder zwei Eintraegen. Zweite Chance nur bei vorhandenem Gegner, Solo-Ergebnis mit Trefferzahl statt Gewinner. |
 | **Ablaufprofil** | `operated` und `self-service` im Spielzustand, Rolle `player`, atomarer Befehl `ANSWER_BY_PLAYER`, automatische Uebergaenge ueber die vorhandene Timer-Mechanik. |
 | **Inhaltsfilter** | `evaluationModes` im Slotfilter, drei Touch-Presets im Quizpaket, Eignung im Validierungsbericht, gefilterter Katalog fuer die Spieleransicht. |
-| **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Fussleiste, Ergebnis. Beide Spieler stehen nebeneinander vor demselben Bild; unten hat jeder seine Ecke aus Punktekarte und Buzzer, die vier Antworten stehen einmal darueber und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Erreichbar unter `/play`. |
+| **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Fussleiste, Ergebnis. Beide Spieler stehen nebeneinander vor demselben Bild; unten hat jeder seine Ecke aus Punktekarte und Buzzer, in der Mitte liegen Hinweis und `Weiter`. Die vier Antworten stehen einmal darueber und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Im Einzelspiel entfallen Gegner und Buzzer; der Fragezaehler nimmt die frei gewordene rechte Ecke ein, damit die Mitte die Mitte bleibt. Erreichbar unter `/play`. |
 | **Kiosk** | `apps/kiosk` als Electron-Vollbild: Laufzeit im selben Prozess, nur Loopback, kein Operatorfenster, Leerlauf-Aufsicht als Betriebsangabe. |
 | **Einbettung** | `onFinished`/`onExit`, Abraeumen beim Entfernen, Beispielsammlung unter `/shell` als Pruefstand. |
 

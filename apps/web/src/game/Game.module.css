@@ -180,9 +180,15 @@
   gap: 1.2cqh;
   width: 17cqw;
 }
-/* Die Karte des zweiten Spielers steht in ihrer Ecke aussen. */
+/*
+ * Die rechte Spalte steht aussen: im Duell die Karte des zweiten Spielers, im
+ * Einzelspiel der Fragezaehler. Sie behaelt ihre Breite auch dann, wenn nur der
+ * schmale Zaehler darin steht - sonst rutschte der Hinweis in der Mitte aus der
+ * Mitte des Bildschirms.
+ */
 .corner[data-corner='right'] {
   align-items: flex-end;
+  justify-content: flex-end;
 }
 
 /*
