@@ -13,7 +13,7 @@
  * der Ton sofort bereit, ohne dass jemand geklickt haben muss.
  */
 import { useEffect } from 'react'
-import { unlockAudio } from './soundCues.ts'
+import { unlockAudio } from './soundCues'
 
 /**
  * Autoplay-Regel des Fensters, soweit der Browser sie preisgibt.

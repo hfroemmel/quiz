@@ -38,3 +38,4 @@ playwright-report/
 
 # Videokopie im gebauten Paket: unveraenderte Kopie aus content/source/assets/video.
 content/dist/assets/video/
+packages/*/dist/

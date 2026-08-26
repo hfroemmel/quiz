@@ -13,8 +13,8 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { mediaAssetSchema } from '@quiz/contracts'
-import { contentSourceDir } from '../paths.ts'
-import { readJson, resolveAssetPath } from '../package.ts'
+import { contentSourceDir } from '../paths'
+import { readJson, resolveAssetPath } from '../package'
 
 /** Stabiler Hash einer Zeichenkette - ersetzt Zufall, damit Builds reproduzierbar bleiben. */
 function hash(value: string): number {

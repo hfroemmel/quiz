@@ -3,8 +3,8 @@
  */
 import { describe, expect, it } from 'vitest'
 import { designColorTokens, type MediaAsset, type Question, type QuestionPatch } from '@quiz/contracts'
-import { validateContent } from '../src/validate.ts'
-import { applyPatches, buildChangeReport, findUnreconciledPatches } from '../src/hotfix.ts'
+import { validateContent } from '../src/validate'
+import { applyPatches, buildChangeReport, findUnreconciledPatches } from '../src/hotfix'
 
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
 

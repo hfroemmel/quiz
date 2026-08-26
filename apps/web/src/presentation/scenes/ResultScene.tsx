@@ -16,10 +16,10 @@
  * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
  */
 import type { PublicResult } from '@quiz/contracts'
-import { Confetti } from '../../components/Confetti.tsx'
-import { Score } from '../stage/Score.tsx'
+import { Confetti } from '../../components/Confetti'
+import { Score } from '../stage/Score'
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function ResultScene({ view }: SceneProps) {
   const result = view.result

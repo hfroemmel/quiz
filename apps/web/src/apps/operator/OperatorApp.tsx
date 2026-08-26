@@ -11,15 +11,15 @@
  * sendet Befehle; ueber Zulaessigkeit und Wirkung entscheidet der Server.
  */
 import { useEffect, useState } from 'react'
-import { useQuizConnection } from '../../client/useQuizConnection.ts'
-import { useBuzzerKeys } from '../../client/useBuzzerKeys.ts'
-import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
-import { useStageTheme } from '../../presentation/stageTheme.ts'
-import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
-import { useAudioUnlock } from '../../presentation/useAudioUnlock.ts'
-import { requestStageFullscreen } from '../../client/desktopBridge.ts'
-import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
-import { GameLogDialog } from './GameLogDialog.tsx'
+import { useQuizConnection } from '../../client/useQuizConnection'
+import { useBuzzerKeys } from '../../client/useBuzzerKeys'
+import { StageScreen, themeVariables } from '../../presentation/StageScreen'
+import { useStageTheme } from '../../presentation/stageTheme'
+import { ConnectionBanner } from '../../components/ConnectionBanner'
+import { useAudioUnlock } from '../../presentation/useAudioUnlock'
+import { requestStageFullscreen } from '../../client/desktopBridge'
+import { ConfirmDialog } from '../../ui/ConfirmDialog'
+import { GameLogDialog } from './GameLogDialog'
 import {
   BrightThemeIcon,
   DarkThemeIcon,
@@ -27,13 +27,13 @@ import {
   IconButton,
   SoundOffIcon,
   SoundOnIcon,
-} from '../../ui/IconButton.tsx'
+} from '../../ui/IconButton'
 import { scoringRules, type OperatorQuizViewModel } from '@quiz/contracts'
-import { OperatorControls } from './OperatorControls.tsx'
-import { PrivatePanel } from './PrivatePanel.tsx'
-import { StartPanel } from './StartPanel.tsx'
-import { HotfixPanel } from './HotfixPanel.tsx'
-import { DiagnosticsPanel } from './DiagnosticsPanel.tsx'
+import { OperatorControls } from './OperatorControls'
+import { PrivatePanel } from './PrivatePanel'
+import { StartPanel } from './StartPanel'
+import { HotfixPanel } from './HotfixPanel'
+import { DiagnosticsPanel } from './DiagnosticsPanel'
 import styles from './OperatorApp.module.css'
 
 export function OperatorApp() {

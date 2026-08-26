@@ -10,7 +10,7 @@
  * geschlossener nicht.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { openOperator, resetServer } from './helpers.ts'
+import { openOperator, resetServer } from './helpers'
 
 /** Zahl der verbundenen Clients aus der Operatordiagnose. */
 async function connectedClients(operator: Page): Promise<number> {

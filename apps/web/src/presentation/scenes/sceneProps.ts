@@ -1,6 +1,6 @@
 /** Gemeinsame Eigenschaften aller Buehnenszenen. */
 import type { PublicQuizViewModel } from '@quiz/contracts'
-import type { RevealDisplay } from '../../client/useRevealClock.ts'
+import type { RevealDisplay } from '../../client/useRevealClock'
 
 /**
  * Die Antwortzeilen sind Schaltflaechen.

@@ -13,14 +13,14 @@
  *   6. visuellen Regressionstest aktualisieren (test/e2e/presentation.spec.ts)
  */
 import type { PublicScene } from '@quiz/contracts'
-import { prefersReducedMotion } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
-import { fadeThroughPause } from './fadeThrough.ts'
-import { questionEnter, revealEnter, videoEnter } from './questionEnter.ts'
-import { correctFeedback } from './correctFeedback.ts'
-import { incorrectFeedback } from './incorrectFeedback.ts'
-import { solutionReveal } from './solutionReveal.ts'
-import { resultCelebration } from './resultCelebration.ts'
+import { prefersReducedMotion } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
+import { fadeThroughPause } from './fadeThrough'
+import { questionEnter, revealEnter, videoEnter } from './questionEnter'
+import { correctFeedback } from './correctFeedback'
+import { incorrectFeedback } from './incorrectFeedback'
+import { solutionReveal } from './solutionReveal'
+import { resultCelebration } from './resultCelebration'
 
 export const transitions: PresentationTransitionDefinition[] = [
   fadeThroughPause,

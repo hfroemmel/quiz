@@ -19,7 +19,7 @@ import {
   startGame,
   startReveal,
   waitForQuestionReady,
-} from './helpers.ts'
+} from './helpers'
 
 test('schneller Doppelklick auf "Weiter" ueberspringt keine Frage', async ({ page }) => {
   const operator = await openOperator(page)

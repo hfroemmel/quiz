@@ -16,7 +16,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import type { ActorRole, AuditEntry, GameState, QuestionPatch } from '@quiz/contracts'
 import type { DomainEvent, EngineEffects } from '@quiz/domain'
-import { runMigrations } from './migrations.ts'
+import { runMigrations } from './migrations'
 
 export interface CommitInput {
   commandId: string

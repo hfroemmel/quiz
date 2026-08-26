@@ -9,8 +9,8 @@
  */
 import { useState } from 'react'
 import type { Command, CommandType, OperatorQuizViewModel } from '@quiz/contracts'
-import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
-import { optionLetter } from '../../presentation/stage/answerState.ts'
+import { ConfirmDialog } from '../../ui/ConfirmDialog'
+import { optionLetter } from '../../presentation/stage/answerState'
 import styles from './OperatorControls.module.css'
 
 interface Props {

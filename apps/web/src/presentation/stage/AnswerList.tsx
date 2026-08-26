@@ -20,8 +20,8 @@
  * Zustaende, Buchstabenchip und Zeichnung sollen sich nie auseinanderentwickeln,
  * nur weil ein Kontext dazugekommen ist.
  */
-import { presentationTiming } from '../animationPresets.ts'
-import { optionLetter, type AnswerState } from './answerState.ts'
+import { presentationTiming } from '../animationPresets'
+import { optionLetter, type AnswerState } from './answerState'
 import styles from './AnswerList.module.css'
 
 export interface AnswerRow {

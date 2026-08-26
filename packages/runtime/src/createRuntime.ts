@@ -17,8 +17,8 @@
 import { contentPackageDir, runtimeDir } from '@quiz/content'
 import { QuizStore } from '@quiz/persistence'
 import { join } from 'node:path'
-import { ContentService } from './contentService.ts'
-import { QuizService } from './quizService.ts'
+import { ContentService } from './contentService'
+import { QuizService } from './quizService'
 
 export interface QuizRuntimeOptions {
   /** Verzeichnis des gebauten Quizpakets. */

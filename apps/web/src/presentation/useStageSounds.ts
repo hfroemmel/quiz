@@ -14,7 +14,7 @@
  */
 import { useEffect, useRef } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
-import type { SoundCueId } from './soundCues.ts'
+import type { SoundCueId } from './soundCues'
 
 export function useStageSounds(view: PublicQuizViewModel, play: (cueId: SoundCueId) => void): void {
   const previous = useRef({

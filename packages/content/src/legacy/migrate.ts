@@ -19,7 +19,7 @@
  * Schreibweisen vorkommen (z. B. `Anmerkung` neben `note`).
  */
 import type { AnswerOption, MediaAsset, Question, QuestionPresentationType } from '@quiz/contracts'
-import { extractDeclarations, type LiteralValue } from './parseLiteral.ts'
+import { extractDeclarations, type LiteralValue } from './parseLiteral'
 
 export interface MigrationNote {
   severity: 'normalized' | 'needs-review'

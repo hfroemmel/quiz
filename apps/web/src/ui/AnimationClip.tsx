@@ -18,8 +18,8 @@
  * Soundmarken, die nur der Audio-Master abspielt.
  */
 import { useEffect, useRef } from 'react'
-import { animationClips, type AnimationClipId } from '../presentation/animationAssets.ts'
-import { prefersReducedMotion } from '../presentation/animationPresets.ts'
+import { animationClips, type AnimationClipId } from '../presentation/animationAssets'
+import { prefersReducedMotion } from '../presentation/animationPresets'
 import styles from './AnimationClip.module.css'
 
 interface AnimationClipProps {

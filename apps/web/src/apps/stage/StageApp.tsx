@@ -11,11 +11,11 @@
  */
 import { useEffect } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
-import { useQuizConnection } from '../../client/useQuizConnection.ts'
-import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
+import { useQuizConnection } from '../../client/useQuizConnection'
+import { StageScreen, themeVariables } from '../../presentation/StageScreen'
 import styles from './StageApp.module.css'
-import { useAudioUnlock } from '../../presentation/useAudioUnlock.ts'
-import { toggleOwnFullscreen } from '../../client/desktopBridge.ts'
+import { useAudioUnlock } from '../../presentation/useAudioUnlock'
+import { toggleOwnFullscreen } from '../../client/desktopBridge'
 
 export function StageApp() {
   const { view, send, connected, audioMaster, notifyAudioReady, serverNow } =

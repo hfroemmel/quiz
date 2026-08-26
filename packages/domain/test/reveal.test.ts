@@ -17,7 +17,7 @@ import {
   revealSeed,
   revealTilePlan,
   startReveal,
-} from '../src/reveal.ts'
+} from '../src/reveal'
 
 const DURATION = gameTiming.imageRevealDurationMs
 

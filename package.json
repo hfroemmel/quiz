@@ -9,6 +9,8 @@
     "node": ">=20"
   },
   "scripts": {
+    "packages:build": "pnpm -r --filter './packages/*' run build",
+    "packages:verify": "node scripts/verify-packages.mjs",
     "typecheck": "tsc -b --force tsconfig.json && tsc -p apps/web/tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -34,10 +36,13 @@
     "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.5",
     "concurrently": "^9.1.2",
     "esbuild": "^0.24.2",
+    "publint": "^0.3.24",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"

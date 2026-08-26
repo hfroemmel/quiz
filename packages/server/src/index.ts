@@ -5,9 +5,9 @@
  * weitergereicht, damit bestehende Nutzer (Electron-Hauptprozess, Tests) einen
  * Einstiegspunkt behalten.
  */
-export * from './network.ts'
-export * from './httpServer.ts'
-export * from './wsServer.ts'
-export * from './startServer.ts'
+export * from './network'
+export * from './httpServer'
+export * from './wsServer'
+export * from './startServer'
 export { createQuizRuntime, ContentService, QuizService } from '@quiz/runtime'
 export type { QuizRuntime, QuizRuntimeOptions, QuizServiceOptions, DispatchResult } from '@quiz/runtime'

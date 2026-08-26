@@ -9,8 +9,8 @@
  * `allowedCommands` des View-Modells abgeleitet.
  */
 import { z } from 'zod'
-import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state.ts'
-import { patchableQuestionFieldsSchema } from './content.ts'
+import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state'
+import { patchableQuestionFieldsSchema } from './content'
 
 /**
  * `player` ist die Rolle der Spieler am Touchgeraet. Sie darf genau zwei Dinge:

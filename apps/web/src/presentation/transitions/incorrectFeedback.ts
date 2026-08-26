@@ -8,8 +8,8 @@
  *
  * Dauer entspricht `gameTiming.incorrectFeedbackMs`.
  */
-import { easings, presentationTiming } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
+import { easings, presentationTiming } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
 
 export const incorrectFeedback: PresentationTransitionDefinition = {
   id: 'incorrect-feedback',

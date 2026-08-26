@@ -10,7 +10,7 @@
  *  - Laufzeitdaten (z. B. das Legacy-Feld `playCount`) gehoeren nicht in den Inhalt.
  */
 import { z } from 'zod'
-import { contentThresholds } from './config.ts'
+import { contentThresholds } from './config'
 
 /**
  * Praesentationsform einer Frage auf dem Buehnenscreen.

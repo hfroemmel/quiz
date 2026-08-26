@@ -12,8 +12,8 @@
  * bebildert, und die Fragetafel bekaeme eine Spalte fuer nichts.
  */
 import type { PublicQuestion } from '@quiz/contracts'
-import { Media } from './Media.tsx'
-import { useFittedPrompt } from './useFittedPrompt.ts'
+import { Media } from './Media'
+import { useFittedPrompt } from './useFittedPrompt'
 import styles from './QuestionHead.module.css'
 
 interface QuestionHeadProps {

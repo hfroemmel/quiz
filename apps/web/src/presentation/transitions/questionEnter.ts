@@ -8,8 +8,8 @@
  * Wichtig: Die Buzzer-Freigabe haengt NICHT an dieser Animation. Der Server
  * entscheidet ueber `OPEN_BUZZER`, wann gebuzzert werden darf.
  */
-import { easings, presentationTiming } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
+import { easings, presentationTiming } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
 
 export const questionEnter: PresentationTransitionDefinition = {
   id: 'question-enter',

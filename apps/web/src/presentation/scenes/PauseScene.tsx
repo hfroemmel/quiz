@@ -5,7 +5,7 @@
  * die naechste Frage zwar bereits gezogen, sendet sie aber nicht an den Buehnenscreen.
  */
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function PauseScene({ view }: SceneProps) {
   const logo = view.theme.startVisualUrl ?? view.theme.logoUrl

@@ -10,7 +10,7 @@
  * Schalterstellung.
  */
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import { playCue, type SoundCueId } from './soundCues.ts'
+import { playCue, type SoundCueId } from './soundCues'
 
 type PlayCue = (cueId: SoundCueId) => void
 

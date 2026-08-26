@@ -7,8 +7,8 @@
  * Der Pausenscreen ist zwar eine eigene Praesentationsphase, aber KEINE zweite
  * Spielzustandslogik: Der Wechsel danach kommt vom Server, nicht von dieser Animation.
  */
-import { easings, presentationTiming } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
+import { easings, presentationTiming } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
 
 export const fadeThroughPause: PresentationTransitionDefinition = {
   id: 'fade-through-pause',

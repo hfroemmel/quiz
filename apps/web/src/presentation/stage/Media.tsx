@@ -12,7 +12,7 @@
  * mit jeder Frage, der Rahmen nie.
  */
 import type { RevealGrid } from '@quiz/contracts'
-import { RevealTiles } from './RevealTiles.tsx'
+import { RevealTiles } from './RevealTiles'
 import styles from './Media.module.css'
 
 interface MediaProps {

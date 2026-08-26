@@ -4,7 +4,7 @@
  * Der Bericht ist bewusst Text und kein JSON: Die Redaktion soll ihn ohne Werkzeuge
  * lesen koennen. Maschinenlesbar bleibt das `ValidationResult` selbst.
  */
-import type { ValidationResult } from './validate.ts'
+import type { ValidationResult } from './validate'
 
 export interface ReportOptions {
   title: string

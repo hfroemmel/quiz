@@ -26,7 +26,7 @@ import {
   sessionCode,
   startGame,
   startReveal,
-} from './helpers.ts'
+} from './helpers'
 
 test.describe('Vollstaendige Spielablaeufe', () => {
   test('1 - sieben richtige Erstantworten fuehren zum Ergebnis', async ({ page }) => {

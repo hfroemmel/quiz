@@ -18,8 +18,8 @@
  */
 import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel } from '@quiz/contracts'
-import { Counter } from './Counter.tsx'
-import { Score } from './Score.tsx'
+import { Counter } from './Counter'
+import { Score } from './Score'
 import logoUrl from '../../assets/images/logo.svg'
 import styles from './StageHeader.module.css'
 

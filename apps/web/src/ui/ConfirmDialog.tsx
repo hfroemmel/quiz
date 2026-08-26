@@ -5,7 +5,7 @@
  * Fussleiste, und `Dialog` fokussiert genau diese. Die gefaehrliche Handlung ist
  * damit nie versehentlich mit der Eingabetaste ausloesbar.
  */
-import { Dialog } from './Dialog.tsx'
+import { Dialog } from './Dialog'
 import styles from './Dialog.module.css'
 
 interface ConfirmDialogProps {

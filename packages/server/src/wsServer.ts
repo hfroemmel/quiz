@@ -14,8 +14,8 @@ import type { Server } from 'node:http'
 import { WebSocketServer, type WebSocket } from 'ws'
 import { PROTOCOL_VERSION, type ClientMessage, type ClientRole, type ServerMessage } from '@quiz/contracts'
 import type { QuizService } from '@quiz/runtime'
-import { chooseAudioMaster } from './audioMaster.ts'
-import { checkAccess, isLoopback } from './network.ts'
+import { chooseAudioMaster } from './audioMaster'
+import { checkAccess, isLoopback } from './network'
 
 interface Connection {
   socket: WebSocket

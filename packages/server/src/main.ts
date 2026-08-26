@@ -4,7 +4,7 @@
  * Der Server laeuft vollstaendig offline. Internet oder WLAN sind nicht erforderlich;
  * LAN-Clients sind eine optionale Ergaenzung.
  */
-import { startServer } from './startServer.ts'
+import { startServer } from './startServer'
 
 const running = await startServer()
 

@@ -11,8 +11,8 @@ import { extname, join } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { resolveAssetPath } from '@quiz/content'
 import type { QuizService } from '@quiz/runtime'
-import { placeholderSvg } from './placeholderMedia.ts'
-import { isLoopback } from './network.ts'
+import { placeholderSvg } from './placeholderMedia'
+import { isLoopback } from './network'
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',

@@ -18,10 +18,10 @@
  * ein, beginnt sie von der aktuellen Anzeige aus neu.
  */
 import { useEffect, useRef, useState } from 'react'
-import { animationClips } from '../animationAssets.ts'
-import { prefersReducedMotion, presentationTiming } from '../animationPresets.ts'
-import { useSound } from '../SoundProvider.tsx'
-import { AnimationClip } from '../../ui/AnimationClip.tsx'
+import { animationClips } from '../animationAssets'
+import { prefersReducedMotion, presentationTiming } from '../animationPresets'
+import { useSound } from '../SoundProvider'
+import { AnimationClip } from '../../ui/AnimationClip'
 import styles from './Score.module.css'
 
 export type ScoreSize = 'header' | 'result'

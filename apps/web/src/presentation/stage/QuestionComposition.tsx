@@ -16,11 +16,11 @@
  */
 import type { ReactNode } from 'react'
 import type { PublicQuestion } from '@quiz/contracts'
-import { AnswerList, type AnswerRow } from './AnswerList.tsx'
-import { Media } from './Media.tsx'
-import { QuestionHead } from './QuestionHead.tsx'
+import { AnswerList, type AnswerRow } from './AnswerList'
+import { Media } from './Media'
+import { QuestionHead } from './QuestionHead'
 import styles from './QuestionComposition.module.css'
-import type { SceneAnswering } from '../scenes/sceneProps.ts'
+import type { SceneAnswering } from '../scenes/sceneProps'
 
 interface QuestionCompositionProps {
   question: PublicQuestion

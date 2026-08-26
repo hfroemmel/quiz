@@ -35,21 +35,21 @@ import {
   type RuntimeQuestion,
   type SelfServiceTiming,
 } from '@quiz/contracts'
-import { eligibleOpponent, evaluateBuzz } from './buzzer.ts'
+import { eligibleOpponent, evaluateBuzz } from './buzzer'
 import {
   applyScoreDelta,
   attemptsForCurrentQuestion,
   countFailedAttemptsForCurrentQuestion,
   pendingAttempt,
   pointsForCorrectAnswer,
-} from './scoring.ts'
+} from './scoring'
 import {
   completeReveal,
   createRevealClock,
   pauseReveal,
   resetReveal,
   resumeReveal,
-} from './reveal.ts'
+} from './reveal'
 
 /* ------------------------------------------------------------------ *
  * Ports und Ergebnisstruktur

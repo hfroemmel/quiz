@@ -5,9 +5,9 @@
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, roleMayIssue, scoringRules, selfServiceTiming } from '@quiz/contracts'
-import { buzzIn, createHarness, makeQuestion, releaseRound, startGame } from './helpers.ts'
-import { determineResult } from '../src/scoring.ts'
-import { availableCommands } from '../src/allowedCommands.ts'
+import { buzzIn, createHarness, makeQuestion, releaseRound, startGame } from './helpers'
+import { determineResult } from '../src/scoring'
+import { availableCommands } from '../src/allowedCommands'
 
 const normalQuestion = (id: string) => makeQuestion({ id })
 const revealQuestion = (id: string) =>

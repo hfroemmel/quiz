@@ -33,10 +33,10 @@ import {
   type PlayerQuizViewModel,
   isSelfServicePreset,
 } from '@quiz/contracts'
-import { activePlayerId } from './buzzer.ts'
-import { allowedCommandsForRole } from './allowedCommands.ts'
-import { attemptsForCurrentQuestion, determineResult, pendingAttempt, pointsForCorrectAnswer } from './scoring.ts'
-import { revealElapsedMs } from './reveal.ts'
+import { activePlayerId } from './buzzer'
+import { allowedCommandsForRole } from './allowedCommands'
+import { attemptsForCurrentQuestion, determineResult, pendingAttempt, pointsForCorrectAnswer } from './scoring'
+import { revealElapsedMs } from './reveal'
 
 export interface ProjectionContext {
   nowMs: number

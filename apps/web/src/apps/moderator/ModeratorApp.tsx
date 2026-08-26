@@ -14,10 +14,10 @@
  */
 import { useEffect, useState } from 'react'
 import type { ModeratorQuizViewModel } from '@quiz/contracts'
-import { useQuizConnection } from '../../client/useQuizConnection.ts'
-import { useRevealClock } from '../../client/useRevealClock.ts'
-import { ConnectionBanner } from '../../components/ConnectionBanner.tsx'
-import { themeVariables } from '../../presentation/StageScreen.tsx'
+import { useQuizConnection } from '../../client/useQuizConnection'
+import { useRevealClock } from '../../client/useRevealClock'
+import { ConnectionBanner } from '../../components/ConnectionBanner'
+import { themeVariables } from '../../presentation/StageScreen'
 import styles from './ModeratorApp.module.css'
 
 const CODE_STORAGE_KEY = 'quiz.moderator.session-code'

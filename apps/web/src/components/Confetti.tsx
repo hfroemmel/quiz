@@ -8,7 +8,7 @@
  * Der Effekt beeinflusst keinerlei Spiellogik. Bei reduzierter Bewegung wird er
  * im Stylesheet vollstaendig ausgeblendet.
  */
-import { confettiOverlayUrl } from '../presentation/animationAssets.ts'
+import { confettiOverlayUrl } from '../presentation/animationAssets'
 import styles from './Confetti.module.css'
 
 export function Confetti() {

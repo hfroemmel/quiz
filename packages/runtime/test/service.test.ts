@@ -6,7 +6,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { scoringRules } from '@quiz/contracts'
-import { createRig, playQuestion, showQuestionAfterVideo, type TestRig } from './helpers.ts'
+import { createRig, playQuestion, showQuestionAfterVideo, type TestRig } from './helpers'
 
 const rigs: TestRig[] = []
 function rig(options?: Parameters<typeof createRig>[0]): TestRig {

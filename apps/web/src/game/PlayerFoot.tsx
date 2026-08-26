@@ -27,9 +27,9 @@
  * gezeichnete Karte der Kinderwelt - kommt unveraendert von dort.
  */
 import type { PlayerId, PlayerQuizViewModel } from '@quiz/contracts'
-import { Counter } from '../presentation/stage/Counter.tsx'
-import { Score } from '../presentation/stage/Score.tsx'
-import { Buzzer } from './Buzzer.tsx'
+import { Counter } from '../presentation/stage/Counter'
+import { Score } from '../presentation/stage/Score'
+import { Buzzer } from './Buzzer'
 import styles from './Game.module.css'
 
 interface PlayerFootProps {

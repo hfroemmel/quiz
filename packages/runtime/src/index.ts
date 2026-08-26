@@ -1,3 +1,3 @@
-export * from './contentService.ts'
-export * from './quizService.ts'
-export * from './createRuntime.ts'
+export * from './contentService'
+export * from './quizService'
+export * from './createRuntime'

@@ -10,7 +10,7 @@
  *  - welche Teile aus Fairness- oder Synchronitaetsgruenden fest sind (`locked`).
  */
 import type { PublicScene } from '@quiz/contracts'
-import type { SoundCueId } from '../soundCues.ts'
+import type { SoundCueId } from '../soundCues'
 
 export interface PresentationTransitionDefinition {
   id: string

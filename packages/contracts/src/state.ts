@@ -4,7 +4,7 @@
  * Dieser Zustand lebt ausschliesslich im lokalen Server. Clients senden Befehle
  * und rendern gefilterte View-Modelle; sie veraendern diesen Zustand niemals selbst.
  */
-import type { Question, QuestionPresentationType } from './content.ts'
+import type { Question, QuestionPresentationType } from './content'
 
 /**
  * Phasen des Spielablaufs.

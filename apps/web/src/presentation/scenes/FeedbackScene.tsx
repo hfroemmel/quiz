@@ -13,9 +13,9 @@
  * Der Punktestand wird bewusst NICHT hier angezeigt: Er zaehlt waehrend dieser
  * Animation in der Punktekachel der Kopfzeile hoch (Designergaenzung).
  */
-import { AnimationClip } from '../../ui/AnimationClip.tsx'
+import { AnimationClip } from '../../ui/AnimationClip'
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function FeedbackScene({ view }: SceneProps) {
   const feedback = view.feedback

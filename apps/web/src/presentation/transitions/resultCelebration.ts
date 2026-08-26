@@ -7,8 +7,8 @@
  * Das Konfetti ist reine Darstellung: Es beeinflusst weder das Ergebnis noch die
  * weiterhin moegliche manuelle Punktkorrektur.
  */
-import { easings, presentationTiming } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
+import { easings, presentationTiming } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
 
 export const resultCelebration: PresentationTransitionDefinition = {
   id: 'result-celebration',

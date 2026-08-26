@@ -22,7 +22,7 @@
  * es erbt alles, was es nicht nennt, von seiner Gestaltungswelt. Ein neuer Modus
  * mit eigener Farbwelt braucht deshalb weiterhin keine Codeaenderung.
  */
-import type { ThemeSkin } from './content.ts'
+import type { ThemeSkin } from './content'
 
 export const designColorTokens = [
   /* Grundflaechen */

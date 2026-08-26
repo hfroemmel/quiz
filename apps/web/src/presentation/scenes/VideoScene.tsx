@@ -23,7 +23,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Command } from '@quiz/contracts'
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 interface VideoSceneProps extends SceneProps {
   /** Nur der Audio-Master spielt den Ton ab. */

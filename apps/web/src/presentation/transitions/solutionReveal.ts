@@ -9,8 +9,8 @@
  * Beim Bilderkennen wird das Bild hier auf volle Schaerfe gebracht; der Zustand
  * `reveal.status === 'completed'` kommt ebenfalls vom Server.
  */
-import { easings, presentationTiming } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
+import { easings, presentationTiming } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
 
 export const solutionReveal: PresentationTransitionDefinition = {
   id: 'solution-reveal',

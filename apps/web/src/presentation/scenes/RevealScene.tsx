@@ -24,10 +24,10 @@
  * einem Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
  */
 import { revealGrid } from '@quiz/contracts'
-import { Media } from '../stage/Media.tsx'
-import { QuestionHead } from '../stage/QuestionHead.tsx'
+import { Media } from '../stage/Media'
+import { QuestionHead } from '../stage/QuestionHead'
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function RevealScene({ view, reveal }: SceneProps) {
   const question = view.question

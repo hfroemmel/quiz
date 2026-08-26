@@ -6,9 +6,9 @@
  * CSS auf dem Buehnenscreen waere nicht ausreichend, weil die Loesung dann bereits
  * uebertragen waere.
  */
-import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content.ts'
-import type { AttemptOutcome, GamePhase, PlayerId } from './state.ts'
-import type { ActorRole, CommandType } from './commands.ts'
+import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content'
+import type { AttemptOutcome, GamePhase, PlayerId } from './state'
+import type { ActorRole, CommandType } from './commands'
 
 /** Szenen des Buehnenscreens. Sie werden aus der Phase abgeleitet, nicht frei gesetzt. */
 export const publicScenes = [

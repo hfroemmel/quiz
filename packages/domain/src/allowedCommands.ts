@@ -10,7 +10,7 @@
  * weiterhin die Engine beim Verarbeiten des Befehls.
  */
 import { isChoiceQuestion, roleMayIssue, type ActorRole, type CommandType, type GameState } from '@quiz/contracts'
-import { isSelfServiceAnswerPhase } from './buzzer.ts'
+import { isSelfServiceAnswerPhase } from './buzzer'
 
 export function availableCommands(state: GameState | null): CommandType[] {
   const list = new Set<CommandType>()

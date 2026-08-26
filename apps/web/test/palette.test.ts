@@ -12,7 +12,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { paletteStyleSheet } from '../src/theme/palette.ts'
+import { paletteStyleSheet } from '../src/theme/palette'
 
 const webDir = fileURLToPath(new URL('..', import.meta.url))
 const sourceDir = join(webDir, 'src')

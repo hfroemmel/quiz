@@ -6,7 +6,7 @@
  * haengt es auch am Geraet, wo niemand eingreifen kann.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { resetServer } from './helpers.ts'
+import { resetServer } from './helpers'
 
 /** Die Antwortzeilen der Szene sind da und tippbar. */
 const offeneAntwort = '[data-answers] [data-answer-button]:not([disabled])'

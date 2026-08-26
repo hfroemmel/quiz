@@ -18,10 +18,10 @@
  * es frueher - vier Antworten standen dann doppelt auf dem Tisch, und getippt
  * werden konnte nur auf einer der beiden Fassungen.
  */
-import { answerRows } from '../stage/answerState.ts'
-import { QuestionComposition } from '../stage/QuestionComposition.tsx'
+import { answerRows } from '../stage/answerState'
+import { QuestionComposition } from '../stage/QuestionComposition'
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function QuestionScene({ view, answering }: SceneProps) {
   const question = view.question

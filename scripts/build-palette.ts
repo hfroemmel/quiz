@@ -9,7 +9,7 @@
  */
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { paletteStyleSheet } from '../apps/web/src/theme/palette.ts'
+import { paletteStyleSheet } from '../apps/web/src/theme/palette'
 
 const target = fileURLToPath(new URL('../apps/web/src/styles/palette.css', import.meta.url))
 writeFileSync(target, paletteStyleSheet(), 'utf8')

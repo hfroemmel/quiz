@@ -12,9 +12,9 @@ import { join } from 'node:path'
 import { repositoryRoot } from '@quiz/content'
 import type { QuizStore } from '@quiz/persistence'
 import { createQuizRuntime, type QuizService } from '@quiz/runtime'
-import { createRequestHandler } from './httpServer.ts'
-import { attachWebSocketServer } from './wsServer.ts'
-import { createSessionCode, localNetworkUrls } from './network.ts'
+import { createRequestHandler } from './httpServer'
+import { attachWebSocketServer } from './wsServer'
+import { createSessionCode, localNetworkUrls } from './network'
 
 export interface StartOptions {
   port?: number

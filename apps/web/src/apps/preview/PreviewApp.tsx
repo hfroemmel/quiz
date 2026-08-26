@@ -13,9 +13,9 @@
 import { useMemo, useState } from 'react'
 import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@quiz/contracts'
 import { gameTiming, stagePalettes } from '@quiz/contracts'
-import { StageScreen, themeVariables } from '../../presentation/StageScreen.tsx'
-import { transitions } from '../../presentation/transitions/registry.ts'
-import { prefersReducedMotion } from '../../presentation/animationPresets.ts'
+import { StageScreen, themeVariables } from '../../presentation/StageScreen'
+import { transitions } from '../../presentation/transitions/registry'
+import { prefersReducedMotion } from '../../presentation/animationPresets'
 import styles from './PreviewApp.module.css'
 
 /**

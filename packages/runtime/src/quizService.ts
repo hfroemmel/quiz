@@ -43,7 +43,7 @@ import {
 import { reduce } from '@quiz/domain'
 import { QuizStore } from '@quiz/persistence'
 import { buildChangeReport } from '@quiz/content'
-import { ContentService } from './contentService.ts'
+import { ContentService } from './contentService'
 
 type SnapshotForAnyRole =
   | PublicQuizViewModel

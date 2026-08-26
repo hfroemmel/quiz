@@ -7,7 +7,7 @@
  * Meldung, nur kein Ton.
  */
 import { describe, expect, it } from 'vitest'
-import { chooseAudioMaster, type AudioCandidate } from '../src/audioMaster.ts'
+import { chooseAudioMaster, type AudioCandidate } from '../src/audioMaster'
 
 const stage = (over: Partial<AudioCandidate> = {}): AudioCandidate => ({
   role: 'stage',

@@ -18,8 +18,8 @@ import {
   type QuizConfig,
   type RuntimeQuestion,
 } from '@quiz/contracts'
-import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine.ts'
-import { projectPublic } from '../src/projection.ts'
+import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine'
+import { projectPublic } from '../src/projection'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
   return {

@@ -17,11 +17,11 @@
  * Alle hier sichtbaren Daten kommen aus `visibleSolution` bzw. `visibleOptions`, die
  * der Server ausschliesslich in dieser Szene mitsendet.
  */
-import { answerRows } from '../stage/answerState.ts'
-import { QuestionComposition } from '../stage/QuestionComposition.tsx'
-import type { AnswerRow } from '../stage/AnswerList.tsx'
+import { answerRows } from '../stage/answerState'
+import { QuestionComposition } from '../stage/QuestionComposition'
+import type { AnswerRow } from '../stage/AnswerList'
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function SolutionScene({ view }: SceneProps) {
   const solution = view.visibleSolution

@@ -14,8 +14,8 @@ import {
   selectQuestionForSlot,
   shuffleOptionOrder,
   type UsageSummary,
-} from '../src/selection.ts'
-import { makeQuestion } from './helpers.ts'
+} from '../src/selection'
+import { makeQuestion } from './helpers'
 
 const slot = (overrides: Partial<QuestionSlotRule> = {}): QuestionSlotRule => ({
   id: 'slot-1',

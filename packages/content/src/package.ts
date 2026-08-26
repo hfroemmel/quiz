@@ -21,7 +21,7 @@ import {
   type QuizPackage,
   type QuizPackageManifest,
 } from '@quiz/contracts'
-import { validateContent, type IssueSeverity, type ValidationResult } from './validate.ts'
+import { validateContent, type IssueSeverity, type ValidationResult } from './validate'
 
 export const ASSET_DIRECTORY = 'assets'
 export const QUESTIONS_FILE = 'questions.json'

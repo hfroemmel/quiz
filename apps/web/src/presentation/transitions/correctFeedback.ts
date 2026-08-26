@@ -10,8 +10,8 @@
  * Wer die Dauer aendern will, aendert `gameTiming.correctFeedbackMs` in
  * `@quiz/contracts/config.ts`. Dann bleiben Anzeige und Zustandswechsel synchron.
  */
-import { easings, presentationTiming } from '../animationPresets.ts'
-import type { PresentationTransitionDefinition } from './types.ts'
+import { easings, presentationTiming } from '../animationPresets'
+import type { PresentationTransitionDefinition } from './types'
 
 export const correctFeedback: PresentationTransitionDefinition = {
   id: 'correct-feedback',

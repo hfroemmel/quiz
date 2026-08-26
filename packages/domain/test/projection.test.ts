@@ -6,7 +6,7 @@
  * genau darueber wird in diesem Moment gesprochen.
  */
 import { describe, expect, it } from 'vitest'
-import { sceneForPhase } from '../src/projection.ts'
+import { sceneForPhase } from '../src/projection'
 
 describe('sceneForPhase', () => {
   it('folgt der Phase, wenn der Fragetyp nichts anderes verlangt', () => {

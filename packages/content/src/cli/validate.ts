@@ -6,9 +6,9 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { contentReportDir, contentSourceDir } from '../paths.ts'
-import { readSource, validateSource } from '../package.ts'
-import { formatValidationReport } from '../report.ts'
+import { contentReportDir, contentSourceDir } from '../paths'
+import { readSource, validateSource } from '../package'
+import { formatValidationReport } from '../report'
 
 const args = process.argv.slice(2)
 /**

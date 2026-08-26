@@ -8,9 +8,9 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { repositoryRoot } from '../paths.ts'
-import { formatMigrationReport, migrateLegacy } from '../legacy/migrate.ts'
-import { writeJson } from '../package.ts'
+import { repositoryRoot } from '../paths'
+import { formatMigrationReport, migrateLegacy } from '../legacy/migrate'
+import { writeJson } from '../package'
 
 const questionsPath = process.argv[2]
 const configPath = process.argv[3]

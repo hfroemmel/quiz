@@ -14,7 +14,7 @@ import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { soundCueIds, cueFilesForTest } from '../src/presentation/soundCues.ts'
+import { soundCueIds, cueFilesForTest } from '../src/presentation/soundCues'
 
 const audioDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'assets', 'audio')
 

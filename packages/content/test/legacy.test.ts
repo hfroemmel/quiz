@@ -5,8 +5,8 @@
  * Datei mit Funktionsaufruf zu einem klaren Fehler statt zu einem Seiteneffekt fuehrt.
  */
 import { describe, expect, it } from 'vitest'
-import { extractDeclarations, parseLiteral } from '../src/legacy/parseLiteral.ts'
-import { formatMigrationReport, migrateLegacy, normalizeId } from '../src/legacy/migrate.ts'
+import { extractDeclarations, parseLiteral } from '../src/legacy/parseLiteral'
+import { formatMigrationReport, migrateLegacy, normalizeId } from '../src/legacy/migrate'
 
 describe('Sicherer Literal-Parser', () => {
   it('liest Objekte, Arrays, Kommentare und nachgestellte Kommata', () => {

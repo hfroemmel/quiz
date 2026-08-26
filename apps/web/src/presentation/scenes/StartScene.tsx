@@ -8,7 +8,7 @@
  * Startgrafik ihn bereits enthaelt - so wie beim Kinderquiz.
  */
 import styles from './scenes.module.css'
-import type { SceneProps } from './sceneProps.ts'
+import type { SceneProps } from './sceneProps'
 
 export function StartScene({ view }: SceneProps) {
   const visual = view.theme.startVisualUrl ?? view.theme.logoUrl

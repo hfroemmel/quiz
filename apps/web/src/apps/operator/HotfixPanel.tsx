@@ -15,8 +15,8 @@
  * Vorgang abgeleitet.
  */
 import { useEffect, useState } from 'react'
-import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
-import { optionLetter } from '../../presentation/stage/answerState.ts'
+import { ConfirmDialog } from '../../ui/ConfirmDialog'
+import { optionLetter } from '../../presentation/stage/answerState'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
 import styles from './HotfixPanel.module.css'
 

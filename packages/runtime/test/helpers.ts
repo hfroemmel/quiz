@@ -11,8 +11,8 @@ import { contentPackageDir } from '@quiz/content'
 import { createSeededRng } from '@quiz/domain'
 import type { ActorRole, Command } from '@quiz/contracts'
 import { QuizStore } from '@quiz/persistence'
-import { ContentService } from '../src/contentService.ts'
-import { QuizService } from '../src/quizService.ts'
+import { ContentService } from '../src/contentService'
+import { QuizService } from '../src/quizService'
 
 export interface TestRig {
   service: QuizService

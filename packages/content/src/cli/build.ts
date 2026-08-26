@@ -7,9 +7,9 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { contentPackageDir, contentReportDir, contentSourceDir } from '../paths.ts'
-import { MANIFEST_FILE, buildPackage, readJson } from '../package.ts'
-import { formatValidationReport } from '../report.ts'
+import { contentPackageDir, contentReportDir, contentSourceDir } from '../paths'
+import { MANIFEST_FILE, buildPackage, readJson } from '../package'
+import { formatValidationReport } from '../report'
 
 function nextContentVersion(): string {
   const explicit = process.env['CONTENT_VERSION']

@@ -10,7 +10,7 @@
  * Dialog sagt das ausdruecklich, damit niemand ein Loeschen erwartet.
  */
 import { useState } from 'react'
-import { Dialog } from '../../ui/Dialog.tsx'
+import { Dialog } from '../../ui/Dialog'
 import type { Command, GameStatisticsViewModel } from '@quiz/contracts'
 import styles from '../../ui/Dialog.module.css'
 import log from './GameLogDialog.module.css'

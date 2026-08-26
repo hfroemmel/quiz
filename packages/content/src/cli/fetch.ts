@@ -16,7 +16,7 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { repositoryRoot } from '../paths.ts'
+import { repositoryRoot } from '../paths'
 
 const sheetCsvUrl = process.env['QUIZ_SHEET_CSV_URL']
 const outDir = join(repositoryRoot, 'content', 'incoming')

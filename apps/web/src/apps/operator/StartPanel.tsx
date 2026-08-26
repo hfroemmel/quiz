@@ -6,7 +6,7 @@
  * ein neuer Modus erscheint automatisch, sobald er konfiguriert ist.
  */
 import { useEffect, useState } from 'react'
-import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
+import { ConfirmDialog } from '../../ui/ConfirmDialog'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
 import shell from './OperatorApp.module.css'
 import styles from './StartPanel.module.css'

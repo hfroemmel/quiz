@@ -7,7 +7,7 @@
  */
 import { useState } from 'react'
 import type { Command, OperatorQuizViewModel } from '@quiz/contracts'
-import { ConfirmDialog } from '../../ui/ConfirmDialog.tsx'
+import { ConfirmDialog } from '../../ui/ConfirmDialog'
 import styles from './DiagnosticsPanel.module.css'
 
 export function DiagnosticsPanel({

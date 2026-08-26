@@ -7,12 +7,12 @@
  */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { OperatorApp } from './apps/operator/OperatorApp.tsx'
-import { StageApp } from './apps/stage/StageApp.tsx'
-import { ModeratorApp } from './apps/moderator/ModeratorApp.tsx'
-import { PreviewApp } from './apps/preview/PreviewApp.tsx'
-import { QuizGame } from './game/QuizGame.tsx'
-import { ShellApp } from './apps/shell/ShellApp.tsx'
+import { OperatorApp } from './apps/operator/OperatorApp'
+import { StageApp } from './apps/stage/StageApp'
+import { ModeratorApp } from './apps/moderator/ModeratorApp'
+import { PreviewApp } from './apps/preview/PreviewApp'
+import { QuizGame } from './game/QuizGame'
+import { ShellApp } from './apps/shell/ShellApp'
 /*
  * Globale Stylesheets - bewusst KEINE Module.
  *
