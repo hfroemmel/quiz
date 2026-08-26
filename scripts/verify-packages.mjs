@@ -11,7 +11,14 @@ import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const pakete = ['core', 'content', 'persistence', 'server']
+const pakete = ['core', 'content', 'themes', 'persistence', 'server']
+/*
+ * Reine CSS- und Asset-Einstiege haben keine Typen - attw prueft nur die
+ * JavaScript-Einstiege.
+ */
+const attwAusnahmen = {
+  themes: ['./palette.css', './fonts.css'],
+}
 const ablage = mkdtempSync(join(tmpdir(), 'quiz-pack-'))
 let fehler = 0
 
@@ -21,7 +28,11 @@ for (const name of pakete) {
   const tarball = join(ablage, `${name}.tgz`)
   for (const [werkzeug, kommando] of [
     ['publint', `pnpm exec publint ${tarball}`],
-    ['attw', `pnpm exec attw ${tarball} --profile esm-only`],
+    [
+      'attw',
+      `pnpm exec attw ${tarball} --profile esm-only` +
+        (attwAusnahmen[name] ? ` --exclude-entrypoints ${attwAusnahmen[name].join(' ')}` : ''),
+    ],
   ]) {
     try {
       execSync(kommando, { stdio: 'pipe' })

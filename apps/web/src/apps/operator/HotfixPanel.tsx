@@ -16,7 +16,7 @@
  */
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
-import { optionLetter } from '../../presentation/stage/answerState'
+import { optionLetter } from '@hfroemmel/quiz-react'
 import type { Command, OperatorQuizViewModel } from '@hfroemmel/quiz-core'
 import styles from './HotfixPanel.module.css'
 

@@ -13,7 +13,7 @@
  * erhalten, waere der Vertrag gebrochen.
  */
 import { useState } from 'react'
-import { QuizGame, type QuizGameResult } from '../../game/QuizGame'
+import { QuizGame, type QuizGameResult } from '@hfroemmel/quiz-kiosk'
 import styles from './ShellApp.module.css'
 
 export function ShellApp() {

@@ -82,6 +82,15 @@ importers:
       '@hfroemmel/quiz-core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@hfroemmel/quiz-kiosk':
+        specifier: workspace:*
+        version: link:../../packages/kiosk
+      '@hfroemmel/quiz-react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@hfroemmel/quiz-themes':
+        specifier: workspace:*
+        version: link:../../packages/themes
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -117,6 +126,31 @@ importers:
         specifier: ^3.24.1
         version: 3.25.76
 
+  packages/kiosk:
+    dependencies:
+      '@hfroemmel/quiz-core':
+        specifier: workspace:*
+        version: link:../core
+      '@hfroemmel/quiz-react':
+        specifier: workspace:*
+        version: link:../react
+      '@hfroemmel/quiz-themes':
+        specifier: workspace:*
+        version: link:../themes
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ^18.3.5
+        version: 18.3.7(@types/react@18.3.31)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+
   packages/persistence:
     dependencies:
       '@hfroemmel/quiz-core':
@@ -129,6 +163,28 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.12
         version: 7.6.13
+
+  packages/react:
+    dependencies:
+      '@hfroemmel/quiz-core':
+        specifier: workspace:*
+        version: link:../core
+      '@hfroemmel/quiz-themes':
+        specifier: workspace:*
+        version: link:../themes
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.18
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ^18.3.5
+        version: 18.3.7(@types/react@18.3.31)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
 
   packages/server:
     dependencies:
@@ -148,6 +204,12 @@ importers:
       '@types/ws':
         specifier: ^8.5.13
         version: 8.18.1
+
+  packages/themes:
+    dependencies:
+      '@hfroemmel/quiz-core':
+        specifier: workspace:*
+        version: link:../core
 
 packages:
 

@@ -1,0 +1,34 @@
+{
+  "name": "@hfroemmel/quiz-themes",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Darstellung der Buehne: Farbpaletten, Schriften und Theme-Objekte fuer QuizScene",
+  "exports": {
+    ".": "./src/index.ts",
+    "./palette.css": "./src/palette.css",
+    "./fonts.css": "./src/fonts.css"
+  },
+  "dependencies": {
+    "@hfroemmel/quiz-core": "workspace:*"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "palette:build": "tsx scripts/build-palette.ts",
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20 && cp src/palette.css src/fonts.css dist/ && cp -r src/fonts dist/fonts"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./palette.css": "./dist/palette.css",
+      "./fonts.css": "./dist/fonts.css"
+    }
+  }
+}

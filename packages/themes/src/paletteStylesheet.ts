@@ -3,7 +3,7 @@
  *
  * HIER STEHT KEIN FARBWERT. Alle Werte kommen aus `@quiz/contracts` (`theme.ts`);
  * diese Datei uebersetzt sie nur in Text. Geschrieben wird daraus
- * `src/styles/palette.css` - siehe `pnpm palette:build`.
+ * `src/palette.css` - siehe `pnpm palette:build`.
  *
  * WARUM ERZEUGT UND NICHT VON HAND: Dieselben Werte muessen auch in das
  * Quizpaket, das der Server je Modus ausliefert. Ein handgeschriebenes
@@ -28,18 +28,18 @@
  * Farben liefert das Theme des laufenden Quiz. Eine Regel hier wuerde ein Theme
  * mit eigenen Farben aussperren.
  */
-import { brightPalette, stageExtras, stagePalettes, uiPalette } from '@hfroemmel/quiz-core'
+import { brightPalette, stageExtras, stagePalettes, uiPalette } from './palettes'
 
 const HEADER = `/*
  * ERZEUGT - NICHT VON HAND BEARBEITEN.
  *
- * Quelle aller Werte: packages/contracts/src/theme.ts
+ * Quelle aller Werte: packages/themes/src/palettes.ts
  * Neu schreiben:      pnpm palette:build
  *
  * Wer hier einen Farbwert aendert, aendert ihn nur an der Oberflaeche: Im Betrieb
  * kommen die Buehnenfarben aus dem Quizpaket, das aus derselben Quelle gebaut
  * wird. Der naechste Lauf ueberschreibt die Aenderung, und der Test
- * apps/web/test/palette.test.ts meldet sie vorher.
+ * packages/themes/test/palette.test.ts meldet sie vorher.
  */`
 
 function block(selector: string, entries: Record<string, string>): string {
@@ -52,7 +52,7 @@ function prefixed(entries: Record<string, string>, prefix: string): Record<strin
   return Object.fromEntries(Object.entries(entries).map(([name, value]) => [`${prefix}${name}`, value]))
 }
 
-/** Der vollstaendige Inhalt von `src/styles/palette.css`. */
+/** Der vollstaendige Inhalt von `src/palette.css`. */
 export function paletteStyleSheet(): string {
   return [
     HEADER,

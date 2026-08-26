@@ -11,14 +11,15 @@ import { OperatorApp } from './apps/operator/OperatorApp'
 import { StageApp } from './apps/stage/StageApp'
 import { ModeratorApp } from './apps/moderator/ModeratorApp'
 import { PreviewApp } from './apps/preview/PreviewApp'
-import { QuizGame } from './game/QuizGame'
+import { QuizGame } from '@hfroemmel/quiz-kiosk'
 import { ShellApp } from './apps/shell/ShellApp'
 /*
  * Globale Stylesheets - bewusst KEINE Module.
  *
- *   palette   ERZEUGT aus `packages/contracts/src/theme.ts` - alle Farbwerte
+ *   palette   ERZEUGT aus quiz-themes (`palettes.ts`) - alle Farbwerte
+ *   fonts     die @font-face-Regeln aus quiz-themes
  *   tokens    Massvariablen, Schriften und Dauern am Wurzelelement
- *   base      Schriften, Reset, Grundtypografie
+ *   base      Reset und Grundtypografie
  *   controls  Schaltflaechen und Formularfelder des Bedienrahmens
  *   motion    Keyframes und Uebergangsklassen; das Uebergangsregistry setzt
  *             ihre Namen als Zeichenkette und braucht sie deshalb ungehasht
@@ -28,12 +29,13 @@ import { ShellApp } from './apps/shell/ShellApp'
  *
  * Alles Bauteilhafte liegt als `*.module.css` neben seiner Komponente.
  */
-import './styles/palette.css'
+import '@hfroemmel/quiz-themes/palette.css'
+import '@hfroemmel/quiz-themes/fonts.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/controls.css'
-import './styles/motion.css'
-import './styles/stage.css'
+import '@hfroemmel/quiz-react/styles/motion.css'
+import '@hfroemmel/quiz-react/styles/stage.css'
 
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/'

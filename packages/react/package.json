@@ -1,0 +1,41 @@
+{
+  "name": "@hfroemmel/quiz-react",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "React-Praesentationsschicht der Buehne: QuizScene, Szenen, Klaenge und Verbindungs-Hooks",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/stage.css": "./src/styles/stage.css",
+    "./styles/motion.css": "./src/styles/motion.css",
+    "./assets/*": "./src/assets/*"
+  },
+  "dependencies": {
+    "@hfroemmel/quiz-core": "workspace:*",
+    "@hfroemmel/quiz-themes": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./assets/*": "./dist/assets/*"
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

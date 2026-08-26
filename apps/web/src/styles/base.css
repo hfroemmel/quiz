@@ -1,62 +1,10 @@
 /* ------------------------------------------------------------------ *
- * Schriften
+ * Grundgeruest des Dokuments: Reset und Grundtypografie.
  *
- * Die Dateien liegen im Projekt und werden mitgebaut - nie ueber ein
- * Netzwerk-CDN, weil die Anwendung offline lauffaehig bleiben muss
- * (Spezifikation 2).
- *
- * Melior traegt die Buehne: Fragen, Antworten, Kachelwerte, Ueberschriften.
- * Noto Sans Display traegt den Bedienrahmen des Operators, wo kleine
- * Beschriftungen auf kurze Distanz gelesen werden und eine Groteske klarer ist.
- * Auf dem Beamer erscheint sie nicht.
- *
- * `font-display: block` statt `swap`: Ein Schriftwechsel mitten in der Show
- * waere sichtbarer als ein kurzer Moment ohne Text.
+ * Die Schriften (@font-face) kommen aus `@hfroemmel/quiz-themes/fonts.css` -
+ * Dokument-Styling wie dieses hier bleibt dagegen Sache der Anwendung, damit
+ * die Bibliotheken keinen fremden Gastgeber umfaerben.
  * ------------------------------------------------------------------ */
-
-@font-face {
-  font-family: 'Melior';
-  src: url('../assets/fonts/MeliorCom.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Melior';
-  src: url('../assets/fonts/MeliorCom-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Melior';
-  src: url('../assets/fonts/MeliorCom-Italic.ttf') format('truetype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Noto Sans Display';
-  src: url('../assets/fonts/NotoSansDisplay-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Noto Sans Display';
-  src: url('../assets/fonts/NotoSansDisplay-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Noto Sans Display';
-  src: url('../assets/fonts/NotoSansDisplay-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: block;
-}
-
 
 * {
   box-sizing: border-box;

@@ -11,13 +11,13 @@
  * sendet Befehle; ueber Zulaessigkeit und Wirkung entscheidet der Server.
  */
 import { useEffect, useState } from 'react'
-import { useQuizConnection } from '../../client/useQuizConnection'
+import { useQuizConnection } from '@hfroemmel/quiz-react'
 import { useBuzzerKeys } from '../../client/useBuzzerKeys'
-import { StageScreen } from '../../presentation/StageScreen'
-import { themeForView, themeVariables } from '../../theme/sceneTheme'
-import { useStageTheme } from '../../presentation/stageTheme'
+import { StageScreen } from '@hfroemmel/quiz-react'
+import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
+import { useStageTheme } from '@hfroemmel/quiz-react'
 import { ConnectionBanner } from '../../components/ConnectionBanner'
-import { useAudioUnlock } from '../../presentation/useAudioUnlock'
+import { useAudioUnlock } from '@hfroemmel/quiz-react'
 import { requestStageFullscreen } from '../../client/desktopBridge'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
 import { GameLogDialog } from './GameLogDialog'

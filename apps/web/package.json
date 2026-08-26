@@ -7,11 +7,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "palette:build": "tsx scripts/build-palette.ts"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@hfroemmel/quiz-core": "workspace:*",
+    "@hfroemmel/quiz-kiosk": "workspace:*",
+    "@hfroemmel/quiz-react": "workspace:*",
+    "@hfroemmel/quiz-themes": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

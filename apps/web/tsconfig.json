@@ -14,7 +14,11 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "scripts/**/*.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    "../../packages/react/src/**/*.ts",
+    "../../packages/react/src/**/*.tsx",
+    "../../packages/react/test/**/*.ts",
+    "../../packages/kiosk/src/**/*.ts",
+    "../../packages/kiosk/src/**/*.tsx"
   ]
 }

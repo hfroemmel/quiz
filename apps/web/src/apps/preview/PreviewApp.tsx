@@ -12,11 +12,12 @@
  */
 import { useMemo, useState } from 'react'
 import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@hfroemmel/quiz-core'
-import { gameTiming, stagePalettes } from '@hfroemmel/quiz-core'
-import { StageScreen } from '../../presentation/StageScreen'
-import { themeForView, themeVariables } from '../../theme/sceneTheme'
-import { transitions } from '../../presentation/transitions/registry'
-import { prefersReducedMotion } from '../../presentation/animationPresets'
+import { gameTiming } from '@hfroemmel/quiz-core'
+import { stagePalettes } from '@hfroemmel/quiz-themes'
+import { StageScreen } from '@hfroemmel/quiz-react'
+import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
+import { transitions } from '@hfroemmel/quiz-react'
+import { prefersReducedMotion } from '@hfroemmel/quiz-react'
 import styles from './PreviewApp.module.css'
 
 /**

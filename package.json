@@ -23,7 +23,7 @@
     "content:validate:dev": "tsx packages/content/src/cli/validate.ts --placeholder-media",
     "content:build": "tsx packages/content/src/cli/build.ts",
     "content:build:dev": "tsx packages/content/src/cli/build.ts --placeholder-media",
-    "palette:build": "pnpm --filter @quiz/web run palette:build",
+    "palette:build": "pnpm --filter @hfroemmel/quiz-themes run palette:build",
     "server": "tsx packages/server/src/main.ts",
     "dev": "concurrently -n web,server -c cyan,magenta \"pnpm --filter @quiz/web dev\" \"tsx packages/server/src/main.ts\"",
     "dev:desktop": "pnpm --filter @quiz/desktop dev",

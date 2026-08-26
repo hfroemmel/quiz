@@ -1,13 +1,13 @@
 /*
  * ERZEUGT - NICHT VON HAND BEARBEITEN.
  *
- * Quelle aller Werte: packages/contracts/src/theme.ts
+ * Quelle aller Werte: packages/themes/src/palettes.ts
  * Neu schreiben:      pnpm palette:build
  *
  * Wer hier einen Farbwert aendert, aendert ihn nur an der Oberflaeche: Im Betrieb
  * kommen die Buehnenfarben aus dem Quizpaket, das aus derselben Quelle gebaut
  * wird. Der naechste Lauf ueberschreibt die Aenderung, und der Test
- * apps/web/test/palette.test.ts meldet sie vorher.
+ * packages/themes/test/palette.test.ts meldet sie vorher.
  */
 
 /* Rueckfallebene: Buehne der Erwachsenen, dunkel - plus alles, was keinem Theme gehoert. */

@@ -10,7 +10,7 @@
 import { useState } from 'react'
 import type { Command, CommandType, OperatorQuizViewModel } from '@hfroemmel/quiz-core'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
-import { optionLetter } from '../../presentation/stage/answerState'
+import { optionLetter } from '@hfroemmel/quiz-react'
 import styles from './OperatorControls.module.css'
 
 interface Props {

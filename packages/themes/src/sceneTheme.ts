@@ -1,17 +1,18 @@
 /**
- * Die Darstellungs-Themes der Buehne - der Keim von `@hfroemmel/quiz-themes`.
+ * Die Darstellungs-Themes der Buehne.
  *
  * Seit die View-Modelle keine Farben und Schriften mehr tragen (Darstellung ist
  * Sache des Gastgebers), entsteht das Theme HIER: aus der Gestaltungswelt, die
- * der Inhalt empfiehlt (`view.theme.skin`), und den Paletten aus
- * `@quiz/contracts`. Ein Gastgeber kann `<QuizScene>` auch ein eigenes Theme
+ * der Inhalt empfiehlt (`view.theme.skin`), und den Paletten dieses Pakets.
+ * Ein Gastgeber kann `<QuizScene>` auch ein eigenes Theme
  * geben; die Tabelle unten ist der Standard.
  *
- * HIER STEHT KEIN FARBWERT - alle Werte kommen aus `theme.ts` der Contracts.
+ * HIER STEHT KEIN FARBWERT - alle Werte kommen aus `palettes.ts`.
  * Die Schriftstapel sind Darstellung und stehen deshalb genau hier, nicht mehr
  * im Quizpaket.
  */
-import { resolveThemeColors, type DesignColors, type PublicQuizViewModel, type ThemeSkin } from '@hfroemmel/quiz-core'
+import type { DesignColors, PublicQuizViewModel, ThemeSkin } from '@hfroemmel/quiz-core'
+import { resolveThemeColors } from './palettes'
 
 export interface QuizSceneTheme {
   /** Gestaltungswelt der Buehne - traegt Klassen, Assets und Palette. */

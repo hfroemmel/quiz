@@ -11,11 +11,11 @@
  */
 import { useEffect } from 'react'
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
-import { useQuizConnection } from '../../client/useQuizConnection'
-import { StageScreen } from '../../presentation/StageScreen'
-import { themeForView, themeVariables } from '../../theme/sceneTheme'
+import { useQuizConnection } from '@hfroemmel/quiz-react'
+import { StageScreen } from '@hfroemmel/quiz-react'
+import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
 import styles from './StageApp.module.css'
-import { useAudioUnlock } from '../../presentation/useAudioUnlock'
+import { useAudioUnlock } from '@hfroemmel/quiz-react'
 import { toggleOwnFullscreen } from '../../client/desktopBridge'
 
 export function StageApp() {

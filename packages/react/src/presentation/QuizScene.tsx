@@ -19,7 +19,7 @@ import { deriveQuizEvents, type QuizEvent } from '@hfroemmel/quiz-core'
 import { StageScreen } from './StageScreen'
 import type { StageHeaderSlots } from './stage/StageHeader'
 import type { SceneAnswering } from './scenes/sceneProps'
-import { themeForView, themeVariables, type QuizSceneTheme } from '../theme/sceneTheme'
+import { themeForView, themeVariables, type QuizSceneTheme } from '@hfroemmel/quiz-themes'
 
 export interface QuizSceneProps<TView extends PublicQuizViewModel> {
   runtime: QuizRuntime<TView>
