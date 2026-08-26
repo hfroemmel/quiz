@@ -159,9 +159,6 @@ importers:
       '@quiz/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@quiz/domain':
-        specifier: workspace:*
-        version: link:../domain
       '@quiz/persistence':
         specifier: workspace:*
         version: link:../persistence

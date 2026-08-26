@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { mkdtempSync } from 'node:fs'
+import { existsSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -10,6 +10,15 @@ import { join } from 'node:path'
  * vorheriger Laeufe die Fragenauswahl nicht beeinflusst.
  */
 const databaseFile = join(mkdtempSync(join(tmpdir(), 'quiz-e2e-')), 'quiz.sqlite')
+
+/*
+ * Chromium der Umgebung: explizit per CHROMIUM_PATH, sonst der vorinstallierte
+ * Browser der Entwicklungsumgebung, sonst der Playwright-eigene. So laeuft
+ * dieselbe Konfiguration lokal und im CI-Container, ohne dass eine Umgebung
+ * den Pfad der anderen kennen muss.
+ */
+const containerChromium = '/opt/pw-browsers/chromium'
+const chromiumPath = process.env['CHROMIUM_PATH'] ?? (existsSync(containerChromium) ? containerChromium : undefined)
 const PORT = 4321
 const DEV_PORT = 5180
 
@@ -24,7 +33,7 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'retain-on-failure',
-    launchOptions: { executablePath: process.env['CHROMIUM_PATH'] ?? '/opt/pw-browsers/chromium' },
+    launchOptions: chromiumPath ? { executablePath: chromiumPath } : {},
   },
   projects: [
     {

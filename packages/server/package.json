@@ -10,7 +10,6 @@
   "dependencies": {
     "@quiz/content": "workspace:*",
     "@quiz/contracts": "workspace:*",
-    "@quiz/domain": "workspace:*",
     "@quiz/persistence": "workspace:*",
     "@quiz/runtime": "workspace:*",
     "ws": "^8.18.0"

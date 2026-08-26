@@ -1,0 +1,64 @@
+# Regressionsnetz der Migration (Phase 0 des Migrationsplans).
+#
+# Zwei Jobs, bewusst getrennt:
+#
+#   checks  Typecheck, Unit-Tests, Produktionsbuild - schnell, auf dem Runner.
+#   e2e     Playwright gegen echten Server und Vite-Dev-Server - im offiziellen
+#           Playwright-Container, damit die Screenshot-Baselines auf einem
+#           reproduzierbaren Renderer verglichen werden statt auf dem, den der
+#           Runner gerade mitbringt.
+#
+# Die Container-Version MUSS zur @playwright/test-Version im Lockfile passen,
+# sonst weichen Browser und Vergleichsbilder voneinander ab.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      # Produktionsbuild einschliesslich Palettengenerierung und Inhaltsvalidierung.
+      - run: pnpm build
+
+  e2e:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:e2e
+        env:
+          # Der Container bringt seine Browser selbst mit; kein CHROMIUM_PATH.
+          HOME: /root
+      - name: Testartefakte bei Fehlschlag sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            test/e2e/**/*-actual.png
+          retention-days: 7

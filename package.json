@@ -2,6 +2,7 @@
   "name": "live-quiz",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "description": "Live-Quiz-Regiesystem fuer Buehnenveranstaltungen (Operator, Buehnenscreen, Moderator)",
   "type": "module",
   "engines": {
