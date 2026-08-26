@@ -1,9 +1,0 @@
-# Temporaere Diagnose: schlaegt auch dieser leere Job sofort fehl, liegt es an
-# Abrechnung/Runnern des Kontos, nicht am CI-Workflow. Wird danach entfernt.
-name: Probe
-on: push
-jobs:
-  leer:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo ok
