@@ -1,11 +1,12 @@
 /**
  * Sound-Cues (Spezifikation 27.1).
  *
- * Die Klaenge kommen als Audiodateien aus `apps/web/src/assets/audio/`. Sie werden
- * ueber `import.meta.glob` eingesammelt: Was da ist, klingt; was fehlt, bleibt
- * still. Ein fehlendes Soundfile kann damit weder den Build noch den Spielablauf
- * blockieren - und sobald eine Datei nachgeliefert wird, ist sie ohne Codeaenderung
- * in Betrieb.
+ * Die Klaenge kommen als Audiodateien aus `apps/web/src/assets/audio/` und stehen
+ * in einer STATISCHEN Registry (`new URL(..., import.meta.url)`): Jeder Bundler
+ * emittiert die Dateien damit als eigene Artefakte - `import.meta.glob` waere
+ * eine Vite-Sonderlocke und stuende der Bibliothekswerdung im Weg. Dass Registry
+ * und Ordner uebereinstimmen, haelt `apps/web/test/audio.test.ts` fest; ein zur
+ * Laufzeit fehlendes Soundfile bleibt still und blockiert nichts.
  *
  * NUR DER AUDIO-MASTER SPIELT AB. Welcher Client das ist, entscheidet der Server
  * (`client-info`-Nachricht); entfernte Praesentationsclients starten stumm, damit
@@ -56,16 +57,24 @@ export const cueFilesForTest: Record<SoundCueId, string[]> = {
 }
 
 /**
- * Vorhandene Audiodateien. `eager` laedt nur die Adressen, nicht die Inhalte -
- * die Dateien landen als eigene Build-Artefakte im Paket.
+ * Vorhandene Audiodateien - eine je Zeile, bundlerneutral adressiert.
+ *
+ * `audio.test.ts` haelt diese Liste gegen den Ordner: Was hier steht, muss es
+ * geben, und was im Ordner liegt, muss hier stehen.
  */
-const files = import.meta.glob('../assets/audio/*.{mp3,wav,ogg,m4a}', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-}) as Record<string, string>
+const urlByName = new Map<string, string>([
+  ['applause.wav', new URL('../assets/audio/applause.wav', import.meta.url).href],
+  ['buzzer.mp3', new URL('../assets/audio/buzzer.mp3', import.meta.url).href],
+  ['correct.mp3', new URL('../assets/audio/correct.mp3', import.meta.url).href],
+  ['decide.mp3', new URL('../assets/audio/decide.mp3', import.meta.url).href],
+  ['opener.mp3', new URL('../assets/audio/opener.mp3', import.meta.url).href],
+  ['score.mp3', new URL('../assets/audio/score.mp3', import.meta.url).href],
+  ['swoosh.mp3', new URL('../assets/audio/swoosh.mp3', import.meta.url).href],
+  ['wrong.mp3', new URL('../assets/audio/wrong.mp3', import.meta.url).href],
+])
 
-const urlByName = new Map(Object.entries(files).map(([path, url]) => [path.split('/').pop() ?? path, url]))
+/** Nur fuer den Bestandstest: die Namen der registrierten Dateien. */
+export const registeredAudioFilesForTest = [...urlByName.keys()]
 
 /** Fehlende Dateien werden einmal gemeldet, nicht bei jedem Abspielen. */
 const reportedMissing = new Set<string>()

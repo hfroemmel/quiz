@@ -213,10 +213,10 @@
   pointer-events: none;
 }
 :global(.stage--kids) .chip::before {
-  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-a.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-a.svg');
 }
 :global(.stage--kids) .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-a.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-a.svg');
 }
 :global(.stage--kids) .text {
   font-family: var(--kids-hand);
@@ -229,38 +229,38 @@
  * nur in Rot vor und leiht sich im Ruhezustand die Nachbarzeichnung.
  */
 :global(.stage--kids) .answer:nth-child(2) .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-d.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-d.svg');
 }
 :global(.stage--kids) .answer:nth-child(2) .chip::before {
-  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-d.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-d.svg');
 }
 :global(.stage--kids) .answer:nth-child(3) .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-c.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-c.svg');
 }
 :global(.stage--kids) .answer:nth-child(3) .chip::before {
-  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-c.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-c.svg');
 }
 :global(.stage--kids) .answer:nth-child(4) .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-d.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-d.svg');
 }
 :global(.stage--kids) .answer:nth-child(4) .chip::before {
-  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-d.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-d.svg');
 }
 /* Zustaende stechen die Zeilenzeichnung aus. */
 :global(.stage--kids) .answer[data-state='selected'] .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-b.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-b.svg');
 }
 :global(.stage--kids) .answer[data-state='selected'] .chip::before {
-  border-image-source: url('/assets/kinderquiz/boxes/badge-letter-b.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-b.svg');
 }
 :global(.stage--kids) .answer[data-state='selected'] .text {
   color: var(--stage-inkOnStrong);
 }
 :global(.stage--kids) .answer[data-state='correct'] .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-correct.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-correct.svg');
 }
 :global(.stage--kids) .answer[data-state='incorrect'] .surface::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-incorrect.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/answer-box-incorrect.svg');
 }
 :global(.stage--kids) .answer[data-state='disabled'] {
   opacity: 0.55;

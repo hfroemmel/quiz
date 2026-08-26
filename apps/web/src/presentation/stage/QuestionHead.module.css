@@ -114,7 +114,7 @@
   border-style: solid;
   border-color: transparent;
   border-width: 3.7cqw;
-  border-image: url('/assets/kinderquiz/boxes/panel-question.svg') 71 fill / 3.7cqw / 0 stretch;
+  border-image: url('../../assets/kinderquiz/boxes/panel-question.svg') 71 fill / 3.7cqw / 0 stretch;
   pointer-events: none;
 }
 :global(.stage--kids.stage--scene-question) .category,

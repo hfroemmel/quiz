@@ -52,7 +52,7 @@
   border-style: solid;
   border-color: transparent;
   border-width: 1.35cqw;
-  border-image: url('/assets/kinderquiz/boxes/chip-question-counter.svg') 26 fill / 1.35cqw / 0 stretch;
+  border-image: url('../../assets/kinderquiz/boxes/chip-question-counter.svg') 26 fill / 1.35cqw / 0 stretch;
   pointer-events: none;
 }
 :global(.stage--kids) .label {

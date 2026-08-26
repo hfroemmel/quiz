@@ -141,7 +141,7 @@
 :global(.stage--kids) .grain {
   opacity: 0.4;
   mix-blend-mode: multiply;
-  background: url('/assets/kinderquiz/backgrounds/paper-grain.svg') repeat;
+  background: url('../../assets/kinderquiz/backgrounds/paper-grain.svg') repeat;
 }
 /*
  * Abschaltbar fuer schwache Buehnenrechner: Die Koernung ist Geschmack, kein

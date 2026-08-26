@@ -31,7 +31,7 @@ Lizenzlage noch zu klaeren, bevor die Anwendung ausgeliefert wird.
 
 Die illustrierte Kinderansicht bringt ihre Schriften im Assetpaket mit und laedt
 sie deshalb nicht von hier, sondern aus
-`apps/web/public/assets/kinderquiz/fonts/`:
+`apps/web/src/assets/kinderquiz/fonts/`:
 
 | Familie | Datei | Einsatz |
 |---|---|---|

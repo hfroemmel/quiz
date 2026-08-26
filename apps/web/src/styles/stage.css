@@ -112,7 +112,7 @@
   font-weight: 400;
   /* Illustrierte Szene, rechts zentriert, formatfuellend. */
   background:
-    url('/assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
+    url('../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
     linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
@@ -127,7 +127,7 @@
  */
 @font-face {
   font-family: 'Patrick Hand';
-  src: url('/assets/kinderquiz/fonts/PatrickHand-Regular.woff2') format('woff2');
+  src: url('../assets/kinderquiz/fonts/PatrickHand-Regular.woff2') format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: block;

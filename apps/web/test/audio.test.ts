@@ -1,10 +1,11 @@
 /**
  * Der Bestand an Klangdateien - festgeschrieben.
  *
- * `soundCues.ts` sammelt ein, was im Ordner liegt (`import.meta.glob`). Das ist
- * bequem und war einmal ein Problem: Zum Countdown gehoerten `tick.mp3` und ein
- * Weckerton `ring.mp3`. Beide sind mit dem Countdown entfallen, und beide
- * duerfen nicht durch eine unbedacht zurueckgelegte Datei wiederkommen.
+ * `soundCues.ts` fuehrt eine statische Registry. Frueher sammelte dort ein Glob
+ * ein, was im Ordner lag - bequem und einmal ein Problem: Zum Countdown
+ * gehoerten `tick.mp3` und ein Weckerton `ring.mp3`. Beide sind mit dem
+ * Countdown entfallen, und beide duerfen nicht durch eine unbedacht
+ * zurueckgelegte Datei wiederkommen.
  *
  * Deshalb steht der Bestand hier ALS LISTE und nicht als Regel: Wer eine Datei
  * hinzufuegt, muss sie hier nennen - und merkt dabei, ob sie ueberhaupt einen
@@ -14,7 +15,7 @@ import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { soundCueIds, cueFilesForTest } from '../src/presentation/soundCues'
+import { soundCueIds, cueFilesForTest, registeredAudioFilesForTest } from '../src/presentation/soundCues'
 
 const audioDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'assets', 'audio')
 
@@ -32,6 +33,8 @@ const erwartet = [
 describe('Klangdateien', () => {
   it('enthaelt genau den festgeschriebenen Bestand', () => {
     expect(readdirSync(audioDir).sort()).toEqual([...erwartet].sort())
+    // Und die statische Registry kennt exakt diese Dateien.
+    expect([...registeredAudioFilesForTest].sort()).toEqual([...erwartet].sort())
   })
 
   it('spielt keinen Countdown- oder Weckerton', () => {

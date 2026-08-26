@@ -174,11 +174,11 @@
   border-style: solid;
   border-color: transparent;
   border-width: 1.35cqw;
-  border-image: url('/assets/kinderquiz/boxes/chip-score-player1.svg') 26 fill / 1.35cqw / 0 stretch;
+  border-image: url('../../assets/kinderquiz/boxes/chip-score-player1.svg') 26 fill / 1.35cqw / 0 stretch;
   pointer-events: none;
 }
 :global(.stage--kids) .mirrored::before {
-  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player2.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player2.svg');
 }
 /*
  * Spieler am Zug: eigene Zeichnung mit farbigem Feld und gelber Ecke.
@@ -193,10 +193,10 @@
  * Regel darueber und wuerde sonst die Zeichnung von Spieler 1 tragen.
  */
 :global(.stage--kids) .score[data-active='true']::before {
-  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player1-selected.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player1-selected.svg');
 }
 :global(.stage--kids) .mirrored[data-active='true']::before {
-  border-image-source: url('/assets/kinderquiz/boxes/chip-score-player2-selected.svg');
+  border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player2-selected.svg');
 }
 :global(.stage--kids) .label {
   font-family: var(--kids-hand);

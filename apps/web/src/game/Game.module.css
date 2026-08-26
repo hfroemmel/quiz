@@ -163,7 +163,7 @@
   border-style: solid;
   border-color: transparent;
   border-width: 1.25cqw;
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-a.svg');
+  border-image-source: url('../assets/kinderquiz/boxes/answer-box-a.svg');
   border-image-slice: 24 fill;
   border-image-width: 1.25cqw;
   border-image-repeat: stretch;
@@ -268,14 +268,14 @@
   border-style: solid;
   border-color: transparent;
   border-width: 1.25cqw;
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-a.svg');
+  border-image-source: url('../assets/kinderquiz/boxes/answer-box-a.svg');
   border-image-slice: 24 fill;
   border-image-width: 1.25cqw;
   border-image-repeat: stretch;
   pointer-events: none;
 }
 :global(.stage--kids) .buzzer[data-armed='true']::before {
-  border-image-source: url('/assets/kinderquiz/boxes/answer-box-b.svg');
+  border-image-source: url('../assets/kinderquiz/boxes/answer-box-b.svg');
 }
 :global(.stage--kids) .buzzer[data-armed='true'] {
   color: var(--stage-inkOnStrong);

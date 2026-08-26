@@ -101,7 +101,7 @@
   border-style: solid;
   border-color: transparent;
   border-width: 3.75cqw;
-  border-image: url('/assets/kinderquiz/boxes/frame-portrait.svg') 72 fill / 3.75cqw / 0 stretch;
+  border-image: url('../../assets/kinderquiz/boxes/frame-portrait.svg') 72 fill / 3.75cqw / 0 stretch;
   pointer-events: none;
 }
 /*
@@ -150,5 +150,5 @@
   z-index: 2;
   width: 13cqw;
   aspect-ratio: 1365 / 768;
-  background: url('/assets/kinderquiz/characters/karlchen-mini.svg') no-repeat center / contain;
+  background: url('../../assets/kinderquiz/characters/karlchen-mini.svg') no-repeat center / contain;
 }
