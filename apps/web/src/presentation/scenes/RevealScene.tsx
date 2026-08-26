@@ -6,6 +6,11 @@
  * das Bild. Eine Zahl daneben gab es frueher, sie ist bewusst entfallen - der
  * Saal soll auf das Motiv schauen, nicht auf einen Zaehler.
  *
+ * NEBEN DEM BILD STEHT NICHTS. Frueher stand hier ein Regievermerk fuer die
+ * Vorschau (`pausiert`, `Buzzern weiterhin möglich`). Er kam und ging mit der
+ * Phase und schob dabei das Motiv zur Seite - ausgerechnet in dem Moment, in
+ * dem alle darauf schauen. Was er sagte, steht ohnehin in der Bedienleiste.
+ *
  * ABLEITUNG DER AUFLOESUNG: `reveal.progress` kommt aus `useRevealClock` und damit
  * aus dem Serverzustand. Hier darf niemals eine eigene CSS-Animation das
  * Aufdecken steuern - sonst liefe das Bild gegen die Uhr des Servers, und ein
@@ -24,28 +29,21 @@ import { QuestionHead } from '../stage/QuestionHead.tsx'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps.ts'
 
-export function RevealScene({ view, reveal, variant }: SceneProps) {
+export function RevealScene({ view, reveal }: SceneProps) {
   const question = view.question
   if (!question) return null
 
-  const paused = view.reveal?.status === 'paused'
-  const finished = reveal.progress >= 1
-  /*
-   * Regievermerk fuer den Operator: Er sagt, warum das Bild steht bzw. dass nach
-   * dem Aufdecken weiterhin gebuzzert werden darf. Der Saal braucht ihn nicht und
-   * bekommt ihn deshalb nicht.
-   */
-  const hint = variant !== 'preview' ? null : paused ? 'pausiert' : finished ? 'Buzzern weiterhin möglich' : null
-
   return (
-    <div className={`${styles.scene} ${styles.reveal}`} data-fit-box="" data-paused={String(paused)}>
+    <div
+      className={`${styles.scene} ${styles.reveal}`}
+      data-fit-box=""
+      data-paused={String(view.reveal?.status === 'paused')}
+    >
       <QuestionHead question={question} />
 
       <div className={styles.revealStage}>
         <Media src={question.imageUrl} reveal={{ grid: revealGrid, progress: reveal.progress }} variant="reveal" />
       </div>
-
-      {hint && <span className={styles.revealHint}>{hint}</span>}
     </div>
   )
 }

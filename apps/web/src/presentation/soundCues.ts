@@ -37,8 +37,12 @@ export type SoundCueId = (typeof soundCueIds)[number]
 /**
  * Zuordnung Cue -> Datei. Mehrere Dateien spielen gleichzeitig; bei "richtig"
  * liegen Jingle und Applaus uebereinander.
+ *
+ * Sie ist exportiert, damit ein Test sie gegen den Ordner haelt: Was hier steht,
+ * muss es geben, und was es gibt, darf kein Countdown- oder Weckerton sein
+ * (`apps/web/test/audio.test.ts`).
  */
-const cueFiles: Record<SoundCueId, string[]> = {
+export const cueFilesForTest: Record<SoundCueId, string[]> = {
   buzz: ['buzzer.mp3'],
   'question-appear': ['opener.mp3'],
   'options-appear': ['swoosh.mp3'],
@@ -93,7 +97,7 @@ function elementFor(name: string): HTMLAudioElement | null {
 export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioMaster: boolean }): void {
   if (!options.enabled || !options.isAudioMaster) return
 
-  for (const name of cueFiles[cueId]) {
+  for (const name of cueFilesForTest[cueId]) {
     const element = elementFor(name)
     if (!element) continue
     try {
@@ -151,7 +155,7 @@ export function releaseAudio(): void {
  * dort nicht.
  */
 export function unlockAudio(): void {
-  for (const name of new Set(Object.values(cueFiles).flat())) {
+  for (const name of new Set(Object.values(cueFilesForTest).flat())) {
     const element = elementFor(name)
     if (!element) continue
     try {

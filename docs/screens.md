@@ -325,9 +325,11 @@ festgelegt hat, aber nicht, ob es stimmt.
   Szene** und friert das Bild ein. Ein Sprung ins Fragelayout wuerde das Motiv vom
   Schirm nehmen, obwohl genau darueber gerade gesprochen wird
   (`sceneForPhase` in `packages/domain/src/projection.ts`).
-- Die Worte `pausiert` bzw. `Buzzern weiterhin möglich` unter dem Bild sind
-  **Regiehinweise**: Sie stehen nur in der Vorschau des Operators, nie auf der
-  Buehne.
+- **Neben dem Bild steht nichts.** Die Regiehinweise `pausiert` und `Buzzern
+  weiterhin möglich` gab es frueher in der Operatorvorschau; sie kamen und
+  gingen mit der Phase und schoben dabei das Motiv zur Seite - ausgerechnet in
+  dem Moment, in dem alle darauf schauen. Was sie sagten, steht ohnehin in der
+  Bedienleiste.
 
 ## Rueckmeldung (`attempt-feedback`)
 

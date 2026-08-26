@@ -124,13 +124,18 @@ export function isChoiceQuestion(question: Pick<Question, 'options'>): boolean {
 /**
  * Kann diese Frage ohne Operator beantwortet werden?
  *
- * Nur Fragen mit Antwortoptionen, die gegen `correctOptionId` verglichen werden.
- * Eine muendliche Antwort braucht jemanden, der sie bewertet - im Kiosk gibt es
+ * Nur echte Auswahlfragen, die gegen `correctOptionId` verglichen werden. Eine
+ * muendliche Antwort braucht jemanden, der sie bewertet - im Kiosk gibt es
  * niemanden. Diese Regel steht hier, weil sowohl die Inhaltsvalidierung als auch
  * die Zustandsmaschine sie brauchen und es sie deshalb genau einmal geben darf.
+ *
+ * DIE ZAHL DER OPTIONEN ENTSCHEIDET `isChoiceQuestion` und niemand sonst. Eine
+ * eigene Untergrenze hier waere eine zweite Regel: Sie liess frueher eine Frage
+ * mit einer einzigen Option durch, und am Geraet stand dann eine Zeile da, die
+ * zugleich die Loesung war - nicht spielbar, aber gezogen.
  */
 export function isSelfServiceAnswerable(question: Question): boolean {
-  return question.evaluationMode === 'option-comparison' && (question.options?.length ?? 0) > 0
+  return question.evaluationMode === 'option-comparison' && isChoiceQuestion(question)
 }
 
 export const mediaAssetSchema = z.object({

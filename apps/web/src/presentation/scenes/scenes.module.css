@@ -90,15 +90,6 @@
   flex: 1;
   min-height: 0;
 }
-/*
- * Regiehinweis unter dem Bild - nur in der Operatorvorschau sichtbar. Er steht
- * ausserhalb der Bildflaeche, damit sein Erscheinen das Motiv nicht verschiebt.
- */
-.revealHint {
-  white-space: nowrap;
-  color: var(--color-textMuted);
-  font-size: 1.2cqw;
-}
 
 /* Video */
 .video {
@@ -282,8 +273,7 @@
 :global(.stage--kids) .startTitle,
 :global(.stage--kids) .pausePlaceholder,
 :global(.stage--kids) .videoError,
-:global(.stage--kids) .videoMissing,
-:global(.stage--kids) .revealHint {
+:global(.stage--kids) .videoMissing {
   font-family: var(--kids-hand);
   font-weight: 400;
 }

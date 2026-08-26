@@ -30,9 +30,9 @@ export interface SceneProps {
    *   `preview`  die Vorschau im Operatorfenster
    *   `touch`    das Geraet, an dem selbst gespielt wird
    *
-   * Der Saal sieht ausschliesslich Spielinhalte. Regiehinweise - etwa das Wort
-   * `pausiert` unter dem Bild - gehoeren in die Vorschau und nur dorthin. Das
-   * Touchgeraet ist in dieser Hinsicht wie die Buehne: Wer davorsitzt, spielt.
+   * Der Saal sieht ausschliesslich Spielinhalte; die Vorschau darf zusaetzlich
+   * Regiehinweise tragen. Das Touchgeraet ist in dieser Hinsicht wie die
+   * Buehne: Wer davorsitzt, spielt.
    */
   variant: 'stage' | 'preview' | 'touch'
   answering?: SceneAnswering
