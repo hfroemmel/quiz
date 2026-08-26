@@ -14,17 +14,17 @@
  *   3. gespeicherte Hotfixes als Overlay anwenden
  *   4. Veranstaltungstag ermitteln und ein unvollstaendiges Spiel vorbereiten
  */
-import { contentPackageDir, runtimeDir } from '@quiz/content'
 import { QuizStore } from '@quiz/persistence'
-import { join } from 'node:path'
 import { ContentService } from './contentService'
 import { QuizService } from './quizService'
 
 export interface QuizRuntimeOptions {
   /** Verzeichnis des gebauten Quizpakets. */
-  packageDir?: string
+  packageDir: string
   /** SQLite-Datei. Sie wird angelegt, wenn sie fehlt. */
-  databaseFile?: string
+  databaseFile: string
+  /** Zusaetzliche Wurzeln fuer die Medienaufloesung (Entwicklung). */
+  mediaFallbackDirs?: string[]
   /** Session-Code fuer Clients im LAN. Ohne Netzbetrieb nicht noetig. */
   sessionCode?: string
   /** Injizierbar fuer Tests. */
@@ -40,12 +40,17 @@ export interface QuizRuntime {
   close(): void
 }
 
-export function createQuizRuntime(options: QuizRuntimeOptions = {}): QuizRuntime {
-  const packageDir = options.packageDir ?? process.env['QUIZ_PACKAGE_DIR'] ?? contentPackageDir
-  const databaseFile = options.databaseFile ?? process.env['QUIZ_DB'] ?? join(runtimeDir, 'quiz.sqlite')
+/**
+ * Pfade kommen VOLLSTAENDIG vom Aufrufer. Frueher rieten Paket und Server die
+ * Monorepo-Wurzel aus ihrer eigenen Dateilage - als installierte Pakete zeigte
+ * das ins Leere. Umgebungsvariablen wertet der jeweilige Einstiegspunkt aus,
+ * nicht diese Bibliothek.
+ */
+export function createQuizRuntime(options: QuizRuntimeOptions): QuizRuntime {
+  const { packageDir, databaseFile } = options
 
   const store = new QuizStore(databaseFile)
-  const content = new ContentService(packageDir, [])
+  const content = new ContentService(packageDir, [], options.mediaFallbackDirs ?? [])
   // Bereits gespeicherte Live-Hotfixes sofort als Overlay anwenden.
   content.applyPatchOverlay(store.loadPatches())
 

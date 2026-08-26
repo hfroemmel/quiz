@@ -8,7 +8,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { repositoryRoot } from '../paths'
+import { contentDir } from './dirs'
 import { formatMigrationReport, migrateLegacy } from '../legacy/migrate'
 import { writeJson } from '../package'
 
@@ -30,7 +30,7 @@ const result = migrateLegacy({
   configSource: configPath && existsSync(configPath) ? readFileSync(configPath, 'utf8') : undefined,
 })
 
-const outDir = join(repositoryRoot, 'content', 'migrated')
+const outDir = contentDir(process.argv.slice(2), 'out', 'migrated')
 mkdirSync(outDir, { recursive: true })
 writeJson(join(outDir, 'questions.json'), result.questions)
 writeJson(join(outDir, 'assets.json'), result.assets)

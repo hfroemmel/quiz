@@ -16,10 +16,10 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { repositoryRoot } from '../paths'
+import { contentDir } from './dirs'
 
 const sheetCsvUrl = process.env['QUIZ_SHEET_CSV_URL']
-const outDir = join(repositoryRoot, 'content', 'incoming')
+const outDir = contentDir(process.argv.slice(2), 'out', 'incoming')
 
 if (!sheetCsvUrl) {
   console.log('Kein QUIZ_SHEET_CSV_URL gesetzt - es wird nichts abgerufen.')

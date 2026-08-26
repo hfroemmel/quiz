@@ -16,7 +16,16 @@
  * denselben WebSocket-Vertrag wie bei jedem anderen Client.
  */
 import { app, BrowserWindow } from 'electron'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { startServer, type RunningServer } from '@quiz/server'
+
+/*
+ * Diese Huelle lebt (noch) im Monorepo und verankert ihre Pfade an der eigenen
+ * Lage: dist/ -> App-Verzeichnis -> apps/ -> Wurzel. Der Server selbst kennt
+ * keine Repository-Struktur mehr - er bekommt alles explizit.
+ */
+const repoWurzel = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 
 /** Quizmodus des Geraets. Er gehoert zur Aufstellung, nicht auf den Spielbildschirm. */
 const quizMode = process.env['QUIZ_KIOSK_MODE'] ?? 'adults'
@@ -68,7 +77,14 @@ app.whenReady().then(async () => {
    * Spielerrolle wird ausschliesslich ueber Loopback angenommen. Ein Kioskgeraet
    * oeffnet damit keinen Zugang zum laufenden Spiel ins Netz.
    */
-  running = await startServer({ host: '127.0.0.1', port: 0 })
+  running = await startServer({
+    host: '127.0.0.1',
+    port: 0,
+    packageDir: join(repoWurzel, 'content', 'dist'),
+    databaseFile: join(repoWurzel, 'runtime', 'quiz.sqlite'),
+    webDistDir: join(repoWurzel, 'apps', 'web', 'dist'),
+    mediaFallbackDirs: [join(repoWurzel, 'content', 'source')],
+  })
   window = createWindow()
 })
 

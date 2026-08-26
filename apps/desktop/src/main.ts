@@ -24,6 +24,13 @@ import { startServer, type RunningServer } from '@quiz/server'
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 const preloadScript = join(moduleDir, 'preload.cjs')
 
+/*
+ * Diese Huelle lebt (noch) im Monorepo und verankert ihre Pfade an der eigenen
+ * Lage: dist/ -> App-Verzeichnis -> apps/ -> Wurzel. Der Server selbst kennt
+ * keine Repository-Struktur mehr - er bekommt alles explizit.
+ */
+const repoWurzel = join(moduleDir, '..', '..', '..')
+
 let running: RunningServer | null = null
 let operatorWindow: BrowserWindow | null = null
 let stageWindow: BrowserWindow | null = null
@@ -188,7 +195,13 @@ async function bootstrap(): Promise<void> {
   // Der Server laeuft im Hauptprozess: ein Prozess weniger, der im Live-Betrieb
   // ausfallen kann. Er lauscht auf allen Schnittstellen, damit Moderator und
   // weitere Praesentationsclients optional zugreifen koennen.
-  running = await startServer({ host: '0.0.0.0' })
+  running = await startServer({
+    host: '0.0.0.0',
+    packageDir: join(repoWurzel, 'content', 'dist'),
+    databaseFile: join(repoWurzel, 'runtime', 'quiz.sqlite'),
+    webDistDir: join(repoWurzel, 'apps', 'web', 'dist'),
+    mediaFallbackDirs: [join(repoWurzel, 'content', 'source')],
+  })
 
   operatorWindow = createOperatorWindow()
   stageWindow = createStageWindow()

@@ -8,8 +8,6 @@
  *   5. Clients ausliefern und Verbindungen annehmen
  */
 import { createServer, type Server } from 'node:http'
-import { join } from 'node:path'
-import { repositoryRoot } from '@quiz/content'
 import type { QuizStore } from '@quiz/persistence'
 import { createQuizRuntime, type QuizService } from '@quiz/runtime'
 import { createRequestHandler } from './httpServer'
@@ -20,9 +18,14 @@ export interface StartOptions {
   port?: number
   /** `0.0.0.0` macht Moderator und weitere Praesentationsclients im LAN erreichbar. */
   host?: string
-  packageDir?: string
-  databaseFile?: string
-  webDistDir?: string
+  /** Verzeichnis des gebauten Quizpakets. */
+  packageDir: string
+  /** SQLite-Datei. Sie wird angelegt, wenn sie fehlt. */
+  databaseFile: string
+  /** Gebauter Web-Client, den der Server ausliefert. */
+  webDistDir: string
+  /** Zusaetzliche Wurzeln fuer die Medienaufloesung (Entwicklung). */
+  mediaFallbackDirs?: string[]
   sessionCode?: string
 }
 
@@ -36,15 +39,20 @@ export interface RunningServer {
   close(): Promise<void>
 }
 
-export async function startServer(options: StartOptions = {}): Promise<RunningServer> {
+/**
+ * Alle Pfade kommen vom Aufrufer - dieses Paket kennt keine Repository-
+ * Struktur. Umgebungsvariablen wertet der jeweilige Einstiegspunkt aus.
+ */
+export async function startServer(options: StartOptions): Promise<RunningServer> {
   const port = options.port ?? Number(process.env['QUIZ_PORT'] ?? 4319)
   const host = options.host ?? process.env['QUIZ_HOST'] ?? '0.0.0.0'
-  const webDistDir = options.webDistDir ?? join(repositoryRoot, 'apps', 'web', 'dist')
+  const { webDistDir } = options
   const sessionCode = options.sessionCode ?? createSessionCode()
 
   const runtime = createQuizRuntime({
-    ...(options.packageDir === undefined ? {} : { packageDir: options.packageDir }),
-    ...(options.databaseFile === undefined ? {} : { databaseFile: options.databaseFile }),
+    packageDir: options.packageDir,
+    databaseFile: options.databaseFile,
+    ...(options.mediaFallbackDirs === undefined ? {} : { mediaFallbackDirs: options.mediaFallbackDirs }),
     sessionCode,
   })
   const { service, store, content } = runtime

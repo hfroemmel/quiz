@@ -12,7 +12,7 @@
  */
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { applyPatches, contentSourceDir, loadQuizPackage } from '@quiz/content'
+import { applyPatches, loadQuizPackage } from '@quiz/content'
 import type { Question, QuestionPatch, QuizPackage, RuntimeQuestion } from '@quiz/contracts'
 import {
   poolForMode,
@@ -33,11 +33,19 @@ export class ContentService {
   private effectiveQuestions: Question[]
   private rejectedPatches: { questionId: string; reason: string }[] = []
 
-  constructor(packageDir: string, patches: QuestionPatch[] = []) {
+  /**
+   * `extraMediaRoots`: zusaetzliche Wurzeln fuer die Medienaufloesung, siehe
+   * `mediaRoots`. Sie kommen vom Aufrufer - dieses Paket kennt keine
+   * Repository-Struktur mehr.
+   */
+  constructor(packageDir: string, patches: QuestionPatch[] = [], extraMediaRoots: string[] = []) {
     this.quizPackage = loadQuizPackage(packageDir)
     this.effectiveQuestions = this.quizPackage.questions
+    this.extraMediaRoots = extraMediaRoots
     this.applyPatchOverlay(patches)
   }
+
+  private readonly extraMediaRoots: string[]
 
   get contentVersion(): string {
     return this.quizPackage.manifest.contentVersion
@@ -86,15 +94,15 @@ export class ContentService {
    * Erste Wahl ist das gebaute Paket; es ist die verbindliche, versionierte Quelle
    * und das Einzige, was in einer ausgelieferten Anwendung existiert.
    *
-   * Zweite Wahl ist das redaktionelle Quellverzeichnis. Der Grund ist praktisch:
-   * Die Bilddateien liegen im Repository unter `content/source/assets`, ihre
-   * Kopien im Paket entstehen erst beim Build. Ohne diesen Rueckfall zeigte eine
-   * frisch geklonte Arbeitskopie ueberall Ersatzbilder, obwohl die Bilder
-   * danebenliegen. In einer ausgelieferten Anwendung gibt es das Verzeichnis
-   * nicht, dort bleibt es beim Paket.
+   * Danach kommen die injizierten Rueckfallwurzeln. Der Anwendungsfall ist die
+   * Entwicklung: Die Bilddateien liegen im Repository unter
+   * `content/source/assets`, ihre Kopien im Paket entstehen erst beim Build.
+   * Ohne den Rueckfall zeigte eine frisch geklonte Arbeitskopie ueberall
+   * Ersatzbilder, obwohl die Bilder danebenliegen. Eine ausgelieferte
+   * Anwendung injiziert nichts, dort bleibt es beim Paket.
    */
   get mediaRoots(): string[] {
-    return [this.quizPackage.rootDir, contentSourceDir].filter(
+    return [this.quizPackage.rootDir, ...this.extraMediaRoots].filter(
       (dir, index) => index === 0 || existsSync(join(dir, 'assets')),
     )
   }

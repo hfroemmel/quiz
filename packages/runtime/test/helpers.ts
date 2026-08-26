@@ -6,13 +6,18 @@
  */
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { contentPackageDir } from '@quiz/content'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createSeededRng } from '@quiz/domain'
 import type { ActorRole, Command } from '@quiz/contracts'
 import { QuizStore } from '@quiz/persistence'
 import { ContentService } from '../src/contentService'
 import { QuizService } from '../src/quizService'
+
+/** Das gebaute Quizpaket des Repos - Tests duerfen die Repo-Struktur kennen. */
+function contentPackageDir(): string {
+  return join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'content', 'dist')
+}
 
 export interface TestRig {
   service: QuizService
@@ -35,7 +40,7 @@ export function createRig(options: { databaseFile?: string; seed?: number; start
   const clock = { nowMs: options.startNow ?? Date.UTC(2026, 7, 18, 19, 0, 0) }
 
   const store = new QuizStore(databaseFile)
-  const content = new ContentService(contentPackageDir, store.loadPatches())
+  const content = new ContentService(contentPackageDir(), store.loadPatches())
   const service = new QuizService({
     store,
     content,

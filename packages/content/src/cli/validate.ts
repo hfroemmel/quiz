@@ -6,7 +6,7 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { contentReportDir, contentSourceDir } from '../paths'
+import { contentDir } from './dirs'
 import { readSource, validateSource } from '../package'
 import { formatValidationReport } from '../report'
 
@@ -19,13 +19,14 @@ const args = process.argv.slice(2)
  * Aufruf ohne Flag verbindlich.
  */
 const placeholderMedia = args.includes('--placeholder-media')
-const sourceDir = args.find((argument) => !argument.startsWith('--')) ?? contentSourceDir
+const sourceDir = contentDir(args, 'source', 'source')
+const reportDir = contentDir(args, 'report', 'reports')
 const source = readSource(sourceDir)
 const result = validateSource(source, { missingMediaSeverity: placeholderMedia ? 'warning' : 'error' })
 
 const report = formatValidationReport(result, { title: 'Validierungsbericht Quizinhalte' })
-mkdirSync(contentReportDir, { recursive: true })
-const reportPath = join(contentReportDir, 'validation.md')
+mkdirSync(reportDir, { recursive: true })
+const reportPath = join(reportDir, 'validation.md')
 writeFileSync(reportPath, report, 'utf8')
 
 console.log(report)

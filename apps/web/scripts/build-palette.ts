@@ -9,8 +9,8 @@
  */
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { paletteStyleSheet } from '../apps/web/src/theme/palette'
+import { paletteStyleSheet } from '../src/theme/palette'
 
-const target = fileURLToPath(new URL('../apps/web/src/styles/palette.css', import.meta.url))
+const target = fileURLToPath(new URL('../src/styles/palette.css', import.meta.url))
 writeFileSync(target, paletteStyleSheet(), 'utf8')
 console.log(`palette.css geschrieben: ${target}`)

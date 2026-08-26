@@ -4,9 +4,22 @@
  * Der Server laeuft vollstaendig offline. Internet oder WLAN sind nicht erforderlich;
  * LAN-Clients sind eine optionale Ergaenzung.
  */
+import { join } from 'node:path'
 import { startServer } from './startServer'
 
-const running = await startServer()
+/*
+ * Der Entwicklungs-Einstieg wird aus der Repository-Wurzel aufgerufen
+ * (`pnpm server`, `pnpm dev`, Playwright). Pfade folgen deshalb dem
+ * Arbeitsverzeichnis; Umgebungsvariablen gewinnen, damit Testlaeufe eine
+ * frische Datenbank unterschieben koennen.
+ */
+const wurzel = process.cwd()
+const running = await startServer({
+  packageDir: process.env['QUIZ_PACKAGE_DIR'] ?? join(wurzel, 'content', 'dist'),
+  databaseFile: process.env['QUIZ_DB'] ?? join(wurzel, 'runtime', 'quiz.sqlite'),
+  webDistDir: process.env['QUIZ_WEB_DIST'] ?? join(wurzel, 'apps', 'web', 'dist'),
+  mediaFallbackDirs: [join(wurzel, 'content', 'source')],
+})
 
 console.log('')
 console.log('  Live-Quiz - lokaler Server läuft')

@@ -13,7 +13,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { mediaAssetSchema } from '@quiz/contracts'
-import { contentSourceDir } from '../paths'
+import { contentDir } from './dirs'
 import { readJson, resolveAssetPath } from '../package'
 
 /** Stabiler Hash einer Zeichenkette - ersetzt Zufall, damit Builds reproduzierbar bleiben. */
@@ -88,6 +88,7 @@ const brandingLabels: Record<string, string> = {
 }
 
 function main(): void {
+  const contentSourceDir = contentDir(process.argv.slice(2), 'source', 'source')
   const assets = mediaAssetSchema.array().parse(readJson(join(contentSourceDir, 'assets.json')))
   let written = 0
   let kept = 0

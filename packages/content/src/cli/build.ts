@@ -7,14 +7,19 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { contentPackageDir, contentReportDir, contentSourceDir } from '../paths'
+import { contentDir } from './dirs'
 import { MANIFEST_FILE, buildPackage, readJson } from '../package'
 import { formatValidationReport } from '../report'
+
+const args = process.argv.slice(2)
+const sourceDir = contentDir(args, 'source', 'source')
+const outDir = contentDir(args, 'out', 'dist')
+const reportDir = contentDir(args, 'report', 'reports')
 
 function nextContentVersion(): string {
   const explicit = process.env['CONTENT_VERSION']
   if (explicit) return explicit
-  const manifestPath = join(contentPackageDir, MANIFEST_FILE)
+  const manifestPath = join(outDir, MANIFEST_FILE)
   if (!existsSync(manifestPath)) return '1.0.0'
   try {
     const previous = readJson(manifestPath) as { contentVersion?: string }
@@ -26,11 +31,11 @@ function nextContentVersion(): string {
 }
 
 let previousStats: { contentVersion: string; totalQuestions: number } | undefined
-const previousManifestPath = join(contentPackageDir, MANIFEST_FILE)
+const previousManifestPath = join(outDir, MANIFEST_FILE)
 if (existsSync(previousManifestPath)) {
   try {
     const previous = readJson(previousManifestPath) as { contentVersion: string }
-    const questions = readJson(join(contentPackageDir, 'questions.json')) as unknown[]
+    const questions = readJson(join(outDir, 'questions.json')) as unknown[]
     previousStats = { contentVersion: previous.contentVersion, totalQuestions: questions.length }
   } catch {
     previousStats = undefined
@@ -38,12 +43,12 @@ if (existsSync(previousManifestPath)) {
 }
 
 /** Siehe `pnpm content:validate --placeholder-media`. */
-const placeholderMedia = process.argv.slice(2).includes('--placeholder-media')
+const placeholderMedia = args.includes('--placeholder-media')
 
 const contentVersion = nextContentVersion()
 const result = buildPackage({
-  sourceDir: contentSourceDir,
-  outDir: contentPackageDir,
+  sourceDir,
+  outDir,
   contentVersion,
   sourceRevision: process.env['SOURCE_REVISION'],
   createdAt: new Date().toISOString(),
@@ -55,8 +60,8 @@ const report = formatValidationReport(result.validation, {
   contentVersion,
   previous: previousStats,
 })
-mkdirSync(contentReportDir, { recursive: true })
-writeFileSync(join(contentReportDir, 'build.md'), report, 'utf8')
+mkdirSync(reportDir, { recursive: true })
+writeFileSync(join(reportDir, 'build.md'), report, 'utf8')
 console.log(report)
 
 if (!result.validation.ok) {
