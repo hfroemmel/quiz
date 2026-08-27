@@ -32,6 +32,9 @@ einen Changeset (`pnpm changeset`); SemVer gilt ab 1.0 streng
    scheitert aber beim Anlegen des PR. Wer ohne PR arbeiten will, fuehrt
    `pnpm changeset version` lokal aus und pusht den Versionsstand - der
    naechste Release-Lauf veroeffentlicht dann direkt.
+
+   Der PR gehoert `github-actions[bot]`; sein CI-Lauf wartet deshalb auf ein
+   einmaliges *Approve and run*.
 2. Diesen PR mergen -> derselbe Workflow veroeffentlicht die Pakete mit dem
    automatischen `GITHUB_TOKEN` (`permissions: packages: write`) und legt
    Git-Tags an.

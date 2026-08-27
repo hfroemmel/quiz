@@ -14,7 +14,7 @@ ist und was als Naechstes ansteht.
 | 3 | Kiosk-Selbstbedienung nutzt die Operator-Befehlssequenz (Buzz, Einloggen, Abgeben) |
 | 4 | `QuizRuntime`-Vertrag, `QuizScene`, Ereignisableitung, Theme als Host-Sache |
 | 5 | Fuenf Pakete `@hfroemmel/quiz-{core,content,themes,react,kiosk}`, Schema v2 |
-| 6 | Changesets (fixed), `release.yml`, Vite-lib-Builds, Veroeffentlichungsdoku |
+| 6 | Changesets (fixed), `release.yml`, Vite-lib-Builds, Veroeffentlichung 0.1.0 |
 | 7 | Inhalte nach `quiz-content-data`, Testbestand hier, Inhaltsprofile, `pull` |
 
 Nachweis je Phase: `pnpm typecheck`, `pnpm test` (184), `pnpm packages:verify`
@@ -31,18 +31,26 @@ Playwright-Tests im Container, gut neun Minuten) beide erfolgreich.
 Eine Anpassung war dafuer noetig: Seit Phase 7 ist `content/dist` nicht mehr
 versioniert, also bauen beide Jobs das Quizpaket vor dem Testlauf.
 
+## Version 0.1.0 ist veroeffentlicht
+
+Alle fuenf Pakete liegen als 0.1.0 auf GitHub Packages. Der Weg war der
+dokumentierte: Der Release-Workflow legte den PR "Version Packages" an, sein
+Merge (`0210fb1`) veroeffentlichte.
+
+Zwei Beobachtungen fuer den naechsten Release:
+
+- Der Versions-PR kommt von `github-actions[bot]`; sein CI-Lauf bleibt auf
+  `action_required` stehen und braucht einmal *Approve and run*. Auf den
+  Inhalt hat das keinen Einfluss - der Versions-PR aendert nur
+  `package.json`-Versionen und Changelogs, und `main` prueft ohnehin erneut.
+- Die Changesets-Action legt Versions-Tags an, kann sie aus dieser
+  Arbeitsumgebung aber nicht pushen (GitHub beantwortet `refs/tags/*` mit 403).
+  Die Herkunft steht in den Changelogs und am Merge-Commit; wer die Tags will,
+  setzt sie aus einer eigenen Arbeitskopie.
+
 ## Blockiert
 
-1. **Actions duerfen keine Pull Requests anlegen.** Der Release-Workflow laeuft
-   bis zum letzten Schritt und scheitert dann an
-   `GitHub Actions is not permitted to create or approve pull requests`. Der
-   Branch `changeset-release/main` wird bereits gepusht; es fehlt nur der
-   Versions-PR. Zwei Wege:
-   - in *Settings -> Actions -> General -> Workflow permissions* die Option
-     „Allow GitHub Actions to create and approve pull requests" aktivieren, oder
-   - `pnpm changeset version` lokal ausfuehren und den Versionsstand pushen -
-     dann veroeffentlicht der naechste Release-Lauf ohne Umweg ueber einen PR.
-2. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
+1. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
    (`lfs.github.com`) ist aus der Migrationssitzung heraus gesperrt. Der
    Textbestand ist dort vollstaendig; das README des Repositories nennt die
    Befehle fuer den einmaligen Upload aus einer Arbeitskopie.
@@ -57,5 +65,4 @@ versioniert, also bauen beide Jobs das Quizpaket vor dem Testlauf.
 | 11 | `quiz` | Rueckbau: `apps/*`, `packages/persistence` und `packages/server` verlassen dieses Repository |
 
 Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.1` aus
-GitHub Packages. Sie lassen sich deshalb erst bauen und testen, wenn die Pakete
-veroeffentlicht sind (siehe Blocker 1).
+GitHub Packages. Diese Voraussetzung steht jetzt.
