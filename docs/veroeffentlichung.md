@@ -53,6 +53,13 @@ In jedem konsumierenden Repository (`quiz-live`, `quiz-standalone`,
 @hfroemmel:registry=https://npm.pkg.github.com
 ```
 
+Ein privates Paket gehoert zunaechst NUR dem Repository, aus dem es
+veroeffentlicht wurde. Jedes konsumierende Repository muss deshalb einmalig
+freigeschaltet werden: bei jedem der fuenf Pakete unter *Package settings ->
+Manage Actions access -> Add repository* das Repository mit `Read` eintragen.
+Fehlt der Eintrag, antwortet die Registry mit `403`, obwohl das Token gueltig
+ist und der Job `packages: read` besitzt.
+
 CI braucht `permissions: packages: read` und uebergibt das Token:
 
 ```yaml

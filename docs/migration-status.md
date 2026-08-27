@@ -16,6 +16,7 @@ ist und was als Naechstes ansteht.
 | 5 | Fuenf Pakete `@hfroemmel/quiz-{core,content,themes,react,kiosk}`, Schema v2 |
 | 6 | Changesets (fixed), `release.yml`, Vite-lib-Builds, Veroeffentlichung 0.1.0 |
 | 7 | Inhalte nach `quiz-content-data`, Testbestand hier, Inhaltsprofile, `pull` |
+| 8 | Buehnenbetrieb nach `quiz-live`: Server, Persistenz, Rollen-Clients, Electron-Huelle |
 
 Nachweis je Phase: `pnpm typecheck`, `pnpm test` (184), `pnpm packages:verify`
 (publint + attw fuer sieben Pakete), `pnpm build`, `npx playwright test` (80,
@@ -50,19 +51,26 @@ Zwei Beobachtungen fuer den naechsten Release:
 
 ## Blockiert
 
-1. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
+1. **Die Pakete sind fuer `quiz-live` noch nicht freigegeben.** Der CI-Lauf dort
+   scheitert an der Registry mit `403`, obwohl das Token gueltig ist und der Job
+   `packages: read` besitzt: Ein privates Paket gehoert zunaechst nur dem
+   Repository, aus dem es veroeffentlicht wurde. Abhilfe: bei jedem der fuenf
+   Pakete unter *Package settings -> Manage Actions access -> Add repository*
+   das konsumierende Repository mit `Read` eintragen. Dasselbe steht spaeter
+   fuer `quiz-standalone` und `app-collection` an.
+2. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
    (`lfs.github.com`) ist aus der Migrationssitzung heraus gesperrt. Der
    Textbestand ist dort vollstaendig; das README des Repositories nennt die
    Befehle fuer den einmaligen Upload aus einer Arbeitskopie.
 
-## Als Naechstes (Phasen 8 bis 11)
+## Als Naechstes (Phasen 9 bis 11)
 
 | Phase | Repository | Inhalt |
 |---|---|---|
-| 8 | `quiz-live` | Server, Persistenz, Operator/Moderator/Buehne, Electron-Huelle; Inhalte per `content.lock.json` |
 | 9 | `quiz-standalone` | Kiosk als Electron-App mit `LocalQuizRuntime`, Inhalte gebuendelt, vollstaendig offline |
 | 10 | `app-collection` | Spielemenue mit eingebettetem Quiz, sauberes Aufraeumen beim Verlassen |
 | 11 | `quiz` | Rueckbau: `apps/*`, `packages/persistence` und `packages/server` verlassen dieses Repository |
 
 Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.1` aus
-GitHub Packages. Diese Voraussetzung steht jetzt.
+GitHub Packages. Die Pakete sind veroeffentlicht; was jedem neuen Repository
+noch fehlt, ist die Lesefreigabe (siehe Blocker 1).
