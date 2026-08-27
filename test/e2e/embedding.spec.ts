@@ -2,73 +2,33 @@
  * Einbettungsvertrag im Browser.
  *
  * Geprueft wird an der Beispielsammlung unter `/shell`, also an einer fremden
- * Anwendung, die das Quiz einbindet - nicht am Quiz selbst. Die entscheidende
- * Frage lautet: Bleibt nach dem Verlassen etwas zurueck?
+ * Anwendung, die das Quiz einbindet - nicht am Quiz selbst.
  *
- * Der Nachweis kommt vom Server, nicht aus dem Browser: Er zaehlt seine
- * verbundenen Clients. Ein vergessener WebSocket faellt dort auf, ein
- * geschlossener nicht.
+ * Der Gastgeber stellt hier die Laufzeit und raeumt sie beim Verlassen wieder
+ * ab; einen Server, der verbundene Clients zaehlen koennte, gibt es nicht mehr.
+ * Was hier geprueft wird, ist deshalb das, was ein Gastgeber SIEHT: dass das
+ * Quiz in seinem Kasten bleibt, dass ein Ergebnis genau einmal herauskommt und
+ * dass eine zweite Runde sauber von vorn beginnt.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { openOperator, resetServer } from './helpers'
+import { offeneAntwort } from './helpers'
 
-/** Zahl der verbundenen Clients aus der Operatordiagnose. */
-async function connectedClients(operator: Page): Promise<number> {
-  return Number(await operator.locator('[data-connected-clients]').innerText())
+async function insQuiz(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Quiz' }).click()
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 30_000 })
 }
 
-async function openDiagnostics(page: Page): Promise<Page> {
-  const operator = await openOperator(page)
-  if (!(await operator.locator('[data-diagnostics-facts]').isVisible().catch(() => false))) {
-    await operator.locator('[data-diagnostics-summary]').click()
-  }
-  await expect(operator.locator('[data-diagnostics-facts]')).toBeVisible()
-  return operator
+async function zurueckZurSammlung(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Zur Sammlung' }).click()
+  await expect(page.locator('[data-shell-menu]')).toBeVisible()
 }
-
-/*
- * Die Tests teilen sich einen Server. Ein Spiel aus einem frueheren Test wuerde
- * die Sammlung mit einer laufenden Partie begruessen statt mit der Auswahl.
- */
-test.beforeEach(async ({ page }) => {
-  await resetServer(page)
-})
-
-test('das Quiz hinterlaesst in der Gastgeberanwendung keine Verbindung', async ({ browser }) => {
-  const watcher = await openDiagnostics(await browser.newPage())
-  const shell = await browser.newPage()
-
-  await shell.goto('/shell')
-  await expect(shell.locator('[data-shell-menu]')).toBeVisible()
-  const base = await connectedClients(watcher)
-
-  // Zwei Runden nacheinander: einbinden, verlassen, wieder einbinden.
-  for (const round of [1, 2]) {
-    await shell.getByRole('button', { name: 'Quiz' }).click()
-    await expect(shell.locator('[data-game-start]')).toBeVisible({ timeout: 20_000 })
-    await expect
-      .poll(() => connectedClients(watcher), { message: `Runde ${round}: Client verbunden` })
-      .toBe(base + 1)
-
-    await shell.getByRole('button', { name: 'Zur Sammlung' }).click()
-    await expect(shell.locator('[data-shell-menu]')).toBeVisible()
-    // Nach dem Entfernen der Komponente ist die Verbindung wieder zu.
-    await expect
-      .poll(() => connectedClients(watcher), { message: `Runde ${round}: Verbindung abgebaut` })
-      .toBe(base)
-  }
-
-  await shell.close()
-  await watcher.close()
-})
 
 test('das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um', async ({ page }) => {
   await page.goto('/shell')
   const bar = page.locator('[data-shell-bar]')
   const before = await bar.evaluate((node) => getComputedStyle(node).backgroundColor)
 
-  await page.getByRole('button', { name: 'Quiz' }).click()
-  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 20_000 })
+  await insQuiz(page)
 
   // Die Leiste der Sammlung sieht unveraendert aus.
   expect(await bar.evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(before)
@@ -79,15 +39,30 @@ test('das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um', async 
   expect(game.y).toBeGreaterThanOrEqual(frame.y - 1)
   expect(game.height).toBeLessThanOrEqual(frame.height + 1)
 
-  await page.getByRole('button', { name: 'Zur Sammlung' }).click()
-  await expect(page.locator('[data-shell-menu]')).toBeVisible()
+  await zurueckZurSammlung(page)
 })
 
-test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung', async ({ page }) => {
+test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page }) => {
+  await page.goto('/shell')
+
+  for (const runde of [1, 2]) {
+    await insQuiz(page)
+    await page.getByRole('button', { name: 'Zu zweit' }).click()
+    await page.getByRole('button', { name: /^Leicht/ }).click()
+    await page.getByRole('button', { name: "Los geht's" }).click()
+    await expect(page.locator('[data-answers]'), `Runde ${runde}`).toBeVisible({ timeout: 30_000 })
+
+    // Mitten im Spiel zurueck - der haerteste Fall fuer den Abbau.
+    await zurueckZurSammlung(page)
+    // Ein Ergebnis gab es nicht; die Sammlung meldet auch keines.
+    await expect(page.locator('[data-shell-result]')).toHaveCount(0)
+  }
+})
+
+test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', async ({ page }) => {
   test.setTimeout(240_000)
   await page.goto('/shell')
-  await page.getByRole('button', { name: 'Quiz' }).click()
-  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 20_000 })
+  await insQuiz(page)
 
   await page.getByRole('button', { name: 'Allein' }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
@@ -97,15 +72,15 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung', async ({ page 
   const deadline = Date.now() + 180_000
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
-    // Erst abgeben, dann tippen - nach einem Tipp bleiben die Zeilen aktiv.
-    const abgeben = page.locator('[data-confirm]')
-    if (await abgeben.isVisible().catch(() => false)) {
-      await abgeben.click({ timeout: 2_000 }).catch(() => undefined)
-      continue
-    }
-    const zeile = page.locator('[data-answers] [data-answer-button]:not([disabled])').first()
+    /*
+     * Tippen und abgeben gehoeren zusammen; nach einem Tipp bleiben die Zeilen
+     * absichtlich aktiv (umentscheiden), die Frage geht nur ueber das Abgeben
+     * weiter. Im Einzelspiel holt der erste Tipp zugleich den Zuschlag.
+     */
+    const zeile = page.locator(offeneAntwort).first()
     if (await zeile.isVisible().catch(() => false)) {
       await zeile.click({ timeout: 2_000 }).catch(() => undefined)
+      await page.locator('[data-confirm]').click({ timeout: 5_000 }).catch(() => undefined)
       continue
     }
     // Nach der Loesung wartet das Geraet auf "Weiter".
@@ -120,17 +95,15 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung', async ({ page 
 
   /*
    * `onFinished` hat die Sammlung erreicht - sie zeigt das Ergebnis in ihrer
-   * eigenen Darstellung, nicht in der des Quiz. Und genau einmal: Ein Ergebnis,
-   * das beim Einsetzen schon auf dem Server steht, gehoert einer frueheren
-   * Partie und darf dem Gastgeber nicht als eigenes gemeldet werden.
+   * eigenen Darstellung, nicht in der des Quiz. Und genau einmal, obwohl
+   * waehrend der Ergebnisszene weitere Schnappschuesse eintreffen.
    */
-  await page.getByRole('button', { name: 'Zur Sammlung' }).click()
+  await zurueckZurSammlung(page)
   await expect(page.locator('[data-shell-result]')).toContainText('richtig')
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
 
-  // Erneut einbinden: Das alte Ergebnis wird NICHT ein zweites Mal gemeldet.
-  await page.getByRole('button', { name: 'Quiz' }).click()
-  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 20_000 })
-  await page.getByRole('button', { name: 'Zur Sammlung' }).click()
+  // Erneut einbinden: Die frische Runde meldet kein zweites Ergebnis.
+  await insQuiz(page)
+  await zurueckZurSammlung(page)
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
 })

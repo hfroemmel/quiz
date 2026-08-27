@@ -11,4 +11,4 @@ einschliesslich Umlauten und `ss`.
 
 Zahlen (Spielernummer, Punktestaende, Fragenzaehler) und die Buchstaben A-D
 tragen **Melior** aus dem regulaeren Schriftbestand der Anwendung
-(`apps/web/src/assets/fonts/`, eingebunden in `apps/web/src/styles.css`).
+(`packages/themes/src/fonts/`, eingebunden ueber `fonts.css`).

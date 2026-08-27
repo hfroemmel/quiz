@@ -9,8 +9,6 @@
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts",
     "packages/themes/scripts/**/*.ts",
-    "apps/desktop/src/**/*.ts",
-    "apps/kiosk/src/**/*.ts",
     "scripts/**/*.ts"
   ],
   "exclude": [

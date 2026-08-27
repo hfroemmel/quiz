@@ -18,13 +18,13 @@ const themesDir = fileURLToPath(new URL('..', import.meta.url))
 const generated = join(themesDir, 'src', 'palette.css')
 /*
  * Geprueft wird ueber ALLE Oberflaechenschichten hinweg: die Themes selbst,
- * die React-Buehne, das Kiosk-Paket und die verbliebene Web-Anwendung.
+ * die React-Buehne, das Kiosk-Paket und den Pruefstand.
  */
 const sourceDirs = [
   join(themesDir, 'src'),
   join(themesDir, '..', 'react', 'src'),
   join(themesDir, '..', 'kiosk', 'src'),
-  join(themesDir, '..', '..', 'apps', 'web', 'src'),
+  join(themesDir, '..', '..', 'harness', 'src'),
 ]
 
 /**
@@ -34,7 +34,7 @@ const sourceDirs = [
  * keine Oberflaechenfarben. Sie stehen fuer Fotos, die im Betrieb vom Server
  * kommen, und haben in der Palette nichts zu suchen.
  */
-const EXEMPT = ['palettes.ts', 'palette.css', 'apps/preview/PreviewApp.tsx']
+const EXEMPT = ['palettes.ts', 'palette.css', 'preview/PreviewApp.tsx']
 
 /*
  * Hexwerte, `rgb(...)` und die benannten Farben von CSS.

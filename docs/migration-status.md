@@ -19,10 +19,15 @@ ist und was als Naechstes ansteht.
 | 8 | Buehnenbetrieb nach `quiz-live`: Server, Persistenz, Rollen-Clients, Electron-Huelle |
 | 9 | Kiosk nach `quiz-standalone`: `LocalQuizRuntime` im Fenster, kein Server, kein Netz |
 | 10 | `app-collection`: Spielesammlung mit eingebettetem Quiz, Auf- und Abbau beim Gastgeber |
+| 11 | Rueckbau: Anwendungen, Server und Persistenz verlassen dieses Repository |
 
-Nachweis je Phase: `pnpm typecheck`, `pnpm test` (184), `pnpm packages:verify`
-(publint + attw fuer sieben Pakete), `pnpm build`, `npx playwright test` (80,
-inklusive unveraenderter Screenshot-Baselines).
+Nachweis je Phase: `pnpm typecheck`, `pnpm test`, `pnpm packages:verify`
+(publint + attw auf den gepackten Tarballs) und `npx playwright test` -
+einschliesslich unveraenderter Screenshot-Baselines.
+
+Nach dem Rueckbau stehen hier 149 Unit-Tests und 58 End-to-End-Tests; die
+uebrigen sind mit ihrem Gegenstand umgezogen (35 Server- und Persistenztests
+nach `quiz-live`, die Spielablaeufe ebenso).
 
 ## CI laeuft
 
@@ -69,12 +74,25 @@ Zwei Beobachtungen fuer den naechsten Release:
    Textbestand ist dort vollstaendig; das README des Repositories nennt die
    Befehle fuer den einmaligen Upload aus einer Arbeitskopie.
 
-## Als Naechstes (Phase 11)
+## Die Aufteilung steht
 
-| Phase | Repository | Inhalt |
-|---|---|---|
-| 11 | `quiz` | Rueckbau: `apps/*`, `packages/persistence` und `packages/server` verlassen dieses Repository |
+| Repository | Was |
+|---|---|
+| `quiz` | die fuenf Bibliotheken plus Pruefstand |
+| `quiz-live` | Buehnenbetrieb: Server, Persistenz, Rollen-Clients, Electron-Huelle |
+| `quiz-standalone` | Kiosk: ein Fenster, kein Server, kein Netz |
+| `app-collection` | Spielesammlung mit eingebettetem Quiz |
+| `quiz-content-data` | die redaktionellen Inhalte |
 
 Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.2` aus
-GitHub Packages. Die Pakete sind veroeffentlicht; was jedem neuen Repository
-noch fehlt, ist die Lesefreigabe (siehe Blocker 1).
+GitHub Packages. Die Pakete sind veroeffentlicht; was jedem Repository noch
+fehlt, ist die Lesefreigabe (siehe Blocker 1).
+
+Zwei Punkte sind beim Rueckbau bewusst NICHT mitgezogen:
+
+- Der Einbettungstest „keine Verbindung bleibt zurueck" hing an einem Server,
+  der seine Clients zaehlt. Im Pruefstand gibt es keinen mehr; die
+  entsprechende Zusage - wer die Laufzeit stellt, raeumt sie auf - prueft
+  `app-collection` an seiner Sitzung, ohne Fenster.
+- `docs/` beschreibt weiterhin das System als Ganzes. Einige Dokumente gehoeren
+  fachlich zum Buehnenbetrieb; sie liegen bis auf Weiteres hier.

@@ -8,7 +8,7 @@
  *
  * Akzeptierte Grenze gegenueber SQLite: Ein Absturz kann die letzten Befehle
  * verlieren. Fuer die Selbstbedienung ist das in Ordnung - der Buehnenbetrieb
- * behaelt den ACID-Adapter aus `@quiz/persistence`.
+ * behaelt seinen ACID-Adapter auf SQLite.
  */
 import type { AuditEntry, GameState, QuestionPatch } from '../contracts'
 import type {

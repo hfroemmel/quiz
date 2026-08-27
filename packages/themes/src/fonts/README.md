@@ -1,6 +1,6 @@
 # Schriftdateien
 
-Die Schriften werden ueber `@font-face` in `apps/web/src/styles.css` eingebunden
+Die Schriften werden ueber `@font-face` in `src/fonts.css` eingebunden
 und von Vite mitgebaut - **nie** ueber ein Netzwerk-CDN, weil die Anwendung
 offline lauffaehig bleiben muss (Spezifikation 2).
 
@@ -31,7 +31,7 @@ Lizenzlage noch zu klaeren, bevor die Anwendung ausgeliefert wird.
 
 Die illustrierte Kinderansicht bringt ihre Schriften im Assetpaket mit und laedt
 sie deshalb nicht von hier, sondern aus
-`apps/web/src/assets/kinderquiz/fonts/`:
+`packages/react/src/assets/kinderquiz/fonts/`:
 
 | Familie | Datei | Einsatz |
 |---|---|---|

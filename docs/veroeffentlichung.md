@@ -11,8 +11,8 @@ GitHub Packages unter dem Scope `@hfroemmel`:
 | `@hfroemmel/quiz-react` | QuizScene, StageScreen, Szenen, Klaenge, Verbindungs-Hooks |
 | `@hfroemmel/quiz-kiosk` | Das spielbare Quiz als eine Komponente (QuizGame) |
 
-`@quiz/persistence`, `@quiz/server` und die Apps bleiben privat im Repository -
-sie ziehen spaeter nach `quiz-live`.
+Ausgeliefert wird sonst nichts: Der Pruefstand unter `harness/` ist von der
+Versionierung ausgenommen, die Anwendungen liegen in eigenen Repositories.
 
 ## Versionierung
 

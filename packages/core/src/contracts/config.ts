@@ -4,7 +4,7 @@
  * "Fachlich relevant" heisst: Der Server braucht diese Werte, um deterministisch und
  * testbar zu entscheiden, wann eine Phase endet. Rein visuelle Werte (Easing,
  * Szenen-Fade, Konfettidauer) liegen dagegen in der Praesentationsschicht
- * (`apps/web/src/presentation/animationPresets.ts`) und importieren von hier,
+ * (`packages/react/src/presentation/animationPresets.ts`) und importieren von hier,
  * damit es keine zweite Quelle der Wahrheit gibt.
  */
 

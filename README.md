@@ -1,153 +1,78 @@
-# Live-Quiz
+# Live-Quiz - die Bibliotheken
 
-Live-Regiesystem fuer ein Buehnenquiz mit zwei Spielern: ein Operator bedient das
-Quiz am Laptop, ein Beamer oder zweiter Bildschirm zeigt ausschliesslich die
-oeffentliche Praesentation, ein Moderator kann optional ein iPad im lokalen Netzwerk
-verwenden.
+Dieses Repository liefert die fuenf Bibliotheken des Live-Quiz aus. Die
+Anwendungen leben in eigenen Repositories und binden sie als Pakete ein.
 
-**Der Kernbetrieb laeuft vollstaendig offline auf einem einzigen Laptop.** Internet und
-WLAN sind nicht erforderlich; LAN-Clients sind eine optionale Ergaenzung.
+| Paket | Inhalt |
+|---|---|
+| `@hfroemmel/quiz-core` | Vertraege, Engine, Laufzeit (`QuizService`, `LocalQuizRuntime`, `RemoteQuizRuntime`) |
+| `@hfroemmel/quiz-content` | Inhalts-Pipeline: Validierung, Paketbau, Legacy-Import, CLI |
+| `@hfroemmel/quiz-themes` | Farbpaletten, Schriften, Theme-Objekte, `palette.css` / `fonts.css` |
+| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, Szenen, Klaenge, Verbindungs-Hooks |
+| `@hfroemmel/quiz-kiosk` | Das spielbare Quiz als eine Komponente (`QuizGame`) |
 
----
+| Anwendung | Repository | Was sie ist |
+|---|---|---|
+| Buehnenbetrieb | `hfroemmel/quiz-live` | Server, Operatorpult, Buehnenscreen, Moderator, Touchgeraet |
+| Kiosk | `hfroemmel/quiz-standalone` | Ein Fenster im Foyer, ohne Server, ohne Netz |
+| Spielesammlung | `hfroemmel/app-collection` | Menue mit eingebettetem Quiz |
+| Inhalte | `hfroemmel/quiz-content-data` | Die redaktionellen Fragen und Medien |
+
+## Der Pruefstand
+
+`harness/` ist die einzige lauffaehige Anwendung hier - und sie wird nie
+ausgeliefert. Sie traegt die Screenshot-Referenzen und den Einbettungsvertrag:
+
+| Adresse | Was |
+|---|---|
+| `/preview` | Szenen und Uebergaenge einzeln aufrufen, mit beiden Themes |
+| `/play` | Die Spieleransicht wie am Touchgeraet |
+| `/shell` | Eine beispielhafte Gastgeberanwendung, die das Quiz einbindet |
+
+Alle drei kommen ohne Server aus: Das Quiz laeuft ueber eine
+`LocalQuizRuntime` im Browser, und der Entwicklungsserver liefert nur die
+Dateien und das gebaute Quizpaket aus.
 
 ## Schnellstart
 
 ```bash
-pnpm install                 # Abhaengigkeiten
-pnpm content:fixtures        # Testinhalt erzeugen (einmalig)
-pnpm content:assets          # Platzhaltermedien dazu erzeugen
-pnpm content:validate        # Inhalte pruefen (Pflicht vor jedem Build)
-pnpm content:build           # versioniertes Quizpaket bauen
-pnpm --filter @quiz/web build
-pnpm server                  # lokaler Server auf http://localhost:4319
+pnpm install
+pnpm content:build   # Quizpaket aus dem Testbestand unter content/source
+pnpm harness         # Pruefstand auf http://localhost:5180
 ```
 
-Danach:
+Der Testbestand ist ERZEUGT (`pnpm content:fixtures`): 29 synthetische Fragen und
+Platzhaltermedien, gerade genug, damit jeder Fragenplatz jedes Presets besetzt
+ist. Die echten Inhalte liegen in `quiz-content-data`.
 
-| Ansicht | Adresse | Zugriff |
-|---|---|---|
-| Operator | `http://localhost:4319/operator` | nur vom Veranstaltungslaptop |
-| Buehnenscreen | `http://localhost:4319/stage` | oeffentlich, nur oeffentliche Daten |
-| Moderator | `http://<laptop-ip>:4319/moderator` | Session-Code erforderlich |
-| Entwicklungsvorschau | `http://localhost:5180/preview` | nur im Entwicklungsmodus |
-
-Der Session-Code fuer den Moderator wird beim Start im Terminal und im
-Operatorfenster unter „Technik, Protokoll und Verbindung“ angezeigt.
-
-### Desktop-Anwendung (Electron)
+## Pruefen
 
 ```bash
-pnpm build:desktop           # Web-Client und Electron-Hauptprozess bauen
-pnpm desktop:rebuild-native  # SQLite fuer die Electron-Laufzeit bauen (einmalig)
-pnpm dev:desktop             # Operator- und Praesentationsfenster starten
+pnpm typecheck        # TypeScript ueber Pakete und Pruefstand
+pnpm test             # Kern, Inhalts-Pipeline, Palettenwaechter (149 Tests)
+pnpm test:e2e         # Playwright gegen den Pruefstand (58 Tests)
+pnpm packages:build   # dist je Paket
+pnpm packages:verify  # publint + attw auf dem gepackten Tarball
 ```
 
-Die Desktop-Anwendung startet den lokalen Server selbst, oeffnet das Operatorfenster
-und legt das Praesentationsfenster auf das zweite Display (HDMI).
+Der Buehnenbetrieb - Server, SQLite, WebSocket, Wiederaufnahme - wird in
+`quiz-live` geprueft, der Offline-Betrieb in `quiz-standalone` und der
+Einbettungsvertrag zusaetzlich in `app-collection`.
 
-> **Wichtig:** `better-sqlite3` ist ein natives Modul und passt immer nur zu einer
-> Laufzeit. Nach `pnpm desktop:rebuild-native` funktionieren `pnpm server` und
-> `pnpm test` erst wieder nach `pnpm server:rebuild-native`. Die Anwendung meldet
-> das im Fehlerfall im Klartext.
+## Veroeffentlichen
 
-### Entwicklung
-
-```bash
-pnpm dev        # Vite-Dev-Server und Quizserver parallel
-pnpm test       # Domain-, Inhalts- und Servertests (100 Tests)
-pnpm test:e2e   # Playwright: vollstaendige Spiele und Praesentation (32 Tests)
-pnpm typecheck  # TypeScript ueber alle Pakete
-```
-
----
-
-## Bedienung in einem Satz
-
-Der Operator waehlt Quizmodus und Schwierigkeits-Preset, startet das Spiel, gibt pro
-Frage den Buzzer frei, loggt die genannte Antwort ein, loest auf und klickt `Weiter`.
-Nach sieben Fragen zeigt `Weiter` das Ergebnis.
-
-Die ausfuehrliche Fassung steht in [`docs/operator-kurzanleitung.md`](docs/operator-kurzanleitung.md).
-
----
-
-## Projektstruktur
-
-```text
-apps/
-  desktop/     Electron: Hauptprozess, Preload, Fenster, Geraeteintegration
-  web/         React: Operator, Buehne, Moderator, Entwicklungsvorschau, Praesentation
-packages/
-  core/        @hfroemmel/quiz-core: Vertraege, Engine, Laufzeit (ohne Dateisystem)
-  content/     @hfroemmel/quiz-content: Validierung, Paketbau, CLI
-  themes/      @hfroemmel/quiz-themes: Farben, Schriften, Theme-Objekte
-  react/       @hfroemmel/quiz-react: QuizScene, Szenen, Klaenge, Hooks
-  kiosk/       @hfroemmel/quiz-kiosk: das spielbare Quiz als eine Komponente
-  persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme (intern)
-  server/      Transport des Buehnenbetriebs: HTTP, WebSocket, Komposition (intern)
-content/
-  source/      TESTINHALT - erzeugt, siehe unten
-  dist/        gebautes Quizpaket - einzige Laufzeitquelle
-  reports/     Validierungs- und Build-Berichte
-test/e2e/      Playwright-Tests
-runtime/       SQLite-Datenbank und Exporte (nicht im Repository)
-```
-
-Jedes Paket besitzt eine eigene `README.md` mit Verantwortung, oeffentlicher API und
-Abhaengigkeiten.
-
-### Inhalte
-
-Die redaktionellen Inhalte liegen NICHT mehr hier, sondern in
-[`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data).
-Was unter `content/source` steht, ist ein erzeugter Testbestand: synthetische
-Fragen und Platzhaltermedien, die jeden Fragenplatz jedes Presets bedienen -
-gerade genug, damit Unit- und E2E-Tests ein vollstaendiges Spiel durchspielen.
-
-```bash
-pnpm content:fixtures   # Testfragen und Medienverweise erzeugen
-pnpm content:assets     # Platzhaltergrafiken und -video dazu
-```
-
-Wer mit den echten Inhalten arbeiten will, laedt ein veroeffentlichtes Paket:
-
-```bash
-pnpm content:pull       # liest content.lock.json, laedt das Release-Asset
-```
-
----
+Changesets mit fixed-Versioning ueber alle fuenf Pakete; ein Push auf `main`
+mit offenen Changesets erzeugt den PR „Version Packages", sein Merge
+veroeffentlicht nach GitHub Packages. Einzelheiten in
+[docs/veroeffentlichung.md](docs/veroeffentlichung.md).
 
 ## Dokumentation
 
-| Thema | Datei |
-|---|---|
-| Architektur und Modulverantwortungen | [docs/architektur.md](docs/architektur.md) |
-| Ein Kern, drei Kontexte (Buehne, Touchgeraet, Multigame) | [docs/mehrkontext-architektur.md](docs/mehrkontext-architektur.md) |
-| Phasen und Zustandsdiagramm | [docs/zustandsmaschine.md](docs/zustandsmaschine.md) |
-| Alle Befehle und Rollenrechte | [docs/befehle.md](docs/befehle.md) |
-| Quizpaket-Schema mit Beispiel | [docs/quizpaket.md](docs/quizpaket.md) |
-| Import und Validierung | [docs/inhalte-import.md](docs/inhalte-import.md) |
-| Uebernahme des Original-Fragenkatalogs | [docs/inhalte-uebernahme.md](docs/inhalte-uebernahme.md) |
-| Neue Quizmodi und Presets | [docs/neue-modi-und-presets.md](docs/neue-modi-und-presets.md) |
-| Neue Fragetypen | [docs/neue-fragetypen.md](docs/neue-fragetypen.md) |
-| Designsystem: Farben, Raster, Typografie | [docs/design-system.md](docs/design-system.md) |
-| Screens Zustand fuer Zustand | [docs/screens.md](docs/screens.md) |
-| Animationskatalog (Freigabe) | [docs/animationskatalog.md](docs/animationskatalog.md) |
-| Ergaenzung der Spezifikation: visuelle Umsetzung | [docs/spezifikation-ergaenzung-design.md](docs/spezifikation-ergaenzung-design.md) |
-| Umsetzungsplan der Oberflaeche | [docs/umsetzungsplan-ui.md](docs/umsetzungsplan-ui.md) |
-| Uebergangsanimationen anpassen und testen | [docs/animationen.md](docs/animationen.md) |
-| Datenbank und Wiederherstellung | [docs/datenbank-und-wiederherstellung.md](docs/datenbank-und-wiederherstellung.md) |
-| Operator-Kurzanleitung fuer den Live-Betrieb | [docs/operator-kurzanleitung.md](docs/operator-kurzanleitung.md) |
-| Bekannte Einschraenkungen | [docs/bekannte-einschraenkungen.md](docs/bekannte-einschraenkungen.md) |
+`docs/` beschreibt das System als Ganzes - Spezifikation, Zustandsmaschine,
+Designsystem, Inhaltsformat. Einige Dokumente gehoeren fachlich zum
+Buehnenbetrieb (Operator-Kurzanleitung, Datenbank und Wiederherstellung); sie
+liegen bis auf Weiteres hier, weil sie auf dieselbe Spezifikation verweisen wie
+die Pakete.
 
----
-
-## Leitprinzipien
-
-1. Der Serverzustand ist verbindlich; Clients senden Befehle und rendern Zustand.
-2. Private Loesungen werden serverseitig vom oeffentlichen Modell getrennt.
-3. Jede irreversible Aktion ist transaktional, idempotent und protokolliert.
-4. Der Offline-Ein-Laptop-Betrieb funktioniert immer.
-5. Wiederherstellung ist Teil des Kernprodukts.
-6. Eine fachliche Regel existiert an genau einer Stelle.
-7. Animationen sind austauschbare Praesentation, nie Geschaeftslogik.
+[docs/migration-status.md](docs/migration-status.md) haelt fest, wie die
+Aufteilung verlaufen ist und was noch aussteht.

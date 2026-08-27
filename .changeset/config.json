@@ -14,5 +14,7 @@
       "@hfroemmel/quiz-kiosk"
     ]
   ],
-  "ignore": ["@quiz/persistence", "@quiz/server", "@quiz/web", "@quiz/desktop", "@quiz/kiosk"]
+  "ignore": [
+    "@quiz/harness"
+  ]
 }

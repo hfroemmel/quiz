@@ -11,7 +11,7 @@ import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const pakete = ['core', 'content', 'themes', 'react', 'kiosk', 'persistence', 'server']
+const pakete = ['core', 'content', 'themes', 'react', 'kiosk']
 /*
  * Reine CSS- und Asset-Einstiege haben keine Typen - attw prueft nur die
  * JavaScript-Einstiege.

@@ -1,11 +1,11 @@
 /**
  * Sound-Cues (Spezifikation 27.1).
  *
- * Die Klaenge kommen als Audiodateien aus `apps/web/src/assets/audio/` und stehen
+ * Die Klaenge kommen als Audiodateien aus `packages/react/src/assets/audio/` und stehen
  * in einer STATISCHEN Registry (`new URL(..., import.meta.url)`): Jeder Bundler
  * emittiert die Dateien damit als eigene Artefakte - `import.meta.glob` waere
  * eine Vite-Sonderlocke und stuende der Bibliothekswerdung im Weg. Dass Registry
- * und Ordner uebereinstimmen, haelt `apps/web/test/audio.test.ts` fest; ein zur
+ * und Ordner uebereinstimmen, haelt `packages/react/test/audio.test.ts` fest; ein zur
  * Laufzeit fehlendes Soundfile bleibt still und blockiert nichts.
  *
  * NUR DER AUDIO-MASTER SPIELT AB. Welcher Client das ist, entscheidet der Server
@@ -41,7 +41,7 @@ export type SoundCueId = (typeof soundCueIds)[number]
  *
  * Sie ist exportiert, damit ein Test sie gegen den Ordner haelt: Was hier steht,
  * muss es geben, und was es gibt, darf kein Countdown- oder Weckerton sein
- * (`apps/web/test/audio.test.ts`).
+ * (`packages/react/test/audio.test.ts`).
  */
 export const cueFilesForTest: Record<SoundCueId, string[]> = {
   buzz: ['buzzer.mp3'],
@@ -160,7 +160,7 @@ export function releaseAudio(): void {
  *
  * Das muss in jedem Fenster passieren, das Ton ausgeben kann - Operator UND
  * Buehne. Im Buehnenfenster der Desktop-Anwendung ist die Wiedergabe ohnehin
- * ausdruecklich erlaubt (siehe `apps/desktop/src/main.ts`); der Aufruf schadet
+ * ausdruecklich erlaubt (siehe die Electron-Huellen); der Aufruf schadet
  * dort nicht.
  */
 export function unlockAudio(): void {

@@ -1,19 +1,21 @@
 /**
  * Selbstbedienung am Touchgeraet.
  *
- * Diese Tests laufen gegen den echten Server und das echte Quizpaket - ohne einen
- * einzigen Operatorbefehl. Genau das ist der Punkt: Wenn hier etwas haengt,
- * haengt es auch am Geraet, wo niemand eingreifen kann.
+ * Diese Tests laufen gegen das echte Quizpaket und dieselbe Engine wie die
+ * Buehne - nur ohne Server, ueber eine `LocalQuizRuntime` im Browser, und ohne
+ * einen einzigen Operatorbefehl. Genau das ist der Punkt: Wenn hier etwas
+ * haengt, haengt es auch am Geraet, wo niemand eingreifen kann.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { resetServer } from './helpers'
+import { offeneAntwort } from './helpers'
 
-/** Die Antwortzeilen der Szene sind da und tippbar. */
-const offeneAntwort = '[data-answers] [data-answer-button]:not([disabled])'
 const freierBuzzer = '[data-buzzer][data-enabled="true"]'
 
+/**
+ * Jeder Seitenaufruf baut eine frische Laufzeit im Browser - das Neuladen ist
+ * hier der Ruecksetzknopf, den es am Geraet nicht gibt.
+ */
 async function openStartScreen(page: Page): Promise<void> {
-  await resetServer(page)
   await page.goto('/play')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
 }
@@ -275,7 +277,6 @@ test('Punkte und Zaehler stehen unten bei den Buzzern, nicht in der Kopfzeile', 
 })
 
 test('die Leerlauf-Aufsicht gibt das Geraet wieder frei', async ({ page }) => {
-  await resetServer(page)
   /*
    * Acht Sekunden statt zwei Minuten - die Aufsicht kommt als Betriebsangabe
    * herein. Kuerzer darf sie hier nicht sein: Die Frist laeuft ab dem Start des

@@ -9,7 +9,7 @@
  * Fenster, das wirklich klingen darf (siehe `assignAudioMaster`).
  *
  * In der Desktop-Anwendung ist die Wiedergabe von vornherein erlaubt (siehe
- * `apps/desktop/src/main.ts`). Chromium sagt das auf Nachfrage, und dann steht
+ * den Electron-Huellen). Chromium sagt das auf Nachfrage, und dann steht
  * der Ton sofort bereit, ohne dass jemand geklickt haben muss.
  */
 import { useEffect } from 'react'

@@ -4,7 +4,7 @@
  * `QuizService` kennt ausschliesslich diesen Port - nicht SQLite. Dadurch kann
  * derselbe Dienst gegen zwei Welten laufen:
  *
- *   - Buehnenbetrieb: der SQLite-Adapter aus `@quiz/persistence` (ACID, Audit,
+ *   - Buehnenbetrieb: der SQLite-Adapter des Buehnenbetriebs (ACID, Audit,
  *     Wiederherstellung nach Absturz);
  *   - Kiosk und Einbettung: `MemoryQuizStore` in `@quiz/runtime`, ohne native
  *     Module und damit auch in einem Renderer- oder Browserprozess lauffaehig.

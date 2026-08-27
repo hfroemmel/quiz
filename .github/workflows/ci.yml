@@ -1,9 +1,9 @@
-# Regressionsnetz der Migration (Phase 0 des Migrationsplans).
+# Regressionsnetz der Bibliotheken.
 #
 # Zwei Jobs, bewusst getrennt:
 #
-#   checks  Typecheck, Unit-Tests, Produktionsbuild - schnell, auf dem Runner.
-#   e2e     Playwright gegen echten Server und Vite-Dev-Server - im offiziellen
+#   checks  Typecheck, Unit-Tests, Paketverifikation - schnell, auf dem Runner.
+#   e2e     Playwright gegen den Pruefstand - im offiziellen
 #           Playwright-Container, damit die Screenshot-Baselines auf einem
 #           reproduzierbaren Renderer verglichen werden statt auf dem, den der
 #           Runner gerade mitbringt.
@@ -34,15 +34,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       # Das Quizpaket ist nicht versioniert - es entsteht aus dem Testbestand
-      # unter content/source. Tests und Server laden ausschliesslich daraus.
+      # unter content/source. Tests und Pruefstand laden ausschliesslich daraus.
       - run: pnpm content:build
       - run: pnpm test
       # Paket-Dists bauen und als gepackte Tarballs pruefen (publint + attw) -
       # so, wie die Pakete spaeter beim Veroeffentlichen ankommen.
       - run: pnpm packages:build
       - run: pnpm packages:verify
-      # Produktionsbuild einschliesslich Palettengenerierung und Inhaltsvalidierung.
-      - run: pnpm build
+      # Die Palette wird ERZEUGT; ihr Waechter prueft nur, dass die abgelegte
+      # Fassung zur Quelle passt. Hier laeuft der Generator selbst.
+      - run: pnpm palette:build
+      - run: pnpm content:validate
 
   e2e:
     runs-on: ubuntu-latest
