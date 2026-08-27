@@ -12,9 +12,9 @@
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Command, PlayerCount, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
-import { QuizScene, releaseAudio, useAudioUnlock, useQuizRuntime } from '@hfroemmel/quiz-react'
+import { QuizScene, releaseAudio, useAudioUnlock, useQuizRuntime, useQuizSnapshot } from '@hfroemmel/quiz-react'
 import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
 import { PlayerFoot } from './PlayerFoot'
@@ -28,6 +28,15 @@ import styles from './Game.module.css'
 export type { QuizGameResult }
 
 export interface QuizGameProps {
+  /**
+   * Die Laufzeit, gegen die gespielt wird.
+   *
+   * Ohne Angabe verbindet sich das Quiz als Spieler mit dem Server, der es
+   * ausgeliefert hat - der Touchbetrieb am Buehnenabend. Gastgeber ohne Server
+   * (Kiosk, Spielesammlung) geben hier ihre eigene `LocalQuizRuntime` und
+   * bleiben damit vollstaendig offline. Wer sie stellt, raeumt sie auch auf.
+   */
+  runtime?: QuizRuntime<PlayerQuizViewModel>
   /** Zielgruppe, in der dieses Geraet spielt. Ohne Angabe die erste des Katalogs. */
   audience?: string
   /** Ergebnis eines beendeten Spiels - fuer die Bestenliste des Gastgebers. */
@@ -48,8 +57,11 @@ export interface QuizGameProps {
   idleTimeoutMs?: number
 }
 
-export function QuizGame({ audience, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
-  const { runtime, snapshot } = useQuizRuntime<PlayerQuizViewModel>('player')
+export function QuizGame({ runtime: hostRuntime, audience, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
+  // Ohne Gastgeber-Laufzeit die eigene Verbindung; mit ihr keine.
+  const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
+  const runtime = hostRuntime ?? own.runtime
+  const snapshot = useQuizSnapshot(runtime)
   const view = snapshot?.view ?? null
   const connected = snapshot?.connection.connected ?? false
   const lastRejection = snapshot?.lastRejection ?? null
