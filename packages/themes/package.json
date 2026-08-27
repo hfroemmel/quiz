@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "palette:build": "tsx scripts/build-palette.ts",
-    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20 && cp src/palette.css src/fonts.css dist/ && cp -r src/fonts dist/fonts"
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20 && cp src/palette.css src/fonts.css dist/ && rm -rf dist/fonts && cp -r src/fonts dist/fonts"
   },
   "publishConfig": {
     "access": "restricted",

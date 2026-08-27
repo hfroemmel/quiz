@@ -43,7 +43,7 @@
     "vite-plugin-dts": "^4.5.4"
   },
   "scripts": {
-    "build": "vite build && cp -r src/styles dist/styles && mkdir -p dist/assets && cp -r src/assets/kinderquiz dist/assets/kinderquiz"
+    "build": "vite build && rm -rf dist/styles dist/assets && cp -r src/styles dist/styles && mkdir -p dist/assets && cp -r src/assets/kinderquiz dist/assets/kinderquiz"
   },
   "sideEffects": [
     "**/*.css"
