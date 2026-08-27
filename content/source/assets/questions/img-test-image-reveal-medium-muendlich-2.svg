@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Platzhalterbild">
+  <rect width="1200" height="675" fill="hsl(244 45% 18%)" />
+  <g transform="rotate(4 600 337)"><circle cx="326" cy="-204" r="53" fill="hsl(269 70% 55%)" opacity="0.5" /><circle cx="985" cy="53" r="-71" fill="hsl(74 65% 60%)" opacity="0.5" /><circle cx="928" cy="-240" r="-79" fill="hsl(339 60% 48%)" opacity="0.5" /><circle cx="627" cy="18" r="-13" fill="hsl(269 70% 55%)" opacity="0.5" /><circle cx="1042" cy="-134" r="-63" fill="hsl(74 65% 60%)" opacity="0.5" /><circle cx="741" cy="-357" r="3" fill="hsl(339 60% 48%)" opacity="0.5" /><circle cx="684" cy="-169" r="-5" fill="hsl(269 70% 55%)" opacity="0.5" /></g>
+  <rect x="0" y="600" width="1200" height="75" fill="rgba(0,0,0,0.45)" />
+  <text x="24" y="648" font-family="sans-serif" font-size="28" fill="#ffffff" opacity="0.75">Platzhaltergrafik - bitte ersetzen</text>
+</svg>

@@ -1,8 +1,13 @@
 # Uebernahme des Original-Fragenkatalogs
 
-Der gelieferte Katalog ist uebernommen: `content/source` traegt seit dieser
-Fassung die 199 echten Fragen. Das frueher mitgelieferte Beispielpaket ist
-entfallen.
+> **Historisch.** Der Katalog liegt seit der Aufteilung des Systems in
+> [`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data);
+> `content/source` traegt hier einen erzeugten Testbestand. Diese Datei
+> beschreibt weiterhin, WAS uebernommen wurde und welche Eigenheiten der
+> Katalog hat - beides gilt unveraendert, nur der Ort ist ein anderer.
+
+Der gelieferte Katalog ist uebernommen: er traegt die 199 echten Fragen. Das
+frueher mitgelieferte Beispielpaket ist entfallen.
 
 Der Ablauf und die Werkzeuge stehen in [`docs/inhalte-import.md`](inhalte-import.md);
 diese Datei haelt fest, was der konkrete Katalog braucht.

@@ -14,7 +14,8 @@ WLAN sind nicht erforderlich; LAN-Clients sind eine optionale Ergaenzung.
 
 ```bash
 pnpm install                 # Abhaengigkeiten
-pnpm content:assets          # Platzhalter-Grafiken erzeugen (einmalig)
+pnpm content:fixtures        # Testinhalt erzeugen (einmalig)
+pnpm content:assets          # Platzhaltermedien dazu erzeugen
 pnpm content:validate        # Inhalte pruefen (Pflicht vor jedem Build)
 pnpm content:build           # versioniertes Quizpaket bauen
 pnpm --filter @quiz/web build
@@ -77,15 +78,16 @@ apps/
   desktop/     Electron: Hauptprozess, Preload, Fenster, Geraeteintegration
   web/         React: Operator, Buehne, Moderator, Entwicklungsvorschau, Praesentation
 packages/
-  contracts/   Typen, Laufzeitschemas, Befehle, View-Modelle, zentrale Konfiguration
-  domain/      Spielregeln: Zustandsmaschine, Scoring, Buzzer, Fragenauswahl
-  content/     Quizdaten: Legacy-Import, Validierung, Pakete, Hotfix-Overlay
-  persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme
-  runtime/     Anwendungsschicht: Befehlsverarbeitung, Timer, Wiederherstellung
-  server/      Transport des Buehnenbetriebs: HTTP-Auslieferung und WebSocket
+  core/        @hfroemmel/quiz-core: Vertraege, Engine, Laufzeit (ohne Dateisystem)
+  content/     @hfroemmel/quiz-content: Validierung, Paketbau, CLI
+  themes/      @hfroemmel/quiz-themes: Farben, Schriften, Theme-Objekte
+  react/       @hfroemmel/quiz-react: QuizScene, Szenen, Klaenge, Hooks
+  kiosk/       @hfroemmel/quiz-kiosk: das spielbare Quiz als eine Komponente
+  persistence/ SQLite: Migrationen, transaktionale Befehlsuebernahme (intern)
+  server/      Transport des Buehnenbetriebs: HTTP, WebSocket, Komposition (intern)
 content/
-  source/      redaktionelle Quelle (JSON) und Medien
-  dist/        gebautes, versioniertes Quizpaket - einzige Laufzeitquelle
+  source/      TESTINHALT - erzeugt, siehe unten
+  dist/        gebautes Quizpaket - einzige Laufzeitquelle
   reports/     Validierungs- und Build-Berichte
 test/e2e/      Playwright-Tests
 runtime/       SQLite-Datenbank und Exporte (nicht im Repository)
@@ -93,6 +95,25 @@ runtime/       SQLite-Datenbank und Exporte (nicht im Repository)
 
 Jedes Paket besitzt eine eigene `README.md` mit Verantwortung, oeffentlicher API und
 Abhaengigkeiten.
+
+### Inhalte
+
+Die redaktionellen Inhalte liegen NICHT mehr hier, sondern in
+[`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data).
+Was unter `content/source` steht, ist ein erzeugter Testbestand: synthetische
+Fragen und Platzhaltermedien, die jeden Fragenplatz jedes Presets bedienen -
+gerade genug, damit Unit- und E2E-Tests ein vollstaendiges Spiel durchspielen.
+
+```bash
+pnpm content:fixtures   # Testfragen und Medienverweise erzeugen
+pnpm content:assets     # Platzhaltergrafiken und -video dazu
+```
+
+Wer mit den echten Inhalten arbeiten will, laedt ein veroeffentlichtes Paket:
+
+```bash
+pnpm content:pull       # liest content.lock.json, laedt das Release-Asset
+```
 
 ---
 

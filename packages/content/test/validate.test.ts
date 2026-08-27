@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest'
 import type { MediaAsset, Question } from '@hfroemmel/quiz-core'
 import { validateContent } from '../src/validate'
+import { applyContentProfile } from '../src/package'
 
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
 
@@ -273,5 +274,65 @@ describe('Themes ohne Darstellung', () => {
       themes: [{ id: 'default', label: 'Standard' }],
     })
     expect(result.ok).toBe(true)
+  })
+})
+
+describe('Inhaltsprofile', () => {
+  const videoQuestion = question({
+    id: 'v1',
+    questionType: 'video-then-question',
+    media: { videoAssetId: 'vid-1' },
+  })
+  const videoAsset: MediaAsset = {
+    id: 'vid-1',
+    kind: 'video',
+    filename: 'video/test.mp4',
+    mimeType: 'video/mp4',
+    credit: 'Eigene',
+  }
+  const source = {
+    config: {
+      ...baseConfig,
+      presets: [
+        {
+          id: 'standard',
+          label: 'Standard',
+          slots: [
+            { id: 'text', filters: { questionTypes: ['video-then-question', 'text-choice'] } },
+            { id: 'nur-video', filters: { questionTypes: ['video-then-question'] } },
+          ],
+        },
+      ],
+    },
+    questions: [question({ id: 'q1' }), videoQuestion],
+    assets: [asset, videoAsset],
+    rootDir: '/tmp',
+  }
+
+  it('laesst das Profil "full" unveraendert', () => {
+    expect(applyContentProfile(source, 'full')).toBe(source)
+  })
+
+  it('nimmt fuer "no-video" Fragen, Medien und Fragenplatzfilter heraus', () => {
+    const reduced = applyContentProfile(source, 'no-video')
+
+    expect((reduced.questions as Question[]).map((entry) => entry.id)).toEqual(['q1'])
+    expect(reduced.assets.map((entry) => entry.id)).toEqual(['img-1'])
+
+    /*
+     * Die ANZAHL der Fragenplaetze bleibt - sonst passte das Preset nicht mehr
+     * zu `questionsPerGame`. Ein Platz, der NUR Videofragen zuliess, wird zum
+     * freien Platz; bei einem gemischten Filter faellt nur der Videotyp weg.
+     */
+    const slots = (reduced.config as typeof source.config).presets[0]!.slots
+    expect(slots).toHaveLength(2)
+    expect(slots[0]!.filters).toEqual({ questionTypes: ['text-choice'] })
+    expect(slots[1]!.filters).toEqual({})
+  })
+
+  it('laesst die Quelle des vollen Profils unberuehrt', () => {
+    applyContentProfile(source, 'no-video')
+    expect((source.questions as Question[]).map((entry) => entry.id)).toEqual(['q1', 'v1'])
+    expect(source.config.presets[0]!.slots[1]!.filters.questionTypes).toEqual(['video-then-question'])
   })
 })

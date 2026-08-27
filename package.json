@@ -15,6 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "content:fixtures": "node scripts/build-content-fixtures.mjs",
+    "content:pull": "tsx packages/content/src/cli/index.ts pull",
     "content:fetch": "tsx packages/content/src/cli/fetch.ts",
     "content:assets": "tsx packages/content/src/cli/generate-demo-assets.ts",
     "content:migrate": "tsx packages/content/src/cli/migrate-legacy.ts",
@@ -34,7 +36,9 @@
     "dev:kiosk": "pnpm --filter @quiz/kiosk dev",
     "lint": "pnpm typecheck",
     "desktop:rebuild-native": "pnpm --filter @quiz/desktop rebuild:native",
-    "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs"
+    "server:rebuild-native": "node scripts/rebuild-native-for-node.mjs",
+    "content:build:no-video": "tsx packages/content/src/cli/build.ts --profile no-video --out content/dist-no-video",
+    "content:validate:no-video": "tsx packages/content/src/cli/validate.ts --profile no-video"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

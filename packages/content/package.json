@@ -14,7 +14,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20"
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20 && tsup src/cli/index.ts --format esm --sourcemap --target node20 --out-dir dist/cli && chmod +x dist/cli/index.js"
   },
   "publishConfig": {
     "exports": {
@@ -24,6 +24,12 @@
       }
     },
     "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "restricted",
+    "bin": {
+      "quiz-content": "./dist/cli/index.js"
+    }
+  },
+  "bin": {
+    "quiz-content": "./src/cli/index.ts"
   }
 }

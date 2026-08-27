@@ -295,9 +295,15 @@ export type QuizConfig = z.infer<typeof quizConfigSchema>
  * Paket (Abschnitt 24.3)
  * ------------------------------------------------------------------ */
 
+/** Inhaltsprofile der Pipeline. `no-video` traegt die Offline-Apps. */
+export const contentProfiles = ['full', 'no-video'] as const
+export type ContentProfile = (typeof contentProfiles)[number]
+
 export const quizPackageManifestSchema = z.object({
   schemaVersion: z.string().min(1),
   contentVersion: z.string().min(1),
+  /** Inhaltsprofil des Builds. Fehlt es (aeltere Pakete), gilt `full`. */
+  profile: z.enum(contentProfiles).optional(),
   createdAt: z.string().min(1),
   sourceRevision: z.string().optional(),
   questionsFile: z.string().min(1),

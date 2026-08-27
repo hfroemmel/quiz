@@ -11,6 +11,7 @@ import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import {
   QUIZ_PACKAGE_SCHEMA_VERSION,
   mediaAssetSchema,
+  type ContentProfile,
   questionSchema,
   quizConfigSchema,
   quizPackageManifestSchema,
@@ -36,6 +37,46 @@ export interface RawSource {
 }
 
 /** Liest ein Quellverzeichnis (`content/source`) ohne zu validieren. */
+/**
+ * Wendet ein Inhaltsprofil auf die Quelle an.
+ *
+ * `no-video` filtert fuer die Offline-Apps alles Videohafte heraus:
+ *   - Videofragen entfallen,
+ *   - Videodateien verlassen das Medienverzeichnis,
+ *   - Fragenplaetze, die auf Videofragen filtern, verlieren genau diesen
+ *     Filter und werden freie Plaetze - die Zahl der Plaetze je Preset bleibt,
+ *     nur die Dramaturgie des Videoplatzes entfaellt.
+ *
+ * Die Transformation laeuft VOR der Validierung: Beide Profile werden als
+ * eigene, vollstaendige Quelle geprueft.
+ */
+export function applyContentProfile(source: RawSource, profile: ContentProfile): RawSource {
+  if (profile === 'full') return source
+
+  const questions = Array.isArray(source.questions)
+    ? source.questions.filter(
+        (question) => (question as { questionType?: string }).questionType !== 'video-then-question',
+      )
+    : source.questions
+  const assets = source.assets.filter((asset) => asset.kind !== 'video')
+
+  const config = structuredClone(source.config) as {
+    presets?: { slots?: { filters?: { questionTypes?: string[] } }[] }[]
+  }
+  for (const preset of config?.presets ?? []) {
+    for (const slot of preset.slots ?? []) {
+      const types = slot.filters?.questionTypes
+      if (!types) continue
+      const remaining = types.filter((type) => type !== 'video-then-question')
+      if (remaining.length === types.length) continue
+      if (remaining.length > 0) slot.filters!.questionTypes = remaining
+      else delete slot.filters!.questionTypes
+    }
+  }
+
+  return { config, questions, assets, rootDir: source.rootDir }
+}
+
 export function readSource(sourceDir: string): RawSource {
   const config = readJson(join(sourceDir, CONFIG_FILE))
   const questions = readJson(join(sourceDir, QUESTIONS_FILE))
@@ -88,6 +129,8 @@ export interface BuildOptions {
   createdAt: string
   /** Siehe `ValidationInput.missingMediaSeverity`. Standard ist `'error'`. */
   missingMediaSeverity?: IssueSeverity
+  /** Inhaltsprofil. Standard ist `full`. */
+  profile?: ContentProfile
 }
 
 export interface BuildResult {
@@ -103,7 +146,8 @@ export interface BuildResult {
  * Warnungen laufen durch, muessen aber im Bericht bewusst freigegeben werden.
  */
 export function buildPackage(options: BuildOptions): BuildResult {
-  const source = readSource(options.sourceDir)
+  const profile: ContentProfile = options.profile ?? 'full'
+  const source = applyContentProfile(readSource(options.sourceDir), profile)
   const validation = validateSource(source, {
     contentVersion: options.contentVersion,
     missingMediaSeverity: options.missingMediaSeverity,
@@ -160,6 +204,7 @@ export function buildPackage(options: BuildOptions): BuildResult {
     contentVersion: options.contentVersion,
     createdAt: options.createdAt,
     sourceRevision: options.sourceRevision,
+    ...(profile === 'full' ? {} : { profile }),
     questionsFile: QUESTIONS_FILE,
     configFile: CONFIG_FILE,
     assets,

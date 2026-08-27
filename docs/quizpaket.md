@@ -3,6 +3,10 @@
 Ein Quizpaket ist die **einzige** Quelle, aus der der Server zur Laufzeit Inhalte
 laedt. Es entsteht aus `content/source/` und liegt gebaut unter `content/dist/`.
 
+Die redaktionellen Inhalte leben in
+[`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data);
+`content/source` enthaelt hier einen erzeugten Testbestand (siehe README).
+
 ```text
 content/dist/
   manifest.json     Version, Zeitstempel, Medienliste, Pruefsumme
@@ -18,6 +22,7 @@ content/dist/
 {
   "schemaVersion": "2.0.0",
   "contentVersion": "1.0.1",
+  "profile": "no-video",   // fehlt beim vollen Profil
   "createdAt": "2026-08-18T05:36:00.000Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
@@ -135,6 +140,21 @@ beliebige lokale Dateien zeigen.
 
 Fehlende Filter bedeuten „beliebig“. Ein Sonderwert wie der String `random` ist
 deshalb nicht noetig.
+
+## Inhaltsprofile
+
+Dieselbe Quelle ergibt zwei Pakete:
+
+| Profil | Aufruf | Inhalt |
+|---|---|---|
+| `full` | `quiz-content build` | alles, inklusive Videofragen |
+| `no-video` | `quiz-content build --profile no-video` | ohne Videofragen und Videodateien |
+
+`no-video` traegt die Offline-Apps: Es entfernt Videofragen und Videomedien und
+streicht den Videotyp aus den Fragenplatzfiltern. Die ANZAHL der Fragenplaetze
+je Preset bleibt gleich - ein Platz, der nur Videofragen zuliess, wird zum
+freien Platz. Beide Profile werden getrennt validiert; das gebaute Paket nennt
+sein Profil im Manifest.
 
 Welche Pools ein Spiel zieht, entscheidet `START_GAME` (`audience`, optional
 `poolIds`); ohne Angabe spielen alle Pools mit. Das Quizpaket traegt seit

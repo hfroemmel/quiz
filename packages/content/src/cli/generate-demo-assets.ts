@@ -78,6 +78,112 @@ function brandingSvg(id: string, label: string): string {
 `
 }
 
+/* ------------------------------------------------------------------ *
+ * Video-Platzhalter
+ * ------------------------------------------------------------------ */
+
+/** Eine MP4-Box: Laenge, Typ, Inhalt. */
+function box(type: string, ...parts: Uint8Array[]): Uint8Array {
+  const payload = Buffer.concat(parts)
+  const header = Buffer.alloc(8)
+  header.writeUInt32BE(payload.length + 8, 0)
+  header.write(type, 4, 'ascii')
+  return Buffer.concat([header, payload])
+}
+
+function bytes(...values: number[]): Uint8Array {
+  return Uint8Array.from(values)
+}
+
+function uint32(value: number): Uint8Array {
+  const buffer = Buffer.alloc(4)
+  buffer.writeUInt32BE(value, 0)
+  return buffer
+}
+
+/**
+ * Ein gueltiger, LEERER MP4-Container.
+ *
+ * WOFUER: Eine Videofrage braucht eine Datei, sonst schlaegt die Validierung
+ * fehl und die Frage waere unspielbar. Ein echtes Video kann hier nicht
+ * entstehen - es gibt keinen Encoder, und ein Platzhaltervideo waere ohnehin
+ * so aussagelos wie eine Platzhaltergrafik.
+ *
+ * Erzeugt wird deshalb ein Container mit einem Videotrack OHNE Bilddaten: Der
+ * Browser laedt ihn, meldet die Laufzeit und beendet sofort. Der Ablauf ist
+ * damit vollstaendig durchspielbar - zu sehen ist die Platzhalterflaeche der
+ * Buehne, genau wie bei einem Medienfehler.
+ *
+ * Die Boxen stehen in der Reihenfolge des Standards (ISO/IEC 14496-12);
+ * Zeitskala und Dauer sind 1000 bzw. 1000, also eine Sekunde.
+ */
+function placeholderMp4(): Uint8Array {
+  const timescale = uint32(1000)
+  const duration = uint32(1000)
+
+  const ftyp = box('ftyp', Buffer.from('isom', 'ascii'), uint32(0x200), Buffer.from('isomiso2mp41', 'ascii'))
+
+  const mvhd = box(
+    'mvhd',
+    bytes(0, 0, 0, 0), // Version 0, keine Flags
+    uint32(0), // Erstellung
+    uint32(0), // Aenderung
+    timescale,
+    duration,
+    uint32(0x00010000), // Abspielrate 1.0
+    bytes(1, 0, 0, 0), // Lautstaerke 1.0, Reserve
+    new Uint8Array(8), // Reserve
+    // Einheitsmatrix
+    Buffer.concat([uint32(0x00010000), uint32(0), uint32(0), uint32(0), uint32(0x00010000), uint32(0), uint32(0), uint32(0), uint32(0x40000000)]),
+    new Uint8Array(24), // vordefiniert
+    uint32(2), // naechste Track-ID
+  )
+
+  const tkhd = box(
+    'tkhd',
+    bytes(0, 0, 0, 3), // Version 0, Flags: aktiviert und Teil des Films
+    uint32(0),
+    uint32(0),
+    uint32(1), // Track-ID
+    uint32(0), // Reserve
+    duration,
+    new Uint8Array(8), // Reserve
+    bytes(0, 0, 0, 0), // Ebene, alternative Gruppe
+    bytes(0, 0, 0, 0), // Lautstaerke (Video: 0), Reserve
+    Buffer.concat([uint32(0x00010000), uint32(0), uint32(0), uint32(0), uint32(0x00010000), uint32(0), uint32(0), uint32(0), uint32(0x40000000)]),
+    uint32(1280 << 16), // Breite als 16.16-Festkommazahl
+    uint32(720 << 16), // Hoehe
+  )
+
+  const mdhd = box('mdhd', bytes(0, 0, 0, 0), uint32(0), uint32(0), timescale, duration, bytes(0x55, 0xc4), bytes(0, 0))
+  const hdlr = box(
+    'hdlr',
+    bytes(0, 0, 0, 0),
+    uint32(0),
+    Buffer.from('vide', 'ascii'),
+    new Uint8Array(12),
+    Buffer.from('Platzhalter\0', 'ascii'),
+  )
+  const vmhd = box('vmhd', bytes(0, 0, 0, 1), new Uint8Array(8))
+  const dref = box('dref', bytes(0, 0, 0, 0), uint32(1), box('url ', bytes(0, 0, 0, 1)))
+  const dinf = box('dinf', dref)
+  // Leere Tabellen: Der Track enthaelt bewusst keine einzige Bildprobe.
+  const stbl = box(
+    'stbl',
+    box('stsd', bytes(0, 0, 0, 0), uint32(0)),
+    box('stts', bytes(0, 0, 0, 0), uint32(0)),
+    box('stsc', bytes(0, 0, 0, 0), uint32(0)),
+    box('stsz', bytes(0, 0, 0, 0), uint32(0), uint32(0)),
+    box('stco', bytes(0, 0, 0, 0), uint32(0)),
+  )
+  const minf = box('minf', vmhd, dinf, stbl)
+  const mdia = box('mdia', mdhd, hdlr, minf)
+  const trak = box('trak', tkhd, mdia)
+  const moov = box('moov', mvhd, trak)
+
+  return Buffer.concat([ftyp, moov, box('mdat')])
+}
+
 const brandingLabels: Record<string, string> = {
   'logo-quiz': 'Abendquiz',
   'logo-kids': 'Kinderquiz',
@@ -94,7 +200,9 @@ function main(): void {
   let kept = 0
 
   for (const asset of assets) {
-    if (asset.kind !== 'image' || !asset.filename.endsWith('.svg')) continue
+    const isImage = asset.kind === 'image' && asset.filename.endsWith('.svg')
+    const isVideo = asset.kind === 'video' && asset.filename.endsWith('.mp4')
+    if (!isImage && !isVideo) continue
     const target = resolveAssetPath(contentSourceDir, asset.filename)
     if (!target) {
       throw new Error(`Asset-Pfad "${asset.filename}" liegt ausserhalb des Asset-Verzeichnisses.`)
@@ -106,16 +214,19 @@ function main(): void {
       kept += 1
       continue
     }
-    const label = brandingLabels[asset.id]
-    const svg = label ? brandingSvg(asset.id, label) : questionImageSvg(asset.id)
     mkdirSync(dirname(target), { recursive: true })
-    writeFileSync(target, svg, 'utf8')
+    if (isVideo) {
+      writeFileSync(target, placeholderMp4())
+    } else {
+      const label = brandingLabels[asset.id]
+      writeFileSync(target, label ? brandingSvg(asset.id, label) : questionImageSvg(asset.id), 'utf8')
+    }
     written += 1
   }
 
-  console.log(`${written} Platzhalter-Grafiken erzeugt, ${kept} vorhandene Dateien unveraendert.`)
+  console.log(`${written} Platzhalter-Medien erzeugt, ${kept} vorhandene Dateien unveraendert.`)
   console.log(`Verzeichnis: ${join(contentSourceDir, 'assets')}.`)
-  console.log('Hinweis: Vor der Veranstaltung durch freigegebenes Bildmaterial ersetzen.')
+  console.log('Hinweis: Vor der Veranstaltung durch freigegebenes Material ersetzen.')
 }
 
 main()

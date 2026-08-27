@@ -21,10 +21,13 @@ release/
 content/incoming/
 # Migrationsvorschlaege aus den Legacy-Quellen: brauchen menschliche Freigabe
 content/migrated/
-# Fragenbilder im gebauten Paket: unveraenderte Kopien aus
-# content/source/assets/questions. Sie wuerden das Repository verdoppeln und
-# entstehen bei jedem "pnpm content:build" neu.
-content/dist/assets/questions/
+# Das gebaute Paket entsteht bei jedem "pnpm content:build" neu und waere hier
+# eine Verdopplung des Testbestands.
+content/dist/
+content/dist-no-video/
+# Eine gepflegte Sperrdatei zeigt auf einen echten Inhaltsstand und gehoert der
+# jeweiligen Anwendung; im Testrepository bleibt es bei der Vorlage.
+content.lock.json
 
 # Playwright
 test-results/
@@ -36,6 +39,4 @@ playwright-report/
 .vscode/
 .idea/
 
-# Videokopie im gebauten Paket: unveraenderte Kopie aus content/source/assets/video.
-content/dist/assets/video/
 packages/*/dist/

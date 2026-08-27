@@ -7,7 +7,7 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { contentDir } from './dirs'
+import { contentDir, flagValue } from './dirs'
 import { MANIFEST_FILE, buildPackage, readJson } from '../package'
 import { formatValidationReport } from '../report'
 
@@ -44,6 +44,8 @@ if (existsSync(previousManifestPath)) {
 
 /** Siehe `pnpm content:validate --placeholder-media`. */
 const placeholderMedia = args.includes('--placeholder-media')
+/** `--profile no-video` filtert Videofragen und -medien fuer die Offline-Apps. */
+const profile = flagValue(args, 'profile') === 'no-video' ? ('no-video' as const) : ('full' as const)
 
 const contentVersion = nextContentVersion()
 const result = buildPackage({
@@ -53,6 +55,7 @@ const result = buildPackage({
   sourceRevision: process.env['SOURCE_REVISION'],
   createdAt: new Date().toISOString(),
   missingMediaSeverity: placeholderMedia ? 'warning' : 'error',
+  profile,
 })
 
 const report = formatValidationReport(result.validation, {
