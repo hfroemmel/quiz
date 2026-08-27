@@ -18,6 +18,7 @@ ist und was als Naechstes ansteht.
 | 7 | Inhalte nach `quiz-content-data`, Testbestand hier, Inhaltsprofile, `pull` |
 | 8 | Buehnenbetrieb nach `quiz-live`: Server, Persistenz, Rollen-Clients, Electron-Huelle |
 | 9 | Kiosk nach `quiz-standalone`: `LocalQuizRuntime` im Fenster, kein Server, kein Netz |
+| 10 | `app-collection`: Spielesammlung mit eingebettetem Quiz, Auf- und Abbau beim Gastgeber |
 
 Nachweis je Phase: `pnpm typecheck`, `pnpm test` (184), `pnpm packages:verify`
 (publint + attw fuer sieben Pakete), `pnpm build`, `npx playwright test` (80,
@@ -61,20 +62,19 @@ Zwei Beobachtungen fuer den naechsten Release:
    ist und der Job `packages: read` besitzt: Ein privates Paket gehoert nur dem
    Repository, aus dem es veroeffentlicht wurde. Abhilfe: bei jedem der fuenf
    Pakete unter *Package settings -> Manage Actions access -> Add repository*
-   das konsumierende Repository mit `Read` eintragen - fuer `quiz-live` und
-   `quiz-standalone`, spaeter fuer `app-collection`.
+   das konsumierende Repository mit `Read` eintragen - fuer `quiz-live`,
+   `quiz-standalone` und `app-collection`.
 2. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
    (`lfs.github.com`) ist aus der Migrationssitzung heraus gesperrt. Der
    Textbestand ist dort vollstaendig; das README des Repositories nennt die
    Befehle fuer den einmaligen Upload aus einer Arbeitskopie.
 
-## Als Naechstes (Phasen 10 und 11)
+## Als Naechstes (Phase 11)
 
 | Phase | Repository | Inhalt |
 |---|---|---|
-| 10 | `app-collection` | Spielemenue mit eingebettetem Quiz, sauberes Aufraeumen beim Verlassen |
 | 11 | `quiz` | Rueckbau: `apps/*`, `packages/persistence` und `packages/server` verlassen dieses Repository |
 
-Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.1` aus
+Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.2` aus
 GitHub Packages. Die Pakete sind veroeffentlicht; was jedem neuen Repository
 noch fehlt, ist die Lesefreigabe (siehe Blocker 1).
