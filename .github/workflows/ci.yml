@@ -33,6 +33,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
+      # Das Quizpaket ist nicht versioniert - es entsteht aus dem Testbestand
+      # unter content/source. Tests und Server laden ausschliesslich daraus.
+      - run: pnpm content:build
       - run: pnpm test
       # Paket-Dists bauen und als gepackte Tarballs pruefen (publint + attw) -
       # so, wie die Pakete spaeter beim Veroeffentlichen ankommen.
@@ -53,6 +56,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm content:build
       - run: pnpm test:e2e
         env:
           # Der Container bringt seine Browser selbst mit; kein CHROMIUM_PATH.
