@@ -17,6 +17,7 @@ ist und was als Naechstes ansteht.
 | 6 | Changesets (fixed), `release.yml`, Vite-lib-Builds, Veroeffentlichung 0.1.0 |
 | 7 | Inhalte nach `quiz-content-data`, Testbestand hier, Inhaltsprofile, `pull` |
 | 8 | Buehnenbetrieb nach `quiz-live`: Server, Persistenz, Rollen-Clients, Electron-Huelle |
+| 9 | Kiosk nach `quiz-standalone`: `LocalQuizRuntime` im Fenster, kein Server, kein Netz |
 
 Nachweis je Phase: `pnpm typecheck`, `pnpm test` (184), `pnpm packages:verify`
 (publint + attw fuer sieben Pakete), `pnpm build`, `npx playwright test` (80,
@@ -32,11 +33,15 @@ Playwright-Tests im Container, gut neun Minuten) beide erfolgreich.
 Eine Anpassung war dafuer noetig: Seit Phase 7 ist `content/dist` nicht mehr
 versioniert, also bauen beide Jobs das Quizpaket vor dem Testlauf.
 
-## Version 0.1.0 ist veroeffentlicht
+## Veroeffentlichte Versionen
 
-Alle fuenf Pakete liegen als 0.1.0 auf GitHub Packages. Der Weg war der
-dokumentierte: Der Release-Workflow legte den PR "Version Packages" an, sein
-Merge (`0210fb1`) veroeffentlichte.
+| Version | Was |
+|---|---|
+| 0.1.0 | Erste Veroeffentlichung aller fuenf Pakete |
+| 0.2.0 | `QuizGame` nimmt die Laufzeit vom Gastgeber entgegen (`runtime`-Prop) |
+
+Der Weg ist der dokumentierte: Der Release-Workflow legt den PR
+"Version Packages" an, sein Merge veroeffentlicht.
 
 Zwei Beobachtungen fuer den naechsten Release:
 
@@ -51,23 +56,22 @@ Zwei Beobachtungen fuer den naechsten Release:
 
 ## Blockiert
 
-1. **Die Pakete sind fuer `quiz-live` noch nicht freigegeben.** Der CI-Lauf dort
-   scheitert an der Registry mit `403`, obwohl das Token gueltig ist und der Job
-   `packages: read` besitzt: Ein privates Paket gehoert zunaechst nur dem
+1. **Die Pakete sind fuer die Anwendungs-Repositories noch nicht freigegeben.**
+   Deren CI-Laeufe scheitern an der Registry mit `403`, obwohl das Token gueltig
+   ist und der Job `packages: read` besitzt: Ein privates Paket gehoert nur dem
    Repository, aus dem es veroeffentlicht wurde. Abhilfe: bei jedem der fuenf
    Pakete unter *Package settings -> Manage Actions access -> Add repository*
-   das konsumierende Repository mit `Read` eintragen. Dasselbe steht spaeter
-   fuer `quiz-standalone` und `app-collection` an.
+   das konsumierende Repository mit `Read` eintragen - fuer `quiz-live` und
+   `quiz-standalone`, spaeter fuer `app-collection`.
 2. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
    (`lfs.github.com`) ist aus der Migrationssitzung heraus gesperrt. Der
    Textbestand ist dort vollstaendig; das README des Repositories nennt die
    Befehle fuer den einmaligen Upload aus einer Arbeitskopie.
 
-## Als Naechstes (Phasen 9 bis 11)
+## Als Naechstes (Phasen 10 und 11)
 
 | Phase | Repository | Inhalt |
 |---|---|---|
-| 9 | `quiz-standalone` | Kiosk als Electron-App mit `LocalQuizRuntime`, Inhalte gebuendelt, vollstaendig offline |
 | 10 | `app-collection` | Spielemenue mit eingebettetem Quiz, sauberes Aufraeumen beim Verlassen |
 | 11 | `quiz` | Rueckbau: `apps/*`, `packages/persistence` und `packages/server` verlassen dieses Repository |
 
