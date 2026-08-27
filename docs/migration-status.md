@@ -21,16 +21,27 @@ Nachweis je Phase: `pnpm typecheck`, `pnpm test` (184), `pnpm packages:verify`
 (publint + attw fuer sieben Pakete), `pnpm build`, `npx playwright test` (80,
 inklusive unveraenderter Screenshot-Baselines).
 
+## CI laeuft
+
+Der frueher gemeldete Kontoblocker ist weg: Seit dem 27.08. starten die
+GitHub-gehosteten Runner. Der erste vollstaendig gruene Lauf steht - `checks`
+(Typecheck, Unit-Tests, `packages:verify`, Produktionsbuild) und `e2e` (80
+Playwright-Tests im Container, gut neun Minuten) beide erfolgreich.
+
+Eine Anpassung war dafuer noetig: Seit Phase 7 ist `content/dist` nicht mehr
+versioniert, also bauen beide Jobs das Quizpaket vor dem Testlauf.
+
 ## Blockiert
 
-Beides liegt ausserhalb des Codes und braucht eine Entscheidung bzw. eine
-Einstellung im GitHub-Konto:
-
-1. **GitHub Actions laufen nicht.** Auch ein leerer Job ohne jede Action
-   scheitert nach Sekunden - die Ursache liegt auf Kontoebene (Abrechnung bzw.
-   Ausgabenlimit fuer Actions in privaten Repositories). Solange das gilt,
-   erscheint keine Paketversion in GitHub Packages, und ohne veroeffentlichte
-   Pakete koennen die Anwendungs-Repositories nichts installieren.
+1. **Actions duerfen keine Pull Requests anlegen.** Der Release-Workflow laeuft
+   bis zum letzten Schritt und scheitert dann an
+   `GitHub Actions is not permitted to create or approve pull requests`. Der
+   Branch `changeset-release/main` wird bereits gepusht; es fehlt nur der
+   Versions-PR. Zwei Wege:
+   - in *Settings -> Actions -> General -> Workflow permissions* die Option
+     „Allow GitHub Actions to create and approve pull requests" aktivieren, oder
+   - `pnpm changeset version` lokal ausfuehren und den Versionsstand pushen -
+     dann veroeffentlicht der naechste Release-Lauf ohne Umweg ueber einen PR.
 2. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
    (`lfs.github.com`) ist aus der Migrationssitzung heraus gesperrt. Der
    Textbestand ist dort vollstaendig; das README des Repositories nennt die
@@ -46,5 +57,5 @@ Einstellung im GitHub-Konto:
 | 11 | `quiz` | Rueckbau: `apps/*`, `packages/persistence` und `packages/server` verlassen dieses Repository |
 
 Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.1` aus
-GitHub Packages. Sie lassen sich deshalb erst bauen und testen, wenn Blocker 1
-geloest ist.
+GitHub Packages. Sie lassen sich deshalb erst bauen und testen, wenn die Pakete
+veroeffentlicht sind (siehe Blocker 1).

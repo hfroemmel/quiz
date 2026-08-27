@@ -25,6 +25,13 @@ einen Changeset (`pnpm changeset`); SemVer gilt ab 1.0 streng
 
 1. Push auf `main` mit offenen Changesets -> der Workflow `release.yml`
    erzeugt bzw. aktualisiert den PR **"Version Packages"**.
+
+   Dafuer muss in *Settings -> Actions -> General -> Workflow permissions* die
+   Option „Allow GitHub Actions to create and approve pull requests" aktiv
+   sein; sonst pusht der Lauf zwar den Branch `changeset-release/main`,
+   scheitert aber beim Anlegen des PR. Wer ohne PR arbeiten will, fuehrt
+   `pnpm changeset version` lokal aus und pusht den Versionsstand - der
+   naechste Release-Lauf veroeffentlicht dann direkt.
 2. Diesen PR mergen -> derselbe Workflow veroeffentlicht die Pakete mit dem
    automatischen `GITHUB_TOKEN` (`permissions: packages: write`) und legt
    Git-Tags an.
