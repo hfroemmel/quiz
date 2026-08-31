@@ -916,6 +916,44 @@ describe('Selbstbedienung', () => {
   })
 })
 
+describe('Rollenrechte', () => {
+  /*
+   * Der Moderator steht am Buehnenabend neben den Spielern und sieht als Erster,
+   * wer sich gemeldet hat; der Operator sitzt am Pult. Deshalb darf er den
+   * Zuschlag setzen und die Antwort einloggen - beides Schritte, die er ohnehin
+   * anmoderiert.
+   */
+  it('laesst den Moderator den Zuschlag setzen und die Antwort einloggen', () => {
+    expect(roleMayIssue('moderator', 'SELECT_PLAYER_MANUALLY')).toBe(true)
+    expect(roleMayIssue('moderator', 'LOG_OPTION_ANSWER')).toBe(true)
+    // Aufloesen und Weiterschalten standen ihm schon offen.
+    expect(roleMayIssue('moderator', 'RESOLVE_ATTEMPT')).toBe(true)
+    expect(roleMayIssue('moderator', 'CONTINUE')).toBe(true)
+  })
+
+  /*
+   * Was NICHT dazugekommen ist, gehoert genauso zum Vertrag: Punkte, Abbruch,
+   * Inhalte und Technik bleiben beim Operator. Ohne diese Zeilen waere eine
+   * versehentliche Erweiterung der Tabelle nicht zu bemerken.
+   */
+  it('laesst dem Operator, was ihm gehoert', () => {
+    for (const befehl of [
+      'ADJUST_SCORE',
+      'ABORT_GAME',
+      'SKIP_QUESTION',
+      'APPLY_QUESTION_PATCH',
+      'RESET_BUZZER',
+      'START_GAME',
+    ] as const) {
+      expect(roleMayIssue('moderator', befehl), befehl).toBe(false)
+    }
+  })
+
+  it('nimmt dem Spieler weiterhin die manuelle Spielerwahl', () => {
+    expect(roleMayIssue('player', 'SELECT_PLAYER_MANUALLY')).toBe(false)
+  })
+})
+
 function playCorrect(harness: ReturnType<typeof createHarness>, playerId: 'player-1' | 'player-2'): void {
   buzzIn(harness, playerId)
   harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })

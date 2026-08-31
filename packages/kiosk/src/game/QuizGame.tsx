@@ -39,6 +39,14 @@ export interface QuizGameProps {
   runtime?: QuizRuntime<PlayerQuizViewModel>
   /** Zielgruppe, in der dieses Geraet spielt. Ohne Angabe die erste des Katalogs. */
   audience?: string
+  /**
+   * Spielerzahlen, die dieses Geraet anbietet. Ohne Angabe beide.
+   *
+   * Ein Geraet, an dem nur eine Person steht, gibt `[1]` an; die Frage nach der
+   * Spielerzahl entfaellt dann. Der Buzzer der zweiten Ecke verschwindet
+   * ohnehin von selbst - die Fussleiste folgt dem Spielstand des Servers.
+   */
+  playerCounts?: readonly PlayerCount[]
   /** Ergebnis eines beendeten Spiels - fuer die Bestenliste des Gastgebers. */
   onFinished?: (result: QuizGameResult) => void
   /**
@@ -57,7 +65,14 @@ export interface QuizGameProps {
   idleTimeoutMs?: number
 }
 
-export function QuizGame({ runtime: hostRuntime, audience, onFinished, onExit, idleTimeoutMs }: QuizGameProps) {
+export function QuizGame({
+  runtime: hostRuntime,
+  audience,
+  playerCounts,
+  onFinished,
+  onExit,
+  idleTimeoutMs,
+}: QuizGameProps) {
   // Ohne Gastgeber-Laufzeit die eigene Verbindung; mit ihr keine.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
   const runtime = hostRuntime ?? own.runtime
@@ -188,7 +203,13 @@ export function QuizGame({ runtime: hostRuntime, audience, onFinished, onExit, i
   if (!pendingStart && (showChoice || !hasGame)) {
     return (
       <div className={`${styles.game} ${styles.startScreen}`} style={themeVariables(themeForView(view))} data-quiz-game="">
-        <GameStart view={view} audience={audienceId} onStart={start} onExit={onExit} />
+        <GameStart
+          view={view}
+          audience={audienceId}
+          playerCounts={playerCounts}
+          onStart={start}
+          onExit={onExit}
+        />
       </div>
     )
   }

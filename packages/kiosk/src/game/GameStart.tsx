@@ -11,23 +11,32 @@
  * neuen Preset vergessen wuerde.
  */
 import { useState } from 'react'
-import { playerCounts, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import styles from './Game.module.css'
 
 interface GameStartProps {
   view: PlayerQuizViewModel
   /** Zielgruppe, in der dieses Geraet spielt. */
   audience: string
+  /**
+   * Spielerzahlen, die dieses Geraet anbietet. Ohne Angabe beide.
+   *
+   * Bleibt nur eine uebrig, entfaellt die Frage danach ganz: Eine Auswahl mit
+   * genau einer Moeglichkeit ist keine Auswahl, sondern eine Huerde vor dem
+   * Start.
+   */
+  playerCounts?: readonly PlayerCount[] | undefined
   onStart(input: { playerCount: PlayerCount; presetId: string }): void
   /** Nur gesetzt, wenn das Quiz Gast einer anderen Anwendung ist. */
   onExit?: (() => void) | undefined
 }
 
-export function GameStart({ view, audience, onStart, onExit }: GameStartProps) {
+export function GameStart({ view, audience, playerCounts, onStart, onExit }: GameStartProps) {
   const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
   const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
-  const [playerCount, setPlayerCount] = useState<PlayerCount>(1)
+  const angeboten = playerCounts && playerCounts.length > 0 ? playerCounts : alleSpielerzahlen
+  const [playerCount, setPlayerCount] = useState<PlayerCount>(angeboten[0] ?? 1)
   const [presetId, setPresetId] = useState(presets[0]?.id ?? '')
 
   const canStart = view.allowedCommands.includes('START_GAME') && presetId !== ''
@@ -37,12 +46,13 @@ export function GameStart({ view, audience, onStart, onExit }: GameStartProps) {
       {view.theme.startVisualUrl && <img className={styles.visual} src={view.theme.startVisualUrl} alt="" />}
       {view.theme.startTitle && <h1 className={styles.title}>{view.theme.startTitle}</h1>}
 
+      {angeboten.length > 1 && (
       <section className={styles.choice}>
         <h2 className={styles.choiceLabel} data-choice-label="">
           Wie viele spielen?
         </h2>
         <div className={styles.options}>
-          {playerCounts.map((count) => (
+          {angeboten.map((count) => (
             <button
               key={count}
               type="button"
@@ -55,6 +65,7 @@ export function GameStart({ view, audience, onStart, onExit }: GameStartProps) {
           ))}
         </div>
       </section>
+      )}
 
       <section className={styles.choice}>
         <h2 className={styles.choiceLabel} data-choice-label="">

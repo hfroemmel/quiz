@@ -15,7 +15,11 @@ import { patchableQuestionFieldsSchema } from './content'
 /**
  * `player` ist die Rolle der Spieler am Touchgeraet. Sie darf genau zwei Dinge:
  * ein Selbstbedienungsspiel beginnen oder beenden und eine Antwort antippen.
- * Kein Einloggen, kein Aufloesen, kein Weiterschalten - das sind Operatorrechte.
+ * Kein Aufloesen fremder Versuche, keine Punktekorrektur, keine Inhalte.
+ *
+ * `moderator` fuehrt durch den Abend: freigeben, den Zuschlag setzen, die
+ * Antwort einloggen, aufloesen, weiterschalten. Punkte, Spielabbruch, Technik
+ * und Inhalte bleiben beim Operator.
  */
 export const actorRoles = ['operator', 'moderator', 'system', 'buzzer', 'player'] as const
 export type ActorRole = (typeof actorRoles)[number]
@@ -170,8 +174,14 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
    * Server (`QuizService`), nicht diese Tabelle.
    */
   BUZZ: ['operator', 'buzzer', 'player'],
-  SELECT_PLAYER_MANUALLY: ['operator'],
-  LOG_OPTION_ANSWER: ['operator', 'player'],
+  /*
+   * Den Zuschlag von Hand setzen und die Antwort einloggen darf auch der
+   * Moderator. Am Buehnenabend steht er neben den Spielern und sieht als
+   * Erster, wer sich gemeldet hat - der Operator sitzt am Pult. Gewertet wird
+   * weiterhin gemeinsam: RESOLVE_ATTEMPT stand dem Moderator schon offen.
+   */
+  SELECT_PLAYER_MANUALLY: ['operator', 'moderator'],
+  LOG_OPTION_ANSWER: ['operator', 'moderator', 'player'],
   MARK_MANUAL_ANSWER: ['operator'],
   RESOLVE_ATTEMPT: ['operator', 'moderator', 'player'],
   RESOLVE_WITHOUT_ANSWER: ['operator', 'moderator'],
