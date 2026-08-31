@@ -69,6 +69,16 @@
   aspect-ratio: 16 / 9;
   width: auto;
   max-width: 100%;
+  /*
+   * ZOOM: DIE SZENE SCHRUMPFT ZUR MITTE, IHR PLATZ BLEIBT.
+   *
+   * Skaliert wird die Darstellung, nicht der Kasten - haette der Kasten die
+   * kleinere Groesse, rutschte die Fussleiste mit nach oben und ihre Ecken
+   * verliessen den Bildrand. So bleibt unten alles an seinem Platz und in der
+   * Mitte entsteht Luft.
+   */
+  transform: scale(var(--stage-zoom, 1));
+  transform-origin: center center;
 }
 
 /* Koernungsebene ganz oben - nur die Kinderwelt fuellt sie. */

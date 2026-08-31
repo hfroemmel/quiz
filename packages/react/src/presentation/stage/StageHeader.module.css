@@ -27,6 +27,18 @@
   pointer-events: none;
 }
 
+/*
+ * Das Logo aus dem Inhalt. Es traegt seine eigenen Farben, deshalb keine Maske
+ * und kein festes Seitenverhaeltnis: Die Breite kommt aus denselben Regeln wie
+ * bei der Wortmarke, die Hoehe aus dem Bild.
+ */
+.brandImage {
+  height: auto;
+  object-fit: contain;
+  object-position: left center;
+  pointer-events: none;
+}
+
 /* ------------------------------------------------------------------ *
  * Buehne der Erwachsenen
  *
@@ -41,7 +53,8 @@
 :global(.stage--default) .scores {
   gap: 1cqw;
 }
-:global(.stage--default) .brand {
+:global(.stage--default) .brand,
+:global(.stage--default) .brandImage {
   position: absolute;
   left: 3cqw;
   top: 2cqw;
@@ -58,12 +71,23 @@
  * sind unten bei den Buzzern. Sie darf deshalb nicht mehr aus der Zeile
  * herausgeloest sein - ohne Karten haette die Kopfzeile sonst keine Hoehe, und
  * die Szene liefe darueber hinweg.
+ *
+ * Sie steht dabei weiter oben im Bild als im Saal: Der Kopf ist
+ * dicht ueber der Flaeche, und ein zu knapper Rand laesst das Logo an der Kante
+ * kleben. Der zusaetzliche Raum kommt allein aus dieser Zeile - die Szene
+ * darunter nimmt sich, was uebrig bleibt.
+ *
+ * MIT DEM ZOOM SCHRUMPFT SIE ZUR ECKE HIN: Der Bezugspunkt ist die obere linke
+ * Ecke des Bildes, damit das Logo am Rand bleibt und nur kleiner wird.
  */
 :global(.stage--default.stage--touch) .header {
   justify-content: flex-start;
-  padding: 2cqh 4cqw 0;
+  padding: 4cqh 4cqw 0;
+  transform: scale(var(--stage-zoom, 1));
+  transform-origin: top left;
 }
-:global(.stage--default.stage--touch) .brand {
+:global(.stage--default.stage--touch) .brand,
+:global(.stage--default.stage--touch) .brandImage {
   position: static;
   width: 13cqw;
 }
@@ -78,7 +102,8 @@
   gap: var(--kids-gap);
   padding: var(--kids-pad) var(--kids-pad) 0;
 }
-:global(.stage--kids) .brand {
+:global(.stage--kids) .brand,
+:global(.stage--kids) .brandImage {
   width: 15cqw;
 }
 :global(.stage--kids) .scores {
@@ -86,4 +111,14 @@
 }
 :global(.stage--kids) .counterSlot {
   justify-self: end;
+}
+
+/*
+ * Die Kinderwelt am Touchgeraet folgt derselben Regel wie oben: mehr Luft nach
+ * oben, und beim Verkleinern bleibt die Ecke der Bezugspunkt.
+ */
+:global(.stage--kids.stage--touch) .header {
+  padding: calc(var(--kids-pad) * 2) var(--kids-pad) 0;
+  transform: scale(var(--stage-zoom, 1));
+  transform-origin: top left;
 }

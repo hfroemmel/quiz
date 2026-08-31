@@ -26,6 +26,14 @@
 .game {
   position: relative;
   height: 100%;
+  /*
+   * Rundung der Schaltflaechen dieser Ansicht.
+   *
+   * Sie steht hier und nicht im Theme: Die Buehne rechnet ihre Rundung in
+   * Containereinheiten gegen sich selbst (`--stage-radius`), die Auswahl davor
+   * gehoert dem Geraet und rechnet wie alles hier in `clamp()`.
+   */
+  --radius: clamp(10px, 1.8vh, 22px);
   color: var(--color-text);
   font-family: var(--font-body);
   /* Ein Doppeltipp darf nicht zoomen und die Flaeche verschieben. */
@@ -95,7 +103,35 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 2cqw;
-  padding: 0 4cqw 3cqh;
+  /*
+   * Der Abstand zum Bildrand schrumpft mit der Zoomstufe: Sonst rueckten die
+   * Ecken bei kleiner Anzeige von der Kante ab und die Leiste saehe aus, als
+   * haette sie sich verlaufen.
+   */
+  padding: 0 calc(4cqw * var(--stage-zoom, 1)) calc(3cqh * var(--stage-zoom, 1));
+}
+
+/*
+ * ZOOM IN DER FUSSLEISTE: JEDE SPALTE ZU IHRER EIGENEN KANTE.
+ *
+ * Die Szene darueber schrumpft zur Mitte; hier waere das falsch - Punktestand
+ * und Zaehler gehoeren an den Bildrand, weil dort die Haende der Spieler sind.
+ * Jede Spalte skaliert deshalb um ihren eigenen Bezugspunkt: die linke zur
+ * unteren linken Ecke, die rechte zur unteren rechten, die Mitte nach unten.
+ * Der Platz, den sie im Layout einnehmen, bleibt dabei unveraendert - dadurch
+ * bleibt die Aufteilung dieselbe wie bei voller Groesse.
+ */
+.foot > * {
+  transform: scale(var(--stage-zoom, 1));
+}
+.corner[data-corner='left'] {
+  transform-origin: bottom left;
+}
+.corner[data-corner='right'] {
+  transform-origin: bottom right;
+}
+.middle {
+  transform-origin: bottom center;
 }
 
 /*
@@ -286,6 +322,7 @@
  * ------------------------------------------------------------------ */
 
 .start {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -331,10 +368,17 @@
   gap: clamp(8px, 2vw, 20px);
 }
 
+/*
+ * Eine Schaltflaeche traegt einen Namen und darunter oft eine zweite Zeile
+ * ("7 Fragen"). BEIDE ZEILEN STEHEN ALS BLOCK IN DER MITTE - auch dort, wo es
+ * nur eine gibt: Stuenden Karten mit einer und mit zwei Zeilen nebeneinander,
+ * saessen ihre Namen sonst auf verschiedenen Hoehen.
+ */
 .option {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   min-width: clamp(120px, 22vw, 240px);
   min-height: clamp(64px, 10vh, 110px);
@@ -345,6 +389,7 @@
   color: var(--color-text);
   font-family: var(--font-heading);
   font-size: clamp(18px, 2.8vh, 32px);
+  line-height: 1.15;
   cursor: pointer;
 }
 
@@ -354,15 +399,21 @@
   background: var(--color-accentQuiet);
 }
 
+/*
+ * Zweite Zeile der Schwierigkeitskarten. Sie war so klein, dass sie neben dem
+ * Namen verschwand - dabei ist die Zahl der Fragen genau das, was die Wahl
+ * entscheidet.
+ */
 .hint {
   font-family: var(--font-ui);
-  font-size: clamp(11px, 1.5vh, 16px);
+  font-size: clamp(14px, 2vh, 22px);
   color: var(--color-textMuted);
 }
 
 .actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: clamp(8px, 2vw, 24px);
 }
 
@@ -393,6 +444,149 @@
   color: var(--color-textMuted);
   font-family: var(--font-heading);
   font-size: clamp(16px, 2.4vh, 28px);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ *
+ * Einstellungen und Rueckfragen
+ *
+ * Beide sind dasselbe Bauteil: eine Flaeche ueber allem, darin eine Karte. Der
+ * Grund liegt am Geraet - eine Rueckfrage, die man ueberklicken kann, ist am
+ * Touchscreen keine Rueckfrage.
+ * ------------------------------------------------------------------ */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vh, 40px);
+  background: color-mix(in srgb, var(--color-pageBottom) 92%, transparent);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(10px, 2vh, 24px);
+  min-width: clamp(280px, 46vw, 620px);
+  max-width: 92%;
+  padding: clamp(16px, 3vh, 40px);
+  border-radius: var(--radius);
+  /*
+   * ZWEI LAGEN, WEIL DIE KACHELFARBE DURCHSCHEINT. Eine Karte, durch die man
+   * den Startbildschirm liest, ist keine Karte - und eine Rueckfrage, hinter
+   * der man die Frage noch sieht, liest sich als Teil des Spiels. Der
+   * Flaechengrund darunter macht sie undurchsichtig, ohne dass hier ein
+   * zweiter Farbwert stuende.
+   */
+  background:
+    linear-gradient(var(--color-tile), var(--color-tile)),
+    linear-gradient(var(--color-pageBottom), var(--color-pageBottom));
+  text-align: center;
+}
+
+.panelTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 3.2vh, 38px);
+  font-weight: 400;
+}
+
+/* Eine Zeile je Einstellung: links, wofuer sie gilt, rechts die Bedienung. */
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(10px, 2vw, 28px);
+}
+
+.settingLabel {
+  font-family: var(--font-heading);
+  font-size: clamp(16px, 2.4vh, 28px);
+}
+
+.settingControl {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.2vw, 16px);
+}
+
+/*
+ * Die Schaltflaechen der Einstellungen sind dieselben Karten wie in der
+ * Startauswahl, nur schmaler: Es ist derselbe Handgriff, und er soll sich auch
+ * so anfuehlen.
+ */
+.settingControl .option {
+  min-width: clamp(84px, 12vw, 140px);
+  min-height: clamp(48px, 7vh, 80px);
+  font-size: clamp(15px, 2.2vh, 26px);
+}
+
+.settingValue {
+  min-width: 4.5ch;
+  font-family: var(--font-ui);
+  font-size: clamp(14px, 2vh, 22px);
+  color: var(--color-textMuted);
+  text-align: right;
+}
+
+/*
+ * Der Schieberegler ist bewusst hoch: Er wird mit dem Finger bedient, nicht mit
+ * einer Maus. Die Bahn traegt die ruhige Kachelfarbe, der Griff die
+ * Handlungsfarbe - dieselbe Zuordnung wie ueberall in dieser Ansicht.
+ */
+.slider {
+  width: clamp(140px, 22vw, 280px);
+  height: clamp(30px, 4.5vh, 48px);
+  accent-color: var(--color-primary);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Zahnrad in der Ecke des Startbildschirms. */
+.settingsButton {
+  position: absolute;
+  top: clamp(8px, 2vh, 24px);
+  right: clamp(8px, 2vw, 24px);
+  width: clamp(44px, 6vh, 68px);
+  height: clamp(44px, 6vh, 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-tileQuiet);
+  color: var(--color-textMuted);
+  cursor: pointer;
+}
+.settingsIcon {
+  width: 55%;
+  height: 55%;
+}
+
+/*
+ * "Spiel beenden" im laufenden Spiel.
+ *
+ * Er sitzt aussen an der oberen Kante der Geraeteflaeche und nicht in der
+ * Buehne: Er gehoert nicht zum Spiel, das dort gezeigt wird, sondern zu dem
+ * Kasten, in dem es laeuft. Zurueckhaltend gefaerbt - er soll auffindbar sein,
+ * aber nicht einladen.
+ */
+.abort {
+  position: absolute;
+  top: clamp(8px, 1.6vh, 20px);
+  right: clamp(8px, 1.6vw, 22px);
+  z-index: 11;
+  padding: clamp(6px, 1.2vh, 14px) clamp(12px, 2vw, 26px);
+  border: 0;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-tileQuiet) 70%, transparent);
+  color: var(--color-textMuted);
+  font-family: var(--font-ui);
+  font-size: clamp(12px, 1.6vh, 18px);
   cursor: pointer;
 }
 

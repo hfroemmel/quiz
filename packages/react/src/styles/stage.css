@@ -35,6 +35,22 @@
    */
   --stage-radius: 0.7cqw;
 
+  /*
+   * ZOOMSTUFE DER FLAECHE (nur am Touchgeraet wirksam).
+   *
+   * Die Bildschirme, auf denen das Quiz in Selbstbedienung steht, reichen vom
+   * kleinen Tablet bis zum grossen Touchtisch. Auf sehr grossen Flaechen ist
+   * die Komposition zwar richtig proportioniert, aber schlicht zu weit
+   * auseinandergezogen, um sie im Stehen zu ueberblicken.
+   *
+   * 1 ist die volle, entworfene Groesse und damit das Maximum; kleinere Werte
+   * ruecken Szene, Kopfzeile und Fussleiste zusammen. Wer den Wert setzt, sitzt
+   * ueber der Buehne - hier steht KEINE Vorgabe: Die Variable wird bewusst
+   * nicht an der Buehne gesetzt, sonst verdeckte sie den Wert, den der
+   * Gastgeber weiter aussen setzt. Jede Regel nennt ihren Rueckfall selbst
+   * (`var(--stage-zoom, 1)`).
+   */
+
   /* Abstaende und Ausrichtung der Szenen - die Szenen lesen sie als Token. */
   --scene-gap: 2cqw;
   --scene-pad: 3cqw;

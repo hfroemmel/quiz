@@ -29,9 +29,16 @@ interface GameStartProps {
   onStart(input: { playerCount: PlayerCount; presetId: string }): void
   /** Nur gesetzt, wenn das Quiz Gast einer anderen Anwendung ist. */
   onExit?: (() => void) | undefined
+  /**
+   * Einstellungen des Geraets oeffnen - nur gesetzt, wo es sie gibt.
+   *
+   * Sie haengen bewusst HIER und nicht im Spiel: Ton und Groesse gehoeren zur
+   * Aufstellung eines Geraets, nicht in die Hand dessen, der gerade spielt.
+   */
+  onOpenSettings?: (() => void) | undefined
 }
 
-export function GameStart({ view, audience, playerCounts, onStart, onExit }: GameStartProps) {
+export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpenSettings }: GameStartProps) {
   const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
   const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
@@ -43,6 +50,33 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit }: Gam
 
   return (
     <div className={styles.start} data-game-start="">
+      {/*
+        * Einstellungen in der Ecke: sichtbar fuer den, der sie sucht,
+        * unauffaellig fuer alle anderen.
+        *
+        * Das Zeichen ist gezeichnet und kein Schriftzeichen: Ein Geraet im
+        * Kiosk hat nur die Schriften, die die Anwendung mitbringt, und ein
+        * fehlendes Symbolzeichen waere dort ein leeres Kaestchen.
+        */}
+      {onOpenSettings && (
+      <button
+        type="button"
+        className={styles.settingsButton}
+        data-settings-open=""
+        aria-label="Einstellungen"
+        onClick={onOpenSettings}
+      >
+        <svg className={styles.settingsIcon} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="4" y1="8" x2="20" y2="8" />
+            <line x1="4" y1="16" x2="20" y2="16" />
+          </g>
+          <circle cx="9" cy="8" r="3" fill="currentColor" />
+          <circle cx="15" cy="16" r="3" fill="currentColor" />
+        </svg>
+      </button>
+      )}
+
       {view.theme.startVisualUrl && <img className={styles.visual} src={view.theme.startVisualUrl} alt="" />}
       {view.theme.startTitle && <h1 className={styles.title}>{view.theme.startTitle}</h1>}
 

@@ -11,13 +11,15 @@
  *
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
 import { QuizScene, releaseAudio, useAudioUnlock, useQuizRuntime, useQuizSnapshot } from '@hfroemmel/quiz-react'
 import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
+import { GameSettings } from './GameSettings'
 import { PlayerFoot } from './PlayerFoot'
+import { klemmeZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
 import { useHostVisible } from './useHostVisible'
 import { useIdleWatch } from './useIdleWatch'
@@ -47,6 +49,27 @@ export interface QuizGameProps {
    * ohnehin von selbst - die Fussleiste folgt dem Spielstand des Servers.
    */
   playerCounts?: readonly PlayerCount[]
+  /**
+   * Ton beim Start dieses Geraets - die Vorgabe aus dem Config File des
+   * Gastgebers.
+   *
+   * Ohne Angabe gilt, was zuletzt am Geraet eingestellt war (die Engine merkt
+   * es sich). MIT Angabe gewinnt sie bei jedem Start: Eine Spielesammlung, die
+   * still laufen soll, soll das nicht davon abhaengig machen, was jemand
+   * gestern am Geraet gedrueckt hat. Waehrend des Betriebs bleibt der Schalter
+   * in den Einstellungen trotzdem bedienbar.
+   */
+  soundEnabled?: boolean
+  /**
+   * Zoomstufe der Buehne zwischen 0,6 und 1 - ebenfalls Vorgabe aus dem Config
+   * File.
+   *
+   * 1 ist die volle, entworfene Groesse und damit das Maximum. Kleinere Werte
+   * verkleinern die Szene zur Mitte hin; Punkte, Zaehler und Logo bleiben am
+   * Bildrand und schrumpfen mit. Fuer sehr grosse Touchtische, an denen die
+   * volle Groesse aus dem Stand nicht mehr zu ueberblicken ist.
+   */
+  zoom?: number
   /** Ergebnis eines beendeten Spiels - fuer die Bestenliste des Gastgebers. */
   onFinished?: (result: QuizGameResult) => void
   /**
@@ -69,6 +92,8 @@ export function QuizGame({
   runtime: hostRuntime,
   audience,
   playerCounts,
+  soundEnabled: soundVorgabe,
+  zoom: zoomVorgabe,
   onFinished,
   onExit,
   idleTimeoutMs,
@@ -112,6 +137,46 @@ export function QuizGame({
    * bei einem neuen wieder klein.
    */
   const [pendingStart, setPendingStart] = useState(false)
+
+  /**
+   * Einstellungen des Geraets.
+   *
+   * Der Ton gehoert der Engine (sie merkt ihn sich ueber Neustarts hinweg), die
+   * Groesse dieser Ansicht - sie ist reine Darstellung und hat im Spielstand
+   * nichts verloren. Beide beginnen bei der Vorgabe aus dem Config File.
+   */
+  const [zoom, setZoom] = useState(() => klemmeZoom(zoomVorgabe))
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  /*
+   * EINSTELLUNGEN GIBT ES NUR AM EIGENEN GERAET.
+   *
+   * Bringt der Gastgeber seine eigene Laufzeit mit, gehoert ihm auch der
+   * Zustand: Was hier am Ton gedreht wird, hoert nur, wer davorsteht. Haengt das
+   * Quiz dagegen an einem Server, gehoert der Ton der Vorstellung - dann duerfte
+   * ein Besucher am Touchtisch im Foyer den Saal stummschalten.
+   */
+  const eigenesGeraet = Boolean(hostRuntime)
+  /** Der Beenden-Knopf hat gefragt und wartet auf die Antwort. */
+  const [askExit, setAskExit] = useState(false)
+
+  /*
+   * Die Vorgabe aus dem Config File gilt bei jedem Start - aber nur einmal:
+   * Danach gehoert der Schalter dem, der vor dem Geraet steht, bis zum
+   * naechsten Start.
+   */
+  const soundGesetztRef = useRef(false)
+  useEffect(() => {
+    if (soundVorgabe === undefined || soundGesetztRef.current) return
+    const stand = snapshot?.view
+    if (!stand) return
+    soundGesetztRef.current = true
+    if (stand.soundEnabled !== soundVorgabe) send({ type: 'SET_SOUND_ENABLED', enabled: soundVorgabe })
+  }, [soundVorgabe, snapshot, send])
+
+  // Eine geaenderte Vorgabe des Gastgebers schlaegt auf die Anzeige durch.
+  useEffect(() => {
+    setZoom(klemmeZoom(zoomVorgabe))
+  }, [zoomVorgabe])
 
   /*
    * Beim Einsetzen der Komponente kann auf dem Server noch das Ergebnis einer
@@ -200,6 +265,29 @@ export function QuizGame({
     onExit?.()
   }
 
+  /**
+   * Das laufende Spiel abbrechen und zurueck ins Startmenue.
+   *
+   * Nicht dasselbe wie `leave`: Dort verlaesst man das Quiz und kehrt in die
+   * Gastgeberanwendung zurueck, hier bleibt man im Quiz und faengt neu an.
+   */
+  const abort = () => {
+    setAskExit(false)
+    send({ type: 'ABORT_GAME' })
+    setShowChoice(true)
+    setPendingStart(false)
+  }
+
+  const settings = settingsOpen && eigenesGeraet && (
+    <GameSettings
+      soundEnabled={view.soundEnabled}
+      onSoundEnabled={(enabled) => send({ type: 'SET_SOUND_ENABLED', enabled })}
+      zoom={zoom}
+      onZoom={setZoom}
+      onClose={() => setSettingsOpen(false)}
+    />
+  )
+
   if (!pendingStart && (showChoice || !hasGame)) {
     return (
       <div className={`${styles.game} ${styles.startScreen}`} style={themeVariables(themeForView(view))} data-quiz-game="">
@@ -209,7 +297,9 @@ export function QuizGame({
           playerCounts={playerCounts}
           onStart={start}
           onExit={onExit}
+          {...(eigenesGeraet ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
         />
+        {settings}
       </div>
     )
   }
@@ -258,8 +348,51 @@ export function QuizGame({
 
 
   return (
-    <div className={styles.game} data-quiz-game="" onPointerDown={idle.notice}>
+    <div
+      className={styles.game}
+      /*
+       * Die Zoomstufe steht als Variable UEBER der Buehne: Szene, Kopfzeile und
+       * Fussleiste lesen sie dort und verkleinern sich jede fuer sich - die
+       * Szene zur Mitte, die Ecken zu ihrem Bildrand.
+       */
+      style={{ '--stage-zoom': zoom } as CSSProperties}
+      data-quiz-game=""
+      onPointerDown={idle.notice}
+    >
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
+
+      {/*
+        * Ausstieg aus einem laufenden Spiel.
+        *
+        * MIT RUECKFRAGE, und zwar nicht aus Vorsicht vor Datenverlust: Der Knopf
+        * steht am Rand einer Flaeche, auf der die ganze Zeit getippt wird, und
+        * ein versehentlicher Treffer beendete sonst mitten in der Frage das
+        * Spiel der beiden, die davorstehen.
+        *
+        * Ob es ihn gibt, sagt der Serverstand: In einem Spiel, das ein Operator
+        * fuehrt, darf ihn niemand am Geraet abbrechen.
+        */}
+      {!finished && view.allowedCommands.includes('ABORT_GAME') && (
+        <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
+          Spiel beenden
+        </button>
+      )}
+
+      {askExit && (
+        <div className={styles.overlay} data-abort-dialog="">
+          <div className={styles.panel} role="dialog" aria-label="Spiel beenden">
+            <h2 className={styles.panelTitle}>Spiel wirklich beenden?</h2>
+            <div className={styles.actions}>
+              <button type="button" className={styles.go} data-abort-confirm="" onClick={abort}>
+                Beenden
+              </button>
+              <button type="button" className={styles.leave} data-abort-cancel="" onClick={() => setAskExit(false)}>
+                Weiterspielen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <QuizScene
         runtime={runtime}

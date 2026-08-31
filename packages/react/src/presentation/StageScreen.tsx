@@ -201,7 +201,11 @@ export function StageScreen({
 
         <StageHeader view={view} slots={headerSlots} variant={variant} />
 
-        <div key={entryKey} className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}>
+        <div
+          key={entryKey}
+          className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
+          data-scene-root=""
+        >
           {renderScene(view, sceneProps, isAudioMaster, onReport)}
         </div>
 

@@ -125,6 +125,27 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
+  it('laesst den Ton auch dann umschalten, wenn kein Spiel laeuft', () => {
+    /*
+     * Am Kioskgeraet sitzt der Tonschalter im Startbildschirm - dort laeuft
+     * nichts, worin die Engine den Befehl ablegen koennte. Er gehoert dem
+     * Geraet, nicht dem Spiel, und muss deshalb auch ohne Spiel greifen.
+     */
+    const saved: MemoryQuizStoreSnapshot[] = []
+    const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })
+
+    expect(runtime.getSnapshot().view!.soundEnabled).toBe(true)
+    runtime.dispatch({ type: 'SET_SOUND_ENABLED', enabled: false })
+    expect(runtime.getSnapshot().lastRejection).toBeNull()
+    expect(runtime.getSnapshot().view!.soundEnabled).toBe(false)
+
+    // Und er ueberlebt den Neustart des Geraets.
+    runtime.dispose()
+    const restored = createRuntime({ restoreFrom: saved.at(-1)! }).runtime
+    expect(restored.getSnapshot().view!.soundEnabled).toBe(false)
+    restored.dispose()
+  })
+
   it('gibt den Stand beim Aufraeumen an den persist-Adapter und stellt ihn wieder her', () => {
     const saved: MemoryQuizStoreSnapshot[] = []
     const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })

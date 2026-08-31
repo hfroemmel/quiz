@@ -336,3 +336,89 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
   await expect(page.locator('[data-result-label]')).toHaveText('Ergebnis')
   await expect(page.getByRole('button', { name: 'Nochmal spielen' })).toBeVisible()
 })
+
+/* ------------------------------------------------------------------ *
+ * Einstellungen, Zoom und Ausstieg
+ * ------------------------------------------------------------------ */
+
+test('die Einstellungen haengen am Startbildschirm, nicht am laufenden Spiel', async ({ page }) => {
+  await openStartScreen(page)
+  await page.locator('[data-settings-open]').click()
+
+  const einstellungen = page.locator('[data-settings]')
+  await expect(einstellungen).toBeVisible()
+  await expect(einstellungen.locator('[data-sound-on]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(einstellungen.locator('[data-sound-test]')).toBeVisible()
+  await expect(einstellungen.locator('[data-zoom]')).toHaveValue('1')
+
+  await page.locator('[data-settings-close]').click()
+  await expect(einstellungen).toHaveCount(0)
+
+  /*
+   * Waehrend gespielt wird, sind sie fort: Wer davorsteht, soll den Ton nicht
+   * abschalten koennen, waehrend die anderen zuhoeren.
+   */
+  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('[data-settings-open]')).toHaveCount(0)
+})
+
+test('der Tonschalter der Einstellungen gilt fuer das ganze Geraet', async ({ page }) => {
+  await openStartScreen(page)
+  await page.locator('[data-settings-open]').click()
+  await page.locator('[data-sound-off]').click()
+
+  await expect(page.locator('[data-sound-off]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('[data-sound-on]')).toHaveAttribute('aria-pressed', 'false')
+
+  // Er haengt am Spielstand und nicht an der Ansicht: Er ueberlebt das Schliessen.
+  await page.locator('[data-settings-close]').click()
+  await page.locator('[data-settings-open]').click()
+  await expect(page.locator('[data-sound-off]')).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('ein kleinerer Zoom verkleinert die Szene zur Mitte, die Ecken bleiben am Rand', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+
+  const szene = page.locator('[data-scene-root]')
+  const gross = await szene.boundingBox()
+  const linkeEckeGross = await page.locator('[data-corner="left"]').boundingBox()
+  const flaeche = await page.locator('[data-quiz-game]').boundingBox()
+
+  await page.evaluate(() => {
+    const wurzel = document.querySelector('[data-quiz-game]') as HTMLElement
+    wurzel.style.setProperty('--stage-zoom', '0.7')
+  })
+
+  const klein = await szene.boundingBox()
+  const linkeEckeKlein = await page.locator('[data-corner="left"]').boundingBox()
+
+  // Die Szene wird kleiner ...
+  expect(klein!.width).toBeLessThan(gross!.width * 0.8)
+  // ... und bleibt dabei mittig: Der Abstand nach links und rechts ist gleich.
+  const links = klein!.x - flaeche!.x
+  const rechts = flaeche!.x + flaeche!.width - (klein!.x + klein!.width)
+  expect(Math.abs(links - rechts)).toBeLessThan(4)
+
+  // Die Punktekarte schrumpft mit, rueckt aber nicht von der Kante ab.
+  expect(linkeEckeKlein!.width).toBeLessThan(linkeEckeGross!.width * 0.8)
+  expect(linkeEckeKlein!.x - flaeche!.x).toBeLessThan(linkeEckeGross!.x - flaeche!.x + 1)
+})
+
+test('"Spiel beenden" fragt nach und fuehrt zurueck in die Auswahl', async ({ page }) => {
+  await startGame(page, 'Allein')
+
+  await page.locator('[data-abort-game]').click()
+  await expect(page.locator('[data-abort-dialog]')).toBeVisible()
+
+  // Wer weiterspielen will, steht danach wieder vor derselben Frage.
+  await page.locator('[data-abort-cancel]').click()
+  await expect(page.locator('[data-abort-dialog]')).toHaveCount(0)
+  await expect(page.locator('[data-answers]')).toBeVisible()
+
+  await page.locator('[data-abort-game]').click()
+  await page.locator('[data-abort-confirm]').click()
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+})

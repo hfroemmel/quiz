@@ -242,7 +242,23 @@ export class QuizService {
       )
     }
 
-    // 6. Betriebsbefehle laufen nicht durch die Spiel-Engine.
+    /*
+     * 6. Der Ton gehoert dem GERAET und nicht dem Spiel.
+     *
+     * Laeuft ein Spiel, geht der Befehl durch die Engine und steht danach im
+     * Spielprotokoll. Laeuft keines, gibt es nichts, worin er stehen koennte -
+     * und die Engine wiese ihn ab. Genau dort wird er aber gebraucht: Am
+     * Kioskgeraet sitzt der Tonschalter im Startbildschirm, weil ihn dort der
+     * bedient, der das Geraet aufstellt, und nicht der, der gerade spielt.
+     */
+    if (envelope.command.type === 'SET_SOUND_ENABLED' && this.state === null) {
+      this.soundEnabled = envelope.command.enabled
+      this.store.setSetting(SETTING_SOUND, String(envelope.command.enabled))
+      this.notify()
+      return { ok: true, revision: this.currentRevision }
+    }
+
+    // 7. Betriebsbefehle laufen nicht durch die Spiel-Engine.
     if (isServiceCommand(envelope.command.type)) {
       return this.handleServiceCommand(envelope)
     }
