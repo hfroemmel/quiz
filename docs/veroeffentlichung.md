@@ -43,6 +43,32 @@ Veroeffentlicht wird ueber pnpm; erst beim Packen biegt `publishConfig.exports`
 die Eintrittspunkte von `src/` auf `dist/` um. `pnpm packages:verify` prueft
 mit publint und @arethetypeswrong/cli genau dieses Artefakt.
 
+## Von Hand veroeffentlichen
+
+Der Weg ueber CI setzt voraus, dass GitHub Actions fuer dieses Konto ueberhaupt
+Jobs startet. Tut es das nicht - erkennbar daran, dass Laeufe nach ein bis zwei
+Sekunden ohne einen einzigen Schritt und ohne Logdateien scheitern -, geht
+dasselbe von Hand. Es sind genau die Schritte, die `release.yml` ausfuehrt:
+
+```bash
+pnpm changeset version   # Versionen und Changelogs schreiben, Changeset aufzehren
+pnpm packages:build
+pnpm packages:verify     # publint + attw auf den gepackten Tarballs
+pnpm changeset publish   # veroeffentlichen und Git-Tags setzen
+git add -A && git commit -m "Version Packages" && git push
+```
+
+Dafuer braucht die persoenliche `~/.npmrc` ein classic PAT mit **`write:packages`**
+(zum Lesen genuegt `read:packages`):
+
+```ini
+//npm.pkg.github.com/:_authToken=<PAT>
+```
+
+Wichtig ist die Reihenfolge: Erst veroeffentlichen, dann den Versionsstand
+pushen. Bricht das Veroeffentlichen ab, steht im Repository keine Version, die
+es in der Registry nicht gibt.
+
 ## Konsum in anderen Repositories
 
 In jedem konsumierenden Repository (`quiz-live`, `quiz-standalone`,
