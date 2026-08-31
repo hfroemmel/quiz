@@ -278,6 +278,15 @@ export function QuizGame({
     setPendingStart(false)
   }
 
+  /*
+   * Die Zoomstufe steht als Variable UEBER der Buehne: Szene, Kopfzeile und
+   * Fussleiste lesen sie dort und verkleinern sich jede fuer sich - die Szene
+   * zur Mitte, die Ecken zu ihrem Bildrand. Sie steht an JEDER Ansicht dieser
+   * Komponente, damit sie beim Wechsel zwischen Auswahl und Spiel nicht
+   * kurzzeitig verschwindet.
+   */
+  const flaeche = { '--stage-zoom': zoom } as CSSProperties
+
   const settings = settingsOpen && eigenesGeraet && (
     <GameSettings
       soundEnabled={view.soundEnabled}
@@ -290,7 +299,11 @@ export function QuizGame({
 
   if (!pendingStart && (showChoice || !hasGame)) {
     return (
-      <div className={`${styles.game} ${styles.startScreen}`} style={themeVariables(themeForView(view))} data-quiz-game="">
+      <div
+        className={`${styles.game} ${styles.startScreen}`}
+        style={{ ...themeVariables(themeForView(view)), ...flaeche }}
+        data-quiz-game=""
+      >
         <GameStart
           view={view}
           audience={audienceId}
@@ -306,7 +319,11 @@ export function QuizGame({
 
   if (pendingStart) {
     return (
-      <div className={`${styles.game} ${styles.waiting}`} style={themeVariables(themeForView(view))} data-quiz-game="">
+      <div
+        className={`${styles.game} ${styles.waiting}`}
+        style={{ ...themeVariables(themeForView(view)), ...flaeche }}
+        data-quiz-game=""
+      >
         <p>Das Quiz wird vorbereitet...</p>
       </div>
     )
@@ -348,17 +365,7 @@ export function QuizGame({
 
 
   return (
-    <div
-      className={styles.game}
-      /*
-       * Die Zoomstufe steht als Variable UEBER der Buehne: Szene, Kopfzeile und
-       * Fussleiste lesen sie dort und verkleinern sich jede fuer sich - die
-       * Szene zur Mitte, die Ecken zu ihrem Bildrand.
-       */
-      style={{ '--stage-zoom': zoom } as CSSProperties}
-      data-quiz-game=""
-      onPointerDown={idle.notice}
-    >
+    <div className={styles.game} style={flaeche} data-quiz-game="" onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/*
