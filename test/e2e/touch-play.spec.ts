@@ -407,6 +407,53 @@ test('ein kleinerer Zoom verkleinert die Szene zur Mitte, die Ecken bleiben am R
   expect(linkeEckeKlein!.x - flaeche!.x).toBeLessThan(linkeEckeGross!.x - flaeche!.x + 1)
 })
 
+test('die Zoomstufe gilt auch fuer Auswahl und Einstellungen', async ({ page }) => {
+  /*
+   * Wer die Anzeige kleiner stellt, weil er sonst nicht hinuebersieht, meint
+   * die Auswahl davor genauso wie die Frage danach. Eine Auswahl in voller
+   * Groesse vor einem verkleinerten Spiel waere die halbe Einstellung.
+   */
+  await openStartScreen(page)
+  const auswahlGross = (await page.locator('[data-game-start]').boundingBox())!.width
+
+  await page.locator('[data-settings-open]').click()
+  const karteGross = (await page.locator('[data-settings] > div').boundingBox())!.width
+  await page.locator('[data-zoom]').fill('0.7')
+  const karteKlein = (await page.locator('[data-settings] > div').boundingBox())!.width
+  await page.locator('[data-settings-close]').click()
+  const auswahlKlein = (await page.locator('[data-game-start]').boundingBox())!.width
+
+  expect(auswahlKlein).toBeLessThan(auswahlGross * 0.8)
+  expect(karteKlein).toBeLessThan(karteGross * 0.8)
+})
+
+test('die Szene erscheint sofort in der eingestellten Groesse, nicht erst nach dem Uebergang', async ({ page }) => {
+  /*
+   * DIE SZENENUEBERGAENGE ANIMIEREN `transform`. Stuende die Zoomstufe als
+   * Transformation an demselben Element, ueberschriebe die Animation sie: Die
+   * Frage erschiene in voller Groesse und spraenge am Ende der Animation
+   * klein. Deshalb steht sie in der eigenen Eigenschaft `scale`, die MIT der
+   * Animation verrechnet wird - und deshalb misst dieser Test waehrend des
+   * Uebergangs und nicht danach.
+   */
+  await openStartScreen(page)
+  await page.evaluate(() => {
+    const wurzel = document.querySelector('[data-quiz-game]') as HTMLElement
+    wurzel.style.setProperty('--stage-zoom', '0.7')
+  })
+  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+
+  await page.waitForSelector('[data-scene-root]', { timeout: 30_000 })
+  const gemessen: number[] = []
+  for (let i = 0; i < 12; i += 1) {
+    gemessen.push((await page.locator('[data-scene-root]').boundingBox())!.width)
+    await page.waitForTimeout(60)
+  }
+  expect(Math.max(...gemessen) - Math.min(...gemessen)).toBeLessThan(2)
+})
+
 test('"Spiel beenden" fragt nach und fuehrt zurueck in die Auswahl', async ({ page }) => {
   await startGame(page, 'Allein')
 

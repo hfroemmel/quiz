@@ -76,8 +76,14 @@
    * kleinere Groesse, rutschte die Fussleiste mit nach oben und ihre Ecken
    * verliessen den Bildrand. So bleibt unten alles an seinem Platz und in der
    * Mitte entsteht Luft.
+   *
+   * `scale` UND NICHT `transform: scale()`: Auf genau diesem Element liegen die
+   * Szenenuebergaenge, und die animieren `transform`. Als Transformation
+   * geschrieben wuerde die Zoomstufe davon ueberschrieben - die Frage erschiene
+   * in voller Groesse und spraenge am Ende der Animation klein. Die eigene
+   * Eigenschaft `scale` wird dagegen MIT der Transformation verrechnet.
    */
-  transform: scale(var(--stage-zoom, 1));
+  scale: var(--stage-zoom, 1);
   transform-origin: center center;
 }
 
