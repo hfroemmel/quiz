@@ -61,7 +61,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
       {onOpenSettings && (
       <button
         type="button"
-        className={styles.settingsButton}
+        className={`button ${styles.settingsButton}`}
         data-settings-open=""
         aria-label="Einstellungen"
         onClick={onOpenSettings}
@@ -90,7 +90,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
             <button
               key={count}
               type="button"
-              className={styles.option}
+              className={`button button--large ${styles.option} ${playerCount === count ? 'button--selected' : ''}`}
               aria-pressed={playerCount === count}
               onClick={() => setPlayerCount(count)}
             >
@@ -110,7 +110,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
             <button
               key={preset.id}
               type="button"
-              className={styles.option}
+              className={`button button--large ${styles.option} ${presetId === preset.id ? 'button--selected' : ''}`}
               aria-pressed={presetId === preset.id}
               onClick={() => setPresetId(preset.id)}
             >
@@ -122,11 +122,16 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
       </section>
 
       <div className={styles.actions}>
-        <button type="button" className={styles.go} disabled={!canStart} onClick={() => onStart({ playerCount, presetId })}>
+        <button
+          type="button"
+          className={`button button--primary button--large ${styles.go}`}
+          disabled={!canStart}
+          onClick={() => onStart({ playerCount, presetId })}
+        >
           Los geht&apos;s
         </button>
         {onExit && (
-          <button type="button" className={styles.leave} onClick={onExit}>
+          <button type="button" className={`button button--large ${styles.leave}`} onClick={onExit}>
             Zurück
           </button>
         )}

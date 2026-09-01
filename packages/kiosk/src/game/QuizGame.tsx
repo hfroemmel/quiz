@@ -380,7 +380,7 @@ export function QuizGame({
         * fuehrt, darf ihn niemand am Geraet abbrechen.
         */}
       {!finished && view.allowedCommands.includes('ABORT_GAME') && (
-        <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
+        <button type="button" className={`button ${styles.abort}`} data-abort-game="" onClick={() => setAskExit(true)}>
           Spiel beenden
         </button>
       )}
@@ -390,10 +390,20 @@ export function QuizGame({
           <div className={styles.panel} role="dialog" aria-label="Spiel beenden">
             <h2 className={styles.panelTitle}>Spiel wirklich beenden?</h2>
             <div className={styles.actions}>
-              <button type="button" className={styles.go} data-abort-confirm="" onClick={abort}>
+              <button
+                type="button"
+                className={`button button--primary button--large ${styles.go}`}
+                data-abort-confirm=""
+                onClick={abort}
+              >
                 Beenden
               </button>
-              <button type="button" className={styles.leave} data-abort-cancel="" onClick={() => setAskExit(false)}>
+              <button
+                type="button"
+                className={`button button--large ${styles.leave}`}
+                data-abort-cancel=""
+                onClick={() => setAskExit(false)}
+              >
                 Weiterspielen
               </button>
             </div>
@@ -413,11 +423,15 @@ export function QuizGame({
         pads={{
           bottom: finished ? (
             <div className={styles.footer}>
-              <button type="button" className={styles.go} onClick={() => setShowChoice(true)}>
+              <button
+                type="button"
+                className={`button button--primary button--large ${styles.go}`}
+                onClick={() => setShowChoice(true)}
+              >
                 Nochmal spielen
               </button>
               {onExit && (
-                <button type="button" className={styles.leave} onClick={leave}>
+                <button type="button" className={`button button--large ${styles.leave}`} onClick={leave}>
                   Beenden
                 </button>
               )}

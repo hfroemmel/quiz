@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./palette.css": "./src/palette.css",
-    "./fonts.css": "./src/fonts.css"
+    "./fonts.css": "./src/fonts.css",
+    "./controls.css": "./src/controls.css"
   },
   "dependencies": {
     "@hfroemmel/quiz-core": "workspace:*"
@@ -16,7 +17,7 @@
   ],
   "scripts": {
     "palette:build": "tsx scripts/build-palette.ts",
-    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20 && cp src/palette.css src/fonts.css dist/ && rm -rf dist/fonts && cp -r src/fonts dist/fonts"
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean --target node20 && cp src/palette.css src/fonts.css src/controls.css dist/ && rm -rf dist/fonts && cp -r src/fonts dist/fonts"
   },
   "publishConfig": {
     "access": "restricted",
@@ -27,7 +28,8 @@
         "import": "./dist/index.js"
       },
       "./palette.css": "./dist/palette.css",
-      "./fonts.css": "./dist/fonts.css"
+      "./fonts.css": "./dist/fonts.css",
+      "./controls.css": "./dist/controls.css"
     }
   }
 }

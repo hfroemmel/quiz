@@ -19,6 +19,8 @@ import { TouchGeraet } from './TouchGeraet'
  *
  *   palette   ERZEUGT aus quiz-themes (`palettes.ts`) - alle Farbwerte
  *   fonts     die @font-face-Regeln aus quiz-themes
+ *   controls  Schaltflaechen und Formularfelder ausserhalb der Buehne - dieselben
+ *             wie am Operatorpult
  *   tokens    Massvariablen, Schriften und Dauern am Wurzelelement
  *   base      Reset und Grundtypografie
  *   controls  Schaltflaechen und Formularfelder der Vorschau
@@ -34,6 +36,7 @@ import { TouchGeraet } from './TouchGeraet'
  */
 import '@hfroemmel/quiz-themes/palette.css'
 import '@hfroemmel/quiz-themes/fonts.css'
+import '@hfroemmel/quiz-themes/controls.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/controls.css'

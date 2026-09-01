@@ -37,7 +37,7 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
           <div className={styles.settingControl}>
             <button
               type="button"
-              className={styles.option}
+              className={`button ${styles.option} ${soundEnabled ? 'button--selected' : ''}`}
               data-sound-on=""
               aria-pressed={soundEnabled}
               onClick={() => onSoundEnabled(true)}
@@ -46,7 +46,7 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
             </button>
             <button
               type="button"
-              className={styles.option}
+              className={`button ${styles.option} ${soundEnabled ? '' : 'button--selected'}`}
               data-sound-off=""
               aria-pressed={!soundEnabled}
               onClick={() => onSoundEnabled(false)}
@@ -66,7 +66,7 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
               */}
             <button
               type="button"
-              className={styles.option}
+              className={`button ${styles.option}`}
               data-sound-test=""
               onClick={() => playCue('buzz', { enabled: true, isAudioMaster: true })}
             >
@@ -93,7 +93,12 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
           </div>
         </div>
 
-        <button type="button" className={styles.go} data-settings-close="" onClick={onClose}>
+        <button
+          type="button"
+          className={`button button--primary button--large ${styles.go}`}
+          data-settings-close=""
+          onClick={onClose}
+        >
           Fertig
         </button>
       </div>

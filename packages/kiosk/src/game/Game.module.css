@@ -26,14 +26,6 @@
 .game {
   position: relative;
   height: 100%;
-  /*
-   * Rundung der Schaltflaechen dieser Ansicht.
-   *
-   * Sie steht hier und nicht im Theme: Die Buehne rechnet ihre Rundung in
-   * Containereinheiten gegen sich selbst (`--stage-radius`), die Auswahl davor
-   * gehoert dem Geraet und rechnet wie alles hier in `clamp()`.
-   */
-  --radius: clamp(10px, 1.8vh, 22px);
   color: var(--color-text);
   font-family: var(--font-body);
   /* Ein Doppeltipp darf nicht zoomen und die Flaeche verschieben. */
@@ -378,34 +370,34 @@
 }
 
 /*
+ * DAS AUSSEHEN DER SCHALTFLAECHEN KOMMT AUS `@hfroemmel/quiz-themes/controls.css`.
+ *
+ * Es sind dieselben Knoepfe wie am Operatorpult - Flaeche, Kante, Schriftschnitt
+ * und das Verhalten beim Druecken stehen dort und nur dort. Hier steht, was am
+ * Geraet anders ist: die GROESSE. Ein Pult wird mit der Maus bedient, ein Foyer-
+ * geraet mit dem Daumen, und ein Ziel von 10 mal 16 Pixeln trifft im Stehen
+ * niemand.
+ *
+ * Die Regeln nennen deshalb zusaetzlich das Element (`button.option`): So
+ * gewinnen sie gegen die gemeinsame Fassung, ohne dass es auf die Reihenfolge
+ * der Stylesheets ankommt.
+ */
+
+/*
  * Eine Schaltflaeche traegt einen Namen und darunter oft eine zweite Zeile
  * ("7 Fragen"). BEIDE ZEILEN STEHEN ALS BLOCK IN DER MITTE - auch dort, wo es
  * nur eine gibt: Stuenden Karten mit einer und mit zwei Zeilen nebeneinander,
  * saessen ihre Namen sonst auf verschiedenen Hoehen.
  */
-.option {
-  display: flex;
+button.option {
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   gap: 4px;
   min-width: clamp(120px, 22vw, 240px);
   min-height: clamp(64px, 10vh, 110px);
   padding: clamp(8px, 1.5vh, 18px) clamp(12px, 2vw, 28px);
-  border: 2px solid transparent;
-  border-radius: var(--radius);
-  background: var(--color-tile);
-  color: var(--color-text);
-  font-family: var(--font-heading);
   font-size: clamp(18px, 2.8vh, 32px);
   line-height: 1.15;
-  cursor: pointer;
-}
-
-/* Die Auswahl ist der Zustand der Schaltflaeche, nicht eine zweite Markierung. */
-.option[aria-pressed='true'] {
-  border-color: var(--color-accent);
-  background: var(--color-accentQuiet);
 }
 
 /*
@@ -414,9 +406,9 @@
  * entscheidet.
  */
 .hint {
-  font-family: var(--font-ui);
   font-size: clamp(14px, 2vh, 22px);
-  color: var(--color-textMuted);
+  font-weight: 400;
+  color: var(--ui-text-muted);
 }
 
 .actions {
@@ -426,34 +418,18 @@
   gap: clamp(8px, 2vw, 24px);
 }
 
-.go {
+button.go {
+  justify-content: center;
   min-height: clamp(56px, 9vh, 96px);
   padding: 0 clamp(24px, 5vw, 64px);
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--color-primary);
-  color: var(--stage-inkOnStrong);
-  font-family: var(--font-heading);
   font-size: clamp(20px, 3.2vh, 38px);
-  cursor: pointer;
 }
 
-.go:disabled {
-  background: var(--color-tileDisabled);
-  color: var(--color-textMuted);
-  cursor: default;
-}
-
-.leave {
+button.leave {
+  justify-content: center;
   min-height: clamp(56px, 9vh, 96px);
   padding: 0 clamp(16px, 3vw, 40px);
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--color-tileQuiet);
-  color: var(--color-textMuted);
-  font-family: var(--font-heading);
   font-size: clamp(16px, 2.4vh, 28px);
-  cursor: pointer;
 }
 
 /* ------------------------------------------------------------------ *
@@ -462,6 +438,10 @@
  * Beide sind dasselbe Bauteil: eine Flaeche ueber allem, darin eine Karte. Der
  * Grund liegt am Geraet - eine Rueckfrage, die man ueberklicken kann, ist am
  * Touchscreen keine Rueckfrage.
+ *
+ * Karte und Schleier tragen die `--ui-*`-Token und sehen damit aus wie die
+ * Popups am Operatorpult. Sie gehoeren nicht zur Vorstellung, sondern zur
+ * Bedienung des Geraets - und die ist ueberall dieselbe.
  * ------------------------------------------------------------------ */
 
 .overlay {
@@ -472,7 +452,7 @@
   align-items: center;
   justify-content: center;
   padding: clamp(12px, 3vh, 40px);
-  background: color-mix(in srgb, var(--color-pageBottom) 92%, transparent);
+  background: var(--ui-scrim);
 }
 
 .panel {
@@ -483,27 +463,19 @@
   min-width: clamp(280px, 46vw, 620px);
   max-width: 92%;
   padding: clamp(16px, 3vh, 40px);
-  border-radius: var(--radius);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius, 6px);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  text-align: center;
   scale: var(--stage-zoom, 1);
   transform-origin: center center;
-  /*
-   * ZWEI LAGEN, WEIL DIE KACHELFARBE DURCHSCHEINT. Eine Karte, durch die man
-   * den Startbildschirm liest, ist keine Karte - und eine Rueckfrage, hinter
-   * der man die Frage noch sieht, liest sich als Teil des Spiels. Der
-   * Flaechengrund darunter macht sie undurchsichtig, ohne dass hier ein
-   * zweiter Farbwert stuende.
-   */
-  background:
-    linear-gradient(var(--color-tile), var(--color-tile)),
-    linear-gradient(var(--color-pageBottom), var(--color-pageBottom));
-  text-align: center;
 }
 
 .panelTitle {
   margin: 0;
-  font-family: var(--font-heading);
   font-size: clamp(20px, 3.2vh, 38px);
-  font-weight: 400;
+  font-weight: 700;
 }
 
 /* Eine Zeile je Einstellung: links, wofuer sie gilt, rechts die Bedienung. */
@@ -515,8 +487,8 @@
 }
 
 .settingLabel {
-  font-family: var(--font-heading);
   font-size: clamp(16px, 2.4vh, 28px);
+  font-weight: 700;
 }
 
 .settingControl {
@@ -525,12 +497,8 @@
   gap: clamp(6px, 1.2vw, 16px);
 }
 
-/*
- * Die Schaltflaechen der Einstellungen sind dieselben Karten wie in der
- * Startauswahl, nur schmaler: Es ist derselbe Handgriff, und er soll sich auch
- * so anfuehlen.
- */
-.settingControl .option {
+/* In der Zeile einer Einstellung ist weniger Platz als in der Startauswahl. */
+.settingControl button.option {
   min-width: clamp(84px, 12vw, 140px);
   min-height: clamp(48px, 7vh, 80px);
   font-size: clamp(15px, 2.2vh, 26px);
@@ -538,21 +506,21 @@
 
 .settingValue {
   min-width: 4.5ch;
-  font-family: var(--font-ui);
   font-size: clamp(14px, 2vh, 22px);
-  color: var(--color-textMuted);
+  font-weight: 400;
+  color: var(--ui-text-muted);
   text-align: right;
 }
 
 /*
  * Der Schieberegler ist bewusst hoch: Er wird mit dem Finger bedient, nicht mit
- * einer Maus. Die Bahn traegt die ruhige Kachelfarbe, der Griff die
- * Handlungsfarbe - dieselbe Zuordnung wie ueberall in dieser Ansicht.
+ * einer Maus. Farbe und Griff kommen vom Browser - `accent-color` genuegt, und
+ * eine nachgebaute Bahn waere an jedem Geraet ein anderes Bauteil.
  */
 .slider {
   width: clamp(140px, 22vw, 280px);
   height: clamp(30px, 4.5vh, 48px);
-  accent-color: var(--color-primary);
+  accent-color: var(--ui-accent);
   background: transparent;
   cursor: pointer;
 }
@@ -561,22 +529,19 @@
  * Zahnrad in der Ecke des Startbildschirms.
  *
  * Es steht INNERHALB der Auswahl und braucht deshalb keine eigene Zoomstufe -
- * es schrumpft mit ihr. Eine zweite waere eine zweite Verkleinerung.
+ * es schrumpft mit ihr. Rund und ohne Beschriftung: Es traegt ein Zeichen,
+ * keinen Namen.
  */
-.settingsButton {
+button.settingsButton {
   position: absolute;
   top: clamp(8px, 2vh, 24px);
   right: clamp(8px, 2vw, 24px);
   width: clamp(44px, 6vh, 68px);
   height: clamp(44px, 6vh, 68px);
-  display: flex;
-  align-items: center;
   justify-content: center;
-  border: 0;
+  padding: 0;
   border-radius: 50%;
-  background: var(--color-tileQuiet);
-  color: var(--color-textMuted);
-  cursor: pointer;
+  color: var(--ui-text-muted);
 }
 .settingsIcon {
   width: 55%;
@@ -588,24 +553,17 @@
  *
  * Er sitzt aussen an der oberen Kante der Geraeteflaeche und nicht in der
  * Buehne: Er gehoert nicht zum Spiel, das dort gezeigt wird, sondern zu dem
- * Kasten, in dem es laeuft. Zurueckhaltend gefaerbt - er soll auffindbar sein,
- * aber nicht einladen.
+ * Kasten, in dem es laeuft - und sieht deshalb aus wie die uebrigen
+ * Bedienelemente und nicht wie ein Buzzer.
  */
-.abort {
+button.abort {
   position: absolute;
   top: clamp(8px, 1.6vh, 20px);
   right: clamp(8px, 1.6vw, 22px);
   z-index: 11;
+  font-size: clamp(12px, 1.6vh, 18px);
   scale: var(--stage-zoom, 1);
   transform-origin: top right;
-  padding: clamp(6px, 1.2vh, 14px) clamp(12px, 2vw, 26px);
-  border: 0;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--color-tileQuiet) 70%, transparent);
-  color: var(--color-textMuted);
-  font-family: var(--font-ui);
-  font-size: clamp(12px, 1.6vh, 18px);
-  cursor: pointer;
 }
 
 /*
