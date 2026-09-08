@@ -76,6 +76,24 @@ time git ls-remote --tags origin
 
 ob es am Netz oder an einer unsichtbaren Passwortfrage liegt.
 
+**Danach die App-Repositories nachziehen.** `^0.5.0` heisst bei einer
+0.x-Version `>=0.5.0 <0.6.0` - der Caret laesst in `0.x` nur Patches derselben
+Minor zu. Jede neue Minor faellt damit aus dem Bereich, den quiz-standalone,
+app-collection und quiz-live gepinnt haben; dort bleibt `pnpm install` auf der
+alten Fassung stehen und meldet dabei nichts, weil die Aufloesung korrekt ist.
+
+In jedem der drei Repositories nach einer Veroeffentlichung:
+
+```bash
+pnpm up "@hfroemmel/*" --latest   # schreibt den Bereich in package.json neu
+git add -A && git commit -m "Pakete auf <Version> ziehen" && git push
+```
+
+Das ist Absicht und kein Schoenheitsfehler: Die fuenf Pakete evolvieren im
+Gleichschritt (`fixed`-Versionierung), und welche Fassung eine Anwendung
+erwartet, soll in ihrer `package.json` stehen und nicht dem Zufall des
+Installationszeitpunkts ueberlassen bleiben.
+
 **Den Versionsstand ZURUECKSCHREIBEN.** `changeset version` aendert die
 `package.json` der fuenf Pakete und zehrt die Changesets auf; dieser Stand
 gehoert committet und gepusht. Bleibt er auf dem Rechner liegen, fuehrt das
