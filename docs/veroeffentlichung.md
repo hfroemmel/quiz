@@ -54,9 +54,27 @@ dasselbe von Hand. Es sind genau die Schritte, die `release.yml` ausfuehrt:
 pnpm changeset version   # Versionen und Changelogs schreiben, Changeset aufzehren
 pnpm packages:build
 pnpm packages:verify     # publint + attw auf den gepackten Tarballs
-pnpm changeset publish   # veroeffentlichen und Git-Tags setzen
+pnpm changeset publish --no-git-tag   # veroeffentlichen
+pnpm packages:tag                     # Git-Tags setzen, rein lokal
 git add -A && git commit -m "Version Packages" && git push
+git push origin --tags
 ```
+
+**Warum `--no-git-tag`.** Der eingebaute Tag-Schritt fragt fuer jedes Paket,
+dessen Tag lokal fehlt, beim Server nach, ob es ihn dort schon gibt
+(`git ls-remote --tags origin`). Das sind fuenf Netzrunden, und sie stehen
+hinter einem Spinner: Fragt das Netz nach Zugangsdaten, ist die Frage nicht zu
+sehen und der Lauf scheint bei "Creating git tags..." zu haengen.
+Veroeffentlicht ist zu dem Zeitpunkt bereits alles - ein Abbruch mit Strg+C
+kostet nur die Tags. `pnpm packages:tag` setzt dieselben Tags ohne Netzzugriff.
+
+Bleibt der Lauf trotzdem stehen, zeigt
+
+```bash
+time git ls-remote --tags origin
+```
+
+ob es am Netz oder an einer unsichtbaren Passwortfrage liegt.
 
 **Den Versionsstand ZURUECKSCHREIBEN.** `changeset version` aendert die
 `package.json` der fuenf Pakete und zehrt die Changesets auf; dieser Stand
