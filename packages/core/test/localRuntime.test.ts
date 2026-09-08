@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { createSeededRng, gameTiming } from '../src'
+import { createSeededRng, gameTiming, type Command } from '../src'
 import {
   questionSchema,
   quizConfigSchema,
@@ -161,7 +161,7 @@ describe('LocalQuizRuntime', () => {
     const { runtime, clock } = createRuntime()
     const service = runtime.service
     let zaehler = 0
-    const alsOperator = (command: Parameters<typeof service.dispatch>[0]['command']) =>
+    const alsOperator = (command: Command) =>
       service.dispatch({
         commandId: `video-${zaehler++}`,
         command,
