@@ -60,6 +60,9 @@
   top: 2cqw;
   width: 18cqw;
 }
+:global(.stage--bright) .brandImage {
+  filter: invert(1);
+}
 :global(.stage--default) .counterSlot {
   position: absolute;
   right: 3cqw;
