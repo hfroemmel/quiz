@@ -11,6 +11,7 @@
   "scripts": {
     "packages:build": "pnpm -r --filter './packages/*' run build",
     "packages:verify": "node scripts/verify-packages.mjs",
+    "packages:tag": "node scripts/tag-release.mjs",
     "typecheck": "tsc -b --force tsconfig.json && tsc -p harness/tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
