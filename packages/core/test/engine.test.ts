@@ -940,6 +940,54 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.phase).toBe('question-presented')
   })
 
+  it('erzeugt fuer wiederholte Meldungen KEINEN neuen Uebergang', () => {
+    /*
+     * DER TEUERSTE FEHLER DIESES ABLAUFS.
+     *
+     * Der Buehnenclient haengt seinen Szenenknoten an die Kennung des letzten
+     * Uebergangs (`key={scene}:{transition.id}`). Erzeugt eine Statusmeldung
+     * eine neue Kennung, baut React die ganze Szene neu auf - samt
+     * Videoelement. Das frisch eingesetzte Element meldet daraufhin wieder
+     * seine Laufzeit, und der Kreis beginnt von vorn: Das Bild flackert, das
+     * Video kommt nie zum Abspielen, und der geplante Uebergang wird bei jedem
+     * Durchlauf durch einen neuen ersetzt - er wird also nie faellig.
+     *
+     * Nichts davon wirft einen Fehler. Deshalb steht dieser Test hier.
+     */
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    harness.dispatch({ type: 'START_VIDEO' })
+
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    const zuerst = harness.state!.lastTransition
+    const geplant = harness.state!.pendingTransition
+
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+
+    expect(harness.state!.lastTransition).toEqual(zuerst)
+    expect(harness.state!.pendingTransition).toEqual(geplant)
+  })
+
+  it('nimmt den geplanten Uebergang zurueck, wenn der Operator das Video anhaelt', () => {
+    /*
+     * Sonst laeuft die Uhr weiter, waehrend das Bild steht: Der Saal saehe die
+     * Frage, obwohl der Operator gerade angehalten hat, um etwas zu sagen.
+     */
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    harness.dispatch({ type: 'START_VIDEO' })
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    expect(harness.state!.pendingTransition).toBeDefined()
+
+    harness.dispatch({ type: 'PAUSE_VIDEO' })
+    expect(harness.state!.pendingTransition).toBeUndefined()
+
+    // Und beim Fortsetzen steht das Ende wieder fest.
+    harness.dispatch({ type: 'START_VIDEO' })
+    expect(harness.state!.pendingTransition?.nextPhase).toBe('question-presented')
+  })
+
   it('haelt im gefuehrten Spiel an, wenn das Video nicht abgespielt werden kann', () => {
     /*
      * Hier steht ein Operator: Er sieht die Meldung und entscheidet, ob die

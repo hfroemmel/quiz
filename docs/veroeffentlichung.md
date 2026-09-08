@@ -76,23 +76,22 @@ time git ls-remote --tags origin
 
 ob es am Netz oder an einer unsichtbaren Passwortfrage liegt.
 
-**Danach die App-Repositories nachziehen.** `^0.5.0` heisst bei einer
-0.x-Version `>=0.5.0 <0.6.0` - der Caret laesst in `0.x` nur Patches derselben
-Minor zu. Jede neue Minor faellt damit aus dem Bereich, den quiz-standalone,
-app-collection und quiz-live gepinnt haben; dort bleibt `pnpm install` auf der
-alten Fassung stehen und meldet dabei nichts, weil die Aufloesung korrekt ist.
+**In den App-Repositories genuegt `pnpm install`.** quiz-standalone,
+app-collection und quiz-live pinnen die fuenf Pakete als **`0.x`** - sie nehmen
+damit jede neue Fassung der Nullerreihe mit, ohne dass jemand eine Nummer
+nachtraegt.
 
-In jedem der drei Repositories nach einer Veroeffentlichung:
+Der Caret taugt dafuer nicht: `^0.6.0` heisst bei einer 0.x-Version
+`>=0.6.0 <0.7.0`, weil SemVer in der Nullerreihe jede Minor als moeglichen
+Bruch behandelt. Jede Veroeffentlichung fiel damit aus dem gepinnten Bereich,
+und `pnpm install` blieb stumm auf der alten Fassung stehen - stumm, weil die
+Aufloesung ja korrekt war. Das hat zweimal einen halben Tag gekostet.
 
-```bash
-pnpm up "@hfroemmel/*" --latest   # schreibt den Bereich in package.json neu
-git add -A && git commit -m "Pakete auf <Version> ziehen" && git push
-```
-
-Das ist Absicht und kein Schoenheitsfehler: Die fuenf Pakete evolvieren im
-Gleichschritt (`fixed`-Versionierung), und welche Fassung eine Anwendung
-erwartet, soll in ihrer `package.json` stehen und nicht dem Zufall des
-Installationszeitpunkts ueberlassen bleiben.
+DER PREIS IST BEWUSST BEZAHLT: Eine Anwendung nimmt jetzt auch einen Bruch mit,
+ohne dass ihn jemand freigibt. Das traegt, solange die fuenf Pakete und die drei
+Anwendungen in einer Hand liegen und im Gleichschritt laufen - und solange
+Brueche in der Nullerreihe als `minor` mit Changeset dokumentiert werden. Ab 1.0
+gehoeren hier wieder echte Bereiche hin.
 
 **Den Versionsstand ZURUECKSCHREIBEN.** `changeset version` aendert die
 `package.json` der fuenf Pakete und zehrt die Changesets auf; dieser Stand
@@ -146,5 +145,7 @@ Fuer die lokale Entwicklung braucht jede Person einmalig ein classic PAT mit
 //npm.pkg.github.com/:_authToken=<PAT>
 ```
 
-Die Apps pinnen einen festen kompatiblen Bereich (z. B. `^0.1.0`); durch das
-fixed-Versioning passen die fuenf Pakete darin garantiert zusammen.
+Die Apps pinnen `0.x` und nehmen damit jede neue Fassung der Nullerreihe mit;
+durch das fixed-Versioning passen die fuenf Pakete darin garantiert zusammen.
+Warum kein Caret: siehe oben unter "In den App-Repositories genuegt
+`pnpm install`".

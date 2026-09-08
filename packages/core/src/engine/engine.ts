@@ -718,7 +718,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
       })
       work.log('phase', 'Video gestartet.')
       // Ist die Laufzeit schon bekannt, steht damit auch das Ende fest.
-      scheduleVideoEnd(work, false)
+      scheduleVideoEnd(work, false, true)
       return work.commit()
     }
     case 'PAUSE_VIDEO': {
@@ -728,6 +728,12 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
         const elapsed = video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0
         draft.video = { ...video, status: 'paused', positionMs: video.positionMs + elapsed, startedAtServerMs: undefined }
         draft.phase = 'video-ready'
+        /*
+         * Der Zeitgeber gehoert zum laufenden Video. Bleibt er stehen, zeigt der
+         * Saal die Frage, waehrend der Operator gerade angehalten hat, um etwas
+         * zu sagen.
+         */
+        draft.pendingTransition = undefined
       })
       work.log('phase', 'Video pausiert.')
       return work.commit()
@@ -742,7 +748,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
         draft.buzzer = { open: false }
       })
       work.log('phase', 'Video neu gestartet.')
-      scheduleVideoEnd(work, false)
+      scheduleVideoEnd(work, false, true)
       return work.commit()
     }
     case 'REPORT_VIDEO_STATUS': {
@@ -954,7 +960,7 @@ function applyPhase(work: Draft, phase: GamePhase): void {
    * schon fest - sofern die Laufzeit gemeldet ist. Geplant wird danach, weil
    * `applyPhaseMutation` den offenen Uebergang zu Beginn abraeumt.
    */
-  if (phase === 'video-playing') scheduleVideoEnd(work, false)
+  if (phase === 'video-playing') scheduleVideoEnd(work, false, true)
 }
 
 function applyPhaseMutation(work: Draft, phase: GamePhase): void {
@@ -1111,22 +1117,39 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
  * reagieren koennte. Im gefuehrten Spiel entscheidet der Operator - er sieht die
  * Meldung und kann die Frage ueberspringen.
  */
-function scheduleVideoEnd(work: Draft, hasError: boolean): void {
+function scheduleVideoEnd(work: Draft, hasError: boolean, erzwinge = false): void {
   const state = work.state
   if (!state || state.status !== 'active') return
   if (!['video-ready', 'video-playing'].includes(state.phase)) return
 
   if (hasError) {
     if (state.flowProfile !== 'self-service') return
-    work.scheduleTimedTransition('question-presented', 0, 'video-error-to-question')
+    work.scheduleTimedTransition('question-presented', 0, 'video-error-to-question', { still: true })
     return
   }
 
   const video = state.video
   if (state.phase !== 'video-playing' || !video?.durationMs) return
+
+  /*
+   * STEHT DAS ENDE SCHON, BLEIBT ES STEHEN.
+   *
+   * Die Laufzeit meldet JEDER Client, der das Video zeigt - Buehne, zweiter
+   * Praesentationsschirm, Touchgeraet. Wuerde jede Meldung neu planen, liefe
+   * bei zwei Fenstern ein Wettlauf: Zwei Meldungen, zwei neue Plaene, und der
+   * faellige Zeitpunkt ruecke bei jedem Durchlauf ein Stueck weiter.
+   *
+   * Nur ein Befehl plant neu (`erzwinge`) - Starten, Fortsetzen, Zuruecksetzen.
+   * Eine Statusmeldung ist keine Entscheidung, sondern eine Beobachtung.
+   */
+  const steht = state.pendingTransition?.nextPhase === 'question-presented'
+  if (steht && !erzwinge) return
+
   const played = video.positionMs + (video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0)
   const remainingMs = Math.max(0, video.durationMs - played)
-  work.scheduleTimedTransition('question-presented', remainingMs + work.timing.videoTailMs, 'video-to-question')
+  work.scheduleTimedTransition('question-presented', remainingMs + work.timing.videoTailMs, 'video-to-question', {
+    still: true,
+  })
 }
 
 /**
@@ -1363,11 +1386,33 @@ class Draft {
   }
 
   /** Zeitgesteuerter Uebergang mit definierter Fallbackzeit (Spezifikation 22.1). */
-  scheduleTimedTransition(nextPhase: GamePhase, durationMs: number, transitionId: string): void {
+  /**
+   * Einen Phasenwechsel auf die Uhr legen.
+   *
+   * `still` trennt zwei Dinge, die frueher eines waren: den ZEITGEBER und den
+   * PRAESENTATIONSUEBERGANG. Normalerweise gehoeren sie zusammen - der Wechsel
+   * von der Rueckmeldung zur Loesung ist beides. Beim Video nicht: Wenn seine
+   * Restzeit auf die Uhr gelegt wird, animiert nichts, und seine Laufzeit ist
+   * keine Animationsdauer.
+   *
+   * Der Unterschied ist nicht kosmetisch. Der Buehnenclient haengt seinen
+   * Szenenknoten an die Kennung des letzten Uebergangs; eine neue Kennung baut
+   * die Szene neu auf. Beim Video hiesse das: Videoelement weg, Videoelement
+   * neu, Laufzeitmeldung, neue Kennung - eine Schleife, die flackert, das Bild
+   * nie zeigt und den geplanten Uebergang nie faellig werden laesst.
+   */
+  scheduleTimedTransition(
+    nextPhase: GamePhase,
+    durationMs: number,
+    transitionId: string,
+    optionen: { still?: boolean } = {},
+  ): void {
     this.mutate((draft) => {
       const id = `${transitionId}:${this.ctx.newId('transition')}`
       draft.pendingTransition = { nextPhase, endsAtMs: this.ctx.nowMs + durationMs, transitionId: id }
-      draft.lastTransition = { transitionId: id, startedAtServerMs: this.ctx.nowMs, durationMs }
+      if (!optionen.still) {
+        draft.lastTransition = { transitionId: id, startedAtServerMs: this.ctx.nowMs, durationMs }
+      }
     })
   }
 

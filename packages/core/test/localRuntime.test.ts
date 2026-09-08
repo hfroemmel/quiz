@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { createSeededRng } from '../src'
+import { createSeededRng, gameTiming, type Command } from '../src'
 import {
   questionSchema,
   quizConfigSchema,
@@ -144,6 +144,66 @@ describe('LocalQuizRuntime', () => {
     const restored = createRuntime({ restoreFrom: saved.at(-1)! }).runtime
     expect(restored.getSnapshot().view!.soundEnabled).toBe(false)
     restored.dispose()
+  })
+
+  it('plant das Ende der Videophase im gefuehrten Spiel ueber den Dienst', () => {
+    /*
+     * DIE ENGINE ALLEIN GENUEGT ALS NACHWEIS NICHT. Zwischen ihr und dem Saal
+     * steht der Dienst: Er nimmt den Befehl an, prueft Rolle und Revision und
+     * stellt den Timer, der den Uebergang spaeter ausloest. Faellt eine dieser
+     * Stufen aus, bleibt im Saal ein schwarzes Bild stehen - und die
+     * Engine-Tests waeren trotzdem gruen.
+     *
+     * Nachgestellt wird die Reihenfolge des Betriebs: Der Browser meldet die
+     * Laufzeit, SOBALD er die Datei gelesen hat - also regelmaessig BEVOR der
+     * Operator auf Start drueckt.
+     */
+    const { runtime, clock } = createRuntime()
+    const service = runtime.service
+    let zaehler = 0
+    const alsOperator = (command: Command) =>
+      service.dispatch({
+        commandId: `video-${zaehler++}`,
+        command,
+        actor: { clientId: 'test-operator', role: 'operator' },
+        expectedRevision: service.currentRevision,
+      })
+
+    expect(alsOperator({ type: 'START_GAME', audience: 'adults', presetId: 'easy', flowProfile: 'operated' }).ok).toBe(
+      true,
+    )
+
+    // Der Pausenscreen laeuft ab; danach steht die Videofrage.
+    const faellig = service.authoritativeState!.pendingTransition!
+    clock.nowMs = faellig.endsAtMs
+    service.dispatch({
+      commandId: 'video-pause',
+      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: faellig.transitionId },
+      actor: { clientId: 'test-system', role: 'system' },
+      expectedRevision: service.currentRevision,
+    })
+    expect(service.authoritativeState!.phase).toBe('video-ready')
+
+    expect(alsOperator({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 }).ok).toBe(true)
+    // Solange nichts laeuft, gibt es auch nichts zu planen.
+    expect(service.authoritativeState!.pendingTransition).toBeUndefined()
+
+    expect(alsOperator({ type: 'START_VIDEO' }).ok).toBe(true)
+    const geplant = service.authoritativeState!.pendingTransition
+    expect(geplant?.nextPhase).toBe('question-presented')
+    expect(geplant!.endsAtMs - clock.nowMs).toBe(5_000 + gameTiming.videoTailMs)
+
+    // Und der Uebergang selbst beendet das Video, statt es weiterlaufen zu lassen.
+    clock.nowMs = geplant!.endsAtMs
+    service.dispatch({
+      commandId: 'video-ende',
+      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: geplant!.transitionId },
+      actor: { clientId: 'test-system', role: 'system' },
+      expectedRevision: service.currentRevision,
+    })
+    expect(service.authoritativeState!.phase).toBe('question-presented')
+    expect(service.authoritativeState!.video!.status).toBe('ended')
+    runtime.dispose()
   })
 
   it('stellt Fragen, Antworten und Beschriftungen auf die gewaehlte Sprache um', () => {
