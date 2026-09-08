@@ -12,6 +12,7 @@
  */
 import { useState } from 'react'
 import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import { texteFuer } from '@hfroemmel/quiz-react'
 import styles from './Game.module.css'
 
 interface GameStartProps {
@@ -36,9 +37,20 @@ interface GameStartProps {
    * Aufstellung eines Geraets, nicht in die Hand dessen, der gerade spielt.
    */
   onOpenSettings?: (() => void) | undefined
+  /** Sprache umstellen. Der Umschalter erscheint nur, wenn es mehr als eine gibt. */
+  onSelectLocale(locale: string): void
 }
 
-export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpenSettings }: GameStartProps) {
+export function GameStart({
+  view,
+  audience,
+  playerCounts,
+  onStart,
+  onExit,
+  onOpenSettings,
+  onSelectLocale,
+}: GameStartProps) {
+  const t = texteFuer(view)
   const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
   const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
@@ -63,7 +75,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
         type="button"
         className={`button ${styles.settingsButton}`}
         data-settings-open=""
-        aria-label="Einstellungen"
+        aria-label={t('kiosk.settings')}
         onClick={onOpenSettings}
       >
         <svg className={styles.settingsIcon} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -77,13 +89,41 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
       </button>
       )}
 
+      {/*
+        * DER SPRACHUMSCHALTER STEHT IN DER ECKE, nicht als dritte Frage im
+        * Bogen: Die Auswahl davor stellt bewusst zwei Fragen - wie viele
+        * spielen und wie schwer. Die Sprache ist keine Spielentscheidung,
+        * sondern die Voraussetzung dafuer, die beiden Fragen ueberhaupt lesen
+        * zu koennen; sie gehoert deshalb dorthin, wo man sie sucht, bevor man
+        * liest.
+        *
+        * Die Namen stehen in ihrer EIGENEN Sprache ("Deutsch", "English") -
+        * eine Beschriftung daneben braucht es damit nicht.
+        */}
+      {view.catalog.locales.length > 1 && (
+        <div className={styles.languages} data-languages="">
+          {view.catalog.locales.map((sprache) => (
+            <button
+              key={sprache.id}
+              type="button"
+              className={`button ${styles.language} ${sprache.id === view.locale ? 'button--selected' : ''}`}
+              data-locale={sprache.id}
+              aria-pressed={sprache.id === view.locale}
+              onClick={() => onSelectLocale(sprache.id)}
+            >
+              {sprache.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {view.theme.startVisualUrl && <img className={styles.visual} src={view.theme.startVisualUrl} alt="" />}
       {view.theme.startTitle && <h1 className={styles.title}>{view.theme.startTitle}</h1>}
 
       {angeboten.length > 1 && (
       <section className={styles.choice}>
         <h2 className={styles.choiceLabel} data-choice-label="">
-          Wie viele spielen?
+          {t('kiosk.playerCount')}
         </h2>
         <div className={styles.options}>
           {angeboten.map((count) => (
@@ -94,7 +134,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
               aria-pressed={playerCount === count}
               onClick={() => setPlayerCount(count)}
             >
-              {count === 1 ? 'Allein' : 'Zu zweit'}
+              {t(count === 1 ? 'kiosk.solo' : 'kiosk.duo')}
             </button>
           ))}
         </div>
@@ -103,7 +143,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
 
       <section className={styles.choice}>
         <h2 className={styles.choiceLabel} data-choice-label="">
-          Wie schwer?
+          {t('kiosk.difficulty')}
         </h2>
         <div className={styles.options} data-preset-options="">
           {presets.map((preset) => (
@@ -115,7 +155,7 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
               onClick={() => setPresetId(preset.id)}
             >
               {preset.label}
-              <span className={styles.hint}>{preset.slotCount} Fragen</span>
+              <span className={styles.hint}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
             </button>
           ))}
         </div>
@@ -128,11 +168,11 @@ export function GameStart({ view, audience, playerCounts, onStart, onExit, onOpe
           disabled={!canStart}
           onClick={() => onStart({ playerCount, presetId })}
         >
-          Los geht&apos;s
+          {t('kiosk.start')}
         </button>
         {onExit && (
           <button type="button" className={`button button--large ${styles.leave}`} onClick={onExit}>
-            Zurück
+            {t('kiosk.back')}
           </button>
         )}
       </div>

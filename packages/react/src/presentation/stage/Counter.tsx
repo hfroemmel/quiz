@@ -7,11 +7,20 @@
  */
 import styles from './Counter.module.css'
 
-export function Counter({ current, total }: { current: number; total: number }) {
+export function Counter({
+  current,
+  total,
+  label = 'Frage',
+}: {
+  current: number
+  total: number
+  /** Beschriftung von aussen - die Buehne spricht die Sprache des Spiels. */
+  label?: string
+}) {
   return (
     <div className={styles.counter} data-counter="">
       <span className={styles.label} data-counter-label="">
-        Frage
+        {label}
       </span>
       <span className={styles.value} data-counter-value="">
         {Math.min(current, total)}/{total}

@@ -34,19 +34,35 @@ interface ScoreProps {
   active?: boolean
   /** Gesperrt: sichtbar, aber zurueckgenommen. */
   locked?: boolean
+  /*
+   * Die beiden Woerter der Karte kommen von aussen, damit die Buehne in jeder
+   * Sprache dieselbe Karte zeigt. Ohne Angabe bleibt es beim Deutschen - eine
+   * Karte ohne Beschriftung waere schlechter als eine in der falschen Sprache.
+   */
+  playerText?: string
+  pointsText?: string
   /** Punkte links, Spielernummer rechts - so steht Spieler 2 im Entwurf. */
   mirrored?: boolean
   size?: ScoreSize
 }
 
-export function Score({ label, score, active = false, locked = false, mirrored = false, size = 'header' }: ScoreProps) {
+export function Score({
+  label,
+  score,
+  active = false,
+  locked = false,
+  mirrored = false,
+  size = 'header',
+  playerText = 'Spieler',
+  pointsText = 'Punkte',
+}: ScoreProps) {
   // Die Buehne zeigt keine Eigennamen, nur die Nummer aus der Beschriftung.
   const number = label.replace(/\D+/g, '') || '1'
 
   const player = (
     <div className={`${styles.cell} ${styles.cellPlayer}`}>
       <span className={styles.label} data-score-label="">
-        Spieler
+        {playerText}
       </span>
       <span className={styles.value} data-score-value="">
         {number}
@@ -56,7 +72,7 @@ export function Score({ label, score, active = false, locked = false, mirrored =
   const points = (
     <div className={`${styles.cell} ${styles.cellPoints}`}>
       <span className={styles.label} data-score-label="">
-        Punkte
+        {pointsText}
       </span>
       <ScoreValue score={score} />
     </div>

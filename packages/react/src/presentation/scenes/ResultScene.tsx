@@ -18,14 +18,16 @@
 import type { PublicResult } from '@hfroemmel/quiz-core'
 import { Confetti } from '../../components/Confetti'
 import { Score } from '../stage/Score'
+import { texteFuer } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 export function ResultScene({ view }: SceneProps) {
+  const t = texteFuer(view)
   const result = view.result
   if (!result) return null
 
-  if (result.mode === 'solo') return <SoloResult result={result} />
+  if (result.mode === 'solo') return <SoloResult result={result} view={view} />
 
   const winner = result.scores.find((score) => score.playerId === result.winnerPlayerId)
   const [playerOne, playerTwo] = result.scores
@@ -34,8 +36,8 @@ export function ResultScene({ view }: SceneProps) {
     <div className={`${styles.scene} ${styles.result}`}>
       {!result.isDraw && <Confetti />}
 
-      <p className={styles.resultLabel} data-result-label="">{result.isDraw ? 'Unentschieden' : 'Gewinner'}</p>
-      <h2 className={styles.resultWinner}>{result.isDraw ? 'Unentschieden!' : `${winner?.label} hat gewonnen!`}</h2>
+      <p className={styles.resultLabel} data-result-label="">{t(result.isDraw ? 'result.draw' : 'result.winner')}</p>
+      <h2 className={styles.resultWinner}>{result.isDraw ? t('result.drawHeadline') : t('result.winnerHeadline', { player: winner?.label ?? '' })}</h2>
 
       <div className={styles.resultScores}>
         {playerOne && <Score label={playerOne.label} score={playerOne.score} size="result" />}
@@ -52,17 +54,18 @@ export function ResultScene({ view }: SceneProps) {
  * zurueckgerechnet, weil eine richtige Antwort je nach Versuch verschieden viele
  * Punkte wert ist.
  */
-function SoloResult({ result }: { result: PublicResult }) {
+function SoloResult({ result, view }: { result: PublicResult; view: SceneProps['view'] }) {
+  const t = texteFuer(view)
   const player = result.scores[0]
 
   return (
     <div className={`${styles.scene} ${styles.result}`}>
       <p className={styles.resultLabel} data-result-label="">
-        Ergebnis
+        {t('result.solo')}
       </p>
       {result.solo && (
         <h2 className={styles.resultWinner}>
-          {result.solo.correctAnswers} von {result.solo.questionCount} richtig
+          {t('result.soloHeadline', { correct: result.solo.correctAnswers, total: result.solo.questionCount })}
         </h2>
       )}
 

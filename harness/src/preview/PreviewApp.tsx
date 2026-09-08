@@ -52,6 +52,7 @@ export function PreviewApp() {
    */
   const [questionType, setQuestionType] = useState<QuestionPresentationType | null>(null)
   const [themeId, setThemeId] = useState('default')
+  const [variant, setVariant] = useState<'stage' | 'preview'>('stage')
   const [feedbackOutcome, setFeedbackOutcome] = useState<'correct' | 'incorrect'>('correct')
   const [revealElapsedMs, setRevealElapsedMs] = useState(3_000)
   const [draw, setDraw] = useState(false)
@@ -160,6 +161,28 @@ export function PreviewApp() {
           </label>
         )}
 
+        {/*
+          * ANS ENDE DER LEISTE, nicht dazwischen: Die End-to-End-Tests sprechen
+          * die Auswahlfelder ueber ihre Reihenfolge an, und ein neues Feld
+          * weiter oben verschoebe stumm jedes andere.
+          *
+          * WO DIE SZENE LAEUFT, ist Teil der Paketoberflaeche und gehoert
+          * deshalb in den Pruefstand. Die Vorschau des Operators ist nicht
+          * dieselbe Ansicht wie der Beamer: Sie darf Regiehinweise tragen - die
+          * Restzeit eines Videos etwa -, die im Saal nichts zu suchen haben.
+          */}
+        <label className="field">
+          <span>Ansicht</span>
+          <select
+            data-preview-variant=""
+            value={variant}
+            onChange={(event) => setVariant(event.target.value as 'stage' | 'preview')}
+          >
+            <option value="stage">Buehne</option>
+            <option value="preview">Operatorvorschau</option>
+          </select>
+        </label>
+
         <label className="field field--checkbox">
           <input type="checkbox" checked={longText} onChange={(event) => setLongText(event.target.checked)} />
           <span>Lange Texte (vierzeilige Frage, zweizeilige Antworten)</span>
@@ -191,7 +214,19 @@ export function PreviewApp() {
       </aside>
 
       <div className={styles.stage} data-preview-stage="" style={themeVariables(themeForView(view))}>
-        <StageScreen key={runId} view={view} serverNow={() => view.serverTimeMs} isAudioMaster={false} />
+        <StageScreen
+          key={runId}
+          view={view}
+          /*
+           * Fuer alles Dargestellte steht die Zeit still - sonst liefe die
+           * Enthuellungsuhr sofort ab und jeder Screenshot zeigte etwas
+           * anderes. Nur die Videoszene laeuft mit: Ihre Uhr IST der Gegenstand
+           * der Vorschau, und ihr Schnappschuss traegt deshalb die echte Zeit.
+           */
+          serverNow={() => (view.scene === 'video' ? Date.now() : view.serverTimeMs)}
+          isAudioMaster={false}
+          variant={variant}
+        />
       </div>
     </div>
   )
@@ -292,7 +327,13 @@ function buildSampleView(input: {
   draw: boolean
   longText: boolean
 }): PublicQuizViewModel {
-  const serverTimeMs = 1_700_000_000_000
+  /*
+   * Fester Zeitpunkt fuer alles Dargestellte - Screenshots duerfen nicht von der
+   * Uhr abhaengen. EINE Ausnahme: die Videoszene. Deren Uhr laeuft gegen die
+   * Serverzeit, und mit einem Zeitpunkt aus dem Jahr 2023 waere jedes Video
+   * abgelaufen, bevor die Vorschau es zeigt.
+   */
+  const serverTimeMs = input.scene === 'video' ? Date.now() : 1_700_000_000_000
   const scores = [
     // Dreistellige Punktestaende sind der Regelfall, nicht die Ausnahme.
     { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false },
@@ -313,6 +354,7 @@ function buildSampleView(input: {
     progress: { current: 3, total: 7 },
     soundEnabled: false,
     serverTimeMs,
+    locale: 'de-DE',
     revision: 42,
   }
 
@@ -346,11 +388,16 @@ function buildSampleView(input: {
         reveal: { status: 'paused', durationMs: gameTiming.imageRevealDurationMs, elapsedMs: input.revealElapsedMs },
       }
     case 'video':
+      /*
+       * Ein LAUFENDES Video: Nur so ist die Uhr der Operatorvorschau zu sehen,
+       * die dort steht, wo im Saal das Bild ist. Die Adresse zeigt bewusst ins
+       * Leere - geprueft wird die Komposition, nicht die Wiedergabe.
+       */
       return {
         ...base,
-        phase: 'video-ready',
-        question: { prompt: 'Videofrage', presentationType: 'video-then-question' },
-        video: { status: 'idle', positionMs: 0, hasError: false },
+        phase: 'video-playing',
+        question: { prompt: 'Videofrage', presentationType: 'video-then-question', videoUrl: '/media/beispielvideo' },
+        video: { status: 'playing', positionMs: 12_000, durationMs: 95_000, hasError: false },
       }
     case 'feedback':
       return {

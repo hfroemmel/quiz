@@ -20,6 +20,8 @@ import styles from './Game.module.css'
 interface BuzzerProps {
   playerId: PlayerId
   label: string
+  /** Aufschrift der Flaeche - sie steht in der Sprache des Spiels. */
+  buzzText?: string
   side: 'left' | 'right'
   /** Kann dieser Spieler den Zuschlag jetzt holen? */
   enabled: boolean
@@ -28,7 +30,7 @@ interface BuzzerProps {
   onBuzz(playerId: PlayerId): void
 }
 
-export function Buzzer({ playerId, label, side, enabled, armed, onBuzz }: BuzzerProps) {
+export function Buzzer({ playerId, label, side, enabled, armed, onBuzz, buzzText = 'Buzzern' }: BuzzerProps) {
   return (
     <button
       type="button"
@@ -47,7 +49,7 @@ export function Buzzer({ playerId, label, side, enabled, armed, onBuzz }: Buzzer
       onPointerDown={() => onBuzz(playerId)}
       aria-label={`${label} buzzern`}
     >
-      Buzzern
+      {buzzText}
     </button>
   )
 }

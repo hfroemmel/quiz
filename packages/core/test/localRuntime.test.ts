@@ -146,6 +146,45 @@ describe('LocalQuizRuntime', () => {
     restored.dispose()
   })
 
+  it('stellt Fragen, Antworten und Beschriftungen auf die gewaehlte Sprache um', () => {
+    /*
+     * DER GANZE WEG IN EINEM TEST: Befehl -> Dienst -> Zustand -> Projektion.
+     * Die Sprache wird an vier Stellen aufgeloest (Frage, Optionen, Katalog,
+     * Oberflaeche); faellt eine davon aus, stuende im Saal eine Frage auf
+     * Deutsch mit englischen Antworten.
+     */
+    const { runtime, settle } = createRuntime()
+
+    expect(runtime.getSnapshot().view!.locale).toBe('de-DE')
+    expect(runtime.getSnapshot().view!.catalog.locales.map((sprache) => sprache.id)).toEqual(['de-DE', 'en-GB'])
+
+    runtime.dispatch({ type: 'SET_LOCALE', locale: 'en-GB' })
+    const vorDemSpiel = runtime.getSnapshot().view!
+    expect(vorDemSpiel.locale).toBe('en-GB')
+    // Auch die Beschriftungen des Katalogs und der Oberflaeche wechseln mit.
+    expect(vorDemSpiel.catalog.presets.map((preset) => preset.label)).toContain('Easy')
+    expect(vorDemSpiel.texts?.['kiosk.start']).toBe("Let's go")
+
+    runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
+    settle()
+
+    const imSpiel = runtime.getSnapshot().view!
+    expect(imSpiel.locale).toBe('en-GB')
+    expect(imSpiel.question!.prompt).toMatch(/^Test question /)
+    for (const option of imSpiel.visibleOptions ?? []) {
+      expect(option.text).toMatch(/^(Correct|Wrong) answer /)
+    }
+    runtime.dispose()
+  })
+
+  it('faellt auf die Grundsprache zurueck, wenn der Inhalt die Sprache nicht kennt', () => {
+    // Der Wunsch kommt aus einem Config File; ein Tippfehler darf nichts leeren.
+    const { runtime } = createRuntime()
+    runtime.dispatch({ type: 'SET_LOCALE', locale: 'kl-KL' })
+    expect(runtime.getSnapshot().view!.locale).toBe('de-DE')
+    runtime.dispose()
+  })
+
   it('gibt den Stand beim Aufraeumen an den persist-Adapter und stellt ihn wieder her', () => {
     const saved: MemoryQuizStoreSnapshot[] = []
     const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })

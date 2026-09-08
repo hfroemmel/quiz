@@ -160,6 +160,36 @@ export function validateContent(input: ValidationInput): ValidationResult {
       add('error', 'asset-reference', `Startgrafik "${audienceConfig.startVisualAssetId}" von Zielgruppe "${audienceConfig.id}" fehlt.`, audienceConfig.id)
     }
   }
+  /* -------- Sprachen -------- */
+
+  const bekannteSprachen = new Set((config.locales ?? []).map((sprache) => sprache.id))
+  const pruefeSprachen = (
+    eintraege: Record<string, unknown> | undefined,
+    art: string,
+    subject: string,
+  ): void => {
+    for (const sprache of Object.keys(eintraege ?? {})) {
+      if (bekannteSprachen.size > 0 && !bekannteSprachen.has(sprache)) {
+        /*
+         * WARNUNG UND KEIN FEHLER: Eine Uebersetzung fuer eine Sprache, die
+         * niemand waehlen kann, ist tote Arbeit - aber sie macht nichts kaputt.
+         * Der Bestand soll deswegen nicht unbaubar werden; gemeldet gehoert sie
+         * trotzdem, sonst uebersetzt jemand weiter ins Leere.
+         */
+        add('warning', 'locale-unknown', `${art} in nicht konfigurierter Sprache "${sprache}".`, subject)
+      }
+    }
+  }
+
+  for (const eintrag of [...config.categories, ...config.difficulties, ...config.pools, ...config.presets]) {
+    pruefeSprachen(eintrag.labels, 'Beschriftung', eintrag.id)
+  }
+  for (const audienceConfig of config.audiences) {
+    pruefeSprachen(audienceConfig.labels, 'Beschriftung', audienceConfig.id)
+    pruefeSprachen(audienceConfig.startTitles, 'Startbild-Titel', audienceConfig.id)
+  }
+  pruefeSprachen(config.interfaceStrings, 'Oberflaechentexte', 'config')
+
   for (const theme of config.themes) {
     if (theme.logoAssetId && !assetsById.has(theme.logoAssetId)) {
       add('error', 'asset-reference', `Logo "${theme.logoAssetId}" von Theme "${theme.id}" fehlt.`, theme.id)
@@ -197,6 +227,36 @@ export function validateContent(input: ValidationInput): ValidationResult {
 
     if (!knownDifficulties.has(question.difficulty)) {
       add('error', 'difficulty-reference', `Unbekannte Schwierigkeit "${question.difficulty}".`, question.id)
+    }
+
+    pruefeSprachen(question.translations, 'Uebersetzung', question.id)
+    for (const [sprache, uebersetzung] of Object.entries(question.translations ?? {})) {
+      /*
+       * EINE UEBERSETZUNG DARF DIE WERTUNG NICHT VERSCHIEBEN. Optionen werden
+       * einzeln nach Bezeichner ersetzt; steht dort ein Bezeichner, den das
+       * Original nicht kennt, faellt der Text still unter den Tisch - und im
+       * schlimmsten Fall fehlt genau die Option, gegen die verglichen wird.
+       */
+      for (const option of uebersetzung.options ?? []) {
+        if (!question.options?.some((eintrag) => eintrag.id === option.id)) {
+          add(
+            'error',
+            'translation-option',
+            `Uebersetzung "${sprache}" nennt die Option "${option.id}", die es im Original nicht gibt.`,
+            question.id,
+          )
+        }
+      }
+      for (const assetId of [uebersetzung.media?.imageAssetId, uebersetzung.media?.videoAssetId]) {
+        if (assetId && !assetsById.has(assetId)) {
+          add(
+            'error',
+            'asset-reference',
+            `Uebersetzung "${sprache}" verweist auf fehlendes Medium "${assetId}".`,
+            question.id,
+          )
+        }
+      }
     }
     for (const categoryId of question.categories) {
       if (!knownCategories.has(categoryId)) {

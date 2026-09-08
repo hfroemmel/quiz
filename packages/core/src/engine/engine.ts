@@ -89,6 +89,8 @@ export interface EngineContext {
   selfServiceTiming?: SelfServiceTiming
   /** Globaler Soundstatus, den ein neu gestartetes Spiel uebernimmt. */
   initialSoundEnabled?: boolean
+  /** Sprache des Geraets, die ein neu gestartetes Spiel uebernimmt. */
+  initialLocale?: string
 }
 
 export interface DomainEvent {
@@ -141,6 +143,21 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
         draft.soundEnabled = command.enabled
       })
       work.log('system', `Sound ${command.enabled ? 'eingeschaltet' : 'stummgeschaltet'}.`)
+      return work.commit()
+    }
+
+    case 'SET_LOCALE': {
+      /*
+       * Wie beim Ton: Laeuft ein Spiel, wechselt es mit - die Fragen sind
+       * dieselben, nur die Sprache ist eine andere. Laeuft keines, gibt es
+       * nichts, worin der Befehl stehen koennte; dann traegt ihn die
+       * Anwendungsschicht (siehe `QuizService`).
+       */
+      if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
+      work.mutate((draft) => {
+        draft.locale = command.locale
+      })
+      work.log('system', `Sprache auf ${command.locale} umgestellt.`)
       return work.commit()
     }
 
@@ -379,6 +396,10 @@ function startGame(
     attempts: [],
     // Der globale Soundstatus bleibt ueber Spiele hinweg erhalten.
     soundEnabled: work.ctx.initialSoundEnabled ?? work.state?.soundEnabled ?? true,
+    // Ebenso die Sprache: Sie gehoert dem Geraet und ueberdauert das einzelne Spiel.
+    ...(work.ctx.initialLocale ?? work.state?.locale
+      ? { locale: work.ctx.initialLocale ?? work.state?.locale }
+      : {}),
     updatedAtMs: work.ctx.nowMs,
   }
 
@@ -696,6 +717,8 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
         draft.buzzer = { open: false }
       })
       work.log('phase', 'Video gestartet.')
+      // Ist die Laufzeit schon bekannt, steht damit auch das Ende fest.
+      scheduleVideoEnd(work, false)
       return work.commit()
     }
     case 'PAUSE_VIDEO': {
@@ -719,6 +742,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
         draft.buzzer = { open: false }
       })
       work.log('phase', 'Video neu gestartet.')
+      scheduleVideoEnd(work, false)
       return work.commit()
     }
     case 'REPORT_VIDEO_STATUS': {
@@ -739,7 +763,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
           `Video konnte nicht abgespielt werden: ${command.error}. Frage überspringen oder ohne Video weiterfuehren.`,
         )
       }
-      scheduleSelfServiceVideoEnd(work, command.error !== undefined)
+      scheduleVideoEnd(work, command.error !== undefined)
       return work.commit()
     }
     case 'SHOW_QUESTION_AFTER_VIDEO': {
@@ -924,6 +948,16 @@ function questionEntryPhase(state: GameState): GamePhase {
  * ohne dass der Fortschritt versehentlich verloren geht.
  */
 function applyPhase(work: Draft, phase: GamePhase): void {
+  applyPhaseMutation(work, phase)
+  /*
+   * Faellt der Uebergang IN die Videophase, steht das Ende der Videophase damit
+   * schon fest - sofern die Laufzeit gemeldet ist. Geplant wird danach, weil
+   * `applyPhaseMutation` den offenen Uebergang zu Beginn abraeumt.
+   */
+  if (phase === 'video-playing') scheduleVideoEnd(work, false)
+}
+
+function applyPhaseMutation(work: Draft, phase: GamePhase): void {
   work.mutate((draft) => {
     draft.pendingTransition = undefined
     switch (phase) {
@@ -979,6 +1013,7 @@ function applyPhase(work: Draft, phase: GamePhase): void {
         if (draft.video) {
           draft.video = { ...draft.video, status: 'playing', startedAtServerMs: work.ctx.nowMs }
         }
+        // Das Ende wird unten geplant - erst muss die neue Phase stehen.
         break
       }
       case 'question-presented': {
@@ -1059,20 +1094,30 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
 }
 
 /**
- * Selbstbedienung: Wann endet die Videophase?
+ * Wann endet die Videophase?
+ *
+ * EIN DURCHGELAUFENES VIDEO GEHT VON SELBST IN DIE FRAGE UEBER - im Saal wie am
+ * Geraet. Ein schwarzes Bild, das stehen bleibt, bis jemand weiterschaltet, ist
+ * in beiden Faellen ein Ausfall; der Operator behaelt seinen Knopf, um frueher
+ * umzuschalten, muss ihn aber nicht mehr suchen.
  *
  * Der Server hat keine eigene Sicht auf das Medium, deshalb plant er den Wechsel
  * aus der Laufzeit, die der Client meldet. Massgeblich bleibt trotzdem der
  * serverseitige Timer - eine ausbleibende Meldung des Browsers kann den Ablauf
- * nicht anhalten. Laesst sich das Video gar nicht abspielen, erscheint die Frage
- * sofort; ohne Operator gibt es sonst niemanden, der darauf reagieren koennte.
+ * nicht anhalten.
+ *
+ * NUR DER FEHLERFALL BLEIBT GETEILT: Laesst sich das Video gar nicht abspielen,
+ * springt die Selbstbedienung sofort zur Frage, weil dort niemand steht, der
+ * reagieren koennte. Im gefuehrten Spiel entscheidet der Operator - er sieht die
+ * Meldung und kann die Frage ueberspringen.
  */
-function scheduleSelfServiceVideoEnd(work: Draft, hasError: boolean): void {
+function scheduleVideoEnd(work: Draft, hasError: boolean): void {
   const state = work.state
-  if (!state || state.flowProfile !== 'self-service' || state.status !== 'active') return
+  if (!state || state.status !== 'active') return
   if (!['video-ready', 'video-playing'].includes(state.phase)) return
 
   if (hasError) {
+    if (state.flowProfile !== 'self-service') return
     work.scheduleTimedTransition('question-presented', 0, 'video-error-to-question')
     return
   }
@@ -1081,11 +1126,7 @@ function scheduleSelfServiceVideoEnd(work: Draft, hasError: boolean): void {
   if (state.phase !== 'video-playing' || !video?.durationMs) return
   const played = video.positionMs + (video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0)
   const remainingMs = Math.max(0, video.durationMs - played)
-  work.scheduleTimedTransition(
-    'question-presented',
-    remainingMs + work.selfServiceTiming.videoTailMs,
-    'video-to-question',
-  )
+  work.scheduleTimedTransition('question-presented', remainingMs + work.timing.videoTailMs, 'video-to-question')
 }
 
 /**

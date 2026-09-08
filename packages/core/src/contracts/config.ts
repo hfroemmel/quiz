@@ -43,6 +43,16 @@ export const gameTiming = {
   /** Kurze definierte Pause zwischen Feedback und Loesungsansicht. */
   solutionDelayMs: 250,
   /**
+   * Zuschlag nach dem gemeldeten Ende eines Videos, bevor die Frage erscheint.
+   *
+   * Er deckt Ausspielverzoegerungen ab und gilt in JEDEM Ablaufprofil: Ein
+   * Video, das durchgelaufen ist, hat nichts mehr zu zeigen - weder am Geraet
+   * noch im Saal soll ein schwarzes Bild stehen, bis jemand weiterschaltet.
+   * Deshalb steht der Wert hier und nicht mehr bei den Zeiten, die nur den
+   * fehlenden Operator ersetzen.
+   */
+  videoTailMs: 400,
+  /**
    * Bestaetigte Enthuellungsdauer beim Bilderkennen: exakt zehn Sekunden.
    * Dies ist der einzige Timingwert, der laut Spezifikation bindend ist.
    */
@@ -114,11 +124,6 @@ export const selfServiceTiming = {
   questionLeadInMs: 2_500,
   /** Kurzer Vorlauf, bevor ein Video von selbst startet. */
   videoLeadInMs: 500,
-  /**
-   * Zuschlag nach dem gemeldeten Ende eines Videos, bevor die Frage erscheint.
-   * Er deckt Ausspielverzoegerungen ab.
-   */
-  videoTailMs: 400,
 } as const
 
 /** Parameter des Auswahlalgorithmus (Spezifikation 17.2). */

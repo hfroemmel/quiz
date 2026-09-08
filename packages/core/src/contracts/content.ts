@@ -79,6 +79,55 @@ export const questionMediaSchema = z.object({
 })
 export type QuestionMedia = z.infer<typeof questionMediaSchema>
 
+/* ------------------------------------------------------------------ *
+ * Mehrsprachigkeit
+ *
+ * EINE FRAGE BLEIBT EINE FRAGE, auch in fuenf Sprachen. Uebersetzungen haengen
+ * deshalb AN der Frage und stehen nicht als zweiter Bestand daneben: Die
+ * Auswahl (Wiederholungsvermeidung, Fragenplaetze, Pools) rechnet weiter mit
+ * genau einer Menge, und eine Sprache umzuschalten kann keine andere Frage
+ * ergeben. Was fehlt, faellt auf die Grundsprache zurueck - eine halb
+ * uebersetzte Tabelle ist besser als ein leerer Bildschirm.
+ * ------------------------------------------------------------------ */
+
+/** Beschriftung je Sprache. Fehlt eine, gilt das `label` daneben. */
+export const uebersetzteBeschriftung = z.record(z.string().min(1), z.string().min(1))
+
+/**
+ * Eine Sprache, in der das Quiz gespielt werden kann.
+ *
+ * `label` steht bewusst IN DIESER Sprache ("Deutsch", "English") und nicht in
+ * der Sprache der Oberflaeche: Wer die Sprache sucht, sucht ihren eigenen
+ * Namen.
+ */
+export const localeSchema = z.object({
+  id: z.string().min(2),
+  label: z.string().min(1),
+})
+export type QuizLocale = z.infer<typeof localeSchema>
+
+/**
+ * Der uebersetzbare Teil einer Frage.
+ *
+ * Die Optionen tragen dieselben Bezeichner wie im Original - gewertet wird
+ * gegen `correctOptionId`, und eine Uebersetzung darf die Wertung nicht
+ * verschieben. Das Medium darf abweichen: Ein Bild mit deutscher Beschriftung
+ * ist in einer anderen Sprache ein anderes Bild.
+ */
+export const questionTranslationSchema = z.object({
+  prompt: z.string().min(1).optional(),
+  options: z.array(answerOptionSchema).optional(),
+  acceptedAnswerText: z.array(z.string().min(1)).optional(),
+  explanation: questionExplanationSchema.optional(),
+  media: z
+    .object({
+      imageAssetId: idSchema.optional(),
+      videoAssetId: idSchema.optional(),
+    })
+    .optional(),
+})
+export type QuestionTranslation = z.infer<typeof questionTranslationSchema>
+
 export const questionSchema = z.object({
   id: idSchema,
   /**
@@ -111,6 +160,8 @@ export const questionSchema = z.object({
 
   media: questionMediaSchema.optional(),
   explanation: questionExplanationSchema.optional(),
+  /** Fassungen in anderen Sprachen, nach Sprachkennung. Fehlendes faellt zurueck. */
+  translations: z.record(z.string().min(2), questionTranslationSchema).optional(),
   enabled: z.boolean(),
 })
 export type Question = z.infer<typeof questionSchema>
@@ -210,6 +261,7 @@ export function isSelfServicePreset(preset: DifficultyPreset): boolean {
 export const difficultyPresetSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
+  labels: uebersetzteBeschriftung.optional(),
   /**
    * Ein Preset ist eine dramaturgische Ablaufkonfiguration, kein globaler Filter.
    * `easy` darf daher einzelne mittelschwere Fragenplaetze enthalten.
@@ -266,16 +318,31 @@ export const audienceConfigSchema = z.object({
    * Startansicht nur die Grafik - etwa wenn diese den Titel schon enthaelt.
    */
   startTitle: z.string().min(1).optional(),
+  labels: uebersetzteBeschriftung.optional(),
+  /** Startbild-Titel je Sprache. */
+  startTitles: uebersetzteBeschriftung.optional(),
   allowedPresetIds: z.array(idSchema).min(1),
 })
 export type AudienceConfig = z.infer<typeof audienceConfigSchema>
 
 /** Ein Fragenpool ist nur Kennung und Beschriftung - die Fragen nennen ihn selbst. */
-export const questionPoolSchema = z.object({ id: idSchema, label: z.string().min(1) })
+export const questionPoolSchema = z.object({
+  id: idSchema,
+  label: z.string().min(1),
+  labels: uebersetzteBeschriftung.optional(),
+})
 export type QuestionPool = z.infer<typeof questionPoolSchema>
 
-export const categorySchema = z.object({ id: idSchema, label: z.string().min(1) })
-export const difficultySchema = z.object({ id: idSchema, label: z.string().min(1) })
+export const categorySchema = z.object({
+  id: idSchema,
+  label: z.string().min(1),
+  labels: uebersetzteBeschriftung.optional(),
+})
+export const difficultySchema = z.object({
+  id: idSchema,
+  label: z.string().min(1),
+  labels: uebersetzteBeschriftung.optional(),
+})
 export type Category = z.infer<typeof categorySchema>
 export type Difficulty = z.infer<typeof difficultySchema>
 
@@ -288,6 +355,23 @@ export const quizConfigSchema = z.object({
   themes: z.array(quizThemeSchema).min(1),
   presets: z.array(difficultyPresetSchema).min(1),
   audiences: z.array(audienceConfigSchema).min(1),
+  /**
+   * Sprachen, in denen dieses Quiz gespielt werden kann.
+   *
+   * Fehlt die Liste oder steht nur eine Sprache darin, gibt es nichts zu
+   * waehlen und der Umschalter erscheint nicht. Die erste ist die Grundsprache:
+   * Was nicht uebersetzt ist, kommt aus ihr.
+   */
+  locales: z.array(localeSchema).min(1).optional(),
+  /**
+   * Beschriftungen der Oberflaeche je Sprache.
+   *
+   * Die deutschen Fassungen stehen im Code (`@hfroemmel/quiz-react`); hier
+   * stehen nur Abweichungen und die uebrigen Sprachen. So laeuft ein Quiz ohne
+   * einen einzigen Eintrag, und wer einen Satz anders haben will, braucht dafuer
+   * keine neue Programmfassung.
+   */
+  interfaceStrings: z.record(z.string().min(2), z.record(z.string().min(1), z.string())).optional(),
 })
 export type QuizConfig = z.infer<typeof quizConfigSchema>
 

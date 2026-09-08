@@ -31,6 +31,10 @@ import {
   type ActorRole,
   type PlayerQuizViewModel,
   isSelfServicePreset,
+  beschriftung,
+  fragenTextFuer,
+  gueltigeSprache,
+  oberflaechenTexte,
 } from '../contracts'
 import { activePlayerId } from './buzzer'
 import { allowedCommandsForRole } from './allowedCommands'
@@ -62,6 +66,8 @@ export interface ProjectionContext {
   previewAudienceId?: string
   /** Globaler Soundstatus, solange kein Spiel laeuft. */
   soundEnabled?: boolean
+  /** Sprache des Geraets, solange kein Spiel laeuft. */
+  locale?: string
   /**
    * Rohzahlen des Spielprotokolls aus der Datenbank, je Zielgruppe. Die Zuordnung
    * zu lesbaren Namen passiert hier in der Projektion - dieselbe Regel wie
@@ -123,6 +129,8 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
       playerScores: [],
       progress: { current: 0, total: ctx.config.questionsPerGame },
       soundEnabled: state?.soundEnabled ?? ctx.soundEnabled ?? true,
+      locale: spracheFuer(state, ctx),
+      ...texteFuer(state, ctx),
       serverTimeMs: ctx.nowMs,
       revision: state?.revision ?? 0,
     }
@@ -130,7 +138,13 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
 
   const scene = sceneForPhase(state.phase, state.currentQuestion?.question.questionType)
   const runtime = state.currentQuestion
-  const question = runtime?.question
+  const locale = spracheFuer(state, ctx)
+  /*
+   * AB HIER IST DIE FRAGE UEBERSETZT. Alles darunter - Text, Optionen, Medium,
+   * Loesung - liest aus dieser einen Fassung; sonst stuende die Frage in einer
+   * und die Antworten in einer anderen Sprache.
+   */
+  const question = runtime ? fragenTextFuer(runtime.question, locale) : undefined
   const active = activePlayerId(state)
   const showsQuestion = scene === 'question' || scene === 'feedback' || scene === 'solution' || scene === 'reveal' || scene === 'video'
 
@@ -141,7 +155,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           presentationType: question.questionType,
           imageUrl: ctx.assetUrl(question.media?.imageAssetId),
           videoUrl: scene === 'video' ? ctx.assetUrl(question.media?.videoAssetId) : undefined,
-          categoryLabel: categoryLabel(question, ctx),
+          categoryLabel: categoryLabel(question, ctx, locale),
         }
       : undefined
 
@@ -159,17 +173,18 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     theme,
     question: publicQuestion,
     // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
-    upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx) : undefined,
+    upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx, locale) : undefined,
     /*
      * Die Antwortmoeglichkeiten gehen erst auf die Leitung, wenn der Operator die
      * Runde freigegeben hat. Solange nur die Frage steht, liest der Moderator sie
      * vor - haette der Buehnenclient die Optionen bereits, waeren sie im DOM zu
      * finden, bevor sie jemand sehen soll.
      */
-    visibleOptions: showsQuestion && state.phase !== 'question-presented' ? publicOptions(state, scene) : undefined,
+    visibleOptions:
+      showsQuestion && state.phase !== 'question-presented' ? publicOptions(state, scene, question) : undefined,
     // Die Loesung wird ausschliesslich in der Loesungsszene uebertragen. Nach einer
     // falschen ersten Antwort bleibt sie damit auch technisch verborgen.
-    visibleSolution: scene === 'solution' ? publicSolution(state, ctx) : undefined,
+    visibleSolution: scene === 'solution' ? publicSolution(ctx, question!) : undefined,
     feedback: scene === 'feedback' ? publicFeedback(state) : undefined,
     playerScores: scores,
     currentPlayer: active,
@@ -196,6 +211,8 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
         ? { ...determineResult(state), scores }
         : undefined,
     soundEnabled: state.soundEnabled,
+    locale,
+    ...texteFuer(state, ctx),
     transition: state.lastTransition
       ? {
           id: state.lastTransition.transitionId,
@@ -221,7 +238,7 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
   return {
     ...projectPublic(state, ctx),
     allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
-    catalog: buildPlayerCatalog(ctx),
+    catalog: buildPlayerCatalog(ctx, spracheFuer(state, ctx)),
   }
 }
 
@@ -232,8 +249,8 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
  * Damit steht am Geraet keine Schwierigkeitsstufe zur Wahl, die auf halber
  * Strecke einen Operator braeuchte - und der Client muss nichts darueber wissen.
  */
-function buildPlayerCatalog(ctx: ProjectionContext): CatalogViewModel {
-  const full = buildCatalog(ctx)
+function buildPlayerCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
+  const full = buildCatalog(ctx, locale)
   const playable = new Set(ctx.config.presets.filter(isSelfServicePreset).map((preset) => preset.id))
 
   return {
@@ -247,14 +264,21 @@ function buildPlayerCatalog(ctx: ProjectionContext): CatalogViewModel {
 
 export function projectModerator(state: GameState | null, ctx: ProjectionContext): ModeratorQuizViewModel {
   const base = projectPublic(state, ctx)
-  const question = state?.currentQuestion?.question
+  const roh = state?.currentQuestion?.question
+  /*
+   * Der Moderator liest vor, was im Saal steht - also die uebersetzte Fassung.
+   * Der Operator dagegen bearbeitet weiter unten das ORIGINAL: Ein Hotfix
+   * schreibt in den Bestand zurueck, und eine Uebersetzung dort einzutragen
+   * ueberschriebe die Grundsprache.
+   */
+  const question = roh ? fragenTextFuer(roh, base.locale) : undefined
   const attempt = state ? pendingAttempt(state) : undefined
 
   return {
     ...base,
     questionId: question?.id,
     // Moderator und Operator sehen die Loesung jederzeit privat - der Buehnenscreen nie vorzeitig.
-    privateSolution: question ? privateSolution(state!) : undefined,
+    privateSolution: question ? privateSolution(question) : undefined,
     explanation: question?.explanation,
     allowedCommands: allowedCommandsForRole(state ?? null, 'moderator'),
     nextStepHint: nextStepHint(state),
@@ -307,7 +331,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
     },
     statistics: gameStatistics(ctx),
     resumable: ctx.resumable,
-    catalog: buildCatalog(ctx),
+    catalog: buildCatalog(ctx, spracheFuer(state, ctx)),
   }
 }
 
@@ -315,9 +339,8 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
  * Bausteine
  * ------------------------------------------------------------------ */
 
-function publicOptions(state: GameState, scene: PublicScene): PublicOption[] | undefined {
+function publicOptions(state: GameState, scene: PublicScene, question: Question | undefined): PublicOption[] | undefined {
   const runtime = state.currentQuestion
-  const question = runtime?.question
   /*
    * Ohne echte Auswahl gibt es keine Antwortleisten. Eine einzelne Option waere
    * die Loesung auf der Buehne - die Frage laeuft dann als freie Antwort.
@@ -379,8 +402,7 @@ function gameStatistics(ctx: ProjectionContext): GameStatisticsViewModel {
   }
 }
 
-function correctAnswerText(state: GameState): string {
-  const question = state.currentQuestion?.question
+function correctAnswerText(question: Question | undefined): string {
   if (!question) return ''
   if (question.correctOptionId) {
     const option = question.options?.find((entry) => entry.id === question.correctOptionId)
@@ -396,29 +418,51 @@ function correctAnswerText(state: GameState): string {
  * fuehrende. Steht sie nicht in der Konfiguration, bleibt die Zeile leer, statt
  * eine rohe ID auf die Buehne zu bringen.
  */
-function categoryLabel(question: Question, ctx: ProjectionContext): string | undefined {
+function categoryLabel(question: Question, ctx: ProjectionContext, locale: string): string | undefined {
   const first = question.categories[0]
   if (!first) return undefined
-  return ctx.config.categories.find((category) => category.id === first)?.label
+  const kategorie = ctx.config.categories.find((category) => category.id === first)
+  return kategorie ? beschriftung(kategorie, locale) : undefined
 }
 
-function publicSolution(state: GameState, ctx: ProjectionContext): PublicSolution {
-  const question = state.currentQuestion!.question
+/**
+ * In welcher Sprache steht diese Ansicht?
+ *
+ * Ein laufendes Spiel behaelt die Sprache, in der es begonnen wurde; ohne Spiel
+ * gilt die des Geraets. Was der Inhalt nicht kennt, faellt auf die Grundsprache
+ * zurueck - ein Tippfehler im Config File darf kein Geraet lahmlegen.
+ */
+function spracheFuer(state: GameState | null, ctx: ProjectionContext): string {
+  return gueltigeSprache(ctx.config, state?.locale ?? ctx.locale)
+}
+
+/**
+ * Die Oberflaechentexte - nur, wenn der Inhalt welche mitbringt.
+ *
+ * Ohne Eintraege bleibt das Feld weg, statt ein leeres Objekt durch jede
+ * Nachricht zu tragen: Der Client haelt seine deutschen Fassungen ohnehin
+ * selbst vor.
+ */
+function texteFuer(state: GameState | null, ctx: ProjectionContext): { texts?: Record<string, string> } {
+  const texte = oberflaechenTexte(ctx.config, spracheFuer(state, ctx))
+  return Object.keys(texte).length > 0 ? { texts: texte } : {}
+}
+
+function publicSolution(ctx: ProjectionContext, question: Question): PublicSolution {
   /*
    * Die Loesungsansicht zeigt die Antwort - mehr nicht. Der Erklaerungstext bleibt
    * dem Operator und dem Moderator vorbehalten; erzaehlt wird er auf der Buehne,
    * nicht gelesen. Er wird deshalb gar nicht erst oeffentlich uebertragen.
    */
   return {
-    answerText: correctAnswerText(state),
+    answerText: correctAnswerText(question),
     imageUrl: ctx.assetUrl(question.media?.imageAssetId),
   }
 }
 
-function privateSolution(state: GameState): PrivateSolution {
-  const question = state.currentQuestion!.question
+function privateSolution(question: Question): PrivateSolution {
   return {
-    answerText: correctAnswerText(state),
+    answerText: correctAnswerText(question),
     correctOptionId: question.correctOptionId,
     acceptedAnswerText: question.acceptedAnswerText,
   }
@@ -446,6 +490,7 @@ function videoWarnings(state: GameState | null): string[] {
 }
 
 function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTheme {
+  const locale = spracheFuer(state, ctx)
   const audienceId = state?.audience ?? ctx.previewAudienceId
   const audienceConfig =
     ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
@@ -457,27 +502,33 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
     skin: theme.skin,
     logoUrl: ctx.assetUrl(theme.logoAssetId),
     startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId ?? theme.logoAssetId),
-    startTitle: audienceConfig.startTitle,
+    // Auch der Titel ueber dem Startbild spricht die Sprache des Quiz.
+    startTitle: audienceConfig.startTitles?.[locale] ?? audienceConfig.startTitle,
     presentationAnimationSetId: theme.presentationAnimationSetId,
   }
 }
 
-function buildCatalog(ctx: ProjectionContext): CatalogViewModel {
+function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
   return {
     questionsPerGame: ctx.config.questionsPerGame,
     audiences: ctx.config.audiences.map((audienceConfig) => ({
       id: audienceConfig.id,
-      label: audienceConfig.label,
+      label: beschriftung(audienceConfig, locale),
       themeId: audienceConfig.themeId,
       startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId),
       allowedPresetIds: audienceConfig.allowedPresetIds,
     })),
-    pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: pool.label })),
+    pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: beschriftung(pool, locale) })),
     presets: ctx.config.presets.map((preset) => ({
       id: preset.id,
-      label: preset.label,
+      label: beschriftung(preset, locale),
       slotCount: preset.slots.length,
     })),
+    /*
+     * Die Sprachen tragen ihren EIGENEN Namen und werden deshalb nicht
+     * uebersetzt: Wer Englisch sucht, sucht "English" und nicht "Englisch".
+     */
+    locales: ctx.config.locales ?? [],
   }
 }
 

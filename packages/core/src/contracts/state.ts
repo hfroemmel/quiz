@@ -216,6 +216,14 @@ export interface GameState {
 
   /** Globaler Soundstatus; bleibt waehrend des Spiels erhalten. */
   soundEnabled: boolean
+  /**
+   * Sprache, in der dieses Spiel laeuft.
+   *
+   * Sie steht im Spielstand und nicht nur am Geraet: Ein wiederaufgenommenes
+   * Spiel soll in derselben Sprache weitergehen, in der es begonnen wurde.
+   * Fehlt sie (Staende aus aelteren Fassungen), gilt die Grundsprache.
+   */
+  locale?: string
 
   pendingTransition?: PendingTimedTransition
   lastTransition?: PresentationTransitionState

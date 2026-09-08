@@ -157,6 +157,16 @@ export interface PublicQuizViewModel {
   video?: PublicVideoState
   result?: PublicResult
   soundEnabled: boolean
+  /** Sprache, in der diese Ansicht steht. */
+  locale: string
+  /**
+   * Beschriftungen der Oberflaeche, soweit der Inhalt welche mitbringt.
+   *
+   * Der Client haelt seine deutschen Fassungen selbst vor und schlaegt hier nur
+   * nach: So laeuft ein Quiz ohne einen einzigen Eintrag, und eine neue Sprache
+   * braucht keine neue Programmfassung.
+   */
+  texts?: Record<string, string>
   /** Laufender Praesentationsuebergang, damit Szenen synchron animieren. */
   transition?: { id: string; startedAtServerMs: number; durationMs: number }
   /** Serverzeit des Snapshots. Basis jeder clientseitigen Interpolation. */
@@ -294,6 +304,15 @@ export interface CatalogViewModel {
   /** Waehlbare Fragenpools - "Saarbruecken" ist genau so einer. */
   pools: { id: string; label: string }[]
   presets: { id: string; label: string; slotCount: number }[]
+  /**
+   * Waehlbare Sprachen. Leer oder einelementig heisst: Es gibt nichts zu
+   * waehlen, und der Umschalter erscheint nicht.
+   *
+   * DIE BESCHRIFTUNGEN IM KATALOG SIND BEREITS UEBERSETZT - der Client bekommt
+   * fertige Texte und keine Wortlisten. Er soll nicht entscheiden muessen,
+   * welche Fassung gilt.
+   */
+  locales: { id: string; label: string }[]
 }
 
 export type RoleViewModel = {

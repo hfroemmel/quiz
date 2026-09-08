@@ -146,6 +146,41 @@
   font-size: 1.6cqw;
 }
 
+/*
+ * Die Uhr in der Operatorvorschau.
+ *
+ * Sie steht dort, wo im Saal das Bild ist, und fuellt das Rechteck aus: Der
+ * Operator schaut waehrend eines Videos nicht auf seinen Bildschirm, sondern in
+ * den Saal - der Blick zurueck muss die Zahl in einem Zug finden.
+ *
+ * Ziffern mit fester Laufweite, damit die Zeile beim Herunterzaehlen nicht
+ * zappelt.
+ */
+.videoClock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6cqw;
+  text-align: center;
+}
+.videoClockTime {
+  font-family: var(--font-heading);
+  font-variant-numeric: tabular-nums;
+  font-size: 9cqw;
+  line-height: 1;
+  color: var(--color-text);
+}
+.videoClockLabel {
+  font-family: var(--font-ui);
+  font-size: 1.5cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-textMuted);
+}
+
 /* Rueckmeldung */
 .feedback {
   justify-content: center;
@@ -272,6 +307,8 @@
 :global(.stage--kids) .pauseCategory,
 :global(.stage--kids) .startTitle,
 :global(.stage--kids) .pausePlaceholder,
+:global(.stage--kids) .videoClockTime,
+:global(.stage--kids) .videoClockLabel,
 :global(.stage--kids) .videoError,
 :global(.stage--kids) .videoMissing {
   font-family: var(--kids-hand);

@@ -895,7 +895,7 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.phase).toBe('video-playing')
 
     harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    harness.advance(5_000 + selfServiceTiming.videoTailMs)
+    harness.advance(5_000 + gameTiming.videoTailMs)
 
     // Auch nach einem Video steht die Frage zuerst allein da.
     expect(harness.state!.phase).toBe('question-presented')
@@ -903,6 +903,56 @@ describe('Selbstbedienung', () => {
 
     harness.advance(selfServiceTiming.questionLeadInMs)
     expect(harness.state!.phase).toBe('buzzer-open')
+  })
+
+  it('geht auch im gefuehrten Spiel von selbst in die Frage ueber', () => {
+    /*
+     * Ein durchgelaufenes Video hat nichts mehr zu zeigen. Frueher blieb im Saal
+     * ein schwarzes Bild stehen, bis der Operator umschaltete - sein Knopf
+     * bleibt, aber er muss ihn nicht mehr suchen.
+     */
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    expect(harness.state!.phase).toBe('video-ready')
+
+    harness.dispatch({ type: 'START_VIDEO' })
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    harness.advance(5_000 + gameTiming.videoTailMs)
+
+    expect(harness.state!.phase).toBe('question-presented')
+    expect(harness.state!.video!.status).toBe('ended')
+  })
+
+  it('plant das Ende auch, wenn die Laufzeit vor dem Start gemeldet wird', () => {
+    /*
+     * Der Browser meldet die Laufzeit, sobald er die Datei gelesen hat - das ist
+     * regelmaessig FRUEHER, als jemand auf Start drueckt. Wurde nur beim Melden
+     * geplant, lief das Video danach ohne Ende weiter.
+     */
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 4_000 })
+    expect(harness.state!.phase).toBe('video-ready')
+
+    harness.dispatch({ type: 'START_VIDEO' })
+    harness.advance(4_000 + gameTiming.videoTailMs)
+    expect(harness.state!.phase).toBe('question-presented')
+  })
+
+  it('haelt im gefuehrten Spiel an, wenn das Video nicht abgespielt werden kann', () => {
+    /*
+     * Hier steht ein Operator: Er sieht die Meldung und entscheidet, ob die
+     * Frage ohne Video weiterlaeuft oder uebersprungen wird. Ihm die Frage
+     * einzublenden waere ein Eingriff in seine Regie.
+     */
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
+    harness.advance(0)
+
+    expect(harness.state!.phase).toBe('video-ready')
   })
 
   it('blendet die Frage sofort ein, wenn das Video nicht abgespielt werden kann', () => {

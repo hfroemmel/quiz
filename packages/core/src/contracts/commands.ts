@@ -86,6 +86,16 @@ export const commandSchema = z.discriminatedUnion('type', [
   /** Nach der Videophase die eigentliche Frage einblenden. Gleiche Frage, zweite Phase. */
   z.object({ type: z.literal('SHOW_QUESTION_AFTER_VIDEO') }),
   /** Der Client meldet die Laufzeit bzw. einen Ladefehler des Mediums. */
+  /**
+   * Sprache des Quiz umstellen.
+   *
+   * Wie der Ton gehoert sie dem GERAET und nicht dem Spiel: Am Kioskgeraet
+   * steht der Umschalter im Startbildschirm, wo noch kein Spiel laeuft. Ein
+   * laufendes Spiel wechselt trotzdem mit - die Fragen sind dieselben, nur die
+   * Sprache ist eine andere.
+   */
+  z.object({ type: z.literal('SET_LOCALE'), locale: z.string().min(2) }),
+
   z.object({
     type: z.literal('REPORT_VIDEO_STATUS'),
     durationMs: z.number().min(0).optional(),
@@ -197,6 +207,12 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   RESTART_VIDEO: ['operator'],
   SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator'],
   REPORT_VIDEO_STATUS: ['operator', 'system', 'player'],
+  /*
+   * Die Sprache darf jeder umstellen, der vor dem Quiz steht - am Geraet ist das
+   * der Spieler selbst, am Buehnenabend der Operator. Sie aendert keine Wertung
+   * und keinen Punktestand.
+   */
+  SET_LOCALE: ['operator', 'moderator', 'player'],
   ADJUST_SCORE: ['operator'],
   /*
    * `player` ist die Selbstbedienung: Dort haelt die Loesung an, bis jemand

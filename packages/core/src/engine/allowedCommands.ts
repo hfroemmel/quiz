@@ -23,6 +23,7 @@ export function availableCommands(state: GameState | null): CommandType[] {
     list.add('START_GAME')
     if (state) {
       list.add('SET_SOUND_ENABLED')
+      list.add('SET_LOCALE')
       // Auf der Ergebnisansicht bleibt die manuelle Punktkorrektur verfuegbar;
       // das Ergebnis wird danach deterministisch neu berechnet.
       if (state.status === 'completed') list.add('ADJUST_SCORE')
@@ -31,6 +32,7 @@ export function availableCommands(state: GameState | null): CommandType[] {
   }
 
   list.add('SET_SOUND_ENABLED')
+  list.add('SET_LOCALE')
   list.add('ABORT_GAME')
   list.add('ADJUST_SCORE')
 
@@ -153,7 +155,7 @@ export function availableCommands(state: GameState | null): CommandType[] {
  * Operatorpult: Zuschlag holen, Antwort einloggen, Antwort bestaetigen.
  */
 function selfServiceCommands(state: GameState): CommandType[] {
-  const list = new Set<CommandType>(['SET_SOUND_ENABLED', 'ABORT_GAME'])
+  const list = new Set<CommandType>(['SET_SOUND_ENABLED', 'SET_LOCALE', 'ABORT_GAME'])
 
   if (isBuzzablePhase(state.phase) && state.buzzer.open) list.add('BUZZ')
   if (isSelfServiceAnswerPhase(state.phase)) {

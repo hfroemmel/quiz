@@ -10,8 +10,8 @@
  * Aktion "Frage ueberspringen" bekommt.
  *
  * ABGESPIELT WIRD DORT, WO JEMAND ZUSCHAUT: auf der Buehne und am Touchgeraet.
- * Die Operatorvorschau zeigt denselben Platzhalter in derselben Groesse, aber kein
- * zweites Medium: Ein Video, das an zwei Stellen laeuft, kostet Rechenzeit auf
+ * Die Operatorvorschau zeigt denselben Platzhalter in derselben Groesse - darin
+ * aber die RESTZEIT statt eines zweiten Mediums: Ein Video, das an zwei Stellen laeuft, kostet Rechenzeit auf
  * demselben Rechner, laeuft unweigerlich auseinander und meldet Ladefehler
  * doppelt. Was der Operator hier braucht, ist die Komposition - gefahren wird das
  * Video ueber seine Bedienleiste, und was der Saal sieht, steht auf der Buehne.
@@ -22,6 +22,8 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import type { Command } from '@hfroemmel/quiz-core'
+import { texteFuer } from '../texts'
+import { formatiereDauer, videoProgress } from '../videoClock'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
@@ -31,7 +33,8 @@ interface VideoSceneProps extends SceneProps {
   onReport?: (command: Command) => void
 }
 
-export function VideoScene({ view, variant, isAudioMaster = true, onReport }: VideoSceneProps) {
+export function VideoScene({ view, variant, serverNow, isAudioMaster = true, onReport }: VideoSceneProps) {
+  const t = texteFuer(view)
   const elementRef = useRef<HTMLVideoElement | null>(null)
   const question = view.question
   const video = view.video
@@ -49,6 +52,20 @@ export function VideoScene({ view, variant, isAudioMaster = true, onReport }: Vi
   const [soundRefused, setSoundRefused] = useState(false)
   useEffect(() => setSoundRefused(false), [isAudioMaster])
   const muted = !isAudioMaster || soundRefused
+
+  /*
+   * DIE UHR DER VORSCHAU. Sie laeuft nur dort, wo kein Bild ist: Wo das Video
+   * laeuft, sieht man ja, wie weit es ist. Ein Viertelsekundentakt reicht - die
+   * Anzeige zeigt Sekunden, und ein Bildtakt kostete nur Rechenzeit auf
+   * demselben Rechner, der gleich die Buehne fahren muss.
+   */
+  const [, tick] = useState(0)
+  const laeuft = video?.status === 'playing'
+  useEffect(() => {
+    if (plays || !laeuft) return
+    const uhr = setInterval(() => tick((wert) => wert + 1), 250)
+    return () => clearInterval(uhr)
+  }, [plays, laeuft])
 
   useEffect(() => {
     const element = elementRef.current
@@ -78,6 +95,9 @@ export function VideoScene({ view, variant, isAudioMaster = true, onReport }: Vi
   }, [video, muted, onReport])
 
   if (!question) return null
+
+  // Einmal je Bild gerechnet - beide Zweige der Anzeige lesen dieselbe Zahl.
+  const fortschritt = video ? videoProgress(video, view.serverTimeMs, serverNow()) : undefined
 
   return (
     <div className={`${styles.scene} ${styles.video}`}>
@@ -110,10 +130,38 @@ export function VideoScene({ view, variant, isAudioMaster = true, onReport }: Vi
           />
         )}
         {!question.videoUrl && (
-          <p className={styles.videoMissing}>Kein Video hinterlegt.</p>
+          <p className={styles.videoMissing}>{t('video.missing')}</p>
+        )}
+        {!plays && question.videoUrl && video && fortschritt && !video.hasError && (
+          /*
+           * WAS DER OPERATOR HIER BRAUCHT, IST DIE ZEIT.
+           *
+           * Ein leeres Rechteck sagt ihm nur, dass gerade ein Video laeuft -
+           * nicht, wann er wieder dran ist. Die Restzeit sagt es ihm; sie steht
+           * an der Stelle, an der im Saal das Bild ist.
+           */
+          <div className={styles.videoClock} data-video-clock="">
+            {video.durationMs === undefined ? (
+              <>
+                <span className={styles.videoClockTime}>
+                  {formatiereDauer(fortschritt.playedMs)}
+                </span>
+                <span className={styles.videoClockLabel}>{t('video.unknownDuration')}</span>
+              </>
+            ) : (
+              <>
+                <span className={styles.videoClockTime}>
+                  {formatiereDauer(fortschritt.remainingMs ?? 0)}
+                </span>
+                <span className={styles.videoClockLabel}>
+                  {t(video.status === 'playing' ? 'video.remaining' : 'video.paused')}
+                </span>
+              </>
+            )}
+          </div>
         )}
       </div>
-      {video?.hasError && <p className={styles.videoError}>Video nicht verfügbar.</p>}
+      {video?.hasError && <p className={styles.videoError}>{t('video.error')}</p>}
     </div>
   )
 }

@@ -15,6 +15,7 @@ const befehle: Record<string, () => Promise<unknown>> = {
   build: () => import('./build'),
   pull: () => import('./pull'),
   fetch: () => import('./fetch'),
+  'import-sheet': () => import('./import-sheet'),
   'demo-assets': () => import('./generate-demo-assets'),
   'migrate-legacy': () => import('./migrate-legacy'),
   'migrate-v2': () => import('./migrate-v2'),
@@ -30,6 +31,7 @@ if (!befehl || befehl === '--help' || befehl === '-h') {
   console.log('  build    [--profile no-video] [--out <dir>]          Quizpaket bauen')
   console.log('  pull     [--lock <datei>]                            Gebautes Paket aus einem Release laden')
   console.log('  fetch                                                Redaktionelle Rohdaten abrufen (optional)')
+  console.log('  import-sheet --url <adresse> [--mapping <datei>]     Redaktionstabelle zu questions.json')
   console.log('  demo-assets                                          Platzhaltermedien erzeugen')
   console.log('  migrate-legacy                                       Altbestand importieren')
   console.log('  migrate-v2                                           Quelle von Schema v1 auf v2 heben')

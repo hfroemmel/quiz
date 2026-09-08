@@ -40,6 +40,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 18."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 18: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 18"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 18"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 18"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 18"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 18."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-choice-easy-auswahl-1"
@@ -85,6 +111,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 19."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 19: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 19"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 19"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 19"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 19"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 19."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -132,6 +184,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 20."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 20: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 20"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 20"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 20"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 20"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 20."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-choice-easy-auswahl-3"
@@ -176,6 +254,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 24."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 24: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 24"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 24"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 24"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 24"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 24."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -223,6 +327,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 25."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 25: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 25"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 25"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 25"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 25"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 25."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-choice-hard-auswahl-2"
@@ -268,6 +398,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 26."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 26: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 26"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 26"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 26"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 26"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 26."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -315,6 +471,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 21."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 21: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 21"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 21"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 21"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 21"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 21."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-choice-medium-auswahl-1"
@@ -360,6 +542,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 22."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 22: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 22"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 22"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 22"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 22"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 22."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -407,6 +615,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 23."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 23: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 23"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 23"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 23"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 23"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 23."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-choice-medium-auswahl-3"
@@ -436,6 +670,17 @@
     ],
     "explanation": {
       "summary": "Erklaerung zur Testfrage 3."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 3: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 3"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 3."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -467,6 +712,17 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 4."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 4: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 4"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 4."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-reveal-easy-muendlich-2"
@@ -496,6 +752,17 @@
     ],
     "explanation": {
       "summary": "Erklaerung zur Testfrage 5."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 5: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 5"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 5."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -527,6 +794,17 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 9."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 9: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 9"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 9."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-reveal-hard-muendlich-1"
@@ -556,6 +834,17 @@
     ],
     "explanation": {
       "summary": "Erklaerung zur Testfrage 10."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 10: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 10"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 10."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -587,6 +876,17 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 11."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 11: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 11"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 11."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-reveal-hard-muendlich-3"
@@ -616,6 +916,17 @@
     ],
     "explanation": {
       "summary": "Erklaerung zur Testfrage 6."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 6: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 6"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 6."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -647,6 +958,17 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 7."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 7: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 7"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 7."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-image-reveal-medium-muendlich-2"
@@ -676,6 +998,17 @@
     ],
     "explanation": {
       "summary": "Erklaerung zur Testfrage 8."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 8: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 8"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 8."
+        }
+      }
     },
     "enabled": true,
     "media": {
@@ -723,6 +1056,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 2."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 2: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 2"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 2"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 2"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 2"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 2."
+        }
+      }
+    },
     "enabled": true,
     "media": {
       "imageAssetId": "img-test-person-easy-auswahl-1"
@@ -768,6 +1127,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 12."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 12: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 12"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 12"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 12"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 12"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 12."
+        }
+      }
+    },
     "enabled": true
   },
   {
@@ -810,6 +1195,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 13."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 13: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 13"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 13"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 13"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 13"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 13."
+        }
+      }
     },
     "enabled": true
   },
@@ -854,6 +1265,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 14."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 14: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 14"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 14"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 14"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 14"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 14."
+        }
+      }
+    },
     "enabled": true
   },
   {
@@ -896,6 +1333,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 27."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 27: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 27"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 27"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 27"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 27"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 27."
+        }
+      }
     },
     "enabled": true
   },
@@ -940,6 +1403,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 28."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 28: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 28"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 28"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 28"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 28"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 28."
+        }
+      }
+    },
     "enabled": true
   },
   {
@@ -982,6 +1471,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 29."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 29: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 29"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 29"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 29"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 29"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 29."
+        }
+      }
     },
     "enabled": true
   },
@@ -1026,6 +1541,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 15."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 15: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 15"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 15"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 15"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 15"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 15."
+        }
+      }
+    },
     "enabled": true
   },
   {
@@ -1068,6 +1609,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 16."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 16: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 16"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 16"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 16"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 16"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 16."
+        }
+      }
     },
     "enabled": true
   },
@@ -1112,6 +1679,32 @@
     "explanation": {
       "summary": "Erklaerung zur Testfrage 17."
     },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 17: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 17"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 17"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 17"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 17"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 17."
+        }
+      }
+    },
     "enabled": true
   },
   {
@@ -1154,6 +1747,32 @@
     "correctOptionId": "o1",
     "explanation": {
       "summary": "Erklaerung zur Testfrage 1."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 1: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 1"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 1"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 1"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 1"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 1."
+        }
+      }
     },
     "enabled": true,
     "media": {

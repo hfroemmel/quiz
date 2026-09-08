@@ -73,6 +73,7 @@ export interface QuizServiceOptions {
 const playerFlowCommands: readonly CommandType[] = ['BUZZ', 'LOG_OPTION_ANSWER', 'RESOLVE_ATTEMPT', 'CONTINUE']
 
 const SETTING_SOUND = 'sound-enabled'
+const SETTING_LOCALE = 'locale'
 /** Ab wann das Spielprotokoll zaehlt. Fehlt der Wert, zaehlt es seit jeher. */
 const SETTING_STATISTICS_SINCE = 'statistics-since'
 const SETTING_CONTENT_VERSION = 'active-content-version'
@@ -84,6 +85,8 @@ export class QuizService {
   private eventDay: { id: string; calendarDate: string }
   private transitionTimer: ReturnType<typeof setTimeout> | null = null
   private soundEnabled: boolean
+  /** Sprache des Geraets - wie der Ton eine Einstellung, kein Spielzustand. */
+  private locale: string | undefined
   private selectionRationale: string | undefined
   private readonly listeners = new Set<() => void>()
   private readonly connectedClients = new Map<string, { role: ActorRole; clientId: string }>()
@@ -105,6 +108,7 @@ export class QuizService {
     this.lanUrls = options.lanUrls ?? []
 
     this.soundEnabled = this.store.getSetting(SETTING_SOUND) !== 'false'
+    this.locale = this.store.getSetting(SETTING_LOCALE) ?? undefined
     this.eventDay = this.store.ensureEventDay(this.calendarDate(), new Date(this.now()).toISOString(), true)
     this.store.setSetting(SETTING_CONTENT_VERSION, this.content.contentVersion)
     this.warnings.push(...this.content.patchWarnings)
@@ -258,6 +262,18 @@ export class QuizService {
       return { ok: true, revision: this.currentRevision }
     }
 
+    /*
+     * Dasselbe fuer die Sprache, und aus demselben Grund: Am Kioskgeraet steht
+     * der Umschalter im Startbildschirm, wo kein Spiel laeuft. Laeuft eines,
+     * geht der Befehl durch die Engine und steht im Spielprotokoll.
+     */
+    if (envelope.command.type === 'SET_LOCALE' && this.state === null) {
+      this.locale = envelope.command.locale
+      this.store.setSetting(SETTING_LOCALE, envelope.command.locale)
+      this.notify()
+      return { ok: true, revision: this.currentRevision }
+    }
+
     // 7. Betriebsbefehle laufen nicht durch die Spiel-Engine.
     if (isServiceCommand(envelope.command.type)) {
       return this.handleServiceCommand(envelope)
@@ -277,6 +293,7 @@ export class QuizService {
         this.random,
       ),
       initialSoundEnabled: this.soundEnabled,
+      initialLocale: this.locale,
     })
 
     if (!result.ok) {
@@ -305,6 +322,10 @@ export class QuizService {
     if (command.type === 'SET_SOUND_ENABLED') {
       this.soundEnabled = command.enabled
       this.store.setSetting(SETTING_SOUND, String(command.enabled))
+    }
+    if (command.type === 'SET_LOCALE') {
+      this.locale = command.locale
+      this.store.setSetting(SETTING_LOCALE, command.locale)
     }
     const selection = result.events.find((event) => event.category === 'content' && event.data?.['rationale'])
     if (selection) this.selectionRationale = String(selection.data!['rationale'])
@@ -557,6 +578,7 @@ export class QuizService {
       lanUrls: this.lanUrls,
       warnings: this.warnings,
       soundEnabled: this.soundEnabled,
+      locale: this.locale,
       gameCounts: this.store.gameCountsByAudience(statisticsSince),
       statisticsSinceIso: statisticsSince ?? undefined,
       additionalOperatorCommands: additional,

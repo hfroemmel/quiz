@@ -14,11 +14,14 @@
  * Alle drei stehen auch im Config File der Anwendung (siehe `QuizGameProps`).
  * Was hier verstellt wird, gilt bis zum Neustart; dauerhaft ist die Datei.
  */
-import { playCue } from '@hfroemmel/quiz-react'
+import { playCue, texteFuer } from '@hfroemmel/quiz-react'
+import type { PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { maximalerZoom, minimalerZoom, zoomSchritt } from './zoom'
 import styles from './Game.module.css'
 
 interface GameSettingsProps {
+  /** Fuer die Beschriftungen: Sie stehen in der Sprache des Quiz. */
+  view: PlayerQuizViewModel
   soundEnabled: boolean
   onSoundEnabled(enabled: boolean): void
   zoom: number
@@ -26,14 +29,15 @@ interface GameSettingsProps {
   onClose(): void
 }
 
-export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClose }: GameSettingsProps) {
+export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom, onClose }: GameSettingsProps) {
+  const t = texteFuer(view)
   return (
     <div className={styles.overlay} data-settings="">
-      <div className={styles.panel} role="dialog" aria-label="Einstellungen">
-        <h2 className={styles.panelTitle}>Einstellungen</h2>
+      <div className={styles.panel} role="dialog" aria-label={t('kiosk.settings')}>
+        <h2 className={styles.panelTitle}>{t('kiosk.settings')}</h2>
 
         <div className={styles.setting}>
-          <span className={styles.settingLabel}>Ton</span>
+          <span className={styles.settingLabel}>{t('kiosk.sound')}</span>
           <div className={styles.settingControl}>
             <button
               type="button"
@@ -42,7 +46,7 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
               aria-pressed={soundEnabled}
               onClick={() => onSoundEnabled(true)}
             >
-              An
+              {t('kiosk.on')}
             </button>
             <button
               type="button"
@@ -51,13 +55,13 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
               aria-pressed={!soundEnabled}
               onClick={() => onSoundEnabled(false)}
             >
-              Aus
+              {t('kiosk.off')}
             </button>
           </div>
         </div>
 
         <div className={styles.setting}>
-          <span className={styles.settingLabel}>Tonprobe</span>
+          <span className={styles.settingLabel}>{t('kiosk.soundTest')}</span>
           <div className={styles.settingControl}>
             {/*
               * Der Klang kommt hier unabhaengig vom Schalter darueber: Getestet
@@ -70,13 +74,13 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
               data-sound-test=""
               onClick={() => playCue('buzz', { enabled: true, isAudioMaster: true })}
             >
-              Ton abspielen
+              {t('kiosk.playSound')}
             </button>
           </div>
         </div>
 
         <div className={styles.setting}>
-          <span className={styles.settingLabel}>Größe</span>
+          <span className={styles.settingLabel}>{t('kiosk.size')}</span>
           <div className={styles.settingControl}>
             <input
               className={styles.slider}
@@ -86,7 +90,7 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
               max={maximalerZoom}
               step={zoomSchritt}
               value={zoom}
-              aria-label="Groesse der Anzeige"
+              aria-label={t('kiosk.size')}
               onChange={(ereignis) => onZoom(Number(ereignis.target.value))}
             />
             <span className={styles.settingValue}>{Math.round(zoom * 100)} %</span>
@@ -99,7 +103,7 @@ export function GameSettings({ soundEnabled, onSoundEnabled, zoom, onZoom, onClo
           data-settings-close=""
           onClick={onClose}
         >
-          Fertig
+          {t('kiosk.done')}
         </button>
       </div>
     </div>

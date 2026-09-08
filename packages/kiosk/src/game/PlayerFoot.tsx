@@ -29,6 +29,7 @@
 import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { Counter, Score } from '@hfroemmel/quiz-react'
 import { Buzzer } from './Buzzer'
+import { texteFuer } from '@hfroemmel/quiz-react'
 import styles from './Game.module.css'
 
 interface PlayerFootProps {
@@ -55,10 +56,11 @@ interface PlayerFootProps {
 function hinweis(view: PlayerQuizViewModel): string | null {
   if (view.phase !== 'second-chance') return null
   const gegner = view.playerScores.find((entry) => entry.playerId === view.currentPlayer)
-  return gegner ? `${gegner.label}, du darfst es jetzt auch versuchen` : null
+  return gegner ? texteFuer(view)('kiosk.secondChance', { player: gegner.label }) : null
 }
 
 export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue }: PlayerFootProps) {
+  const t = texteFuer(view)
   const [playerOne, playerTwo] = view.playerScores
   if (!playerOne) return null
 
@@ -71,12 +73,20 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
 
   const ecke = (player: (typeof view.playerScores)[number], side: 'left' | 'right') => (
     <div className={styles.corner} data-corner={side}>
-      <Score label={player.label} score={player.score} active={turn === player.playerId} mirrored={side === 'right'} />
+      <Score
+        label={player.label}
+        score={player.score}
+        active={turn === player.playerId}
+        mirrored={side === 'right'}
+        playerText={t('stage.player')}
+        pointsText={t('stage.points')}
+      />
       {!solo && (
         <Buzzer
           playerId={player.playerId}
           label={player.label}
           side={side}
+          buzzText={t('kiosk.buzzer')}
           enabled={!turn && canBuzz(player.playerId)}
           armed={turn === player.playerId}
           onBuzz={onBuzz}
@@ -96,7 +106,7 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
   const abgeben =
     view.allowedCommands.includes('RESOLVE_ATTEMPT') &&
     (view.visibleOptions?.some((option) => option.state === 'chosen') ?? false)
-  const zaehler = view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} />
+  const zaehler = view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} label={t('stage.question')} />
 
   return (
     <div className={styles.foot} data-player-foot="">
@@ -107,11 +117,11 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
         <div className={styles.notice} data-notice="">
           {weiter ? (
             <button type="button" className={styles.continue} data-continue="" onClick={onContinue}>
-              Weiter
+              {t('kiosk.continue')}
             </button>
           ) : abgeben ? (
             <button type="button" className={styles.continue} data-confirm="" onClick={onResolve}>
-              Antwort abgeben und auflösen
+              {t('kiosk.submit')}
             </button>
           ) : (
             text && <span className={styles.noticeText}>{text}</span>

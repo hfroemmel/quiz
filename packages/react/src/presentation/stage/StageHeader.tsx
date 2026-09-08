@@ -23,6 +23,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import { cssUrl } from '../cssUrl'
+import { texteFuer } from '../texts'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import eigenesLogo from '../../assets/images/logo.svg'
@@ -47,6 +48,7 @@ export function StageHeader({
   // Die Startansicht hat weder Punktestand noch Zaehler - und keine Korrektur.
   if (view.scene === 'start') return null
 
+  const t = texteFuer(view)
   const showsScores = variant !== 'touch' && view.scene !== 'result' && view.playerScores.length > 0
   const showsCounter = showsScores && view.progress.total > 0
   const [playerOne, playerTwo] = view.playerScores
@@ -76,16 +78,33 @@ export function StageHeader({
 
       <div className={styles.scores}>
         {slots?.beforePlayerOne}
-        {showsScores && playerOne && <Score label={playerOne.label} score={playerOne.score} active={playerOne.active} locked={playerOne.locked} />}
+        {showsScores && playerOne && (
+          <Score
+            label={playerOne.label}
+            score={playerOne.score}
+            active={playerOne.active}
+            locked={playerOne.locked}
+            playerText={t('stage.player')}
+            pointsText={t('stage.points')}
+          />
+        )}
         {showsScores && playerTwo && (
-          <Score label={playerTwo.label} score={playerTwo.score} active={playerTwo.active} locked={playerTwo.locked} mirrored />
+          <Score
+            label={playerTwo.label}
+            score={playerTwo.score}
+            active={playerTwo.active}
+            locked={playerTwo.locked}
+            playerText={t('stage.player')}
+            pointsText={t('stage.points')}
+            mirrored
+          />
         )}
         {slots?.afterPlayerTwo}
       </div>
 
       {showsCounter && (
         <div className={styles.counterSlot}>
-          <Counter current={view.progress.current} total={view.progress.total} />
+          <Counter current={view.progress.current} total={view.progress.total} label={t('stage.question')} />
         </div>
       )}
     </header>

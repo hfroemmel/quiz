@@ -526,6 +526,26 @@ button.leave {
 }
 
 /*
+ * Sprachumschalter in der oberen linken Ecke - dem Zahnrad gegenueber.
+ *
+ * Er steht ausserhalb des Bogens aus Bild, Titel und den beiden Fragen: Die
+ * Sprache ist keine Spielentscheidung, sondern die Voraussetzung dafuer, die
+ * Fragen zu lesen.
+ */
+.languages {
+  position: absolute;
+  top: clamp(8px, 2vh, 24px);
+  left: clamp(8px, 2vw, 24px);
+  display: flex;
+  gap: clamp(4px, 0.8vw, 10px);
+}
+button.language {
+  min-height: clamp(36px, 5vh, 56px);
+  padding: 0 clamp(10px, 1.6vw, 22px);
+  font-size: clamp(13px, 1.8vh, 20px);
+}
+
+/*
  * Zahnrad in der Ecke des Startbildschirms.
  *
  * Es steht INNERHALB der Auswahl und braucht deshalb keine eigene Zoomstufe -

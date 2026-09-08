@@ -14,10 +14,12 @@
  * Animation in der Punktekachel der Kopfzeile hoch (Designergaenzung).
  */
 import { AnimationClip } from '../../ui/AnimationClip'
+import { texteFuer } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 export function FeedbackScene({ view }: SceneProps) {
+  const t = texteFuer(view)
   const feedback = view.feedback
   const correct = feedback?.outcome === 'correct'
 
@@ -30,7 +32,7 @@ export function FeedbackScene({ view }: SceneProps) {
           restartKey={`${feedback?.playerId ?? 'none'}-${feedback?.outcome ?? 'none'}-${view.revision}`}
         />
       </div>
-      <p className={styles.feedbackLabel}>{correct ? 'Richtig!' : 'Falsch!'}</p>
+      <p className={styles.feedbackLabel}>{t(correct ? 'feedback.correct' : 'feedback.incorrect')}</p>
     </div>
   )
 }

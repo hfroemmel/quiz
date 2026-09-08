@@ -469,3 +469,55 @@ test('"Spiel beenden" fragt nach und fuehrt zurueck in die Auswahl', async ({ pa
   await page.locator('[data-abort-confirm]').click()
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
 })
+
+/* ------------------------------------------------------------------ *
+ * Mehrsprachigkeit
+ * ------------------------------------------------------------------ */
+
+test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
+  /*
+   * Der ganze Weg im Browser: Umschalter -> Befehl -> Server -> Projektion ->
+   * Ansicht. Geprueft wird an drei Stellen, weil die Sprache an drei Stellen
+   * aufgeloest wird - Oberflaeche, Katalog und Frageninhalt.
+   */
+  await openStartScreen(page)
+
+  const umschalter = page.locator('[data-languages]')
+  await expect(umschalter).toBeVisible()
+  await expect(page.locator('[data-locale="de-DE"]')).toHaveAttribute('aria-pressed', 'true')
+
+  // Deutsch: die Oberflaeche und die Namen der Schwierigkeitsstufen.
+  expect(await page.locator('[data-choice-label]').allInnerTexts()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
+  const deutschePresets = await page.locator('[data-preset-options] button').allInnerTexts()
+  expect(deutschePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
+
+  await page.locator('[data-locale="en-GB"]').click()
+
+  await expect(page.locator('[data-locale="en-GB"]')).toHaveAttribute('aria-pressed', 'true')
+  expect(await page.locator('[data-choice-label]').allInnerTexts()).toEqual(['How many are playing?', 'How hard?'])
+  const englischePresets = await page.locator('[data-preset-options] button').allInnerTexts()
+  expect(englischePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
+  await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()
+
+  // Und das Spiel selbst laeuft in derselben Sprache weiter.
+  await page.getByRole('button', { name: 'Alone' }).click()
+  await page.getByRole('button', { name: /^Easy/ }).click()
+  await page.getByRole('button', { name: "Let's go" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+
+  await expect(page.locator('[data-prompt]')).toContainText('Test question')
+  const antworten = await page.locator('[data-answer]').allInnerTexts()
+  expect(antworten.join(' ')).toMatch(/Correct answer|Wrong answer/)
+  await expect(page.locator('[data-score-label]').first()).toHaveText('Player')
+})
+
+test('ohne zweite Sprache gibt es nichts umzuschalten', async ({ page }) => {
+  /*
+   * Der Umschalter haengt an der Konfiguration und nicht am Code: Ein Bestand
+   * mit einer Sprache zeigt eine Auswahl mit genau einer Moeglichkeit nicht -
+   * das waere keine Auswahl, sondern eine Huerde.
+   */
+  await openStartScreen(page)
+  const sprachen = await page.locator('[data-languages] button').count()
+  expect(sprachen).toBeGreaterThan(1)
+})

@@ -157,7 +157,10 @@
             ]
           }
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Easy"
+      }
     },
     {
       "id": "medium",
@@ -235,7 +238,10 @@
             ]
           }
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Medium"
+      }
     },
     {
       "id": "hard",
@@ -314,7 +320,10 @@
             ]
           }
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Hard"
+      }
     },
     {
       "id": "mixed",
@@ -382,7 +391,10 @@
           "label": "Finale",
           "filters": {}
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Mixed"
+      }
     },
     {
       "id": "regional",
@@ -449,7 +461,10 @@
           "label": "Finale",
           "filters": {}
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Regional"
+      }
     },
     {
       "id": "touch-easy",
@@ -551,7 +566,10 @@
             ]
           }
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Easy"
+      }
     },
     {
       "id": "touch-medium",
@@ -650,7 +668,10 @@
             ]
           }
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Medium"
+      }
     },
     {
       "id": "touch-hard",
@@ -748,7 +769,10 @@
             ]
           }
         }
-      ]
+      ],
+      "labels": {
+        "en-GB": "Hard"
+      }
     }
   ],
   "audiences": [
@@ -767,7 +791,13 @@
         "touch-medium",
         "touch-hard",
         "regional"
-      ]
+      ],
+      "labels": {
+        "en-GB": "Adults"
+      },
+      "startTitles": {
+        "en-GB": "Bundestag Quiz"
+      }
     },
     {
       "id": "kids",
@@ -779,7 +809,40 @@
         "mixed",
         "touch-easy",
         "touch-medium"
-      ]
+      ],
+      "labels": {
+        "en-GB": "Children"
+      }
     }
-  ]
+  ],
+  "locales": [
+    {
+      "id": "de-DE",
+      "label": "Deutsch"
+    },
+    {
+      "id": "en-GB",
+      "label": "English"
+    }
+  ],
+  "interfaceStrings": {
+    "en-GB": {
+      "stage.player": "Player",
+      "stage.points": "Points",
+      "stage.question": "Question",
+      "stage.questionOf": "Question {current} of {total}",
+      "feedback.correct": "Correct!",
+      "feedback.incorrect": "Wrong!",
+      "result.winner": "Winner",
+      "result.draw": "Draw",
+      "kiosk.playerCount": "How many are playing?",
+      "kiosk.difficulty": "How hard?",
+      "kiosk.solo": "Alone",
+      "kiosk.duo": "In pairs",
+      "kiosk.questionCount": "{count} questions",
+      "kiosk.start": "Let's go",
+      "kiosk.settings": "Settings",
+      "kiosk.endGame": "End game"
+    }
+  }
 }

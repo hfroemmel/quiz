@@ -131,6 +131,28 @@ for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values(
           }
         : { acceptedAnswerText: [`Richtige Antwort ${laufendeNummer}`] }),
       explanation: { summary: `Erklaerung zur Testfrage ${laufendeNummer}.` },
+      /*
+       * JEDE Testfrage traegt eine englische Fassung. Die Mehrsprachigkeit ist
+       * kein Sonderfall einzelner Fragen, sondern eine Eigenschaft des ganzen
+       * Ablaufs - ein Bestand mit einer uebersetzten Frage darin wuerde die
+       * Stelle nicht finden, an der die Sprache verloren geht.
+       */
+      translations: {
+        'en-GB': {
+          prompt: `Test question ${laufendeNummer}: which answer is correct?`,
+          ...(mitOptionen
+            ? {
+                options: [
+                  { id: 'o1', text: `Correct answer ${laufendeNummer}` },
+                  { id: 'o2', text: `Wrong answer A ${laufendeNummer}` },
+                  { id: 'o3', text: `Wrong answer B ${laufendeNummer}` },
+                  { id: 'o4', text: `Wrong answer C ${laufendeNummer}` },
+                ],
+              }
+            : { acceptedAnswerText: [`Correct answer ${laufendeNummer}`] }),
+          explanation: { summary: `Explanation for test question ${laufendeNummer}.` },
+        },
+      },
       enabled: true,
     }
 

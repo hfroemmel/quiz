@@ -383,3 +383,42 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
     })
   })
 })
+
+/* ------------------------------------------------------------------ *
+ * Videoszene
+ * ------------------------------------------------------------------ */
+
+test.describe('Video', () => {
+  /*
+   * In der Vorschau des Operators laeuft kein zweites Medium - dort stand
+   * bisher ein leeres Rechteck. Es sagte ihm, dass ein Video laeuft, aber nicht,
+   * wann er wieder dran ist.
+   */
+  test('die Operatorvorschau zeigt die Restzeit statt eines leeren Rechtecks', async ({ page }) => {
+    await page.goto('/preview')
+    await page.locator('[data-preview-panel] select').first().selectOption('video')
+    await page.locator('[data-preview-variant]').selectOption('preview')
+
+    const uhr = page.locator('[data-video-clock]')
+    await expect(uhr).toBeVisible()
+    // 95 Sekunden Laufzeit, 12 davon gespielt.
+    await expect(uhr).toContainText('1:2')
+    await expect(uhr).toContainText('bis zur Frage', { ignoreCase: true })
+
+    // Sie laeuft auch: nach zwei Sekunden steht eine andere Zahl da.
+    const zuerst = await uhr.innerText()
+    await page.waitForTimeout(2_200)
+    expect(await uhr.innerText()).not.toBe(zuerst)
+  })
+
+  /*
+   * Auf der Buehne hat sie nichts zu suchen: Dort laeuft das Bild, und eine
+   * Uhr darueber waere ein Regiehinweis im Saal.
+   */
+  test('auf der Buehne steht keine Uhr', async ({ page }) => {
+    await page.goto('/preview')
+    await page.locator('[data-preview-panel] select').first().selectOption('video')
+    await expect(page.locator('[data-video-placeholder]')).toBeVisible()
+    await expect(page.locator('[data-video-clock]')).toHaveCount(0)
+  })
+})

@@ -14,7 +14,14 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
-import { QuizScene, releaseAudio, useAudioUnlock, useQuizRuntime, useQuizSnapshot } from '@hfroemmel/quiz-react'
+import {
+  QuizScene,
+  releaseAudio,
+  texteFuer,
+  useAudioUnlock,
+  useQuizRuntime,
+  useQuizSnapshot,
+} from '@hfroemmel/quiz-react'
 import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
 import { GameSettings } from './GameSettings'
@@ -70,6 +77,14 @@ export interface QuizGameProps {
    * volle Groesse aus dem Stand nicht mehr zu ueberblicken ist.
    */
   zoom?: number
+  /**
+   * Sprache beim Start dieses Geraets - Vorgabe aus dem Config File.
+   *
+   * Ohne Angabe gilt, was zuletzt am Geraet gewaehlt war; mit Angabe gewinnt sie
+   * bei jedem Start. Kennt der Inhalt die Sprache nicht, faellt sie auf die
+   * Grundsprache zurueck - ein Tippfehler darf kein Geraet lahmlegen.
+   */
+  locale?: string
   /** Ergebnis eines beendeten Spiels - fuer die Bestenliste des Gastgebers. */
   onFinished?: (result: QuizGameResult) => void
   /**
@@ -94,6 +109,7 @@ export function QuizGame({
   playerCounts,
   soundEnabled: soundVorgabe,
   zoom: zoomVorgabe,
+  locale: spracheVorgabe,
   onFinished,
   onExit,
   idleTimeoutMs,
@@ -109,6 +125,7 @@ export function QuizGame({
   const clearRejection = useCallback(() => runtime?.clearRejection(), [runtime])
   const notifyAudioReady = useCallback(() => runtime?.notifyAudioReady(), [runtime])
   const hostVisible = useHostVisible()
+  const t = texteFuer(snapshot?.view ?? null)
 
   useAudioUnlock(notifyAudioReady)
   /*
@@ -178,6 +195,16 @@ export function QuizGame({
     setZoom(klemmeZoom(zoomVorgabe))
   }, [zoomVorgabe])
 
+  // Dieselbe Regel fuer die Sprache: einmal je Start, dann gehoert sie dem Geraet.
+  const spracheGesetztRef = useRef(false)
+  useEffect(() => {
+    if (spracheVorgabe === undefined || spracheGesetztRef.current) return
+    const stand = snapshot?.view
+    if (!stand) return
+    spracheGesetztRef.current = true
+    if (stand.locale !== spracheVorgabe) send({ type: 'SET_LOCALE', locale: spracheVorgabe })
+  }, [spracheVorgabe, snapshot, send])
+
   /*
    * Beim Einsetzen der Komponente kann auf dem Server noch das Ergebnis einer
    * frueheren Partie stehen - etwa nach einem Neustart des Geraets. Es gehoert
@@ -239,7 +266,7 @@ export function QuizGame({
   if (!view || !runtime) {
     return (
       <div className={`${styles.game} ${styles.waiting}`} data-quiz-game="">
-        <p>{connected ? 'Das Quiz wird vorbereitet...' : 'Keine Verbindung zum Quiz.'}</p>
+        <p>{t(connected ? 'kiosk.preparing' : 'kiosk.disconnected')}</p>
       </div>
     )
   }
@@ -289,6 +316,7 @@ export function QuizGame({
 
   const settings = settingsOpen && eigenesGeraet && (
     <GameSettings
+      view={view}
       soundEnabled={view.soundEnabled}
       onSoundEnabled={(enabled) => send({ type: 'SET_SOUND_ENABLED', enabled })}
       zoom={zoom}
@@ -310,6 +338,7 @@ export function QuizGame({
           playerCounts={playerCounts}
           onStart={start}
           onExit={onExit}
+          onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
           {...(eigenesGeraet ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
         />
         {settings}
@@ -324,7 +353,7 @@ export function QuizGame({
         style={{ ...themeVariables(themeForView(view)), ...flaeche }}
         data-quiz-game=""
       >
-        <p>Das Quiz wird vorbereitet...</p>
+        <p>{t('kiosk.preparing')}</p>
       </div>
     )
   }
@@ -381,14 +410,14 @@ export function QuizGame({
         */}
       {!finished && view.allowedCommands.includes('ABORT_GAME') && (
         <button type="button" className={`button ${styles.abort}`} data-abort-game="" onClick={() => setAskExit(true)}>
-          Spiel beenden
+          {t('kiosk.endGame')}
         </button>
       )}
 
       {askExit && (
         <div className={styles.overlay} data-abort-dialog="">
-          <div className={styles.panel} role="dialog" aria-label="Spiel beenden">
-            <h2 className={styles.panelTitle}>Spiel wirklich beenden?</h2>
+          <div className={styles.panel} role="dialog" aria-label={t('kiosk.endGame')}>
+            <h2 className={styles.panelTitle}>{t('kiosk.endGameQuestion')}</h2>
             <div className={styles.actions}>
               <button
                 type="button"
@@ -396,7 +425,7 @@ export function QuizGame({
                 data-abort-confirm=""
                 onClick={abort}
               >
-                Beenden
+                {t('kiosk.end')}
               </button>
               <button
                 type="button"
@@ -404,7 +433,7 @@ export function QuizGame({
                 data-abort-cancel=""
                 onClick={() => setAskExit(false)}
               >
-                Weiterspielen
+                {t('kiosk.keepPlaying')}
               </button>
             </div>
           </div>
@@ -428,11 +457,11 @@ export function QuizGame({
                 className={`button button--primary button--large ${styles.go}`}
                 onClick={() => setShowChoice(true)}
               >
-                Nochmal spielen
+                {t('kiosk.playAgain')}
               </button>
               {onExit && (
                 <button type="button" className={`button button--large ${styles.leave}`} onClick={leave}>
-                  Beenden
+                  {t('kiosk.end')}
                 </button>
               )}
             </div>
