@@ -1,0 +1,14 @@
+/*
+ * Die gemeinsamen Bedienelemente gehoeren MIT ins Paket.
+ *
+ * Startauswahl, Einstellungen und Dialoge dieses Pakets setzen die globalen
+ * Klassen `button`, `button--primary`, `button--large` und `button--selected`.
+ * Ein Gastgeber, der `@hfroemmel/quiz-kiosk/styles.css` einbindet, bekommt sie
+ * deshalb mitgeliefert - er soll nicht bei jeder neuen Klasse eine weitere
+ * Zeile in seiner Anwendung nachtragen muessen, und ein vergessener Import
+ * waere ein Startbildschirm ohne Schaltflaechen.
+ *
+ * Die Quelle bleibt eine einzige: `@hfroemmel/quiz-themes/controls.css`, aus
+ * dem auch das Operatorpult liest.
+ */
+@import '@hfroemmel/quiz-themes/controls.css';

@@ -15,8 +15,12 @@ die Groesse eine andere - ein Pult wird mit der Maus bedient, ein Foyergeraet
 mit dem Daumen.
 
 Die Rundung steht in `--ui-radius` (Vorgabe 6px), die Farben wie bisher in den
-`--ui-*`-Token der Palette. Wer die Bedienelemente nutzt, importiert das
-Stylesheet neben `palette.css`:
+`--ui-*`-Token der Palette.
+
+`@hfroemmel/quiz-kiosk/styles.css` bringt die Klassen MIT - wer das Quiz
+einbettet, muss nichts nachtragen. Eine Anwendung mit eigener Oberflaeche
+ausserhalb des Quiz (das Operatorpult) importiert das Stylesheet neben der
+Palette:
 
     import '@hfroemmel/quiz-themes/palette.css'
     import '@hfroemmel/quiz-themes/controls.css'

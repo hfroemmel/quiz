@@ -19,6 +19,10 @@
  *
  *   import '@hfroemmel/quiz-themes/palette.css'
  *   import '@hfroemmel/quiz-themes/controls.css'
+ *
+ * Wer `@hfroemmel/quiz-kiosk` einbettet, braucht die zweite Zeile NICHT: Dessen
+ * Startauswahl und Dialoge setzen diese Klassen selbst und liefern sie deshalb
+ * in ihrem eigenen Stylesheet mit.
  */
 
 .button {
