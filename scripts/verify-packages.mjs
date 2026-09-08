@@ -17,7 +17,7 @@ const pakete = ['core', 'content', 'themes', 'react', 'kiosk']
  * JavaScript-Einstiege.
  */
 const attwAusnahmen = {
-  themes: ['./palette.css', './fonts.css'],
+  themes: ['./palette.css', './fonts.css', './controls.css'],
   react: ['./styles.css', './styles/stage.css', './styles/motion.css', './assets/*'],
   kiosk: ['./styles.css'],
 }
