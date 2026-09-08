@@ -58,6 +58,13 @@ pnpm changeset publish   # veroeffentlichen und Git-Tags setzen
 git add -A && git commit -m "Version Packages" && git push
 ```
 
+**Den Versionsstand ZURUECKSCHREIBEN.** `changeset version` aendert die
+`package.json` der fuenf Pakete und zehrt die Changesets auf; dieser Stand
+gehoert committet und gepusht. Bleibt er auf dem Rechner liegen, fuehrt das
+Repository weiter die alte Nummer, und der naechste Lauf schlaegt eine Version
+vor, die in der Registry laengst vergeben ist.
+
+
 Dafuer braucht die persoenliche `~/.npmrc` ein classic PAT mit **`write:packages`**
 (zum Lesen genuegt `read:packages`):
 

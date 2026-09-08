@@ -1,5 +1,14 @@
 # @hfroemmel/quiz-react
 
+## 0.4.0
+
+Diese Fassung und 0.3.0 wurden von Hand veroeffentlicht, weil die GitHub
+Actions des Repositories stillstanden. Der Versionsstand, den
+`changeset version` dabei schreibt, ist damals nicht ins Repository
+zurueckgeflossen - das Repository fuehrte weiter 0.2.0, waehrend in der
+Registry schon 0.4.0 lag. Dieser Eintrag holt den Stand nach; was in den
+beiden Fassungen steckt, steht in der Git-Historie.
+
 ## 0.2.0
 
 ### Minor Changes
