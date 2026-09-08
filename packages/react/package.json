@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-react",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "type": "module",
   "description": "React-Praesentationsschicht der Buehne: QuizScene, Szenen, Klaenge und Verbindungs-Hooks",
   "exports": {
