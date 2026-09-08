@@ -316,6 +316,24 @@
  * ------------------------------------------------------------------ */
 
 /*
+ * EINE SCHRIFTGROESSE FUER DIE SCHALTFLAECHEN DER BEDIENUNG.
+ *
+ * In der Startauswahl, in den Einstellungen und in den Rueckfragen stehen
+ * Knoepfe nebeneinander, zwischen denen gewaehlt wird: "Los geht's" neben
+ * "Allein", "Fertig" neben "An". Dass der hervorgehobene von ihnen auch groesser
+ * gesetzt war, machte aus einer Reihe gleichrangiger Ziele eine Treppe -
+ * hervorgehoben ist er durch Farbe und Flaeche, nicht durch seine Schrift.
+ *
+ * NICHT DAZU GEHOEREN die beiden Eckknoepfe, Sprache und Zahnrad: Sie stehen
+ * nicht in der Reihe, sondern am Rand, und sind bewusst kleiner. Ebenso wenig
+ * die Buehne - dort rechnet alles in Containereinheiten.
+ */
+.start,
+.panel {
+  --kiosk-button-font-size: clamp(20px, 3.2vh, 38px);
+}
+
+/*
  * DIE ZOOMSTUFE GILT AUCH HIER. Sie ist eine Einstellung des Geraets und nicht
  * eine des Spiels: Wer die Anzeige kleiner stellt, weil er sonst nicht
  * hinuebersieht, meint die Auswahl davor genauso wie die Frage danach.
@@ -396,7 +414,7 @@ button.option {
   min-width: clamp(120px, 22vw, 240px);
   min-height: clamp(64px, 10vh, 110px);
   padding: clamp(8px, 1.5vh, 18px) clamp(12px, 2vw, 28px);
-  font-size: clamp(18px, 2.8vh, 32px);
+  font-size: var(--kiosk-button-font-size);
   line-height: 1.15;
 }
 
@@ -422,14 +440,14 @@ button.go {
   justify-content: center;
   min-height: clamp(56px, 9vh, 96px);
   padding: 0 clamp(24px, 5vw, 64px);
-  font-size: clamp(20px, 3.2vh, 38px);
+  font-size: var(--kiosk-button-font-size);
 }
 
 button.leave {
   justify-content: center;
   min-height: clamp(56px, 9vh, 96px);
   padding: 0 clamp(16px, 3vw, 40px);
-  font-size: clamp(16px, 2.4vh, 28px);
+  font-size: var(--kiosk-button-font-size);
 }
 
 /* ------------------------------------------------------------------ *
@@ -497,11 +515,15 @@ button.leave {
   gap: clamp(6px, 1.2vw, 16px);
 }
 
-/* In der Zeile einer Einstellung ist weniger Platz als in der Startauswahl. */
+/*
+ * In der Zeile einer Einstellung ist weniger Platz als in der Startauswahl -
+ * die Flaeche wird kleiner, die Schrift bleibt. Sie steht neben "Fertig", und
+ * zwei Schriftgroessen in einem Kasten von der Groesse einer Handflaeche sind
+ * kein Unterschied, den jemand liest, sondern einer, der unruhig aussieht.
+ */
 .settingControl button.option {
   min-width: clamp(84px, 12vw, 140px);
   min-height: clamp(48px, 7vh, 80px);
-  font-size: clamp(15px, 2.2vh, 26px);
 }
 
 .settingValue {
