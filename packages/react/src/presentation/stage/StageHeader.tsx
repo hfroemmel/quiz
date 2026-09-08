@@ -22,6 +22,7 @@
  */
 import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
+import { cssUrl } from '../cssUrl'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import eigenesLogo from '../../assets/images/logo.svg'
@@ -68,7 +69,7 @@ export function StageHeader({
         <span
           className={styles.brand}
           data-brand=""
-          style={{ '--logo-url': `url(${eigenesLogo})` } as CSSProperties}
+          style={{ '--logo-url': cssUrl(eigenesLogo) } as CSSProperties}
           aria-hidden="true"
         />
       )}

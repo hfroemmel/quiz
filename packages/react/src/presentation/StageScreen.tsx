@@ -16,6 +16,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Command, PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import { useRevealClock } from '../client/useRevealClock'
+import { cssUrl } from './cssUrl'
 import { playCue } from './soundCues'
 import { SoundProvider } from './SoundProvider'
 import { useStageSounds } from './useStageSounds'
@@ -194,7 +195,7 @@ export function StageScreen({
           <div
             className={stage.backdrop}
             data-veiled={String(isRevealing(view))}
-            style={{ backgroundImage: `url(${view.question.imageUrl})` }}
+            style={{ backgroundImage: cssUrl(view.question.imageUrl) }}
             aria-hidden="true"
           />
         )}
