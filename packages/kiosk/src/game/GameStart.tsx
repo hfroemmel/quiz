@@ -187,7 +187,7 @@ export function GameStart({
 
           <section className={styles.step}>
             <div className={styles.levels} data-preset-options="">
-              {presets.map((preset, stelle) => (
+              {presets.map((preset) => (
                 <button
                   key={preset.id}
                   type="button"
@@ -197,19 +197,17 @@ export function GameStart({
                   onClick={() => setPresetId(preset.id)}
                 >
                   {/*
-                    * Die Punkte sind die Stufe als Bild: einer, zwei, drei. Sie
-                    * zaehlen die STELLE in der Liste und nicht eine Eigenschaft
-                    * der Fragen - die Reihenfolge der Presets IST die Steigerung,
-                    * und sie steht in der Konfiguration.
+                    * DERSELBE AUFBAU WIE DIE MODUSKARTE, nur ohne Zeichen: Text
+                    * links, Haekchen rechts. Die Steigerung der Stufen stand
+                    * frueher zusaetzlich als Punktereihe darueber - sie sagte
+                    * nichts, was nicht schon in "5 Fragen" steht, und machte aus
+                    * zwei gleichrangigen Reihen zwei verschieden hohe.
                     */}
-                  <span className={styles.levelDots} data-rank={stelle + 1} aria-hidden="true">
-                    {Array.from({ length: Math.min(stelle + 1, 5) }, (_, punkt) => (
-                      <span key={punkt} className={styles.levelDot} />
-                    ))}
+                  <span className={styles.cardBody}>
+                    <span className={styles.cardTitle}>{preset.label}</span>
+                    <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
                   </span>
-                  <Haken aktiv={presetId === preset.id} klein />
-                  <span className={styles.cardTitle}>{preset.label}</span>
-                  <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
+                  <Haken aktiv={presetId === preset.id} />
                 </button>
               ))}
             </div>
@@ -247,9 +245,9 @@ export function GameStart({
  * gleich gross, statt beim Antippen um die Breite eines Zeichens zu springen,
  * und zwar genau unter dem Finger, der es angetippt hat.
  */
-function Haken({ aktiv, klein = false }: { aktiv: boolean; klein?: boolean }) {
+function Haken({ aktiv }: { aktiv: boolean }) {
   return (
-    <span className={`${styles.check} ${klein ? styles.checkSmall : ''}`} data-on={String(aktiv)} aria-hidden="true">
+    <span className={styles.check} data-on={String(aktiv)} aria-hidden="true">
       {aktiv && <CheckIcon />}
     </span>
   )

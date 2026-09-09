@@ -365,6 +365,18 @@
 [data-skin='kids'] {
   --start-text: var(--kids-ink);
   --start-text-muted: var(--color-textMuted);
+  --start-brand-text: var(--kids-ink);
+}
+
+/*
+ * Der Grund ist dasselbe Papier, auf dem das Spiel danach steht.
+ *
+ * Der dunkle Verlauf mit den beiden farbigen Lichtern gehoert zur Auswahl der
+ * Erwachsenen; darauf verschwaende die helle Papierwelt, und die Tinte darauf
+ * waere nicht zu lesen.
+ */
+[data-skin='kids'].startScreen {
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 [data-skin='kids'] .start,
 [data-skin='kids'] .panel {
@@ -466,19 +478,6 @@
 }
 
 /*
- * Die Punkte der Schwierigkeit sind Tinte auf Papier - gefuellt, was zaehlt,
- * und durchscheinend, was nicht.
- */
-[data-skin='kids'] .levelDot {
-  background: color-mix(in srgb, currentColor 30%, transparent);
-}
-[data-skin='kids'] .levelDots[data-rank='1'] .levelDot:nth-child(1),
-[data-skin='kids'] .levelDots[data-rank='2'] .levelDot:nth-child(-n + 2),
-[data-skin='kids'] .levelDots[data-rank='3'] .levelDot {
-  background: currentColor;
-}
-
-/*
  * DER PRIMAERE KNOPF DER KINDERWELT - eine Zeichnung fuer alle drei Orte.
  *
  * "Los geht's" in der Startauswahl, "Weiter" und "Antwort abgeben und
@@ -500,9 +499,8 @@
 [data-skin='kids'] .continue {
   --kids-frame-width: 1.25cqw;
 }
-/* Der Pfeil sitzt auf der gemalten Flaeche, nicht in einer eigenen Scheibe. */
+/* Der Pfeil traegt die Tinte der Karte, auf der er sitzt. */
 [data-skin='kids'] .actionArrow {
-  background: none;
   color: inherit;
 }
 
@@ -797,51 +795,17 @@
   height: 70%;
 }
 
-.level {
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: clamp(1px, 0.5vh, 5px);
-  min-height: clamp(62px, 13.6vh, 138px);
-  padding: clamp(6px, 1.5vh, 14px) clamp(8px, 2.2vh, 20px) clamp(8px, 2.2vh, 20px);
-}
-
-/* Die Punkte zaehlen die Stufe: einer, zwei, drei - und faerben sich mit ihr. */
-.levelDots {
-  display: flex;
-  gap: clamp(3px, 0.6vh, 6px);
-  margin-bottom: auto;
-}
-.levelDot {
-  width: clamp(7px, 1.7vh, 15px);
-  height: clamp(7px, 1.7vh, 15px);
-  border-radius: 50%;
-  background: var(--start-green);
-}
-.levelDots[data-rank='2'] .levelDot {
-  background: color-mix(in srgb, var(--start-lime) 68%, transparent);
-}
-.levelDots[data-rank='3'] .levelDot {
-  background: color-mix(in srgb, var(--start-violet) 78%, transparent);
-}
 /*
- * Ab der vierten Stufe beginnt die Farbfolge von vorn. Drei sind der Entwurf;
- * eine vierte Farbe zu erfinden hiesse, eine Bedeutung zu behaupten, die es
- * nicht gibt.
+ * Die Stufenkarte ist dieselbe Zeile wie die Moduskarte, nur ohne Zeichen:
+ * Text links, Haekchen rechts. Sie ist etwas flacher als jene - dort steht ein
+ * Zeichen mit eigener Flaeche, hier nicht, und eine gleich hohe Karte haette
+ * ihren Platz nur als Luft.
  */
-.levelDots[data-rank='5'] .levelDot {
-  background: color-mix(in srgb, var(--start-lime) 68%, transparent);
-}
-
-/* Im Stufenkaertchen steht das Haekchen oben rechts, nicht am Zeilenende. */
-.level .check {
-  position: absolute;
-  top: clamp(6px, 1.5vh, 14px);
-  right: clamp(8px, 2.2vh, 20px);
-  margin-left: 0;
-}
-.checkSmall {
-  width: clamp(15px, 2.7vh, 24px);
-  height: clamp(15px, 2.7vh, 24px);
+.level {
+  align-items: center;
+  gap: clamp(6px, 1.7vh, 15px);
+  min-height: clamp(40px, 9.2vh, 93px);
+  padding: clamp(6px, 1.5vh, 14px) clamp(8px, 2.2vh, 20px);
 }
 
 /* ------------------------------------------------------------------ *
@@ -871,7 +835,13 @@
   border: 1px solid color-mix(in srgb, var(--start-green-edge) 42%, transparent);
   border-radius: clamp(9px, 2.1vh, 19px);
   background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
-  color: var(--start-ink-on-green);
+  /*
+   * HELLE SCHRIFT AUF DEM GRUEN, nicht dunkle: Der Balken ist die einzige volle
+   * Farbe der Flaeche, und alles andere darauf - Schrift und Pfeil - ist hell
+   * wie die Schrift daneben. Eine dunkle Aufschrift machte aus dem Ziel ein
+   * zweites Schild.
+   */
+  color: var(--start-text);
   font-family: var(--font-ui);
   font-size: var(--kiosk-button-font-size);
   font-weight: 700;
@@ -887,14 +857,20 @@
 .setup .action {
   flex: 1 1 auto;
 }
+/*
+ * Der Pfeil steht frei auf dem Balken - ohne eigene Scheibe. Er wiederholt nur,
+ * was die Aufschrift schon sagt; eine Flaeche darum machte daraus ein zweites
+ * Element in einem Knopf, der genau eine Sache ist.
+ *
+ * Seine Flaeche behaelt er trotzdem: Sie haelt den Pfeil an seinem Platz,
+ * gleich wie lang die Aufschrift daneben ist.
+ */
 .actionArrow {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
   width: clamp(26px, 5.2vh, 46px);
   height: clamp(26px, 5.2vh, 46px);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--start-shade) 15%, transparent);
 }
 .actionArrow > svg {
   width: 55%;
