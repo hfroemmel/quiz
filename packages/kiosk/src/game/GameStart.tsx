@@ -149,8 +149,6 @@ export function GameStart({
 
       <div className={styles.layout}>
         <aside className={styles.brand}>
-          {audienceEntry && <p className={styles.brandEyebrow}>{audienceEntry.label}</p>}
-
           {/*
             * Das Bild der Tafel kommt aus dem Inhalt, wenn er eines mitbringt -
             * eine Aufstellung mit eigenem Motiv soll ihres sehen und nicht
@@ -161,7 +159,6 @@ export function GameStart({
 
           <div className={styles.brandText}>
             {view.theme.startTitle && <h1 className={styles.brandTitle}>{view.theme.startTitle}</h1>}
-            {view.theme.startDescription && <p className={styles.brandLead}>{view.theme.startDescription}</p>}
           </div>
         </aside>
 
