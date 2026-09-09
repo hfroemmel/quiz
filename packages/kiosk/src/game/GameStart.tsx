@@ -9,11 +9,33 @@
  * Die Schwierigkeitsstufen stammen aus `view.catalog` und damit aus validierter
  * Konfiguration. Es gibt hier bewusst keine Liste im Code, die beim naechsten
  * neuen Preset vergessen wuerde.
+ *
+ * ZWEI SPALTEN, UND WARUM:
+ *
+ *   Links steht, WAS das hier ist - Marke, Titel, ein Satz dazu. Sie aendert
+ *   sich nie und wird nicht angefasst; sie ist das Plakat, das aus fuenf Metern
+ *   wirkt und jemanden herholt.
+ *
+ *   Rechts steht, WAS ZU TUN IST - zwei nummerierte Schritte und darunter der
+ *   Start. Sie wird angefasst und liegt deshalb beisammen, in Griffhoehe und in
+ *   der Reihenfolge, in der entschieden wird.
+ *
+ * Der Entwurf dazu ist `Quiz_Standalone_Startmenu_SVG_Assets`; Masse und Farben
+ * stammen von dort (Farben ueber die `--start-*`-Token der Palette). In der
+ * Hochkantaufstellung faellt die Spaltenteilung weg - siehe Stylesheet.
  */
 import { useState } from 'react'
 import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { texteFuer } from '@hfroemmel/quiz-react'
+import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon, SparkIcon } from './icons'
 import styles from './Game.module.css'
+
+/**
+ * Das Quizmotiv, das die Tafel traegt, wenn der Inhalt kein eigenes Startbild
+ * mitbringt. Bundlerneutral adressiert - dieselbe Schreibweise wie im
+ * Buehnenpaket, damit die Datei mit ausgeliefert wird und offline daliegt.
+ */
+const quizMarke = new URL('../assets/quiz-mark.svg', import.meta.url).href
 
 interface GameStartProps {
   view: PlayerQuizViewModel
@@ -41,6 +63,11 @@ interface GameStartProps {
   onSelectLocale(locale: string): void
 }
 
+/** Schrittnummern sind zweistellig - "01" und "02" stehen ruhiger als "1" und "2". */
+function schrittnummer(stelle: number): string {
+  return String(stelle).padStart(2, '0')
+}
+
 export function GameStart({
   view,
   audience,
@@ -59,123 +86,209 @@ export function GameStart({
   const [presetId, setPresetId] = useState(presets[0]?.id ?? '')
 
   const canStart = view.allowedCommands.includes('START_GAME') && presetId !== ''
+  /*
+   * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl. Dann ist die
+   * Schwierigkeit der erste Schritt und traegt die 01 - eine feste 02 waere die
+   * Nummer eines Schritts, den es hier nicht gibt.
+   */
+  const zeigeModus = angeboten.length > 1
+  const gewaehltesPreset = presets.find((preset) => preset.id === presetId)
 
   return (
     <div className={styles.start} data-game-start="">
       {/*
-        * Einstellungen in der Ecke: sichtbar fuer den, der sie sucht,
-        * unauffaellig fuer alle anderen.
-        *
-        * Das Zeichen ist gezeichnet und kein Schriftzeichen: Ein Geraet im
-        * Kiosk hat nur die Schriften, die die Anwendung mitbringt, und ein
-        * fehlendes Symbolzeichen waere dort ein leeres Kaestchen.
+        * DIE BEIDEN ECKKNOEPFE STEHEN IN EINER EIGENEN ZEILE und nicht frei
+        * ueber der Flaeche: Als absolut gesetzte Ecken kamen sie der Tafel
+        * darunter in die Quere, sobald das Quiz in einem kleineren Kasten lief
+        * als dem ganzen Fenster - genau der Fall in der Spielesammlung.
         */}
-      {onOpenSettings && (
-      <button
-        type="button"
-        className={`button ${styles.settingsButton}`}
-        data-settings-open=""
-        aria-label={t('kiosk.settings')}
-        onClick={onOpenSettings}
-      >
-        <svg className={styles.settingsIcon} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <line x1="4" y1="8" x2="20" y2="8" />
-            <line x1="4" y1="16" x2="20" y2="16" />
-          </g>
-          <circle cx="9" cy="8" r="3" fill="currentColor" />
-          <circle cx="15" cy="16" r="3" fill="currentColor" />
-        </svg>
-      </button>
-      )}
+      <div className={styles.corners}>
+        {/*
+          * DER SPRACHUMSCHALTER STEHT IN DER ECKE, nicht als dritter Schritt:
+          * Die Auswahl daneben stellt bewusst zwei Fragen - wie viele spielen
+          * und wie schwer. Die Sprache ist keine Spielentscheidung, sondern die
+          * Voraussetzung dafuer, die beiden Fragen ueberhaupt lesen zu koennen;
+          * sie gehoert deshalb dorthin, wo man sie sucht, bevor man liest.
+          *
+          * Die Namen stehen in ihrer EIGENEN Sprache ("Deutsch", "English") -
+          * eine Beschriftung daneben braucht es damit nicht.
+          */}
+        {view.catalog.locales.length > 1 && (
+          <div className={styles.languages} data-languages="">
+            {view.catalog.locales.map((sprache) => (
+              <button
+                key={sprache.id}
+                type="button"
+                className={`${styles.language} ${sprache.id === view.locale ? styles.languageOn : ''}`}
+                data-locale={sprache.id}
+                aria-pressed={sprache.id === view.locale}
+                onClick={() => onSelectLocale(sprache.id)}
+              >
+                {sprache.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-      {/*
-        * DER SPRACHUMSCHALTER STEHT IN DER ECKE, nicht als dritte Frage im
-        * Bogen: Die Auswahl davor stellt bewusst zwei Fragen - wie viele
-        * spielen und wie schwer. Die Sprache ist keine Spielentscheidung,
-        * sondern die Voraussetzung dafuer, die beiden Fragen ueberhaupt lesen
-        * zu koennen; sie gehoert deshalb dorthin, wo man sie sucht, bevor man
-        * liest.
-        *
-        * Die Namen stehen in ihrer EIGENEN Sprache ("Deutsch", "English") -
-        * eine Beschriftung daneben braucht es damit nicht.
-        */}
-      {view.catalog.locales.length > 1 && (
-        <div className={styles.languages} data-languages="">
-          {view.catalog.locales.map((sprache) => (
-            <button
-              key={sprache.id}
-              type="button"
-              className={`button ${styles.language} ${sprache.id === view.locale ? 'button--selected' : ''}`}
-              data-locale={sprache.id}
-              aria-pressed={sprache.id === view.locale}
-              onClick={() => onSelectLocale(sprache.id)}
-            >
-              {sprache.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {view.theme.startVisualUrl && <img className={styles.visual} src={view.theme.startVisualUrl} alt="" />}
-      {view.theme.startTitle && <h1 className={styles.title}>{view.theme.startTitle}</h1>}
-
-      {angeboten.length > 1 && (
-      <section className={styles.choice}>
-        <h2 className={styles.choiceLabel} data-choice-label="">
-          {t('kiosk.playerCount')}
-        </h2>
-        <div className={styles.options}>
-          {angeboten.map((count) => (
-            <button
-              key={count}
-              type="button"
-              className={`button button--large ${styles.option} ${playerCount === count ? 'button--selected' : ''}`}
-              aria-pressed={playerCount === count}
-              onClick={() => setPlayerCount(count)}
-            >
-              {t(count === 1 ? 'kiosk.solo' : 'kiosk.duo')}
-            </button>
-          ))}
-        </div>
-      </section>
-      )}
-
-      <section className={styles.choice}>
-        <h2 className={styles.choiceLabel} data-choice-label="">
-          {t('kiosk.difficulty')}
-        </h2>
-        <div className={styles.options} data-preset-options="">
-          {presets.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              className={`button button--large ${styles.option} ${presetId === preset.id ? 'button--selected' : ''}`}
-              aria-pressed={presetId === preset.id}
-              onClick={() => setPresetId(preset.id)}
-            >
-              {preset.label}
-              <span className={styles.hint}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <div className={styles.actions}>
-        <button
-          type="button"
-          className={`button button--primary button--large ${styles.go}`}
-          disabled={!canStart}
-          onClick={() => onStart({ playerCount, presetId })}
-        >
-          {t('kiosk.start')}
-        </button>
-        {onExit && (
-          <button type="button" className={`button button--large ${styles.leave}`} onClick={onExit}>
-            {t('kiosk.back')}
+        {/*
+          * Einstellungen in der Ecke: sichtbar fuer den, der sie sucht,
+          * unauffaellig fuer alle anderen.
+          */}
+        {onOpenSettings && (
+          <button
+            type="button"
+            className={styles.settingsButton}
+            data-settings-open=""
+            aria-label={t('kiosk.settings')}
+            onClick={onOpenSettings}
+          >
+            <SlidersIcon className={styles.settingsIcon} />
           </button>
         )}
       </div>
+
+      <div className={styles.layout}>
+        <aside className={styles.brand}>
+          {audienceEntry && <p className={styles.brandEyebrow}>{audienceEntry.label}</p>}
+          <span className={styles.brandSpark} aria-hidden="true">
+            <SparkIcon className={styles.brandSparkIcon} />
+          </span>
+
+          {/*
+            * Das Bild der Tafel kommt aus dem Inhalt, wenn er eines mitbringt -
+            * eine Aufstellung mit eigenem Motiv soll ihres sehen und nicht
+            * unseres. Erst wenn keines hinterlegt ist, traegt die Tafel das
+            * mitgelieferte Quizmotiv.
+            */}
+          <img className={styles.brandVisual} src={view.theme.startVisualUrl ?? quizMarke} alt="" />
+
+          <div className={styles.brandText}>
+            {view.theme.startTitle && <h1 className={styles.brandTitle}>{view.theme.startTitle}</h1>}
+            {view.theme.startDescription && <p className={styles.brandLead}>{view.theme.startDescription}</p>}
+            {gewaehltesPreset && (
+              /*
+               * Der Chip nennt den Umfang der gerade gewaehlten Stufe. Er steht
+               * auf der Plakatseite, weil dort die Frage "lohnt sich das jetzt?"
+               * beantwortet wird - und er folgt der Auswahl rechts.
+               */
+              <p className={styles.brandChip} data-scope="">
+                <span className={styles.brandChipDot} aria-hidden="true" />
+                {t('kiosk.questionCount', { count: gewaehltesPreset.slotCount })}
+              </p>
+            )}
+          </div>
+        </aside>
+
+        <section className={styles.setup}>
+          <h2 className={styles.setupTitle}>{t('kiosk.setupTitle')}</h2>
+          <p className={styles.setupSubtitle}>{t('kiosk.setupSubtitle')}</p>
+
+          {zeigeModus && (
+            <section className={styles.step}>
+              <h3 className={styles.stepLabel}>
+                <span className={styles.stepNumber} data-step-number="">
+                  {schrittnummer(1)}
+                </span>
+                <span data-choice-label="">{t('kiosk.playerCount')}</span>
+              </h3>
+              <div className={styles.modes}>
+                {angeboten.map((count) => (
+                  <button
+                    key={count}
+                    type="button"
+                    className={`${styles.card} ${styles.mode} ${playerCount === count ? styles.cardOn : ''}`}
+                    data-player-count={count}
+                    aria-pressed={playerCount === count}
+                    onClick={() => setPlayerCount(count)}
+                  >
+                    <span className={styles.cardIcon} aria-hidden="true">
+                      {count === 1 ? <PersonIcon /> : <PeopleIcon />}
+                    </span>
+                    <span className={styles.cardBody}>
+                      <span className={styles.cardTitle}>{t(count === 1 ? 'kiosk.solo' : 'kiosk.duo')}</span>
+                      <span className={styles.cardMeta}>{t(count === 1 ? 'kiosk.soloHint' : 'kiosk.duoHint')}</span>
+                    </span>
+                    <Haken aktiv={playerCount === count} />
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className={styles.step}>
+            <h3 className={styles.stepLabel}>
+              <span className={styles.stepNumber} data-step-number="">
+                {schrittnummer(zeigeModus ? 2 : 1)}
+              </span>
+              <span data-choice-label="">{t('kiosk.difficulty')}</span>
+            </h3>
+            <div className={styles.levels} data-preset-options="">
+              {presets.map((preset, stelle) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={`${styles.card} ${styles.level} ${presetId === preset.id ? styles.cardOn : ''}`}
+                  data-preset={preset.id}
+                  aria-pressed={presetId === preset.id}
+                  onClick={() => setPresetId(preset.id)}
+                >
+                  {/*
+                    * Die Punkte sind die Stufe als Bild: einer, zwei, drei. Sie
+                    * zaehlen die STELLE in der Liste und nicht eine Eigenschaft
+                    * der Fragen - die Reihenfolge der Presets IST die Steigerung,
+                    * und sie steht in der Konfiguration.
+                    */}
+                  <span className={styles.levelDots} data-rank={stelle + 1} aria-hidden="true">
+                    {Array.from({ length: Math.min(stelle + 1, 5) }, (_, punkt) => (
+                      <span key={punkt} className={styles.levelDot} />
+                    ))}
+                  </span>
+                  <Haken aktiv={presetId === preset.id} klein />
+                  <span className={styles.cardTitle}>{preset.label}</span>
+                  <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.action}
+              data-start=""
+              disabled={!canStart}
+              onClick={() => onStart({ playerCount, presetId })}
+            >
+              {t('kiosk.start')}
+              <span className={styles.actionArrow} aria-hidden="true">
+                <ArrowIcon />
+              </span>
+            </button>
+            {onExit && (
+              <button type="button" className={styles.actionSecondary} onClick={onExit}>
+                {t('kiosk.back')}
+              </button>
+            )}
+          </div>
+
+          <p className={styles.note}>{t('kiosk.setupNote')}</p>
+        </section>
+      </div>
     </div>
+  )
+}
+
+/**
+ * Das Haekchen einer gewaehlten Karte.
+ *
+ * Es steht IMMER im Markup, auch ungewaehlt - dann leer. So bleibt die Karte
+ * gleich gross, statt beim Antippen um die Breite eines Zeichens zu springen,
+ * und zwar genau unter dem Finger, der es angetippt hat.
+ */
+function Haken({ aktiv, klein = false }: { aktiv: boolean; klein?: boolean }) {
+  return (
+    <span className={`${styles.check} ${klein ? styles.checkSmall : ''}`} data-on={String(aktiv)} aria-hidden="true">
+      {aktiv && <CheckIcon />}
+    </span>
   )
 }

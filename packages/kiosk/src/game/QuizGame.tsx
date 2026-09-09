@@ -409,7 +409,7 @@ export function QuizGame({
         * fuehrt, darf ihn niemand am Geraet abbrechen.
         */}
       {!finished && view.allowedCommands.includes('ABORT_GAME') && (
-        <button type="button" className={`button ${styles.abort}`} data-abort-game="" onClick={() => setAskExit(true)}>
+        <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
           {t('kiosk.endGame')}
         </button>
       )}
@@ -421,7 +421,7 @@ export function QuizGame({
             <div className={styles.actions}>
               <button
                 type="button"
-                className={`button button--primary button--large ${styles.go}`}
+                className={styles.action}
                 data-abort-confirm=""
                 onClick={abort}
               >
@@ -429,7 +429,7 @@ export function QuizGame({
               </button>
               <button
                 type="button"
-                className={`button button--large ${styles.leave}`}
+                className={styles.actionSecondary}
                 data-abort-cancel=""
                 onClick={() => setAskExit(false)}
               >
@@ -454,13 +454,13 @@ export function QuizGame({
             <div className={styles.footer}>
               <button
                 type="button"
-                className={`button button--primary button--large ${styles.go}`}
+                className={styles.action}
                 onClick={() => setShowChoice(true)}
               >
                 {t('kiosk.playAgain')}
               </button>
               {onExit && (
-                <button type="button" className={`button button--large ${styles.leave}`} onClick={leave}>
+                <button type="button" className={styles.actionSecondary} onClick={leave}>
                   {t('kiosk.end')}
                 </button>
               )}

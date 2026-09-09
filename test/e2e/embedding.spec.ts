@@ -47,7 +47,7 @@ test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page 
 
   for (const runde of [1, 2]) {
     await insQuiz(page)
-    await page.getByRole('button', { name: 'Zu zweit' }).click()
+    await page.getByRole('button', { name: /^Zu zweit/ }).click()
     await page.getByRole('button', { name: /^Leicht/ }).click()
     await page.getByRole('button', { name: "Los geht's" }).click()
     await expect(page.locator('[data-answers]'), `Runde ${runde}`).toBeVisible({ timeout: 30_000 })
@@ -64,7 +64,7 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
   await page.goto('/shell')
   await insQuiz(page)
 
-  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
 

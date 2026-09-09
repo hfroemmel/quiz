@@ -42,6 +42,8 @@ export interface PublicTheme {
    * enthaelt - so wie beim Kinderquiz.
    */
   startTitle?: string
+  /** Beschreibung unter dem Titel der Starttafel. Wie der Titel: darf fehlen. */
+  startDescription?: string
   presentationAnimationSetId?: string
 }
 

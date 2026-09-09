@@ -32,6 +32,21 @@
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
+
+  /*
+   * EINE SCHRIFTGROESSE FUER ALLE SCHALTFLAECHEN AUSSERHALB DER BUEHNE.
+   *
+   * In der Startauswahl, in den Einstellungen und in den Rueckfragen stehen
+   * Knoepfe nebeneinander, zwischen denen gewaehlt wird: "Quiz starten" neben
+   * "Zurueck", "Fertig" neben "An". Dass der hervorgehobene von ihnen auch
+   * groesser gesetzt war, machte aus einer Reihe gleichrangiger Ziele eine
+   * Treppe - hervorgehoben ist er durch Farbe und Flaeche, nicht durch seine
+   * Schrift.
+   *
+   * NICHT DAZU GEHOEREN die beiden Eckknoepfe, Sprache und Zahnrad: Sie stehen
+   * nicht in der Reihe, sondern am Rand, und sind bewusst kleiner.
+   */
+  --kiosk-button-font-size: clamp(15px, 2.35vh, 24px);
 }
 
 /* Start- und Wartebild stehen ohne Buehne da und bringen ihren Grund mit. */
@@ -313,141 +328,645 @@
 
 /* ------------------------------------------------------------------ *
  * Startauswahl
+ *
+ * Nach dem Entwurf `Quiz_Standalone_Startmenu_SVG_Assets` (Zeichenflaeche
+ * 1440x810). Die Masse dort stehen in Pixeln; hier stehen sie als Anteil der
+ * FENSTERHOEHE - eine Zahl aus dem Entwurf geteilt durch 8,1 ergibt ihren
+ * vh-Wert. Dasselbe Bild traegt damit vom 10-Zoll-Tablet bis zum grossen
+ * Touchtisch, und die `clamp()`-Grenzen halten es an beiden Enden lesbar.
+ *
+ * DIE FARBEN KOMMEN AUS `--start-*` (siehe `packages/themes/src/palettes.ts`).
+ * Sie sind ein eigener Satz und nicht der Bedienrahmen des Operators: Der ist
+ * ein Werkzeug, das nichts wollen soll - dieser Bildschirm ist das Erste, was
+ * jemand im Foyer sieht, und soll herholen.
  * ------------------------------------------------------------------ */
-
-/*
- * EINE SCHRIFTGROESSE FUER DIE SCHALTFLAECHEN DER BEDIENUNG.
- *
- * In der Startauswahl, in den Einstellungen und in den Rueckfragen stehen
- * Knoepfe nebeneinander, zwischen denen gewaehlt wird: "Los geht's" neben
- * "Allein", "Fertig" neben "An". Dass der hervorgehobene von ihnen auch groesser
- * gesetzt war, machte aus einer Reihe gleichrangiger Ziele eine Treppe -
- * hervorgehoben ist er durch Farbe und Flaeche, nicht durch seine Schrift.
- *
- * NICHT DAZU GEHOEREN die beiden Eckknoepfe, Sprache und Zahnrad: Sie stehen
- * nicht in der Reihe, sondern am Rand, und sind bewusst kleiner. Ebenso wenig
- * die Buehne - dort rechnet alles in Containereinheiten.
- */
-.start,
-.panel {
-  --kiosk-button-font-size: clamp(20px, 3.2vh, 38px);
-}
 
 /*
  * DIE ZOOMSTUFE GILT AUCH HIER. Sie ist eine Einstellung des Geraets und nicht
  * eine des Spiels: Wer die Anzeige kleiner stellt, weil er sonst nicht
  * hinuebersieht, meint die Auswahl davor genauso wie die Frage danach.
+ *
+ * SKALIERT WIRD DER INHALT, NICHT DER GRUND: Der Verlauf liegt auf dem
+ * Aussenkasten (`.startScreen`) und fuellt die Flaeche auch bei kleinem Zoom
+ * bis in die Ecken.
  */
 .start {
-  position: relative;
   scale: var(--stage-zoom, 1);
   transform-origin: center center;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(12px, 3vh, 36px);
   height: 100%;
-  padding: clamp(12px, 3vh, 40px);
-  text-align: center;
+  padding: clamp(10px, 4.4vh, 36px) clamp(10px, 4.4vh, 48px);
+  color: var(--start-text);
 }
 
-.visual {
-  max-height: 22vh;
-  max-width: 60vw;
+/*
+ * Die Zeile der beiden Eckknoepfe.
+ *
+ * Sie steht IM FLUSS und nicht absolut in den Ecken: Absolut gesetzt bezogen
+ * sich beide auf das Fenster, die Tafel darunter aber auf ihren Kasten - und
+ * sobald das Quiz Gast einer anderen Anwendung mit kleinerem Kasten war,
+ * schoben sie sich uebereinander.
+ */
+.corners {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vh, 18px);
+}
+
+/*
+ * Der Grund: ein Verlauf ueber die Diagonale und zwei farbige Lichter - links
+ * gruen hinter der Marke, rechts violett hinter der Auswahl. Sie sind der
+ * einzige Farbanteil einer sonst fast schwarzen Flaeche und geben ihr Tiefe,
+ * ohne dass irgendwo eine Kante entsteht.
+ */
+.startScreen {
+  background:
+    radial-gradient(
+      59% 100% at 21% 50%,
+      color-mix(in srgb, var(--start-ambient-green) 16%, transparent) 0%,
+      color-mix(in srgb, var(--start-ambient-green) 4%, transparent) 58%,
+      transparent 100%
+    ),
+    radial-gradient(
+      54% 89% at 85% 35%,
+      color-mix(in srgb, var(--start-ambient-violet) 11%, transparent) 0%,
+      transparent 100%
+    ),
+    linear-gradient(135deg, var(--start-bg-top) 0%, var(--start-bg-mid) 55%, var(--start-bg-bottom) 100%);
+}
+
+/*
+ * Zwei Spalten im Verhaeltnis des Entwurfs (535 zu 646), dazwischen dessen
+ * Fuge. `minmax(0, ...)` statt blosser Anteile: Ohne das wuerde eine lange
+ * Ueberschrift die Spalte aufziehen, statt umzubrechen.
+ */
+.layout {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 535fr) minmax(0, 646fr);
+  align-items: center;
+  align-content: center;
+  gap: clamp(16px, 8.6vh, 70px);
+  width: min(100%, 155vh);
+  min-height: 0;
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * Linke Spalte: die Markentafel
+ * ------------------------------------------------------------------ */
+
+.brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 2vh, 20px);
+  height: min(70.1vh, 100%);
+  padding: clamp(14px, 3.9vh, 44px);
+  border: 1px solid var(--start-brand-line);
+  border-radius: clamp(14px, 4vh, 34px);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--start-glass) 8%, transparent),
+      color-mix(in srgb, var(--start-glass) 2%, transparent)
+    ),
+    linear-gradient(135deg, var(--start-brand-top) 0%, var(--start-brand-mid) 48%, var(--start-brand-bottom) 100%);
+  box-shadow: 0 clamp(6px, 2vh, 18px) clamp(12px, 5vh, 44px) color-mix(in srgb, var(--start-shade) 24%, transparent);
+}
+
+.brandEyebrow {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 1.48vh, 15px);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--start-green);
+}
+
+/* Das Funkeln in der Ecke - reine Zierde, und deshalb absolut gesetzt. */
+.brandSpark {
+  position: absolute;
+  top: clamp(10px, 2.8vh, 30px);
+  right: clamp(10px, 2.8vh, 30px);
+  display: grid;
+  place-items: center;
+  width: clamp(24px, 4.7vh, 42px);
+  height: clamp(24px, 4.7vh, 42px);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--start-lime) 12%, transparent);
+  color: var(--start-lime);
+}
+.brandSparkIcon {
+  width: 55%;
+  height: 55%;
+}
+
+/*
+ * Das Motiv nimmt den Platz, der zwischen Marke und Text uebrig bleibt - es ist
+ * das Nachgiebige der Tafel. Auf einem flachen Fenster schrumpft es, Titel und
+ * Text bleiben stehen: Ein halber Satz waere schlimmer als ein kleineres Bild.
+ */
+.brandVisual {
+  flex: 1 1 auto;
+  align-self: center;
+  min-height: 0;
+  /* Dieselbe Breite wie im Entwurf: das Motiv fuellt die Tafel nicht aus. */
+  width: min(100%, 82%);
+  border-radius: clamp(6px, 1.5vh, 14px);
   object-fit: contain;
 }
 
-.title {
+.brandText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(4px, 1.2vh, 12px);
+}
+
+.brandTitle {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(24px, 5vh, 56px);
+  font-size: clamp(20px, 5.3vh, 54px);
   font-weight: 400;
+  line-height: 1.05;
 }
 
-.choice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(6px, 1.5vh, 16px);
-  width: 100%;
-}
-
-.choiceLabel {
+.brandLead {
   margin: 0;
-  font-size: clamp(14px, 2vh, 22px);
-  font-weight: 400;
-  color: var(--color-textMuted);
+  max-width: 34ch;
+  font-family: var(--font-ui);
+  font-size: clamp(11px, 1.98vh, 20px);
+  line-height: 1.45;
+  color: var(--start-brand-text);
 }
 
-.options {
+/* Der Chip mit dem Umfang: eine Zahl, die sich mit der Auswahl rechts aendert. */
+.brandChip {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(5px, 1.1vh, 11px);
+  margin: clamp(2px, 0.6vh, 8px) 0 0;
+  padding: clamp(4px, 1vh, 10px) clamp(9px, 1.9vh, 18px);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--start-brand-shade) 42%, transparent);
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 1.48vh, 15px);
+  font-weight: 600;
+  color: var(--start-brand-text);
+}
+.brandChipDot {
+  width: clamp(5px, 1.1vh, 10px);
+  height: clamp(5px, 1.1vh, 10px);
+  border-radius: 50%;
+  background: var(--start-green);
+}
+
+/* ------------------------------------------------------------------ *
+ * Rechte Spalte: die Auswahl
+ * ------------------------------------------------------------------ */
+
+.setup {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(8px, 2vw, 20px);
+  flex-direction: column;
+  min-width: 0;
+}
+
+.setupTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(18px, 4.2vh, 42px);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.setupSubtitle {
+  margin: clamp(2px, 0.8vh, 8px) 0 0;
+  font-family: var(--font-ui);
+  font-size: clamp(11px, 1.85vh, 19px);
+  color: var(--start-text-muted);
+}
+
+.step {
+  margin-top: clamp(10px, 5vh, 42px);
 }
 
 /*
- * DAS AUSSEHEN DER SCHALTFLAECHEN KOMMT AUS `@hfroemmel/quiz-themes/controls.css`.
- *
- * Es sind dieselben Knoepfe wie am Operatorpult - Flaeche, Kante, Schriftschnitt
- * und das Verhalten beim Druecken stehen dort und nur dort. Hier steht, was am
- * Geraet anders ist: die GROESSE. Ein Pult wird mit der Maus bedient, ein Foyer-
- * geraet mit dem Daumen, und ein Ziel von 10 mal 16 Pixeln trifft im Stehen
- * niemand.
- *
- * Die Regeln nennen deshalb zusaetzlich das Element (`button.option`): So
- * gewinnen sie gegen die gemeinsame Fassung, ohne dass es auf die Reihenfolge
- * der Stylesheets ankommt.
+ * Die Schrittnummer steht VOR der Frage und nicht darueber: Sie sagt nur, in
+ * welcher Reihenfolge entschieden wird, und soll dafuer keine eigene Zeile
+ * bekommen.
  */
+.stepLabel {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(4px, 0.9vh, 9px);
+  margin: 0 0 clamp(6px, 1.7vh, 15px);
+  font-family: var(--font-ui);
+  font-size: clamp(10px, 1.6vh, 16px);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--start-text-muted);
+}
+.stepNumber {
+  color: var(--start-green);
+}
+.stepNumber::after {
+  content: ' ·';
+}
+
+.modes,
+.levels {
+  display: grid;
+  gap: clamp(8px, 3vh, 24px);
+}
+.modes {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+}
+/*
+ * Drei Stufen sind der Entwurf, mehr sind moeglich: Welche Presets ein Geraet
+ * anbietet, steht in der Konfiguration. Die Spalten fuellen sich deshalb selbst
+ * auf, statt auf drei festgenagelt zu sein.
+ */
+.levels {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+}
 
 /*
- * Eine Schaltflaeche traegt einen Namen und darunter oft eine zweite Zeile
- * ("7 Fragen"). BEIDE ZEILEN STEHEN ALS BLOCK IN DER MITTE - auch dort, wo es
- * nur eine gibt: Stuenden Karten mit einer und mit zwei Zeilen nebeneinander,
- * saessen ihre Namen sonst auf verschiedenen Hoehen.
+ * DIE KARTE - das Bauteil, aus dem beide Schritte bestehen.
+ *
+ * Gewaehlt ist sie an drei Dingen zugleich zu erkennen: gruene Kante, ins
+ * Gruene gekippte Flaeche und das Haekchen. Drei, weil eine Kante allein aus
+ * zwei Metern Entfernung und schraeg von der Seite verschwindet - und genau so
+ * steht man an einem Geraet im Foyer.
  */
-button.option {
+.card {
+  position: relative;
+  display: flex;
+  border: 1px solid var(--start-line-strong);
+  border-radius: clamp(8px, 2vh, 18px);
+  background: var(--start-surface);
+  color: var(--start-text);
+  font-family: var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+}
+.card:hover {
+  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+}
+.card:active {
+  transform: translateY(1px);
+}
+.cardOn {
+  border-color: var(--start-green);
+  border-width: 2px;
+  background: var(--start-surface-selected);
+}
+/*
+ * Die Tastaturmarke ist ein eigener Ring AUSSERHALB der Kante: Die Kante selbst
+ * traegt schon die Auswahl, und beides in einem Strich waere nicht mehr
+ * auseinanderzuhalten.
+ */
+.card:focus-visible,
+.action:focus-visible,
+.actionSecondary:focus-visible,
+.language:focus-visible,
+.settingsButton:focus-visible {
+  outline: 2px solid var(--start-green-bright);
+  outline-offset: 3px;
+}
+
+.mode {
+  align-items: center;
+  gap: clamp(6px, 1.7vh, 15px);
+  min-height: clamp(52px, 11.4vh, 115px);
+  padding: clamp(6px, 1.5vh, 14px) clamp(8px, 2.2vh, 20px);
+}
+
+/* Das Zeichen sitzt in einer eigenen runden Flaeche - der Anker der Karte. */
+.cardIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: clamp(28px, 5.9vh, 52px);
+  height: clamp(28px, 5.9vh, 52px);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--start-glass) 4.5%, transparent);
+  color: var(--start-icon);
+}
+.cardIcon > svg {
+  width: 55%;
+  height: 55%;
+}
+.cardOn .cardIcon {
+  background: color-mix(in srgb, var(--start-green) 12%, transparent);
+  color: var(--start-green-bright);
+}
+
+.cardBody {
+  display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  min-width: clamp(120px, 22vw, 240px);
-  min-height: clamp(64px, 10vh, 110px);
-  padding: clamp(8px, 1.5vh, 18px) clamp(12px, 2vw, 28px);
+  gap: clamp(1px, 0.4vh, 4px);
+  min-width: 0;
+}
+
+.cardTitle {
   font-size: var(--kiosk-button-font-size);
+  font-weight: 600;
   line-height: 1.15;
 }
+.cardMeta {
+  font-size: clamp(9px, 1.48vh, 15px);
+  font-weight: 500;
+  color: var(--start-text-muted);
+}
 
 /*
- * Zweite Zeile der Schwierigkeitskarten. Sie war so klein, dass sie neben dem
- * Namen verschwand - dabei ist die Zahl der Fragen genau das, was die Wahl
- * entscheidet.
+ * Das Haekchen sitzt in der Ecke und ist auch ungewaehlt vorhanden - dann leer
+ * und ohne Flaeche. So springt die Karte beim Antippen nicht um seine Breite,
+ * und zwar genau unter dem Finger, der sie angetippt hat.
  */
-.hint {
-  font-size: clamp(14px, 2vh, 22px);
-  font-weight: 400;
-  color: var(--ui-text-muted);
+.check {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: clamp(18px, 3.2vh, 28px);
+  height: clamp(18px, 3.2vh, 28px);
+  margin-left: auto;
+  border-radius: 50%;
+  color: var(--start-ink-on-green);
 }
+.check[data-on='true'] {
+  background: var(--start-green);
+}
+.check > svg {
+  width: 70%;
+  height: 70%;
+}
+
+.level {
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: clamp(1px, 0.5vh, 5px);
+  min-height: clamp(62px, 13.6vh, 138px);
+  padding: clamp(6px, 1.5vh, 14px) clamp(8px, 2.2vh, 20px) clamp(8px, 2.2vh, 20px);
+}
+
+/* Die Punkte zaehlen die Stufe: einer, zwei, drei - und faerben sich mit ihr. */
+.levelDots {
+  display: flex;
+  gap: clamp(3px, 0.6vh, 6px);
+  margin-bottom: auto;
+}
+.levelDot {
+  width: clamp(7px, 1.7vh, 15px);
+  height: clamp(7px, 1.7vh, 15px);
+  border-radius: 50%;
+  background: var(--start-green);
+}
+.levelDots[data-rank='2'] .levelDot {
+  background: color-mix(in srgb, var(--start-lime) 68%, transparent);
+}
+.levelDots[data-rank='3'] .levelDot {
+  background: color-mix(in srgb, var(--start-violet) 78%, transparent);
+}
+/*
+ * Ab der vierten Stufe beginnt die Farbfolge von vorn. Drei sind der Entwurf;
+ * eine vierte Farbe zu erfinden hiesse, eine Bedeutung zu behaupten, die es
+ * nicht gibt.
+ */
+.levelDots[data-rank='5'] .levelDot {
+  background: color-mix(in srgb, var(--start-lime) 68%, transparent);
+}
+
+/* Im Stufenkaertchen steht das Haekchen oben rechts, nicht am Zeilenende. */
+.level .check {
+  position: absolute;
+  top: clamp(6px, 1.5vh, 14px);
+  right: clamp(8px, 2.2vh, 20px);
+  margin-left: 0;
+}
+.checkSmall {
+  width: clamp(15px, 2.7vh, 24px);
+  height: clamp(15px, 2.7vh, 24px);
+}
+
+/* ------------------------------------------------------------------ *
+ * Die Startaktion
+ * ------------------------------------------------------------------ */
 
 .actions {
   display: flex;
+  gap: clamp(8px, 2vh, 18px);
+  margin-top: clamp(10px, 6.3vh, 51px);
+}
+
+/*
+ * Der breite gruene Balken. Er ist das einzige Element der Flaeche mit einer
+ * vollen Farbe - alles andere ist Grund, Kante oder Schrift. Deshalb braucht er
+ * keine zweite Auszeichnung, um als das Ziel gelesen zu werden.
+ */
+.action {
+  display: flex;
+  /* Nur in der Startauswahl spannt er ueber die ganze Spalte - siehe unten. */
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 2vh, 18px);
+  min-height: clamp(44px, 9.4vh, 95px);
+  padding: 0 clamp(10px, 2.7vh, 24px) 0 clamp(14px, 5.4vh, 44px);
+  border: 1px solid color-mix(in srgb, var(--start-green-edge) 42%, transparent);
+  border-radius: clamp(9px, 2.1vh, 19px);
+  background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
+  color: var(--start-ink-on-green);
+  font-family: var(--font-ui);
+  font-size: var(--kiosk-button-font-size);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 clamp(4px, 1.4vh, 12px) clamp(8px, 3vh, 26px)
+    color-mix(in srgb, var(--start-shade) 22%, transparent);
+}
+.action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.action:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.setup .action {
+  flex: 1 1 auto;
+}
+.actionArrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: clamp(26px, 5.2vh, 46px);
+  height: clamp(26px, 5.2vh, 46px);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--start-shade) 15%, transparent);
+}
+.actionArrow > svg {
+  width: 55%;
+  height: 55%;
+}
+
+/* Der Rueckweg - nur dort, wo das Quiz Gast einer anderen Anwendung ist. */
+.actionSecondary {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(8px, 2vw, 24px);
+  min-height: clamp(44px, 9.4vh, 95px);
+  padding: 0 clamp(14px, 3.5vh, 30px);
+  border: 1px solid var(--start-line-strong);
+  border-radius: clamp(9px, 2.1vh, 19px);
+  background: var(--start-surface);
+  color: var(--start-text);
+  font-family: var(--font-ui);
+  font-size: var(--kiosk-button-font-size);
+  font-weight: 600;
+  cursor: pointer;
+}
+.actionSecondary:hover {
+  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
 }
 
-button.go {
-  justify-content: center;
-  min-height: clamp(56px, 9vh, 96px);
-  padding: 0 clamp(24px, 5vw, 64px);
-  font-size: var(--kiosk-button-font-size);
+.note {
+  margin: clamp(6px, 4.3vh, 35px) 0 0;
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 1.5vh, 15px);
+  text-align: center;
+  color: var(--start-text-quiet);
 }
 
-button.leave {
-  justify-content: center;
-  min-height: clamp(56px, 9vh, 96px);
-  padding: 0 clamp(16px, 3vw, 40px);
-  font-size: var(--kiosk-button-font-size);
+/* ------------------------------------------------------------------ *
+ * Die beiden Eckknoepfe
+ * ------------------------------------------------------------------ */
+
+/*
+ * Sprachumschalter in der oberen linken Ecke - dem Zahnrad gegenueber.
+ *
+ * Er steht ausserhalb der Auswahl aus Modus und Schwierigkeit: Die Sprache ist
+ * keine Spielentscheidung, sondern die Voraussetzung dafuer, die Auswahl zu
+ * lesen. Beide Namen liegen in EINER Leiste, damit sichtbar ist, dass es eine
+ * Wahl zwischen ihnen ist und nicht zwei Schalter.
+ */
+.languages {
+  display: flex;
+  gap: clamp(2px, 0.5vh, 4px);
+  padding: clamp(2px, 0.5vh, 4px);
+  border: 1px solid var(--start-line);
+  border-radius: clamp(7px, 1.6vh, 15px);
+  background: var(--start-surface-quiet);
+}
+.language {
+  padding: clamp(4px, 1.1vh, 10px) clamp(8px, 2vh, 18px);
+  border: 1.5px solid transparent;
+  border-radius: clamp(5px, 1.2vh, 11px);
+  background: none;
+  color: var(--start-text-muted);
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 1.73vh, 18px);
+  font-weight: 500;
+  cursor: pointer;
+}
+.languageOn {
+  border-color: var(--start-green);
+  background: color-mix(in srgb, var(--start-green) 14%, transparent);
+  color: var(--start-text);
+  font-weight: 600;
+}
+
+/*
+ * Zahnrad in der Ecke des Startbildschirms.
+ *
+ * Es steht INNERHALB der Auswahl und braucht deshalb keine eigene Zoomstufe -
+ * es schrumpft mit ihr. Rund und ohne Beschriftung: Es traegt ein Zeichen,
+ * keinen Namen.
+ */
+.settingsButton {
+  /* Immer rechts aussen - auch dort, wo es links keinen Umschalter gibt. */
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: clamp(30px, 5.9vh, 54px);
+  height: clamp(30px, 5.9vh, 54px);
+  padding: 0;
+  border: 1px solid var(--start-line-strong);
+  border-radius: 50%;
+  background: var(--start-surface);
+  color: var(--start-icon);
+  cursor: pointer;
+}
+.settingsButton:hover {
+  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+}
+.settingsIcon {
+  width: 48%;
+  height: 48%;
+}
+
+/* ------------------------------------------------------------------ *
+ * Schmale und hochkante Aufstellungen
+ *
+ * Zwei Spalten brauchen Breite. Faellt sie weg - Tablet im Hochformat, kleines
+ * Fenster in der Spielesammlung -, stehen Tafel und Auswahl untereinander, und
+ * die Tafel gibt ihr Motiv auf: Es ist das Einzige auf dieser Flaeche, das
+ * niemand braucht, um weiterzukommen.
+ * ------------------------------------------------------------------ */
+
+@media (max-aspect-ratio: 5 / 4), (max-width: 780px) {
+  .start {
+    overflow-y: auto;
+  }
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    /*
+     * Untereinander wird die Spalte laenger als das Fenster. Sie beginnt
+     * deshalb oben statt mittig - sonst waechst sie nach BEIDEN Seiten und
+     * schiebt sich ueber die Eckknoepfe, die dann nicht mehr zu treffen sind.
+     */
+    align-content: start;
+    gap: clamp(12px, 2.4vh, 28px);
+    width: 100%;
+    max-width: 720px;
+    padding-top: clamp(10px, 2vh, 20px);
+  }
+  /*
+   * Untereinander wird der Platz knapp. Gekuerzt wird das Grosszuegige, nicht
+   * das Noetige: die Luft zwischen den Schritten und die Hoehe des Motivs. Was
+   * gelesen und getroffen werden muss, bleibt wie es ist.
+   */
+  .brand {
+    height: auto;
+    max-height: 46vh;
+    padding: clamp(12px, 2.6vh, 30px);
+  }
+  .brandVisual {
+    min-height: 12vh;
+  }
+  .setupTitle {
+    font-size: clamp(18px, 3.2vh, 34px);
+  }
+  .step {
+    margin-top: clamp(10px, 2.6vh, 26px);
+  }
+  .actions {
+    margin-top: clamp(10px, 3vh, 28px);
+  }
+  .note {
+    margin-top: clamp(6px, 2vh, 18px);
+  }
+}
+
+/* Ganz flache Fenster: Auch das Motiv der Tafel hat dann keinen Platz mehr. */
+@media (max-height: 480px) {
+  .brandVisual {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -457,9 +976,12 @@ button.leave {
  * Grund liegt am Geraet - eine Rueckfrage, die man ueberklicken kann, ist am
  * Touchscreen keine Rueckfrage.
  *
- * Karte und Schleier tragen die `--ui-*`-Token und sehen damit aus wie die
- * Popups am Operatorpult. Sie gehoeren nicht zur Vorstellung, sondern zur
- * Bedienung des Geraets - und die ist ueberall dieselbe.
+ * SIE SEHEN AUS WIE DIE STARTAUSWAHL und tragen deren `--start-*`-Token: Beides
+ * ist die Bedienung DIESES Geraets, und beides bekommt derselbe Mensch zu
+ * sehen - der eine Bildschirm, bevor er spielt, der andere waehrend er
+ * aufstellt. Zwei Formensprachen dafuer waeren zwei Erklaerungen fuer dieselbe
+ * Sache. Die Schalter sind deshalb wortwoertlich dieselben Karten wie dort
+ * (`.card`), nur ohne Zeichen und kleiner.
  * ------------------------------------------------------------------ */
 
 .overlay {
@@ -470,30 +992,33 @@ button.leave {
   align-items: center;
   justify-content: center;
   padding: clamp(12px, 3vh, 40px);
-  background: var(--ui-scrim);
+  background: color-mix(in srgb, var(--start-shade) 72%, transparent);
 }
 
 .panel {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: clamp(10px, 2vh, 24px);
+  gap: clamp(10px, 2.6vh, 26px);
   min-width: clamp(280px, 46vw, 620px);
   max-width: 92%;
-  padding: clamp(16px, 3vh, 40px);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius, 6px);
-  background: var(--ui-surface);
-  color: var(--ui-text);
+  padding: clamp(16px, 3.9vh, 44px);
+  border: 1px solid var(--start-line-strong);
+  border-radius: clamp(14px, 4vh, 34px);
+  background: var(--start-surface);
+  color: var(--start-text);
+  font-family: var(--font-ui);
   text-align: center;
   scale: var(--stage-zoom, 1);
   transform-origin: center center;
+  box-shadow: 0 clamp(6px, 2vh, 18px) clamp(12px, 5vh, 44px) color-mix(in srgb, var(--start-shade) 34%, transparent);
 }
 
 .panelTitle {
   margin: 0;
-  font-size: clamp(20px, 3.2vh, 38px);
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: clamp(18px, 3.2vh, 34px);
+  font-weight: 400;
 }
 
 /* Eine Zeile je Einstellung: links, wofuer sie gilt, rechts die Bedienung. */
@@ -505,8 +1030,8 @@ button.leave {
 }
 
 .settingLabel {
-  font-size: clamp(16px, 2.4vh, 28px);
-  font-weight: 700;
+  font-size: clamp(11px, 2vh, 20px);
+  font-weight: 600;
 }
 
 .settingControl {
@@ -516,21 +1041,28 @@ button.leave {
 }
 
 /*
- * In der Zeile einer Einstellung ist weniger Platz als in der Startauswahl -
- * die Flaeche wird kleiner, die Schrift bleibt. Sie steht neben "Fertig", und
+ * Ein Schalter in der Einstellungszeile ist dieselbe Karte wie in der
+ * Startauswahl - nur ohne Zeichen und ohne zweite Zeile, und deshalb schmaler.
+ * Die Schrift bleibt die der uebrigen Knoepfe: Sie steht neben "Fertig", und
  * zwei Schriftgroessen in einem Kasten von der Groesse einer Handflaeche sind
  * kein Unterschied, den jemand liest, sondern einer, der unruhig aussieht.
  */
-.settingControl button.option {
-  min-width: clamp(84px, 12vw, 140px);
-  min-height: clamp(48px, 7vh, 80px);
+.toggle {
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(74px, 12vw, 140px);
+  min-height: clamp(40px, 7vh, 80px);
+  padding: 0 clamp(10px, 2.2vh, 20px);
+  font-size: var(--kiosk-button-font-size);
+  font-weight: 600;
+  text-align: center;
 }
 
 .settingValue {
   min-width: 4.5ch;
-  font-size: clamp(14px, 2vh, 22px);
-  font-weight: 400;
-  color: var(--ui-text-muted);
+  font-size: clamp(11px, 1.7vh, 17px);
+  font-weight: 500;
+  color: var(--start-text-muted);
   text-align: right;
 }
 
@@ -542,52 +1074,29 @@ button.leave {
 .slider {
   width: clamp(140px, 22vw, 280px);
   height: clamp(30px, 4.5vh, 48px);
-  accent-color: var(--ui-accent);
+  accent-color: var(--start-green);
   background: transparent;
   cursor: pointer;
 }
 
 /*
- * Sprachumschalter in der oberen linken Ecke - dem Zahnrad gegenueber.
- *
- * Er steht ausserhalb des Bogens aus Bild, Titel und den beiden Fragen: Die
- * Sprache ist keine Spielentscheidung, sondern die Voraussetzung dafuer, die
- * Fragen zu lesen.
+ * Die Knopfreihe eines Dialogs steht mittig und dicht unter dem, was sie
+ * beantwortet - anders als in der Startauswahl, wo der Start das Ende einer
+ * langen Spalte ist und Luft davor braucht.
  */
-.languages {
-  position: absolute;
-  top: clamp(8px, 2vh, 24px);
-  left: clamp(8px, 2vw, 24px);
-  display: flex;
-  gap: clamp(4px, 0.8vw, 10px);
-}
-button.language {
-  min-height: clamp(36px, 5vh, 56px);
-  padding: 0 clamp(10px, 1.6vw, 22px);
-  font-size: clamp(13px, 1.8vh, 20px);
-}
-
-/*
- * Zahnrad in der Ecke des Startbildschirms.
- *
- * Es steht INNERHALB der Auswahl und braucht deshalb keine eigene Zoomstufe -
- * es schrumpft mit ihr. Rund und ohne Beschriftung: Es traegt ein Zeichen,
- * keinen Namen.
- */
-button.settingsButton {
-  position: absolute;
-  top: clamp(8px, 2vh, 24px);
-  right: clamp(8px, 2vw, 24px);
-  width: clamp(44px, 6vh, 68px);
-  height: clamp(44px, 6vh, 68px);
+.panel .actions {
   justify-content: center;
-  padding: 0;
-  border-radius: 50%;
-  color: var(--ui-text-muted);
+  margin-top: clamp(2px, 1vh, 10px);
 }
-.settingsIcon {
-  width: 55%;
-  height: 55%;
+/*
+ * Ausserhalb der Startauswahl traegt der Knopf keinen Pfeil - dort ist er der
+ * Weg nach vorn in einer Spalte, hier eine Antwort unter einer Frage. Ohne
+ * Pfeil steht die Beschriftung mittig und mit gleichem Rand auf beiden Seiten.
+ */
+.panel .action,
+.footer .action {
+  justify-content: center;
+  padding: 0 clamp(18px, 4.4vh, 40px);
 }
 
 /*
@@ -598,14 +1107,26 @@ button.settingsButton {
  * Kasten, in dem es laeuft - und sieht deshalb aus wie die uebrigen
  * Bedienelemente und nicht wie ein Buzzer.
  */
-button.abort {
+.abort {
   position: absolute;
   top: clamp(8px, 1.6vh, 20px);
   right: clamp(8px, 1.6vw, 22px);
   z-index: 11;
+  padding: clamp(5px, 1.1vh, 11px) clamp(9px, 1.9vh, 18px);
+  border: 1px solid var(--start-line-strong);
+  border-radius: clamp(6px, 1.4vh, 13px);
+  background: var(--start-surface);
+  color: var(--start-text-muted);
+  font-family: var(--font-ui);
   font-size: clamp(12px, 1.6vh, 18px);
+  font-weight: 600;
+  cursor: pointer;
   scale: var(--stage-zoom, 1);
   transform-origin: top right;
+}
+.abort:hover {
+  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+  color: var(--start-text);
 }
 
 /*

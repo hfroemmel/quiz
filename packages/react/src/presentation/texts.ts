@@ -39,11 +39,24 @@ export const standardTexte = {
   'video.unknownDuration': 'gelaufen - Laufzeit noch nicht gemeldet',
 
   /* Geraet: Startauswahl */
+  'kiosk.setupTitle': 'Spiel starten',
+  'kiosk.setupSubtitle': 'Wähle Modus und Schwierigkeit.',
   'kiosk.playerCount': 'Wie viele spielen?',
   'kiosk.difficulty': 'Wie schwer?',
   'kiosk.solo': 'Allein',
   'kiosk.duo': 'Zu zweit',
+  /* Die zweite Zeile auf den beiden Moduskarten - ein Wort dazu, was das heisst. */
+  'kiosk.soloHint': 'Eine Person',
+  'kiosk.duoHint': 'Buzzer-Duell',
   'kiosk.questionCount': '{count} Fragen',
+  /*
+   * Fussnote unter der Startschaltflaeche.
+   *
+   * Sie sagt bewusst NICHT "jederzeit aenderbar": Waehrend gespielt wird, gibt
+   * es kein Menue, in dem sich Modus oder Schwierigkeit verstellen liessen -
+   * das waere ein Versprechen, das das Geraet nicht haelt.
+   */
+  'kiosk.setupNote': 'Die Auswahl gilt für dieses Spiel.',
   'kiosk.start': "Los geht's",
   'kiosk.back': 'Zurück',
   'kiosk.preparing': 'Das Quiz wird vorbereitet...',

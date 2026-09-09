@@ -1,12 +1,13 @@
 /*
  * Die gemeinsamen Bedienelemente gehoeren MIT ins Paket.
  *
- * Startauswahl, Einstellungen und Dialoge dieses Pakets setzen die globalen
- * Klassen `button`, `button--primary`, `button--large` und `button--selected`.
- * Ein Gastgeber, der `@hfroemmel/quiz-kiosk/styles.css` einbindet, bekommt sie
- * deshalb mitgeliefert - er soll nicht bei jeder neuen Klasse eine weitere
- * Zeile in seiner Anwendung nachtragen muessen, und ein vergessener Import
- * waere ein Startbildschirm ohne Schaltflaechen.
+ * SIE SIND NICHT MEHR FUER DIESES PAKET SELBST: Startauswahl, Einstellungen und
+ * Dialoge tragen seit dem Startmenue-Entwurf ihre eigene Formensprache
+ * (`Game.module.css`, `--start-*`). Geliefert werden die Klassen `button`,
+ * `button--primary`, `button--large` und `button--selected` trotzdem - fuer die
+ * GASTGEBER: Kiosk und Spielesammlung bauen ihre eigene Umgebung damit, und sie
+ * beziehen sie ueber `@hfroemmel/quiz-kiosk/styles.css`. Nimmt man den Import
+ * hier heraus, stehen dort Knoepfe ohne Aussehen.
  *
  * Die Quelle bleibt eine einzige: `@hfroemmel/quiz-themes/controls.css`, aus
  * dem auch das Operatorpult liest.

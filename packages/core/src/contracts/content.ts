@@ -318,9 +318,16 @@ export const audienceConfigSchema = z.object({
    * Startansicht nur die Grafik - etwa wenn diese den Titel schon enthaelt.
    */
   startTitle: z.string().min(1).optional(),
+  /**
+   * Zwei, drei Zeilen unter dem Titel: worum es in diesem Quiz geht. Sie sind
+   * Werbetext und keine Regel - fehlen sie, steht die Tafel eben ohne sie da.
+   */
+  startDescription: z.string().min(1).optional(),
   labels: uebersetzteBeschriftung.optional(),
   /** Startbild-Titel je Sprache. */
   startTitles: uebersetzteBeschriftung.optional(),
+  /** Startbild-Beschreibung je Sprache. */
+  startDescriptions: uebersetzteBeschriftung.optional(),
   allowedPresetIds: z.array(idSchema).min(1),
 })
 export type AudienceConfig = z.infer<typeof audienceConfigSchema>

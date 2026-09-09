@@ -22,7 +22,7 @@ async function openStartScreen(page: Page): Promise<void> {
 
 async function startGame(page: Page, players: 'Allein' | 'Zu zweit', preset = 'Leicht'): Promise<void> {
   await openStartScreen(page)
-  await page.getByRole('button', { name: players }).click()
+  await page.getByRole('button', { name: new RegExp(`^${players}`) }).click()
   await page.getByRole('button', { name: new RegExp(`^${preset}`) }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
@@ -48,7 +48,12 @@ async function weiter(page: Page): Promise<void> {
 test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ page }) => {
   await openStartScreen(page)
 
-  expect(await page.locator('[data-choice-label]').allInnerTexts()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
+  /*
+   * `allTextContents` und nicht `allInnerTexts`: Die Schrittfragen stehen im
+   * Entwurf in Versalien, und `innerText` liefert das Ergebnis des
+   * Stylesheets - nicht den Text, der uebersetzt wurde.
+   */
+  expect(await page.locator('[data-choice-label]').allTextContents()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
 
   /*
    * Zur Wahl stehen nur Presets, die am Geraet auch spielbar sind. Die
@@ -59,9 +64,85 @@ test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ p
   expect(presets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
   // Der Quizmodus gehoert zur Aufstellung, nicht auf den Bildschirm der Spieler.
-  await expect(page.getByRole('button', { name: 'Allein' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Zu zweit' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Zu zweit/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
+
+  // Die Schritte sind nummeriert - in der Reihenfolge, in der entschieden wird.
+  expect(await page.locator('[data-step-number]').allInnerTexts()).toEqual(['01', '02'])
+})
+
+/* ------------------------------------------------------------------ *
+ * Die Auswahl selbst
+ * ------------------------------------------------------------------ */
+
+test('die Auswahl ist immer genau eine - je Schritt', async ({ page }) => {
+  await openStartScreen(page)
+
+  /*
+   * Beim Aufschlagen steht in jedem Schritt schon eine Wahl. Ein Geraet, das
+   * mit lauter leeren Kaesten dasteht, verlangt zwei Entscheidungen, bevor
+   * ueberhaupt etwas passieren kann - dabei ist die erste Stufe die richtige
+   * Vermutung fuer den, der zufaellig davorsteht.
+   */
+  await expect(page.locator('[data-player-count][aria-pressed="true"]')).toHaveCount(1)
+  await expect(page.locator('[data-player-count="1"]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('[data-preset][aria-pressed="true"]')).toHaveCount(1)
+  await expect(page.locator('[data-preset="touch-easy"]')).toHaveAttribute('aria-pressed', 'true')
+
+  // Eine zweite Wahl ersetzt die erste; zwei gewaehlte Karten darf es nie geben.
+  await page.locator('[data-player-count="2"]').click()
+  await expect(page.locator('[data-player-count="2"]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('[data-player-count][aria-pressed="true"]')).toHaveCount(1)
+
+  await page.locator('[data-preset="touch-hard"]').click()
+  await expect(page.locator('[data-preset="touch-hard"]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('[data-preset][aria-pressed="true"]')).toHaveCount(1)
+
+  // Das Haekchen sitzt auf der gewaehlten Karte - und nur dort.
+  await expect(page.locator('[data-preset="touch-hard"] [data-on="true"]')).toHaveCount(1)
+  await expect(page.locator('[data-preset="touch-easy"] [data-on="true"]')).toHaveCount(0)
+})
+
+test('der Umfang auf der Markentafel folgt der gewaehlten Stufe', async ({ page }) => {
+  await openStartScreen(page)
+
+  /*
+   * Die Tafel links beantwortet "lohnt sich das jetzt?" - und muss deshalb die
+   * Zahl der Fragen zeigen, die gerade rechts gewaehlt ist, nicht irgendeine.
+   */
+  const umfang = page.locator('[data-scope]')
+  await expect(umfang).toContainText('7 Fragen')
+
+  await page.locator('[data-preset="touch-hard"]').click()
+  const stufe = await page.locator('[data-preset="touch-hard"]').innerText()
+  const umfangDerStufe = stufe.split('\n').at(-1)!
+  await expect(umfang).toHaveText(umfangDerStufe)
+})
+
+test('die Startauswahl laesst sich vollstaendig mit der Tastatur bedienen', async ({ page }) => {
+  await openStartScreen(page)
+
+  /*
+   * Am Geraet im Foyer tippt jeder mit dem Finger - aber die Aufstellung wird
+   * mit einer Tastatur geprueft, und Barrierefreiheit ist keine Frage des
+   * Aufstellorts. Erreichbar heisst: mit Tab hin und mit der Leertaste
+   * ausloesen, ohne dass ein Klick noetig waere.
+   */
+  await page.locator('[data-player-count="1"]').focus()
+  await page.keyboard.press('Tab')
+  await expect(page.locator('[data-player-count="2"]')).toBeFocused()
+  await page.keyboard.press('Space')
+  await expect(page.locator('[data-player-count="2"]')).toHaveAttribute('aria-pressed', 'true')
+
+  await page.locator('[data-preset="touch-medium"]').focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-preset="touch-medium"]')).toHaveAttribute('aria-pressed', 'true')
+
+  await page.locator('[data-start]').focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator(freierBuzzer)).toHaveCount(2)
 })
 
 test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ page }) => {
@@ -71,7 +152,7 @@ test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ p
    * laeuft, sind die Antworten nicht einmal auf der Leitung.
    */
   await openStartScreen(page)
-  await page.getByRole('button', { name: 'Zu zweit' }).click()
+  await page.getByRole('button', { name: /^Zu zweit/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
 
@@ -284,7 +365,7 @@ test('die Leerlauf-Aufsicht gibt das Geraet wieder frei', async ({ page }) => {
    */
   await page.goto('/play?idle=8')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
-  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
@@ -358,7 +439,7 @@ test('die Einstellungen haengen am Startbildschirm, nicht am laufenden Spiel', a
    * Waehrend gespielt wird, sind sie fort: Wer davorsteht, soll den Ton nicht
    * abschalten koennen, waehrend die anderen zuhoeren.
    */
-  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
@@ -441,7 +522,7 @@ test('die Szene erscheint sofort in der eingestellten Groesse, nicht erst nach d
     const wurzel = document.querySelector('[data-quiz-game]') as HTMLElement
     wurzel.style.setProperty('--stage-zoom', '0.7')
   })
-  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
 
@@ -487,14 +568,14 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
   await expect(page.locator('[data-locale="de-DE"]')).toHaveAttribute('aria-pressed', 'true')
 
   // Deutsch: die Oberflaeche und die Namen der Schwierigkeitsstufen.
-  expect(await page.locator('[data-choice-label]').allInnerTexts()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
+  expect(await page.locator('[data-choice-label]').allTextContents()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
   const deutschePresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(deutschePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
   await page.locator('[data-locale="en-GB"]').click()
 
   await expect(page.locator('[data-locale="en-GB"]')).toHaveAttribute('aria-pressed', 'true')
-  expect(await page.locator('[data-choice-label]').allInnerTexts()).toEqual(['How many are playing?', 'How hard?'])
+  expect(await page.locator('[data-choice-label]').allTextContents()).toEqual(['How many are playing?', 'How hard?'])
   const englischePresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(englischePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
   await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()

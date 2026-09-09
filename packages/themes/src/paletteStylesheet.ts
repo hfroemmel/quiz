@@ -28,7 +28,7 @@
  * Farben liefert das Theme des laufenden Quiz. Eine Regel hier wuerde ein Theme
  * mit eigenen Farben aussperren.
  */
-import { brightPalette, stageExtras, stagePalettes, uiPalette } from './palettes'
+import { brightPalette, stageExtras, stagePalettes, startPalette, uiPalette } from './palettes'
 
 const HEADER = `/*
  * ERZEUGT - NICHT VON HAND BEARBEITEN.
@@ -62,6 +62,7 @@ export function paletteStyleSheet(): string {
       ...prefixed(stagePalettes.default, 'color-'),
       ...prefixed(stageExtras, 'stage-'),
       ...prefixed(uiPalette, 'ui-'),
+      ...prefixed(startPalette, 'start-'),
     }),
     '',
     '/* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */',
