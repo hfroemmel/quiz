@@ -90,17 +90,6 @@ export function ArrowIcon(props: IconProps) {
   )
 }
 
-export function SparkIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path
-        d="M12 2.8c.6 4.6 2.6 6.6 7.2 7.2-4.6.6-6.6 2.6-7.2 7.2-.6-4.6-2.6-6.6-7.2-7.2 4.6-.6 6.6-2.6 7.2-7.2Z"
-        fill="currentColor"
-      />
-    </Icon>
-  )
-}
-
 export function SlidersIcon(props: IconProps) {
   return (
     <Icon {...props}>

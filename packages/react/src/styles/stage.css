@@ -177,7 +177,20 @@
  * von der Welt, in der sie gerade stehen.
  * ------------------------------------------------------------------ */
 
-.stage--kids {
+/*
+ * DIE WELT ALS NAMEN - unabhaengig von der Buehnenflaeche.
+ *
+ * `data-skin` steht an ZWEI Stellen: an der Buehne (siehe `StageScreen`) und am
+ * Wurzelelement des Touchgeraets (siehe `QuizGame` in `@hfroemmel/quiz-kiosk`).
+ * Startauswahl, Einstellungen und Rueckfragen liegen UEBER der Buehne - sie
+ * tragen dieselbe Handschrift und dieselbe Tinte, obwohl `.stage--kids` dort
+ * nicht steht. Wer sie an die Buehnenklasse haengte, haette sie dort nicht.
+ *
+ * Hier stehen deshalb nur Namen: Farben, Schriften, Zeiten. Alles, was die
+ * Flaeche selbst betrifft - Grund, Aussenabstaende, Szenentoken -, steht
+ * darunter an `.stage--kids`.
+ */
+[data-skin='kids'] {
   /*
    * Namen der Zeichnung fuer Farben, die das Theme schon traegt. Die gezeichneten
    * Rahmen des Boxen-Assetpakets sind in genau diesen Toenen gemalt; sie stehen
@@ -199,6 +212,11 @@
   --kids-hand: 'Patrick Hand', 'Comic Sans MS', cursive;
   --kids-numeric: 'Melior', 'Palatino Linotype', Palatino, Georgia, serif;
 
+  --kids-motion-normal: 260ms;
+  --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+
+.stage--kids {
   /* Layout: Aussenabstand, Fuge, Anteil der Inhaltsbreite. */
   --kids-pad: 1.8cqw;
   --kids-gap: 1cqw;
@@ -214,9 +232,6 @@
   --kids-size-category: 1.75cqw;
   --kids-size-score: 3.4cqw;
   --kids-size-label: 1.25cqw;
-
-  --kids-motion-normal: 260ms;
-  --kids-motion-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
 
   --scene-gap: var(--kids-gap);
   --scene-pad: var(--kids-pad);

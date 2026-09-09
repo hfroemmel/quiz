@@ -27,7 +27,7 @@
 import { useState } from 'react'
 import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { texteFuer } from '@hfroemmel/quiz-react'
-import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon, SparkIcon } from './icons'
+import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon } from './icons'
 import styles from './Game.module.css'
 
 /**
@@ -63,11 +63,6 @@ interface GameStartProps {
   onSelectLocale(locale: string): void
 }
 
-/** Schrittnummern sind zweistellig - "01" und "02" stehen ruhiger als "1" und "2". */
-function schrittnummer(stelle: number): string {
-  return String(stelle).padStart(2, '0')
-}
-
 export function GameStart({
   view,
   audience,
@@ -87,12 +82,10 @@ export function GameStart({
 
   const canStart = view.allowedCommands.includes('START_GAME') && presetId !== ''
   /*
-   * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl. Dann ist die
-   * Schwierigkeit der erste Schritt und traegt die 01 - eine feste 02 waere die
-   * Nummer eines Schritts, den es hier nicht gibt.
+   * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl - dort gibt
+   * es nichts zu waehlen.
    */
   const zeigeModus = angeboten.length > 1
-  const gewaehltesPreset = presets.find((preset) => preset.id === presetId)
 
   return (
     <div className={styles.start} data-game-start="">

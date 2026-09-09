@@ -512,13 +512,17 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
 function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
   return {
     questionsPerGame: ctx.config.questionsPerGame,
-    audiences: ctx.config.audiences.map((audienceConfig) => ({
-      id: audienceConfig.id,
-      label: beschriftung(audienceConfig, locale),
-      themeId: audienceConfig.themeId,
-      startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId),
-      allowedPresetIds: audienceConfig.allowedPresetIds,
-    })),
+    audiences: ctx.config.audiences.map((audienceConfig) => {
+      const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId)
+      return {
+        id: audienceConfig.id,
+        label: beschriftung(audienceConfig, locale),
+        themeId: audienceConfig.themeId,
+        ...(theme?.skin ? { skin: theme.skin } : {}),
+        startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId),
+        allowedPresetIds: audienceConfig.allowedPresetIds,
+      }
+    }),
     pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: beschriftung(pool, locale) })),
     presets: ctx.config.presets.map((preset) => ({
       id: preset.id,

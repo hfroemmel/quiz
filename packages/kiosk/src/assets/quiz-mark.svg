@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quizmotiv der Starttafel - der Rueckfall, wenn der Inhalt kein eigenes
+  Startbild mitbringt.
+
+  Uebernommen aus der Entwurfsdatei des Startmenues
+  (Quiz_Standalone_Startmenu_SVG_Assets, master/quiz-standalone-startmenu-v1.svg,
+  Gruppe "asset--quiz-mark"). Die Koordinaten sind die des Entwurfs geblieben,
+  damit sich beide Dateien vergleichen lassen; die viewBox schneidet den
+  Ausschnitt heraus. Die Farbwerte sind hier Zeichnung und keine Oberflaeche -
+  deshalb steht diese Datei ausserhalb der Palette.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="185 202 356 284" width="356" height="284" role="img" aria-label="Quiz">
+  <defs>
+    <linearGradient id="quiz-mark-glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D9E93E" />
+      <stop offset="0.52" stop-color="#54DF7F" />
+      <stop offset="1" stop-color="#2ABB65" />
+    </linearGradient>
+    <filter id="quiz-mark-bloom" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+  <ellipse cx="363" cy="342" rx="153" ry="109" fill="#07100D" opacity="0.33" />
+  <ellipse cx="363" cy="342" rx="146" ry="103" fill="none" stroke="#D9E93E" stroke-opacity="0.28" />
+  <ellipse cx="363" cy="342" rx="119" ry="140" fill="none" stroke="#53D67A" stroke-opacity="0.25" transform="rotate(55 363 342)" />
+  <path d="M233 375c35-89 116-139 233-122" fill="none" stroke="url(#quiz-mark-glow)" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+  <path d="M486 308c-29 93-110 144-228 130" fill="none" stroke="#42D176" stroke-width="2" stroke-linecap="round" opacity="0.55" />
+  <circle cx="363" cy="342" r="79" fill="#11231A" stroke="#67DB82" stroke-width="2" />
+  <circle cx="363" cy="342" r="66" fill="#0E1814" stroke="#FFFFFF" stroke-opacity="0.07" />
+  <text x="363" y="370" text-anchor="middle" font-family="Georgia, serif" font-size="82" font-weight="700" fill="#D9E93E">?</text>
+  <circle cx="231" cy="376" r="8" fill="#D9E93E" filter="url(#quiz-mark-bloom)" />
+  <circle cx="468" cy="254" r="6" fill="#42D176" />
+  <circle cx="486" cy="404" r="5" fill="#8D86FF" />
+  <circle cx="292" cy="226" r="4" fill="#FFFFFF" opacity="0.72" />
+</svg>
