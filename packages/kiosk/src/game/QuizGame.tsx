@@ -11,7 +11,7 @@
  *
  * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
  */
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
 import {
@@ -101,6 +101,17 @@ export interface QuizGameProps {
    * ein Geraet mit einer offenen Frage stehen, bis jemand kommt.
    */
   idleTimeoutMs?: number
+  /**
+   * Eine eigene Ebene des Gastgebers UEBER der Buehne - etwa ein
+   * Zusatzinformationsschritt zwischen Loesung und naechster Frage.
+   *
+   * Sie wird IN die Buehne gesetzt und nicht daneben: Nur dort gelten die
+   * Farben, die Containereinheiten und die Zoomstufe der Buehne. Ausserhalb
+   * behielte sie ihre volle Groesse, waehrend alles darunter kleiner wird.
+   * Was sie zeichnet, ist Sache des Gastgebers; die gemeinsame Schaltflaeche
+   * steht ihm als `stage-button` zur Verfuegung.
+   */
+  overlay?: ReactNode
 }
 
 export function QuizGame({
@@ -113,6 +124,7 @@ export function QuizGame({
   onFinished,
   onExit,
   idleTimeoutMs,
+  overlay,
 }: QuizGameProps) {
   // Ohne Gastgeber-Laufzeit die eigene Verbindung; mit ihr keine.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
@@ -450,6 +462,7 @@ export function QuizGame({
         variant="touch"
         {...(answering ? { answering } : {})}
         pads={{
+          ...(overlay ? { overlay } : {}),
           bottom: finished ? (
             <div className={styles.footer}>
               <button

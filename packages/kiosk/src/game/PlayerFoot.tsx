@@ -116,11 +116,11 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
         {/* Feste Hoehe, wechselnder Inhalt - siehe oben. */}
         <div className={styles.notice} data-notice="">
           {weiter ? (
-            <button type="button" className={styles.continue} data-continue="" onClick={onContinue}>
+            <button type="button" className={`stage-button stage-button--primary ${styles.continue}`} data-continue="" onClick={onContinue}>
               {t('kiosk.continue')}
             </button>
           ) : abgeben ? (
-            <button type="button" className={styles.continue} data-confirm="" onClick={onResolve}>
+            <button type="button" className={`stage-button stage-button--primary ${styles.continue}`} data-confirm="" onClick={onResolve}>
               {t('kiosk.submit')}
             </button>
           ) : (

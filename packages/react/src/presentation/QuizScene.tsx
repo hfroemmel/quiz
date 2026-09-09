@@ -35,8 +35,8 @@ export interface QuizSceneProps<TView extends PublicQuizViewModel> {
    */
   audible?: boolean
   headerSlots?: StageHeaderSlots
-  /** Fussleiste des Touchgeraets - siehe `StageScreen.pads`. */
-  pads?: { bottom?: ReactNode }
+  /** Flaechen des Gastgebers innerhalb der Buehne - siehe `StageScreen.pads`. */
+  pads?: { bottom?: ReactNode; overlay?: ReactNode }
   /** Nur am Touchgeraet: macht die Antwortzeilen der Szene zu Schaltflaechen. */
   answering?: SceneAnswering
 }

@@ -8,7 +8,9 @@
  *   - das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um;
  *   - Ergebnis und Ruecksprung kommen ueber `onFinished` und `onExit` heraus,
  *     je beendetem Spiel genau einmal;
- *   - wer die Laufzeit stellt, raeumt sie auch auf.
+ *   - wer die Laufzeit stellt, raeumt sie auch auf;
+ *   - eine eigene Ebene des Gastgebers (`overlay`) steht IN der Buehne und
+ *     traegt deren Masse, Farben und Zoomstufe.
  *
  * Die Laufzeit gehoert deshalb DIESER Komponente und nicht dem Quiz: Sie
  * entsteht beim Betreten und wird beim Verlassen abgebaut. Die ausgelieferte
@@ -17,16 +19,46 @@
  * Die Sammlung hat bewusst ein eigenes Aussehen. Bliebe es beim Spielen nicht
  * erhalten, waere der Vertrag gebrochen.
  */
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { QuizGame, type QuizGameResult } from '@hfroemmel/quiz-kiosk'
 import { useLokaleLaufzeit } from '../useLokaleLaufzeit'
 import styles from './ShellApp.module.css'
 
+/**
+ * Eine eigene Ebene des Gastgebers.
+ *
+ * Sie steht hier fuer den Schritt, den eine echte Anwendung zwischen zwei Fragen
+ * einschiebt - `hfroemmel/bundestags-app` zeigt dort die Hintergruende zur
+ * Frage. Wichtig ist nicht, was sie sagt, sondern WO sie steht: Das Quiz setzt
+ * sie in die Buehne, und damit gelten fuer sie deren Farben, deren
+ * Containereinheiten und deren Zoomstufe. Ihr Knopf traegt `stage-button` und
+ * sieht deshalb aus wie `Weiter` in der Fussleiste.
+ */
+function Gastgeberebene({ onClose }: { onClose: () => void }) {
+  return (
+    <div className={styles.layer} data-shell-layer="">
+      <div className={styles.layerPanel}>
+        <p className={styles.layerText}>Eine Ebene des Gastgebers.</p>
+        <button
+          type="button"
+          className="stage-button stage-button--primary"
+          data-shell-layer-close=""
+          onClick={onClose}
+        >
+          Verstanden
+        </button>
+      </div>
+    </div>
+  )
+}
+
 /** Traegt die Laufzeit - und gibt sie beim Entfernen wieder her. */
 function Spiel({
+  overlay,
   onFinished,
   onExit,
 }: {
+  overlay?: ReactNode
   onFinished: (result: QuizGameResult) => void
   onExit: () => void
 }) {
@@ -34,22 +66,37 @@ function Spiel({
 
   if (fehler) return <p className={styles.result}>Das Quiz konnte nicht geladen werden: {fehler}</p>
   if (!runtime) return <p className={styles.result}>Das Quiz wird vorbereitet...</p>
-  return <QuizGame runtime={runtime} audience="adults" idleTimeoutMs={120_000} onFinished={onFinished} onExit={onExit} />
+  return (
+    <QuizGame
+      runtime={runtime}
+      audience="adults"
+      idleTimeoutMs={120_000}
+      onFinished={onFinished}
+      onExit={onExit}
+      {...(overlay ? { overlay } : {})}
+    />
+  )
 }
 
 export function ShellApp() {
   const [running, setRunning] = useState(false)
   const [lastResult, setLastResult] = useState<QuizGameResult | null>(null)
   const [rounds, setRounds] = useState(0)
+  const [layer, setLayer] = useState(false)
 
   return (
     <div className={styles.shell} data-shell="">
       <header className={styles.bar} data-shell-bar="">
         <h1 className={styles.title}>Spielesammlung</h1>
         {running && (
-          <button className={styles.back} onClick={() => setRunning(false)}>
-            Zur Sammlung
-          </button>
+          <div className={styles.barActions}>
+            <button className={styles.back} data-shell-layer-open="" onClick={() => setLayer(true)}>
+              Eigene Ebene
+            </button>
+            <button className={styles.back} onClick={() => setRunning(false)}>
+              Zur Sammlung
+            </button>
+          </div>
         )}
       </header>
 
@@ -61,11 +108,15 @@ export function ShellApp() {
             * haelt.
             */}
           <Spiel
+            {...(layer ? { overlay: <Gastgeberebene onClose={() => setLayer(false)} /> } : {})}
             onFinished={(result) => {
               setLastResult(result)
               setRounds((value) => value + 1)
             }}
-            onExit={() => setRunning(false)}
+            onExit={() => {
+              setLayer(false)
+              setRunning(false)
+            }}
           />
         </main>
       ) : (

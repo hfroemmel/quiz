@@ -160,7 +160,8 @@
   min-width: 0;
 }
 .notice {
-  height: 9cqh;
+  /* Genau so hoch wie eine Schaltflaeche der Buehne - siehe `styles/stage.css`. */
+  height: var(--stage-button-height);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,30 +174,24 @@
 }
 
 /*
- * `Weiter` ist der einzige Knopf, der beiden Spielern gehoert: Er steht in der
- * Mitte und traegt deshalb keine Spielerfarbe, sondern die Handlungsfarbe der
- * Buehne.
+ * `Weiter` und `Antwort abgeben und aufloesen` teilen sich diesen Platz. Es ist
+ * der einzige Knopf, der beiden Spielern gehoert: Er steht in der Mitte und
+ * traegt deshalb keine Spielerfarbe, sondern die Handlungsfarbe der Buehne
+ * (`stage-button--primary`).
+ *
+ * Kasten, Masse, Typografie und Zustaende kommen aus `.stage-button` in
+ * `styles/stage.css` - hier steht nur, was diesen Platz ausmacht: Er fuellt das
+ * Hinweisfeld ganz aus, damit die Trefferflaeche beim Wechsel von Satz zu Knopf
+ * dieselbe bleibt.
  */
 .continue {
   height: 100%;
-  padding: 0 5cqw;
-  border: 0;
-  border-radius: var(--stage-radius);
-  background: var(--color-primary);
-  color: var(--stage-inkOnStrong);
-  font-family: var(--font-heading);
-  font-size: 2cqw;
-  cursor: pointer;
-}
-.continue:active {
-  filter: brightness(1.2);
 }
 
 /* In der Kinderwelt ist auch dieser Knopf eine gezeichnete Karte. */
 :global(.stage--kids) .continue {
   background: none;
   color: var(--kids-ink);
-  font-family: var(--kids-hand);
   position: relative;
   isolation: isolate;
 }
@@ -248,22 +243,27 @@
  * Die Kante darum ist der reine Ton: Sie sagt, wem die Ecke gehoert.
  */
 .buzzer {
+  /*
+   * Auch der Buzzer ist eine Schaltflaeche der Buehne (`.stage-button`) und
+   * bekommt Kasten, Rundung, Schriftgroesse und Zustaende von dort. Was ihn
+   * unterscheidet, steht als TOKEN und nicht als ueberschriebene Regel: So
+   * bleibt eine Bauweise, und der Rang ist trotzdem sichtbar.
+   *
+   * Er ist die groesste Flaeche der Leiste - hier wird im Stehen und ohne
+   * hinzusehen draufgeschlagen - und bringt seinen Platz selbst mit; ein
+   * Innenabstand engte den Text nur ein.
+   */
+  --stage-button-height: 14cqh;
+  --stage-button-pad: 0;
+  --stage-button-font: var(--font-ui);
+
   flex: 1 1 auto;
   width: 100%;
-  min-height: 14cqh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: 0.35cqh solid var(--player-color);
-  border-radius: var(--stage-radius);
   background: color-mix(in srgb, var(--player-color) 30%, var(--color-stageBottom));
   color: var(--stage-inkOnStrong);
-  font-family: var(--font-ui);
-  font-size: 1.5cqw;
-  font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  cursor: pointer;
 }
 .buzzer[data-side='left'] {
   --player-color: var(--stage-playerOne);
@@ -272,20 +272,17 @@
   --player-color: var(--stage-playerTwo);
 }
 
-/* Der Zuschlag ist geholt: Die Flaeche brennt durch, die Kante wird breiter. */
+/*
+ * Der Zuschlag ist geholt: Die Flaeche brennt durch.
+ *
+ * Gedrueckt werden kann sie jetzt nicht mehr - zurueckgetreten ist sie deshalb
+ * aber nicht: Sie sagt gerade, wem die Antworten gehoeren, und das ist die
+ * wichtigste Auskunft der Leiste. Sie nimmt die Daempfung der gesperrten
+ * Schaltflaeche (`.stage-button:disabled`) deshalb ausdruecklich zurueck.
+ */
 .buzzer[data-armed='true'] {
   background: color-mix(in srgb, var(--player-color) 75%, var(--color-stageBottom));
-}
-
-/* Buzzern gerade nicht moeglich - der Zug ist vergeben oder die Frage laeuft noch. */
-.buzzer[data-enabled='false'][data-armed='false'] {
-  opacity: 0.35;
-  cursor: default;
-}
-
-/* Sofortige Rueckmeldung auf den Druck - vor jeder Serverantwort. */
-.buzzer:active:not(:disabled) {
-  filter: brightness(1.3);
+  opacity: 1;
 }
 
 /*
@@ -297,12 +294,13 @@
  * markiert.
  */
 :global(.stage--kids) .buzzer {
+  --stage-button-font: var(--kids-hand);
+
   border: 0;
   background: none;
   position: relative;
   isolation: isolate;
   color: var(--kids-ink);
-  font-family: var(--kids-hand);
   letter-spacing: 0.08em;
 }
 :global(.stage--kids) .buzzer::before {

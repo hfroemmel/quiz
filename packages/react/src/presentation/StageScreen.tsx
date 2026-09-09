@@ -56,18 +56,22 @@ export interface StageScreenProps {
    */
   headerSlots?: StageHeaderSlots
   /**
-   * Fussleiste des Touchgeraets: die beiden Spielerecken mit Punkten und
-   * Buzzern, nach dem Spiel der Abschluss.
+   * Flaechen des Gastgebers INNERHALB der Buehne.
    *
-   * WARUM SIE IN DIE BUEHNE GEHOERT und nicht darum herum: Sie traegt die
+   * `bottom` ist die Fussleiste des Touchgeraets, `overlay` eine Ebene ueber
+   * der ganzen Buehne - etwa der Zusatzinformationsschritt, den ein Gastgeber
+   * zwischen Loesung und naechster Frage einschiebt.
+   *
+   * WARUM SIE IN DIE BUEHNE GEHOEREN und nicht darum herum: Sie tragen die
    * Farben und Groessen der Buehne - beides steht in Custom Properties und
-   * Containereinheiten der Buehnenflaeche. Ausserhalb stuende sie ohne beides
-   * da.
+   * Containereinheiten der Buehnenflaeche, einschliesslich der Zoomstufe.
+   * Ausserhalb stuenden sie ohne alles da und behielten bei kleiner Anzeige
+   * ihre volle Groesse.
    *
    * Am Touchgeraet ist deshalb die GANZE Geraeteflaeche die Buehne; die Szene
-   * ist der Teil ueber der Leiste.
+   * ist der Teil ueber der Fussleiste.
    */
-  pads?: { bottom?: ReactNode }
+  pads?: { bottom?: ReactNode; overlay?: ReactNode }
   /** Nur am Touchgeraet: macht die Antwortzeilen der Szene zu Schaltflaechen. */
   answering?: SceneAnswering
 }
@@ -219,6 +223,18 @@ export function StageScreen({
           */}
         <Mascot />
         <div className={stage.grain} aria-hidden="true" />
+
+        {/*
+          * Die Ebene des Gastgebers liegt ganz oben - ueber Szene, Fussleiste
+          * und Koernung. Sie steht bewusst NICHT im Szenenkasten: Der wird bei
+          * jedem Szenenwechsel neu aufgebaut und animiert, und eine Ebene, die
+          * einen Schritt lang stehen bleiben soll, ginge dabei mit.
+          */}
+        {pads?.overlay && (
+          <div className={stage.overlay} data-stage-overlay="">
+            {pads.overlay}
+          </div>
+        )}
       </div>
     </SoundProvider>
   )
