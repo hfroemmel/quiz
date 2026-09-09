@@ -463,27 +463,6 @@
   color: var(--start-brand-text);
 }
 
-/* Der Chip mit dem Umfang: eine Zahl, die sich mit der Auswahl rechts aendert. */
-.brandChip {
-  display: inline-flex;
-  align-items: center;
-  gap: clamp(5px, 1.1vh, 11px);
-  margin: clamp(2px, 0.6vh, 8px) 0 0;
-  padding: clamp(4px, 1vh, 10px) clamp(9px, 1.9vh, 18px);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--start-brand-shade) 42%, transparent);
-  font-family: var(--font-ui);
-  font-size: clamp(9px, 1.48vh, 15px);
-  font-weight: 600;
-  color: var(--start-brand-text);
-}
-.brandChipDot {
-  width: clamp(5px, 1.1vh, 10px);
-  height: clamp(5px, 1.1vh, 10px);
-  border-radius: 50%;
-  background: var(--start-green);
-}
-
 /* ------------------------------------------------------------------ *
  * Rechte Spalte: die Auswahl
  * ------------------------------------------------------------------ */
