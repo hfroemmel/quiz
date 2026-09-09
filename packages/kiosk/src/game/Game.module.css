@@ -422,7 +422,7 @@ button.go {
   justify-content: center;
   min-height: clamp(56px, 9vh, 96px);
   padding: 0 clamp(24px, 5vw, 64px);
-  font-size: clamp(20px, 3.2vh, 38px);
+  font-size: clamp(16px, 2.4vh, 28px);
 }
 
 button.leave {
