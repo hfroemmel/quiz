@@ -63,7 +63,7 @@
     als `startDescriptions` - wie schon Titel und Startbild. Sie steht als
     `theme.startDescription` im Ansichtsmodell.
   - `quiz-react`: fuenf neue Oberflaechentexte (`kiosk.setupTitle`,
-    `kiosk.setupSubtitle`, `kiosk.soloHint`, `kiosk.duoHint`, `kiosk.setupNote`).
+    `kiosk.setupSubtitle`, `kiosk.soloHint`, `kiosk.duoHint`).
   - `quiz-kiosk`: neuer Aufbau der Startauswahl, Einstellungen und Rueckfragen in
     derselben Formensprache, das Quizmotiv des Entwurfs als mitgeliefertes
     Rueckfallbild.

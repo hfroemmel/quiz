@@ -423,44 +423,6 @@
   gap: clamp(8px, 2vh, 20px);
   height: min(70.1vh, 100%);
   padding: clamp(14px, 3.9vh, 44px);
-  border: 1px solid var(--start-brand-line);
-  border-radius: clamp(14px, 4vh, 34px);
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--start-glass) 8%, transparent),
-      color-mix(in srgb, var(--start-glass) 2%, transparent)
-    ),
-    linear-gradient(135deg, var(--start-brand-top) 0%, var(--start-brand-mid) 48%, var(--start-brand-bottom) 100%);
-  box-shadow: 0 clamp(6px, 2vh, 18px) clamp(12px, 5vh, 44px) color-mix(in srgb, var(--start-shade) 24%, transparent);
-}
-
-.brandEyebrow {
-  margin: 0;
-  font-family: var(--font-ui);
-  font-size: clamp(9px, 1.48vh, 15px);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--start-green);
-}
-
-/* Das Funkeln in der Ecke - reine Zierde, und deshalb absolut gesetzt. */
-.brandSpark {
-  position: absolute;
-  top: clamp(10px, 2.8vh, 30px);
-  right: clamp(10px, 2.8vh, 30px);
-  display: grid;
-  place-items: center;
-  width: clamp(24px, 4.7vh, 42px);
-  height: clamp(24px, 4.7vh, 42px);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--start-lime) 12%, transparent);
-  color: var(--start-lime);
-}
-.brandSparkIcon {
-  width: 55%;
-  height: 55%;
 }
 
 /*
@@ -481,8 +443,7 @@
 .brandText {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: clamp(4px, 1.2vh, 12px);
+  align-items: center;
 }
 
 .brandTitle {
@@ -785,8 +746,6 @@
   font-size: var(--kiosk-button-font-size);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 clamp(4px, 1.4vh, 12px) clamp(8px, 3vh, 26px)
-    color-mix(in srgb, var(--start-shade) 22%, transparent);
 }
 .action:disabled {
   opacity: 0.4;
@@ -1016,7 +975,6 @@ button.go {
   text-align: center;
   scale: var(--stage-zoom, 1);
   transform-origin: center center;
-  box-shadow: 0 clamp(6px, 2vh, 18px) clamp(12px, 5vh, 44px) color-mix(in srgb, var(--start-shade) 34%, transparent);
 }
 
 .panelTitle {

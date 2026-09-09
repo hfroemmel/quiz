@@ -56,7 +56,6 @@ export const standardTexte = {
    * es kein Menue, in dem sich Modus oder Schwierigkeit verstellen liessen -
    * das waere ein Versprechen, das das Geraet nicht haelt.
    */
-  'kiosk.setupNote': 'Die Auswahl gilt für dieses Spiel.',
   'kiosk.start': "Los geht's",
   'kiosk.back': 'Zurück',
   'kiosk.preparing': 'Das Quiz wird vorbereitet...',

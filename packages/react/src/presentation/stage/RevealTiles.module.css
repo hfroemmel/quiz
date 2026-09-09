@@ -35,7 +35,6 @@
 
 :global(.stage--default) .tile {
   background: var(--color-controls);
-  box-shadow: inset 0 0 0 0.08cqw var(--color-tileQuiet);
 }
 
 /* ------------------------------------------------------------------ *
@@ -44,7 +43,6 @@
 
 :global(.stage--kids) .tile {
   background: var(--kids-paper);
-  box-shadow: inset 0 0 0 0.1cqw color-mix(in srgb, var(--kids-ink) 18%, transparent);
 }
 
 /*

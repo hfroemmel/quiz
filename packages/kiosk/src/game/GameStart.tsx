@@ -150,9 +150,6 @@ export function GameStart({
       <div className={styles.layout}>
         <aside className={styles.brand}>
           {audienceEntry && <p className={styles.brandEyebrow}>{audienceEntry.label}</p>}
-          <span className={styles.brandSpark} aria-hidden="true">
-            <SparkIcon className={styles.brandSparkIcon} />
-          </span>
 
           {/*
             * Das Bild der Tafel kommt aus dem Inhalt, wenn er eines mitbringt -
@@ -165,17 +162,6 @@ export function GameStart({
           <div className={styles.brandText}>
             {view.theme.startTitle && <h1 className={styles.brandTitle}>{view.theme.startTitle}</h1>}
             {view.theme.startDescription && <p className={styles.brandLead}>{view.theme.startDescription}</p>}
-            {gewaehltesPreset && (
-              /*
-               * Der Chip nennt den Umfang der gerade gewaehlten Stufe. Er steht
-               * auf der Plakatseite, weil dort die Frage "lohnt sich das jetzt?"
-               * beantwortet wird - und er folgt der Auswahl rechts.
-               */
-              <p className={styles.brandChip} data-scope="">
-                <span className={styles.brandChipDot} aria-hidden="true" />
-                {t('kiosk.questionCount', { count: gewaehltesPreset.slotCount })}
-              </p>
-            )}
           </div>
         </aside>
 
@@ -185,12 +171,6 @@ export function GameStart({
 
           {zeigeModus && (
             <section className={styles.step}>
-              <h3 className={styles.stepLabel}>
-                <span className={styles.stepNumber} data-step-number="">
-                  {schrittnummer(1)}
-                </span>
-                <span data-choice-label="">{t('kiosk.playerCount')}</span>
-              </h3>
               <div className={styles.modes}>
                 {angeboten.map((count) => (
                   <button
@@ -216,12 +196,6 @@ export function GameStart({
           )}
 
           <section className={styles.step}>
-            <h3 className={styles.stepLabel}>
-              <span className={styles.stepNumber} data-step-number="">
-                {schrittnummer(zeigeModus ? 2 : 1)}
-              </span>
-              <span data-choice-label="">{t('kiosk.difficulty')}</span>
-            </h3>
             <div className={styles.levels} data-preset-options="">
               {presets.map((preset, stelle) => (
                 <button
@@ -270,8 +244,6 @@ export function GameStart({
               </button>
             )}
           </div>
-
-          <p className={styles.note}>{t('kiosk.setupNote')}</p>
         </section>
       </div>
     </div>
