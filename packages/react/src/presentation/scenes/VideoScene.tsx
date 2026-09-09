@@ -24,6 +24,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Command } from '@hfroemmel/quiz-core'
 import { texteFuer } from '../texts'
 import { formatiereDauer, videoProgress } from '../videoClock'
+import { laufzeitMelden, videoangleich } from '../videoSync'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
@@ -67,15 +68,27 @@ export function VideoScene({ view, variant, serverNow, isAudioMaster = true, onR
     return () => clearInterval(uhr)
   }, [plays, laeuft])
 
+  /*
+   * Die zuletzt gesehene Serverposition. Sie ist der einzige Weg, einen NEUSTART
+   * des Videos von seinem gewoehnlichen Weiterlaufen zu unterscheiden: Der eine
+   * setzt die Position zurueck, das andere nicht. Siehe `videoSync`.
+   */
+  const letzteServerpositionRef = useRef<number | undefined>(undefined)
+
   useEffect(() => {
     const element = elementRef.current
     if (!element || !video) return
 
-    // Position nur nachziehen, wenn sie deutlich abweicht - sonst ruckelt die Wiedergabe.
-    const target = video.positionMs / 1000
-    if (Math.abs(element.currentTime - target) > 0.6) element.currentTime = target
+    const angleich = videoangleich(
+      video,
+      { positionMs: element.currentTime * 1000, paused: element.paused, ended: element.ended },
+      letzteServerpositionRef.current,
+    )
+    letzteServerpositionRef.current = video.positionMs
 
-    if (video.status === 'playing' && element.paused) {
+    if (angleich.springeNachMs !== undefined) element.currentTime = angleich.springeNachMs / 1000
+
+    if (angleich.starten) {
       void element.play().catch((error: Error) => {
         if (error.name === 'NotAllowedError' && !element.muted) {
           setSoundRefused(true)
@@ -91,7 +104,7 @@ export function VideoScene({ view, variant, serverNow, isAudioMaster = true, onR
         onReport?.({ type: 'REPORT_VIDEO_STATUS', error: error.message })
       })
     }
-    if (video.status !== 'playing' && !element.paused) element.pause()
+    if (angleich.anhalten) element.pause()
   }, [video, muted, onReport])
 
   if (!question) return null
@@ -115,9 +128,16 @@ export function VideoScene({ view, variant, serverNow, isAudioMaster = true, onR
             src={question.videoUrl}
             muted={muted}
             playsInline
-            onLoadedMetadata={(event) =>
-              onReport?.({ type: 'REPORT_VIDEO_STATUS', durationMs: event.currentTarget.duration * 1000 })
-            }
+            /*
+             * Die Laufzeit wird nur gemeldet, wenn der Server sie noch nicht hat:
+             * Zwei Fenster messen dieselbe Datei, und jede Meldung ist ein Befehl,
+             * der gespeichert und an alle verteilt wird.
+             */
+            onLoadedMetadata={(event) => {
+              const dauerMs = event.currentTarget.duration * 1000
+              if (!laufzeitMelden(video?.durationMs, dauerMs)) return
+              onReport?.({ type: 'REPORT_VIDEO_STATUS', durationMs: dauerMs })
+            }}
             onError={() => onReport?.({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' })}
             /*
              * Es laeuft - damit ist jede fruehere Fehlermeldung ueberholt. Gemeldet

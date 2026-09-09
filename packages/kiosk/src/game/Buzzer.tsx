@@ -34,7 +34,7 @@ export function Buzzer({ playerId, label, side, enabled, armed, onBuzz, buzzText
   return (
     <button
       type="button"
-      className={styles.buzzer}
+      className={`stage-button ${styles.buzzer}`}
       data-buzzer=""
       data-player={playerId}
       data-side={side}

@@ -1,5 +1,5 @@
 # Validierungsbericht Quizinhalte
-Ergebnis: BESTANDEN (0 Fehler, 67 Warnungen)
+Ergebnis: BESTANDEN (0 Fehler, 47 Warnungen)
 
 ## Gesamtzahlen
 - Fragen gesamt: 29 (aktiv: 29)
@@ -145,26 +145,6 @@ Fuer das Touchgeraet geeignet: ja
 - Platz 7 "finale": 12 Kandidaten, 12 Wiederholungsgruppen | konkurriert mit: vertiefung
 
 ## Warnungen (bewusste Freigabe erforderlich)
-- [asset-file-missing] test-image-choice-easy-auswahl-1: Mediendatei "questions/img-test-image-choice-easy-auswahl-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-easy-auswahl-2: Mediendatei "questions/img-test-image-choice-easy-auswahl-2.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-easy-auswahl-3: Mediendatei "questions/img-test-image-choice-easy-auswahl-3.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-hard-auswahl-1: Mediendatei "questions/img-test-image-choice-hard-auswahl-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-hard-auswahl-2: Mediendatei "questions/img-test-image-choice-hard-auswahl-2.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-hard-auswahl-3: Mediendatei "questions/img-test-image-choice-hard-auswahl-3.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-medium-auswahl-1: Mediendatei "questions/img-test-image-choice-medium-auswahl-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-medium-auswahl-2: Mediendatei "questions/img-test-image-choice-medium-auswahl-2.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-choice-medium-auswahl-3: Mediendatei "questions/img-test-image-choice-medium-auswahl-3.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-easy-muendlich-1: Mediendatei "questions/img-test-image-reveal-easy-muendlich-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-easy-muendlich-2: Mediendatei "questions/img-test-image-reveal-easy-muendlich-2.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-easy-muendlich-3: Mediendatei "questions/img-test-image-reveal-easy-muendlich-3.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-hard-muendlich-1: Mediendatei "questions/img-test-image-reveal-hard-muendlich-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-hard-muendlich-2: Mediendatei "questions/img-test-image-reveal-hard-muendlich-2.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-hard-muendlich-3: Mediendatei "questions/img-test-image-reveal-hard-muendlich-3.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-medium-muendlich-1: Mediendatei "questions/img-test-image-reveal-medium-muendlich-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-medium-muendlich-2: Mediendatei "questions/img-test-image-reveal-medium-muendlich-2.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-image-reveal-medium-muendlich-3: Mediendatei "questions/img-test-image-reveal-medium-muendlich-3.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-person-easy-auswahl-1: Mediendatei "questions/img-test-person-easy-auswahl-1.svg" fehlt. Es wird ein Ersatzbild gezeigt.
-- [asset-file-missing] test-video-then-question-easy-auswahl-1: Mediendatei "video/vid-test-video-then-question-easy-auswahl-1.mp4" fehlt. Es wird ein Ersatzbild gezeigt.
 - [small-pool] adults/easy/test-video: Zielgruppe "adults" / Preset "easy": Fragenplatz 1 ("test-video") hat nur 1 Kandidaten.
 - [small-pool] adults/easy/test-person: Zielgruppe "adults" / Preset "easy": Fragenplatz 2 ("test-person") hat nur 1 Kandidaten.
 - [few-games-without-repetition] adults/easy: Zielgruppe "adults" / Preset "easy": nur 1 Spiele ohne Wiederholung moeglich.

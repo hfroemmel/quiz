@@ -47,7 +47,7 @@ test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page 
 
   for (const runde of [1, 2]) {
     await insQuiz(page)
-    await page.getByRole('button', { name: 'Zu zweit' }).click()
+    await page.getByRole('button', { name: /^Zu zweit/ }).click()
     await page.getByRole('button', { name: /^Leicht/ }).click()
     await page.getByRole('button', { name: "Los geht's" }).click()
     await expect(page.locator('[data-answers]'), `Runde ${runde}`).toBeVisible({ timeout: 30_000 })
@@ -64,7 +64,7 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
   await page.goto('/shell')
   await insQuiz(page)
 
-  await page.getByRole('button', { name: 'Allein' }).click()
+  await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
 
@@ -106,4 +106,50 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
   await insQuiz(page)
   await zurueckZurSammlung(page)
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
+})
+
+test('die eigene Ebene des Gastgebers steht in der Buehne und traegt deren Masse', async ({ page }) => {
+  /*
+   * Der Vertrag von `overlay` in drei Punkten. Er ist der Grund, warum es die
+   * Prop ueberhaupt gibt: Eine Ebene NEBEN der Buehne bekaeme weder ihre Masse
+   * noch ihre Zoomstufe und behielte bei kleiner Anzeige ihre volle Groesse -
+   * ein Kasten in Originalgroesse ueber einem verkleinerten Spiel.
+   */
+  await page.goto('/shell')
+  await insQuiz(page)
+
+  // Kleiner gestellt wird VOR dem Start, so wie es jemand am Geraet taete.
+  await page.locator('[data-settings-open]').click()
+  await page.locator('[data-zoom]').fill('0.7')
+  await page.locator('[data-settings-close]').click()
+
+  await page.getByRole('button', { name: /^Zu zweit/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+
+  await page.locator('[data-shell-layer-open]').click()
+  const ebene = page.locator('[data-shell-layer]')
+  await expect(ebene).toBeVisible()
+
+  // 1. Sie steht IN der Buehne - nicht daneben.
+  await expect(page.locator('.stage [data-shell-layer]')).toHaveCount(1)
+
+  // 2. Sie skaliert mit der Zoomstufe wie alles andere auf der Flaeche.
+  const massstab = await ebene.locator('> div').evaluate((node) => getComputedStyle(node).scale)
+  expect(Number(massstab)).toBeCloseTo(0.7, 2)
+
+  /*
+   * 3. Ihr Knopf ist derselbe Knopf. Schriftgroesse und Mindesthoehe kommen aus
+   * denselben Token wie beim Buzzer daneben (`--stage-button-*`); dass der
+   * Buzzer sich eine eigene Hoehe nimmt, aendert an der Schrift nichts.
+   */
+  const knopf = page.locator('[data-shell-layer-close]')
+  const buzzer = page.locator('[data-buzzer]').first()
+  const schrift = (ort: typeof knopf) => ort.evaluate((node) => getComputedStyle(node).fontSize)
+  expect(await schrift(knopf)).toBe(await schrift(buzzer))
+
+  // Und der Weg zurueck raeumt sie mit ab.
+  await page.locator('[data-shell-layer-close]').click()
+  await expect(ebene).toHaveCount(0)
 })

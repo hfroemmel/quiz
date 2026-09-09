@@ -782,6 +782,7 @@
       "themeId": "default",
       "startVisualAssetId": "start-adults",
       "startTitle": "Bundestags-Quiz",
+      "startDescription": "Teste dein Wissen über Demokratie, Politik und den Deutschen Bundestag.",
       "allowedPresetIds": [
         "easy",
         "medium",
@@ -797,6 +798,9 @@
       },
       "startTitles": {
         "en-GB": "Bundestag Quiz"
+      },
+      "startDescriptions": {
+        "en-GB": "Test your knowledge of democracy, politics and the German Bundestag."
       }
     },
     {
@@ -842,7 +846,12 @@
       "kiosk.questionCount": "{count} questions",
       "kiosk.start": "Let's go",
       "kiosk.settings": "Settings",
-      "kiosk.endGame": "End game"
+      "kiosk.endGame": "End game",
+      "kiosk.setupTitle": "Start a game",
+      "kiosk.setupSubtitle": "Choose mode and difficulty.",
+      "kiosk.soloHint": "One person",
+      "kiosk.duoHint": "Buzzer duel",
+      "kiosk.setupNote": "The choice applies to this game."
     }
   }
 }

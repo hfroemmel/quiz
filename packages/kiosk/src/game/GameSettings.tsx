@@ -13,6 +13,10 @@
  *
  * Alle drei stehen auch im Config File der Anwendung (siehe `QuizGameProps`).
  * Was hier verstellt wird, gilt bis zum Neustart; dauerhaft ist die Datei.
+ *
+ * DIE SCHALTER SIND DIESELBEN KARTEN wie in der Startauswahl (`.card`), nur
+ * ohne Zeichen und kleiner: Beides ist die Bedienung dieses Geraets, und beides
+ * bekommt derselbe Mensch zu sehen.
  */
 import { playCue, texteFuer } from '@hfroemmel/quiz-react'
 import type { PlayerQuizViewModel } from '@hfroemmel/quiz-core'
@@ -41,7 +45,7 @@ export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom,
           <div className={styles.settingControl}>
             <button
               type="button"
-              className={`button ${styles.option} ${soundEnabled ? 'button--selected' : ''}`}
+              className={`${styles.card} ${styles.toggle} ${soundEnabled ? styles.cardOn : ''}`}
               data-sound-on=""
               aria-pressed={soundEnabled}
               onClick={() => onSoundEnabled(true)}
@@ -50,7 +54,7 @@ export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom,
             </button>
             <button
               type="button"
-              className={`button ${styles.option} ${soundEnabled ? '' : 'button--selected'}`}
+              className={`${styles.card} ${styles.toggle} ${soundEnabled ? '' : styles.cardOn}`}
               data-sound-off=""
               aria-pressed={!soundEnabled}
               onClick={() => onSoundEnabled(false)}
@@ -70,7 +74,7 @@ export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom,
               */}
             <button
               type="button"
-              className={`button ${styles.option}`}
+              className={`${styles.card} ${styles.toggle}`}
               data-sound-test=""
               onClick={() => playCue('buzz', { enabled: true, isAudioMaster: true })}
             >
@@ -97,14 +101,11 @@ export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom,
           </div>
         </div>
 
-        <button
-          type="button"
-          className={`button button--primary button--large ${styles.go}`}
-          data-settings-close=""
-          onClick={onClose}
-        >
-          {t('kiosk.done')}
-        </button>
+        <div className={styles.actions}>
+          <button type="button" className={styles.action} data-settings-close="" onClick={onClose}>
+            {t('kiosk.done')}
+          </button>
+        </div>
       </div>
     </div>
   )

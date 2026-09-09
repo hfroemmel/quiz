@@ -106,3 +106,44 @@
   margin: 0;
   color: var(--ui-text-muted);
 }
+
+.barActions {
+  display: flex;
+  gap: 8px;
+}
+
+/*
+ * Die eigene Ebene des Gastgebers - IN der Buehne.
+ *
+ * Deshalb steht hier alles in Containereinheiten der Buehnenflaeche und in
+ * ihren Farben, und die Tafel skaliert mit `--stage-zoom`. Genau das ist der
+ * Vertrag, den `pads.overlay` zusagt; `embedding.spec.ts` misst ihn nach.
+ */
+.layer {
+  /* Wo die Ebene liegt, hat die Buehne schon entschieden - hier steht nur, wie
+   * ihr Inhalt darin steht. */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--color-stageBottom) 88%, transparent);
+}
+
+.layerPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2cqw;
+  width: 58cqw;
+  padding: 3cqw;
+  border-radius: calc(var(--stage-radius) * 1.5);
+  background: var(--color-stageBottom);
+  scale: var(--stage-zoom, 1);
+}
+
+.layerText {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.7cqw;
+}

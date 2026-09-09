@@ -199,6 +199,76 @@ export const uiPalette = {
   'error-soft': 'rgba(255, 92, 92, 0.16)',
 } as const
 
+/* ------------------------------------------------------------------ *
+ * Startbildschirm des Geraets
+ * ------------------------------------------------------------------ */
+
+/**
+ * Die Farbwelt der Startauswahl - eine eigene, und mit Absicht.
+ *
+ * WARUM NICHT DER BEDIENRAHMEN darueber: Der ist ein Werkzeug. Er steht am Pult
+ * des Operators, wird stundenlang angesehen und soll nichts wollen. Der
+ * Startbildschirm ist das Gegenteil - er ist das Erste, was jemand im Foyer
+ * sieht, und muss einladen. Er kommt aus einem eigenen Entwurf
+ * (`Quiz_Standalone_Startmenu_SVG_Assets`), und seine Werte stehen deshalb hier
+ * als eigener Satz, statt die Bedientoken umzufaerben.
+ *
+ * WARUM NICHT DIE BUEHNE: Die gehoert dem Quizmodus und wechselt mit ihm - die
+ * Kinderwelt ist Papier, die Erwachsenenwelt kuehles Blau. Der Startbildschirm
+ * steht VOR dieser Wahl und kann keine Farbe tragen, die erst danach feststeht.
+ *
+ * DIE DREI SIGNALFARBEN - Gruen, Limone, Violett - stufen die Schwierigkeit ab.
+ * Sie sind Reihenfolge und nicht Bedeutung: kein "richtig", kein "falsch".
+ */
+export const startPalette = {
+  /* Grund: ein Verlauf ueber die Diagonale, dazu zwei farbige Lichter. */
+  'bg-top': '#111b25',
+  'bg-mid': '#0a1118',
+  'bg-bottom': '#070c11',
+  'ambient-green': '#2bbe65',
+  'ambient-violet': '#726bea',
+
+  /* Karten und Kanten der rechten Spalte. */
+  surface: '#17212d',
+  'surface-quiet': '#111a24',
+  /* Eine gewaehlte Karte: derselbe Kasten, nur ins Gruene gekippt. */
+  'surface-selected': '#1a2b29',
+  line: '#263442',
+  'line-strong': '#2b3948',
+
+  text: '#f5f7f9',
+  'text-muted': '#98a7b7',
+  /* Die Fussnote unter der Startschaltflaeche - leiser als alles andere. */
+  'text-quiet': '#6f7f8e',
+
+  green: '#42d176',
+  'green-bright': '#63df8e',
+  'green-light': '#46d77a',
+  'green-deep': '#28b962',
+  /* Kante auf der Startschaltflaeche, damit ihr Verlauf nicht ausfranst. */
+  'green-edge': '#9cf0b8',
+  /* Schrift und Zeichen AUF dem Gruen - dort ist alles Helle unlesbar. */
+  'ink-on-green': '#06140c',
+  lime: '#d9e93e',
+  violet: '#8d86ff',
+
+  /* Die Markentafel links: waermeres Gruen als die Bedienspalte rechts. */
+  'brand-top': '#1d2b27',
+  'brand-mid': '#173828',
+  'brand-bottom': '#205d34',
+  'brand-line': '#34483e',
+  'brand-text': '#bed0c7',
+  /* Schatten und Chipgrund INNERHALB der Tafel - dunkler als ihr Verlauf. */
+  'brand-shade': '#07100d',
+
+  /* Zeichen einer nicht gewaehlten Karte und der Eckknoepfe. */
+  icon: '#a9b6c4',
+  /* Aufhellung als Milchglas - der Ton, aus dem alle Schleier gemischt werden. */
+  glass: '#ffffff',
+  /* Abdunklung - Schatten unter den Tafeln. */
+  shade: '#000000',
+} as const
+
 /**
  * Farben eines Themes vervollstaendigen.
  *

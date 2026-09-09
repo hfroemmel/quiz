@@ -54,6 +54,36 @@
   --ui-incorrect: #a62749;
   --ui-warning-soft: rgba(255, 195, 43, 0.16);
   --ui-error-soft: rgba(255, 92, 92, 0.16);
+  --start-bg-top: #111b25;
+  --start-bg-mid: #0a1118;
+  --start-bg-bottom: #070c11;
+  --start-ambient-green: #2bbe65;
+  --start-ambient-violet: #726bea;
+  --start-surface: #17212d;
+  --start-surface-quiet: #111a24;
+  --start-surface-selected: #1a2b29;
+  --start-line: #263442;
+  --start-line-strong: #2b3948;
+  --start-text: #f5f7f9;
+  --start-text-muted: #98a7b7;
+  --start-text-quiet: #6f7f8e;
+  --start-green: #42d176;
+  --start-green-bright: #63df8e;
+  --start-green-light: #46d77a;
+  --start-green-deep: #28b962;
+  --start-green-edge: #9cf0b8;
+  --start-ink-on-green: #06140c;
+  --start-lime: #d9e93e;
+  --start-violet: #8d86ff;
+  --start-brand-top: #1d2b27;
+  --start-brand-mid: #173828;
+  --start-brand-bottom: #205d34;
+  --start-brand-line: #34483e;
+  --start-brand-text: #bed0c7;
+  --start-brand-shade: #07100d;
+  --start-icon: #a9b6c4;
+  --start-glass: #ffffff;
+  --start-shade: #000000;
 }
 
 /* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */

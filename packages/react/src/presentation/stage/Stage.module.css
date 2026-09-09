@@ -95,6 +95,25 @@
   pointer-events: none;
 }
 
+/*
+ * Die Flaeche fuer eine eigene Ebene des Gastgebers (`pads.overlay`).
+ *
+ * WO SIE LIEGT, ENTSCHEIDET DIE BUEHNE - nicht der Gastgeber: ueber Szene,
+ * Fussleiste und Koernung, und in derselben Flaeche wie sie. Muesste der
+ * Gastgeber das selbst treffen, muesste er die Stapelfolge der Buehne kennen,
+ * und ein zu niedriger Wert liesse seine Ebene stumm hinter der Szene liegen.
+ * Was IN dieser Flaeche steht, ist dagegen ganz seine Sache.
+ *
+ * Sie entsteht nur, wenn er etwas einsetzt: Eine leere Flaeche ueber der ganzen
+ * Buehne finge sonst jeden Fingertipp ab.
+ */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: flex;
+}
+
 /* ------------------------------------------------------------------ *
  * Buehne der Erwachsenen
  * ------------------------------------------------------------------ */

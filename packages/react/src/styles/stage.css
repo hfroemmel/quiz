@@ -56,6 +56,104 @@
   --scene-pad: 3cqw;
   --scene-align: center;
   --scene-text-align: center;
+
+  /*
+   * SCHALTFLAECHEN DER BUEHNE - EIN MASS FUER ALLE.
+   *
+   * Auf der Buehne stehen Knoepfe in drei verschiedenen Ansichten: der Buzzer in
+   * der Frage, "Weiter" und "Antwort abgeben und aufloesen" in der Aufloesung
+   * und, wenn der Gastgeber eine eigene Flaeche einsetzt (`pads.overlay`), auch
+   * dort. Sie kamen aus drei verschiedenen Dateien und hatten drei verschiedene
+   * Groessen; nebeneinander sah das aus wie drei Systeme.
+   *
+   * Die Masse stehen deshalb hier - an derselben Stelle wie `--stage-radius` und
+   * die Szenentoken - und in Containereinheiten: Dieselbe Schaltflaeche traegt
+   * von der Operatorvorschau bis zum grossen Touchtisch.
+   *
+   * Die Schriftgroesse ist bewusst kleiner als die Ueberschriften der Szene: Auf
+   * ihr steht der laengste Satz der Buehne ("Antwort abgeben und aufloesen"),
+   * und der soll in eine Zeile passen, ohne dass der Knopf die Mitte der
+   * Fussleiste sprengt.
+   */
+  --stage-button-height: 9cqh;
+  --stage-button-pad: 4cqw;
+  --stage-button-radius: var(--stage-radius);
+  --stage-button-font: var(--font-heading);
+  --stage-button-size: 1.5cqw;
+  --stage-button-weight: 700;
+  --stage-button-gap: 1cqw;
+}
+
+/*
+ * Die Schaltflaeche selbst - GLOBAL und ungehasht, wie `.stage--*` und die
+ * Bewegungsklassen: Auch ein Gastgeber, der eine eigene Flaeche in die Buehne
+ * einsetzt, muss sie ansprechen koennen, ohne ein CSS-Modul zu importieren.
+ *
+ * Sie bringt Kasten, Masse, Typografie und die Zustaende mit; welche Farbe ein
+ * Knopf traegt, sagt der Modifikator oder das Bauteil, das ihn benutzt. Der
+ * Rangunterschied bleibt damit sichtbar, die Bauweise ist eine.
+ *
+ * `:where(...)` NIMMT DIESEN REGELN IHR GEWICHT (Spezifikitaet 0). Ein Bauteil,
+ * das die Klasse benutzt, verfeinert sie in seinem eigenen Modul - und das darf
+ * nicht davon abhaengen, in welcher Reihenfolge ein Gastgeber die Stylesheets
+ * einbindet. Was ein Bauteil selbst sagt, gilt; was es nicht sagt, kommt von
+ * hier.
+ */
+:where(.stage-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stage-button-gap);
+  min-height: var(--stage-button-height);
+  padding: 0 var(--stage-button-pad);
+  border: 0;
+  border-radius: var(--stage-button-radius);
+  background: var(--color-tile);
+  color: var(--color-text);
+  font-family: var(--stage-button-font);
+  font-size: var(--stage-button-size);
+  font-weight: var(--stage-button-weight);
+  /*
+   * Die Schrift steht damit auf der Mitte der Flaeche und nicht auf ihrer
+   * Grundlinie - sonst sitzt derselbe Text in einem hohen und einem flachen
+   * Knopf verschieden hoch.
+   */
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  /* Kein Warten auf den Doppeltipp und kein blauer Schleier am Touchgeraet. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Handlungsfarbe: der eine Knopf, der die Ansicht weiterbringt. */
+:where(.stage-button--primary) {
+  background: var(--color-primary);
+  color: var(--stage-inkOnStrong);
+}
+
+/* Sofortige Rueckmeldung auf den Druck - vor jeder Serverantwort. */
+:where(.stage-button):active:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+/*
+ * Tastaturbedienung. Am Touchgeraet sieht das niemand; an einem Geraet mit
+ * Tastatur muss sichtbar sein, worauf die Eingabetaste wirkt - und zwar an
+ * jedem Knopf der Buehne gleich.
+ */
+:where(.stage-button):focus-visible {
+  outline: 0.25cqh solid var(--color-accent);
+  outline-offset: 0.25cqh;
+}
+
+/*
+ * Gesperrt heisst sichtbar, aber zurueckgetreten: Der Knopf bleibt an seinem
+ * Platz, damit die Flaeche darum nicht springt, sobald er wieder gilt.
+ */
+:where(.stage-button):disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 /*
@@ -122,6 +220,15 @@
 
   --scene-gap: var(--kids-gap);
   --scene-pad: var(--kids-pad);
+
+  /*
+   * In der Kinderwelt ist auch eine Schaltflaeche handgeschrieben - Masse und
+   * Zustaende bleiben dieselben, nur die Schrift wechselt. Die Handschrift
+   * laeuft kleiner als die Serife und bekommt deshalb etwas mehr Groesse.
+   */
+  --stage-button-font: var(--kids-hand);
+  --stage-button-size: var(--kids-size-category);
+  --stage-button-weight: 400;
 
   color: var(--kids-ink);
   font-family: var(--kids-hand);

@@ -504,6 +504,7 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
     startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId ?? theme.logoAssetId),
     // Auch der Titel ueber dem Startbild spricht die Sprache des Quiz.
     startTitle: audienceConfig.startTitles?.[locale] ?? audienceConfig.startTitle,
+    startDescription: audienceConfig.startDescriptions?.[locale] ?? audienceConfig.startDescription,
     presentationAnimationSetId: theme.presentationAnimationSetId,
   }
 }
