@@ -370,6 +370,9 @@
   --start-text: var(--kids-ink);
   --start-text-muted: var(--color-textMuted);
   --start-brand-text: var(--kids-ink);
+  /* Auf der roten Karte traegt nur Weiss - siehe `.cardOn`. */
+  --start-ink-on-selected: var(--stage-inkOnStrong);
+  --start-meta-on-selected: color-mix(in srgb, var(--stage-inkOnStrong) 78%, transparent);
 }
 
 /*
@@ -410,8 +413,22 @@
   isolation: isolate;
   border: 0;
   background: none;
-  color: var(--kids-ink);
   font-family: var(--kids-hand);
+}
+
+/*
+ * DIE KARTEN SIND HIER AUSGENOMMEN: Ihre Schrift haengt daran, ob sie gewaehlt
+ * sind, und das entscheiden `.card` und `.cardOn` ueber die Token
+ * `--start-text` und `--start-ink-on-selected` - beide setzt diese Welt oben.
+ * Stuende die Tinte auch hier, gewaenne sie ueber die Spezifikitaet, und auf der
+ * roten Karte waere die Schrift wieder dunkel.
+ */
+[data-skin='kids'] .action,
+[data-skin='kids'] .actionSecondary,
+[data-skin='kids'] .continue,
+[data-skin='kids'] .setup,
+[data-skin='kids'] .panel {
+  color: var(--kids-ink);
 }
 
 [data-skin='kids'] .setup {
@@ -462,11 +479,6 @@
  */
 [data-skin='kids'] .cardOn {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-b.svg');
-
-  color: var(--stage-inkOnStrong);
-}
-[data-skin='kids'] .cardOn .cardMeta {
-  color: color-mix(in srgb, var(--stage-inkOnStrong) 78%, transparent);
 }
 
 /* Das Zeichen der Karte sitzt auf der roten Flaeche - ohne eigene Scheibe. */
@@ -568,13 +580,13 @@
   background:
     radial-gradient(
       59% 100% at 21% 50%,
-      color-mix(in srgb, var(--start-ambient-green) 16%, transparent) 0%,
-      color-mix(in srgb, var(--start-ambient-green) 4%, transparent) 58%,
+      color-mix(in srgb, var(--start-ambient-left) 16%, transparent) 0%,
+      color-mix(in srgb, var(--start-ambient-left) 4%, transparent) 58%,
       transparent 100%
     ),
     radial-gradient(
       54% 89% at 85% 35%,
-      color-mix(in srgb, var(--start-ambient-violet) 11%, transparent) 0%,
+      color-mix(in srgb, var(--start-ambient-right) 11%, transparent) 0%,
       transparent 100%
     ),
     linear-gradient(135deg, var(--start-bg-top) 0%, var(--start-bg-mid) 55%, var(--start-bg-bottom) 100%);
@@ -615,6 +627,23 @@
  * das Nachgiebige der Tafel. Auf einem flachen Fenster schrumpft es, Titel und
  * Text bleiben stehen: Ein halber Satz waere schlimmer als ein kleineres Bild.
  */
+/*
+ * DIE MARKE KIPPT MIT DER FASSUNG.
+ *
+ * Das Motiv der Tafel kommt aus dem Inhalt und ist dort eine helle Zeichnung -
+ * fuer den dunklen Grund, fuer den die Auswahl entworfen wurde. Auf Papier
+ * verschwindet sie. Umgekehrt gilt fuer eine Aufstellung, deren Startbild ein
+ * FOTO ist: Die soll in der hellen Fassung ein eigenes Motiv hinterlegen,
+ * statt sich invertieren zu lassen.
+ */
+[data-theme='bright'] .brandVisual {
+  /*
+   * Die Deckkraft nimmt dem umgekehrten Weiss die Haerte: Aus Schwarz wird auf
+   * Papier das dunkle Anthrazit, in dem auch die Schrift daneben steht.
+   */
+  filter: invert(1) opacity(0.82);
+}
+
 .brandVisual {
   flex: 1 1 auto;
   align-self: center;
@@ -711,15 +740,25 @@
   transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
 }
 .card:hover {
-  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
 }
 .card:active {
   transform: translateY(1px);
 }
 .cardOn {
-  border-color: var(--start-green);
+  border-color: var(--start-selected);
   border-width: 2px;
   background: var(--start-surface-selected);
+  /*
+   * DIE SCHRIFT GEHOERT ZUR FLAECHE, AUF DER SIE STEHT. In der dunklen Fassung
+   * ist die gewaehlte Karte derselbe dunkle Kasten und die Schrift bleibt, wie
+   * sie war; in der hellen ist sie eine volle blaue Flaeche, und darauf traegt
+   * nur Weiss. Ein Token statt zweier Regeln.
+   */
+  color: var(--start-ink-on-selected);
+}
+.cardOn .cardMeta {
+  color: var(--start-meta-on-selected);
 }
 /*
  * Die Tastaturmarke ist ein eigener Ring AUSSERHALB der Kante: Die Kante selbst
@@ -731,7 +770,7 @@
 .actionSecondary:focus-visible,
 .language:focus-visible,
 .settingsButton:focus-visible {
-  outline: 2px solid var(--start-green-bright);
+  outline: 2px solid var(--start-selected-bright);
   outline-offset: 3px;
 }
 
@@ -758,8 +797,8 @@
   height: 55%;
 }
 .cardOn .cardIcon {
-  background: color-mix(in srgb, var(--start-green) 12%, transparent);
-  color: var(--start-green-bright);
+  background: color-mix(in srgb, var(--start-selected) 12%, transparent);
+  color: var(--start-selected-bright);
 }
 
 .cardBody {
@@ -796,10 +835,10 @@
   height: clamp(18px, 3.2vh, 28px);
   margin-left: auto;
   border-radius: 50%;
-  color: var(--start-ink-on-green);
+  color: var(--start-ink-on-badge);
 }
 .check[data-on='true'] {
-  background: var(--start-green);
+  background: var(--start-selected);
 }
 .check > svg {
   width: 70%;
@@ -851,12 +890,12 @@
   border-radius: clamp(9px, 2.1vh, 19px);
   background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
   /*
-   * HELLE SCHRIFT AUF DEM GRUEN, nicht dunkle: Der Balken ist die einzige volle
-   * Farbe der Flaeche, und alles andere darauf - Schrift und Pfeil - ist hell
-   * wie die Schrift daneben. Eine dunkle Aufschrift machte aus dem Ziel ein
-   * zweites Schild.
+   * DIE AUFSCHRIFT GEHOERT AUF DAS GRUEN, nicht auf die Flaeche daneben: Der
+   * Balken ist die einzige volle Farbe, und ein Token, das seine Schrift nennt,
+   * traegt sie in jeder Fassung richtig - hell auf beiden Gruens, statt in der
+   * hellen Fassung die Tinte der Karten daneben zu erben.
    */
-  color: var(--start-text);
+  color: var(--start-ink-on-green);
   font-family: var(--font-ui);
   font-size: var(--kiosk-button-font-size);
   font-weight: 700;
@@ -912,7 +951,7 @@
   cursor: pointer;
 }
 .actionSecondary:hover {
-  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
 }
 
 /* ------------------------------------------------------------------ *
@@ -947,8 +986,8 @@
   cursor: pointer;
 }
 .languageOn {
-  border-color: var(--start-green);
-  background: color-mix(in srgb, var(--start-green) 14%, transparent);
+  border-color: var(--start-selected);
+  background: color-mix(in srgb, var(--start-selected) 14%, transparent);
   color: var(--start-text);
   font-weight: 600;
 }
@@ -975,7 +1014,7 @@
   cursor: pointer;
 }
 .settingsButton:hover {
-  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
 }
 .settingsIcon {
   width: 48%;
@@ -1018,7 +1057,24 @@
     max-height: 46vh;
     padding: clamp(12px, 2.6vh, 30px);
   }
-  .brandVisual {
+  /*
+ * DIE MARKE KIPPT MIT DER FASSUNG.
+ *
+ * Das Motiv der Tafel kommt aus dem Inhalt und ist dort eine helle Zeichnung -
+ * fuer den dunklen Grund, fuer den die Auswahl entworfen wurde. Auf Papier
+ * verschwindet sie. Umgekehrt gilt fuer eine Aufstellung, deren Startbild ein
+ * FOTO ist: Die soll in der hellen Fassung ein eigenes Motiv hinterlegen,
+ * statt sich invertieren zu lassen.
+ */
+[data-theme='bright'] .brandVisual {
+  /*
+   * Die Deckkraft nimmt dem umgekehrten Weiss die Haerte: Aus Schwarz wird auf
+   * Papier das dunkle Anthrazit, in dem auch die Schrift daneben steht.
+   */
+  filter: invert(1) opacity(0.82);
+}
+
+.brandVisual {
     min-height: 12vh;
   }
   .setupTitle {
@@ -1037,7 +1093,24 @@
 
 /* Ganz flache Fenster: Auch das Motiv der Tafel hat dann keinen Platz mehr. */
 @media (max-height: 480px) {
-  .brandVisual {
+  /*
+ * DIE MARKE KIPPT MIT DER FASSUNG.
+ *
+ * Das Motiv der Tafel kommt aus dem Inhalt und ist dort eine helle Zeichnung -
+ * fuer den dunklen Grund, fuer den die Auswahl entworfen wurde. Auf Papier
+ * verschwindet sie. Umgekehrt gilt fuer eine Aufstellung, deren Startbild ein
+ * FOTO ist: Die soll in der hellen Fassung ein eigenes Motiv hinterlegen,
+ * statt sich invertieren zu lassen.
+ */
+[data-theme='bright'] .brandVisual {
+  /*
+   * Die Deckkraft nimmt dem umgekehrten Weiss die Haerte: Aus Schwarz wird auf
+   * Papier das dunkle Anthrazit, in dem auch die Schrift daneben steht.
+   */
+  filter: invert(1) opacity(0.82);
+}
+
+.brandVisual {
     display: none;
   }
 }
@@ -1146,7 +1219,7 @@
 .slider {
   width: clamp(140px, 22vw, 280px);
   height: clamp(30px, 4.5vh, 48px);
-  accent-color: var(--start-green);
+  accent-color: var(--start-selected);
   background: transparent;
   cursor: pointer;
 }
@@ -1197,7 +1270,7 @@
   transform-origin: top right;
 }
 .abort:hover {
-  border-color: color-mix(in srgb, var(--start-green) 55%, transparent);
+  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
   color: var(--start-text);
 }
 

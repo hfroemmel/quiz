@@ -11,6 +11,14 @@ import { offeneAntwort } from './helpers'
 
 const freierBuzzer = '[data-buzzer][data-enabled="true"]'
 
+/** Ein Hexwert, wie `getComputedStyle` ihn meldet: `rgb(r, g, b)`. */
+function farbe(hex: string): string {
+  const roh = hex.replace('#', '')
+  const voll = roh.length === 3 ? [...roh].map((zeichen) => zeichen + zeichen).join('') : roh
+  const [r, g, b] = [0, 2, 4].map((stelle) => parseInt(voll.slice(stelle, stelle + 2), 16))
+  return `rgb(${r}, ${g}, ${b})`
+}
+
 /**
  * Jeder Seitenaufruf baut eine frische Laufzeit im Browser - das Neuladen ist
  * hier der Ruecksetzknopf, den es am Geraet nicht gibt.
@@ -105,6 +113,115 @@ test('jede Stufenkarte nennt ihren eigenen Umfang', async ({ page }) => {
   for (const stufe of ['touch-easy', 'touch-medium', 'touch-hard']) {
     await expect(page.locator(`[data-preset="${stufe}"]`)).toContainText(/\d+ Fragen/)
   }
+})
+
+/* ------------------------------------------------------------------ *
+ * Helle und dunkle Fassung der Startauswahl
+ *
+ * Die Auswahl liegt UEBER der Buehne und konnte deren `.stage--bright` deshalb
+ * nie lesen - sie war immer dunkel, auch wenn das Spiel danach auf Papier lief.
+ * Die Fassung steht jetzt als `data-theme` am Wurzelelement, und die
+ * `--start-*`-Farben haengen daran.
+ * ------------------------------------------------------------------ */
+
+test('die Startauswahl steht in derselben Fassung wie die Buehne danach', async ({ page }) => {
+  await openStartScreen(page)
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-theme', 'bright')
+
+  const farben = await page.locator('[data-quiz-game]').evaluate((node) => {
+    const gemessen = getComputedStyle(node)
+    const wert = (name: string) => gemessen.getPropertyValue(name).trim()
+    return { grund: wert('--start-bg-top'), auswahl: wert('--start-selected'), gruen: wert('--start-green') }
+  })
+  // Papier, nicht Nacht.
+  expect(farben.grund).toBe('#fff')
+  /*
+   * DIE AUSWAHL IST NICHT DIE HANDLUNG. Beide waren dasselbe Gruen; auf Papier
+   * traegt die Auswahl das Blau der markierten Antwort, und Gruen gehoert
+   * allein dem Knopf, der das Spiel startet.
+   */
+  expect(farben.auswahl).not.toBe(farben.gruen)
+})
+
+test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', async ({ page }) => {
+  await openStartScreen(page)
+
+  const gewaehlt = page.locator('[data-preset][aria-pressed="true"]').first()
+  const offen = page.locator('[data-preset][aria-pressed="false"]').first()
+  const auswahl = await page
+    .locator('[data-quiz-game]')
+    .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-selected').trim())
+
+  /*
+   * Die gewaehlte Karte ist ins Blau gekippt und traegt seine Kante; ihre
+   * Schrift bleibt dieselbe Tinte wie auf den anderen Karten.
+   */
+  const stand = await gewaehlt.evaluate((node) => {
+    const gemessen = getComputedStyle(node)
+    return { kante: gemessen.borderTopColor, flaeche: gemessen.backgroundColor, schrift: gemessen.color }
+  })
+  const offenerStand = await offen.evaluate((node) => {
+    const gemessen = getComputedStyle(node)
+    return { kante: gemessen.borderTopColor, flaeche: gemessen.backgroundColor, schrift: gemessen.color }
+  })
+  expect(stand.kante).not.toBe(offenerStand.kante)
+  expect(stand.flaeche).not.toBe(offenerStand.flaeche)
+  expect(stand.schrift).toBe(offenerStand.schrift)
+  // Und die Auswahlmarke traegt genau die Auswahlfarbe.
+  await expect(gewaehlt.locator('[data-on="true"]')).toHaveCSS('background-color', farbe(auswahl))
+
+  // Zeigen: die Kante der offenen Karte nimmt die Auswahlfarbe an.
+  await offen.hover()
+  expect(await offen.evaluate((node) => getComputedStyle(node).borderTopColor)).not.toBe(offenerStand.kante)
+
+  // Tastaturmarke: ein eigener Ring AUSSERHALB der Kante.
+  await offen.focus()
+  const ring = await offen.evaluate((node) => {
+    const gemessen = getComputedStyle(node)
+    return { breite: gemessen.outlineWidth, farbe: gemessen.outlineColor }
+  })
+  expect(ring.breite).not.toBe('0px')
+  expect(ring.farbe).not.toBe('rgba(0, 0, 0, 0)')
+
+  /*
+   * Gesperrt: Der Startknopf tritt zurueck, bleibt aber sichtbar. Er ist im
+   * Betrieb nie gesperrt - eine Stufe ist immer vorgewaehlt -, und genau
+   * deshalb wird der Zustand hier erzwungen statt erspielt.
+   */
+  const start = page.locator('[data-start]')
+  const wach = await start.evaluate((node) => getComputedStyle(node).opacity)
+  const gesperrt = await start.evaluate((node) => {
+    ;(node as HTMLButtonElement).disabled = true
+    return getComputedStyle(node).opacity
+  })
+  expect(Number(gesperrt)).toBeLessThan(Number(wach))
+})
+
+test('Gruen traegt allein der Startknopf', async ({ page }) => {
+  await openStartScreen(page)
+  const gruen = await page
+    .locator('[data-quiz-game]')
+    .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-green').trim())
+
+  // Auf dem Knopf: als Flaeche, mit heller Aufschrift darauf.
+  const knopf = await page.locator('[data-start]').evaluate((node) => {
+    const gemessen = getComputedStyle(node)
+    return { grund: gemessen.backgroundImage, schrift: gemessen.color }
+  })
+  expect(knopf.grund).toContain(farbe(gruen))
+  expect(knopf.schrift).toBe('rgb(255, 255, 255)')
+
+  // Nirgends sonst: nicht auf einer Karte, nicht auf der Marke, nicht am Rueckweg.
+  const anderswo = await page.evaluate(() => {
+    const orte = ['[data-preset][aria-pressed="true"]', '[data-player-count][aria-pressed="true"]', '[data-game-start] button:not([data-start])']
+    return orte.flatMap((ort) =>
+      [...document.querySelectorAll(ort)].map((node) => {
+        const gemessen = getComputedStyle(node as Element)
+        return [gemessen.backgroundColor, gemessen.borderTopColor, gemessen.color].join(' ')
+      }),
+    )
+  })
+  expect(anderswo.join(' ')).not.toContain(farbe(gruen))
 })
 
 /* ------------------------------------------------------------------ *
