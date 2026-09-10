@@ -188,6 +188,10 @@
   height: 100%;
 }
 
+
+[data-skin='kids'] {
+  --kiosk-button-font-size: clamp(15px, 2.75vh, 30px);
+}
 /*
  * In der Kinderwelt ist auch dieser Knopf eine gezeichnete Karte - dieselbe wie
  * "Los geht's" in der Startauswahl. Die Zeichnung steht weiter unten bei den
@@ -408,6 +412,10 @@
   background: none;
   color: var(--kids-ink);
   font-family: var(--kids-hand);
+}
+
+[data-skin='kids'] .setup {
+  padding: var(--kids-frame-width);
 }
 
 [data-skin='kids'] .card::before,
@@ -771,6 +779,9 @@
   font-weight: 500;
   color: var(--start-text-muted);
 }
+[data-skin='kids'] .cardMeta {
+  font-size: clamp(12px, 2.22vh, 20px);
+}
 
 /*
  * Das Haekchen sitzt in der Ecke und ist auch ungewaehlt vorhanden - dann leer
@@ -793,6 +804,10 @@
 .check > svg {
   width: 70%;
   height: 70%;
+}
+[data-skin='kids'] .check {
+  width: 100%;
+  height: 100%;
 }
 
 /*
@@ -857,6 +872,9 @@
 .setup .action {
   flex: 1 1 auto;
 }
+.action[data-start] {
+  font-size: clamp(15px, 3.33vh, 30px);;
+}
 /*
  * Der Pfeil steht frei auf dem Balken - ohne eigene Scheibe. Er wiederholt nur,
  * was die Aufschrift schon sagt; eine Flaeche darum machte daraus ein zweites
@@ -869,12 +887,12 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: clamp(26px, 5.2vh, 46px);
-  height: clamp(26px, 5.2vh, 46px);
+  width: clamp(26px, 6.2vh, 50px);
+  height: clamp(26px, 6.2vh, 50px);
 }
 .actionArrow > svg {
-  width: 55%;
-  height: 55%;
+  width: 60%;
+  height: 60%;
 }
 
 /* Der Rueckweg - nur dort, wo das Quiz Gast einer anderen Anwendung ist. */
