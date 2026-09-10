@@ -16,8 +16,18 @@ export const stageThemes = ['dark', 'bright'] as const
 export type StageTheme = (typeof stageThemes)[number]
 
 const STORAGE_KEY = 'quiz.stageTheme'
-/** Die Buehne ist im Zweifel dunkel - so war sie von Anfang an gedacht. */
-const FALLBACK: StageTheme = 'dark'
+/**
+ * DIE BUEHNE IST IM ZWEIFEL HELL.
+ *
+ * Sie war lange dunkel, weil sie fuer den abgedunkelten Saal entworfen wurde.
+ * Ihr haeufigster Ort ist inzwischen ein Touchtisch in einem Foyer mit
+ * Tageslicht, und dort ist Papier die ruhigere Flaeche. Wer es anders will,
+ * schaltet um - die Wahl bleibt am Fenster gespeichert.
+ *
+ * Die Kinderwelt ist davon nicht beruehrt: Sie bringt ihr eigenes Papier mit
+ * und kennt den Umschalter nicht (siehe `StageScreen`).
+ */
+const FALLBACK: StageTheme = 'bright'
 
 /*
  * Ein Wechsel gilt sofort in ALLEN Fenstern derselben Herkunft: Der Operator

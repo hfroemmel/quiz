@@ -33,6 +33,7 @@ import { StageHeader, type StageHeaderSlots } from './stage/StageHeader'
 import { Mascot } from './stage/Mascot'
 import { kidsPreloadImages } from './stage/kidsAssets'
 import { useStageTheme } from './stageTheme'
+import { useDecodedImage } from './useDecodedImage'
 import stage from './stage/Stage.module.css'
 import type { SceneAnswering, SceneProps } from './scenes/sceneProps'
 
@@ -87,6 +88,11 @@ export function StageScreen({
   answering,
 }: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
+  /*
+   * Der Bildgrund erscheint erst, wenn das Bild fertig ist - siehe
+   * `useDecodedImage`. Bis dahin steht die Szene auf dem Verlauf der Buehne.
+   */
+  const grundbild = useDecodedImage(view.question?.imageUrl)
   const sceneProps: SceneProps = { view, reveal, serverNow, variant, ...(answering ? { answering } : {}) }
 
   // Klaenge, die innerhalb einer Szene entstehen - siehe `useStageSounds`.
@@ -197,9 +203,19 @@ export function StageScreen({
           */}
         {view.question?.imageUrl && (
           <div
+            /*
+              * DIE ADRESSE IST DIE KENNUNG. Eine neue Frage setzt damit ein
+              * neues Element ein, statt das alte umzufaerben: So beginnt der
+              * Grund bei jeder Frage von vorn und der alte ist im selben
+              * Moment weg. Ein Kreuzblenden waere hier falsch - fuer einen
+              * Augenblick stuende das Bild der vorigen Frage auf der neuen.
+              */
+            key={view.question.imageUrl}
             className={stage.backdrop}
+            data-backdrop=""
             data-veiled={String(isRevealing(view))}
-            style={{ backgroundImage: cssUrl(view.question.imageUrl) }}
+            data-ready={String(grundbild === view.question.imageUrl)}
+            {...(grundbild ? { style: { backgroundImage: cssUrl(grundbild) } } : {})}
             aria-hidden="true"
           />
         )}

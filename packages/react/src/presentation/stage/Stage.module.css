@@ -26,6 +26,23 @@
   background-repeat: no-repeat;
   transform: scale(1.08);
   pointer-events: none;
+
+  /*
+   * ER BLENDET AUF, WENN DAS BILD FERTIG IST.
+   *
+   * `data-ready` setzt `StageScreen`, sobald die Adresse geladen UND dekodiert
+   * ist; bis dahin liegt hier nichts als der Verlauf der Buehne. Ohne das
+   * stuende auf einer neuen Frage fuer einen Moment das Bild der vorigen - ein
+   * `background-image` wechselt erst, wenn das neue da ist.
+   *
+   * Nur die Deckkraft bewegt sich, und der Kasten faengt keine Beruehrung
+   * (`pointer-events: none`): Der Uebergang haelt niemanden auf.
+   */
+  opacity: 0;
+  transition: opacity var(--stage-fade-duration) var(--stage-fade-easing);
+}
+.backdrop[data-ready='true'] {
+  opacity: 1;
 }
 .backdrop::after {
   content: '';

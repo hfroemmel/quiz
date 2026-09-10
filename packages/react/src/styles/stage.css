@@ -51,6 +51,22 @@
    * (`var(--stage-zoom, 1)`).
    */
 
+  /*
+   * EIN MASS FUER DIE KLEINEN UEBERGAENGE.
+   *
+   * Nicht die Szenenwechsel - die bringen Dauer und Easing aus dem
+   * Uebergangsregistry mit (`transitions/`). Gemeint ist alles, was innerhalb
+   * einer Szene erscheint und wieder geht: der unscharfe Bildgrund, eine Ebene,
+   * die der Gastgeber einsetzt. Kurz genug, dass niemand darauf wartet, und
+   * lang genug, dass nichts aufblitzt.
+   *
+   * Sie stehen an der Buehne und nicht in einem Modul, damit auch ein
+   * Gastgeber sie lesen kann - seine Ebene soll nicht in einer anderen Zeit
+   * laufen als die Buehne darunter.
+   */
+  --stage-fade-duration: 220ms;
+  --stage-fade-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
+
   /* Abstaende und Ausrichtung der Szenen - die Szenen lesen sie als Token. */
   --scene-gap: 2cqw;
   --scene-pad: 3cqw;
@@ -295,7 +311,15 @@
   }
 }
 
+/*
+ * Wer keine Bewegung will, bekommt keine: Die kleinen Uebergaenge sind Zierde,
+ * nicht Information - der Inhalt steht danach genauso da.
+ */
 @media (prefers-reduced-motion: reduce) {
+  .stage {
+    --stage-fade-duration: 1ms;
+  }
+
   .stage--kids *,
   .stage--kids *::before,
   .stage--kids *::after {

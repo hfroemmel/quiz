@@ -57,6 +57,43 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
+  test('der unscharfe Bildgrund blendet auf und traegt nie das vorige Bild', async ({ page }) => {
+    /*
+     * EIN `background-image` WECHSELT ERST, WENN DAS NEUE BILD DA IST. Direkt
+     * gesetzt stuende auf einer neuen Frage deshalb einen Moment lang der Grund
+     * der vorigen. Das Bild wird darum vorgeladen und der Grund erst fertig
+     * gezeigt; bis dahin liegt dort nichts als der Verlauf der Buehne.
+     */
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'image-choice')
+
+    const grund = page.locator('[data-backdrop]')
+    await expect(grund).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
+    const bild = () => grund.evaluate((node) => getComputedStyle(node).backgroundImage)
+    const ersteFrage = await bild()
+    expect(ersteFrage).not.toBe('none')
+
+    // Aufgeblendet, nicht eingesetzt - und ohne eine Beruehrung abzufangen.
+    const stil = await grund.evaluate((node) => {
+      const gemessen = getComputedStyle(node)
+      return { eigenschaft: gemessen.transitionProperty, zeiger: gemessen.pointerEvents }
+    })
+    expect(stil.eigenschaft).toContain('opacity')
+    expect(stil.zeiger).toBe('none')
+
+    /*
+     * Anderes Bild, andere Adresse: Der Grund traegt danach entweder noch
+     * nichts oder schon das neue - nie das alte.
+     */
+    await selectQuestionType(page, 'person')
+    await expect(grund).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
+    expect(await bild()).not.toBe(ersteFrage)
+
+    // Eine Frage ohne Bild hat auch keinen Grund.
+    await selectQuestionType(page, 'text-choice')
+    await expect(grund).toHaveCount(0)
+  })
+
   test('Portraetfrage stellt das Bild neben Rubrik, Frage und Antworten', async ({ page }) => {
     await selectScene(page, 'question')
     await selectQuestionType(page, 'person')
