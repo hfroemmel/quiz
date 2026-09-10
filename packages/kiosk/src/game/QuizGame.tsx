@@ -22,7 +22,7 @@ import {
   useQuizRuntime,
   useQuizSnapshot,
 } from '@hfroemmel/quiz-react'
-import { themeForView, themeVariables } from '@hfroemmel/quiz-themes'
+import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
 import { GameSettings } from './GameSettings'
 import { PlayerFoot } from './PlayerFoot'
@@ -326,6 +326,29 @@ export function QuizGame({
    */
   const flaeche = { '--stage-zoom': zoom } as CSSProperties
 
+  /*
+   * GESTALTUNGSWELT AUCH AUSSERHALB DER BUEHNE.
+   *
+   * `.stage--kids` steht an der Buehne, und die entsteht erst mit dem Spiel -
+   * Startauswahl, Einstellungen und Rueckfragen liegen DARUEBER und haetten
+   * damit nie erfahren, in welcher Welt sie stehen. Deshalb traegt das
+   * Wurzelelement dieser Komponente die Welt als Datenattribut; die Regeln
+   * dieses Moduls lesen sie dort (`[data-skin='kids'] .start`).
+   *
+   * Ein Attribut und keine `.stage--*`-Klasse: Sonst erbte jedes Bauteil
+   * ausserhalb der Buehne die Buehnenregeln der Welt - Antwortkarten, Buzzer,
+   * Kopfzeile -, und die sind fuer die Flaeche darin entworfen.
+   *
+   * WOHER SIE KOMMT, HAENGT DAVON AB, OB GESPIELT WIRD: `view.theme` gehoert
+   * zum laufenden Spiel und meldet davor die Grundwelt. Vor dem Start gilt
+   * deshalb die Welt der Zielgruppe, in der dieses Geraet steht - sonst stuende
+   * vor dem Kinderquiz die Auswahl der Erwachsenen und wechselte erst mit der
+   * ersten Frage.
+   */
+  const skin =
+    (hasGame && !showChoice ? view.theme.skin : view.catalog.audiences.find((entry) => entry.id === audienceId)?.skin) ??
+    'default'
+
   const settings = settingsOpen && eigenesGeraet && (
     <GameSettings
       view={view}
@@ -341,8 +364,9 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.startScreen}`}
-        style={{ ...themeVariables(themeForView(view)), ...flaeche }}
+        style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
         data-quiz-game=""
+        data-skin={skin}
       >
         <GameStart
           view={view}
@@ -362,8 +386,9 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.waiting}`}
-        style={{ ...themeVariables(themeForView(view)), ...flaeche }}
+        style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
         data-quiz-game=""
+        data-skin={skin}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -406,7 +431,7 @@ export function QuizGame({
 
 
   return (
-    <div className={styles.game} style={flaeche} data-quiz-game="" onPointerDown={idle.notice}>
+    <div className={styles.game} style={flaeche} data-quiz-game="" data-skin={skin} onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/*

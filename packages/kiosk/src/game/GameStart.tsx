@@ -27,7 +27,7 @@
 import { useState } from 'react'
 import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { texteFuer } from '@hfroemmel/quiz-react'
-import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon, SparkIcon } from './icons'
+import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon } from './icons'
 import styles from './Game.module.css'
 
 /**
@@ -63,11 +63,6 @@ interface GameStartProps {
   onSelectLocale(locale: string): void
 }
 
-/** Schrittnummern sind zweistellig - "01" und "02" stehen ruhiger als "1" und "2". */
-function schrittnummer(stelle: number): string {
-  return String(stelle).padStart(2, '0')
-}
-
 export function GameStart({
   view,
   audience,
@@ -87,12 +82,10 @@ export function GameStart({
 
   const canStart = view.allowedCommands.includes('START_GAME') && presetId !== ''
   /*
-   * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl. Dann ist die
-   * Schwierigkeit der erste Schritt und traegt die 01 - eine feste 02 waere die
-   * Nummer eines Schritts, den es hier nicht gibt.
+   * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl - dort gibt
+   * es nichts zu waehlen.
    */
   const zeigeModus = angeboten.length > 1
-  const gewaehltesPreset = presets.find((preset) => preset.id === presetId)
 
   return (
     <div className={styles.start} data-game-start="">
@@ -194,7 +187,7 @@ export function GameStart({
 
           <section className={styles.step}>
             <div className={styles.levels} data-preset-options="">
-              {presets.map((preset, stelle) => (
+              {presets.map((preset) => (
                 <button
                   key={preset.id}
                   type="button"
@@ -204,19 +197,17 @@ export function GameStart({
                   onClick={() => setPresetId(preset.id)}
                 >
                   {/*
-                    * Die Punkte sind die Stufe als Bild: einer, zwei, drei. Sie
-                    * zaehlen die STELLE in der Liste und nicht eine Eigenschaft
-                    * der Fragen - die Reihenfolge der Presets IST die Steigerung,
-                    * und sie steht in der Konfiguration.
+                    * DERSELBE AUFBAU WIE DIE MODUSKARTE, nur ohne Zeichen: Text
+                    * links, Haekchen rechts. Die Steigerung der Stufen stand
+                    * frueher zusaetzlich als Punktereihe darueber - sie sagte
+                    * nichts, was nicht schon in "5 Fragen" steht, und machte aus
+                    * zwei gleichrangigen Reihen zwei verschieden hohe.
                     */}
-                  <span className={styles.levelDots} data-rank={stelle + 1} aria-hidden="true">
-                    {Array.from({ length: Math.min(stelle + 1, 5) }, (_, punkt) => (
-                      <span key={punkt} className={styles.levelDot} />
-                    ))}
+                  <span className={styles.cardBody}>
+                    <span className={styles.cardTitle}>{preset.label}</span>
+                    <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
                   </span>
-                  <Haken aktiv={presetId === preset.id} klein />
-                  <span className={styles.cardTitle}>{preset.label}</span>
-                  <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
+                  <Haken aktiv={presetId === preset.id} />
                 </button>
               ))}
             </div>
@@ -254,9 +245,9 @@ export function GameStart({
  * gleich gross, statt beim Antippen um die Breite eines Zeichens zu springen,
  * und zwar genau unter dem Finger, der es angetippt hat.
  */
-function Haken({ aktiv, klein = false }: { aktiv: boolean; klein?: boolean }) {
+function Haken({ aktiv }: { aktiv: boolean }) {
   return (
-    <span className={`${styles.check} ${klein ? styles.checkSmall : ''}`} data-on={String(aktiv)} aria-hidden="true">
+    <span className={styles.check} data-on={String(aktiv)} aria-hidden="true">
       {aktiv && <CheckIcon />}
     </span>
   )

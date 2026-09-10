@@ -49,13 +49,6 @@ test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ p
   await openStartScreen(page)
 
   /*
-   * `allTextContents` und nicht `allInnerTexts`: Die Schrittfragen stehen im
-   * Entwurf in Versalien, und `innerText` liefert das Ergebnis des
-   * Stylesheets - nicht den Text, der uebersetzt wurde.
-   */
-  expect(await page.locator('[data-choice-label]').allTextContents()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
-
-  /*
    * Zur Wahl stehen nur Presets, die am Geraet auch spielbar sind. Die
    * Buehnenpresets enthalten einen Bilderkennen-Fragenplatz; dessen Fragen
    * muesste ein Mensch bewerten, und hier steht keiner.
@@ -67,9 +60,6 @@ test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ p
   await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Zu zweit/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
-
-  // Die Schritte sind nummeriert - in der Reihenfolge, in der entschieden wird.
-  expect(await page.locator('[data-step-number]').allInnerTexts()).toEqual(['01', '02'])
 })
 
 /* ------------------------------------------------------------------ *
@@ -104,20 +94,88 @@ test('die Auswahl ist immer genau eine - je Schritt', async ({ page }) => {
   await expect(page.locator('[data-preset="touch-easy"] [data-on="true"]')).toHaveCount(0)
 })
 
-test('der Umfang auf der Markentafel folgt der gewaehlten Stufe', async ({ page }) => {
+test('jede Stufenkarte nennt ihren eigenen Umfang', async ({ page }) => {
   await openStartScreen(page)
 
   /*
-   * Die Tafel links beantwortet "lohnt sich das jetzt?" - und muss deshalb die
-   * Zahl der Fragen zeigen, die gerade rechts gewaehlt ist, nicht irgendeine.
+   * "Lohnt sich das jetzt?" beantwortet die Karte selbst - die Zahl der Fragen
+   * steht auf ihr und nicht an einer zweiten Stelle, die der Auswahl folgen
+   * muesste.
    */
-  const umfang = page.locator('[data-scope]')
-  await expect(umfang).toContainText('7 Fragen')
+  for (const stufe of ['touch-easy', 'touch-medium', 'touch-hard']) {
+    await expect(page.locator(`[data-preset="${stufe}"]`)).toContainText(/\d+ Fragen/)
+  }
+})
 
-  await page.locator('[data-preset="touch-hard"]').click()
-  const stufe = await page.locator('[data-preset="touch-hard"]').innerText()
-  const umfangDerStufe = stufe.split('\n').at(-1)!
-  await expect(umfang).toHaveText(umfangDerStufe)
+/* ------------------------------------------------------------------ *
+ * Kinderwelt
+ *
+ * Die Startauswahl liegt UEBER der Buehne - die Klasse `.stage--kids` gibt es
+ * dort nicht. Dass die Welt trotzdem ankommt, haengt an `data-skin` am
+ * Wurzelelement und daran, dass die Welt schon aus der Zielgruppe kommt und
+ * nicht erst aus dem laufenden Spiel. Beides ist unsichtbar, wenn es faellt:
+ * Die Auswahl saehe einfach aus wie die der Erwachsenen.
+ * ------------------------------------------------------------------ */
+
+/** Die Zeichnung, die eine Flaeche traegt - als Dateiname, ohne Adresse davor. */
+async function zeichnung(page: Page, wahl: string, pseudo = '::before'): Promise<string> {
+  return page.locator(wahl).first().evaluate((node, ps) => {
+    const quelle = getComputedStyle(node as Element, ps as string).borderImageSource
+    return (quelle.match(/[\w-]+\.svg/)?.[0] ?? quelle.slice(0, 40)) as string
+  }, pseudo)
+}
+
+test('das Kindergeraet traegt seine Welt schon in der Auswahl', async ({ page }) => {
+  await page.goto('/play?audience=kids')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'kids')
+
+  // Die Auswahlkarten sind dieselben gemalten Kartons wie die Antwortzeilen.
+  expect(await zeichnung(page, '[data-preset][aria-pressed="false"]')).toBe('answer-box-a.svg')
+
+  /*
+   * GEWAEHLT SIEHT AUS WIE EINE GEWAEHLTE ANTWORT: rote Karte, weisse Schrift.
+   * Kein gruener Ring und keine gruene Kante - das Gruen ist die Auswahlfarbe
+   * der Erwachsenen und hat in dieser Welt keine Bedeutung.
+   */
+  const gewaehlt = page.locator('[data-preset][aria-pressed="true"]').first()
+  expect(await zeichnung(page, '[data-preset][aria-pressed="true"]')).toBe('answer-box-b.svg')
+  const kante = await gewaehlt.evaluate((node) => {
+    const s = getComputedStyle(node)
+    return { farbe: s.color, breite: s.borderTopWidth }
+  })
+  expect(kante.farbe).toBe('rgb(255, 255, 255)')
+  expect(kante.breite).toBe('0px')
+})
+
+test('der primaere Knopf der Kinderwelt ist ueberall derselbe', async ({ page }) => {
+  /*
+   * "Los geht\'s" in der Auswahl und "Antwort abgeben und aufloesen" in der
+   * Fussleiste sind zwei Bauteile an zwei Orten - und muessen aus derselben
+   * Zeichnung kommen. Sonst hat die Welt zwei primaere Knoepfe.
+   */
+  await page.goto('/play?audience=kids')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+  const inDerAuswahl = await zeichnung(page, '[data-start]')
+
+  await page.getByRole('button', { name: /^Allein/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.locator('[data-start]').click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+
+  await page.locator(offeneAntwort).first().click()
+  await expect(page.locator('[data-confirm]')).toBeVisible()
+  const imSpiel = await zeichnung(page, '[data-confirm]')
+
+  expect(imSpiel).toBe(inDerAuswahl)
+})
+
+test('die Erwachsenenauswahl bleibt ungezeichnet', async ({ page }) => {
+  // Die Kinderwelt darf die andere nicht anfassen.
+  await openStartScreen(page)
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'default')
+  expect(await zeichnung(page, '[data-preset]')).toBe('none')
 })
 
 test('die Startauswahl laesst sich vollstaendig mit der Tastatur bedienen', async ({ page }) => {
@@ -568,14 +626,14 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
   await expect(page.locator('[data-locale="de-DE"]')).toHaveAttribute('aria-pressed', 'true')
 
   // Deutsch: die Oberflaeche und die Namen der Schwierigkeitsstufen.
-  expect(await page.locator('[data-choice-label]').allTextContents()).toEqual(['Wie viele spielen?', 'Wie schwer?'])
+  await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
   const deutschePresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(deutschePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
   await page.locator('[data-locale="en-GB"]').click()
 
   await expect(page.locator('[data-locale="en-GB"]')).toHaveAttribute('aria-pressed', 'true')
-  expect(await page.locator('[data-choice-label]').allTextContents()).toEqual(['How many are playing?', 'How hard?'])
+  await expect(page.getByRole('button', { name: /^Alone/ })).toBeVisible()
   const englischePresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(englischePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
   await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()

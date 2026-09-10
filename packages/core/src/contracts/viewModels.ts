@@ -300,6 +300,16 @@ export interface CatalogViewModel {
     id: string
     label: string
     themeId: string
+    /**
+     * Gestaltungswelt dieser Zielgruppe - dieselbe Empfehlung, die spaeter
+     * `theme.skin` traegt.
+     *
+     * SIE STEHT HIER, WEIL DIE AUSWAHL VOR DEM SPIEL LIEGT: `theme` gehoert zum
+     * laufenden Spiel und meldet vorher die Grundwelt. Ein Geraet, das die
+     * Kinderauswahl anbietet, soll aber schon die Kinderauswahl zeigen und
+     * nicht erst mit der ersten Frage die Welt wechseln.
+     */
+    skin?: ThemeSkin
     startVisualUrl?: string
     allowedPresetIds: string[]
   }[]
