@@ -777,3 +777,72 @@ test('ohne zweite Sprache gibt es nichts umzuschalten', async ({ page }) => {
   const sprachen = await page.locator('[data-languages] button').count()
   expect(sprachen).toBeGreaterThan(1)
 })
+
+/*
+ * Die Groesse haengt an der BREITE des Fensters - und an nichts sonst.
+ *
+ * Das ist die Zusage an die Aufstellung: Der Touchtisch im Foyer, das Tablet am
+ * Stand und das Fenster in der Spielesammlung haben verschiedene Formate. Wer
+ * eine Groesse aendert, aendert sie fuer alle auf einmal, weil es nur EIN Mass
+ * gibt. Vorher rechnete die Szene ihre Hoehe aus dem uebrigen Platz und ihre
+ * Breite daraus: Dasselbe Geraet, einmal flach gestellt, zeigte die Frage
+ * kleiner - ohne dass eine Zahl im Entwurf sich geaendert haette.
+ */
+test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern', async ({ page }) => {
+  /*
+   * Gemessen wird nichts Inhaltliches: der Kasten der Szene, der Kasten eines
+   * Buzzers und die Schriftgroesse eines Punktestands. Die Antwortliste taugt
+   * dafuer NICHT - eine Bildfrage stellt sie neben das Foto, eine Textfrage
+   * darunter, und welche Frage kommt, entscheidet die Auswahl.
+   */
+  async function masse(): Promise<Record<string, number>> {
+    const kasten = async (wahl: string) => {
+      const box = await page.locator(wahl).first().boundingBox()
+      if (!box) throw new Error(`ohne Kasten: ${wahl}`)
+      return box
+    }
+    const szene = await page.evaluate(() => {
+      const element = document.querySelector('[class*="sceneRoot"]')
+      if (!element) throw new Error('ohne Szene')
+      const kasten = element.getBoundingClientRect()
+      return { breite: kasten.width, hoehe: kasten.height, links: kasten.x }
+    })
+    const buzzer = await kasten('[data-buzzer]')
+    const punkte = await page
+      .locator('[data-score-value]')
+      .first()
+      .evaluate((element) => parseFloat(getComputedStyle(element).fontSize))
+    return {
+      szeneBreite: Math.round(szene.breite),
+      szeneHoehe: Math.round(szene.hoehe),
+      szeneLinks: Math.round(szene.links),
+      buzzerBreite: Math.round(buzzer.width),
+      buzzerHoehe: Math.round(buzzer.height),
+      punkteSchrift: Math.round(punkte * 100) / 100,
+    }
+  }
+
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await startGame(page, 'Zu zweit')
+  const flach = await masse()
+
+  await page.setViewportSize({ width: 1280, height: 1000 })
+  await startGame(page, 'Zu zweit')
+  const hoch = await masse()
+
+  expect(hoch).toEqual(flach)
+
+  /*
+   * Und umgekehrt: Aendert sich NUR die Breite, waechst alles im gleichen
+   * Verhaeltnis mit. Die halbe Breite ergibt die halbe Schrift und den halben
+   * Kasten - kein Bauteil bricht aus der Proportion aus.
+   */
+  await page.setViewportSize({ width: 640, height: 1000 })
+  await startGame(page, 'Zu zweit')
+  const halb = await masse()
+
+  for (const [name, wert] of Object.entries(halb)) {
+    // Ein Pixel Spielraum: Die Masse sind gerundet, die halbe Breite ist es nicht.
+    expect(Math.abs(wert - hoch[name]! / 2), name).toBeLessThanOrEqual(1)
+  }
+})

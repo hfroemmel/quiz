@@ -4,10 +4,10 @@
  * Das Bild traegt die Frage und bekommt deshalb die halbe Ansicht: links das
  * Portraet, rechts Rubrik, Fragetext und Antworten in einer Spalte.
  *
- * Die Breite der Bildspalte gibt das Portraet selbst vor - es bemisst sich nach
- * der Hoehe der Buehne. Deshalb steht hier `auto` und keine Prozentzahl: Auf
- * einer flachen Buehne wird die Spalte schmaler und der Text bekommt den Platz,
- * statt dass das Bild unten abgeschnitten wird.
+ * Die Breite der Bildspalte gibt das Portraet selbst vor: Es bringt Hoehe und
+ * Seitenverhaeltnis mit (siehe `Media.module.css`), die Spalte nimmt das
+ * Ergebnis. Deshalb steht hier `auto` und keine Prozentzahl - eine zweite Zahl
+ * fuer dieselbe Breite muesste bei jeder Aenderung am Bild mitwandern.
  */
 
 .person {

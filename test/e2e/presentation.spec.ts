@@ -391,6 +391,52 @@ test.describe('Lange Fragen', () => {
   })
 })
 
+/*
+ * Die Buehne bemisst sich allein an ihrer BREITE.
+ *
+ * Sie steht auf Beamern, in Fenstern und auf Touchtischen mit ganz
+ * verschiedenen Formaten. Frueher rechneten Bildhoehen, Polsterungen und
+ * Strichbreiten teils gegen die HOEHE der Flaeche (`cqh`): Dieselbe Frage sah
+ * auf einem 4:3-Bildschirm anders proportioniert aus als auf 16:9, und niemand
+ * konnte am Entwurf ablesen, wie gross sie am Ende steht. Jetzt gibt es ein
+ * Mass.
+ */
+test.describe('Groesse', () => {
+  test('haengt an der Breite und nicht an der Hoehe der Flaeche', async ({ page }) => {
+    /*
+     * Gemessen wird gegen die Ecke der Buehne, nicht gegen das Fenster: Die
+     * Vorschau setzt die Flaeche selbst, und ihr Platz darf sich ruhig
+     * verschieben - nur was DARIN steht, muss gleich bleiben.
+     */
+    async function masse(): Promise<Record<string, number[] | null>> {
+      await page.goto('/preview')
+      await expect(page.locator('[data-preview-stage]')).toBeVisible()
+      await selectScene(page, 'question')
+      await page.waitForTimeout(400)
+      return page.evaluate(() => {
+        const namen = ['[data-media]', '[data-prompt]', '[data-category]', '[data-answers]', '[data-score]', '[data-counter]']
+        const grund = document.querySelector('[data-preview-stage]')!.getBoundingClientRect()
+        const zeilen: Record<string, number[] | null> = {}
+        for (const name of namen) {
+          const element = document.querySelector(name)
+          zeilen[name] = null
+          if (!element) continue
+          const kasten = element.getBoundingClientRect()
+          zeilen[name] = [kasten.x - grund.x, kasten.y - grund.y, kasten.width, kasten.height].map((zahl) =>
+            Math.round(zahl),
+          )
+        }
+        return zeilen
+      })
+    }
+
+    await page.setViewportSize({ width: 1280, height: 800 })
+    const flach = await masse()
+    await page.setViewportSize({ width: 1280, height: 1100 })
+    expect(await masse()).toEqual(flach)
+  })
+})
+
 test.describe('Screenshot-Regression zentraler Zustaende', () => {
   // Animationen werden fuer die Aufnahme abgeschaltet, damit die Bilder stabil sind.
   test.beforeEach(async ({ page }) => {

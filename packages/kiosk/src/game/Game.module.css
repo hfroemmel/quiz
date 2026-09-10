@@ -6,10 +6,14 @@
  * entfallen beide Buzzer - es gibt niemanden, gegen den man sich melden koennte,
  * und die Antworten sind sofort offen.
  *
- * Groessen stehen in `clamp()` statt in festen Pixeln: Dasselbe Layout traegt vom
- * 10-Zoll-Tablet bis zum grossen Touchtisch. Die Buehne in der Mitte rechnet
- * dagegen weiter in `cqw` gegen sich selbst - sie ist ein eigener Container und
- * bleibt davon unberuehrt.
+ * ALLE GROESSEN STEHEN IN `vw`, GERECHNET GEGEN 1440 px - die Breite der
+ * Zeichenflaeche des Entwurfs (1440x810). Eine Zahl von dort geteilt durch 14,4
+ * ergibt ihren vw-Wert. Damit ist die Fensterbreite das einzige Mass: Dasselbe
+ * Bild traegt vom 10-Zoll-Tablet bis zum grossen Touchtisch, und zwei Fenster
+ * gleicher Breite zeigen es gleich gross, auch wenn eines flacher ist. Die
+ * Buehne in der Mitte rechnet dagegen weiter in `cqw` gegen sich selbst - sie
+ * ist ein eigener Container, dessen Breite ihrerseits aus der Fensterbreite
+ * folgt.
  *
  * Farben kommen als Custom Properties aus dem Theme des Quizmodus; sie setzt die
  * Komponente am eigenen Wurzelelement (`themeVariables`). Hier steht deshalb -
@@ -46,7 +50,7 @@
    * NICHT DAZU GEHOEREN die beiden Eckknoepfe, Sprache und Zahnrad: Sie stehen
    * nicht in der Reihe, sondern am Rand, und sind bewusst kleiner.
    */
-  --kiosk-button-font-size: clamp(15px, 2.35vh, 24px);
+  --kiosk-button-font-size: 1.3219vw;
 }
 
 /* Start- und Wartebild stehen ohne Buehne da und bringen ihren Grund mit. */
@@ -68,10 +72,10 @@
 /* Verbindungsverlust: derselbe dezente Punkt wie auf der Buehne. */
 .offline {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 10px;
-  height: 10px;
+  top: 0.6944vw;
+  right: 0.6944vw;
+  width: 0.6944vw;
+  height: 0.6944vw;
   border-radius: 50%;
   background: var(--color-incorrect);
   opacity: 0.7;
@@ -86,8 +90,8 @@
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
-  gap: clamp(8px, 2vw, 24px);
-  padding: clamp(8px, 2vh, 20px) 0;
+  gap: 1.6667vw;
+  padding: 1.125vw 0;
   scale: var(--stage-zoom, 1);
   transform-origin: bottom center;
 }
@@ -117,7 +121,7 @@
    * Ecken bei kleiner Anzeige von der Kante ab und die Leiste saehe aus, als
    * haette sie sich verlaufen.
    */
-  padding: 0 calc(4cqw * var(--stage-zoom, 1)) calc(3cqh * var(--stage-zoom, 1));
+  padding: 0 calc(4cqw * var(--stage-zoom, 1)) calc(1.6875cqw * var(--stage-zoom, 1));
 }
 
 /*
@@ -156,7 +160,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2cqh;
+  gap: 0.675cqw;
   min-width: 0;
 }
 .notice {
@@ -190,7 +194,7 @@
 
 
 [data-skin='kids'] {
-  --kiosk-button-font-size: clamp(15px, 2.75vh, 30px);
+  --kiosk-button-font-size: 1.5469vw;
 }
 /*
  * In der Kinderwelt ist auch dieser Knopf eine gezeichnete Karte - dieselbe wie
@@ -205,7 +209,7 @@
 .corner {
   display: flex;
   flex-direction: column;
-  gap: 1.2cqh;
+  gap: 0.675cqw;
   width: 17cqw;
 }
 /*
@@ -241,13 +245,13 @@
    * hinzusehen draufgeschlagen - und bringt seinen Platz selbst mit; ein
    * Innenabstand engte den Text nur ein.
    */
-  --stage-button-height: 14cqh;
+  --stage-button-height: 7.875cqw;
   --stage-button-pad: 0;
   --stage-button-font: var(--font-ui);
 
   flex: 1 1 auto;
   width: 100%;
-  border: 0.35cqh solid var(--player-color);
+  border: 0.1969cqw solid var(--player-color);
   background: color-mix(in srgb, var(--player-color) 30%, var(--color-stageBottom));
   color: var(--stage-inkOnStrong);
   letter-spacing: 0.22em;
@@ -317,9 +321,7 @@
  *
  * Nach dem Entwurf `Quiz_Standalone_Startmenu_SVG_Assets` (Zeichenflaeche
  * 1440x810). Die Masse dort stehen in Pixeln; hier stehen sie als Anteil der
- * FENSTERHOEHE - eine Zahl aus dem Entwurf geteilt durch 8,1 ergibt ihren
- * vh-Wert. Dasselbe Bild traegt damit vom 10-Zoll-Tablet bis zum grossen
- * Touchtisch, und die `clamp()`-Grenzen halten es an beiden Enden lesbar.
+ * FENSTERBREITE - siehe oben: geteilt durch 14,4.
  *
  * DIE FARBEN KOMMEN AUS `--start-*` (siehe `packages/themes/src/palettes.ts`).
  * Sie sind ein eigener Satz und nicht der Bedienrahmen des Operators: Der ist
@@ -342,7 +344,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: clamp(10px, 4.4vh, 36px) clamp(10px, 4.4vh, 48px);
+  padding: 2.475vw;
   color: var(--start-text);
 }
 
@@ -459,14 +461,14 @@
 /*
  * Die Auswahlkarten der beiden Schritte - dieselbe Karte wie eine Antwortzeile.
  *
- * Die Strichbreite steht hier in `vh` und nicht in Containereinheiten: Die
+ * Die Strichbreite steht hier in `vw` und nicht in Containereinheiten: Die
  * Startauswahl ist kein Buehnencontainer, sie rechnet wie alles auf diesem
- * Bildschirm gegen die Fensterhoehe.
+ * Bildschirm gegen die Fensterbreite.
  */
 [data-skin='kids'] .card {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-a.svg');
   --kids-frame-slice: 24;
-  --kids-frame-width: clamp(6px, 1.4vh, 14px);
+  --kids-frame-width: 0.7875vw;
 }
 
 /*
@@ -514,7 +516,7 @@
   --kids-frame-slice: 24;
 }
 [data-skin='kids'] .action {
-  --kids-frame-width: clamp(6px, 1.4vh, 14px);
+  --kids-frame-width: 0.7875vw;
 }
 [data-skin='kids'] .continue {
   --kids-frame-width: 1.25cqw;
@@ -528,7 +530,7 @@
 [data-skin='kids'] .actionSecondary {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-d.svg');
   --kids-frame-slice: 24;
-  --kids-frame-width: clamp(6px, 1.4vh, 14px);
+  --kids-frame-width: 0.7875vw;
 }
 
 /*
@@ -540,7 +542,7 @@
 [data-skin='kids'] .panel {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/panel-question.svg');
   --kids-frame-slice: 71;
-  --kids-frame-width: clamp(16px, 3.9vh, 44px);
+  --kids-frame-width: 2.1938vw;
 }
 
 /*
@@ -567,7 +569,7 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: clamp(8px, 2vh, 18px);
+  gap: 1.125vw;
 }
 
 /*
@@ -603,8 +605,8 @@
   grid-template-columns: minmax(0, 535fr) minmax(0, 646fr);
   align-items: center;
   align-content: center;
-  gap: clamp(16px, 8.6vh, 70px);
-  width: min(100%, 155vh);
+  gap: 4.8375vw;
+  width: min(100%, 87.1875vw);
   min-height: 0;
   margin: 0 auto;
 }
@@ -617,9 +619,19 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 2vh, 20px);
-  height: min(70.1vh, 100%);
-  padding: clamp(14px, 3.9vh, 44px);
+  gap: 1.125vw;
+  /*
+   * DIE TAFEL IST SO HOCH WIE DIE AUSWAHL DANEBEN - das ist der Entwurf, und es
+   * ist eine BEZIEHUNG, keine Zahl. Vorher stand hier `min(70.1vh, 100%)`, und
+   * damit entschied die Fensterhoehe mit, wie gross das Motiv darin ist. Die
+   * Zahl aus dem Entwurf (567,8 px, also 39,43vw) waere ihrerseits falsch: Sie
+   * ist hoeher als die Spalte rechts, und die Tafel ragte darueber hinaus.
+   *
+   * `stretch` nimmt die Hoehe der Zeile, und die gibt die Auswahl vor. Deren
+   * Hoehe steht in `vw` wie alles hier - die Fensterhoehe kommt nicht vor.
+   */
+  align-self: stretch;
+  padding: 2.1938vw;
 }
 
 /*
@@ -649,8 +661,8 @@
   align-self: center;
   min-height: 0;
   /* Dieselbe Breite wie im Entwurf: das Motiv fuellt die Tafel nicht aus. */
-  width: min(100%, 82%);
-  border-radius: clamp(6px, 1.5vh, 14px);
+  width: 82%;
+  border-radius: 0.8438vw;
   object-fit: contain;
 }
 
@@ -663,7 +675,7 @@
 .brandTitle {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(20px, 5.3vh, 54px);
+  font-size: 2.9812vw;
   font-weight: 400;
   line-height: 1.05;
 }
@@ -681,20 +693,20 @@
 .setupTitle {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(18px, 4.2vh, 42px);
+  font-size: 2.3625vw;
   font-weight: 400;
   line-height: 1.1;
 }
 
 .setupSubtitle {
-  margin: clamp(2px, 0.8vh, 8px) 0 0;
+  margin: 0.45vw 0 0;
   font-family: var(--font-ui);
-  font-size: clamp(11px, 1.85vh, 19px);
+  font-size: 1.0406vw;
   color: var(--start-text-muted);
 }
 
 .step {
-  margin-top: clamp(10px, 5vh, 42px);
+  margin-top: 2.8125vw;
 }
 
 /*
@@ -705,10 +717,10 @@
 .modes,
 .levels {
   display: grid;
-  gap: clamp(8px, 3vh, 24px);
+  gap: 1.6667vw;
 }
 .modes {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.4167vw), 1fr));
 }
 /*
  * Drei Stufen sind der Entwurf, mehr sind moeglich: Welche Presets ein Geraet
@@ -716,7 +728,7 @@
  * auf, statt auf drei festgenagelt zu sein.
  */
 .levels {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.3333vw), 1fr));
 }
 
 /*
@@ -730,8 +742,8 @@
 .card {
   position: relative;
   display: flex;
-  border: 1px solid var(--start-line-strong);
-  border-radius: clamp(8px, 2vh, 18px);
+  border: 0.0694vw solid var(--start-line-strong);
+  border-radius: 1.125vw;
   background: var(--start-surface);
   color: var(--start-text);
   font-family: var(--font-ui);
@@ -743,11 +755,11 @@
   border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
 }
 .card:active {
-  transform: translateY(1px);
+  transform: translateY(0.0694vw);
 }
 .cardOn {
   border-color: var(--start-selected);
-  border-width: 2px;
+  border-width: 0.1389vw;
   background: var(--start-surface-selected);
   /*
    * DIE SCHRIFT GEHOERT ZUR FLAECHE, AUF DER SIE STEHT. In der dunklen Fassung
@@ -770,15 +782,15 @@
 .actionSecondary:focus-visible,
 .language:focus-visible,
 .settingsButton:focus-visible {
-  outline: 2px solid var(--start-selected-bright);
-  outline-offset: 3px;
+  outline: 0.1389vw solid var(--start-selected-bright);
+  outline-offset: 0.2083vw;
 }
 
 .mode {
   align-items: center;
-  gap: clamp(6px, 1.7vh, 15px);
-  min-height: clamp(52px, 11.4vh, 115px);
-  padding: clamp(6px, 1.5vh, 14px) clamp(8px, 2.2vh, 20px);
+  gap: 0.9562vw;
+  min-height: 6.4125vw;
+  padding: 0.8438vw 1.2375vw;
 }
 
 /* Das Zeichen sitzt in einer eigenen runden Flaeche - der Anker der Karte. */
@@ -786,8 +798,8 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: clamp(28px, 5.9vh, 52px);
-  height: clamp(28px, 5.9vh, 52px);
+  width: 3.3188vw;
+  height: 3.3188vw;
   border-radius: 50%;
   background: color-mix(in srgb, var(--start-glass) 4.5%, transparent);
   color: var(--start-icon);
@@ -804,7 +816,7 @@
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: clamp(1px, 0.4vh, 4px);
+  gap: 0.225vw;
   min-width: 0;
 }
 
@@ -814,12 +826,12 @@
   line-height: 1.15;
 }
 .cardMeta {
-  font-size: clamp(9px, 1.48vh, 15px);
+  font-size: 0.8325vw;
   font-weight: 500;
   color: var(--start-text-muted);
 }
 [data-skin='kids'] .cardMeta {
-  font-size: clamp(12px, 2.22vh, 20px);
+  font-size: 1.2488vw;
 }
 
 /*
@@ -831,8 +843,8 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: clamp(18px, 3.2vh, 28px);
-  height: clamp(18px, 3.2vh, 28px);
+  width: 1.8vw;
+  height: 1.8vw;
   margin-left: auto;
   border-radius: 50%;
   color: var(--start-ink-on-badge);
@@ -857,9 +869,9 @@
  */
 .level {
   align-items: center;
-  gap: clamp(6px, 1.7vh, 15px);
-  min-height: clamp(40px, 9.2vh, 93px);
-  padding: clamp(6px, 1.5vh, 14px) clamp(8px, 2.2vh, 20px);
+  gap: 0.9562vw;
+  min-height: 5.175vw;
+  padding: 0.8438vw 1.2375vw;
 }
 
 /* ------------------------------------------------------------------ *
@@ -868,8 +880,8 @@
 
 .actions {
   display: flex;
-  gap: clamp(8px, 2vh, 18px);
-  margin-top: clamp(10px, 6.3vh, 51px);
+  gap: 1.125vw;
+  margin-top: 3.5417vw;
 }
 
 /*
@@ -883,11 +895,11 @@
   flex: 0 1 auto;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 2vh, 18px);
-  min-height: clamp(44px, 9.4vh, 95px);
-  padding: 0 clamp(10px, 2.7vh, 24px) 0 clamp(14px, 5.4vh, 44px);
-  border: 1px solid color-mix(in srgb, var(--start-green-edge) 42%, transparent);
-  border-radius: clamp(9px, 2.1vh, 19px);
+  gap: 1.125vw;
+  min-height: 5.2875vw;
+  padding: 0 1.5188vw 0 3.0375vw;
+  border: 0.0694vw solid color-mix(in srgb, var(--start-green-edge) 42%, transparent);
+  border-radius: 1.1813vw;
   background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
   /*
    * DIE AUFSCHRIFT GEHOERT AUF DAS GRUEN, nicht auf die Flaeche daneben: Der
@@ -906,13 +918,13 @@
   cursor: not-allowed;
 }
 .action:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(0.0694vw);
 }
 .setup .action {
   flex: 1 1 auto;
 }
 .action[data-start] {
-  font-size: clamp(15px, 3.33vh, 30px);;
+  font-size: 1.8731vw;
 }
 /*
  * Der Pfeil steht frei auf dem Balken - ohne eigene Scheibe. Er wiederholt nur,
@@ -926,8 +938,8 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: clamp(26px, 6.2vh, 50px);
-  height: clamp(26px, 6.2vh, 50px);
+  width: 3.4722vw;
+  height: 3.4722vw;
 }
 .actionArrow > svg {
   width: 60%;
@@ -939,10 +951,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(44px, 9.4vh, 95px);
-  padding: 0 clamp(14px, 3.5vh, 30px);
-  border: 1px solid var(--start-line-strong);
-  border-radius: clamp(9px, 2.1vh, 19px);
+  min-height: 5.2875vw;
+  padding: 0 1.9688vw;
+  border: 0.0694vw solid var(--start-line-strong);
+  border-radius: 1.1813vw;
   background: var(--start-surface);
   color: var(--start-text);
   font-family: var(--font-ui);
@@ -968,20 +980,20 @@
  */
 .languages {
   display: flex;
-  gap: clamp(2px, 0.5vh, 4px);
-  padding: clamp(2px, 0.5vh, 4px);
-  border: 1px solid var(--start-line);
-  border-radius: clamp(7px, 1.6vh, 15px);
+  gap: 0.2778vw;
+  padding: 0.2778vw;
+  border: 0.0694vw solid var(--start-line);
+  border-radius: 0.9vw;
   background: var(--start-surface-quiet);
 }
 .language {
-  padding: clamp(4px, 1.1vh, 10px) clamp(8px, 2vh, 18px);
-  border: 1.5px solid transparent;
-  border-radius: clamp(5px, 1.2vh, 11px);
+  padding: 0.6188vw 1.125vw;
+  border: 0.1042vw solid transparent;
+  border-radius: 0.675vw;
   background: none;
   color: var(--start-text-muted);
   font-family: var(--font-ui);
-  font-size: clamp(9px, 1.73vh, 18px);
+  font-size: 0.9731vw;
   font-weight: 500;
   cursor: pointer;
 }
@@ -1004,10 +1016,10 @@
   margin-left: auto;
   display: grid;
   place-items: center;
-  width: clamp(30px, 5.9vh, 54px);
-  height: clamp(30px, 5.9vh, 54px);
+  width: 3.3188vw;
+  height: 3.3188vw;
   padding: 0;
-  border: 1px solid var(--start-line-strong);
+  border: 0.0694vw solid var(--start-line-strong);
   border-radius: 50%;
   background: var(--start-surface);
   color: var(--start-icon);
@@ -1025,12 +1037,16 @@
  * Schmale und hochkante Aufstellungen
  *
  * Zwei Spalten brauchen Breite. Faellt sie weg - Tablet im Hochformat, kleines
- * Fenster in der Spielesammlung -, stehen Tafel und Auswahl untereinander, und
- * die Tafel gibt ihr Motiv auf: Es ist das Einzige auf dieser Flaeche, das
- * niemand braucht, um weiterzukommen.
+ * Fenster in der Spielesammlung -, stehen Tafel und Auswahl untereinander.
+ *
+ * DIE SCHWELLE FRAGT NUR DIE BREITE. Sie hiess einmal auch
+ * `(max-aspect-ratio: 5 / 4)`, und damit entschied die HOEHE mit: Zwei Fenster
+ * gleicher Breite zeigten die Auswahl verschieden angeordnet, sobald eines
+ * hoeher war. Was hier umschaltet, ist ausserdem allein die Anordnung - keine
+ * Groesse. Die stehen alle in `vw` und gelten auf jeder Breite gleich.
  * ------------------------------------------------------------------ */
 
-@media (max-aspect-ratio: 5 / 4), (max-width: 780px) {
+@media (max-width: 780px) {
   .start {
     overflow-y: auto;
   }
@@ -1042,76 +1058,7 @@
      * schiebt sich ueber die Eckknoepfe, die dann nicht mehr zu treffen sind.
      */
     align-content: start;
-    gap: clamp(12px, 2.4vh, 28px);
     width: 100%;
-    max-width: 720px;
-    padding-top: clamp(10px, 2vh, 20px);
-  }
-  /*
-   * Untereinander wird der Platz knapp. Gekuerzt wird das Grosszuegige, nicht
-   * das Noetige: die Luft zwischen den Schritten und die Hoehe des Motivs. Was
-   * gelesen und getroffen werden muss, bleibt wie es ist.
-   */
-  .brand {
-    height: auto;
-    max-height: 46vh;
-    padding: clamp(12px, 2.6vh, 30px);
-  }
-  /*
- * DIE MARKE KIPPT MIT DER FASSUNG.
- *
- * Das Motiv der Tafel kommt aus dem Inhalt und ist dort eine helle Zeichnung -
- * fuer den dunklen Grund, fuer den die Auswahl entworfen wurde. Auf Papier
- * verschwindet sie. Umgekehrt gilt fuer eine Aufstellung, deren Startbild ein
- * FOTO ist: Die soll in der hellen Fassung ein eigenes Motiv hinterlegen,
- * statt sich invertieren zu lassen.
- */
-[data-theme='bright'] .brandVisual {
-  /*
-   * Die Deckkraft nimmt dem umgekehrten Weiss die Haerte: Aus Schwarz wird auf
-   * Papier das dunkle Anthrazit, in dem auch die Schrift daneben steht.
-   */
-  filter: invert(1) opacity(0.82);
-}
-
-.brandVisual {
-    min-height: 12vh;
-  }
-  .setupTitle {
-    font-size: clamp(18px, 3.2vh, 34px);
-  }
-  .step {
-    margin-top: clamp(10px, 2.6vh, 26px);
-  }
-  .actions {
-    margin-top: clamp(10px, 3vh, 28px);
-  }
-  .note {
-    margin-top: clamp(6px, 2vh, 18px);
-  }
-}
-
-/* Ganz flache Fenster: Auch das Motiv der Tafel hat dann keinen Platz mehr. */
-@media (max-height: 480px) {
-  /*
- * DIE MARKE KIPPT MIT DER FASSUNG.
- *
- * Das Motiv der Tafel kommt aus dem Inhalt und ist dort eine helle Zeichnung -
- * fuer den dunklen Grund, fuer den die Auswahl entworfen wurde. Auf Papier
- * verschwindet sie. Umgekehrt gilt fuer eine Aufstellung, deren Startbild ein
- * FOTO ist: Die soll in der hellen Fassung ein eigenes Motiv hinterlegen,
- * statt sich invertieren zu lassen.
- */
-[data-theme='bright'] .brandVisual {
-  /*
-   * Die Deckkraft nimmt dem umgekehrten Weiss die Haerte: Aus Schwarz wird auf
-   * Papier das dunkle Anthrazit, in dem auch die Schrift daneben steht.
-   */
-  filter: invert(1) opacity(0.82);
-}
-
-.brandVisual {
-    display: none;
   }
 }
 
@@ -1137,7 +1084,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(12px, 3vh, 40px);
+  padding: 1.6875vw;
   background: color-mix(in srgb, var(--start-shade) 72%, transparent);
 }
 
@@ -1145,12 +1092,12 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: clamp(10px, 2.6vh, 26px);
-  min-width: clamp(280px, 46vw, 620px);
+  gap: 1.4625vw;
+  min-width: 43.0556vw;
   max-width: 92%;
-  padding: clamp(16px, 3.9vh, 44px);
-  border: 1px solid var(--start-line-strong);
-  border-radius: clamp(14px, 4vh, 34px);
+  padding: 2.1938vw;
+  border: 0.0694vw solid var(--start-line-strong);
+  border-radius: 2.25vw;
   background: var(--start-surface);
   color: var(--start-text);
   font-family: var(--font-ui);
@@ -1162,7 +1109,7 @@
 .panelTitle {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(18px, 3.2vh, 34px);
+  font-size: 1.8vw;
   font-weight: 400;
 }
 
@@ -1171,18 +1118,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(10px, 2vw, 28px);
+  gap: 1.9444vw;
 }
 
 .settingLabel {
-  font-size: clamp(11px, 2vh, 20px);
+  font-size: 1.125vw;
   font-weight: 600;
 }
 
 .settingControl {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1.2vw, 16px);
+  gap: 1.1111vw;
 }
 
 /*
@@ -1195,9 +1142,9 @@
 .toggle {
   align-items: center;
   justify-content: center;
-  min-width: clamp(74px, 12vw, 140px);
-  min-height: clamp(40px, 7vh, 80px);
-  padding: 0 clamp(10px, 2.2vh, 20px);
+  min-width: 9.7222vw;
+  min-height: 3.9375vw;
+  padding: 0 1.2375vw;
   font-size: var(--kiosk-button-font-size);
   font-weight: 600;
   text-align: center;
@@ -1205,7 +1152,7 @@
 
 .settingValue {
   min-width: 4.5ch;
-  font-size: clamp(11px, 1.7vh, 17px);
+  font-size: 0.9562vw;
   font-weight: 500;
   color: var(--start-text-muted);
   text-align: right;
@@ -1217,8 +1164,8 @@
  * eine nachgebaute Bahn waere an jedem Geraet ein anderes Bauteil.
  */
 .slider {
-  width: clamp(140px, 22vw, 280px);
-  height: clamp(30px, 4.5vh, 48px);
+  width: 19.4444vw;
+  height: 2.5312vw;
   accent-color: var(--start-selected);
   background: transparent;
   cursor: pointer;
@@ -1231,7 +1178,7 @@
  */
 .panel .actions {
   justify-content: center;
-  margin-top: clamp(2px, 1vh, 10px);
+  margin-top: 0.5625vw;
 }
 /*
  * Ausserhalb der Startauswahl traegt der Knopf keinen Pfeil - dort ist er der
@@ -1241,7 +1188,7 @@
 .panel .action,
 .footer .action {
   justify-content: center;
-  padding: 0 clamp(18px, 4.4vh, 40px);
+  padding: 0 2.475vw;
 }
 
 /*
@@ -1254,16 +1201,16 @@
  */
 .abort {
   position: absolute;
-  top: clamp(8px, 1.6vh, 20px);
-  right: clamp(8px, 1.6vw, 22px);
+  top: 0.9vw;
+  right: 1.5278vw;
   z-index: 11;
-  padding: clamp(5px, 1.1vh, 11px) clamp(9px, 1.9vh, 18px);
-  border: 1px solid var(--start-line-strong);
-  border-radius: clamp(6px, 1.4vh, 13px);
+  padding: 0.6188vw 1.0687vw;
+  border: 0.0694vw solid var(--start-line-strong);
+  border-radius: 0.7875vw;
   background: var(--start-surface);
   color: var(--start-text-muted);
   font-family: var(--font-ui);
-  font-size: clamp(12px, 1.6vh, 18px);
+  font-size: 0.9vw;
   font-weight: 600;
   cursor: pointer;
   scale: var(--stage-zoom, 1);

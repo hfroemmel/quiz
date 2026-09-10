@@ -59,7 +59,7 @@
   font-family: var(--kids-hand);
   font-weight: 400;
   font-size: var(--kids-size-label);
-  padding: 0.5cqh 0;
+  padding: 0.2812cqw 0;
 }
 :global(.stage--kids) .value {
   font-family: var(--kids-numeric);

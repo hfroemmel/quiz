@@ -1,11 +1,17 @@
 /* ------------------------------------------------------------------ *
  * Keyframes - Dauer und Easing kommen aus dem Uebergangsregistry
+ *
+ * Die Wege stehen in `cqw` wie jede andere Groesse der Buehne (siehe
+ * `styles/stage.css`): Ein Weg in Pixeln waere in der kleinen Operatorvorschau
+ * eine halbe Zeile und im Beamer-Vollbild ein Wimpernschlag. So ist die
+ * Bewegung derselbe Anteil der Flaeche - und wie alles hier ein Anteil ihrer
+ * BREITE.
  * ------------------------------------------------------------------ */
 
 @keyframes option-enter {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(0.9722cqw);
   }
   to {
     opacity: 1;
@@ -25,7 +31,7 @@
 @keyframes question-rise {
   from {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(1.9444cqw);
   }
   to {
     opacity: 1;
@@ -65,7 +71,7 @@
 @keyframes solution-rise {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.98);
+    transform: translateY(1.6667cqw) scale(0.98);
   }
   to {
     opacity: 1;

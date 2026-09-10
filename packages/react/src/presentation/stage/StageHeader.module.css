@@ -85,7 +85,7 @@
  */
 :global(.stage--default.stage--touch) .header {
   justify-content: flex-start;
-  padding: 4cqh 4cqw 0;
+  padding: 2.25cqw 4cqw 0;
   scale: var(--stage-zoom, 1);
   transform-origin: top left;
 }

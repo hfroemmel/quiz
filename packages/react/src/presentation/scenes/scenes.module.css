@@ -43,7 +43,7 @@
 .startVisual,
 .pauseLogo {
   max-width: 46cqw;
-  max-height: 55cqh;
+  max-height: 30.9375cqw;
   object-fit: contain;
 }
 .startTitle {
@@ -240,7 +240,9 @@
 }
 .resultLabel {
   /* Die Aussage steht in der Ueberschrift; das Etikett bleibt fuer Tests und
-     Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. */
+     Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. Der eine Pixel ist
+     keine Groesse, sondern die kleinste, die noch vorgelesen wird - er skaliert
+     mit nichts mit. */
   position: absolute;
   width: 1px;
   height: 1px;
