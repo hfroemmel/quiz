@@ -1,5 +1,82 @@
 # @hfroemmel/quiz-kiosk
 
+## 0.8.0
+
+### Minor Changes
+
+- bc9579a: Die Startauswahl gehoert jetzt auch in der Kinderwelt zum Kinderquiz.
+  
+  **Sie war es bisher nicht - und konnte es nicht sein.** Die Welt steht als
+  `.stage--kids` an der Buehne, und die entsteht erst mit dem Spiel; Startauswahl,
+  Einstellungen und Rueckfragen liegen darueber. Regeln, die an der Buehnenklasse
+  haengen, greifen dort nie. Die Welt steht deshalb ab jetzt als `data-skin` am
+  Wurzelelement von `<QuizGame>`, und die Namen der Welt - Tinte, Papier,
+  Handschrift, Zeiten - stehen in `styles/stage.css` an `[data-skin='kids']`
+  statt an der Buehnenklasse. Die Buehne selbst behaelt dort nur, was ihre Flaeche
+  betrifft.
+  
+  **Die Welt kommt jetzt aus der Zielgruppe, nicht erst aus dem Spiel.** Vor dem
+  Start meldet `theme` die Grundwelt - ein Kindergeraet zeigte damit die Auswahl
+  der Erwachsenen und wechselte erst mit der ersten Frage. Der Katalog nennt die
+  Gestaltungswelt deshalb je Zielgruppe (`catalog.audiences[].skin`), und die
+  Startauswahl liest sie dort.
+  
+  **Gezeichnet statt gezogen.** Karten, Knoepfe und die Bedienspalte tragen die
+  Zeichnungen aus dem Assetpaket des Kinderquiz - dieselben Dateien, die im Spiel
+  die Antwortzeilen und die Fragetafel tragen, nicht nachgebaute. Eine gewaehlte
+  Karte sieht aus wie eine gewaehlte Antwort: rote Karte, weisse Schrift. Der
+  gruene Ring und die gruene Kante entfallen dort; sie sind die Auswahlfarbe der
+  Erwachsenenauswahl und haben in dieser Welt keine Bedeutung.
+  
+  **Ein primaerer Knopf fuer die ganze Welt.** "Los geht's" in der Auswahl,
+  "Weiter" und "Antwort abgeben und aufloesen" in der Fussleiste kommen aus
+  EINEM Satz Token (`--kids-frame`, `--kids-frame-slice`, `--kids-frame-width`).
+  Der Aufbau der gezeichneten Flaeche steht genau einmal; ein Ort, der dazukommt,
+  nennt nur noch die drei Namen. Weil die Kontur ein `border-image` ist, behalten
+  die Ecken bei jeder Knopfbreite ihre Groesse - gedehnt werden nur die Kanten.
+  
+  Der Erwachsenenmodus ist unveraendert.
+
+### Patch Changes
+
+- 49b3605: Die Markentafel des Startbildschirms traegt nur noch Motiv und Titel.
+  
+  Weg sind die Zeile mit dem Namen der Zielgruppe darueber und der Satz darunter.
+  Uebrig bleibt das, was aus fuenf Metern wirkt: das Bild und die eine Zeile.
+  
+  Fuer Gastgeber heisst das: Eine `startDescription` (bzw. `startDescriptions`)
+  im Inhalt wird auf dem Startbildschirm nicht mehr angezeigt. Das Feld bleibt im
+  Schema und steht weiterhin als `theme.startDescription` im Ansichtsmodell -
+  eine Aufstellung, die es gepflegt hat, muss nichts aendern.
+- bc9579a: Das Rueckfallmotiv der Starttafel ist wieder da.
+  
+  `packages/kiosk/src/assets/quiz-mark.svg` war geloescht, die Adresse in
+  `GameStart.tsx` blieb stehen. Der Build meldete das als Warnung und lieferte die
+  Adresse unaufgeloest aus - eine Aufstellung ohne eigenes Startbild bekam damit
+  kein Bild. Dazu drei Reste ohne Verwendung: das Funkenzeichen, die
+  Schrittnummern-Hilfe und die Regeln der entfernten Tafelzeile.
+- d233bda: Das Startmenue nach dem neuen Entwurf.
+  
+  **Die Stufenkarte ist dieselbe Zeile wie die Moduskarte**, nur ohne Zeichen:
+  Text links, Haekchen rechts. Die Punktereihe darueber faellt weg - sie zaehlte
+  die Stelle in der Liste und sagte damit nichts, was nicht schon in "5 Fragen"
+  steht. Ohne sie ist die Karte flacher, und die beiden Reihen der Auswahl stehen
+  nicht mehr verschieden hoch nebeneinander.
+  
+  **Der Startknopf traegt helle Schrift**, wie alles andere auf der Flaeche, und
+  der Pfeil steht frei darauf statt in einer eigenen Scheibe. Der Balken ist die
+  einzige volle Farbe der Auswahl; er braucht keine zweite Auszeichnung darin.
+  
+  **In der Kinderwelt steht die Auswahl auf Papier.** Der dunkle Verlauf mit den
+  beiden farbigen Lichtern gehoert zur Auswahl der Erwachsenen; die Kinderwelt
+  bekommt denselben Grund wie das Spiel danach. Damit ist auch der Titel der
+  Markentafel dort wieder zu lesen.
+- Updated dependencies [cdf1303]
+- Updated dependencies [bc9579a]
+  - @hfroemmel/quiz-react@0.8.0
+  - @hfroemmel/quiz-core@0.8.0
+  - @hfroemmel/quiz-themes@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes

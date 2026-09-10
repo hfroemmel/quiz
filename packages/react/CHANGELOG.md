@@ -1,5 +1,77 @@
 # @hfroemmel/quiz-react
 
+## 0.8.0
+
+### Minor Changes
+
+- cdf1303: Der unscharfe Bildgrund blendet auf, und die Buehne der Erwachsenen ist im
+  Zweifel hell.
+  
+  **DER BILDGRUND TRUG BEIM WECHSEL KURZ DAS VORIGE BILD.** Ein
+  `background-image` wechselt erst, wenn das neue Bild geladen ist - auf einer
+  neuen Frage stand deshalb einen Moment lang der Grund der alten. Die Adresse
+  wird jetzt zuerst geladen UND dekodiert (`useDecodedImage`) und erst danach
+  gezeigt; die Adresse selbst ist die Kennung des Elements, sodass eine neue
+  Frage von vorn beginnt und die alte im selben Moment weg ist. Der Spielablauf
+  wartet nicht darauf - die Frage steht sofort, nur ihr Grund kommt einen
+  Wimpernschlag spaeter dazu. Bis dahin liegt dort der Verlauf der Buehne, also
+  nie eine ungestylte Flaeche.
+  
+  **EIN MASS FUER DIE KLEINEN UEBERGAENGE.** Neu an der Buehne:
+  `--stage-fade-duration` (220 ms) und `--stage-fade-easing`. Gemeint sind nicht
+  die Szenenwechsel - die bringen ihre Dauer aus dem Uebergangsregistry mit -,
+  sondern alles, was innerhalb einer Szene erscheint und wieder geht. Sie stehen
+  an der Buehne, damit auch eine Ebene des Gastgebers (`pads.overlay`) in
+  derselben Zeit laufen kann. Unter `prefers-reduced-motion` fallen sie auf 1 ms.
+  
+  **DIE BUEHNE DER ERWACHSENEN IST IM ZWEIFEL HELL.** Sie war dunkel, weil sie
+  fuer den abgedunkelten Saal entworfen wurde; ihr haeufigster Ort ist inzwischen
+  ein Touchtisch in einem Foyer mit Tageslicht. Der Umschalter bleibt, nur die
+  Vorgabe wechselt - eine gespeicherte Wahl gilt weiter. Die helle Fassung ist
+  die vorhandene `.stage--bright`; ein neuer Farbwert kommt nicht dazu. Die
+  Kinderwelt bringt ihr eigenes Papier mit und kennt den Umschalter nicht.
+  
+  Neu am Markup: `[data-backdrop]` und dort `[data-ready]` - der Bildgrund ist
+  damit von aussen pruefbar.
+- bc9579a: Die Startauswahl gehoert jetzt auch in der Kinderwelt zum Kinderquiz.
+  
+  **Sie war es bisher nicht - und konnte es nicht sein.** Die Welt steht als
+  `.stage--kids` an der Buehne, und die entsteht erst mit dem Spiel; Startauswahl,
+  Einstellungen und Rueckfragen liegen darueber. Regeln, die an der Buehnenklasse
+  haengen, greifen dort nie. Die Welt steht deshalb ab jetzt als `data-skin` am
+  Wurzelelement von `<QuizGame>`, und die Namen der Welt - Tinte, Papier,
+  Handschrift, Zeiten - stehen in `styles/stage.css` an `[data-skin='kids']`
+  statt an der Buehnenklasse. Die Buehne selbst behaelt dort nur, was ihre Flaeche
+  betrifft.
+  
+  **Die Welt kommt jetzt aus der Zielgruppe, nicht erst aus dem Spiel.** Vor dem
+  Start meldet `theme` die Grundwelt - ein Kindergeraet zeigte damit die Auswahl
+  der Erwachsenen und wechselte erst mit der ersten Frage. Der Katalog nennt die
+  Gestaltungswelt deshalb je Zielgruppe (`catalog.audiences[].skin`), und die
+  Startauswahl liest sie dort.
+  
+  **Gezeichnet statt gezogen.** Karten, Knoepfe und die Bedienspalte tragen die
+  Zeichnungen aus dem Assetpaket des Kinderquiz - dieselben Dateien, die im Spiel
+  die Antwortzeilen und die Fragetafel tragen, nicht nachgebaute. Eine gewaehlte
+  Karte sieht aus wie eine gewaehlte Antwort: rote Karte, weisse Schrift. Der
+  gruene Ring und die gruene Kante entfallen dort; sie sind die Auswahlfarbe der
+  Erwachsenenauswahl und haben in dieser Welt keine Bedeutung.
+  
+  **Ein primaerer Knopf fuer die ganze Welt.** "Los geht's" in der Auswahl,
+  "Weiter" und "Antwort abgeben und aufloesen" in der Fussleiste kommen aus
+  EINEM Satz Token (`--kids-frame`, `--kids-frame-slice`, `--kids-frame-width`).
+  Der Aufbau der gezeichneten Flaeche steht genau einmal; ein Ort, der dazukommt,
+  nennt nur noch die drei Namen. Weil die Kontur ein `border-image` ist, behalten
+  die Ecken bei jeder Knopfbreite ihre Groesse - gedehnt werden nur die Kanten.
+  
+  Der Erwachsenenmodus ist unveraendert.
+
+### Patch Changes
+
+- Updated dependencies [bc9579a]
+  - @hfroemmel/quiz-core@0.8.0
+  - @hfroemmel/quiz-themes@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes
