@@ -142,6 +142,14 @@ links aussen und leicht gegen den Uhrzeigersinn gedreht, bei Spieler 2 rechts
 aussen, gespiegelt und andersherum gedreht. Seite, Drehung und Spiegelung stehen
 allein im CSS und haengen an `data-player`.
 
+Sie ist bewusst **kleiner als die Punktekarte**: 3.6cqw breit, ueber das
+Seitenverhaeltnis 4.6cqw hoch, gedreht rund 5cqw - und bleibt damit innerhalb
+der rund 6cqw hohen Kachel, statt oben aus der Kopfzeile zu stossen. Hervor
+schaut knapp die Haelfte (1.9cqw von 3.6cqw); der Rest verschwindet hinter der
+Kachel. Weiter nach innen geht nicht, denn die Kachel ist Milchglas - was
+dahinter liegt, schimmert durch und legt sich als Fleck ueber Beschriftung und
+Zahl. Der E2E-Test misst beides.
+
 Sie verschiebt nichts: Die Kopfzeile stellt je Spieler einen relativ
 positionierten Rahmen um die Punktekarte
 (`StageHeaderSlots.besidePlayer` in `@hfroemmel/quiz-react`), und die Karte liegt
