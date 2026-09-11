@@ -18,17 +18,24 @@
  *
  *   :root                          Rueckfallebene, bis der erste Snapshot des
  *                                  Servers da ist.
- *   .stage--default.stage--bright  die helle Fassung. Sie MUSS am
+ *   .stage--default.stage--bright  die helle Fassung der Buehne. Sie MUSS am
  *                                  Buehnenelement selbst stehen: Die Themefarben
  *                                  kommen als Inline-Variablen am Rahmen an, und
  *                                  eine eigene Deklaration schlaegt einen
  *                                  geerbten Wert.
+ *   [data-quiz-game][data-theme]   die helle Fassung des Startbildschirms. Er
+ *                                  liegt UEBER der Buehne und kann ihre Klasse
+ *                                  deshalb nicht lesen; die Fassung steht am
+ *                                  Wurzelelement des Geraets als Attribut. Ein
+ *                                  Datenattribut und keine Klasse, weil dieses
+ *                                  Stylesheet erzeugt wird und die Klassen der
+ *                                  Bauteile gehasht sind.
  *
  * Fuer die dunkle Fassung und die Kinderwelt entsteht BEWUSST keine Regel: Ihre
  * Farben liefert das Theme des laufenden Quiz. Eine Regel hier wuerde ein Theme
  * mit eigenen Farben aussperren.
  */
-import { brightPalette, stageExtras, stagePalettes, startPalette, uiPalette } from './palettes'
+import { brightPalette, brightStartPalette, stageExtras, stagePalettes, startPalette, uiPalette } from './palettes'
 
 const HEADER = `/*
  * ERZEUGT - NICHT VON HAND BEARBEITEN.
@@ -67,6 +74,9 @@ export function paletteStyleSheet(): string {
     '',
     '/* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */',
     block('.stage--default.stage--bright', prefixed(brightPalette as Record<string, string>, 'color-')),
+    '',
+    '/* Helle Fassung der Startauswahl davor - nur, was von der dunklen abweicht. */',
+    block("[data-quiz-game][data-theme='bright']", prefixed(brightStartPalette as Record<string, string>, 'start-')),
     '',
   ].join('\n')
 }

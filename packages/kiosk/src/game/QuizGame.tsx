@@ -21,6 +21,7 @@ import {
   useAudioUnlock,
   useQuizRuntime,
   useQuizSnapshot,
+  useStageTheme,
 } from '@hfroemmel/quiz-react'
 import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
@@ -349,6 +350,21 @@ export function QuizGame({
     (hasGame && !showChoice ? view.theme.skin : view.catalog.audiences.find((entry) => entry.id === audienceId)?.skin) ??
     'default'
 
+  /*
+   * HELLE ODER DUNKLE FASSUNG - AUCH AUSSERHALB DER BUEHNE.
+   *
+   * `.stage--bright` steht an der Buehne, und die entsteht erst mit dem Spiel.
+   * Startauswahl, Einstellungen und Rueckfragen liegen darueber und trugen
+   * deshalb immer die dunkle Fassung, auch wenn das Spiel danach auf Papier
+   * lief. Die Fassung steht jetzt als Attribut am Wurzelelement; die
+   * `--start-*`-Farben der hellen Fassung haengen daran (siehe `palette.css`).
+   *
+   * Die Kinderwelt kennt den Umschalter nicht - sie bringt ihr eigenes Papier
+   * mit und meldet sich hier als eigene Welt.
+   */
+  const [stageTheme] = useStageTheme()
+  const fassung = skin === 'kids' ? 'kids' : stageTheme
+
   const settings = settingsOpen && eigenesGeraet && (
     <GameSettings
       view={view}
@@ -367,6 +383,7 @@ export function QuizGame({
         style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
         data-quiz-game=""
         data-skin={skin}
+        data-theme={fassung}
       >
         <GameStart
           view={view}
@@ -389,6 +406,7 @@ export function QuizGame({
         style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
         data-quiz-game=""
         data-skin={skin}
+        data-theme={fassung}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -431,7 +449,10 @@ export function QuizGame({
 
 
   return (
-    <div className={styles.game} style={flaeche} data-quiz-game="" data-skin={skin} onPointerDown={idle.notice}>
+    <div className={styles.game} style={flaeche} data-quiz-game=""
+      data-skin={skin}
+      data-theme={fassung}
+      onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/*

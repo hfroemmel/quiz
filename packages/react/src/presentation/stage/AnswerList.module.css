@@ -143,10 +143,10 @@
   padding-left: 1.6cqw;
 }
 :global(.stage--default[data-presentation='person']) .answers {
-  gap: 3.1cqh;
+  gap: 1.7438cqw;
 }
 :global(.stage--default[data-presentation='person']) .answer {
-  min-height: 8.7cqh;
+  min-height: 4.8937cqw;
   gap: 0.9cqw;
 }
 /*
@@ -156,7 +156,7 @@
  * wirkungslos.
  */
 :global(.stage--default[data-presentation='person']) .chip {
-  min-width: 9cqh;
+  min-width: 5.0625cqw;
   font-size: 2.4cqw;
 }
 
@@ -165,7 +165,7 @@
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .answers {
-  gap: 1cqh;
+  gap: 0.5625cqw;
   /* Rechts bleibt die Figurenflaeche frei. */
   width: var(--kids-content-width);
   /* Die Antworten geben nichts her; nachgiebig ist die Fragezeile darueber. */
@@ -192,7 +192,7 @@
   isolation: isolate;
 }
 :global(.stage--kids) .surface {
-  min-height: 8cqh;
+  min-height: 4.5cqw;
   padding: 0.85cqw 1.6cqw;
   position: relative;
   isolation: isolate;
@@ -280,9 +280,9 @@
  * nicht ueber eine feste Zeilenhoehe: Eine zweizeilige Antwort waechst so mit,
  * statt aus ihrer Kachel zu laufen.
  *
- * Die Masse stehen in `cqh` und rechnen damit gegen die Szene, denn die ist am
- * Geraet ihr eigener Container (`Stage.module.css`). Die Zeilen wachsen also
- * mit der Flaeche zwischen den Buzzern.
+ * Die Masse rechnen gegen die BREITE der Szene, denn die ist am Geraet ihr
+ * eigener Container (`Stage.module.css`). Die Zeilen wachsen also mit der
+ * Flaeche zwischen den Buzzern - und nur mit ihrer Breite.
  *
  * NUR IN DER BUEHNE DER ERWACHSENEN. Die gezeichnete Karte der Kinderwelt ist
  * ohnehin daumengross - sie bringt ihre Hoehe selbst mit. Noch einmal
@@ -290,12 +290,12 @@
  * unten aus seiner Tafel lief.
  */
 :global(.stage--default.stage--touch) .answers {
-  gap: 1.9cqh;
+  gap: 1.0687cqw;
 }
 :global(.stage--default.stage--touch) .surface,
 :global(.stage--default.stage--touch) .chip {
-  padding-top: 2.8cqh;
-  padding-bottom: 2.8cqh;
+  padding-top: 1.575cqw;
+  padding-bottom: 1.575cqw;
 }
 /*
  * Der Buchstabe waechst in der Hoehe mit und braucht deshalb auch Breite - sonst
@@ -307,7 +307,7 @@
  * Marke mit festem Seitenverhaeltnis.
  */
 :global(.stage--default.stage--touch) .chip {
-  min-width: 7cqh;
+  min-width: 3.9375cqw;
 }
 
 /*

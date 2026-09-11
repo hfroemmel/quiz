@@ -10,9 +10,29 @@
  * Welt gelten. Alles Bauteilhafte steht im Modul des jeweiligen Bauteils.
  *
  * DIE BUEHNENFLAECHE IST EIN CONTAINER: Alle Groessen darin stehen in `cqw`
- * bzw. `cqh` (Prozent der Flaechenbreite/-hoehe). Dadurch ist die kleine
- * Vorschau im Operatorfenster dieselbe Komposition wie das Vollbild auf dem
- * Beamer - eine Zeile Layout, zwei Groessen, keine Geraeteabfragen.
+ * (Prozent der FLAECHENBREITE). Dadurch ist die kleine Vorschau im
+ * Operatorfenster dieselbe Komposition wie das Vollbild auf dem Beamer - eine
+ * Zeile Layout, eine Groesse, keine Geraeteabfragen.
+ *
+ * DIE BREITE IST DAS EINZIGE MASS. Keine Groesse hier rechnet gegen eine Hoehe -
+ * kein `cqh`, kein `vh`, kein `vmin`, und auch keine Grenze, die eine Hoehe
+ * einschmuggelt. Zwei Flaechen gleicher Breite zeigen dieselbe Komposition in
+ * derselben Groesse, gleich wie hoch sie sind; ist eine hoeher als 16:9,
+ * entsteht Luft, ist sie flacher, schneidet die Flaeche ab. Das ist gewollt:
+ * Wer eine Zahl aendert, aendert sie fuer alle Bildschirme auf einmal.
+ *
+ * BEZUGSBREITE 1440 px - die Zeichenflaeche der Entwuerfe (1440x810 = 16:9).
+ * Eine Zahl von dort geteilt durch 14,4 ergibt ihren cqw-Wert.
+ *
+ * ZWEI EINHEITEN BLEIBEN: `em` fuer Laufweite und Zeilenabstand, weil die sich
+ * auf die SCHRIFT beziehen und nicht auf die Flaeche - und die Schriftgroesse
+ * steht ihrerseits in `cqw`, die Laufweite waechst also mit. Und der eine Pixel
+ * des unsichtbaren Etiketts in `scenes.module.css`, der gar keine Groesse ist.
+ *
+ * NICHT GEMEINT sind die Bedienelemente des Gastgebers
+ * (`@hfroemmel/quiz-themes/controls.css`): Operatorpult und Menues liegen
+ * AUSSERHALB der Buehne, dort ist ein Knopf ein Knopf und kein Anteil einer
+ * Flaeche.
  */
 
 .stage {
@@ -91,7 +111,7 @@
    * und der soll in eine Zeile passen, ohne dass der Knopf die Mitte der
    * Fussleiste sprengt.
    */
-  --stage-button-height: 9cqh;
+  --stage-button-height: 5.0625cqw;
   --stage-button-pad: 4cqw;
   --stage-button-radius: var(--stage-radius);
   --stage-button-font: var(--font-heading);
@@ -159,8 +179,8 @@
  * jedem Knopf der Buehne gleich.
  */
 :where(.stage-button):focus-visible {
-  outline: 0.25cqh solid var(--color-accent);
-  outline-offset: 0.25cqh;
+  outline: 0.1406cqw solid var(--color-accent);
+  outline-offset: 0.1406cqw;
 }
 
 /*
@@ -183,6 +203,21 @@
 .stage--preview {
   aspect-ratio: 16 / 9;
   height: auto;
+}
+
+/*
+ * AM TOUCHGERAET LIEGT DIE UEBRIGE HOEHE ALS LUFT UM DIE KOMPOSITION.
+ *
+ * Kopfzeile, Szene und Fussleiste nehmen sich dort ihre Hoehe aus der BREITE
+ * (siehe `Stage.module.css`); die Summe ist selten genau die Hoehe des
+ * Fensters. Im Einzelspiel fehlen die Buzzer, auf einem hoeheren Geraet fehlt
+ * nichts - der Rest gehoert nicht unten angehaengt, sondern gleich verteilt.
+ *
+ * Auf der Buehne im Saal braucht es das nicht: Dort nimmt die Szene den
+ * uebrigen Platz selbst (`flex: 1`) und die Komposition darin steht oben.
+ */
+.stage--touch {
+  justify-content: center;
 }
 
 /* ------------------------------------------------------------------ *
@@ -304,6 +339,16 @@
   --kids-content-width: 100%;
 }
 
+/*
+ * DIE EINE SCHWELLE, DIE BLEIBT - UND SIE AENDERT KEINE GROESSE.
+ *
+ * Der Grund der Kinderwelt ist eine gezeichnete Szene, kein Verlauf: Auf einer
+ * schmalen Flaeche steht die Zeichnung anders im Bild, und Frage und Antworten
+ * bekommen deshalb einen anderen ANTEIL der Breite. Verschoben wird die
+ * Anordnung gegenueber einem Motiv, nicht die Groesse der Schrift oder der
+ * Karten - die stehen in `cqw` und gelten auf jeder Breite gleich. Und gefragt
+ * wird allein die Breite: Wie hoch die Flaeche ist, aendert hier nichts.
+ */
 @container stage (max-width: 1099px) {
   .stage--kids {
     --kids-content-width: 86%;

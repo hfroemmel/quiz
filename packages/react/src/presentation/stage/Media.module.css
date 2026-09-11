@@ -22,7 +22,7 @@
  * dessen Platz nach.
  */
 .reveal {
-  height: 70cqh;
+  height: 39.375cqw;
   aspect-ratio: 4 / 3;
 }
 /*
@@ -30,13 +30,12 @@
  * sitzt, wenn man ihn beschneidet. Der Ausschnitt liegt etwas ueber der Mitte,
  * weil Gesichter im oberen Drittel eines Bildes stehen.
  *
- * Als einziges Medium bemisst es sich nach der HOEHE der Buehne: Es ist der
- * Inhalt der Frage und soll den Raum unter der Kopfzeile fuellen. Die Breite
- * folgt daraus - so bleibt der Ausschnitt in jedem Seitenverhaeltnis derselbe,
- * statt bei flachen Buehnen unten herauszuragen.
+ * Hoehe und Seitenverhaeltnis stehen fest, die Hoehe als Anteil der BREITE wie
+ * jede Groesse hier - so bleibt der Ausschnitt derselbe, in welchem Fenster die
+ * Buehne auch steht.
  */
 .portrait {
-  height: 55cqh;
+  height: 30.9375cqw;
   aspect-ratio: 1 / 1;
 }
 /*
@@ -145,7 +144,7 @@
  */
 :global(.stage--kids) .peek {
   left: 8cqw;
-  bottom: calc(100% - 2.3cqh);
+  bottom: calc(100% - 1.2937cqw);
   z-index: 2;
   width: 13cqw;
   aspect-ratio: 1365 / 768;

@@ -143,7 +143,7 @@
   grid-template-columns: 50% 1fr;
   align-items: center;
   min-width: 15.5cqw;
-  min-height: 9.6cqh;
+  min-height: 5.4cqw;
   padding: 0.6cqw 0 0.8cqw;
   position: relative;
   isolation: isolate;
@@ -202,7 +202,7 @@
   font-family: var(--kids-hand);
   font-weight: 400;
   font-size: var(--kids-size-label);
-  padding: 0.5cqh 0;
+  padding: 0.2812cqw 0;
 }
 /* Nur die Ziffern tragen Melior - sie muessen beim Hochzaehlen ruhig stehen. */
 :global(.stage--kids) .value {

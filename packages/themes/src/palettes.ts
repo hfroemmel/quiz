@@ -221,12 +221,19 @@ export const uiPalette = {
  * Sie sind Reihenfolge und nicht Bedeutung: kein "richtig", kein "falsch".
  */
 export const startPalette = {
-  /* Grund: ein Verlauf ueber die Diagonale, dazu zwei farbige Lichter. */
+  /*
+   * Grund: ein Verlauf ueber die Diagonale, dazu zwei farbige Lichter.
+   *
+   * Die Lichter heissen nach ihrem PLATZ und nicht nach ihrer Farbe: links das
+   * eine, rechts das andere. In der dunklen Fassung sind sie gruen und violett,
+   * in der hellen rosa und lavendel - ein Name, der die Farbe nennt, waere in
+   * der jeweils anderen Fassung falsch.
+   */
   'bg-top': '#111b25',
   'bg-mid': '#0a1118',
   'bg-bottom': '#070c11',
-  'ambient-green': '#2bbe65',
-  'ambient-violet': '#726bea',
+  'ambient-left': '#2bbe65',
+  'ambient-right': '#726bea',
 
   /* Karten und Kanten der rechten Spalte. */
   surface: '#17212d',
@@ -241,14 +248,39 @@ export const startPalette = {
   /* Die Fussnote unter der Startschaltflaeche - leiser als alles andere. */
   'text-quiet': '#6f7f8e',
 
+  /*
+   * DIE AUSWAHL IST NICHT DIE HANDLUNG.
+   *
+   * Beide waren hier dasselbe Gruen, und in der dunklen Fassung faellt das
+   * nicht auf. In der hellen schon: Dort traegt die Auswahl das Blau der
+   * markierten Antwort, und Gruen gehoert allein dem einen Knopf, der das
+   * Spiel startet. Ein Satz Namen fuer die Auswahl macht das trennbar - und
+   * hier stehen dieselben Werte wie vorher, damit sich im Dunkeln nichts
+   * aendert.
+   */
+  selected: '#42d176',
+  /* Kante, Zeichen und Tastaturmarke einer gewaehlten Karte. */
+  'selected-bright': '#63df8e',
+  /* Schrift AUF einer gewaehlten Karte - und die leisere Zeile darunter. */
+  'ink-on-selected': '#f5f7f9',
+  'meta-on-selected': '#98a7b7',
+
   green: '#42d176',
   'green-bright': '#63df8e',
   'green-light': '#46d77a',
   'green-deep': '#28b962',
   /* Kante auf der Startschaltflaeche, damit ihr Verlauf nicht ausfranst. */
   'green-edge': '#9cf0b8',
-  /* Schrift und Zeichen AUF dem Gruen - dort ist alles Helle unlesbar. */
-  'ink-on-green': '#06140c',
+  /*
+   * Die Aufschrift AUF dem Gruen. Sie ist hell: Der Balken ist die einzige
+   * volle Farbe der Flaeche, und alles darauf gehoert zur Schrift daneben.
+   */
+  'ink-on-green': '#f5f7f9',
+  /*
+   * Das Zeichen auf der gefuellten Auswahlmarke. Sie ist klein und traegt die
+   * Auswahlfarbe voll - darauf gilt die umgekehrte Regel als auf dem Balken.
+   */
+  'ink-on-badge': '#06140c',
   lime: '#d9e93e',
   violet: '#8d86ff',
 
@@ -267,6 +299,90 @@ export const startPalette = {
   glass: '#ffffff',
   /* Abdunklung - Schatten unter den Tafeln. */
   shade: '#000000',
+} as const
+
+/**
+ * Die helle Fassung des Startbildschirms.
+ *
+ * SIE NENNT KEINEN EIGENEN FARBWERT, WO ES SCHON EINEN GIBT: Was die helle
+ * Buehne traegt, traegt auch die Auswahl davor - Papier, Tinte, das Blau der
+ * markierten Antwort, das Gruen des Knopfes, der aufloest. Deshalb stehen hier
+ * Verweise auf `brightPalette` und nicht Abschriften davon: Wer dort eine Farbe
+ * aendert, aendert sie hier mit.
+ *
+ * Eigene Werte hat nur, was die Buehne nicht kennt - die beiden weichen Lichter
+ * im Grund und die Haarlinien der Karten. Und nur was ABWEICHT steht hier: Der
+ * Rest kommt weiter aus `startPalette`.
+ */
+export const brightStartPalette = {
+  /*
+   * WEISS, UND ZWAR GANZ.
+   *
+   * Der Grund der dunklen Fassung ist ein Verlauf mit zwei farbigen Lichtern -
+   * das gibt einer fast schwarzen Flaeche Tiefe. Auf Papier braucht es das
+   * nicht: Die Karten setzen sich ueber ihre Kante ab, nicht ueber den Grund.
+   * Beide Lichter werden deshalb hier abgeschaltet, statt die Regel im
+   * Stylesheet um eine zweite Fassung zu erweitern.
+   */
+  'bg-top': brightPalette.pageTop!,
+  'bg-mid': brightPalette.pageTop!,
+  'bg-bottom': brightPalette.pageTop!,
+  'ambient-left': 'transparent',
+  'ambient-right': 'transparent',
+
+  /*
+   * Karten: Milchglas aus Licht, nicht aus Tinte.
+   *
+   * Auf Weiss ist ein Schleier aus Tinte ein grauer Kasten. Die Karte ist
+   * deshalb fast so weiss wie der Grund - was sie abgrenzt, ist ihre feine
+   * Kante und der zurueckhaltende Schatten darunter.
+   */
+  surface: 'rgba(255, 255, 255, 0.62)',
+  'surface-quiet': 'rgba(255, 255, 255, 0.45)',
+  /*
+   * Eine gewaehlte Karte ist ins Blau GEKIPPT, nicht damit gefuellt - wie eine
+   * angetippte Antwort auf der hellen Buehne. Ihre Schrift bleibt dieselbe
+   * Tinte wie auf den anderen Karten; die Kante und die Marke tragen die Farbe.
+   */
+  'surface-selected': 'rgba(0, 119, 182, 0.1)',
+  line: 'rgba(25, 25, 25, 0.1)',
+  'line-strong': 'rgba(25, 25, 25, 0.16)',
+
+  text: brightPalette.text!,
+  'text-muted': brightPalette.textMuted!,
+  'text-quiet': 'rgba(25, 25, 25, 0.45)',
+
+  /* Die Auswahl traegt das Blau der markierten Antwort. */
+  selected: brightPalette.accent!,
+  'selected-bright': brightPalette.accent!,
+  'ink-on-selected': brightPalette.text!,
+  'meta-on-selected': brightPalette.textMuted!,
+
+  /*
+   * Der Startknopf ist derselbe Knopf wie "Antwort abgeben und aufloesen":
+   * eine Flaeche, ein Gruen, weisse Schrift. Der Verlauf der dunklen Fassung
+   * laeuft deshalb hier zwischen zwei gleichen Toenen - er verschwindet, ohne
+   * dass die Regel im Stylesheet davon wissen muss.
+   */
+  green: brightPalette.primary!,
+  'green-bright': brightPalette.primary!,
+  'green-light': brightPalette.primary!,
+  'green-deep': brightPalette.primary!,
+  'green-edge': brightPalette.primary!,
+  'ink-on-green': stageExtras.inkOnStrong,
+  'ink-on-badge': stageExtras.inkOnStrong,
+
+  /* Die Markentafel steht auf demselben Papier wie alles andere. */
+  'brand-top': brightPalette.pageTop!,
+  'brand-mid': brightPalette.pageTop!,
+  'brand-bottom': brightPalette.pageTop!,
+  'brand-line': 'rgba(25, 25, 25, 0.1)',
+  'brand-text': brightPalette.text!,
+  'brand-shade': 'rgba(25, 25, 25, 0.08)',
+
+  icon: brightPalette.textMuted!,
+  /* Die Schleier werden aus Tinte gemischt, nicht aus Licht. */
+  glass: brightPalette.text!,
 } as const
 
 /**

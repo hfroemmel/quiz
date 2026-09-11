@@ -57,8 +57,8 @@
   --start-bg-top: #111b25;
   --start-bg-mid: #0a1118;
   --start-bg-bottom: #070c11;
-  --start-ambient-green: #2bbe65;
-  --start-ambient-violet: #726bea;
+  --start-ambient-left: #2bbe65;
+  --start-ambient-right: #726bea;
   --start-surface: #17212d;
   --start-surface-quiet: #111a24;
   --start-surface-selected: #1a2b29;
@@ -67,12 +67,17 @@
   --start-text: #f5f7f9;
   --start-text-muted: #98a7b7;
   --start-text-quiet: #6f7f8e;
+  --start-selected: #42d176;
+  --start-selected-bright: #63df8e;
+  --start-ink-on-selected: #f5f7f9;
+  --start-meta-on-selected: #98a7b7;
   --start-green: #42d176;
   --start-green-bright: #63df8e;
   --start-green-light: #46d77a;
   --start-green-deep: #28b962;
   --start-green-edge: #9cf0b8;
-  --start-ink-on-green: #06140c;
+  --start-ink-on-green: #f5f7f9;
+  --start-ink-on-badge: #06140c;
   --start-lime: #d9e93e;
   --start-violet: #8d86ff;
   --start-brand-top: #1d2b27;
@@ -106,4 +111,40 @@
   --color-incorrect: #780F2D;
   --color-text: rgb(25, 25, 25);
   --color-textMuted: rgba(25, 25, 25, 0.6);
+}
+
+/* Helle Fassung der Startauswahl davor - nur, was von der dunklen abweicht. */
+[data-quiz-game][data-theme='bright'] {
+  --start-bg-top: #fff;
+  --start-bg-mid: #fff;
+  --start-bg-bottom: #fff;
+  --start-ambient-left: transparent;
+  --start-ambient-right: transparent;
+  --start-surface: rgba(255, 255, 255, 0.62);
+  --start-surface-quiet: rgba(255, 255, 255, 0.45);
+  --start-surface-selected: rgba(0, 119, 182, 0.1);
+  --start-line: rgba(25, 25, 25, 0.1);
+  --start-line-strong: rgba(25, 25, 25, 0.16);
+  --start-text: rgb(25, 25, 25);
+  --start-text-muted: rgba(25, 25, 25, 0.6);
+  --start-text-quiet: rgba(25, 25, 25, 0.45);
+  --start-selected: #0077B6;
+  --start-selected-bright: #0077B6;
+  --start-ink-on-selected: rgb(25, 25, 25);
+  --start-meta-on-selected: rgba(25, 25, 25, 0.6);
+  --start-green: #00854A;
+  --start-green-bright: #00854A;
+  --start-green-light: #00854A;
+  --start-green-deep: #00854A;
+  --start-green-edge: #00854A;
+  --start-ink-on-green: #ffffff;
+  --start-ink-on-badge: #ffffff;
+  --start-brand-top: #fff;
+  --start-brand-mid: #fff;
+  --start-brand-bottom: #fff;
+  --start-brand-line: rgba(25, 25, 25, 0.1);
+  --start-brand-text: rgb(25, 25, 25);
+  --start-brand-shade: rgba(25, 25, 25, 0.08);
+  --start-icon: rgba(25, 25, 25, 0.6);
+  --start-glass: rgb(25, 25, 25);
 }

@@ -89,7 +89,7 @@
   align-items: stretch;
   flex: 1 1 auto;
   min-height: 0;
-  max-height: 38cqh;
+  max-height: 21.375cqw;
 }
 /* Ohne Bild uebernimmt die Fragetafel die ganze Zeile. */
 :global(.stage--kids.stage--scene-question) .wide,
@@ -99,7 +99,7 @@
 :global(.stage--kids.stage--scene-question) .panel,
 :global(.stage--kids.stage--scene-solution) .panel {
   /* Nur die Untergrenze - die Zielhoehe kommt aus der Fragezeile. */
-  min-height: 20cqh;
+  min-height: 11.25cqw;
   padding: 1.9cqw 2.2cqw;
   position: relative;
   isolation: isolate;
