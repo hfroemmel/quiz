@@ -206,18 +206,29 @@
 }
 
 /*
- * AM TOUCHGERAET LIEGT DIE UEBRIGE HOEHE ALS LUFT UM DIE KOMPOSITION.
+ * AM TOUCHGERAET LIEGT DIE FUSSLEISTE AM UNTEREN BILDRAND.
  *
  * Kopfzeile, Szene und Fussleiste nehmen sich dort ihre Hoehe aus der BREITE
  * (siehe `Stage.module.css`); die Summe ist selten genau die Hoehe des
  * Fensters. Im Einzelspiel fehlen die Buzzer, auf einem hoeheren Geraet fehlt
- * nichts - der Rest gehoert nicht unten angehaengt, sondern gleich verteilt.
+ * nichts - es bleibt Platz uebrig, und der gehoert in die MITTE.
  *
- * Auf der Buehne im Saal braucht es das nicht: Dort nimmt die Szene den
- * uebrigen Platz selbst (`flex: 1`) und die Komposition darin steht oben.
+ * Denn unten liegen die Haende. Punktestand, Zaehler und die beiden Buzzer sind
+ * das Einzige auf dieser Flaeche, das angefasst wird: Sie stehen an der Kante,
+ * an der jemand vor dem Geraet steht, und nicht irgendwo darueber. Dieselbe
+ * Ueberlegung steht schon in der Fussleiste selbst (`Game.module.css`) - deren
+ * Spalten skalieren zu ihren eigenen Ecken, damit sie bei kleiner Anzeige nicht
+ * von der Kante abruecken. Waere die Leiste mittig im uebrigen Platz
+ * aufgehaengt, waere genau das wieder verloren.
+ *
+ * `space-between` heisst deshalb: Kopfzeile oben, Fussleiste unten, die Luft
+ * dazwischen. Auf 16:9 gibt es keine, dort geht die Rechnung genau auf.
+ *
+ * Auf der Buehne im Saal braucht es das nicht: Dort gibt es keine Fussleiste,
+ * die Szene nimmt den uebrigen Platz selbst (`flex: 1`).
  */
 .stage--touch {
-  justify-content: center;
+  justify-content: space-between;
 }
 
 /* ------------------------------------------------------------------ *
