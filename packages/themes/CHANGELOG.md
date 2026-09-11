@@ -1,5 +1,74 @@
 # @hfroemmel/quiz-themes
 
+## 0.10.0
+
+### Minor Changes
+
+- 978a5db: One shared joker per player, for the live quiz alone
+  
+  Every player of an OPERATED game holds a single joker and may spend it either as
+  a 50:50 or as an audience joker. Spending either one exhausts that player's
+  joker for the whole game; it comes back only with a new game or the operator's
+  explicit reset.
+  
+  LIVE QUIZ ONLY, WITHOUT A FLAG. `START_GAME` creates the supply only for
+  `flowProfile: 'operated'`, so a kiosk, a standalone build or a touch device
+  carries no joker state, no joker command and not one element more in the DOM
+  than before. `gameHasJokers(state)` is the single place that decides it.
+  
+  New commands `USE_JOKER { playerId, jokerType }` and
+  `RESTORE_JOKER { playerId }`, both operator-only and server-validated. New state
+  `GameState.jokerByPlayer` and `GameState.activeFiftyFifty`, new snapshot fields
+  `PublicScore.joker`, `PublicOption.hidden`,
+  `PublicQuizViewModel.activeFiftyFifty` and `OperatorQuizViewModel.jokers`.
+  
+  `StageHeaderSlots` gains `besidePlayer`: a relatively positioned frame around
+  each scoreboard, so a host can hang something behind a player's card without
+  widening the header. The live quiz uses it for its joker card.
+  
+  This replaces the two separate lifelines, which were never released: the
+  `USE_LIFELINE` / `RESTORE_LIFELINE` commands, `LifelineConfig`,
+  `PlayerState.lifelines`, the `lifelineUsed` / `lifelineRestored` events and the
+  exported `Lifelines` component are gone.
+
+### Patch Changes
+
+- 33add5d: Die Auswahlkarten der hellen Startauswahl sind Flaechen, keine Rahmen
+  
+  Eine gewaehlte Karte steht jetzt voll in demselben Blau, das im Spiel eine
+  angetippte Antwort traegt - derselbe Wert aus derselben Palette; Titel, Zeile,
+  Zeichen und Haekchen darauf in Weiss. Eine offene Karte ist das ruhige Grau
+  einer nicht angetippten Antwort. Keine Kante, in keinem Zustand: Die
+  Tastaturmarke ist ein weicher Schein und ein Hauch Groesse statt eines Rings,
+  sodass sich Auswahl und Fokus nicht mehr zu zwei Linien uebereinanderlegen.
+  Der sekundaere Knopf traegt dieselbe gefuellte Flaeche, der gruene Startknopf
+  bleibt, wie er war.
+  
+  Neue Token: `--start-option`, `--start-option-hover` und `--start-option-icon`.
+  Die Auswahlkarten hatten keinen eigenen Namen und hiessen `surface` wie das
+  Einstellungsfenster und die Rueckfrage; in der hellen Fassung gehen sie
+  getrennte Wege.
+  
+  Dunkle Fassung und Kinderwelt sind unveraendert - nachgemessen, Pixel fuer
+  Pixel. Im Dunkeln behaelt die Karte ihre Kante: Dort liegt ein fast schwarzer
+  Kasten auf fast schwarzem Grund, und ohne Kante schwaemmen die Karten.
+- 44bc385: Die Spielerfarbe traegt allein der Buzzer
+  
+  Am Touchgeraet ist die Punktekarte jetzt neutral - dieselbe Milchglaskachel wie
+  im Saal, im Einzelspiel wie im Duell und in jedem Zustand. Der Buzzer steht
+  dafuer vollflaechig im reinen Ton seines Spielers, ohne Kante: rot links, blau
+  rechts. Weisse Aufschrift auf beiden (5,9:1 und 8,4:1), und weder `hover`,
+  `active`, `disabled` noch der geholte Zuschlag aendern Grund, Kante oder
+  Deckkraft.
+  
+  Masse, Positionen und Funktion sind unveraendert. Die Kinderwelt ist
+  unberuehrt: Ihr Buzzer ist eine gezeichnete Karte und trug nie eine
+  Spielerfarbe.
+- Updated dependencies [978a5db]
+- Updated dependencies [33add5d]
+- Updated dependencies [44bc385]
+  - @hfroemmel/quiz-core@0.10.0
+
 ## 0.9.1
 
 ### Patch Changes
