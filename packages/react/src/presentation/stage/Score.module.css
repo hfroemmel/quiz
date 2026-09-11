@@ -23,6 +23,48 @@
 .value {
   font-variant-numeric: tabular-nums;
 }
+
+/*
+ * Spielernummer und Gruppenzeichen an derselben Stelle.
+ *
+ * EIN Feld, zwei Inhalte uebereinander: Beim Publikumsjoker wechselt die
+ * Anzeige des aktiven Antwortenden vom Nummernzeichen auf das Gruppenzeichen,
+ * ohne dass die Karte ihre Groesse aendert. Beides liegt in derselben
+ * Rasterzelle, damit nichts springt und die Ueberblendung an einem Ort
+ * stattfindet.
+ *
+ * Am Punktestand und an der Zuordnung der Antwort aendert das nichts - es ist
+ * eine Markierung, keine Umbuchung.
+ */
+.playerMark {
+  display: grid;
+  place-items: center;
+}
+.playerMark > * {
+  grid-area: 1 / 1;
+  transition: opacity var(--joker-marker-fade, 200ms) ease;
+}
+.playerMark[data-score-marker='number'] .groupMark,
+.playerMark[data-score-marker='audience'] .value {
+  opacity: 0;
+}
+
+/*
+ * Das Gruppenzeichen steht so hoch wie die Ziffer daneben und traegt deren
+ * Farbe - es ersetzt sie, es kommt nicht dazu.
+ */
+.groupMark {
+  width: 1em;
+  height: 1em;
+  font-size: 3cqw;
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playerMark > * {
+    transition-duration: 1ms;
+  }
+}
 /* Die Sterne liegen ueber der Punktezelle, ohne Platz zu nehmen. */
 .cellPoints {
   position: relative;

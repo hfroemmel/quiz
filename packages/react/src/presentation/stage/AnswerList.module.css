@@ -40,16 +40,64 @@
  * `aria-hidden`), not here: a look must never be the thing that decides what is
  * reachable.
  */
-.answer[data-hidden='true'] {
-  opacity: 0.18;
+.answer[data-eliminated='true'] {
+  /*
+   * Sie bleibt lesbar, tritt aber deutlich zurueck: Der Saal soll sehen, WAS
+   * weggefallen ist - sonst wirkt die Zeile wie ein Darstellungsfehler.
+   */
+  opacity: 0.45;
   filter: grayscale(1);
   pointer-events: none;
+}
+
+/*
+ * Der Strich ueber einer gestrichenen Antwort.
+ *
+ * Er wird GEZOGEN und nicht eingeblendet: Die Linie waechst von links nach
+ * rechts, damit man ihr ansieht, dass gerade etwas gestrichen wird. Sie liegt
+ * ueber der Flaeche und nimmt keinen Platz - die Zeile behaelt Position und
+ * Hoehe, nichts darunter rutscht.
+ *
+ * Leicht schraeg, wie mit der Hand durchgestrichen; der Winkel kommt aus der
+ * Zeilenhoehe und nicht aus einem festen Wert, damit er bei zweizeiligem Text
+ * mitwaechst.
+ */
+.strike {
+  position: absolute;
+  left: 0.4cqw;
+  right: 0.4cqw;
+  top: 50%;
+  height: 0.22cqw;
+  border-radius: 0.22cqw;
+  background: var(--color-text);
+  transform-origin: left center;
+  transform: translateY(-50%) rotate(-2.2deg);
+  /*
+   * Dauer und Versatz kommen aus `presentationTiming` und werden von der
+   * Komponente gesetzt - eine zweite Zahl im Stylesheet waere eine, die beim
+   * Anpassen vergessen wird.
+   */
+  animation: strike-through var(--joker-strike-duration) ease-out both;
+}
+
+@keyframes strike-through {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
 }
 
 /* Whoever asks for no motion gets the result, not the fade. */
 @media (prefers-reduced-motion: reduce) {
   .answer {
     transition-duration: 1ms;
+  }
+  /* Der Strich steht sofort - gestrichen ist gestrichen. */
+  .strike {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
   }
 }
 /*
@@ -94,6 +142,8 @@
   min-width: 0;
   display: flex;
   align-items: center;
+  /* Anker fuer den Strich einer gestrichenen Antwort - siehe `.strike`. */
+  position: relative;
 }
 .text {
   min-width: 0;

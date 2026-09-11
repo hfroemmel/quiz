@@ -36,14 +36,15 @@ import {
   gueltigeSprache,
   oberflaechenTexte,
   jokerOf,
-  jokerTypes,
+  jokerRevealCompleteMs,
   type OperatorJokerControl,
+  type PublicJokerDraw,
 } from '../contracts'
 import { activePlayerId } from './buzzer'
 import { allowedCommandsForRole } from './allowedCommands'
 import { attemptsForCurrentQuestion, determineResult, pendingAttempt, pointsForCorrectAnswer } from './scoring'
 import { revealElapsedMs } from './reveal'
-import { evaluateJokerRestore, evaluateJokerUse, gameHasJokers } from './joker'
+import { evaluateJokerDraw, gameHasJokers, questionStillOpen } from './joker'
 
 export interface ProjectionContext {
   nowMs: number
@@ -186,18 +187,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     phase: state.phase,
     theme,
     question: publicQuestion,
-    /*
-     * The running 50:50 - only while the question it belongs to is on screen.
-     */
-    ...(state.activeFiftyFifty &&
-    state.activeFiftyFifty.questionId === question?.id
-      ? {
-          activeFiftyFifty: {
-            playerId: state.activeFiftyFifty.playerId,
-            hiddenOptionIds: [...state.activeFiftyFifty.hiddenOptionIds],
-          },
-        }
-      : {}),
+    ...(publicJokerDraw(state, question?.id) ?? {}),
     // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
     upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx, locale) : undefined,
     /*
@@ -348,7 +338,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
         ...(ctx.additionalOperatorCommands ?? []),
       ]),
     ],
-    ...(operatorJokers(state) ?? {}),
+    ...(operatorJoker(state) ?? {}),
     auditSummary: ctx.auditSummary ?? [],
     diagnostics: {
       contentVersion: ctx.contentVersion,
@@ -366,43 +356,102 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
 }
 
 /**
- * The operator's joker area - one entry per player.
+ * The answers a 50:50 has taken out of play - and WHEN they may be known.
+ *
+ * Only from `applied`. The ids are decided at the draw and sit in the state
+ * from that moment, but transmitting them earlier would put the outcome on the
+ * wire while the card is still turning: a client could read what is coming, and
+ * a stage that repaints mid-flight would strike answers out before the reveal.
+ */
+function eliminatedOptionIds(state: GameState, questionId: string | undefined): string[] {
+  const sequence = state.jokerSequence
+  if (!sequence || sequence.phase !== 'applied') return []
+  if (sequence.questionId !== questionId) return []
+  return sequence.eliminatedOptionIds ?? []
+}
+
+/**
+ * The running draw, as far as anybody watching may know.
+ *
+ * THE VARIANT IS WITHHELD UNTIL THE CARD HAS TURNED. During `drawing` the
+ * clients learn that a draw is running, whose it is and when it started - that
+ * is everything the flight needs. What came out arrives with `revealed`, at the
+ * moment the card shows it anyway. A stage that knew earlier could give the
+ * result away, and one that had to be trusted not to would be the wrong design.
+ *
+ * `startedAtServerMs` rather than the ISO string: every other clock in this
+ * view model is server milliseconds, and a client that reconnects mid-flight
+ * computes its position from it.
+ *
+ * AN APPLIED DRAW ENDS WITH THE QUESTION being decided, not with the next one:
+ * once the attempt is resolved the room is no longer being asked, so the group
+ * mark goes. The answers a 50:50 removed stay struck through until the question
+ * changes - that is the one thing that outlives the draw, and it lives on the
+ * options rather than here.
+ */
+function publicJokerDraw(
+  state: GameState,
+  questionId: string | undefined,
+): { jokerDraw: PublicJokerDraw } | undefined {
+  const sequence = state.jokerSequence
+  if (!sequence || sequence.phase === 'idle') return undefined
+  if (sequence.questionId !== questionId) return undefined
+  if (sequence.phase === 'applied' && !questionStillOpen(state)) return undefined
+  return {
+    jokerDraw: {
+      phase: sequence.phase,
+      sequenceId: sequence.sequenceId,
+      playerId: sequence.playerId,
+      startedAtServerMs: Date.parse(sequence.startedAt),
+      revealCompleteMs: jokerRevealCompleteMs,
+      ...(sequence.phase === 'drawing' ? {} : { type: sequence.type }),
+    },
+  }
+}
+
+/**
+ * The joker at the operator's desk - the one button and what it is doing.
  *
  * Every field is answered by the rule functions in `joker.ts`, the same ones
  * the engine calls when the command arrives. That is the whole point of this
  * function: the operator client renders what it is told and decides nothing, so
- * a button can neither offer a refused action nor hide an allowed one.
+ * the button can neither offer a refused draw nor hide an allowed one.
  *
- * BOTH VARIANTS ARE ASKED SEPARATELY, because they can differ: on a free-answer
- * question the audience joker is available while the 50:50 is not. The reason
- * travels with each of them.
+ * ONE control, not one per player: there is one button, and whose joker it
+ * would draw follows from who holds the buzz. `playerLabel` is what the
+ * operator reads to make sure.
  */
-function operatorJokers(state: GameState | null): { jokers: OperatorJokerControl[] } | undefined {
+function operatorJoker(state: GameState | null): { joker: OperatorJokerControl } | undefined {
   if (!gameHasJokers(state) || !state) return undefined
 
-  const controls: OperatorJokerControl[] = state.players.map((player) => {
-    const joker = jokerOf(state.jokerByPlayer, player.id)
-    const decisions = Object.fromEntries(
-      jokerTypes.map((type) => [type, evaluateJokerUse(state, player.id, type)]),
-    ) as Record<(typeof jokerTypes)[number], ReturnType<typeof evaluateJokerUse>>
-    const fiftyFifty = decisions.fiftyFifty
-    const audience = decisions.audience
-    return {
-      playerId: player.id,
-      playerLabel: player.label,
-      used: joker.status === 'used',
-      ...(joker.status === 'used' ? { usedType: joker.type } : {}),
-      ...(joker.status === 'used' && joker.usedAtQuestionId
-        ? { usedAtQuestionId: joker.usedAtQuestionId }
+  const draw = evaluateJokerDraw(state)
+  const sequence = state.jokerSequence
+  const active = sequence && sequence.phase !== 'idle' ? sequence : undefined
+  const playerId = draw.playerId ?? active?.playerId ?? activePlayerId(state)
+  const player = state.players.find((entry) => entry.id === playerId)
+
+  return {
+    joker: {
+      canDraw: draw.allowed,
+      ...(draw.allowed ? {} : { blockedReason: draw.message }),
+      ...(player ? { playerId: player.id, playerLabel: player.label } : {}),
+      /*
+       * Spent is asked of the PLAYER, not of the draw: after the question has
+       * moved on there is no sequence any more, but the joker stays gone, and
+       * the desk has to keep saying so.
+       */
+      used: Boolean(playerId && jokerOf(state.jokerByPlayer, playerId).status === 'used'),
+      ...(active
+        ? {
+            sequence: {
+              phase: active.phase,
+              sequenceId: active.sequenceId,
+              ...(active.phase === 'drawing' ? {} : { type: active.type }),
+            },
+          }
         : {}),
-      canUseFiftyFifty: fiftyFifty.allowed,
-      canUseAudience: audience.allowed,
-      ...(fiftyFifty.allowed ? {} : { fiftyFiftyBlockedReason: fiftyFifty.message }),
-      ...(audience.allowed ? {} : { audienceBlockedReason: audience.message }),
-      canRestore: evaluateJokerRestore(state, player.id).allowed,
-    }
-  })
-  return { jokers: controls }
+    },
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -412,14 +461,10 @@ function operatorJokers(state: GameState | null): { jokers: OperatorJokerControl
 function publicOptions(state: GameState, scene: PublicScene, question: Question | undefined): PublicOption[] | undefined {
   /*
    * Hidden by the 50:50 - but only while it belongs to the question on screen.
-   * The effect is cleared on every question change; this second check is the
-   * belt to that braces, and it costs one comparison.
+   * The sequence is set back to `idle` on every question change; this second
+   * check is the belt to that braces, and it costs one comparison.
    */
-  const hidden = new Set(
-    state.activeFiftyFifty && state.activeFiftyFifty.questionId === question?.id
-      ? state.activeFiftyFifty.hiddenOptionIds
-      : [],
-  )
+  const eliminated = new Set(eliminatedOptionIds(state, question?.id))
   const runtime = state.currentQuestion
   /*
    * Ohne echte Auswahl gibt es keine Antwortleisten. Eine einzelne Option waere
@@ -439,7 +484,7 @@ function publicOptions(state: GameState, scene: PublicScene, question: Question 
     .filter((option): option is NonNullable<typeof option> => Boolean(option))
     .map((option) => {
       const entry: PublicOption = { id: option.id, text: option.text }
-      if (hidden.has(option.id)) entry.hidden = true
+      if (eliminated.has(option.id)) entry.eliminated = true
       // Ob eine Option richtig ist, wird erst in der Loesungsszene uebertragen.
       if (scene === 'solution' && option.id === question.correctOptionId) {
         entry.state = 'correct'

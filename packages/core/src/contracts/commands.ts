@@ -10,7 +10,6 @@
  */
 import { z } from 'zod'
 import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state'
-import { jokerTypes, type JokerType } from './joker'
 import { patchableQuestionFieldsSchema } from './content'
 
 /**
@@ -26,7 +25,6 @@ export const actorRoles = ['operator', 'moderator', 'system', 'buzzer', 'player'
 export type ActorRole = (typeof actorRoles)[number]
 
 const playerIdSchema = z.enum(playerIds as unknown as [PlayerId, ...PlayerId[]])
-const jokerTypeSchema = z.enum(jokerTypes as unknown as [JokerType, ...JokerType[]])
 const playerCountSchema = z.union(
   playerCounts.map((count) => z.literal(count)) as unknown as [z.ZodLiteral<PlayerCount>, z.ZodLiteral<PlayerCount>],
 )
@@ -107,26 +105,19 @@ export const commandSchema = z.discriminatedUnion('type', [
   /*
    * ---- The joker (see `joker.ts`) ----
    *
-   * ONE command for both variants, carrying which one was chosen: a
-   * `USE_FIFTY_FIFTY` next to a `USE_AUDIENCE` would suggest two supplies, and
-   * there is one. `jokerType` is validated against the same list every other
-   * consumer derives from.
+   * `DRAW_JOKER` CARRIES NOTHING. Not the variant, because the server flips the
+   * coin - a client that could name it could pick it. And not the player
+   * either: the only one who may draw is the one who holds the buzz, and the
+   * server knows who that is. A payload naming a player would be a payload to
+   * validate, and the validation would be "is it the active player anyway".
    *
-   * `RESTORE_JOKER` carries no type, because there is nothing to choose: it
-   * hands the one joker back. It is the operator's correction of a misclick,
-   * never part of playing.
-   *
-   * Both are the operator's alone - see the role table below.
+   * `CONTINUE_JOKER` names the draw it means. A late click - the operator's
+   * view repainted, the connection dropped and came back - then arrives with
+   * the id of a draw that is already over, and is refused instead of skipping a
+   * step of the current one.
    */
-  z.object({
-    type: z.literal('USE_JOKER'),
-    playerId: playerIdSchema,
-    jokerType: jokerTypeSchema,
-  }),
-  z.object({
-    type: z.literal('RESTORE_JOKER'),
-    playerId: playerIdSchema,
-  }),
+  z.object({ type: z.literal('DRAW_JOKER') }),
+  z.object({ type: z.literal('CONTINUE_JOKER'), sequenceId: z.string().min(1) }),
 
   /** Manuelle Punktkorrektur in 100er-Schritten. */
   z.object({
@@ -240,17 +231,16 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
    */
   SET_LOCALE: ['operator', 'moderator', 'player'],
   /*
-   * THE JOKER IS THE OPERATOR'S BUTTON, in both directions.
+   * THE JOKER IS THE OPERATOR'S BUTTON, in both steps.
    *
-   * A player asks out loud - "I'll take the 50:50" - and the operator triggers
-   * it. Nobody else: not the moderator, who stands next to the players and
-   * would be guessing, and not a player client, which is why the joker exists
-   * only where an operator does. Restoring is the correction of a misclick and
-   * belongs to the same desk; a player who could hand their own joker back
-   * would have an unlimited one.
+   * A player asks out loud - "I'll take my joker" - and the operator draws it.
+   * Nobody else: not the moderator, who stands next to the players, and not a
+   * player client, which is why the joker exists only where an operator does.
+   * Continuing is the same desk deciding when the room has seen enough of the
+   * card.
    */
-  USE_JOKER: ['operator'],
-  RESTORE_JOKER: ['operator'],
+  DRAW_JOKER: ['operator'],
+  CONTINUE_JOKER: ['operator'],
   ADJUST_SCORE: ['operator'],
   /*
    * `player` ist die Selbstbedienung: Dort haelt die Loesung an, bis jemand
@@ -329,17 +319,22 @@ export const commandRejectionReasons = [
   'answer-not-logged',
   /** Diese Option wurde in einem frueheren Versuch schon als falsch bewertet. */
   'option-already-answered',
-  /* ---- The joker: one reason per way it can be refused ---- */
+  /* ---- The joker: one reason per way a draw can be refused ---- */
   /** This player has already spent their joker in this game. */
   'joker-already-used',
-  /** Nothing to hand back - this player still holds their joker. */
-  'joker-not-used',
-  /** The current question cannot carry a 50:50 (type or option count). */
+  /**
+   * The current question is unsuitable for a 50:50 - and because the draw can
+   * come out either way, that is enough to refuse the draw itself.
+   */
   'joker-not-applicable',
-  /** A 50:50 is already in effect on this question. */
-  'joker-effect-active',
-  /** This player cannot answer the current question, so a hint is pointless. */
-  'joker-player-not-answering',
+  /** A draw is already running; there is one screen, so there is one draw. */
+  'joker-sequence-active',
+  /** Nothing is running that could be continued. */
+  'joker-no-sequence',
+  /** A late command naming a draw that is over or not the one running. */
+  'joker-sequence-stale',
+  /** Nobody holds the buzz, so there is no player whose joker this would be. */
+  'joker-no-answering-player',
   /** No such player in this game. */
   'unknown-player',
   'no-candidate-question',

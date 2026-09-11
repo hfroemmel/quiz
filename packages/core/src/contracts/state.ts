@@ -5,7 +5,7 @@
  * und rendern gefilterte View-Modelle; sie veraendern diesen Zustand niemals selbst.
  */
 import type { Question, QuestionPresentationType } from './content'
-import type { ActiveFiftyFiftyEffect, PlayerJokerStates } from './joker'
+import type { JokerSequence, PlayerJokerStates } from './joker'
 
 /**
  * Phasen des Spielablaufs.
@@ -240,14 +240,18 @@ export interface GameState {
   jokerByPlayer?: PlayerJokerStates
 
   /**
-   * The 50:50 currently in effect - it belongs to the CURRENT QUESTION.
+   * The draw currently running - it belongs to the CURRENT QUESTION.
    *
    * It sits on the game and not on the player because there is one shared
-   * screen: the hidden answers are hidden for everyone, even though the joker
-   * is charged to one player. It is cleared on every question change, while the
-   * spent joker above survives until a new game starts.
+   * screen: the card flies across it, and the answers a 50:50 removes are gone
+   * for everyone, even though the joker is charged to one player. The sequence
+   * is set back to `idle` on every question change, while the spent joker above
+   * survives until a new game starts.
+   *
+   * Optional for the same reason as `jokerByPlayer`: a game without jokers -
+   * and a state saved before the feature existed - carries nothing here.
    */
-  activeFiftyFifty?: ActiveFiftyFiftyEffect
+  jokerSequence?: JokerSequence
 
   pendingTransition?: PendingTimedTransition
   lastTransition?: PresentationTransitionState

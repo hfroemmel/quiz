@@ -21,15 +21,15 @@ import {
   isChoiceQuestion,
   isImageReveal,
   isSelfServiceAnswerable,
-  jokerOf,
+  jokerRevealCompleteMs,
   jokerTypeLabel,
   playerIds,
   scoringRules,
   selfServiceTiming,
   type AnswerAttempt,
-  type JokerType,
   type Command,
   type CommandRejection,
+  type CommandType,
   type FlowProfile,
   type GamePhase,
   type GameState,
@@ -54,7 +54,17 @@ import {
   resetReveal,
   resumeReveal,
 } from './reveal'
-import { evaluateJokerRestore, evaluateJokerUse, pickFiftyFiftyHiddenOptions } from './joker'
+import {
+  JOKER_REVEAL_TRANSITION,
+  drawJokerType,
+  drawableOptionIds,
+  evaluateJokerContinue,
+  evaluateJokerDraw,
+  isJokerRevealTransition,
+  jokerBlockedCommands,
+  jokerSequenceHoldsQuestion,
+  pickEliminatedOptions,
+} from './joker'
 
 /* ------------------------------------------------------------------ *
  * Ports und Ergebnisstruktur
@@ -143,6 +153,18 @@ export type EngineResult =
 export function reduce(state: GameState | null, command: Command, ctx: EngineContext): EngineResult {
   const timing = ctx.timing ?? gameTiming
   const work = new Draft(state, ctx, timing, ctx.selfServiceTiming ?? selfServiceTiming)
+
+  /*
+   * WHILE THE CARD IS IN THE AIR, THE QUESTION WAITS.
+   *
+   * A draw covers the whole screen and takes a couple of seconds; logging an
+   * answer or resolving the attempt underneath it would decide the question
+   * behind a card nobody can see past. One guard here rather than a condition
+   * in six handlers - and the operator's buttons follow the same rule, because
+   * `availableCommands` asks it too.
+   */
+  const blocked = jokerSequenceBlocks(work.state, command.type)
+  if (blocked) return blocked
 
   switch (command.type) {
     case 'START_GAME':
@@ -307,11 +329,11 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'SHOW_QUESTION_AFTER_VIDEO':
       return handleVideoCommand(work, command)
 
-    case 'USE_JOKER':
-      return useJoker(work, command.playerId, command.jokerType)
+    case 'DRAW_JOKER':
+      return drawJoker(work)
 
-    case 'RESTORE_JOKER':
-      return restoreJoker(work, command.playerId)
+    case 'CONTINUE_JOKER':
+      return continueJoker(work, command.sequenceId)
 
     case 'ADJUST_SCORE': {
       if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
@@ -421,7 +443,12 @@ function startGame(
      * keeps the rule in ONE place instead of a configuration flag that each host
      * would have to set correctly.
      */
-    ...(flowProfile === 'operated' ? { jokerByPlayer: createJokerStates(players.map((player) => player.id)) } : {}),
+    ...(flowProfile === 'operated'
+      ? {
+          jokerByPlayer: createJokerStates(players.map((player) => player.id)),
+          jokerSequence: { phase: 'idle' as const },
+        }
+      : {}),
     // Der globale Soundstatus bleibt ueber Spiele hinweg erhalten.
     soundEnabled: work.ctx.initialSoundEnabled ?? work.state?.soundEnabled ?? true,
     // Ebenso die Sprache: Sie gehoert dem Geraet und ueberdauert das einzelne Spiel.
@@ -444,104 +471,121 @@ function startGame(
   return work.commit()
 }
 
+/** The guard itself - the list and the predicate live in `joker.ts`. */
+function jokerSequenceBlocks(state: GameState | null, type: CommandType): EngineResult | null {
+  if (!jokerSequenceHoldsQuestion(state) || !jokerBlockedCommands.includes(type)) return null
+  return reject(
+    'joker-sequence-active',
+    'Es läuft gerade eine Jokerziehung. Erst danach geht es mit der Frage weiter.',
+  )
+}
+
 /* ------------------------------------------------------------------ *
  * The joker
  *
- * Both commands do the same three things in the same order: ask the rules
- * (`evaluateJokerUse` / `evaluateJokerRestore`), change the state, write one
- * line into the log. The rules live in `joker.ts` because the operator's view
- * asks them too - a disabled button and a refused command must never disagree.
+ * Two commands, one sequence. `DRAW_JOKER` flips the coin and starts the card
+ * on its way; a timed transition turns the card over; `CONTINUE_JOKER` applies
+ * what came out. The rules live in `joker.ts` because the operator's view asks
+ * them too - a disabled button and a refused command must never disagree.
+ *
+ * THE DRAW IS FINAL FROM ITS FIRST MOMENT. The player's joker is marked used
+ * before the card has even left the scoreboard, and there is no command that
+ * hands it back: a reload during the flight, a reconnect, a repeated click -
+ * none of them can produce a second draw.
  * ------------------------------------------------------------------ */
 
-function useJoker(work: Draft, playerId: PlayerId, type: JokerType): EngineResult {
-  const decision = evaluateJokerUse(work.state, playerId, type)
+function drawJoker(work: Draft): EngineResult {
+  const decision = evaluateJokerDraw(work.state)
   if (!decision.allowed) return reject(decision.reason, decision.message)
 
   const state = work.state!
+  const playerId = decision.playerId!
   const label = state.players.find((player) => player.id === playerId)!.label
   const questionId = state.currentQuestion!.question.id
 
   /*
-   * A 50:50 draws its survivor BEFORE anything is written: if the draw came up
-   * empty - it cannot here, the rules guarantee three options, but the shape
-   * allows it - the joker must stay unspent. A joker marked used that hid
-   * nothing is the one outcome a player would rightly complain about.
+   * THE COIN AND THE ANSWERS ARE DRAWN HERE, ONCE, before anything is written.
+   * Both results are stored with the sequence, so no later step - and no
+   * client - ever draws again. The eliminated ids exist from this moment even
+   * though nobody may see them until the card has turned.
    */
-  let hiddenOptionIds: string[] = []
-  if (type === 'fiftyFifty') {
-    hiddenOptionIds = pickFiftyFiftyHiddenOptions({
-      correctOptionId: state.currentQuestion!.question.correctOptionId!,
-      optionOrder: state.currentQuestion!.optionOrder,
-      random: work.ctx.random ?? Math.random,
-    })
-    if (hiddenOptionIds.length === 0) {
-      return reject('joker-not-applicable', 'Diese Frage hat keine Antwort, die sich ausblenden ließe.')
-    }
-  }
+  const type = drawJokerType(work.ctx.random ?? Math.random)
+  const eliminatedOptionIds =
+    type === 'fiftyFifty'
+      ? pickEliminatedOptions({
+          correctOptionId: state.currentQuestion!.question.correctOptionId!,
+          drawableOptionIds: drawableOptionIds(state),
+          random: work.ctx.random ?? Math.random,
+        })
+      : []
+
+  const startedAt = new Date(work.ctx.nowMs).toISOString()
+  const sequenceId = work.ctx.newId('joker')
 
   work.mutate((draft) => {
-    /* Written as a whole record so the other player's joker is carried over. */
     draft.jokerByPlayer = {
       ...draft.jokerByPlayer,
-      [playerId]: {
-        status: 'used',
-        type,
-        usedAtQuestionId: questionId,
-        usedAt: new Date(work.ctx.nowMs).toISOString(),
-      },
+      [playerId]: { status: 'used', type, usedAtQuestionId: questionId, usedAt: startedAt },
     }
-    if (type === 'fiftyFifty') {
-      draft.activeFiftyFifty = { playerId, questionId, hiddenOptionIds }
+    draft.jokerSequence = {
+      phase: 'drawing',
+      sequenceId,
+      playerId,
+      questionId,
+      type,
+      startedAt,
+      ...(type === 'fiftyFifty' ? { eliminatedOptionIds } : {}),
     }
   })
 
-  const detail = type === 'fiftyFifty' ? ` Ausgeblendet: ${hiddenOptionIds.length} Antwort(en).` : ''
+  /*
+   * The turn of the card is a SERVER step, not an animation the stage finishes
+   * on its own: `revealed` is what makes the operator's "Weiter" appear, and a
+   * client that reconnects mid-flight has to find the same phase everybody else
+   * is in. `still` keeps the scene from rebuilding - the draw happens in the
+   * overlay above it, and the question underneath must stay exactly as it was.
+   */
+  work.scheduleTimedTransition(work.phase, jokerRevealCompleteMs, JOKER_REVEAL_TRANSITION, { still: true })
+
   /*
    * `event` NAMES the domain event; the rest is its payload. There is no event
-   * channel to the clients - they receive whole snapshots - so the record in the
-   * audit log IS the event: it is what the operator's log shows and what a
-   * server test asserts on.
+   * channel to the clients - they receive whole snapshots - so the record in
+   * the audit log IS the event: it is what the operator's log shows, and it is
+   * where the draw stays traceable after the evening.
    */
-  work.log('game', `${label} setzt den Joker als ${jokerTypeLabel(type)} ein.${detail}`, {
-    event: 'jokerUsed',
+  work.log('game', `${label} zieht den Joker: ${jokerTypeLabel(type)}.`, {
+    event: 'jokerDrawn',
     playerId,
     jokerType: type,
     questionId,
-    ...(type === 'fiftyFifty' ? { hiddenOptionIds } : {}),
+    sequenceId,
+    ...(type === 'fiftyFifty' ? { eliminatedOptionIds } : {}),
   })
   return work.commit()
 }
 
 /**
- * The operator's undo.
+ * The operator has seen the card and lets the game go on.
  *
- * Two cases, one command: while the question is still on screen the removed
- * answers come back, because the effect belongs to that question and is cleared
- * with it. After the question has moved on there is nothing to bring back - the
- * restore then only hands the supply back for a later question. The condition
- * below is exactly that distinction, and it needs no phase check: an effect that
- * survived is by definition the current question's.
+ * This is where a 50:50 becomes visible - the ids were decided at the draw,
+ * they only reach the clients now (see `projection.ts`). And this is NOT the
+ * general "next question": it advances the joker sequence and nothing else.
  */
-function restoreJoker(work: Draft, playerId: PlayerId): EngineResult {
-  const decision = evaluateJokerRestore(work.state, playerId)
+function continueJoker(work: Draft, sequenceId: string): EngineResult {
+  const decision = evaluateJokerContinue(work.state, sequenceId)
   if (!decision.allowed) return reject(decision.reason, decision.message)
 
-  const state = work.state!
-  const label = state.players.find((player) => player.id === playerId)!.label
-  const spent = jokerOf(state.jokerByPlayer, playerId)
-  const undoesEffect = state.activeFiftyFifty?.playerId === playerId
+  const sequence = work.state!.jokerSequence!
+  if (sequence.phase === 'idle') return reject('joker-no-sequence', 'Es läuft gerade keine Jokerziehung.')
 
   work.mutate((draft) => {
-    draft.jokerByPlayer = { ...draft.jokerByPlayer, [playerId]: { status: 'available' } }
-    if (undoesEffect) draft.activeFiftyFifty = undefined
+    draft.jokerSequence = { ...sequence, phase: 'applied' }
   })
-
-  const detail = undoesEffect ? ' Die ausgeblendeten Antworten sind wieder sichtbar.' : ''
-  work.log('game', `Joker von ${label} zurückgesetzt.${detail}`, {
-    event: 'jokerRestored',
-    playerId,
-    ...(spent.status === 'used' ? { previousType: spent.type } : {}),
-    restoredEffect: undoesEffect,
+  work.log('game', `${jokerTypeLabel(sequence.type)} wird angewendet.`, {
+    event: 'jokerApplied',
+    playerId: sequence.playerId,
+    jokerType: sequence.type,
+    sequenceId: sequence.sequenceId,
   })
   return work.commit()
 }
@@ -1038,6 +1082,21 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
     // Doppelklick kann keinen Uebergang zweimal ausloesen.
     return reject('invalid-phase', 'Dieser Uebergang ist bereits abgeschlossen.')
   }
+  /*
+   * THE TURN OF THE CARD IS NOT A PHASE CHANGE. It is the one transition that
+   * leaves the question exactly where it was and only advances the draw - which
+   * is why it was scheduled onto the phase it is already in.
+   */
+  if (isJokerRevealTransition(work.state, pending.transitionId)) {
+    const sequence = work.state.jokerSequence!
+    if (sequence.phase !== 'drawing') return reject('invalid-phase', 'Diese Ziehung ist nicht mehr offen.')
+    work.mutate((draft) => {
+      draft.jokerSequence = { ...sequence, phase: 'revealed' }
+      draft.pendingTransition = undefined
+    })
+    return work.commit()
+  }
+
   // Aus der Loesung heraus ist der faellige Uebergang kein Phasenwechsel, sondern
   // dieselbe Entscheidung wie "Weiter": naechste Frage ziehen oder Ergebnis zeigen.
   if (work.phase === 'solution') return handleContinue(work)
@@ -1384,11 +1443,12 @@ function drawQuestionForCurrentSlot(
     // Frageweiter Reset - genau eine Stelle.
     for (const player of draft.players) player.lockedForCurrentQuestion = false
     /*
-     * The 50:50 effect dies with the question - here, at the one place a new
-     * question arrives. The SPENT joker is not touched: it lives in
-     * `jokerByPlayer` and survives until a new game starts.
+     * The draw dies with the question - here, at the one place a new question
+     * arrives. With it go the eliminated answers, which belonged to that
+     * question. The SPENT joker is not touched: it lives in `jokerByPlayer`
+     * and survives until a new game starts.
      */
-    draft.activeFiftyFifty = undefined
+    if (draft.jokerSequence) draft.jokerSequence = { phase: 'idle' }
     draft.buzzer = { open: false }
     draft.reveal = isImageReveal(runtime.question.questionType)
       ? createRevealClock(work.timing.imageRevealDurationMs)

@@ -1,14 +1,16 @@
 # Der Joker im Live-Quiz
 
-Jeder Spieler hat **einen** Joker pro Spiel. Er kann ihn als **50:50** oder als
-**Publikumsjoker** einsetzen - beides greift auf denselben Vorrat zu. Wer eine
-der beiden Varianten genutzt hat, hat fuer den Rest des Spiels keinen Joker
-mehr.
+Jeder Spieler hat **einen** Joker pro Spiel. Er wird **gezogen**, nicht
+gewaehlt: Wer gebuzzert hat, bittet um seinen Joker, der Operator zieht ihn, und
+der **Server** entscheidet mit 50:50, ob daraus ein **50:50-Joker** oder ein
+**Publikumsjoker** wird. Weder Spieler noch Operator koennen den Typ bestimmen -
+eine Wahl waere eine taktische Entscheidung, eine Ziehung ist ein Moment.
 
-Zurueck kommt er nur mit einem neuen Spiel oder durch das ausdrueckliche
-Zuruecksetzen am Operatorpult - nicht mit einer neuen Frage, nicht mit einer
-neuen Runde, nicht durch Neuladen und nicht dadurch, dass der andere Spieler
-antwortet.
+Zurueck kommt der Joker nur mit einem neuen Spiel. Nicht mit einer neuen Frage,
+nicht mit einer neuen Runde, nicht durch Neuladen, nicht durch einen Reconnect -
+und es gibt keinen Befehl, der eine Ziehung zurueckholt. Sie ist mit ihrem
+ersten Moment endgueltig: Der Spielerstatus wechselt auf `used`, bevor die Karte
+das Scoreboard verlassen hat.
 
 Im Quellcode heisst er durchgehend **joker**; deutsche Woerter stehen nur in
 Texten, die ein Mensch liest.
@@ -31,26 +33,58 @@ traegt das Feld nicht - auch nach einem Serverneustart, und auch fuer ein Spiel,
 das vor dieser Funktion gespeichert wurde. Genau das prueft
 `gameHasJokers(state)`, und nur diese eine Stelle entscheidet es.
 
+## Der Ablauf
+
+```
+                 DRAW_JOKER              Server, nach 1500 ms
+verfuegbar  ────────────────►  drawing  ────────────────────►  revealed
+                                                                  │
+                                                   CONTINUE_JOKER │
+                                                                  ▼
+        idle  ◄────────────────────────────────────────────   applied
+              Antwort gewertet (Markierung) / neue Frage (alles)
+```
+
+Beim Ziehen entscheidet der Server **einmal** alles: den Jokertyp und - beim
+50:50 - die Antworten, die verschwinden. Beides steht ab diesem Moment im
+Spielzustand. Kein spaeterer Schritt und kein Client wuerfelt noch.
+
+Der Schritt `drawing -> revealed` gehoert ebenfalls dem Server: Er plant ihn als
+zeitgesteuerten Uebergang ein (`pendingTransition`, dieselbe Mechanik wie die
+Feedback-Animation) und schaltet nach `jokerRevealCompleteMs` selbst um. Deshalb
+findet ein Client, der mitten in der Ziehung dazukommt, denselben Zustand wie
+alle anderen - und deshalb erscheint der Knopf "Weiter" erst, wenn die Karte
+wirklich liegt.
+
 ## Commands
 
 | Command | Rollen | Wirkung |
 | --- | --- | --- |
-| `USE_JOKER { playerId, jokerType }` | `operator` | Setzt den Joker dieses Spielers ein; beim 50:50 werden zusaetzlich die ausgeblendeten Antworten gespeichert |
-| `RESTORE_JOKER { playerId }` | `operator` | Macht den Joker wieder verfuegbar; steht die Frage noch, erscheinen die ausgeblendeten Antworten wieder |
+| `DRAW_JOKER` | `operator` | Zieht den Joker des Spielers, der gebuzzert hat: Typ und ausgeblendete Antworten werden bestimmt, der Joker gilt ab sofort als verbraucht, die Karte fliegt |
+| `CONTINUE_JOKER { sequenceId }` | `operator` | Wendet das Ergebnis an und gibt die Frage wieder frei |
 
-Beide Commands sind **serverseitig** validiert und **nur** fuer den Operator
-zugelassen (`commandRoles`). Die Buehne veraendert nichts; sie zeigt, was im
-naechsten Snapshot steht. Zwei gleichzeitige Commands werden von der
-Dispatch-Pipeline serialisiert - der zweite wird abgewiesen, und ein wiederholter
-Command mit derselben `commandId` wird aus dem Protokoll beantwortet, statt ein
-zweites Mal zu laufen.
+`DRAW_JOKER` **traegt keine Nutzlast**. Keinen Jokertyp, weil der Server die
+Muenze wirft - wer ihn nennen koennte, koennte ihn waehlen. Und keine
+`playerId`: Ziehen darf nur, wer den Zuschlag hat, und das weiss der Server. Ein
+Feld dafuer waere ein Feld, das gegen den aktiven Spieler geprueft werden
+muesste, und die Pruefung waere "ist es ohnehin der aktive Spieler".
 
-Abweisungen tragen einen strukturierten Grund, damit das Pult einen Satz zeigen
-kann und kein Schulterzucken: `joker-already-used`, `joker-not-used`,
-`joker-not-applicable`, `joker-effect-active`, `joker-player-not-answering`,
-`unknown-player`, dazu die allgemeinen `invalid-phase`,
-`attempt-already-resolved` und `answer-not-logged`. Ein abgewiesener Einsatz
-verbraucht **nichts**.
+`CONTINUE_JOKER` nennt die Ziehung, die es meint. Ein spaeter Klick - die
+Operator-Ansicht hat neu gezeichnet, die Verbindung war weg und ist wieder da -
+kommt dann mit der Kennung einer Ziehung, die vorbei ist, und wird abgewiesen,
+statt einen Schritt der aktuellen zu ueberspringen.
+
+**Waehrend `drawing` und `revealed` ruht die Frage.** Einloggen, Bewerten,
+Aufloesen, Weiter, Ueberspringen, Buzzern - alles abgewiesen
+(`joker-sequence-active`) und in `allowedCommands` gar nicht angeboten. Eine
+Antwort unter einer Karte, die den Schirm bedeckt, waere eine Entscheidung
+hinter dem Ruecken des Saals. Eine Liste, zwei Leser: `jokerBlockedCommands`.
+
+Abweisungen tragen einen strukturierten Grund: `joker-already-used`,
+`joker-not-applicable`, `joker-sequence-active`, `joker-no-sequence`,
+`joker-sequence-stale`, `joker-no-answering-player`, dazu die allgemeinen
+`invalid-phase` und `answer-not-logged`. Eine abgewiesene Ziehung verbraucht
+**nichts**.
 
 ## Events
 
@@ -58,14 +92,13 @@ Es gibt keinen Ereigniskanal zu den Clients - sie bekommen vollstaendige
 Snapshots. Das Ereignis ist deshalb der Eintrag im Spielprotokoll, benannt im
 Datenteil:
 
-- `jokerUsed { playerId, jokerType, questionId }` (beim 50:50 zusaetzlich
-  `hiddenOptionIds`)
-- `jokerRestored { playerId }`
+- `jokerDrawn { playerId, jokerType, questionId, sequenceId }` (beim 50:50
+  zusaetzlich `eliminatedOptionIds`)
+- `jokerApplied { playerId, jokerType, sequenceId }`
 
-Er steht im Audit-Log der Datenbank und damit im Protokoll, das der Operator
-oeffnen kann. `deriveQuizEvents` - die Ereignisse fuer einen einbettenden
-Gastgeber - kennt den Joker bewusst **nicht**: Diese Schnittstelle gehoert dem
-Kiosk, und dort gibt es keine Joker.
+`deriveQuizEvents` - die Ereignisse fuer einen einbettenden Gastgeber - kennt
+den Joker bewusst **nicht**: Diese Schnittstelle gehoert dem Kiosk, und dort
+gibt es keine Joker.
 
 ## Zustand
 
@@ -74,62 +107,94 @@ Zwei Dinge, bewusst getrennt, weil sie zwei Lebensdauern haben:
 - `GameState.jokerByPlayer` - was ein Spieler in **diesem** Spiel gemacht hat:
   `{ status: 'available' }` oder
   `{ status: 'used', type, usedAtQuestionId, usedAt }`, je Spieler-ID. Gelesen
-  wird immer ueber `jokerOf(jokerByPlayer, playerId)`.
-- `GameState.activeFiftyFifty` - was der 50:50 mit der Frage **auf dem Schirm**
-  macht: `{ playerId, questionId, hiddenOptionIds }`. Wird an der einen Stelle
-  geloescht, an der eine neue Frage kommt.
+  wird immer ueber `jokerOf(jokerByPlayer, playerId)`. Ueberdauert jede Frage
+  und endet mit dem Spiel.
+- `GameState.jokerSequence` - die Ziehung, wie sie **laeuft**:
+  `{ phase: 'idle' }` oder
+  `{ phase: 'drawing' | 'revealed' | 'applied', sequenceId, playerId,
+  questionId, type, startedAt, eliminatedOptionIds? }`. Wird an der einen
+  Stelle auf `idle` gesetzt, an der eine neue Frage kommt - und mit ihr
+  verschwinden die ausgeblendeten Antworten.
 
 Ein einziges Feld koennte beides nicht: Es wuerde entweder die ausgeblendeten
 Antworten bei der naechsten Frage zurueckholen oder den Joker fuer immer
-einsetzbar halten. Die `questionId` ist zugleich der Grund, warum ein alter
-Effekt nie auf eine neue Frage wirken kann - die Projektion vergleicht sie mit
+ziehbar halten. Die `questionId` ist zugleich der Grund, warum eine alte
+Ziehung nie auf eine neue Frage wirken kann - die Projektion vergleicht sie mit
 der Frage, die tatsaechlich steht.
 
-Im Snapshot: `PublicScore.joker` (`{ used }`, fehlt in einem Spiel ohne Joker),
-`PublicOption.hidden`, `PublicQuizViewModel.activeFiftyFifty` und
-`OperatorQuizViewModel.jokers` - Letzteres ein fertig anzeigbarer Bereich je
-Spieler mit `canUseFiftyFifty`, `canUseAudience`, `usedType`, `canRestore` und
-den Gruenden.
+Im Snapshot:
 
-**Die Buehne erfaehrt nicht, welche Variante es war.** Sie zeigt eine neutrale
-Karte, solange der Joker da ist. Was daraus wurde, wird im Saal gesagt und
-bleibt am Pult nachvollziehbar.
+- `PublicScore.joker` (`{ used }`, fehlt in einem Spiel ohne Joker),
+- `PublicOption.eliminated`,
+- `PublicQuizViewModel.jokerDraw` (`phase`, `sequenceId`, `playerId`,
+  `startedAtServerMs`, `revealCompleteMs` und `type`),
+- `OperatorQuizViewModel.joker` - ein fertig anzeigbarer Bereich mit `canDraw`,
+  `blockedReason`, `playerLabel`, `used` und der laufenden `sequence`.
+
+**Der Jokertyp geht erst auf die Leitung, wenn die Karte sich gedreht hat.**
+Waehrend `drawing` erfahren alle Rollen, DASS eine Ziehung laeuft, wessen sie
+ist und wann sie begann - das braucht der Flug. Was herauskam, kommt mit
+`revealed`, also in dem Moment, in dem die Karte es ohnehin zeigt. Genauso die
+ausgeblendeten Antworten: entschieden beim Ziehen, uebertragen erst mit
+`applied`. Eine Buehne, die es frueher wuesste, koennte es verraten - und eine,
+der man vertrauen muesste, waere der falsche Entwurf.
 
 ## Der 50:50
 
-Erlaubt nur, wenn eine Frage laeuft, **die Antworten sichtbar sind** und sie
-noch nicht aufgeloest ist, der Spieler seinen Joker noch hat, keine Antwort
-eingeloggt oder gewertet ist, kein anderer 50:50 zu dieser Frage aktiv ist, es
-eine Auswahlfrage mit genau einer richtigen Antwort ist, sie mindestens **drei**
-Antworten hat und **der genannte Spieler in dieser Situation antworten darf**
-(hat ein Spieler den Zuschlag, ist die Frage seine; in der zweiten Chance gilt
-dasselbe fuer den anderen).
+Gezogen werden kann nur, wenn eine Frage laeuft, **die Antworten sichtbar sind**
+und sie noch nicht aufgeloest ist, ein Spieler **gueltig gebuzzert hat** und
+antworten darf, sein Joker noch verfuegbar ist, keine Antwort eingeloggt ist,
+keine andere Ziehung laeuft - und die Frage **fuer beide Ergebnisse geeignet**
+ist.
 
-Unter drei Antworten wird der Einsatz abgewiesen und **nicht** verbraucht: Von
-zwei Antworten eine zu nehmen waere kein Hinweis, sondern die Loesung.
+Der letzte Punkt ist der Grund, warum die Eignung VOR der Muenze geprueft wird:
+Eine Frage, die keinen 50:50 tragen kann, ist gar nicht ziehbar. Sonst wuerde
+man es nach dem Wurf merken und dem Spieler einen Publikumsjoker geben, weil
+seine Frage ungeeignet war - eine Lotterie auf der Lotterie. Am Pult ist der
+Knopf dann deaktiviert und nennt den Grund.
 
-Beim Einsatz bleibt die richtige Antwort stehen, genau **eine** falsche bleibt
-stehen, alles andere wird ausgeblendet - bei drei Antworten verschwindet eine,
-bei vier zwei, bei mehr bleiben trotzdem nur zwei uebrig. Die ueberlebende
-falsche Antwort wird **einmal, auf dem Server** gezogen, aus einer injizierbaren
-Zufallsquelle (`EngineContext.random`), und die IDs reisen im Snapshot mit. So
-blendet jeder Client dieselben Antworten aus, statt eine Ziehung nachzurechnen.
+Geeignet heisst: Auswahlfrage mit genau einer richtigen Antwort und mindestens
+**drei** offenen Antworten. Gezaehlt werden nur die **offenen**: Eine Antwort,
+die in einem frueheren Versuch als falsch gewertet wurde, ist verbraucht. In der
+zweiten Chance einer Dreier-Frage bleibt damit zu wenig uebrig, und die Ziehung
+wird abgewiesen, statt die Loesung zu zeigen.
+
+Bei der Ziehung bleibt die richtige Antwort stehen, genau **eine** falsche bleibt
+stehen, alles andere verschwindet - bei drei Antworten eine, bei vier zwei, bei
+mehr entsprechend viele. Die ueberlebende falsche Antwort wird **einmal, auf dem
+Server** gezogen (`EngineContext.random`), und die IDs reisen im Snapshot mit.
 Es wird keine Antwort fuer den Spieler ausgewaehlt.
 
-Auf dem Schirm behalten die ausgeblendeten Antworten ihren Platz, ihre Hoehe und
-ihren Buchstaben und werden nur abgedunkelt - vier Zeilen in zwei umzubrechen
-wuerde das Ziel unter dem Finger wegziehen. Unerreichbar werden sie im Bauteil
-(`disabled`, `aria-hidden`), nie nur optisch.
+Sichtbar wird das erst mit `CONTINUE_JOKER`. Dann behalten die gestrichenen
+Antworten ihren Platz, ihre Hoehe und ihren Buchstaben; eine Linie wird in
+250 ms quer darueber gezogen, bei mehreren Antworten um 110 ms versetzt. Sie
+treten zurueck, bleiben aber lesbar - der Saal soll sehen, WAS wegfiel.
+Unerreichbar werden sie im Bauteil (`disabled`, `aria-hidden`), nie nur
+optisch. Beim Fragenwechsel verschwinden die IDs, der Joker bleibt verbraucht.
 
 ## Der Publikumsjoker
 
-Keine digitale Abstimmung. Der Spieler fragt den Saal, der Operator haelt fest,
-dass der Joker verbraucht ist, und die Jokerkarte auf der Buehne verschwindet.
-Die Befragung passiert im Raum. Keine erfundenen Prozente, keine zufaellige
-Antwort, kein zweites Abstimmungssystem.
+Keine digitale Abstimmung. Der Spieler fragt den Saal, die Anwendung haelt fest,
+dass der Joker verbraucht ist. Keine erfundenen Prozente, kein zufaelliges
+Publikumsergebnis, kein zusaetzlicher Timer.
 
-Er verbraucht **denselben** Joker wie der 50:50 - das ist der ganze Unterschied
-zu zwei getrennten Jokern, und deshalb steht es auch in der Rueckfrage am Pult.
+Nach `CONTINUE_JOKER` stehen Frage und **alle** Antworten unveraendert da. Das
+Einzige, was sich aendert, ist die **Markierung des aktiven Antwortenden**: In
+seiner Punktekarte tritt an die Stelle der Spielernummer das Gruppenzeichen,
+mit einer Ueberblendung von 200 ms. Punktestand, Farben, Groesse und die Karte
+des anderen Spielers bleiben unberuehrt.
+
+**Am Antwortbesitz aendert das nichts.** `buzzer.acceptedPlayerId`, die Sperre
+und spaeter die Punkte gehoeren weiter dem Spieler, der gebuzzert hat - es ist
+eine Markierung, keine Umbuchung. Das Zeichen verschwindet, sobald der Versuch
+gewertet ist oder die naechste Frage kommt (die Projektion gibt eine
+`applied`-Ziehung nur aus, solange die Frage offen ist).
+
+Anmerkung zur Vorgabe: Die Spielernummer des aktiven Antwortenden ist auf der
+Buehne **nur** in seiner Punktekarte zu sehen - eine zweite Anzeige gibt es
+nicht. "Scoreboards bleiben unveraendert" ist deshalb so umgesetzt: Layout,
+Farben und Punktestaende bleiben, getauscht wird ausschliesslich die Ziffer des
+aktiven Spielers, und nur solange der Joker wirkt.
 
 ## Die Jokerkarte auf der Buehne
 
@@ -156,28 +221,86 @@ positionierten Rahmen um die Punktekarte
 darin absolut positioniert mit `z-index: -1`. Die Scoreboards bleiben farbneutral
 und behalten ihre Groesse und Position.
 
-Nach dem Einsatz rutscht die Karte hinter das Scoreboard und wird unsichtbar -
-kein leerer Platzhalter, keine durchgestrichene zweite Karte. Sie bleibt nur
-deshalb im Dokument, weil dieser Weg eine Bewegung ist und kein Entfernen;
-`prefers-reduced-motion` nimmt ihr den Weg, nicht das Ergebnis.
+Beim Ziehen **hebt die Ziehung sie auf**: Die kleine Karte ist im selben Moment
+weg, ohne Uebergang (`data-lifted`), weil die fliegende Karte im Overlay ab
+diesem Frame an genau ihrer Stelle steht - zwei Karten waeren eine zu viel. Sie
+bleibt nur deshalb im Dokument, weil die Ziehung ihre Position messen muss.
+
+Danach kommt sie **nicht zurueck**: Der Joker ist verbraucht, und eine
+zurueckkehrende Karte wuerde das Gegenteil behaupten. Kein leerer Platzhalter,
+keine durchgestrichene zweite Karte.
 
 Sie ist kein Bedienelement: kein Zeiger, kein Fokus, das Bild traegt `alt=""`
 und `aria-hidden="true"`. Fuer die Sprachausgabe steht ein Satz im
 Spielerbereich - `stage.joker.available` / `stage.joker.used` aus der
 vorhandenen Uebersetzungsstruktur.
 
+## Die Ziehung auf der Buehne
+
+`JokerDrawOverlay` (in `hfroemmel/quiz-live`, `apps/web/src/components/`) liegt
+als Ebene ueber der Buehne - eingehaengt in den vorhandenen Slot `pads.overlay`
+von `StageScreen`, also INNERHALB der Buehnenflaeche mit ihren Farben,
+Containereinheiten und ihrer Zoomstufe. Keine globale `sceneRoot`-Kennung, kein
+eigenes Portal am Dokument.
+
+Der Ablauf, alle Dauern aus `jokerDrawTiming` im Kern:
+
+| Abschnitt | Dauer | Was passiert |
+| --- | --- | --- |
+| Abheben | 120 ms | Ebene blendet ein, Frage und Antworten dimmen und werden weichgezeichnet, die kleine Karte verschwindet |
+| Flug | 580 ms | Die Karte fliegt in einem Bogen von ihrer **gemessenen** Position in die Mitte, richtet sich von der Neigung auf `0deg` auf und waechst auf Kartengroesse |
+| Einrasten | 120 ms | Kurzes Ueberschwingen auf `scale(1.03)`, dann `scale(1)` |
+| Drehen | 680 ms | Die Karte dreht um die senkrechte Achse; bei 90 Grad wechselt das Bild |
+
+**Der Start ist gemessen, nicht gesetzt.** Die Komponente liest die Position der
+kleinen Karte mit `getBoundingClientRect()` und rechnet sie in die Koordinaten
+der Buehne um (ein Faktor aus der eigenen Breite, weil die Buehne skaliert sein
+kann). Feste Koordinaten waeren bei der ersten Aenderung der Kopfzeile falsch -
+und in der kleinen Operatorvorschau ohnehin.
+
+Gedreht wird mit `JokerFlipCard`: zwei deckungsgleiche Seiten in einem
+`preserve-3d`-Kasten, jede mit `backface-visibility: hidden`, die Rueckseite von
+Anfang an auf `rotateY(180deg)`. Deshalb wechselt das Bild exakt bei 90 Grad -
+kein Aufblitzen des falschen Jokers, kein Kreuzblenden. Die Rueckseite zeigt das
+Zeichen (`joker-fifty-fifty-icon.svg` / `joker-audience-icon.svg`, als Maske
+ueber der Textfarbe) und den Namen als Wort.
+
+**Fortsetzen statt neu anfangen:** Jede Animation startet mit einem negativen
+Versatz, der aus `startedAtServerMs` und der Serveruhr berechnet wird. Ein
+Buehnenfenster, das mitten im Flug neu laedt, sieht die Karte dort, wo sie
+gehoert; eines, das erst bei `revealed` dazukommt, sieht sofort die
+aufgedeckte Seite.
+
+Die aufgedeckte Karte bleibt **unbegrenzt** stehen. Kein automatisches
+Ausblenden - der Operator entscheidet. Mit `CONTINUE_JOKER` verkleinert sie sich
+leicht und verschwindet in etwa 200 ms, die Ebene gibt die Frage frei, und
+danach nimmt sich das Overlay selbst aus dem Dokument.
+
+Bei `prefers-reduced-motion` gibt es **keinen Flug, keine starke Skalierung und
+keine 3D-Drehung**: Die aufgedeckte Karte blendet in 150 ms in der Mitte ein.
+Alle fachlichen Zustaende und Sperren sind identisch, und das Ergebnis bleibt
+genauso bis zum Klick stehen.
+
 ## Das Pult
 
-`JokerPanel` zeigt je Spieler einen abgegrenzten Bereich: den Status als Wort
-(`Joker verfuegbar` / `Joker eingesetzt: 50:50-Joker`), beide Einsatzarten als
-Knoepfe an demselben Joker und - leiser, daneben - `Joker zuruecksetzen`.
+Die Jokersteuerung sitzt in `OperatorControls` **zwischen "Antwort einloggen"
+und "Aufloesen"** - genau dort, wo der Joker hingehoert: Ein Spieler hat
+gebuzzert, sich aber noch nicht festgelegt.
 
-Vor jedem Einsatz eine Rueckfrage, die den Preis nennt: "50:50-Joker fuer
-Spieler 1 einsetzen? Dieser Spieler kann danach keinen Publikumsjoker mehr
-verwenden." Ist der 50:50 zu dieser Frage nicht moeglich, steht der Grund im
-Fluss unter den Knoepfen, nicht in einem Tooltip.
+| Zustand | Was zu sehen ist |
+| --- | --- |
+| verfuegbar | `Joker ziehen` und daneben, fuer wen |
+| Frage ungeeignet | derselbe Knopf, deaktiviert, mit dem Grund darunter |
+| verbraucht | `Joker bereits eingesetzt` - kein Knopf |
+| `drawing` | `Joker wird gezogen …`, alle Antwort- und Aufloeseknoepfe sind weg |
+| `revealed` | `50:50-Joker gezogen` bzw. `Publikumsjoker gezogen` und `Weiter` |
 
-Alles davon kommt aus `view.jokers`, also aus denselben Regelfunktionen, die die
+Es gibt **einen** Knopf. Kein 50:50 und kein Publikumsjoker zur Wahl, weil es
+nichts zu waehlen gibt. `Weiter` schickt `CONTINUE_JOKER` mit der `sequenceId`
+und ausdruecklich nicht die allgemeine Weiter-Aktion - es laedt keine neue
+Frage.
+
+Alles davon kommt aus `view.joker`, also aus denselben Regelfunktionen, die die
 Engine beim Command anwendet. Das Pult leitet nichts selbst her: Ein Knopf, der
 verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 
@@ -187,36 +310,41 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 
 | Datei | Was |
 | --- | --- |
-| `packages/core/src/contracts/joker.ts` | neu: Typen, Regeln, `createJokerStates`, `jokerOf`, `jokerTypeLabel` |
-| `packages/core/src/contracts/state.ts` | `GameState.jokerByPlayer`, `GameState.activeFiftyFifty` |
-| `packages/core/src/contracts/commands.ts` | die zwei Commands, Rollen, Abweisungsgruende |
-| `packages/core/src/contracts/viewModels.ts` | `PublicJokerStatus`, `PublicScore.joker`, `PublicOption.hidden`, `activeFiftyFifty`, `OperatorJokerControl` |
-| `packages/core/src/engine/joker.ts` | neu: `gameHasJokers`, die Entscheidungsfunktionen, die Ziehung |
-| `packages/core/src/engine/engine.ts` | die zwei Handler, Vorrat bei `START_GAME` (nur `operated`), Effekt bei Fragenwechsel geloescht |
-| `packages/core/src/engine/allowedCommands.ts` | die Commands erscheinen nur, solange ein Knopf lebt |
-| `packages/core/src/engine/projection.ts` | Status, ausgeblendete Antworten, Operatorbereich |
-| `packages/react/src/presentation/stage/StageHeader.tsx`, `.module.css` | der Slot `besidePlayer` und der Rahmen dafuer |
-| `packages/react/src/presentation/stage/AnswerList.tsx`, `.module.css`, `answerState.ts` | ausgeblendete Antworten |
-| `packages/react/src/presentation/texts.ts` | `stage.joker.available`, `stage.joker.used` |
-| `harness/src/preview/PreviewApp.tsx` | Schalter fuer ausgeblendete Antworten |
+| `packages/core/src/contracts/joker.ts` | Typen, Regeln, `jokerDrawTiming`, `createJokerStates`, `jokerOf`, `activeJokerSequence`, `jokerTypeLabel` |
+| `packages/core/src/contracts/state.ts` | `GameState.jokerByPlayer`, `GameState.jokerSequence` |
+| `packages/core/src/contracts/commands.ts` | `DRAW_JOKER`, `CONTINUE_JOKER`, Rollen, Abweisungsgruende |
+| `packages/core/src/contracts/viewModels.ts` | `PublicJokerStatus`, `PublicJokerDraw`, `PublicOption.eliminated`, `OperatorJokerControl` |
+| `packages/core/src/engine/joker.ts` | `evaluateJokerDraw`, `evaluateJokerContinue`, `drawJokerType`, `pickEliminatedOptions`, `drawableOptionIds`, `jokerBlockedCommands` |
+| `packages/core/src/engine/engine.ts` | `drawJoker`, `continueJoker`, der Aufdeckschritt als zeitgesteuerter Uebergang, die Sperre waehrend der Ziehung, Vorrat bei `START_GAME` (nur `operated`) |
+| `packages/core/src/engine/allowedCommands.ts` | die Jokerbefehle, und was eine laufende Ziehung vom Pult nimmt |
+| `packages/core/src/engine/projection.ts` | `jokerDraw`, gestrichene Antworten ab `applied`, der Operatorbereich |
+| `packages/react/src/presentation/stage/jokerIcons.tsx`, `.module.css` | die beiden Jokerzeichen als Maske |
+| `packages/react/src/assets/joker-*-icon.svg` | die Zeichen selbst |
+| `packages/react/src/presentation/stage/AnswerList.tsx`, `.module.css`, `answerState.ts` | gestrichene Antworten samt Linie |
+| `packages/react/src/presentation/stage/Score.tsx`, `.module.css` | Gruppenzeichen statt Spielernummer, mit Ueberblendung |
+| `packages/react/src/presentation/stage/StageHeader.tsx`, `.module.css` | der Slot `besidePlayer` und die Ableitung des Gruppenzeichens |
+| `packages/react/src/presentation/animationPresets.ts` | Strich, Ueberblendung, Ausblenden als Tokens |
+| `packages/react/src/presentation/texts.ts` | `stage.joker.*` |
 
 **`hfroemmel/quiz-live`**
 
 | Datei | Was |
 | --- | --- |
 | `apps/web/src/assets/Jokerkarte_Livequiz_verfuegbar.png` | das Asset |
-| `apps/web/src/components/JokerCard.tsx`, `.module.css` | neu: die Karte und der Header-Slot |
-| `apps/web/src/apps/stage/StageApp.tsx` | die Karte im Buehnenfenster |
-| `apps/web/src/apps/operator/JokerPanel.tsx`, `.module.css` | neu: das Pult |
-| `apps/web/src/apps/operator/OperatorApp.tsx` | der Bereich in der Seitenspalte, die Karte in der Vorschau |
+| `apps/web/src/components/JokerCard.tsx`, `.module.css` | die kleine Karte am Scoreboard und der Header-Slot |
+| `apps/web/src/components/JokerDrawOverlay.tsx`, `.module.css` | die Ziehung: Ebene, Flug, Einrasten, Ausblenden |
+| `apps/web/src/components/JokerFlipCard.tsx`, `.module.css` | die Karte mit Vorder- und Rueckseite |
+| `apps/web/src/apps/stage/StageApp.tsx` | Karte und Ziehung im Buehnenfenster |
+| `apps/web/src/apps/operator/OperatorControls.tsx`, `.module.css` | die Sektion `Joker` zwischen Einloggen und Aufloesen |
+| `apps/web/src/apps/operator/OperatorApp.tsx` | Ziehung in der Vorschau; das alte `JokerPanel` ist entfallen |
 
 ## Tests
 
 | Suite | Anzahl | Was |
 | --- | --- | --- |
-| `packages/core/test/joker.test.ts` | 29 | ein Vorrat fuer beide Varianten, Trennung der Spieler, wer antworten darf, Lebensdauer, alle 50:50-Regeln, gleichzeitige Einsaetze, Zuruecksetzen, der Operatorbereich, und ein Spiel ohne Joker |
-| `packages/server/test/joker.test.ts` | 9 | der Server besitzt den Zustand, ein Snapshot fuer alle Rollen, Neustart, wiederholter Command, Rollen, Zuruecksetzen, und ein Spiel ohne Joker |
-| `test/e2e/joker.spec.ts` (quiz) | 3 | ausgeblendete Antworten bleiben an ihrem Platz, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
-| `test/e2e/joker.spec.ts` (quiz-live) | 7 | das Pult, die Karte am Scoreboard, die Rueckfrage, dieselben Antworten auf Buehne und Pult, der Grund einer Abweisung, Zuruecksetzen, Neuladen beider Ansichten |
+| `packages/core/test/joker.test.ts` | 35 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
+| `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
+| `test/e2e/joker.spec.ts` (quiz) | 3 | gestrichene Antworten bleiben an ihrem Platz, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
+| `test/e2e/joker.spec.ts` (quiz-live) | 7 | der Knopf erst nach dem Buzzer und nur einer, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
 
 Laufen mit `pnpm test` und `pnpm test:e2e` in beiden Repositories.

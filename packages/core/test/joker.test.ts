@@ -1,19 +1,22 @@
 /**
- * The shared joker: its rules, its lifetime and what the engine hands a client.
+ * The joker draw: its rules, its lifetime and what the engine hands a client.
  *
- * Every test here runs without a server, a browser or real time. The source of
- * chance is injected, so "which wrong answer survives" is a decision of the
- * test and not of luck.
+ * Every test here runs without a server, a browser or real time. The coin and
+ * the surviving wrong answer come from an INJECTED source of chance, so "which
+ * variant comes out" is a decision of the test and not of luck - that is the
+ * only way a draw can be tested at all.
  */
 import { describe, expect, it } from 'vitest'
 import {
+  activeJokerSequence,
   gameTiming,
   jokerOf,
+  jokerRevealCompleteMs,
   jokerRules,
   roleMayIssue,
   type PlayerId,
 } from '../src'
-import { pickFiftyFiftyHiddenOptions } from '../src/engine/joker'
+import { drawJokerType, pickEliminatedOptions } from '../src/engine/joker'
 import { availableCommands } from '../src/engine/allowedCommands'
 import { buzzIn, createHarness, makeQuestion, releaseRound, startGame, type Harness } from './helpers'
 
@@ -35,7 +38,15 @@ const twoAnswers = (id: string) =>
       { id: 'b', text: 'Antwort B' },
     ],
   })
-/** A free-answer picture question - no options, so no 50:50. */
+const sevenAnswers = (id: string) =>
+  makeQuestion({
+    id,
+    options: ['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((letter) => ({
+      id: letter,
+      text: `Antwort ${letter.toUpperCase()}`,
+    })),
+  })
+/** A free-answer picture question - no options, so no 50:50, so no draw. */
 const pictureQuestion = (id: string) =>
   makeQuestion({
     id,
@@ -50,14 +61,28 @@ const pictureQuestion = (id: string) =>
 const script = (make: (id: string) => ReturnType<typeof makeQuestion>) =>
   Array.from({ length: 7 }, (_, index) => make(`q${index + 1}`))
 
-/** Always keeps the FIRST wrong answer in `optionOrder`, whatever the count. */
-const keepFirstIncorrect = () => 0
+/**
+ * Two dice in one function.
+ *
+ * The engine asks the same source twice per draw: first for the coin, then -
+ * for a 50:50 - for the wrong answer that survives. A fixed number would answer
+ * both the same way, so the tests hand in a sequence and say what each value is
+ * for.
+ */
+function chance(...values: number[]): () => number {
+  let index = 0
+  return () => values[Math.min(index++, values.length - 1)]!
+}
 
-function rig(questions = script(fourAnswers), random: () => number = keepFirstIncorrect): Harness {
+/** Draws the 50:50 and keeps the FIRST wrong answer standing. */
+const drawsFiftyFifty = () => chance(0, 0)
+/** Draws the audience joker - the second half of the coin. */
+const drawsAudience = () => chance(0.9)
+
+function rig(questions = script(fourAnswers), random: () => number = drawsFiftyFifty()): Harness {
   return createHarness(questions, { random })
 }
 
-/** Has this player spent their joker - and as what? */
 function jokerState(harness: Harness, playerId: PlayerId) {
   return jokerOf(harness.state!.jokerByPlayer, playerId)
 }
@@ -66,14 +91,45 @@ function isUsed(harness: Harness, playerId: PlayerId): boolean {
   return jokerState(harness, playerId).status === 'used'
 }
 
-/** The options the room can actually still pick. */
-function visibleOptionIds(harness: Harness): string[] {
-  return (harness.publicView().visibleOptions ?? []).filter((option) => !option.hidden).map((option) => option.id)
+function sequence(harness: Harness) {
+  return harness.state!.jokerSequence
 }
 
-/** Plays the current question to its solution so the next one can be reached. */
-function answerAndContinue(harness: Harness, playerId: PlayerId = 'player-1'): void {
-  buzzIn(harness, playerId)
+/** The running draw - every test that asks for it expects one to run. */
+function running(harness: Harness) {
+  const active = activeJokerSequence(harness.state!.jokerSequence)
+  if (!active) throw new Error('Es laeuft keine Ziehung.')
+  return active
+}
+
+/** Lets the reveal run out - the server turns the card, not the client. */
+function awaitReveal(harness: Harness): void {
+  harness.advance(jokerRevealCompleteMs)
+}
+
+/** The whole draw, up to the effect being applied. */
+function drawJoker(harness: Harness): void {
+  harness.dispatch({ type: 'DRAW_JOKER' })
+  awaitReveal(harness)
+  const active = running(harness)
+  expect(active.phase).toBe('revealed')
+  harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: active.sequenceId })
+}
+
+/** The options the room can actually still pick. */
+function remainingOptionIds(harness: Harness): string[] {
+  return (harness.publicView().visibleOptions ?? [])
+    .filter((option) => !option.eliminated)
+    .map((option) => option.id)
+}
+
+/**
+ * Plays the current question to its solution so the next one can be reached.
+ *
+ * Without a buzz of its own: every test that uses it has one player on the
+ * buzzer already - that is where a draw comes from.
+ */
+function answerAndContinue(harness: Harness): void {
   harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
   harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
   harness.settle()
@@ -82,7 +138,7 @@ function answerAndContinue(harness: Harness, playerId: PlayerId = 'player-1'): v
 }
 
 describe('one joker per player', () => {
-  it('starts every player of an operated game with their joker', () => {
+  it('gives both players exactly one available joker', () => {
     const harness = rig()
     startGame(harness)
 
@@ -92,82 +148,95 @@ describe('one joker per player', () => {
         used: false,
       })
     }
+    expect(sequence(harness)).toEqual({ phase: 'idle' })
   })
 
-  it('spends ONE supply, whichever variant it is spent as', () => {
-    const fifty = rig()
-    startGame(fifty)
-    releaseRound(fifty)
-    fifty.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
+  it('cannot be drawn before a valid buzz', () => {
+    const harness = rig()
+    startGame(harness)
+    releaseRound(harness)
 
     /*
-     * THE HEART OF THE FEATURE: after the 50:50 the audience joker is gone too,
-     * and the refusal names the variant it was spent as so the operator can
-     * tell the room.
+     * The answers are up and everything about the question is fine - but the
+     * joker belongs to whoever is answering, and so far nobody is.
      */
-    const rejection = fifty.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
+    const rejection = harness.expectReject({ type: 'DRAW_JOKER' })
+    expect(rejection.reason).toBe('joker-no-answering-player')
+    expect(isUsed(harness, 'player-1')).toBe(false)
+    expect(availableCommands(harness.state)).not.toContain('DRAW_JOKER')
+  })
+
+  it('belongs to the player who buzzed, and is spent at once', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-2')
+
+    harness.dispatch({ type: 'DRAW_JOKER' })
+
+    /*
+     * THE STATUS FLIPS WITH THE FIRST MOMENT OF THE DRAW, not when it is
+     * applied: a draw cannot be taken back, so a joker in the air is spent.
+     */
+    const active = running(harness)
+    expect(active.phase).toBe('drawing')
+    expect(active.playerId).toBe('player-2')
+    expect(jokerState(harness, 'player-2')).toMatchObject({
+      status: 'used',
+      usedAtQuestionId: harness.state!.currentQuestion!.question.id,
+    })
+    // The other player never enters into it.
+    expect(jokerState(harness, 'player-1')).toEqual({ status: 'available' })
+  })
+
+  it('cannot be drawn twice by the same player', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+
+    answerAndContinue(harness)
+    buzzIn(harness, 'player-1')
+
+    const rejection = harness.expectReject({ type: 'DRAW_JOKER' })
     expect(rejection.reason).toBe('joker-already-used')
-    expect(rejection.message).toContain('50:50-Joker')
-
-    const audience = rig()
-    startGame(audience)
-    releaseRound(audience)
-    audience.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
-    const other = audience.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    expect(other.reason).toBe('joker-already-used')
-    expect(other.message).toContain('Publikumsjoker')
+    expect(rejection.message).toContain('Spieler 1')
   })
 
-  it('records which variant it became, and on which question', () => {
+  it('lets the two players draw independently', () => {
     const harness = rig()
     startGame(harness)
-    releaseRound(harness)
-    const questionId = harness.state!.currentQuestion!.question.id
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-2', jokerType: 'audience' })
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
 
-    const spent = jokerState(harness, 'player-2')
-    expect(spent).toMatchObject({ status: 'used', type: 'audience', usedAtQuestionId: questionId })
-    expect(spent.status === 'used' && Date.parse(spent.usedAt)).toBeGreaterThan(0)
-  })
+    answerAndContinue(harness)
+    buzzIn(harness, 'player-2')
+    drawJoker(harness)
 
-  it('keeps the two players apart', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
     expect(isUsed(harness, 'player-1')).toBe(true)
-    expect(isUsed(harness, 'player-2')).toBe(false)
+    expect(isUsed(harness, 'player-2')).toBe(true)
   })
 
-  it('refuses a player who is not in this game', () => {
-    const harness = rig()
-    startGame(harness, { playerCount: 1 })
-    releaseRound(harness)
-
-    expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-2', jokerType: 'audience' }).reason).toBe(
-      'unknown-player',
-    )
-  })
-
-  it('helps whoever is answering, and nobody else', () => {
+  it('spends the joker once even when two draws arrive together', () => {
     const harness = rig()
     startGame(harness)
     buzzIn(harness, 'player-1')
 
+    harness.dispatch({ type: 'DRAW_JOKER' })
+    const first = sequence(harness)!
+    const revisionAfterFirst = harness.state!.revision
+
     /*
-     * Player 1 holds the buzz, so this question is theirs. A hint for player 2
-     * would change nothing on screen except their own supply.
+     * A double click, or two operator windows on the same revision: the second
+     * command finds a draw already running and is refused. Nothing about the
+     * first one changes - same sequence, same revision.
      */
-    const rejection = harness.expectReject({ type: 'USE_JOKER', playerId: 'player-2', jokerType: 'audience' })
-    expect(rejection.reason).toBe('joker-player-not-answering')
-    expect(isUsed(harness, 'player-2')).toBe(false)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
-    expect(isUsed(harness, 'player-1')).toBe(true)
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('joker-sequence-active')
+    expect(sequence(harness)).toEqual(first)
+    expect(harness.state!.revision).toBe(revisionAfterFirst)
   })
 
-  it('stays with the operator in every integration', () => {
-    for (const type of ['USE_JOKER', 'RESTORE_JOKER'] as const) {
+  it('is refused for every role but the operator', () => {
+    for (const type of ['DRAW_JOKER', 'CONTINUE_JOKER'] as const) {
       expect(roleMayIssue('operator', type)).toBe(true)
       expect(roleMayIssue('player', type)).toBe(false)
       expect(roleMayIssue('moderator', type)).toBe(false)
@@ -176,354 +245,451 @@ describe('one joker per player', () => {
   })
 })
 
-describe('lifetime', () => {
-  it('keeps a spent joker spent across a question change', () => {
+describe('the coin is the server', () => {
+  it('produces both outcomes from the injected source of chance', () => {
+    // The boundary is exactly 0.5 - below it the 50:50, above it the audience.
+    expect(drawJokerType(() => 0)).toBe('fiftyFifty')
+    expect(drawJokerType(() => 0.49)).toBe('fiftyFifty')
+    expect(drawJokerType(() => 0.5)).toBe('audience')
+    expect(drawJokerType(() => 0.99)).toBe('audience')
+  })
+
+  it('draws a 50:50 with its eliminated answers in one go', () => {
+    const harness = rig(script(fourAnswers), drawsFiftyFifty())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+
+    const active = running(harness)
+    expect(active.type).toBe('fiftyFifty')
+    // Decided at the draw, long before anybody may see them.
+    expect(active.eliminatedOptionIds).toHaveLength(2)
+  })
+
+  it('draws an audience joker without touching the answers', () => {
+    const harness = rig(script(fourAnswers), drawsAudience())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+
+    expect(running(harness).type).toBe('audience')
+    expect(running(harness).eliminatedOptionIds).toBeUndefined()
+    expect(remainingOptionIds(harness)).toHaveLength(4)
+  })
+
+  it('hides the variant until the card has turned', () => {
+    const harness = rig(script(fourAnswers), drawsFiftyFifty())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+
+    /*
+     * DURING THE FLIGHT THE RESULT IS NOT ON THE WIRE. The stage learns that a
+     * draw is running, whose it is and when it started - not what it will be.
+     * A client that knew could give it away before the reveal.
+     */
+    const flying = harness.publicView().jokerDraw!
+    expect(flying.phase).toBe('drawing')
+    expect(flying.type).toBeUndefined()
+    expect(flying.playerId).toBe('player-1')
+    expect(flying.revealCompleteMs).toBe(jokerRevealCompleteMs)
+    expect(harness.publicView().visibleOptions?.some((option) => option.eliminated)).toBe(false)
+
+    awaitReveal(harness)
+
+    const revealed = harness.publicView().jokerDraw!
+    expect(revealed.phase).toBe('revealed')
+    expect(revealed.type).toBe('fiftyFifty')
+    // Still not applied: the answers stand until the operator continues.
+    expect(harness.publicView().visibleOptions?.some((option) => option.eliminated)).toBe(false)
+  })
+
+  it('turns the card on its own, without a client saying so', () => {
     const harness = rig()
     startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
 
-    answerAndContinue(harness)
+    expect(running(harness).phase).toBe('drawing')
+    // One millisecond short of the reveal it is still turning.
+    harness.advance(jokerRevealCompleteMs - 1)
+    expect(running(harness).phase).toBe('drawing')
+    harness.advance(1)
+    expect(running(harness).phase).toBe('revealed')
+  })
 
-    expect(harness.state!.currentQuestion?.question.id).toBe('q2')
-    expect(isUsed(harness, 'player-1')).toBe(true)
-    releaseRound(harness)
-    expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' }).reason).toBe(
-      'joker-already-used',
+  it('holds the question while the card is in the air', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+
+    /*
+     * Logging or resolving underneath a card that covers the screen would
+     * decide the question behind it. The engine refuses, and the operator's
+     * preview does not even offer it.
+     */
+    expect(harness.expectReject({ type: 'LOG_OPTION_ANSWER', optionId: 'a' }).reason).toBe(
+      'joker-sequence-active',
+    )
+    expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('joker-sequence-active')
+    const offered = availableCommands(harness.state)
+    expect(offered).not.toContain('LOG_OPTION_ANSWER')
+    expect(offered).not.toContain('RESOLVE_ATTEMPT')
+    // Nor a second draw - one screen, one card.
+    expect(offered).not.toContain('DRAW_JOKER')
+
+    // Once the card is applied, the question goes on as before.
+    awaitReveal(harness)
+    harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: running(harness).sequenceId })
+    expect(availableCommands(harness.state)).toContain('LOG_OPTION_ANSWER')
+  })
+})
+
+describe('continuing', () => {
+  it('applies the effect and does not load a new question', () => {
+    const harness = rig()
+    startGame(harness)
+    const questionId = harness.state!.currentQuestion!.question.id
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+    awaitReveal(harness)
+    const slotBefore = harness.state!.currentSlotIndex
+
+    harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: running(harness).sequenceId })
+
+    expect(sequence(harness)!.phase).toBe('applied')
+    // The SAME question, the same slot - `CONTINUE_JOKER` is not "next".
+    expect(harness.state!.currentQuestion!.question.id).toBe(questionId)
+    expect(harness.state!.currentSlotIndex).toBe(slotBefore)
+    expect(harness.publicView().visibleOptions?.filter((option) => option.eliminated)).toHaveLength(2)
+  })
+
+  it('refuses a stale or unknown sequence id', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+    awaitReveal(harness)
+
+    /*
+     * A click from a view that had repainted late carries the id of another
+     * draw. It must not advance the one that is running now.
+     */
+    expect(harness.expectReject({ type: 'CONTINUE_JOKER', sequenceId: 'joker-von-gestern' }).reason).toBe(
+      'joker-sequence-stale',
+    )
+    expect(running(harness).phase).toBe('revealed')
+
+    const id = running(harness).sequenceId
+    harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: id })
+    // And a repeat of the very same click changes nothing either.
+    expect(harness.expectReject({ type: 'CONTINUE_JOKER', sequenceId: id }).reason).toBe('joker-sequence-stale')
+  })
+
+  it('cannot skip the turn of the card', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+
+    const rejection = harness.expectReject({
+      type: 'CONTINUE_JOKER',
+      sequenceId: running(harness).sequenceId,
+    })
+    expect(rejection.reason).toBe('joker-sequence-stale')
+    expect(rejection.message).toContain('aufgedeckt')
+  })
+
+  it('refuses to continue when nothing is running', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    expect(harness.expectReject({ type: 'CONTINUE_JOKER', sequenceId: 'egal' }).reason).toBe(
+      'joker-no-sequence',
+    )
+  })
+})
+
+describe('the 50:50', () => {
+  it('never eliminates the correct answer', () => {
+    const harness = rig(script(fourAnswers), drawsFiftyFifty())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+
+    const remaining = remainingOptionIds(harness)
+    expect(remaining).toHaveLength(2)
+    expect(remaining).toContain('a')
+    expect(running(harness).eliminatedOptionIds).not.toContain('a')
+  })
+
+  it('eliminates two of four, one of three, and leaves two of seven', () => {
+    const four = rig(script(fourAnswers), drawsFiftyFifty())
+    startGame(four)
+    buzzIn(four, 'player-1')
+    drawJoker(four)
+    expect(running(four).eliminatedOptionIds).toHaveLength(2)
+    expect(remainingOptionIds(four)).toHaveLength(2)
+
+    const three = rig(script(threeAnswers), drawsFiftyFifty())
+    startGame(three)
+    buzzIn(three, 'player-1')
+    drawJoker(three)
+    expect(running(three).eliminatedOptionIds).toHaveLength(1)
+    expect(remainingOptionIds(three)).toHaveLength(2)
+
+    const seven = rig(script(sevenAnswers), drawsFiftyFifty())
+    startGame(seven)
+    buzzIn(seven, 'player-1')
+    drawJoker(seven)
+    expect(running(seven).eliminatedOptionIds).toHaveLength(5)
+    expect(remainingOptionIds(seven)).toHaveLength(2)
+  })
+
+  it('draws the surviving wrong answer from the injected source of chance', () => {
+    const order = ['a', 'b', 'c', 'd']
+    // `a` is correct; the wrong ones are b, c, d in that order.
+    expect(pickEliminatedOptions({ correctOptionId: 'a', drawableOptionIds: order, random: () => 0 })).toEqual([
+      'c',
+      'd',
+    ])
+    expect(
+      pickEliminatedOptions({ correctOptionId: 'a', drawableOptionIds: order, random: () => 0.99 }),
+    ).toEqual(['b', 'c'])
+    // Nothing to remove: the shape allows it, and then nothing is removed.
+    expect(
+      pickEliminatedOptions({ correctOptionId: 'a', drawableOptionIds: ['a', 'b'], random: () => 0 }),
+    ).toEqual([])
+  })
+
+  it('keeps the eliminated answers in place and out of play', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+
+    const options = harness.publicView().visibleOptions!
+    // Four rows before, four rows after - the list does not shrink.
+    expect(options).toHaveLength(4)
+    const eliminated = options.filter((option) => option.eliminated)
+    expect(eliminated).toHaveLength(2)
+    // And no answer was chosen on the player's behalf.
+    expect(options.some((option) => option.state === 'chosen')).toBe(false)
+  })
+
+  it('refuses the draw on a question that cannot carry a 50:50', () => {
+    for (const [name, questions] of [
+      ['two answers', script(twoAnswers)],
+      ['no choice at all', script(pictureQuestion)],
+    ] as const) {
+      const harness = rig(questions, drawsAudience())
+      startGame(harness)
+      buzzIn(harness, 'player-1')
+
+      /*
+       * THE UNSUITABILITY IS FOUND BEFORE THE COIN, not after. Even a draw
+       * whose chance would have come out `audience` is refused - anything else
+       * would make the question's suitability part of the lottery.
+       */
+      const rejection = harness.expectReject({ type: 'DRAW_JOKER' })
+      expect(rejection.reason, name).toBe('joker-not-applicable')
+      expect(isUsed(harness, 'player-1'), name).toBe(false)
+      expect(sequence(harness)).toEqual({ phase: 'idle' })
+      expect(availableCommands(harness.state), name).not.toContain('DRAW_JOKER')
+    }
+  })
+
+  it('states the number of answers it needs', () => {
+    const harness = rig(script(twoAnswers))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).message).toContain(
+      String(jokerRules.fiftyFiftyMinOptionCount),
     )
   })
 
-  it('drops the 50:50 effect with the question, and only the effect', () => {
+  it('counts only the answers still open in the second chance', () => {
+    /*
+     * Three answers, one of them already logged as wrong: two are left, and
+     * removing one of those would leave the correct answer alone on screen.
+     * The draw is therefore refused - a 50:50 must not become the solution.
+     */
+    const harness = rig(script(threeAnswers))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+
+    expect(harness.state!.phase).toBe('second-chance')
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('joker-not-applicable')
+    expect(isUsed(harness, 'player-2')).toBe(false)
+  })
+
+  it('is refused once an answer is logged', () => {
     const harness = rig()
     startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    expect(harness.state!.activeFiftyFifty).toBeDefined()
-    expect(visibleOptionIds(harness)).toHaveLength(2)
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('answer-not-logged')
+    expect(isUsed(harness, 'player-1')).toBe(false)
+  })
+})
+
+describe('the audience joker', () => {
+  it('marks the answering player without changing who answers', () => {
+    const harness = rig(script(fourAnswers), drawsAudience())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+
+    const view = harness.publicView()
+    expect(view.jokerDraw).toMatchObject({ phase: 'applied', type: 'audience', playerId: 'player-1' })
+    /*
+     * THE ANSWER STAYS WITH THE PLAYER WHO BUZZED. The mark is a mark; the
+     * attempt, the lock and later the points belong to player 1 as before.
+     */
+    expect(view.currentPlayer).toBe('player-1')
+    expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-1')
+    // Every answer is still on screen and still choosable.
+    expect(remainingOptionIds(harness)).toHaveLength(4)
+    // And the scoreboards keep their numbers and their scores.
+    expect(view.playerScores.map((score) => score.score)).toEqual([0, 0])
+  })
+
+  it('books the points to the player who buzzed', () => {
+    const harness = rig(script(fourAnswers), drawsAudience())
+    startGame(harness)
+    buzzIn(harness, 'player-2')
+    drawJoker(harness)
+
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+
+    const player = harness.state!.players.find((entry) => entry.id === 'player-2')!
+    expect(player.score).toBeGreaterThan(0)
+    expect(harness.state!.players.find((entry) => entry.id === 'player-1')!.score).toBe(0)
+  })
+
+  it('drops the mark when the attempt is resolved', () => {
+    const harness = rig(script(fourAnswers), drawsAudience())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+    expect(harness.publicView().jokerDraw?.phase).toBe('applied')
+
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+
+    /*
+     * The question is decided - the room is no longer being asked, so the mark
+     * goes. The spent joker does not come back.
+     */
+    expect(harness.publicView().jokerDraw).toBeUndefined()
+    expect(isUsed(harness, 'player-1')).toBe(true)
+  })
+})
+
+describe('lifetime', () => {
+  it('clears the draw with the question but keeps the joker spent', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+    expect(remainingOptionIds(harness)).toHaveLength(2)
 
     answerAndContinue(harness)
 
-    expect(harness.state!.activeFiftyFifty).toBeUndefined()
+    expect(sequence(harness)).toEqual({ phase: 'idle' })
     releaseRound(harness)
     // Every answer of the new question is on screen again.
-    expect(visibleOptionIds(harness)).toHaveLength(4)
+    expect(remainingOptionIds(harness)).toHaveLength(4)
+    expect(harness.publicView().jokerDraw).toBeUndefined()
     // ... while the joker stays gone.
     expect(isUsed(harness, 'player-1')).toBe(true)
   })
 
-  it('hands every joker back on a new game', () => {
+  it('hands both jokers back on a new game', () => {
     const harness = rig()
     startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
     harness.dispatch({ type: 'ABORT_GAME' })
 
     startGame(harness)
     for (const playerId of ['player-1', 'player-2'] as const) {
       expect(jokerState(harness, playerId)).toEqual({ status: 'available' })
     }
-    expect(harness.state!.activeFiftyFifty).toBeUndefined()
-  })
-})
-
-describe('the 50:50', () => {
-  it('keeps the correct answer and exactly one wrong one', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-
-    const visible = visibleOptionIds(harness)
-    expect(visible).toHaveLength(2)
-    expect(visible).toContain('a')
-    expect(harness.state!.activeFiftyFifty?.hiddenOptionIds).toHaveLength(2)
-    // No answer is picked for the player.
-    expect(harness.publicView().visibleOptions?.some((option) => option.state === 'chosen')).toBe(false)
-  })
-
-  it('removes exactly one wrong answer when there are three', () => {
-    const harness = rig(script(threeAnswers))
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-
-    expect(harness.state!.activeFiftyFifty?.hiddenOptionIds).toHaveLength(1)
-    expect(visibleOptionIds(harness)).toEqual(expect.arrayContaining(['a']))
-    expect(visibleOptionIds(harness)).toHaveLength(2)
-  })
-
-  it('leaves the joker unspent on a question with two answers', () => {
-    const harness = rig(script(twoAnswers))
-    startGame(harness)
-    releaseRound(harness)
-
-    const rejection = harness.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    expect(rejection.reason).toBe('joker-not-applicable')
-    expect(rejection.message).toContain(String(jokerRules.fiftyFiftyMinOptionCount))
-    expect(isUsed(harness, 'player-1')).toBe(false)
-    expect(harness.state!.activeFiftyFifty).toBeUndefined()
-  })
-
-  it('leaves the joker unspent on a question type it cannot serve', () => {
-    const harness = rig(script(pictureQuestion))
-    startGame(harness)
-    releaseRound(harness)
-
-    expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' }).reason).toBe(
-      'joker-not-applicable',
-    )
-    expect(isUsed(harness, 'player-1')).toBe(false)
-    // The audience joker works on such a question - it asks nothing of it.
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
-    expect(isUsed(harness, 'player-1')).toBe(true)
-  })
-
-  it('needs answers on screen - a question being read out is too early', () => {
-    const harness = rig()
-    startGame(harness)
-
-    expect(harness.state!.phase).toBe('question-presented')
-    expect(harness.publicView().visibleOptions).toBeUndefined()
-    expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' }).reason).toBe(
-      'invalid-phase',
-    )
-    expect(isUsed(harness, 'player-1')).toBe(false)
-  })
-
-  it('is refused once an answer is logged, confirmed or resolved', () => {
-    const logged = rig()
-    startGame(logged)
-    buzzIn(logged, 'player-1')
-    logged.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
-    expect(logged.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' }).reason).toBe(
-      'answer-not-logged',
-    )
-    expect(isUsed(logged, 'player-1')).toBe(false)
-
-    const resolved = rig()
-    startGame(resolved)
-    buzzIn(resolved, 'player-1')
-    resolved.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
-    resolved.dispatch({ type: 'RESOLVE_ATTEMPT' })
-    // The feedback animation is not a moment for a joker at all.
-    expect(resolved.state!.phase).toBe('attempt-feedback')
-    expect(resolved.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' }).reason).toBe(
-      'invalid-phase',
-    )
-
-    resolved.settle()
-    expect(resolved.state!.phase).toBe('second-chance')
-    /*
-     * The second chance belongs to the OTHER player - but not for the 50:50: an
-     * answer has been scored, and one wrong answer is already publicly used up.
-     * Asking the room, on the other hand, is exactly what one does here.
-     */
-    expect(resolved.expectReject({ type: 'USE_JOKER', playerId: 'player-2', jokerType: 'fiftyFifty' }).reason).toBe(
-      'attempt-already-resolved',
-    )
-    resolved.dispatch({ type: 'USE_JOKER', playerId: 'player-2', jokerType: 'audience' })
-    expect(isUsed(resolved, 'player-2')).toBe(true)
-  })
-
-  it('is refused after the solution', () => {
-    const harness = rig()
-    startGame(harness)
-    buzzIn(harness, 'player-1')
-    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
-    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
-    harness.settle()
-
-    expect(harness.state!.phase).toBe('solution')
-    for (const jokerType of ['fiftyFifty', 'audience'] as const) {
-      expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-2', jokerType }).reason).toBe(
-        'invalid-phase',
-      )
-    }
-  })
-
-  it('processes two simultaneous activations once', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-
-    /*
-     * Two operators on the same revision, or one double-click: the first wins,
-     * the second is refused, and the hidden answers do not change. The state
-     * carries exactly one effect afterwards.
-     */
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    const hiddenAfterFirst = [...harness.state!.activeFiftyFifty!.hiddenOptionIds]
-    const revisionAfterFirst = harness.state!.revision
-
-    expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' }).reason).toBe(
-      'joker-already-used',
-    )
-    expect(harness.state!.revision).toBe(revisionAfterFirst)
-    expect(harness.state!.activeFiftyFifty!.hiddenOptionIds).toEqual(hiddenAfterFirst)
-
-    // And the second player cannot stack a second effect on the same question.
-    expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-2', jokerType: 'fiftyFifty' }).reason).toBe(
-      'joker-effect-active',
-    )
-    expect(isUsed(harness, 'player-2')).toBe(false)
-  })
-
-  it('draws the surviving wrong answer from the injected source of chance', () => {
-    const order = ['a', 'b', 'c', 'd']
-    // `a` is correct; the wrong ones are b, c, d in that order.
-    expect(pickFiftyFiftyHiddenOptions({ correctOptionId: 'a', optionOrder: order, random: () => 0 })).toEqual([
-      'c',
-      'd',
-    ])
-    expect(pickFiftyFiftyHiddenOptions({ correctOptionId: 'a', optionOrder: order, random: () => 0.99 })).toEqual([
-      'b',
-      'c',
-    ])
-    // Seven answers: only two are left standing, whatever the count was.
-    const many = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-    expect(pickFiftyFiftyHiddenOptions({ correctOptionId: 'a', optionOrder: many, random: () => 0 })).toHaveLength(5)
-    // Nothing to remove: the shape allows it, the caller must not spend a joker.
-    expect(pickFiftyFiftyHiddenOptions({ correctOptionId: 'a', optionOrder: ['a', 'b'], random: () => 0 })).toEqual(
-      [],
-    )
-  })
-
-  it('hands the same hidden ids to every client', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-
-    const stage = harness.publicView()
-    const operator = harness.operatorView()
-    const stored = harness.state!.activeFiftyFifty!.hiddenOptionIds
-
-    expect(stage.activeFiftyFifty?.hiddenOptionIds).toEqual(stored)
-    expect(operator.activeFiftyFifty?.hiddenOptionIds).toEqual(stored)
-    expect(stage.visibleOptions?.filter((option) => option.hidden).map((option) => option.id)).toEqual(stored)
-    expect(operator.visibleOptions?.filter((option) => option.hidden).map((option) => option.id)).toEqual(stored)
-    expect(stage.activeFiftyFifty?.playerId).toBe('player-1')
-    // The answers keep their place - they are dimmed, not removed from the list.
-    expect(stage.visibleOptions).toHaveLength(4)
-  })
-})
-
-describe('the administrative reset', () => {
-  it('hands the supply back', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
-
-    harness.dispatch({ type: 'RESTORE_JOKER', playerId: 'player-1' })
-    expect(jokerState(harness, 'player-1')).toEqual({ status: 'available' })
-    // And it can be spent again afterwards - as either variant.
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    expect(jokerState(harness, 'player-1')).toMatchObject({ status: 'used', type: 'fiftyFifty' })
-  })
-
-  it('touches only the chosen player', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
-    harness.dispatch({ type: 'RESTORE_JOKER', playerId: 'player-1' })
-
-    // Player 2 never spent theirs, and the reset did not invent a change there.
-    expect(jokerState(harness, 'player-2')).toEqual({ status: 'available' })
-    expect(harness.expectReject({ type: 'RESTORE_JOKER', playerId: 'player-2' }).reason).toBe('joker-not-used')
-  })
-
-  it('brings the removed answers back while the question still stands', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    expect(visibleOptionIds(harness)).toHaveLength(2)
-
-    harness.dispatch({ type: 'RESTORE_JOKER', playerId: 'player-1' })
-
-    expect(harness.state!.activeFiftyFifty).toBeUndefined()
-    expect(visibleOptionIds(harness)).toHaveLength(4)
-    expect(jokerState(harness, 'player-1')).toEqual({ status: 'available' })
-  })
-
-  it('only restores the supply once the question has moved on', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    answerAndContinue(harness)
-    releaseRound(harness)
-
-    harness.dispatch({ type: 'RESTORE_JOKER', playerId: 'player-1' })
-    expect(jokerState(harness, 'player-1')).toEqual({ status: 'available' })
-    // Nothing was hidden on this question, so nothing comes back.
-    expect(visibleOptionIds(harness)).toHaveLength(4)
-  })
-
-  it('refuses to restore what was never spent', () => {
-    const harness = rig()
-    startGame(harness)
-    releaseRound(harness)
-
-    expect(harness.expectReject({ type: 'RESTORE_JOKER', playerId: 'player-1' }).reason).toBe('joker-not-used')
+    expect(sequence(harness)).toEqual({ phase: 'idle' })
   })
 })
 
 describe('what the operator sees', () => {
-  it('names both actions, the state and why something is blocked', () => {
+  it('offers one button and names the player it belongs to', () => {
     const harness = rig()
     startGame(harness)
-    releaseRound(harness)
+    buzzIn(harness, 'player-2')
 
-    const before = harness.operatorView().jokers!
-    expect(before.map((entry) => entry.playerId)).toEqual(['player-1', 'player-2'])
-    expect(before[0]?.playerLabel).toBe('Spieler 1')
-    expect(before.every((entry) => entry.canUseFiftyFifty && entry.canUseAudience)).toBe(true)
-    expect(before.every((entry) => !entry.used && !entry.canRestore)).toBe(true)
-    expect(before.every((entry) => entry.fiftyFiftyBlockedReason === undefined)).toBe(true)
-
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'fiftyFifty' })
-    const after = harness.operatorView().jokers!
-    const spent = after.find((entry) => entry.playerId === 'player-1')!
-    expect(spent.used).toBe(true)
-    expect(spent.usedType).toBe('fiftyFifty')
-    expect(spent.usedAtQuestionId).toBe(harness.state!.currentQuestion!.question.id)
-    expect(spent.canUseFiftyFifty).toBe(false)
-    expect(spent.canUseAudience).toBe(false)
-    expect(spent.canRestore).toBe(true)
-    expect(spent.audienceBlockedReason).toContain('schon als 50:50-Joker eingesetzt')
-
-    // The other player's 50:50 is blocked too, but for a different reason - and
-    // their audience joker is not blocked at all.
-    const other = after.find((entry) => entry.playerId === 'player-2')!
-    expect(other.used).toBe(false)
-    expect(other.canUseFiftyFifty).toBe(false)
-    expect(other.fiftyFiftyBlockedReason).toContain('50:50-Joker aktiv')
-    expect(other.canUseAudience).toBe(true)
+    const joker = harness.operatorView().joker!
+    expect(joker.canDraw).toBe(true)
+    expect(joker.used).toBe(false)
+    expect(joker.playerId).toBe('player-2')
+    expect(joker.playerLabel).toBe('Spieler 2')
+    expect(joker.blockedReason).toBeUndefined()
+    expect(joker.sequence).toBeUndefined()
   })
 
-  it('states the reason a 50:50 does not fit this question', () => {
-    const harness = rig(script(pictureQuestion))
-    startGame(harness)
-    releaseRound(harness)
-
-    const entry = harness.operatorView().jokers!.find((row) => row.playerId === 'player-1')!
-    expect(entry.canUseFiftyFifty).toBe(false)
-    expect(entry.fiftyFiftyBlockedReason).toContain('Auswahlfragen')
-    expect(entry.canUseAudience).toBe(true)
-  })
-
-  it('offers the commands only while some button is live', () => {
+  it('reports the running draw phase by phase', () => {
     const harness = rig()
     startGame(harness)
-    releaseRound(harness)
-    expect(availableCommands(harness.state)).toContain('USE_JOKER')
-    expect(availableCommands(harness.state)).not.toContain('RESTORE_JOKER')
+    buzzIn(harness, 'player-1')
+    harness.dispatch({ type: 'DRAW_JOKER' })
 
-    harness.dispatch({ type: 'USE_JOKER', playerId: 'player-1', jokerType: 'audience' })
-    expect(availableCommands(harness.state)).toContain('RESTORE_JOKER')
+    const drawing = harness.operatorView().joker!
+    expect(drawing.canDraw).toBe(false)
+    expect(drawing.used).toBe(true)
+    expect(drawing.sequence).toMatchObject({ phase: 'drawing' })
+    // Not even the desk learns the variant early - it reads it off the card.
+    expect(drawing.sequence?.type).toBeUndefined()
+
+    awaitReveal(harness)
+    const revealed = harness.operatorView().joker!
+    expect(revealed.sequence).toMatchObject({ phase: 'revealed', type: 'fiftyFifty' })
+    expect(harness.operatorView().allowedCommands).toContain('CONTINUE_JOKER')
+
+    harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: revealed.sequence!.sequenceId })
+    expect(harness.operatorView().joker!.sequence).toMatchObject({ phase: 'applied' })
+    expect(harness.operatorView().allowedCommands).not.toContain('CONTINUE_JOKER')
+  })
+
+  it('explains a question that is unsuitable before anything is drawn', () => {
+    const harness = rig(script(twoAnswers))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    const joker = harness.operatorView().joker!
+    expect(joker.canDraw).toBe(false)
+    expect(joker.used).toBe(false)
+    expect(joker.blockedReason).toContain('nicht geeignet')
+  })
+
+  it('says so once the joker is spent', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+    answerAndContinue(harness)
+    buzzIn(harness, 'player-1')
+
+    const joker = harness.operatorView().joker!
+    expect(joker.used).toBe(true)
+    expect(joker.canDraw).toBe(false)
+    expect(joker.blockedReason).toContain('schon eingesetzt')
   })
 })
 
@@ -541,18 +707,12 @@ describe('a game without jokers', () => {
     startGame(harness, { flowProfile: 'self-service' })
 
     expect(harness.state!.jokerByPlayer).toBeUndefined()
+    expect(harness.state!.jokerSequence).toBeUndefined()
     expect(harness.publicView().playerScores[0]?.joker).toBeUndefined()
-    expect(harness.operatorView().jokers).toBeUndefined()
-    expect(availableCommands(harness.state)).not.toContain('USE_JOKER')
-    expect(availableCommands(harness.state)).not.toContain('RESTORE_JOKER')
+    expect(harness.publicView().jokerDraw).toBeUndefined()
+    expect(harness.operatorView().joker).toBeUndefined()
+    expect(availableCommands(harness.state)).not.toContain('DRAW_JOKER')
 
-    for (const jokerType of ['fiftyFifty', 'audience'] as const) {
-      expect(harness.expectReject({ type: 'USE_JOKER', playerId: 'player-1', jokerType }).reason).toBe(
-        'joker-not-applicable',
-      )
-    }
-    expect(harness.expectReject({ type: 'RESTORE_JOKER', playerId: 'player-1' }).reason).toBe(
-      'joker-not-applicable',
-    )
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('joker-not-applicable')
   })
 })

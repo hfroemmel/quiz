@@ -11,14 +11,18 @@
  */
 import {
   isChoiceQuestion,
-  jokerTypes,
   roleMayIssue,
   type ActorRole,
   type CommandType,
   type GameState,
 } from '../contracts'
 import { isBuzzablePhase, isSelfServiceAnswerPhase } from './buzzer'
-import { evaluateJokerRestore, evaluateJokerUse } from './joker'
+import {
+  evaluateJokerContinue,
+  evaluateJokerDraw,
+  jokerBlockedCommands,
+  jokerSequenceHoldsQuestion,
+} from './joker'
 
 export function availableCommands(state: GameState | null): CommandType[] {
   const list = new Set<CommandType>()
@@ -152,29 +156,36 @@ export function availableCommands(state: GameState | null): CommandType[] {
   }
 
   for (const type of jokerCommands(state)) list.add(type)
+  /*
+   * A running draw takes everything else off the desk - the same rule the
+   * engine applies to the commands themselves (`jokerSequenceBlocks`). The
+   * operator is left with the one step the draw is waiting for.
+   */
+  if (jokerSequenceHoldsQuestion(state)) {
+    return [...list].filter((type) => !jokerBlockedCommands.includes(type))
+  }
   return [...list]
 }
 
 /**
- * Are joker commands worth offering at all right now?
+ * Which joker commands are worth offering right now?
  *
- * Asked against the SAME rules the engine applies, for every player and both
- * variants: if not a single combination would be accepted, the command does not
- * appear, and the operator gets no button that leads to a refusal. Which
- * individual button is live is a finer question - the operator view answers it
- * per player (see `projection.ts`).
+ * Asked against the SAME rules the engine applies: a command that would be
+ * refused does not appear, so the operator never gets a button that leads to a
+ * refusal. WHY the draw is unavailable is a finer question - the operator view
+ * answers it with a sentence per player (see `projection.ts`).
  */
 function jokerCommands(state: GameState): CommandType[] {
   const list: CommandType[] = []
-  if (
-    state.players.some((player) =>
-      jokerTypes.some((type) => evaluateJokerUse(state, player.id, type).allowed),
-    )
-  ) {
-    list.push('USE_JOKER')
-  }
-  if (state.players.some((player) => evaluateJokerRestore(state, player.id).allowed)) {
-    list.push('RESTORE_JOKER')
+  if (evaluateJokerDraw(state).allowed) list.push('DRAW_JOKER')
+  /*
+   * Continuing needs the id of the running draw, which this preview does not
+   * carry - so it asks with the id the state itself holds. The operator client
+   * sends the id from the same snapshot.
+   */
+  const sequence = state.jokerSequence
+  if (sequence && sequence.phase !== 'idle' && evaluateJokerContinue(state, sequence.sequenceId).allowed) {
+    list.push('CONTINUE_JOKER')
   }
   return list
 }

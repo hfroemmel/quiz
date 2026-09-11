@@ -41,12 +41,12 @@ export function answerRows(options: PublicOption[], scene: PublicScene) {
     text: option.text,
     state: answerState(option, scene),
     /*
-     * Removed by a 50:50. Kept apart from `state` on purpose: a hidden answer
-     * can still be the correct one, and in the solution scene it is shown as
-     * both. It also keeps its POSITION - the row list does not shrink, so the
-     * remaining answers do not jump under the players' eyes.
+     * Taken out of play by a 50:50. Kept apart from `state` on purpose: an
+     * eliminated answer can still be the correct one, and in the solution scene
+     * it is shown as both. It also keeps its POSITION - the row list does not
+     * shrink, so the remaining answers do not jump under the players' eyes.
      */
-    hidden: option.hidden === true,
+    eliminated: option.eliminated === true,
   }))
 }
 

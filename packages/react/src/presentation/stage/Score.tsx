@@ -17,11 +17,12 @@
  * erzeugt keinen eigenen Wert; trifft waehrend des Zaehlens ein neuer Snapshot
  * ein, beginnt sie von der aktuellen Anzeige aus neu.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { animationClips } from '../animationAssets'
 import { prefersReducedMotion, presentationTiming } from '../animationPresets'
 import { useSound } from '../SoundProvider'
 import { AnimationClip } from '../../ui/AnimationClip'
+import { JokerTypeIcon } from './jokerIcons'
 import styles from './Score.module.css'
 
 export type ScoreSize = 'header' | 'result'
@@ -44,6 +45,20 @@ interface ScoreProps {
   /** Punkte links, Spielernummer rechts - so steht Spieler 2 im Entwurf. */
   mirrored?: boolean
   size?: ScoreSize
+  /**
+   * An audience joker is in effect for this player - show the group mark
+   * instead of the player number.
+   *
+   * THREE STATES, NOT TWO. `undefined` means "this game has no jokers": the
+   * card then renders exactly the markup it rendered before the feature
+   * existed, which is what keeps a kiosk pixel-identical. `false` means the
+   * game has jokers but none is in effect - the mark is in the DOM, invisible,
+   * so the change is a crossfade and not a swap.
+   *
+   * WHAT IT DOES NOT CHANGE: the score, the colours, the layout - and who the
+   * answer belongs to. The mark says "the room is being asked", nothing else.
+   */
+  audienceMarker?: boolean
 }
 
 export function Score({
@@ -55,18 +70,37 @@ export function Score({
   size = 'header',
   playerText = 'Spieler',
   pointsText = 'Punkte',
+  audienceMarker,
 }: ScoreProps) {
   // Die Buehne zeigt keine Eigennamen, nur die Nummer aus der Beschriftung.
   const number = label.replace(/\D+/g, '') || '1'
 
+  const numberValue = (
+    <span className={styles.value} data-score-value="">
+      {number}
+    </span>
+  )
   const player = (
     <div className={`${styles.cell} ${styles.cellPlayer}`}>
       <span className={styles.label} data-score-label="">
         {playerText}
       </span>
-      <span className={styles.value} data-score-value="">
-        {number}
-      </span>
+      {audienceMarker === undefined ? (
+        numberValue
+      ) : (
+        /*
+         * Both marks sit in the SAME cell of a one-cell grid, so neither can
+         * move the other and the crossfade happens on the spot.
+         */
+        <span
+          className={styles.playerMark}
+          data-score-marker={audienceMarker ? 'audience' : 'number'}
+          style={{ '--joker-marker-fade': `${presentationTiming.jokerMarkerFadeMs}ms` } as CSSProperties}
+        >
+          {numberValue}
+          <JokerTypeIcon type="audience" className={styles.groupMark} />
+        </span>
+      )}
     </div>
   )
   const points = (

@@ -100,6 +100,7 @@ export function StageHeader({
               locked={playerOne.locked}
               playerText={t('stage.player')}
               pointsText={t('stage.points')}
+              {...audienceMarkerFor(view, playerOne)}
             />
           </div>
         )}
@@ -114,6 +115,7 @@ export function StageHeader({
               playerText={t('stage.player')}
               pointsText={t('stage.points')}
               mirrored
+              {...audienceMarkerFor(view, playerTwo)}
             />
           </div>
         )}
@@ -127,4 +129,25 @@ export function StageHeader({
       )}
     </header>
   )
+}
+
+/**
+ * Does this player's card show the group mark instead of their number?
+ *
+ * ONLY in a game that has jokers, and only while an APPLIED audience joker
+ * belongs to this player. Absent otherwise - a card without the prop renders
+ * exactly the markup it did before jokers existed.
+ *
+ * Read off the view model, never off the DOM: the server says which draw is
+ * running and whose it is.
+ */
+function audienceMarkerFor(
+  view: PublicQuizViewModel,
+  score: PublicScore,
+): { audienceMarker?: boolean } {
+  if (!score.joker) return {}
+  const draw = view.jokerDraw
+  return {
+    audienceMarker: draw?.phase === 'applied' && draw.type === 'audience' && draw.playerId === score.playerId,
+  }
 }

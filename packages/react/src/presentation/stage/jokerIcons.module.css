@@ -1,0 +1,21 @@
+/*
+ * Jokerzeichen als Maske ueber einer Farbflaeche.
+ *
+ * Dasselbe Verfahren wie bei der Wortmarke in der Kopfzeile: Die Datei liefert
+ * die Form, die Farbe kommt aus dem Umfeld. Damit traegt dasselbe Zeichen auf
+ * heller und dunkler Buehne die richtige Farbe, ohne zwei Dateien.
+ *
+ * Groesse kommt von aussen (`width`/`height` oder `font-size` der Umgebung) -
+ * hier steht nur ein Rueckfallwert, damit das Zeichen nie unsichtbar ist.
+ */
+
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  -webkit-mask: var(--joker-icon) no-repeat center / contain;
+  mask: var(--joker-icon) no-repeat center / contain;
+  /* Ein Zeichen faengt nichts ab - es steht nur da. */
+  pointer-events: none;
+}

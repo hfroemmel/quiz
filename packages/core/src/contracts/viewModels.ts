@@ -8,7 +8,7 @@
  */
 import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content'
 import type { AttemptOutcome, GamePhase, PlayerId } from './state'
-import type { JokerType } from './joker'
+import type { JokerSequence, JokerType } from './joker'
 import type { ActorRole, CommandType } from './commands'
 
 /** Szenen des Buehnenscreens. Sie werden aus der Phase abgeleitet, nicht frei gesetzt. */
@@ -59,14 +59,14 @@ export interface PublicOption {
    */
   state?: 'chosen' | 'correct' | 'chosen-incorrect'
   /**
-   * Removed by a 50:50 for this question.
+   * Taken out of play by a 50:50.
    *
-   * A flag of its own, not a fourth `state`: an option can be hidden AND be the
-   * correct one, which is exactly what the solution scene shows. It also keeps
-   * the option in the list - the clients dim it in place instead of relaying out
-   * the answers under the players' eyes.
+   * A flag of its own, not a fourth `state`: an option can be eliminated AND be
+   * the correct one, which is exactly what the solution scene shows. It also
+   * keeps the option in the list - the clients strike it out in place instead of
+   * relaying out the answers under the players' eyes.
    */
-  hidden?: boolean
+  eliminated?: boolean
 }
 
 export interface PublicQuestion {
@@ -183,15 +183,16 @@ export interface PublicQuizViewModel {
   upcomingCategoryLabel?: string
   visibleOptions?: PublicOption[]
   /**
-   * The 50:50 in effect on the current question, if any.
+   * The joker draw running on the current question, if any.
    *
-   * The hidden ids are here as well as on the options themselves: the options
-   * say WHAT to dim, this says WHOSE joker did it - which is what an
-   * announcement over the stage needs, and what lets a test assert that two
-   * clients really did receive the same pair. No question id: that is
-   * moderator-only information everywhere else, and it stays that way.
+   * It says WHOSE draw it is and HOW FAR it has got; which answers a 50:50
+   * removed is on the options themselves. `type` is absent while the card is
+   * still turning - see `projection.ts`.
+   *
+   * No question id: that is moderator-only information everywhere else, and it
+   * stays that way.
    */
-  activeFiftyFifty?: { playerId: PlayerId; hiddenOptionIds: string[] }
+  jokerDraw?: PublicJokerDraw
   visibleSolution?: PublicSolution
   feedback?: PublicFeedback
   playerScores: PublicScore[]
@@ -286,6 +287,24 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
 }
 
 /**
+ * A joker draw as the stage and the room may see it.
+ *
+ * `startedAtServerMs` is the same clock as `serverTimeMs`, so a client that
+ * joins mid-flight can compute where the card should be instead of starting the
+ * animation over. `revealCompleteMs` is how long the whole draw takes, handed
+ * down rather than duplicated in a stylesheet.
+ */
+export interface PublicJokerDraw {
+  phase: Exclude<JokerSequence['phase'], 'idle'>
+  sequenceId: string
+  playerId: PlayerId
+  startedAtServerMs: number
+  revealCompleteMs: number
+  /** What came out - present from `revealed` on, never before. */
+  type?: JokerType
+}
+
+/**
  * The joker area of ONE player in the operator's view, ready to render.
  *
  * One entry per player, not per variant: there is one joker, and the two
@@ -296,23 +315,25 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
  * operator client must not re-derive any of this.
  */
 export interface OperatorJokerControl {
-  playerId: PlayerId
-  playerLabel: string
-  /** Spent? Then both buttons are dead and `usedType` says how. */
+  /** May the draw be triggered right now? */
+  canDraw: boolean
+  /** Plain text for the operator - why not. Absent when it can. */
+  blockedReason?: string
+  /** Whose joker the draw would spend, as far as that is decided. */
+  playerId?: PlayerId
+  playerLabel?: string
+  /** Has that player's joker already been drawn in this game? */
   used: boolean
-  usedType?: JokerType
-  usedAtQuestionId?: string
-  canUseFiftyFifty: boolean
-  canUseAudience: boolean
   /**
-   * Plain text for the operator - why the 50:50 is unavailable. The 50:50 is
-   * the variant with conditions of its own (enough answers, nothing logged
-   * yet), so it is the one that needs a sentence; absent when it is available.
+   * The draw as it runs. Absent while none runs - and the phase is what the
+   * desk renders: `drawing` a status line, `revealed` the result and the
+   * "Weiter" button, `applied` nothing of its own.
    */
-  fiftyFiftyBlockedReason?: string
-  /** Why the audience joker is unavailable - the situation alone. */
-  audienceBlockedReason?: string
-  canRestore: boolean
+  sequence?: {
+    phase: Exclude<JokerSequence['phase'], 'idle'>
+    sequenceId: string
+    type?: JokerType
+  }
 }
 
 export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
@@ -333,10 +354,10 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
     acceptedAnswerText: string[]
   }
   /**
-   * One joker area per player, in player order. Absent in a game without
-   * jokers - the operator then sees no joker area at all.
+   * The joker button and its state. Absent in a game without jokers - the
+   * operator then sees no joker section at all.
    */
-  jokers?: OperatorJokerControl[]
+  joker?: OperatorJokerControl
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
   /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */

@@ -1,12 +1,12 @@
 /**
  * Joker rules - pure decisions, no state changes.
  *
- * Everything here answers one of two questions: "may this player spend their
- * joker this way right now?" and "which answers does a 50:50 hide?". The engine
- * applies the result, the operator's view model turns it into a disabled button
- * with a reason, and the tests check it without a server. ONE decision function,
- * three readers - that is why an operator button can never offer something the
- * engine would then refuse.
+ * Everything here answers one of three questions: "may a joker be drawn right
+ * now?", "what does the draw come out as?" and "does this continue belong to the
+ * draw that is running?". The engine applies the result, the operator's view
+ * model turns it into a disabled button with a reason, and the tests check it
+ * without a server. ONE decision function, three readers - that is why an
+ * operator button can never offer something the engine would then refuse.
  *
  * Rejection messages are German plain text, like every other message in
  * `CommandRejection`: they are shown to the operator as they are.
@@ -15,15 +15,69 @@ import {
   isChoiceQuestion,
   jokerOf,
   jokerRules,
-  jokerTypeLabel,
+  jokerTypes,
   type CommandRejectionReason,
+  type CommandType,
   type GameState,
   type JokerType,
   type PlayerId,
-  type PlayerState,
 } from '../contracts'
 import { activePlayerId } from './buzzer'
 import { attemptsForCurrentQuestion, pendingAttempt } from './scoring'
+
+/**
+ * Commands that a running draw puts on hold.
+ *
+ * Everything that would decide the question or move on from it. Sound,
+ * language, the abort and the timed transition are NOT on the list: the first
+ * two belong to the device, and the last two have to keep working even while
+ * something is on screen.
+ *
+ * ONE list, two readers - the engine refuses these commands
+ * (`jokerSequenceBlocks`) and the operator's preview stops offering them
+ * (`availableCommands`). Two lists would drift apart on the first addition.
+ */
+export const jokerBlockedCommands: readonly CommandType[] = [
+  'LOG_OPTION_ANSWER',
+  'MARK_MANUAL_ANSWER',
+  'RESOLVE_ATTEMPT',
+  'RESOLVE_WITHOUT_ANSWER',
+  'PASS_SECOND_CHANCE',
+  'CONTINUE',
+  'SKIP_QUESTION',
+  'OPEN_BUZZER',
+  'BUZZ',
+  'SELECT_PLAYER_MANUALLY',
+]
+
+/**
+ * Is a draw holding the question right now?
+ *
+ * `applied` is NOT holding: the effect is on screen, the question goes on, and
+ * the operator carries on as usual.
+ */
+export function jokerSequenceHoldsQuestion(state: GameState | null): boolean {
+  const phase = state?.jokerSequence?.phase
+  return phase === 'drawing' || phase === 'revealed'
+}
+
+/**
+ * Name of the timed transition that turns the card.
+ *
+ * The draw needs a step that happens WITHOUT a client asking for it, and the
+ * engine already has one mechanism for that: `pendingTransition`. This is the
+ * name it is scheduled under, in one place, so the engine can recognise its own
+ * transition again when it comes due (`transitionId` carries it as a prefix -
+ * see `Draft.scheduleTimedTransition`).
+ */
+export const JOKER_REVEAL_TRANSITION = 'joker-reveal'
+
+/** Is the transition that just came due the turn of the card? */
+export function isJokerRevealTransition(state: GameState | null, transitionId: string): boolean {
+  return (
+    state?.jokerSequence?.phase === 'drawing' && transitionId.startsWith(`${JOKER_REVEAL_TRANSITION}:`)
+  )
+}
 
 export type JokerDecision =
   | { allowed: true }
@@ -38,16 +92,11 @@ const deny = (reason: CommandRejectionReason, message: string): JokerDecision =>
 /**
  * Phases in which a question is on screen with its answers VISIBLE.
  *
- * The 50:50 removes answers, so it needs answers the room can see. Before the
- * operator releases the round (`question-presented`) the server does not even
- * transmit the options - removing two of something nobody has seen is not a
- * hint, it is a question that arrives pre-shortened. `solution`,
- * `attempt-feedback` and `result` are out for the opposite reason: there the
- * question is decided.
- *
- * The audience joker has no such need - it takes nothing off the screen - but it
- * shares the phases anyway: what it means is "ask the room about THIS question",
- * and that needs a question the room is looking at.
+ * A joker belongs to a question the room is looking at. Before the operator
+ * releases the round (`question-presented`) the server does not even transmit
+ * the options - and nobody has buzzed yet either, so there is no player whose
+ * joker it would be. `solution`, `attempt-feedback` and `result` are out for the
+ * opposite reason: there the question is decided.
  */
 const answerablePhases = new Set<GameState['phase']>([
   'buzzer-open',
@@ -58,8 +107,14 @@ const answerablePhases = new Set<GameState['phase']>([
   'reveal-paused',
 ])
 
-function playerOf(state: GameState, playerId: PlayerId): PlayerState | undefined {
-  return state.players.find((player) => player.id === playerId)
+/**
+ * Is the current question still open - answers up, nothing decided?
+ *
+ * The same set the draw itself is measured against, so "a joker may be drawn"
+ * and "the audience mark is still shown" cannot drift apart.
+ */
+export function questionStillOpen(state: GameState): boolean {
+  return Boolean(state.currentQuestion) && answerablePhases.has(state.phase)
 }
 
 /**
@@ -77,38 +132,49 @@ export function gameHasJokers(state: GameState | null): boolean {
 }
 
 /**
- * May this player spend their joker, this way, right now?
+ * The answers a 50:50 would still have to work with.
+ *
+ * Options that were already logged as wrong in an EARLIER attempt are used up:
+ * the room has seen them fail, and the second chance cannot choose them again.
+ * Counting them would let a 50:50 on a three-answer question in the second
+ * chance leave the correct answer alone on screen - the solution, not a hint.
+ */
+export function drawableOptionIds(state: GameState): string[] {
+  const runtime = state.currentQuestion
+  if (!runtime) return []
+  const spent = new Set(
+    attemptsForCurrentQuestion(state)
+      .filter((attempt) => attempt.outcome === 'incorrect' && attempt.loggedOptionId)
+      .map((attempt) => attempt.loggedOptionId!),
+  )
+  return runtime.optionOrder.filter((optionId) => !spent.has(optionId))
+}
+
+/**
+ * May a joker be drawn right now - and if so, whose?
+ *
+ * The player is NOT an argument. Only the player who holds the buzz can draw,
+ * and the server is the one that knows who that is; a caller who could name a
+ * player could name the wrong one. The decision therefore returns the player it
+ * derived, and the engine writes exactly that one.
  *
  * The order of the checks is the order of the sentences the operator reads: the
- * spent joker first, because it is the one answer that holds whatever the
- * question looks like; then the situation; then, for the 50:50 alone, the
- * question itself.
+ * situation first, then the supply, then the question itself.
  */
-export function evaluateJokerUse(
+export function evaluateJokerDraw(
   state: GameState | null,
-  playerId: PlayerId,
-  type: JokerType,
-): JokerDecision {
+): JokerDecision & { playerId?: PlayerId } {
   if (!state || state.status !== 'active') return deny('no-active-game', 'Es läuft gerade kein Spiel.')
-
   if (!gameHasJokers(state)) {
     return deny('joker-not-applicable', 'In diesem Spiel gibt es keine Joker.')
   }
 
-  const player = playerOf(state, playerId)
-  if (!player) return deny('unknown-player', 'Diesen Spieler gibt es in diesem Spiel nicht.')
-
   /*
-   * ONE SUPPLY. It does not matter which variant was spent - after either one
-   * this player has no joker, and the message says which one it was so the
-   * operator can tell the room.
+   * ONE SCREEN, ONE DRAW. A second card in the air while the first one is
+   * still turning would be two cards in the middle of the same screen.
    */
-  const joker = jokerOf(state.jokerByPlayer, playerId)
-  if (joker.status === 'used') {
-    return deny(
-      'joker-already-used',
-      `${player.label} hat den Joker in diesem Spiel schon als ${jokerTypeLabel(joker.type)} eingesetzt.`,
-    )
+  if (state.jokerSequence && state.jokerSequence.phase !== 'idle') {
+    return deny('joker-sequence-active', 'Es läuft bereits eine Jokerziehung.')
   }
 
   if (!state.currentQuestion || !answerablePhases.has(state.phase)) {
@@ -119,71 +185,58 @@ export function evaluateJokerUse(
   }
 
   /*
-   * A JOKER HELPS WHOEVER IS ANSWERING. Once one player holds the buzz, the
-   * other one is not answering this question - a hint for them would change
-   * nothing on screen except their own supply. In the second chance the roles
-   * are the other way round, and the same rule reads it correctly.
+   * THE JOKER BELONGS TO WHOEVER IS ANSWERING. Before a valid buzz nobody is,
+   * and the draw has no owner - that is the one case in which the button is
+   * dark although everything about the question is fine.
    */
-  const answering = answeringPlayer(state)
-  if (answering && answering !== playerId) {
-    const other = playerOf(state, answering)
-    return deny(
-      'joker-player-not-answering',
-      `${other?.label ?? 'Der andere Spieler'} ist an der Reihe. ${player.label} kann zu dieser Frage keinen Joker einsetzen.`,
-    )
+  const playerId = activePlayerId(state)
+  if (!playerId) {
+    return deny('joker-no-answering-player', 'Es hat noch niemand gebuzzert.')
   }
-  if (player.lockedForCurrentQuestion) {
-    return deny(
-      'joker-player-not-answering',
-      `${player.label} ist für diese Frage gesperrt und kann hier keinen Joker einsetzen.`,
-    )
+  const player = state.players.find((entry) => entry.id === playerId)!
+
+  if (jokerOf(state.jokerByPlayer, playerId).status === 'used') {
+    return deny('joker-already-used', `${player.label} hat den Joker in diesem Spiel schon eingesetzt.`)
   }
 
-  /* The audience joker asks nothing of the question - only of the moment. */
-  if (type === 'audience') return { allowed: true }
+  /*
+   * A COMMITTED ANSWER CLOSES THE DOOR. Once an option is logged, the player
+   * has decided; removing answers around that decision would either be
+   * pointless or look like a correction. `RESOLVE_ATTEMPT` is the final step
+   * and the phases above already exclude everything after it.
+   */
+  const pending = pendingAttempt(state)
+  if (pending?.loggedOptionId || pending?.loggedManualVerdict) {
+    return deny('answer-not-logged', 'Es ist schon eine Antwort eingeloggt. Der Joker kommt davor.')
+  }
 
-  return evaluateFiftyFifty(state)
-}
+  /*
+   * THE QUESTION HAS TO SUIT BOTH OUTCOMES.
+   *
+   * The coin is flipped after this check, so a question that cannot carry a
+   * 50:50 must not be drawable at all. The alternative would be to discover it
+   * afterwards and hand the player an audience joker because their question
+   * happened to be unsuitable - a lottery on top of a lottery.
+   */
+  const suitability = evaluateFiftyFiftySuitability(state)
+  if (!suitability.allowed) return suitability
 
-/**
- * Who is answering the current question, as far as it is decided.
- *
- * `null` while the buzzer is still open - then either player may take it, and
- * either may spend a joker to prepare for it.
- */
-function answeringPlayer(state: GameState): PlayerId | null {
-  return activePlayerId(state) ?? null
+  return { allowed: true, playerId }
 }
 
 /**
  * The extra conditions of the 50:50 - all about the question on screen.
  *
- * They are separate because the audience joker shares none of them: it works on
- * a free-answer question and on a picture just as well.
+ * Separate from the draw itself because the operator's view shows this as the
+ * reason a question is unsuitable, and because the numbers come from
+ * `jokerRules` rather than from this function.
  */
-function evaluateFiftyFifty(state: GameState): JokerDecision {
-  const runtime = state.currentQuestion!
+export function evaluateFiftyFiftySuitability(state: GameState): JokerDecision {
+  const runtime = state.currentQuestion
+  if (!runtime) {
+    return deny('invalid-phase', 'Es steht gerade keine Frage.')
+  }
   const question = runtime.question
-
-  /*
-   * A CONFIRMED ANSWER CLOSES THE DOOR - and so does a merely logged one.
-   *
-   * Once an attempt for this question carries an outcome, the question is
-   * decided for that attempt. And once an option is logged but not yet resolved,
-   * the player has committed: removing answers around that commitment would
-   * either be pointless or look like a correction.
-   */
-  if (attemptsForCurrentQuestion(state).some((attempt) => attempt.outcome !== undefined)) {
-    return deny('attempt-already-resolved', 'Zu dieser Frage wurde bereits eine Antwort gewertet.')
-  }
-  const pending = pendingAttempt(state)
-  if (pending?.loggedOptionId || pending?.loggedManualVerdict) {
-    return deny('answer-not-logged', 'Es ist schon eine Antwort eingeloggt. Der 50:50-Joker kommt davor.')
-  }
-
-  if (state.activeFiftyFifty && state.activeFiftyFifty.questionId === question.id) {
-    return deny('joker-effect-active', 'Zu dieser Frage ist bereits ein 50:50-Joker aktiv.')
-  }
 
   /*
    * SINGLE CHOICE WITH EXACTLY ONE CORRECT ANSWER. The data model carries one
@@ -194,57 +247,86 @@ function evaluateFiftyFifty(state: GameState): JokerDecision {
   if (!isChoiceQuestion(question) || !question.correctOptionId) {
     return deny(
       'joker-not-applicable',
-      'Der 50:50-Joker gilt nur für Auswahlfragen mit genau einer richtigen Antwort. Der Joker bleibt erhalten.',
+      'Diese Frage ist für den Joker nicht geeignet: Der 50:50-Joker braucht eine Auswahlfrage mit genau einer richtigen Antwort.',
     )
   }
-  if (!runtime.optionOrder.includes(question.correctOptionId)) {
-    return deny(
-      'joker-not-applicable',
-      'Die richtige Antwort steht nicht unter den angezeigten Antworten. Der Joker bleibt erhalten.',
-    )
-  }
-  if (runtime.optionOrder.length < jokerRules.fiftyFiftyMinOptionCount) {
-    return deny(
-      'joker-not-applicable',
-      `Diese Frage hat nur ${runtime.optionOrder.length} Antworten. Der 50:50-Joker braucht mindestens ${jokerRules.fiftyFiftyMinOptionCount} und bleibt erhalten.`,
-    )
-  }
-  return { allowed: true }
-}
 
-/** May the operator hand this player's joker back? Only if it was spent. */
-export function evaluateJokerRestore(state: GameState | null, playerId: PlayerId): JokerDecision {
-  if (!state || state.status !== 'active') return deny('no-active-game', 'Es läuft gerade kein Spiel.')
-  if (!gameHasJokers(state)) {
-    return deny('joker-not-applicable', 'In diesem Spiel gibt es keine Joker.')
+  const drawable = drawableOptionIds(state)
+  if (!drawable.includes(question.correctOptionId)) {
+    return deny(
+      'joker-not-applicable',
+      'Diese Frage ist für den Joker nicht geeignet: Die richtige Antwort steht nicht unter den offenen Antworten.',
+    )
   }
-  const player = playerOf(state, playerId)
-  if (!player) return deny('unknown-player', 'Diesen Spieler gibt es in diesem Spiel nicht.')
-  if (jokerOf(state.jokerByPlayer, playerId).status !== 'used') {
-    return deny('joker-not-used', `${player.label} hat den Joker noch nicht eingesetzt.`)
+  if (drawable.length < jokerRules.fiftyFiftyMinOptionCount) {
+    return deny(
+      'joker-not-applicable',
+      `Diese Frage ist für den Joker nicht geeignet: Es sind nur noch ${drawable.length} Antworten offen, der 50:50-Joker braucht mindestens ${jokerRules.fiftyFiftyMinOptionCount}.`,
+    )
   }
   return { allowed: true }
 }
 
 /**
- * Which answers a 50:50 hides.
+ * Which variant the draw comes out as - a fair coin, on the server.
+ *
+ * `random` is injected so a test can hand in a fixed number instead of luck.
+ * The order of `jokerTypes` decides which half is which, and the boundary is
+ * exactly 0.5: `random() < 0.5` is the 50:50 joker, everything else the
+ * audience joker.
+ */
+export function drawJokerType(random: () => number): JokerType {
+  return random() < 0.5 ? jokerTypes[0] : jokerTypes[1]
+}
+
+/**
+ * Which answers a 50:50 removes.
  *
  * The correct answer stays, exactly one wrong answer stays, everything else
  * goes - whether the question has three, four or seven answers. The surviving
  * wrong answer is drawn HERE, once, on the server, and the ids travel in the
- * snapshot: every client then hides the same ones, and nobody has to reproduce a
- * seeded draw.
+ * snapshot: every client then removes the same ones, and nobody has to
+ * reproduce a seeded draw.
  *
- * `random` is injected so a test can hand in a fixed number instead of luck.
+ * `random` is injected for the same reason as above.
  */
-export function pickFiftyFiftyHiddenOptions(input: {
+export function pickEliminatedOptions(input: {
   correctOptionId: string
-  optionOrder: readonly string[]
+  drawableOptionIds: readonly string[]
   random: () => number
 }): string[] {
-  const incorrect = input.optionOrder.filter((optionId) => optionId !== input.correctOptionId)
+  const incorrect = input.drawableOptionIds.filter((optionId) => optionId !== input.correctOptionId)
   if (incorrect.length <= jokerRules.fiftyFiftySurvivingIncorrectCount) return []
   const keptIndex = Math.min(incorrect.length - 1, Math.floor(input.random() * incorrect.length))
   const kept = incorrect[keptIndex]!
   return incorrect.filter((optionId) => optionId !== kept)
+}
+
+/**
+ * May the operator continue THIS draw?
+ *
+ * The id is what makes it safe. An operator view that repainted late, or a
+ * click that arrived after a reconnect, carries the id of a draw that is
+ * already over - and is refused rather than advancing the one that is running
+ * now. Continuing is only possible from `revealed`: while the card is still
+ * turning there is nothing to confirm, and after `applied` the step is done.
+ */
+export function evaluateJokerContinue(state: GameState | null, sequenceId: string): JokerDecision {
+  if (!state || state.status !== 'active') return deny('no-active-game', 'Es läuft gerade kein Spiel.')
+  const sequence = state.jokerSequence
+  if (!sequence || sequence.phase === 'idle') {
+    return deny('joker-no-sequence', 'Es läuft gerade keine Jokerziehung.')
+  }
+  if (sequence.sequenceId !== sequenceId) {
+    return deny('joker-sequence-stale', 'Diese Jokerziehung ist nicht mehr die aktuelle.')
+  }
+  if (sequence.phase !== 'revealed') {
+    return deny(
+      'joker-sequence-stale',
+      sequence.phase === 'drawing'
+        ? 'Die Karte wird noch aufgedeckt.'
+        : 'Dieser Joker ist bereits angewendet.',
+    )
+  }
+  return { allowed: true }
 }

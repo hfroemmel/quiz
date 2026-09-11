@@ -396,17 +396,30 @@ function buildSampleView(input: {
            * Mit 50:50: diese beiden hat der Joker genommen. Sie behalten ihren
            * Platz und ihren Buchstaben - genau das soll im Bild zu sehen sein.
            */
-          { id: 'o3', text: text(sample.answers[2]!, 2), ...(input.fiftyFifty ? { hidden: true } : {}) },
+          { id: 'o3', text: text(sample.answers[2]!, 2), ...(input.fiftyFifty ? { eliminated: true } : {}) },
           // Zweite Chance: diese Antwort war schon falsch und ist verbraucht.
           {
             id: 'o4',
             text: text(sample.answers[3]!, 3),
             state: 'chosen-incorrect',
-            ...(input.fiftyFifty ? { hidden: true } : {}),
+            ...(input.fiftyFifty ? { eliminated: true } : {}),
           },
         ],
+        /*
+         * Die Ziehung selbst gehoert dem Live-Quiz; die Vorschau zeigt nur,
+         * was danach auf der Buehne steht - ein angewendeter 50:50.
+         */
         ...(input.fiftyFifty
-          ? { activeFiftyFifty: { playerId: 'player-1' as const, hiddenOptionIds: ['o3', 'o4'] } }
+          ? {
+              jokerDraw: {
+                phase: 'applied' as const,
+                sequenceId: 'joker-preview',
+                playerId: 'player-1' as const,
+                startedAtServerMs: serverTimeMs,
+                revealCompleteMs: 1_500,
+                type: 'fiftyFifty' as const,
+              },
+            }
           : {}),
         currentPlayer: 'player-1',
       }

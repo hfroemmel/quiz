@@ -38,9 +38,30 @@ export const presentationTiming = {
   resultConfettiMs: 6_000,
   /** Dauer der Punktestand-Hochzaehlanimation. */
   scoreCountUpMs: 600,
+
+  /* --- die Jokerziehung --- */
+  /*
+   * Die Dauern des Flugs und der Drehung stehen NICHT hier, sondern in
+   * `jokerDrawTiming` im Kern: Der Server plant den Aufdeckschritt damit ein,
+   * und ein Client, der mitten im Flug dazukommt, rechnet seine Position darin
+   * aus. Hier stehen nur die Zeiten, die allein die Darstellung betreffen.
+   */
+  /** Wie lange die Linie ueber eine gestrichene Antwort gezogen wird. */
+  jokerStrikeMs: 250,
+  /** Versatz, mit dem mehrere Antworten nacheinander gestrichen werden. */
+  jokerStrikeStaggerMs: 110,
+  /** Ueberblendung zwischen Spielernummer und Gruppenzeichen. */
+  jokerMarkerFadeMs: 200,
+  /** Ausblenden der aufgedeckten Karte, wenn der Operator weitergeht. */
+  jokerDismissMs: 200,
 } as const
 
 export const easings = {
+  /**
+   * Der Flug der Jokerkarte: schneller Antritt, langes ruhiges Ausschwingen.
+   * Sie soll geworfen aussehen, nicht geschossen.
+   */
+  jokerFlight: 'cubic-bezier(0.22, 1, 0.36, 1)',
   /** Standard fuer Ein- und Ausblenden. */
   standard: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
   /** Betont den Eintritt, z. B. bei der Richtig-Animation. */

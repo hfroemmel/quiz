@@ -31,6 +31,11 @@ export const standardTexte = {
    */
   'stage.joker.available': '{player} hat noch einen Joker.',
   'stage.joker.used': '{player} hat den Joker eingesetzt.',
+  /* Die beiden Ergebnisse einer Ziehung - unter der aufgedeckten Karte. */
+  'stage.joker.fiftyFifty': '50:50-Joker',
+  'stage.joker.audience': 'Publikumsjoker',
+  /* Wird gesprochen, sobald die Karte liegt. */
+  'stage.joker.drawn': '{player} hat gezogen: {joker}',
   'stage.questionOf': 'Frage {current} von {total}',
   'feedback.correct': 'Richtig!',
   'feedback.incorrect': 'Falsch!',

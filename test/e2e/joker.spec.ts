@@ -50,7 +50,7 @@ test.describe('answers a 50:50 has taken away', () => {
     const after = await page.locator('[data-answer]').evaluateAll((nodes) =>
       nodes.map((node) => ({
         y: Math.round(node.getBoundingClientRect().y),
-        hidden: node.getAttribute('data-hidden'),
+        eliminated: node.getAttribute('data-eliminated'),
         aria: node.getAttribute('aria-hidden'),
         opacity: getComputedStyle(node).opacity,
         letter: node.querySelector('[data-answer-chip]')?.textContent,
@@ -59,16 +59,18 @@ test.describe('answers a 50:50 has taken away', () => {
 
     // Four rows before, four rows after, every one of them at the same height.
     expect(after.map((row) => row.y)).toEqual(before)
-    expect(after.filter((row) => row.hidden === 'true')).toHaveLength(2)
-    for (const row of after.filter((row) => row.hidden === 'true')) {
+    expect(after.filter((row) => row.eliminated === 'true')).toHaveLength(2)
+    for (const row of after.filter((row) => row.eliminated === 'true')) {
       expect(Number(row.opacity)).toBeLessThan(0.5)
       expect(row.aria).toBe('true')
       // The letter stays with its row, so A to D still mean the same lines.
       expect(row.letter).toBeTruthy()
     }
-    for (const row of after.filter((row) => row.hidden !== 'true')) {
+    for (const row of after.filter((row) => row.eliminated !== 'true')) {
       expect(row.opacity).toBe('1')
     }
+    // And each of them carries the line that says it is out.
+    await expect(page.locator('[data-answer][data-eliminated="true"] [data-answer-strike]')).toHaveCount(2)
   })
 
   test('leave the scoreboards untouched', async ({ page }) => {
@@ -106,7 +108,7 @@ test.describe('the touch device', () => {
      * the state carries no supply and the screen carries nothing about it.
      */
     await expect(page.locator('[data-joker]')).toHaveCount(0)
-    await expect(page.locator('[data-answer][data-hidden="true"]')).toHaveCount(0)
+    await expect(page.locator('[data-answer][data-eliminated="true"]')).toHaveCount(0)
     await expect(page.locator('[data-answer]')).not.toHaveCount(0)
     // And the two scoreboards are otherwise complete.
     await expect(page.locator('[data-score]')).toHaveCount(2)
