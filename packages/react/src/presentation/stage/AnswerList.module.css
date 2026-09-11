@@ -84,6 +84,8 @@
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   font-family: var(--font-heading);
   font-size: 1.9cqw;
   font-weight: 700;
@@ -95,6 +97,8 @@
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
   font-size: 1.75cqw;
   font-family: var(--font-heading);
 }
