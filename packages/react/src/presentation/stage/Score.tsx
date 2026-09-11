@@ -18,10 +18,12 @@
  * ein, beginnt sie von der aktuellen Anzeige aus neu.
  */
 import { useEffect, useRef, useState } from 'react'
+import type { LifelineType, PlayerId, PublicLifelineStatus } from '@hfroemmel/quiz-core'
 import { animationClips } from '../animationAssets'
 import { prefersReducedMotion, presentationTiming } from '../animationPresets'
 import { useSound } from '../SoundProvider'
 import { AnimationClip } from '../../ui/AnimationClip'
+import { Lifelines } from './Lifelines'
 import styles from './Score.module.css'
 
 export type ScoreSize = 'header' | 'result'
@@ -44,6 +46,22 @@ interface ScoreProps {
   /** Punkte links, Spielernummer rechts - so steht Spieler 2 im Entwurf. */
   mirrored?: boolean
   size?: ScoreSize
+  /**
+   * Lifelines of this player, straight from the view model.
+   *
+   * ABSENT MEANS ABSENT: no dots, and not a single element more in the DOM than
+   * before the feature existed. That is what keeps a quiz without lifelines
+   * pixel-identical to what it was.
+   */
+  lifelines?: readonly PublicLifelineStatus[]
+  /** Whose card this is - the dots need it for their accessible name. */
+  playerId?: PlayerId
+  /** Names and wording of the lifelines, in the language of the game. */
+  lifelineLabels?: Partial<Record<LifelineType, string>>
+  lifelineUsedText?: string
+  lifelineAvailableText?: string
+  /** Only at a kiosk: a player taps their own lifeline. */
+  onUseLifeline?: (type: LifelineType) => void
 }
 
 export function Score({
@@ -55,18 +73,49 @@ export function Score({
   size = 'header',
   playerText = 'Spieler',
   pointsText = 'Punkte',
+  lifelines,
+  playerId,
+  lifelineLabels,
+  lifelineUsedText,
+  lifelineAvailableText,
+  onUseLifeline,
 }: ScoreProps) {
   // Die Buehne zeigt keine Eigennamen, nur die Nummer aus der Beschriftung.
   const number = label.replace(/\D+/g, '') || '1'
 
+  const numberValue = (
+    <span className={styles.value} data-score-value="">
+      {number}
+    </span>
+  )
+  /*
+   * THE DOTS STAND NEXT TO THE NUMBER, not under the card and not beside it.
+   *
+   * They only get a row of their own when there are any: without lifelines the
+   * number stays the single child it has always been, and nothing in the card
+   * shifts by a pixel.
+   */
   const player = (
     <div className={`${styles.cell} ${styles.cellPlayer}`}>
       <span className={styles.label} data-score-label="">
         {playerText}
       </span>
-      <span className={styles.value} data-score-value="">
-        {number}
-      </span>
+      {lifelines && lifelines.length > 0 && playerId ? (
+        <span className={styles.playerRow} data-mirrored={String(mirrored)}>
+          {numberValue}
+          <Lifelines
+            lifelines={lifelines}
+            playerId={playerId}
+            mirrored={mirrored}
+            {...(lifelineLabels ? { labels: lifelineLabels } : {})}
+            {...(lifelineUsedText ? { usedText: lifelineUsedText } : {})}
+            {...(lifelineAvailableText ? { availableText: lifelineAvailableText } : {})}
+            {...(onUseLifeline ? { onUse: onUseLifeline } : {})}
+          />
+        </span>
+      ) : (
+        numberValue
+      )}
     </div>
   )
   const points = (

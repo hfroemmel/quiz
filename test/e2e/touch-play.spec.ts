@@ -170,9 +170,15 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
   // Die Auswahlmarke traegt genau die Auswahlfarbe - dieselbe wie die Flaeche darunter.
   await expect(gewaehlt.locator('[data-on="true"]')).toHaveCSS('background-color', farbe(auswahl))
 
-  // Zeigen: die Flaeche der offenen Karte hebt sich, ohne dass eine Linie erscheint.
+  /*
+   * Zeigen: die Flaeche der offenen Karte hebt sich, ohne dass eine Linie
+   * erscheint. Gewartet wird auf den Uebergang - die Flaeche wechselt in 120 ms,
+   * und ein Blick sofort danach liest manchmal noch die alte.
+   */
   await offen.hover()
-  expect(await offen.evaluate((node) => getComputedStyle(node).backgroundColor)).not.toBe(offenerStand.flaeche)
+  await expect
+    .poll(() => offen.evaluate((node) => getComputedStyle(node).backgroundColor))
+    .not.toBe(offenerStand.flaeche)
 
   /*
    * Tastaturmarke: KEINE Linie, sondern ein Hauch Groesse und ein weicher

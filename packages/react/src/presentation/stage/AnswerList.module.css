@@ -16,6 +16,41 @@
 .answer {
   display: flex;
   align-items: stretch;
+  /*
+   * Same measure as every other small transition of the stage
+   * (`--stage-fade-duration`, 220 ms): a 50:50 takes two answers away, and it
+   * should look like a decision, not like a rendering glitch.
+   */
+  transition:
+    opacity var(--stage-fade-duration) var(--stage-fade-easing),
+    filter var(--stage-fade-duration) var(--stage-fade-easing);
+}
+
+/*
+ * REMOVED BY A 50:50 - AND STILL IN ITS PLACE.
+ *
+ * `opacity` and not `display: none`: the row keeps its height, its gap and its
+ * letter, so the two remaining answers stay exactly where the players were
+ * already looking. Re-flowing four answers into two would move the target out
+ * from under a thumb that was on its way.
+ *
+ * It is dimmed far enough to read as "gone" and not so far as to vanish - on a
+ * projector a fully transparent row leaves a hole where the room expects a
+ * line. Touch and keyboard are cut off in the component (`disabled`,
+ * `aria-hidden`), not here: a look must never be the thing that decides what is
+ * reachable.
+ */
+.answer[data-hidden='true'] {
+  opacity: 0.18;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+
+/* Whoever asks for no motion gets the result, not the fade. */
+@media (prefers-reduced-motion: reduce) {
+  .answer {
+    transition-duration: 1ms;
+  }
 }
 /*
  * Zeile als Schaltflaeche (Touchgeraet).

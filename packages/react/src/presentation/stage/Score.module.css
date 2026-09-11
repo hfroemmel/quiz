@@ -23,6 +23,23 @@
 .value {
   font-variant-numeric: tabular-nums;
 }
+/*
+ * Number and lifeline dots in one row.
+ *
+ * `row-reverse` for player 2 - their card is mirrored, so the dots move to the
+ * other side of the number and stay on the outer edge on both sides. The row
+ * exists ONLY where there are dots (see `Score.tsx`); a card without lifelines
+ * keeps the number as its plain child.
+ */
+.playerRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5cqw;
+}
+.playerRow[data-mirrored='true'] {
+  flex-direction: row-reverse;
+}
+
 /* Die Sterne liegen ueber der Punktezelle, ohne Platz zu nehmen. */
 .cellPoints {
   position: relative;

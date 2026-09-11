@@ -6,7 +6,7 @@
  * ohne Electron drumherum.
  */
 import { useEffect, useState } from 'react'
-import { LocalQuizRuntime } from '@hfroemmel/quiz-core'
+import { LocalQuizRuntime, type LifelineConfig } from '@hfroemmel/quiz-core'
 import { ladeQuizPaket } from './quizPaket'
 
 export interface LaufzeitGriff {
@@ -14,7 +14,11 @@ export interface LaufzeitGriff {
   fehler: string | null
 }
 
-export function useLokaleLaufzeit(): LaufzeitGriff {
+/**
+ * @param lifelines Was diese Aufstellung an Jokern anbietet. Ohne Angabe keine -
+ *   genau wie im Kiosk und in der Spielesammlung.
+ */
+export function useLokaleLaufzeit(lifelines?: Partial<LifelineConfig>): LaufzeitGriff {
   const [griff, setGriff] = useState<LaufzeitGriff>({ runtime: null, fehler: null })
 
   useEffect(() => {
@@ -24,7 +28,10 @@ export function useLokaleLaufzeit(): LaufzeitGriff {
     void ladeQuizPaket()
       .then((quizPackage) => {
         if (verworfen) return
-        gebaut = new LocalQuizRuntime({ quizPackage })
+        gebaut = new LocalQuizRuntime({
+          quizPackage,
+          ...(lifelines === undefined ? {} : { lifelines }),
+        })
         setGriff({ runtime: gebaut, fehler: null })
       })
       .catch((ursache: unknown) => {
@@ -38,7 +45,8 @@ export function useLokaleLaufzeit(): LaufzeitGriff {
       gebaut?.dispose()
       setGriff({ runtime: null, fehler: null })
     }
-  }, [])
+    // Eine neue Konfiguration heisst eine neue Laufzeit - sie steht im Spielstand.
+  }, [JSON.stringify(lifelines ?? null)])
 
   return griff
 }

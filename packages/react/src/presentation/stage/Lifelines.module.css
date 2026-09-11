@@ -1,0 +1,172 @@
+/*
+ * Lifeline dots in the player's area of the scoreboard.
+ *
+ * Sizes are in `cqw` like everything else on the stage (see
+ * `styles/stage.css`): the width of the surface is the only measure, and the
+ * dots are the same fraction of it in the operator's small preview as on a
+ * projector.
+ *
+ * Colours come from the stage tokens, so bright and dark are the same rules
+ * with different values - and the kids world needs no second DOM: it simply
+ * does not offer lifelines today, and if it ever does, its own tokens apply.
+ */
+
+.lifelines {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4cqw;
+}
+
+/*
+ * MIRRORED FOR PLAYER 2.
+ *
+ * Their scoreboard is mirrored - points left, number right - and the dots
+ * follow, so they sit between the number and the outer edge on both sides.
+ * `row-reverse` and not a second rule: the order of the two dots stays the
+ * same, only the direction changes.
+ */
+.lifelines[data-mirrored='true'] {
+  flex-direction: row-reverse;
+}
+
+/*
+ * The dot itself.
+ *
+ * AVAILABLE is the full surface: the accent of the stage - the same tone a
+ * chosen answer carries - with the ink-on-strong on it. `aspect-ratio` and not
+ * a second length: a dot has to be round, and one number is harder to get wrong
+ * than two.
+ */
+.dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.9cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--stage-inkOnStrong);
+  /*
+   * A lifeline is spent in one step and never comes back on its own, so the
+   * change deserves to be seen rather than to happen between two frames. Same
+   * duration as every other small transition of the stage.
+   */
+  transition:
+    background-color var(--stage-fade-duration) var(--stage-fade-easing),
+    color var(--stage-fade-duration) var(--stage-fade-easing),
+    opacity var(--stage-fade-duration) var(--stage-fade-easing);
+}
+
+/*
+ * ON THE ACTIVE PLAYER'S TILE THE DOT TURNS AROUND.
+ *
+ * In the hall the player whose turn it is carries the accent colour on the very
+ * tile these dots sit on (see `Score.module.css`) - and an accent dot on an
+ * accent tile is no dot at all. So there the two tokens trade places - surface
+ * becomes ink, ink becomes surface - and the statement survives.
+ *
+ * NOT on the touch device: there the tile stays neutral (the player colour
+ * belongs to the buzzer alone), so the dot stays as it is. A used dot is not
+ * turned around either - it is meant to recede, and on the accent tile it does
+ * that by itself.
+ */
+:global(.stage--default:not(.stage--touch)) :global([data-score][data-active='true']) .dot:not(.dotUsed) {
+  background: var(--stage-inkOnStrong);
+  color: var(--color-accent);
+}
+/*
+ * And the spent dot recedes in the ink of that tile instead of the ink of the
+ * stage: the muted tone of the surrounding text has no contrast on the accent,
+ * and a dark blob with a line through it would read as damage, not as a state.
+ */
+:global(.stage--default:not(.stage--touch)) :global([data-score][data-active='true']) .dotUsed {
+  background: color-mix(in srgb, var(--stage-inkOnStrong) 18%, transparent);
+  color: color-mix(in srgb, var(--stage-inkOnStrong) 72%, transparent);
+}
+
+.icon {
+  width: 64%;
+  height: 64%;
+}
+
+/*
+ * SPENT - and readable four ways over.
+ *
+ * Colour alone would fail the projector with a tired colour channel and every
+ * colour-blind viewer in the room. So: no fill, muted icon, less opacity, AND a
+ * line across it. The line is the one of the four that survives a photocopy.
+ */
+.dotUsed {
+  background: var(--color-tile);
+  color: var(--color-textMuted);
+  opacity: 0.55;
+}
+
+.dotUsed::after {
+  content: '';
+  position: absolute;
+  /*
+   * Corner to corner, drawn as a rotated bar rather than an SVG line: it scales
+   * with the dot, needs no second viewBox, and takes its colour from the icon
+   * so the two can never drift apart.
+   */
+  left: 8%;
+  right: 8%;
+  height: 0.22cqw;
+  border-radius: 0.11cqw;
+  background: currentColor;
+  rotate: -45deg;
+}
+
+/*
+ * The hit area - only where a player taps their own lifeline.
+ *
+ * The DOT stays small; what grows is the invisible button around it. 44 by 44
+ * pixels is the ergonomic minimum for a thumb, and it is deliberately an
+ * absolute length: it is not a size of the design that should scale with the
+ * screen, it is the width of a finger, and that does not get smaller on a
+ * smaller display.
+ */
+.hit {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -0.5cqw;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.hit:disabled {
+  cursor: default;
+}
+
+.hit:active:not(:disabled) .dot {
+  filter: brightness(1.2);
+}
+
+.hit:focus-visible {
+  outline: none;
+}
+
+/* The focus mark sits on the dot, not on the invisible area around it. */
+.hit:focus-visible .dot {
+  outline: 0.1406cqw solid var(--color-accent);
+  outline-offset: 0.1406cqw;
+}
+
+/*
+ * Whoever asks for no motion gets the state, not the change: the dot is muted
+ * and crossed out either way, it simply does not fade there.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    transition-duration: 1ms;
+  }
+}

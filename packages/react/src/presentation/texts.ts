@@ -23,6 +23,15 @@ export const standardTexte = {
   'stage.player': 'Spieler',
   'stage.points': 'Punkte',
   'stage.question': 'Frage',
+  /*
+   * Lifelines. The two names are what the room calls them; `used` and
+   * `available` are only ever read out loud by a screen reader - the dots
+   * themselves say it without words.
+   */
+  'stage.lifeline.fiftyFifty': '50:50-Joker',
+  'stage.lifeline.audience': 'Publikumsjoker',
+  'stage.lifeline.used': 'verbraucht',
+  'stage.lifeline.available': 'verfügbar',
   'stage.questionOf': 'Frage {current} von {total}',
   'feedback.correct': 'Richtig!',
   'feedback.incorrect': 'Falsch!',

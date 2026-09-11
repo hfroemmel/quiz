@@ -19,6 +19,13 @@ export * from './presentation/useAudioUnlock'
 export * from './presentation/stageTheme'
 export * from './presentation/stage/Counter'
 export * from './presentation/stage/Score'
+/*
+ * The lifeline status display, on its own as well: a host that composes its own
+ * scoreboard - or shows the dots somewhere else entirely - gets the same
+ * component the stage uses, not a copy of it.
+ */
+export * from './presentation/stage/Lifelines'
+export * from './presentation/stage/lifelineIcons'
 export * from './presentation/stage/StageHeader'
 export * from './client/useQuizConnection'
 export * from './client/useQuizRuntime'

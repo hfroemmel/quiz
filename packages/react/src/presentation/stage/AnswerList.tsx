@@ -29,6 +29,8 @@ export interface AnswerRow {
   letter?: string
   text: string
   state: AnswerState
+  /** Removed by a 50:50 - dimmed in place, and out of play. */
+  hidden?: boolean
 }
 
 export interface AnswerListProps {
@@ -80,6 +82,14 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
             className={styles.answer}
             data-answer=""
             data-state={row.state}
+            /*
+             * A row removed by a 50:50. It KEEPS its place - only its surface
+             * fades back (see the stylesheet). And it leaves the game for good:
+             * `aria-hidden` takes it out of the reading order, `disabled` out of
+             * reach of thumb and keyboard. A dimmed answer that can still be
+             * tapped would be the worst of both.
+             */
+            {...(row.hidden ? { 'data-hidden': 'true', 'aria-hidden': true } : {})}
             /* Versatz der Einlaufanimation - die Zeilen erscheinen nacheinander. */
             style={{ animationDelay: `${index * presentationTiming.optionStaggerMs}ms` }}
           >
@@ -93,7 +103,7 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
                 type="button"
                 className={styles.touch}
                 data-answer-button=""
-                disabled={disabled}
+                disabled={disabled || row.hidden === true}
                 onClick={() => onSelect(row.id)}
               >
                 {content}

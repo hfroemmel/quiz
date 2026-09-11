@@ -86,6 +86,9 @@ export function StageHeader({
             locked={playerOne.locked}
             playerText={t('stage.player')}
             pointsText={t('stage.points')}
+            playerId={playerOne.playerId}
+            {...(playerOne.lifelines ? { lifelines: playerOne.lifelines } : {})}
+            {...lifelineTexts(t)}
           />
         )}
         {showsScores && playerTwo && (
@@ -96,6 +99,9 @@ export function StageHeader({
             locked={playerTwo.locked}
             playerText={t('stage.player')}
             pointsText={t('stage.points')}
+            playerId={playerTwo.playerId}
+            {...(playerTwo.lifelines ? { lifelines: playerTwo.lifelines } : {})}
+            {...lifelineTexts(t)}
             mirrored
           />
         )}
@@ -109,4 +115,21 @@ export function StageHeader({
       )}
     </header>
   )
+}
+
+/**
+ * The wording of the lifeline dots, in the language of the game.
+ *
+ * Gathered once and spread onto both cards: two lists of the same four keys
+ * would be two places to forget one.
+ */
+function lifelineTexts(t: ReturnType<typeof texteFuer>) {
+  return {
+    lifelineLabels: {
+      fiftyFifty: t('stage.lifeline.fiftyFifty'),
+      audience: t('stage.lifeline.audience'),
+    },
+    lifelineUsedText: t('stage.lifeline.used'),
+    lifelineAvailableText: t('stage.lifeline.available'),
+  }
 }
