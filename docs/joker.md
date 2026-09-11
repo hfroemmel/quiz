@@ -165,12 +165,13 @@ mehr entsprechend viele. Die ueberlebende falsche Antwort wird **einmal, auf dem
 Server** gezogen (`EngineContext.random`), und die IDs reisen im Snapshot mit.
 Es wird keine Antwort fuer den Spieler ausgewaehlt.
 
-Sichtbar wird das erst mit `CONTINUE_JOKER`. Dann behalten die gestrichenen
-Antworten ihren Platz, ihre Hoehe und ihren Buchstaben; eine Linie wird in
-250 ms quer darueber gezogen, bei mehreren Antworten um 110 ms versetzt. Sie
-treten zurueck, bleiben aber lesbar - der Saal soll sehen, WAS wegfiel.
-Unerreichbar werden sie im Bauteil (`disabled`, `aria-hidden`), nie nur
-optisch. Beim Fragenwechsel verschwinden die IDs, der Joker bleibt verbraucht.
+Sichtbar wird das erst mit `CONTINUE_JOKER`. Dann behalten die weggefallenen
+Antworten ihren Platz, ihre Hoehe und ihren Buchstaben und **treten nur
+zurueck**: Deckkraft 0.45 und ohne Farbe, in 250 ms, bei mehreren Antworten um
+110 ms versetzt. Kein Strich darueber - die Zeile bleibt lesbar, und eine Linie
+waere eine zweite Aussage ueber der ersten. Unerreichbar werden sie im Bauteil
+(`disabled`, `aria-hidden`), nie nur optisch. Beim Fragenwechsel verschwinden
+die IDs, der Joker bleibt verbraucht.
 
 ## Der Publikumsjoker
 
@@ -202,10 +203,13 @@ aktiven Spielers, und nur solange der Joker wirkt.
 **eine** neutrale Karte - `Jokerkarte_Livequiz_verfuegbar.png`, ueber den
 normalen Build-Weg importiert, ein Asset fuer beide Spieler.
 
-Sie liegt **hinter** dem Scoreboard und schaut nur seitlich hervor: bei Spieler 1
+Sie liegt **vor** dem Scoreboard und ueberlappt es zur Haelfte: bei Spieler 1
 links aussen und leicht gegen den Uhrzeigersinn gedreht, bei Spieler 2 rechts
 aussen, gespiegelt und andersherum gedreht. Seite, Drehung und Spiegelung stehen
 allein im CSS und haengen an `data-player`.
+
+Vor der Kachel und nicht dahinter, weil die Kachel Milchglas ist: Dahinter
+verschluckte sie die halbe Karte und liess sie als Fleck durchscheinen.
 
 Sie ist bewusst **kleiner als die Punktekarte**: 3.6cqw breit, ueber das
 Seitenverhaeltnis 4.6cqw hoch, gedreht rund 5cqw - und bleibt damit innerhalb
@@ -218,7 +222,7 @@ Zahl. Der E2E-Test misst beides.
 Sie verschiebt nichts: Die Kopfzeile stellt je Spieler einen relativ
 positionierten Rahmen um die Punktekarte
 (`StageHeaderSlots.besidePlayer` in `@hfroemmel/quiz-react`), und die Karte liegt
-darin absolut positioniert mit `z-index: -1`. Die Scoreboards bleiben farbneutral
+darin absolut positioniert mit `z-index: 1`. Die Scoreboards bleiben farbneutral
 und behalten ihre Groesse und Position.
 
 Beim Ziehen **hebt die Ziehung sie auf**: Die kleine Karte ist im selben Moment
@@ -317,13 +321,13 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 | `packages/core/src/engine/joker.ts` | `evaluateJokerDraw`, `evaluateJokerContinue`, `drawJokerType`, `pickEliminatedOptions`, `drawableOptionIds`, `jokerBlockedCommands` |
 | `packages/core/src/engine/engine.ts` | `drawJoker`, `continueJoker`, der Aufdeckschritt als zeitgesteuerter Uebergang, die Sperre waehrend der Ziehung, Vorrat bei `START_GAME` (nur `operated`) |
 | `packages/core/src/engine/allowedCommands.ts` | die Jokerbefehle, und was eine laufende Ziehung vom Pult nimmt |
-| `packages/core/src/engine/projection.ts` | `jokerDraw`, gestrichene Antworten ab `applied`, der Operatorbereich |
+| `packages/core/src/engine/projection.ts` | `jokerDraw`, weggefallene Antworten ab `applied`, der Operatorbereich |
 | `packages/react/src/presentation/stage/jokerIcons.tsx`, `.module.css` | die beiden Jokerzeichen als Maske |
 | `packages/react/src/assets/joker-*-icon.svg` | die Zeichen selbst |
-| `packages/react/src/presentation/stage/AnswerList.tsx`, `.module.css`, `answerState.ts` | gestrichene Antworten samt Linie |
+| `packages/react/src/presentation/stage/AnswerList.tsx`, `.module.css`, `answerState.ts` | weggefallene Antworten treten an ihrem Platz zurueck |
 | `packages/react/src/presentation/stage/Score.tsx`, `.module.css` | Gruppenzeichen statt Spielernummer, mit Ueberblendung |
 | `packages/react/src/presentation/stage/StageHeader.tsx`, `.module.css` | der Slot `besidePlayer` und die Ableitung des Gruppenzeichens |
-| `packages/react/src/presentation/animationPresets.ts` | Strich, Ueberblendung, Ausblenden als Tokens |
+| `packages/react/src/presentation/animationPresets.ts` | Zuruecktreten, Ueberblendung, Ausblenden als Tokens |
 | `packages/react/src/presentation/texts.ts` | `stage.joker.*` |
 
 **`hfroemmel/quiz-live`**
@@ -344,7 +348,7 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 | --- | --- | --- |
 | `packages/core/test/joker.test.ts` | 35 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
 | `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
-| `test/e2e/joker.spec.ts` (quiz) | 3 | gestrichene Antworten bleiben an ihrem Platz, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
-| `test/e2e/joker.spec.ts` (quiz-live) | 7 | der Knopf erst nach dem Buzzer und nur einer, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
+| `test/e2e/joker.spec.ts` (quiz) | 3 | weggefallene Antworten bleiben an ihrem Platz und ohne Strich, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
+| `test/e2e/joker.spec.ts` (quiz-live) | 8 | der Knopf erst nach dem Buzzer und nur einer, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
 
 Laufen mit `pnpm test` und `pnpm test:e2e` in beiden Repositories.

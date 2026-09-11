@@ -20,8 +20,9 @@
  * Er nimmt keinen eigenen Platz: Groesse und Position kommen weiter von der
  * Karte darin. Wer im Slot etwas absolut positioniert, haengt es damit an diese
  * Karte, ohne die Kopfzeile zu verbreitern. `position: relative` ohne `z-index`
- * bleibt bewusst ohne eigenen Stapelkontext - so kann der Slotinhalt mit
- * `z-index: -1` HINTER die Karte rutschen, ohne aus der Kopfzeile zu fallen.
+ * bleibt bewusst ohne eigenen Stapelkontext - so entscheidet der Slotinhalt
+ * selbst, ob er vor oder hinter der Karte liegt, ohne aus der Kopfzeile zu
+ * fallen.
  */
 .scoreGroup {
   position: relative;

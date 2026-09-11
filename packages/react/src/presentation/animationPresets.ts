@@ -46,10 +46,10 @@ export const presentationTiming = {
    * und ein Client, der mitten im Flug dazukommt, rechnet seine Position darin
    * aus. Hier stehen nur die Zeiten, die allein die Darstellung betreffen.
    */
-  /** Wie lange die Linie ueber eine gestrichene Antwort gezogen wird. */
-  jokerStrikeMs: 250,
-  /** Versatz, mit dem mehrere Antworten nacheinander gestrichen werden. */
-  jokerStrikeStaggerMs: 110,
+  /** Wie lange eine Antwort braucht, um nach einem 50:50 zurueckzutreten. */
+  jokerEliminateMs: 250,
+  /** Versatz, mit dem mehrere Antworten nacheinander zuruecktreten. */
+  jokerEliminateStaggerMs: 110,
   /** Ueberblendung zwischen Spielernummer und Gruppenzeichen. */
   jokerMarkerFadeMs: 200,
   /** Ausblenden der aufgedeckten Karte, wenn der Operator weitergeht. */

@@ -30,7 +30,7 @@ export interface AnswerRow {
   letter?: string
   text: string
   state: AnswerState
-  /** Taken out of play by a 50:50 - struck through in place. */
+  /** Taken out of play by a 50:50 - dimmed in place. */
   eliminated?: boolean
 }
 
@@ -73,25 +73,6 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
               <span className={styles.text} data-answer-text="">
                 {row.text}
               </span>
-              {/*
-                * THE LINE IS ITS OWN ELEMENT, drawn from left to right across
-                * the surface. It only exists on an eliminated row, so a normal
-                * answer carries nothing extra; and it draws itself with a
-                * stagger, so four rows do not get crossed out in one jump.
-                */}
-              {row.eliminated && (
-                <span
-                  className={styles.strike}
-                  data-answer-strike=""
-                  style={
-                    {
-                      animationDelay: `${index * presentationTiming.jokerStrikeStaggerMs}ms`,
-                      '--joker-strike-duration': `${presentationTiming.jokerStrikeMs}ms`,
-                    } as CSSProperties
-                  }
-                  aria-hidden="true"
-                />
-              )}
             </span>
           </>
         )
@@ -103,16 +84,27 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
             data-answer=""
             data-state={row.state}
             /*
-             * A row a 50:50 has taken out. It KEEPS its place - the line is
-             * drawn across it and its surface steps back (see the stylesheet).
-             * And it leaves the game for good: `aria-hidden` takes it out of the
+             * A row a 50:50 has taken out. It KEEPS its place and steps back in
+             * it (see the stylesheet) - no line across it: the room reads the
+             * row, and a line would be a second statement over the first. And
+             * it leaves the game for good: `aria-hidden` takes it out of the
              * reading order, `disabled` out of reach of thumb and keyboard. A
-             * struck-through answer that could still be tapped would be the
-             * worst of both.
+             * dimmed answer that could still be tapped would be the worst of
+             * both.
              */
             {...(row.eliminated ? { 'data-eliminated': 'true', 'aria-hidden': true } : {})}
-            /* Versatz der Einlaufanimation - die Zeilen erscheinen nacheinander. */
-            style={{ animationDelay: `${index * presentationTiming.optionStaggerMs}ms` }}
+            style={
+              {
+                /* Versatz der Einlaufanimation - die Zeilen erscheinen nacheinander. */
+                animationDelay: `${index * presentationTiming.optionStaggerMs}ms`,
+                /*
+                 * Und derselbe Gedanke beim Zuruecktreten: Mehrere Antworten,
+                 * die ein 50:50 nimmt, treten nacheinander zurueck.
+                 */
+                '--joker-eliminate-duration': `${presentationTiming.jokerEliminateMs}ms`,
+                '--joker-eliminate-delay': `${index * presentationTiming.jokerEliminateStaggerMs}ms`,
+              } as CSSProperties
+            }
           >
             {onSelect ? (
               /*
