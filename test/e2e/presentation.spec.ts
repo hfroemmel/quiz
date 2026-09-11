@@ -412,7 +412,18 @@ test.describe('Groesse', () => {
       await page.goto('/preview')
       await expect(page.locator('[data-preview-stage]')).toBeVisible()
       await selectScene(page, 'question')
-      await page.waitForTimeout(400)
+      /*
+       * Der Szenenwechsel animiert `transform`, und eine Messung mitten darin
+       * liest eine Position, die es gleich nicht mehr gibt. Gewartet wird
+       * deshalb auf die Animationen selbst und nicht auf eine Zahl von
+       * Millisekunden - endlose bleiben aussen vor, sonst wartete das hier ewig.
+       */
+      await page.evaluate(async () => {
+        const endliche = document
+          .getAnimations()
+          .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+        await Promise.all(endliche.map((animation) => animation.finished.catch(() => undefined)))
+      })
       return page.evaluate(() => {
         const namen = ['[data-media]', '[data-prompt]', '[data-category]', '[data-answers]', '[data-score]', '[data-counter]']
         const grund = document.querySelector('[data-preview-stage]')!.getBoundingClientRect()
