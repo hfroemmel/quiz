@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-core",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "type": "module",
   "description": "Kern des Quiz-Systems: Vertraege, Engine und Laufzeit - ohne Dateisystem und native Module",
   "exports": {

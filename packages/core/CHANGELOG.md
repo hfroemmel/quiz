@@ -1,5 +1,16 @@
 # @hfroemmel/quiz-core
 
+## 0.9.1
+
+### Patch Changes
+
+- 3d262cd: Die Fussleiste des Touchgeraets liegt am unteren Bildrand
+  
+  Punktestand, Zaehler und die beiden Buzzer stehen an der Kante, an der jemand
+  vor dem Geraet steht - auch auf einem Fenster, das hoeher als 16:9 ist. Der
+  uebrige Platz liegt jetzt zwischen Szene und Leiste statt gleichmaessig
+  darueber und darunter. Auf 16:9 aendert sich nichts.
+
 ## 0.9.0
 
 ### Minor Changes
