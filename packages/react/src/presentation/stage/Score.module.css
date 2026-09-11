@@ -105,19 +105,6 @@
  * Der Spieler am Zug bekommt deshalb KEINE eigene Farbe mehr - die traegt hier
  * die Spielerfarbe. Dass er dran ist, sagt der Buzzer darunter.
  */
-:global(.stage--default.stage--touch) .score[data-player='1'] .cell {
-  background: var(--stage-playerOne);
-}
-:global(.stage--default.stage--touch) .score[data-player='2'] .cell {
-  background: var(--stage-playerTwo);
-}
-:global(.stage--default.stage--touch) .score .value {
-  color: var(--stage-inkOnStrong);
-}
-/* Die Beschriftung tritt zurueck, ohne auf dem kraeftigen Grund abzusaufen. */
-:global(.stage--default.stage--touch) .score .label {
-  color: color-mix(in srgb, var(--stage-inkOnStrong) 72%, transparent);
-}
 /* Die Karte fuellt die Breite ihrer Ecke, damit sie mit dem Buzzer buendig steht. */
 :global(.stage--touch) .score {
   width: 100%;
