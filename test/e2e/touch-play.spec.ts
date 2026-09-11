@@ -846,3 +846,36 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
     expect(Math.abs(wert - hoch[name]! / 2), name).toBeLessThanOrEqual(1)
   }
 })
+
+/*
+ * Die Fussleiste liegt an der unteren Kante - dort, wo die Haende sind.
+ *
+ * Sie traegt Punktestand, Zaehler und die beiden Buzzer, also alles, was an
+ * diesem Geraet angefasst wird. Seit die Komposition ihre Hoehe aus der Breite
+ * nimmt, bleibt auf einem hoeheren Fenster Platz uebrig; der gehoert in die
+ * Mitte und nicht unter die Leiste.
+ */
+test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', async ({ page }) => {
+  async function luftUnterDerLeiste(): Promise<number> {
+    return page.evaluate(() => {
+      const buehne = document.querySelector('.stage')!.getBoundingClientRect()
+      /* Der Punktestand steht in einer Spielerecke, die Ecke in der Leiste. */
+      const leiste = document.querySelector('[data-score]')!.parentElement!.parentElement!
+      return Math.round(buehne.bottom - leiste.getBoundingClientRect().bottom)
+    })
+  }
+
+  for (const hoehe of [720, 1000]) {
+    await page.setViewportSize({ width: 1280, height: hoehe })
+    await startGame(page, 'Zu zweit')
+    expect(await luftUnterDerLeiste(), `Duell bei 1280x${hoehe}`).toBe(0)
+  }
+
+  /*
+   * Und im Einzelspiel genauso: Dort fehlen die Buzzer, die Leiste ist also
+   * niedriger - sie rutscht deshalb nicht nach oben.
+   */
+  await page.setViewportSize({ width: 1280, height: 1000 })
+  await startGame(page, 'Allein')
+  expect(await luftUnterDerLeiste(), 'Einzelspiel bei 1280x1000').toBe(0)
+})
