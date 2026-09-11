@@ -879,3 +879,92 @@ test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', 
   await startGame(page, 'Allein')
   expect(await luftUnterDerLeiste(), 'Einzelspiel bei 1280x1000').toBe(0)
 })
+
+/*
+ * Die Spielerfarbe traegt genau eine Flaeche: der Buzzer.
+ *
+ * Vorher trug die Punktekarte sie auch, und der Buzzer selbst nur als Kante mit
+ * einem Hauch davon innen. In der hellen Fassung wurde daraus ein blasses Rosa
+ * unter weisser Schrift, und die Ecke war ein Block, in dem nichts hervorstach.
+ * Jetzt ist in jeder Ecke genau ein Ding farbig, und es ist das, was angefasst
+ * wird.
+ */
+test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ page }) => {
+  const spielerfarben = async () =>
+    page.evaluate(() => {
+      const stil = getComputedStyle(document.querySelector('.stage')!)
+      return ['--stage-playerOne', '--stage-playerTwo'].map((name) => stil.getPropertyValue(name).trim())
+    })
+
+  /** Jede Flaeche der Leiste: Grund, Kante und Deckkraft, wie sie wirklich steht. */
+  const leiste = async () =>
+    page.evaluate(() => {
+      const lesen = (element: Element) => {
+        const stil = getComputedStyle(element)
+        return {
+          grund: stil.backgroundColor,
+          kante: [stil.borderTopWidth, stil.borderRightWidth, stil.borderBottomWidth, stil.borderLeftWidth].join(' '),
+          schrift: stil.color,
+          deckkraft: stil.opacity,
+        }
+      }
+      return {
+        buzzer: [...document.querySelectorAll('[data-buzzer]')].map((knopf) => ({
+          seite: knopf.getAttribute('data-side'),
+          ...lesen(knopf),
+        })),
+        /* Beide Kacheln jeder Karte - der Grund steht an ihnen, nicht an der Karte. */
+        karten: [...document.querySelectorAll('[data-score]')].flatMap((karte) => [...karte.children].map(lesen)),
+      }
+    })
+
+  const [eins, zwei] = await (async () => {
+    await startGame(page, 'Zu zweit')
+    return spielerfarben()
+  })()
+
+  /*
+   * Drei Zustaende in einer Runde: offen (beide bedienbar), gebuzzert (einer
+   * hat den Zuschlag, der andere ist gesperrt) und aufgeloest (beide gesperrt).
+   */
+  const zustaende = [] as Awaited<ReturnType<typeof leiste>>[]
+  zustaende.push(await leiste())
+  await page.locator('[data-buzzer][data-side="left"]').click()
+  await expect(page.locator('[data-buzzer][data-armed="true"]')).toHaveCount(1)
+  zustaende.push(await leiste())
+  /*
+   * Bewusst die RICHTIGE Antwort des Testbestands: Eine falsche gibt dem anderen
+   * Spieler die zweite Chance, und dann ist die Runde nicht aufgeloest, sondern
+   * wieder offen - ein anderer Zustand als der, der hier gemeint ist.
+   */
+  await page.locator('[data-answer-button]', { hasText: /Richtige Antwort/ }).first().click()
+  await page.locator('[data-confirm]').click()
+  await expect(page.locator('[data-continue]')).toBeVisible()
+  zustaende.push(await leiste())
+
+  for (const [nummer, stand] of zustaende.entries()) {
+    for (const knopf of stand.buzzer) {
+      const erwartet = knopf.seite === 'left' ? eins : zwei
+      expect(knopf.grund, `Zustand ${nummer}, ${knopf.seite}`).toBe(farbe(erwartet!))
+      // Vollflaechig heisst auch: kein Zustand nimmt der Flaeche ihre Deckkraft.
+      expect(knopf.deckkraft, `Zustand ${nummer}, ${knopf.seite}`).toBe('1')
+      expect(knopf.kante, `Zustand ${nummer}, ${knopf.seite}`).toBe('0px 0px 0px 0px')
+      expect(knopf.schrift, `Zustand ${nummer}, ${knopf.seite}`).toBe('rgb(255, 255, 255)')
+    }
+    // Und die Karten bleiben in jedem dieser Zustaende neutral.
+    for (const kachel of stand.karten) {
+      expect([kachel.grund, kachel.kante], `Zustand ${nummer}`).not.toContain(farbe(eins!))
+      expect([kachel.grund, kachel.kante], `Zustand ${nummer}`).not.toContain(farbe(zwei!))
+      expect(kachel.kante, `Zustand ${nummer}`).toBe('0px 0px 0px 0px')
+    }
+  }
+
+  /* Im Einzelspiel gibt es keinen Buzzer - und die Karte ist dieselbe neutrale. */
+  await startGame(page, 'Allein')
+  const allein = await leiste()
+  expect(allein.buzzer).toHaveLength(0)
+  for (const kachel of allein.karten) {
+    expect([kachel.grund, kachel.kante]).not.toContain(farbe(eins!))
+    expect([kachel.grund, kachel.kante]).not.toContain(farbe(zwei!))
+  }
+})

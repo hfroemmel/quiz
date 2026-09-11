@@ -224,15 +224,22 @@
 }
 
 /*
- * Der Buzzer.
+ * Der Buzzer - DIE EINZIGE FLAECHE, DIE EINE SPIELERFARBE TRAEGT.
  *
- * Grosse Flaeche, ein Wort, die Farbe des Spielers: Wer buzzert, schaut dabei
- * auf die Frage und nicht auf seine Hand, und die Ecke muss sich blind treffen
- * lassen.
+ * Grosse Flaeche, ein Wort, voll in der Farbe des Spielers: Wer buzzert, schaut
+ * dabei auf die Frage und nicht auf seine Hand, und die Ecke muss sich blind
+ * treffen lassen. Eine Farbe, die man blind trifft, muss die ganze Flaeche
+ * sein - nicht eine Kante darum und innen ein Hauch davon.
  *
- * Der Grund ist derselbe Spielerton, in den Buehnengrund gemischt - dunkel
- * genug, dass die weisse Schrift traegt, und ohne einen zweiten Farbwert.
- * Die Kante darum ist der reine Ton: Sie sagt, wem die Ecke gehoert.
+ * So war es: Grund war der Spielerton zu 30 Prozent in den Buehnengrund
+ * gemischt, die Kante der reine Ton. Auf der hellen Buehne wurde daraus ein
+ * blasses Rosa mit weisser Schrift darauf - schlecht zu lesen und weit weg von
+ * der Farbe, die es sein wollte. Und die Punktekarte darueber trug denselben
+ * Ton noch einmal, sodass die Ecke ein Block war, in dem nichts hervorstach.
+ *
+ * JETZT: reiner Ton, vollflaechig, ohne Kante. Die Karte darueber ist neutral
+ * (siehe `Score.module.css` in `@hfroemmel/quiz-react`) - in der Ecke ist
+ * genau EIN Ding farbig, und das ist das, was angefasst wird.
  */
 .buzzer {
   /*
@@ -251,8 +258,19 @@
 
   flex: 1 1 auto;
   width: 100%;
-  border: 0.1969cqw solid var(--player-color);
-  background: color-mix(in srgb, var(--player-color) 30%, var(--color-stageBottom));
+  /*
+   * KEINE KANTE, UND ZWAR KEINE. `.stage-button` bringt schon `border: 0` mit;
+   * es steht hier trotzdem, weil an dieser Stelle einmal eine stand und die
+   * Absicht deutlicher ist als die Erbschaft.
+   */
+  border: 0;
+  background: var(--player-color);
+  /*
+   * Weiss auf beiden Spielertoenen: 5,9:1 auf dem Rot, 8,4:1 auf dem Blau. Es
+   * ist derselbe Wert wie auf jeder anderen kraeftigen Flaeche der Buehne, und
+   * er gilt in JEDEM Zustand - kein Zustand hellt den Grund auf und kein
+   * Zustand nimmt der Schrift ihre Deckkraft.
+   */
   color: var(--stage-inkOnStrong);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -265,15 +283,22 @@
 }
 
 /*
- * Der Zuschlag ist geholt: Die Flaeche brennt durch.
+ * DIE FARBE STEHT - AUCH WENN NICHT GEBUZZERT WERDEN KANN.
  *
- * Gedrueckt werden kann sie jetzt nicht mehr - zurueckgetreten ist sie deshalb
- * aber nicht: Sie sagt gerade, wem die Antworten gehoeren, und das ist die
- * wichtigste Auskunft der Leiste. Sie nimmt die Daempfung der gesperrten
- * Schaltflaeche (`.stage-button:disabled`) deshalb ausdruecklich zurueck.
+ * Gesperrt ist der Buzzer die meiste Zeit: vor der Freigabe, nach dem Zuschlag,
+ * in der Loesung. Die Daempfung, die `.stage-button:disabled` jeder Schaltflaeche
+ * gibt, ist hier deshalb falsch - sie traefe nicht einen Knopf, der gerade nicht
+ * gilt, sondern die Farbe, die dauerhaft sagt, wem diese Ecke gehoert. Und sie
+ * nahm der weissen Aufschrift den Kontrast, den sie braucht.
+ *
+ * Was gesperrt ist, sagt `cursor: default` und das `disabled` des Knopfes - und
+ * am Geraet die Antwortzeilen, die dann nur einem gehoeren. Nicht die Farbe.
+ *
+ * `:disabled` waehlt hier genauso stark wie `:where(.stage-button):disabled` es
+ * tut, plus die Klasse: Damit gilt die Regel, gleich in welcher Reihenfolge ein
+ * Gastgeber die Stylesheets einbindet.
  */
-.buzzer[data-armed='true'] {
-  background: color-mix(in srgb, var(--player-color) 75%, var(--color-stageBottom));
+.buzzer:disabled {
   opacity: 1;
 }
 
@@ -314,6 +339,18 @@
 }
 [data-skin='kids'] .buzzer[data-armed='true'] {
   color: var(--stage-inkOnStrong);
+}
+/*
+ * UND DIE KINDERWELT DAEMPFT WEITER. Die Ausnahme oben (`.buzzer:disabled`)
+ * gilt fuer die Flaeche in der Spielerfarbe: Dort ist die Farbe die Auskunft
+ * und darf nicht verblassen. Hier traegt der Buzzer keine Spielerfarbe, sondern
+ * dieselbe gezeichnete Karte wie eine Antwort - und die verblasst in dieser
+ * Welt ueberall, wo sie gerade nicht gilt, auch beim "Weiter" darunter. Der
+ * Wert ist deshalb derselbe wie in `:where(.stage-button):disabled`; er steht
+ * hier nur, um die Ausnahme zurueckzunehmen.
+ */
+[data-skin='kids'] .buzzer:disabled {
+  opacity: 0.35;
 }
 
 /* ------------------------------------------------------------------ *

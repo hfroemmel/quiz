@@ -93,18 +93,46 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Touchgeraet: die Karte traegt die Farbe ihres Spielers
+ * Touchgeraet: dieselbe Karte, nur breiter
  * ------------------------------------------------------------------ */
 
 /*
- * Am Geraet steht die Karte unten in der Ecke ihres Spielers, direkt ueber
- * seinem Buzzer, und traegt dessen Farbe. Die Zuordnung soll aus zwei Metern
- * ohne Lesen stimmen: Rot ist links, Blau ist rechts, und beides gilt vom
- * Punktestand bis zur Taste.
+ * DIE PUNKTEKARTE IST NEUTRAL - in beiden Spielweisen und auf beiden Seiten.
  *
- * Der Spieler am Zug bekommt deshalb KEINE eigene Farbe mehr - die traegt hier
- * die Spielerfarbe. Dass er dran ist, sagt der Buzzer darunter.
+ * Sie trug einmal die Farbe ihres Spielers, damit die Zuordnung aus zwei Metern
+ * ohne Lesen stimmt. Zwei kraeftige Flaechen uebereinander - Karte und Buzzer
+ * darunter - waren aber eine Farbe zu viel: Die Ecke war ein Block, in dem
+ * nichts mehr hervorstach, und der Punktestand schrie so laut wie die Taste.
+ *
+ * DIE SPIELERFARBE TRAEGT JETZT ALLEIN DER BUZZER (siehe `Game.module.css` in
+ * `@hfroemmel/quiz-kiosk`). Die Karte bleibt die Milchglaskachel der Buehne und
+ * liegt darueber wie eine Aufschrift, nicht wie ein zweites Schild.
+ *
+ * NEUTRAL HEISST AUCH: OHNE DIE AKZENTFARBE. Im Saal traegt die Kachel mit der
+ * Spielernummer sie, solange der Spieler am Zug ist (siehe oben) - am Geraet
+ * nicht. Erstens stehen die Karten hier neben den Buzzern, und der Akzent sieht
+ * dort aus wie eine dritte Spielerfarbe. Zweitens ist im Einzelspiel immer
+ * genau einer am Zug: Die Kachel waere dauerhaft blau und sagte nichts.
+ *
+ * Wer den Zuschlag hat, sagt damit die Mitte der Leiste - dort steht "Antwort
+ * abgeben und aufloesen" - und die Antwortzeilen, die dann nur einem gehoeren.
  */
+:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
+:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPlayer {
+  background: var(--color-tile);
+}
+/*
+ * Und mit der Flaeche kommt die Schrift zurueck, die auf sie gehoert: Die helle
+ * Fassung setzt auf der kraeftigen Akzentkachel weisse Schrift (siehe unten) -
+ * auf der neutralen Kachel waere sie unsichtbar.
+ */
+:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer {
+  color: var(--color-text);
+}
+:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer .label {
+  color: var(--color-textMuted);
+}
+
 /* Die Karte fuellt die Breite ihrer Ecke, damit sie mit dem Buzzer buendig steht. */
 :global(.stage--touch) .score {
   width: 100%;
