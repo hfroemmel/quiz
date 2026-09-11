@@ -58,20 +58,20 @@
  * ueber der Flaeche und nimmt keinen Platz - die Zeile behaelt Position und
  * Hoehe, nichts darunter rutscht.
  *
- * Leicht schraeg, wie mit der Hand durchgestrichen; der Winkel kommt aus der
- * Zeilenhoehe und nicht aus einem festen Wert, damit er bei zweizeiligem Text
- * mitwaechst.
+ * Nur EINE Spur schraeg, und um die Mitte gedreht: Die Zeilen sind sehr breit,
+ * und schon ein Grad wuerde die Linie an den Enden weit aus der Zeile heben.
+ * Es soll nach Hand aussehen, nicht nach Schraeglage.
  */
 .strike {
   position: absolute;
   left: 0.4cqw;
   right: 0.4cqw;
   top: 50%;
-  height: 0.22cqw;
-  border-radius: 0.22cqw;
+  height: 0.2cqw;
+  border-radius: 0.2cqw;
   background: var(--color-text);
-  transform-origin: left center;
-  transform: translateY(-50%) rotate(-2.2deg);
+  transform-origin: center;
+  transform: translateY(-50%) rotate(-0.5deg);
   /*
    * Dauer und Versatz kommen aus `presentationTiming` und werden von der
    * Komponente gesetzt - eine zweite Zahl im Stylesheet waere eine, die beim
