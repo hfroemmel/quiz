@@ -153,35 +153,43 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
     .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-selected').trim())
 
   /*
-   * Die gewaehlte Karte ist ins Blau gekippt und traegt seine Kante; ihre
-   * Schrift bleibt dieselbe Tinte wie auf den anderen Karten.
+   * Gewaehlt und offen unterscheiden sich in der FLAECHE und in der Tinte
+   * darauf - nicht in einer Kante. Dass keiner der Zustaende eine stellt,
+   * prueft der Test weiter unten ("die gewaehlte Karte ist eine Flaeche").
    */
   const stand = await gewaehlt.evaluate((node) => {
     const gemessen = getComputedStyle(node)
-    return { kante: gemessen.borderTopColor, flaeche: gemessen.backgroundColor, schrift: gemessen.color }
+    return { flaeche: gemessen.backgroundColor, schrift: gemessen.color }
   })
   const offenerStand = await offen.evaluate((node) => {
     const gemessen = getComputedStyle(node)
-    return { kante: gemessen.borderTopColor, flaeche: gemessen.backgroundColor, schrift: gemessen.color }
+    return { flaeche: gemessen.backgroundColor, schrift: gemessen.color }
   })
-  expect(stand.kante).not.toBe(offenerStand.kante)
   expect(stand.flaeche).not.toBe(offenerStand.flaeche)
-  expect(stand.schrift).toBe(offenerStand.schrift)
-  // Und die Auswahlmarke traegt genau die Auswahlfarbe.
+  expect(stand.schrift).not.toBe(offenerStand.schrift)
+  // Die Auswahlmarke traegt genau die Auswahlfarbe - dieselbe wie die Flaeche darunter.
   await expect(gewaehlt.locator('[data-on="true"]')).toHaveCSS('background-color', farbe(auswahl))
 
-  // Zeigen: die Kante der offenen Karte nimmt die Auswahlfarbe an.
+  // Zeigen: die Flaeche der offenen Karte hebt sich, ohne dass eine Linie erscheint.
   await offen.hover()
-  expect(await offen.evaluate((node) => getComputedStyle(node).borderTopColor)).not.toBe(offenerStand.kante)
+  expect(await offen.evaluate((node) => getComputedStyle(node).backgroundColor)).not.toBe(offenerStand.flaeche)
 
-  // Tastaturmarke: ein eigener Ring AUSSERHALB der Kante.
+  /*
+   * Tastaturmarke: KEINE Linie, sondern ein Hauch Groesse und ein weicher
+   * Schein. Ein Ring darum haette auf der gewaehlten Karte neben der Auswahl
+   * gestanden, und aus zwei Metern waeren daraus zwei Striche geworden.
+   */
   await offen.focus()
-  const ring = await offen.evaluate((node) => {
+  // Gewartet wird auf den Uebergang: Die Groesse waechst in 120 ms, nicht sofort.
+  await expect
+    .poll(() => offen.evaluate((node) => Number(getComputedStyle(node).scale.split(' ')[0])))
+    .toBeGreaterThan(1)
+  const marke = await offen.evaluate((node) => {
     const gemessen = getComputedStyle(node)
-    return { breite: gemessen.outlineWidth, farbe: gemessen.outlineColor }
+    return { umriss: gemessen.outlineStyle, schatten: gemessen.boxShadow }
   })
-  expect(ring.breite).not.toBe('0px')
-  expect(ring.farbe).not.toBe('rgba(0, 0, 0, 0)')
+  expect(marke.umriss).toBe('none')
+  expect(marke.schatten).not.toBe('none')
 
   /*
    * Gesperrt: Der Startknopf tritt zurueck, bleibt aber sichtbar. Er ist im
@@ -967,4 +975,78 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
     expect([kachel.grund, kachel.kante]).not.toContain(farbe(eins!))
     expect([kachel.grund, kachel.kante]).not.toContain(farbe(zwei!))
   }
+})
+
+/*
+ * Die Startauswahl steht in denselben Flaechen wie das Spiel danach.
+ *
+ * Die gewaehlte Karte war ein Kasten mit vier Merkmalen: eine dickere Kante,
+ * eine leicht eingefaerbte Flaeche, das Haekchen - und im Fokuszustand kam ein
+ * Ring darum. Auf Papier waren die Kante und die Einfaerbung aus zwei Metern
+ * nicht zu sehen, die beiden Linien dafuer umso mehr.
+ */
+test('die gewaehlte Karte ist eine Flaeche, und zwar dieselbe wie eine angetippte Antwort', async ({ page }) => {
+  const kartenstand = async (wahl: string) =>
+    page.locator(wahl).evaluate((element) => {
+      const stil = getComputedStyle(element)
+      return {
+        grund: stil.backgroundColor,
+        kante: [stil.borderTopWidth, stil.borderRightWidth, stil.borderBottomWidth, stil.borderLeftWidth].join(' '),
+        umriss: `${stil.outlineStyle} ${stil.outlineWidth}`,
+        schrift: stil.color,
+        /* Jede Schrift und jede Flaeche IN der Karte - Titel, Zeile, Zeichen, Haekchen. */
+        innen: [...element.querySelectorAll('span')].map((teil) => getComputedStyle(teil).color),
+      }
+    })
+
+  await openStartScreen(page)
+  const gewaehlt = '[data-player-count="1"]'
+  const offen = '[data-player-count="2"]'
+
+  /*
+   * Vier Zustaende an derselben Karte. `hover` und `focus-visible` liegen
+   * bewusst NACHEINANDER auf der offenen Karte: Genau ihre Ueberlagerung hat
+   * vorher zwei Linien uebereinander gelegt.
+   */
+  const zustaende: Record<string, Awaited<ReturnType<typeof kartenstand>>> = {}
+  zustaende['gewaehlt'] = await kartenstand(gewaehlt)
+  zustaende['offen'] = await kartenstand(offen)
+  await page.locator(offen).hover()
+  zustaende['hover'] = await kartenstand(offen)
+  await page.keyboard.press('Tab')
+  await page.locator(gewaehlt).focus()
+  zustaende['fokus'] = await kartenstand(gewaehlt)
+  await page.locator(offen).hover()
+  await page.locator(offen).focus()
+  zustaende['hover+fokus'] = await kartenstand(offen)
+
+  for (const [name, stand] of Object.entries(zustaende)) {
+    expect(stand.kante, name).toBe('0px 0px 0px 0px')
+    expect(stand.umriss, name).toBe('none 0px')
+  }
+
+  /* Auf der gefuellten Karte ist alles weiss - Titel, Zeile darunter, Zeichen, Haekchen. */
+  expect(zustaende['gewaehlt']!.schrift).toBe('rgb(255, 255, 255)')
+  for (const tinte of zustaende['gewaehlt']!.innen) {
+    expect(tinte).toMatch(/^rgba?\(255, 255, 255/)
+  }
+  /* Und auf der offenen dunkel - sie ist eine ruhige graue Flaeche. */
+  expect(zustaende['offen']!.schrift).not.toMatch(/^rgba?\(255, 255, 255/)
+
+  /*
+   * DIE PROBE AUFS GANZE: dieselbe Farbe wie eine angetippte Antwort im Spiel.
+   * Gelesen wird sie nicht aus der Palette, sondern aus dem, was am Ende auf dem
+   * Bildschirm steht - einmal hier, einmal dort.
+   */
+  const kartenblau = zustaende['gewaehlt']!.grund
+  await startGame(page, 'Zu zweit')
+  await page.locator('[data-buzzer][data-side="left"]').click()
+  const antwort = page.locator('[data-answer][data-state="idle"] [data-answer-button]').first()
+  await antwort.click()
+  await expect(page.locator('[data-answer][data-state="chosen"], [data-answer][data-state="selected"]')).toHaveCount(1)
+  const antwortblau = await page
+    .locator('[data-answer][data-state="chosen"] [data-answer-surface], [data-answer][data-state="selected"] [data-answer-surface]')
+    .first()
+    .evaluate((element) => getComputedStyle(element).backgroundColor)
+  expect(kartenblau).toBe(antwortblau)
 })

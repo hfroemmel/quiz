@@ -798,32 +798,47 @@
 /*
  * DIE KARTE - das Bauteil, aus dem beide Schritte bestehen.
  *
- * Gewaehlt ist sie an drei Dingen zugleich zu erkennen: gruene Kante, ins
- * Gruene gekippte Flaeche und das Haekchen. Drei, weil eine Kante allein aus
- * zwei Metern Entfernung und schraeg von der Seite verschwindet - und genau so
- * steht man an einem Geraet im Foyer.
+ * SIE IST EINE FLAECHE, KEIN RAHMEN. Gewaehlt ist sie daran zu erkennen, dass
+ * sie voll in der Auswahlfarbe steht - und an nichts sonst. Vorher lagen drei
+ * Zeichen uebereinander: eine dickere Kante, eine leicht eingefaerbte Flaeche
+ * und das Haekchen. Auf Papier war die Kante ein Strich von einem Pixel, die
+ * Einfaerbung ein Hauch, und zusammen mit der Tastaturmarke standen im
+ * Fokuszustand zwei Linien um dieselbe Karte.
+ *
+ * WELCHE FARBEN ES SIND, SAGT DIE PALETTE: `--start-option` die ruhige Flaeche,
+ * `--start-surface-selected` die gewaehlte. In der hellen Fassung ist Letztere
+ * dasselbe Blau, das im Spiel eine angetippte Antwort traegt; in der dunklen
+ * derselbe Kasten wie vorher, dort behaelt die Karte ihre Kante (siehe unten).
  */
 .card {
   position: relative;
   display: flex;
-  border: 0.0694vw solid var(--start-line-strong);
+  /*
+   * AUSDRUECKLICH KEINE: Damit kann kein Zustand eine dazustellen, und zwei
+   * Zustaende zusammen erst recht nicht.
+   */
+  border: 0;
   border-radius: 1.125vw;
-  background: var(--start-surface);
+  background: var(--start-option);
   color: var(--start-text);
   font-family: var(--font-ui);
   text-align: left;
   cursor: pointer;
-  transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+  transition: background-color 120ms ease, box-shadow 120ms ease, scale 120ms ease, transform 120ms ease;
 }
 .card:hover {
-  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
+  background: var(--start-option-hover);
 }
 .card:active {
   transform: translateY(0.0694vw);
 }
-.cardOn {
-  border-color: var(--start-selected);
-  border-width: 0.1389vw;
+/*
+ * Gewaehlt bleibt gewaehlt, auch unter dem Zeiger: Ohne die zweite Regel
+ * gewaenne der Zeiger ueber die Reihenfolge und die Karte fiele fuer den Moment
+ * der Beruehrung auf die ruhige Flaeche zurueck.
+ */
+.cardOn,
+.cardOn:hover {
   background: var(--start-surface-selected);
   /*
    * DIE SCHRIFT GEHOERT ZUR FLAECHE, AUF DER SIE STEHT. In der dunklen Fassung
@@ -836,18 +851,72 @@
 .cardOn .cardMeta {
   color: var(--start-meta-on-selected);
 }
+
 /*
- * Die Tastaturmarke ist ein eigener Ring AUSSERHALB der Kante: Die Kante selbst
- * traegt schon die Auswahl, und beides in einem Strich waere nicht mehr
- * auseinanderzuhalten.
+ * DIE TASTATURMARKE IST KEINE LINIE.
+ *
+ * Sie war ein Ring aussen um die Karte, und auf einer GEWAEHLTEN Karte standen
+ * damit zwei Striche uebereinander - der der Auswahl und der des Fokus -, die
+ * aus zwei Metern zu einem verschmolzen. Jetzt hebt sich die Flaeche selbst:
+ * ein Hauch groesser und ein weicher Schein in der Auswahlfarbe darunter.
+ *
+ * Der Schein ist BEWUSST unscharf. Ein harter Schatten waere wieder eine Linie,
+ * nur mit anderem Namen; ein weicher ist in beiden Fassungen zu sehen - auf dem
+ * Papier als blauer Hof, im Dunkeln als gruener - und auf keiner Kante.
+ *
+ * `scale` und nicht `transform: scale()`: Auf derselben Karte liegt beim Druck
+ * ein `translateY`, und als Transformation geschrieben wuerde eines das andere
+ * ueberschreiben. Die eigene Eigenschaft wird damit verrechnet.
  */
 .card:focus-visible,
 .action:focus-visible,
 .actionSecondary:focus-visible,
 .language:focus-visible,
 .settingsButton:focus-visible {
-  outline: 0.1389vw solid var(--start-selected-bright);
-  outline-offset: 0.2083vw;
+  outline: none;
+  scale: 1.02;
+  box-shadow: 0 0 1.1vw 0.28vw color-mix(in srgb, var(--start-selected-bright) 45%, transparent);
+}
+
+/*
+ * IM DUNKELN BLEIBT DIE KANTE - und sie ist dort kein Zierrat.
+ *
+ * Auf Papier setzt sich die graue Karte ueber ihre Flaeche vom weissen Grund
+ * ab; im Dunkeln liegt ein fast schwarzer Kasten auf einem fast schwarzen
+ * Grund, der Unterschied ist also klein. Nimmt man dort die Kante weg, schwimmen
+ * die Karten,
+ * und die gewaehlte - ein in das Gruene gekippter Kasten, kein volles Gruen -
+ * ist von den anderen kaum zu unterscheiden.
+ *
+ * Zwei Linien um dieselbe Karte gibt es trotzdem nicht mehr: Die Tastaturmarke
+ * ist jetzt ein Schein, keine zweite Kontur.
+ *
+ * Die Kinderwelt ist von beidem unberuehrt - sie setzt `border: 0` selbst und
+ * legt ihre gemalte Kontur hinter den Inhalt (siehe oben).
+ */
+[data-theme='dark'] .card {
+  border: 0.0694vw solid var(--start-line-strong);
+}
+[data-theme='dark'] .card:hover {
+  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
+}
+[data-theme='dark'] .cardOn,
+[data-theme='dark'] .cardOn:hover {
+  border-color: var(--start-selected);
+  border-width: 0.1389vw;
+}
+[data-theme='dark'] .actionSecondary {
+  border: 0.0694vw solid var(--start-line-strong);
+}
+/*
+ * Und das Zeichen der gewaehlten Karte behaelt dort seine Scheibe. Auf Papier
+ * waere sie eine zweite Flaeche auf einer Flaeche; im Dunkeln ist die gewaehlte
+ * Karte nur ins Gruene gekippt, und die Scheibe ist das, was das Zeichen
+ * ueberhaupt vom Kasten abhebt.
+ */
+[data-theme='dark'] .cardOn .cardIcon {
+  background: color-mix(in srgb, var(--start-selected) 12%, transparent);
+  color: var(--start-selected-bright);
 }
 
 .mode {
@@ -865,16 +934,21 @@
   width: 3.3188vw;
   height: 3.3188vw;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--start-glass) 4.5%, transparent);
+  background: var(--start-option-icon);
   color: var(--start-icon);
 }
 .cardIcon > svg {
   width: 55%;
   height: 55%;
 }
+/*
+ * Auf der gewaehlten Karte hat das Zeichen keine eigene Flaeche mehr: Die Karte
+ * IST die Flaeche, und eine zweite darauf waere ein weiteres Zeichen fuer
+ * denselben Zustand. Es steht in derselben Tinte wie der Titel daneben.
+ */
 .cardOn .cardIcon {
-  background: color-mix(in srgb, var(--start-selected) 12%, transparent);
-  color: var(--start-selected-bright);
+  background: none;
+  color: var(--start-ink-on-selected);
 }
 
 .cardBody {
@@ -1017,9 +1091,10 @@
   justify-content: center;
   min-height: 5.2875vw;
   padding: 0 1.9688vw;
-  border: 0.0694vw solid var(--start-line-strong);
+  /* Dieselbe ruhige Flaeche wie eine nicht gewaehlte Karte, und ohne Kante. */
+  border: 0;
   border-radius: 1.1813vw;
-  background: var(--start-surface);
+  background: var(--start-option);
   color: var(--start-text);
   font-family: var(--font-ui);
   font-size: var(--kiosk-button-font-size);

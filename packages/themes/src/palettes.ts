@@ -243,6 +243,22 @@ export const startPalette = {
   line: '#263442',
   'line-strong': '#2b3948',
 
+  /*
+   * DIE AUSWAHLKARTEN UND DER SEKUNDAERE KNOPF HABEN IHREN EIGENEN NAMEN.
+   *
+   * Sie sahen aus wie `surface` und hiessen auch so - zusammen mit dem
+   * Einstellungsfenster, dem Zahnrad und der Rueckfrage. In der hellen Fassung
+   * gehen sie aber getrennte Wege: Die Karten werden dort zu ruhigen grauen
+   * Flaechen wie eine nicht gewaehlte Antwort im Spiel, das Fenster bleibt sein
+   * Milchglas. Hier stehen dieselben Werte wie vorher, damit sich im Dunkeln
+   * nichts aendert.
+   */
+  option: '#17212d',
+  /* Unter dem Zeiger eine Spur heller - die Karte hebt sich, statt zu blinken. */
+  'option-hover': '#1b2735',
+  /* Die runde Flaeche unter dem Zeichen einer nicht gewaehlten Karte. */
+  'option-icon': 'rgba(255, 255, 255, 0.045)',
+
   text: '#f5f7f9',
   'text-muted': '#98a7b7',
   /* Die Fussnote unter der Startschaltflaeche - leiser als alles andere. */
@@ -331,22 +347,36 @@ export const brightStartPalette = {
   'ambient-right': 'transparent',
 
   /*
-   * Karten: Milchglas aus Licht, nicht aus Tinte.
-   *
-   * Auf Weiss ist ein Schleier aus Tinte ein grauer Kasten. Die Karte ist
-   * deshalb fast so weiss wie der Grund - was sie abgrenzt, ist ihre feine
-   * Kante und der zurueckhaltende Schatten darunter.
+   * Milchglas aus Licht, nicht aus Tinte: Auf Weiss ist ein Schleier aus Tinte
+   * ein grauer Kasten. Das gilt fuer das Einstellungsfenster und die Rueckfrage
+   * darueber - die Karten daneben gehen ihren eigenen Weg, siehe `option`.
    */
   surface: 'rgba(255, 255, 255, 0.62)',
   'surface-quiet': 'rgba(255, 255, 255, 0.45)',
-  /*
-   * Eine gewaehlte Karte ist ins Blau GEKIPPT, nicht damit gefuellt - wie eine
-   * angetippte Antwort auf der hellen Buehne. Ihre Schrift bleibt dieselbe
-   * Tinte wie auf den anderen Karten; die Kante und die Marke tragen die Farbe.
-   */
-  'surface-selected': 'rgba(0, 119, 182, 0.1)',
   line: 'rgba(25, 25, 25, 0.1)',
   'line-strong': 'rgba(25, 25, 25, 0.16)',
+
+  /*
+   * DIE AUSWAHLKARTE IST EINE FLAECHE - DIESELBE WIE EINE ANTWORT IM SPIEL.
+   *
+   * Sie war fast so weiss wie der Grund, und was sie abgrenzte, war eine feine
+   * Kante. Auf Papier ist das zu wenig: Aus zwei Metern und schraeg von der
+   * Seite - so steht man an einem Geraet im Foyer - verschwindet ein Strich von
+   * einem Pixel, und die Karte auch. Deshalb dasselbe ruhige Grau, das im Spiel
+   * eine nicht angetippte Antwort traegt, und derselbe Wert
+   * (`brightPalette.option`) statt einer zweiten Zahl daneben.
+   */
+  option: brightPalette.option!,
+  'option-hover': brightPalette.controls!,
+  /* Auf dem Grau hebt sich das Zeichen ueber Weiss ab, nicht ueber Tinte. */
+  'option-icon': stageExtras.inkOnStrong,
+  /*
+   * UND DIE GEWAEHLTE KARTE IST VOLL DAMIT GEFUELLT - nicht ins Blau gekippt,
+   * sondern dasselbe Blau, das eine angetippte Antwort im Spiel traegt. Es ist
+   * derselbe Wert wie `selected` darunter; dass hier zwei Namen auf eine Farbe
+   * zeigen, ist der Punkt: Im Dunkeln sind es zwei verschiedene.
+   */
+  'surface-selected': brightPalette.accent!,
 
   text: brightPalette.text!,
   'text-muted': brightPalette.textMuted!,
@@ -355,8 +385,13 @@ export const brightStartPalette = {
   /* Die Auswahl traegt das Blau der markierten Antwort. */
   selected: brightPalette.accent!,
   'selected-bright': brightPalette.accent!,
-  'ink-on-selected': brightPalette.text!,
-  'meta-on-selected': brightPalette.textMuted!,
+  /*
+   * Auf der vollen blauen Flaeche traegt nur Weiss - Titel, Zeile darunter,
+   * Zeichen und Haekchen. Vorher stand hier die Tinte der uebrigen Karten; die
+   * war richtig, solange die gewaehlte Karte nur ins Blau gekippt war.
+   */
+  'ink-on-selected': stageExtras.inkOnStrong,
+  'meta-on-selected': 'rgba(255, 255, 255, 0.78)',
 
   /*
    * Der Startknopf ist derselbe Knopf wie "Antwort abgeben und aufloesen":
