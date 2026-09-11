@@ -35,11 +35,17 @@ import {
   fragenTextFuer,
   gueltigeSprache,
   oberflaechenTexte,
+  enabledLifelineTypes,
+  lifelinesOf,
+  normalizeLifelineConfig,
+  type LifelineConfig,
+  type OperatorLifelineControl,
 } from '../contracts'
 import { activePlayerId } from './buzzer'
 import { allowedCommandsForRole } from './allowedCommands'
 import { attemptsForCurrentQuestion, determineResult, pendingAttempt, pointsForCorrectAnswer } from './scoring'
 import { revealElapsedMs } from './reveal'
+import { evaluateLifelineRestore, evaluateLifelineUse } from './lifelines'
 
 export interface ProjectionContext {
   nowMs: number
@@ -76,6 +82,11 @@ export interface ProjectionContext {
   gameCounts?: { audience: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
   /** Zeitpunkt, ab dem das Protokoll zaehlt. */
   statisticsSinceIso?: string
+  /**
+   * What this installation offers in the way of lifelines. Missing means none,
+   * and then no view model mentions them - see `contracts/lifelines.ts`.
+   */
+  lifelines?: LifelineConfig
 }
 
 /**
@@ -159,12 +170,24 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
         }
       : undefined
 
+  const lifelineConfig = normalizeLifelineConfig(ctx.lifelines)
+  const offeredLifelines = enabledLifelineTypes(lifelineConfig)
   const scores: PublicScore[] = state.players.map((player) => ({
     playerId: player.id,
     label: player.label,
     score: player.score,
     active: player.id === active,
     locked: player.lockedForCurrentQuestion,
+    /*
+     * Only the types this installation offers, and only if it offers any: the
+     * field stays absent otherwise, so a client sees no lifeline area and
+     * nothing in its layout moves.
+     */
+    ...(offeredLifelines.length > 0
+      ? {
+          lifelines: offeredLifelines.map((type) => ({ type, used: lifelinesOf(player)[type].used })),
+        }
+      : {}),
   }))
 
   const view: PublicQuizViewModel = {
@@ -172,6 +195,20 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     phase: state.phase,
     theme,
     question: publicQuestion,
+    /*
+     * The running 50:50 - only while the question it belongs to is on screen,
+     * and only where lifelines are offered at all.
+     */
+    ...(lifelineConfig.enabled &&
+    state.activeFiftyFifty &&
+    state.activeFiftyFifty.questionId === question?.id
+      ? {
+          activeFiftyFifty: {
+            playerId: state.activeFiftyFifty.playerId,
+            hiddenOptionIds: [...state.activeFiftyFifty.hiddenOptionIds],
+          },
+        }
+      : {}),
     // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
     upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx, locale) : undefined,
     /*
@@ -237,7 +274,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
 export function projectPlayer(state: GameState | null, ctx: ProjectionContext): PlayerQuizViewModel {
   return {
     ...projectPublic(state, ctx),
-    allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
+    allowedCommands: allowedCommandsForRole(state ?? null, 'player', { lifelines: normalizeLifelineConfig(ctx.lifelines) }),
     catalog: buildPlayerCatalog(ctx, spracheFuer(state, ctx)),
   }
 }
@@ -317,8 +354,12 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
         }
       : undefined,
     allowedCommands: [
-      ...new Set([...allowedCommandsForRole(state ?? null, 'operator'), ...(ctx.additionalOperatorCommands ?? [])]),
+      ...new Set([
+        ...allowedCommandsForRole(state ?? null, 'operator', { lifelines: normalizeLifelineConfig(ctx.lifelines) }),
+        ...(ctx.additionalOperatorCommands ?? []),
+      ]),
     ],
+    ...(operatorLifelines(state, ctx) ?? {}),
     auditSummary: ctx.auditSummary ?? [],
     diagnostics: {
       contentVersion: ctx.contentVersion,
@@ -335,11 +376,57 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
   }
 }
 
+/**
+ * The operator's lifeline buttons - one per player and offered type.
+ *
+ * Every entry is answered by the rule functions in `lifelines.ts`, the same
+ * ones the engine calls when the command arrives. That is the whole point of
+ * this function: the operator client renders what it is told and decides
+ * nothing, so a button can neither offer a refused action nor hide an allowed
+ * one.
+ */
+function operatorLifelines(
+  state: GameState | null,
+  ctx: ProjectionContext,
+): { lifelines: OperatorLifelineControl[] } | undefined {
+  const config = normalizeLifelineConfig(ctx.lifelines)
+  const types = enabledLifelineTypes(config)
+  if (types.length === 0 || !state) return undefined
+
+  const controls: OperatorLifelineControl[] = []
+  for (const player of state.players) {
+    for (const type of types) {
+      const use = evaluateLifelineUse(state, config, player.id, type)
+      const restore = evaluateLifelineRestore(state, config, player.id, type)
+      controls.push({
+        playerId: player.id,
+        playerLabel: player.label,
+        type,
+        used: lifelinesOf(player)[type].used,
+        canUse: use.allowed,
+        canRestore: restore.allowed,
+        ...(use.allowed ? {} : { blockedReason: use.message }),
+      })
+    }
+  }
+  return { lifelines: controls }
+}
+
 /* ------------------------------------------------------------------ *
  * Bausteine
  * ------------------------------------------------------------------ */
 
 function publicOptions(state: GameState, scene: PublicScene, question: Question | undefined): PublicOption[] | undefined {
+  /*
+   * Hidden by the 50:50 - but only while it belongs to the question on screen.
+   * The effect is cleared on every question change; this second check is the
+   * belt to that braces, and it costs one comparison.
+   */
+  const hidden = new Set(
+    state.activeFiftyFifty && state.activeFiftyFifty.questionId === question?.id
+      ? state.activeFiftyFifty.hiddenOptionIds
+      : [],
+  )
   const runtime = state.currentQuestion
   /*
    * Ohne echte Auswahl gibt es keine Antwortleisten. Eine einzelne Option waere
@@ -359,6 +446,7 @@ function publicOptions(state: GameState, scene: PublicScene, question: Question 
     .filter((option): option is NonNullable<typeof option> => Boolean(option))
     .map((option) => {
       const entry: PublicOption = { id: option.id, text: option.text }
+      if (hidden.has(option.id)) entry.hidden = true
       // Ob eine Option richtig ist, wird erst in der Loesungsszene uebertragen.
       if (scene === 'solution' && option.id === question.correctOptionId) {
         entry.state = 'correct'

@@ -8,6 +8,7 @@
  */
 import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content'
 import type { AttemptOutcome, GamePhase, PlayerId } from './state'
+import type { LifelineType } from './lifelines'
 import type { ActorRole, CommandType } from './commands'
 
 /** Szenen des Buehnenscreens. Sie werden aus der Phase abgeleitet, nicht frei gesetzt. */
@@ -57,6 +58,15 @@ export interface PublicOption {
    * stimmt. `correct` und `chosen-incorrect` kommen erst in der Loesungsszene.
    */
   state?: 'chosen' | 'correct' | 'chosen-incorrect'
+  /**
+   * Removed by a 50:50 for this question.
+   *
+   * A flag of its own, not a fourth `state`: an option can be hidden AND be the
+   * correct one, which is exactly what the solution scene shows. It also keeps
+   * the option in the list - the clients dim it in place instead of relaying out
+   * the answers under the players' eyes.
+   */
+  hidden?: boolean
 }
 
 export interface PublicQuestion {
@@ -78,6 +88,12 @@ export interface PublicSolution {
   imageUrl?: string
 }
 
+/** One lifeline of one player, as far as anybody watching may know. */
+export interface PublicLifelineStatus {
+  type: LifelineType
+  used: boolean
+}
+
 export interface PublicScore {
   playerId: PlayerId
   label: string
@@ -86,6 +102,15 @@ export interface PublicScore {
   active: boolean
   /** Fuer diese Frage gesperrt (zweite Chance liegt beim anderen Spieler). */
   locked: boolean
+  /**
+   * Lifelines of this player - ONLY where the installation offers them.
+   *
+   * They sit on the score and not next to it because that is where they are
+   * shown: two small dots in the player's own area of the scoreboard. Missing
+   * means "this installation has no lifelines", and a client that finds nothing
+   * here renders exactly what it rendered before the feature existed.
+   */
+  lifelines?: PublicLifelineStatus[]
 }
 
 /** Alles, was der Buehnenscreen zum synchronen Rendern der Enthuellung braucht. */
@@ -150,6 +175,16 @@ export interface PublicQuizViewModel {
    */
   upcomingCategoryLabel?: string
   visibleOptions?: PublicOption[]
+  /**
+   * The 50:50 in effect on the current question, if any.
+   *
+   * The hidden ids are here as well as on the options themselves: the options
+   * say WHAT to dim, this says WHOSE lifeline did it - which is what an
+   * announcement over the stage needs, and what lets a test assert that two
+   * clients really did receive the same pair. No question id: that is
+   * moderator-only information everywhere else, and it stays that way.
+   */
+  activeFiftyFifty?: { playerId: PlayerId; hiddenOptionIds: string[] }
   visibleSolution?: PublicSolution
   feedback?: PublicFeedback
   playerScores: PublicScore[]
@@ -243,6 +278,25 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
   answering?: AnsweringContext
 }
 
+/**
+ * One lifeline button in the operator's view, ready to render.
+ *
+ * `canUse` and `blockedReason` come from the SAME rule function the engine uses
+ * (`evaluateLifelineUse`), so a button that looks available is one the server
+ * will accept, and a disabled one carries the sentence explaining why. The
+ * operator client must not re-derive any of this.
+ */
+export interface OperatorLifelineControl {
+  playerId: PlayerId
+  playerLabel: string
+  type: LifelineType
+  used: boolean
+  canUse: boolean
+  canRestore: boolean
+  /** Plain text for the operator - why `canUse` is false. Absent when it is true. */
+  blockedReason?: string
+}
+
 export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
   /**
    * Die laufende Frage in bearbeitbarer Form - Grundlage der Live-Korrektur.
@@ -260,6 +314,12 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
      */
     acceptedAnswerText: string[]
   }
+  /**
+   * Every lifeline of every player, in a fixed order: player 1 before player 2,
+   * and within a player the canonical type order. Absent where the installation
+   * offers no lifelines - the operator then sees no lifeline area at all.
+   */
+  lifelines?: OperatorLifelineControl[]
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
   /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */

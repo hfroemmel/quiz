@@ -11,7 +11,15 @@
  * Der Envelope (commandId, actor, expectedRevision) entsteht hier - Komponenten
  * geben nackte Befehle, genau wie gegenueber dem Server.
  */
-import type { Command, PlayerQuizViewModel, QuizPackage, QuizRuntime, QuizSnapshot, QuizRuntimeRejection } from '../contracts'
+import type {
+  Command,
+  LifelineConfig,
+  PlayerQuizViewModel,
+  QuizPackage,
+  QuizRuntime,
+  QuizSnapshot,
+  QuizRuntimeRejection,
+} from '../contracts'
 import { ContentService } from './contentService'
 import { MemoryQuizStore, type MemoryQuizStoreSnapshot } from './memoryStore'
 import { QuizService } from './quizService'
@@ -29,6 +37,13 @@ export interface LocalQuizRuntimeOptions {
   /** Injizierbar fuer Tests. */
   now?: () => number
   random?: () => number
+  /**
+   * Lifelines this host offers. Left out means none - a standalone or kiosk
+   * build that says nothing here keeps exactly the game it had before, with no
+   * dots and no commands. A host that wants them passes
+   * `{ enabled: true, types: { fiftyFifty: true, audience: true }, activationMode: 'player' }`.
+   */
+  lifelines?: Partial<LifelineConfig>
 }
 
 const DEFAULT_PERSIST_DELAY_MS = 1_000
@@ -58,6 +73,7 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
       content: this.content,
       ...(options.now === undefined ? {} : { now: options.now }),
       ...(options.random === undefined ? {} : { random: options.random }),
+      ...(options.lifelines === undefined ? {} : { lifelines: options.lifelines }),
     })
 
     this.persist = options.persist

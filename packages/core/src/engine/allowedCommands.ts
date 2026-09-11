@@ -9,14 +9,36 @@
  * Diese Funktion ist eine Vorschau, keine zweite Validierung: verbindlich entscheidet
  * weiterhin die Engine beim Verarbeiten des Befehls.
  */
-import { isChoiceQuestion, roleMayIssue, type ActorRole, type CommandType, type GameState } from '../contracts'
+import {
+  defaultLifelineConfig,
+  enabledLifelineTypes,
+  isChoiceQuestion,
+  roleMayIssue,
+  type ActorRole,
+  type CommandType,
+  type GameState,
+  type LifelineConfig,
+} from '../contracts'
 import { isBuzzablePhase, isSelfServiceAnswerPhase } from './buzzer'
+import { evaluateLifelineRestore, evaluateLifelineUse } from './lifelines'
 
-export function availableCommands(state: GameState | null): CommandType[] {
+/**
+ * What the preview needs to know beyond the state.
+ *
+ * The lifeline configuration belongs to the installation, not to the game, so
+ * it cannot be read off `GameState`. Without it the preview simply offers no
+ * lifeline command - which is exactly right for a host that has none.
+ */
+export interface CommandPreviewOptions {
+  lifelines?: LifelineConfig
+}
+
+export function availableCommands(state: GameState | null, options: CommandPreviewOptions = {}): CommandType[] {
   const list = new Set<CommandType>()
+  const lifelines = options.lifelines ?? defaultLifelineConfig
 
   if (state?.status === 'active' && state.flowProfile === 'self-service') {
-    return selfServiceCommands(state)
+    return [...selfServiceCommands(state), ...lifelineCommands(state, lifelines)]
   }
 
   if (!state || state.status !== 'active') {
@@ -143,7 +165,28 @@ export function availableCommands(state: GameState | null): CommandType[] {
       break
   }
 
+  for (const type of lifelineCommands(state, lifelines)) list.add(type)
   return [...list]
+}
+
+/**
+ * Are lifeline commands worth offering at all right now?
+ *
+ * Asked against the SAME rules the engine applies, for every player and every
+ * offered type: if not a single combination would be accepted, the command does
+ * not appear, and the operator gets no button that leads to a refusal. Which
+ * individual button is live is a finer question - the operator view answers it
+ * per player and type (see `projection.ts`).
+ */
+function lifelineCommands(state: GameState | null, config: LifelineConfig): CommandType[] {
+  const types = enabledLifelineTypes(config)
+  if (types.length === 0 || !state || state.status !== 'active') return []
+  const list: CommandType[] = []
+  const anyPlayer = (check: typeof evaluateLifelineUse) =>
+    state.players.some((player) => types.some((type) => check(state, config, player.id, type).allowed))
+  if (anyPlayer(evaluateLifelineUse)) list.push('USE_LIFELINE')
+  if (anyPlayer(evaluateLifelineRestore)) list.push('RESTORE_LIFELINE')
+  return list
 }
 
 /**
@@ -178,6 +221,10 @@ function selfServiceCommands(state: GameState): CommandType[] {
 }
 
 /** Auf die Rolle eingeschraenkte Befehlsliste. */
-export function allowedCommandsForRole(state: GameState | null, role: ActorRole): CommandType[] {
-  return availableCommands(state).filter((type) => roleMayIssue(role, type))
+export function allowedCommandsForRole(
+  state: GameState | null,
+  role: ActorRole,
+  options: CommandPreviewOptions = {},
+): CommandType[] {
+  return availableCommands(state, options).filter((type) => roleMayIssue(role, type))
 }

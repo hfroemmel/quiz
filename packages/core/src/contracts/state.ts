@@ -5,6 +5,7 @@
  * und rendern gefilterte View-Modelle; sie veraendern diesen Zustand niemals selbst.
  */
 import type { Question, QuestionPresentationType } from './content'
+import type { ActiveFiftyFiftyEffect, PlayerLifelines } from './lifelines'
 
 /**
  * Phasen des Spielablaufs.
@@ -91,6 +92,15 @@ export interface PlayerState {
    * genau diese Frage gesperrt. Beim Bilderkennen wird nie gesperrt.
    */
   lockedForCurrentQuestion: boolean
+  /**
+   * Lifelines of this player, for the length of THIS game (see `lifelines.ts`).
+   *
+   * Optional on purpose: a game saved before the feature existed has no such
+   * field, and a resumed game must not crash over it. Read it through
+   * `lifelinesOf(player)`, never directly - that helper fills the gap with a
+   * fresh, unspent set.
+   */
+  lifelines?: PlayerLifelines
 }
 
 export interface BuzzerState {
@@ -224,6 +234,17 @@ export interface GameState {
    * Fehlt sie (Staende aus aelteren Fassungen), gilt die Grundsprache.
    */
   locale?: string
+
+  /**
+   * The 50:50 currently in effect - it belongs to the CURRENT QUESTION.
+   *
+   * It sits on the game and not on the player because there is one shared
+   * screen: the hidden answers are hidden for everyone, even though the
+   * lifeline is charged to one player. It is cleared on every question change,
+   * while the player's spent lifeline (see `PlayerState.lifelines`) survives
+   * until a new game starts.
+   */
+  activeFiftyFifty?: ActiveFiftyFiftyEffect
 
   pendingTransition?: PendingTimedTransition
   lastTransition?: PresentationTransitionState

@@ -16,14 +16,19 @@
  * nicht erneut ausgewertet werden kann.
  */
 import {
+  createPlayerLifelines,
+  defaultLifelineConfig,
   gameTiming,
   isChoiceQuestion,
   isImageReveal,
   isSelfServiceAnswerable,
+  lifelinesOf,
   playerIds,
   scoringRules,
   selfServiceTiming,
   type AnswerAttempt,
+  type LifelineConfig,
+  type LifelineType,
   type Command,
   type CommandRejection,
   type FlowProfile,
@@ -50,6 +55,12 @@ import {
   resetReveal,
   resumeReveal,
 } from './reveal'
+import {
+  evaluateLifelineRestore,
+  evaluateLifelineUse,
+  lifelineLabel,
+  pickFiftyFiftyHiddenOptions,
+} from './lifelines'
 
 /* ------------------------------------------------------------------ *
  * Ports und Ergebnisstruktur
@@ -91,6 +102,18 @@ export interface EngineContext {
   initialSoundEnabled?: boolean
   /** Sprache des Geraets, die ein neu gestartetes Spiel uebernimmt. */
   initialLocale?: string
+  /**
+   * What this installation offers in the way of lifelines (see
+   * `contracts/lifelines.ts`). Missing means none - the engine then refuses
+   * every lifeline command and nothing else changes.
+   */
+  lifelines?: LifelineConfig
+  /**
+   * Source of chance for decisions the engine itself makes - currently only the
+   * one wrong answer the 50:50 leaves standing. Injected so a test can hand in
+   * a fixed sequence instead of luck.
+   */
+  random?: () => number
 }
 
 export interface DomainEvent {
@@ -296,6 +319,12 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'SHOW_QUESTION_AFTER_VIDEO':
       return handleVideoCommand(work, command)
 
+    case 'USE_LIFELINE':
+      return useLifeline(work, command.playerId, command.lifelineType)
+
+    case 'RESTORE_LIFELINE':
+      return restoreLifeline(work, command.playerId, command.lifelineType)
+
     case 'ADJUST_SCORE': {
       if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
       if (work.state.status === 'aborted') {
@@ -413,6 +442,110 @@ function startGame(
   // Der Pausen-/Logoscreen laeuft als kurze eigene Praesentationsphase an; danach
   // uebernimmt derselbe Weg wie zwischen zwei Fragen (keine zweite Ablauflogik).
   work.scheduleTimedTransition(questionEntryPhase(work.state!), work.timing.pauseScreenMs, 'pause-to-question')
+  return work.commit()
+}
+
+/* ------------------------------------------------------------------ *
+ * Lifelines
+ *
+ * Both commands do the same three things in the same order: ask the rules
+ * (`evaluateLifelineUse` / `evaluateLifelineRestore`), change the state, write
+ * one line into the log. The rules live in `lifelines.ts` because the operator's
+ * view asks them too - a greyed-out button and a refused command must never
+ * disagree.
+ * ------------------------------------------------------------------ */
+
+function useLifeline(work: Draft, playerId: PlayerId, type: LifelineType): EngineResult {
+  const config = work.ctx.lifelines ?? defaultLifelineConfig
+  const decision = evaluateLifelineUse(work.state, config, playerId, type)
+  if (!decision.allowed) return reject(decision.reason, decision.message)
+
+  const state = work.state!
+  const label = state.players.find((player) => player.id === playerId)!.label
+  const questionId = state.currentQuestion!.question.id
+
+  /*
+   * The 50:50 draws its survivor BEFORE anything is written: if the draw were
+   * to come up empty - it cannot here, the rules guarantee three options, but
+   * the shape allows it - the lifeline must stay unspent. A lifeline that is
+   * marked used and hides nothing is the one outcome a player would rightly
+   * complain about.
+   */
+  let hiddenOptionIds: string[] = []
+  if (type === 'fiftyFifty') {
+    hiddenOptionIds = pickFiftyFiftyHiddenOptions({
+      correctOptionId: state.currentQuestion!.question.correctOptionId!,
+      optionOrder: state.currentQuestion!.optionOrder,
+      random: work.ctx.random ?? Math.random,
+    })
+    if (hiddenOptionIds.length === 0) {
+      return reject('lifeline-not-applicable', 'Diese Frage hat keine Antwort, die sich ausblenden ließe.')
+    }
+  }
+
+  work.mutate((draft) => {
+    for (const player of draft.players) {
+      if (player.id !== playerId) continue
+      /*
+       * Written through `lifelinesOf` and not into `player.lifelines![type]`:
+       * a game resumed from a save without the field would otherwise index into
+       * nothing. This way the whole set is created on first write.
+       */
+      player.lifelines = {
+        ...lifelinesOf(player),
+        [type]: { used: true, usedAtQuestionId: questionId, usedAtMs: work.ctx.nowMs },
+      }
+    }
+    if (type === 'fiftyFifty') {
+      draft.activeFiftyFifty = { playerId, questionId, hiddenOptionIds }
+    }
+  })
+
+  const detail =
+    type === 'fiftyFifty' ? ` Ausgeblendet: ${hiddenOptionIds.length} Antwort(en).` : ''
+  work.log('game', `${label} setzt den ${lifelineLabel(type)} ein.${detail}`, {
+    lifeline: type,
+    playerId,
+    questionId,
+    ...(type === 'fiftyFifty' ? { hiddenOptionIds } : {}),
+  })
+  return work.commit()
+}
+
+/**
+ * The operator's undo.
+ *
+ * Two cases, one command: while the question is still on screen the removed
+ * answers come back, because the effect belongs to that question and is cleared
+ * with it. After the question has moved on there is nothing to bring back - the
+ * restore then only hands the lifeline back for a later question. The condition
+ * below is exactly that distinction, and it needs no phase check: an effect
+ * that survived is by definition the current question's.
+ */
+function restoreLifeline(work: Draft, playerId: PlayerId, type: LifelineType): EngineResult {
+  const config = work.ctx.lifelines ?? defaultLifelineConfig
+  const decision = evaluateLifelineRestore(work.state, config, playerId, type)
+  if (!decision.allowed) return reject(decision.reason, decision.message)
+
+  const state = work.state!
+  const label = state.players.find((player) => player.id === playerId)!.label
+  const undoesEffect =
+    type === 'fiftyFifty' && state.activeFiftyFifty?.playerId === playerId
+
+  work.mutate((draft) => {
+    for (const player of draft.players) {
+      if (player.id !== playerId) continue
+      player.lifelines = { ...lifelinesOf(player), [type]: { used: false } }
+    }
+    if (undoesEffect) draft.activeFiftyFifty = undefined
+  })
+
+  const detail = undoesEffect ? ' Die ausgeblendeten Antworten sind wieder sichtbar.' : ''
+  work.log('game', `${lifelineLabel(type)} von ${label} wiederhergestellt.${detail}`, {
+    lifeline: type,
+    playerId,
+    restoredEffect: undoesEffect,
+  })
   return work.commit()
 }
 
@@ -1253,6 +1386,12 @@ function drawQuestionForCurrentSlot(
     }
     // Frageweiter Reset - genau eine Stelle.
     for (const player of draft.players) player.lockedForCurrentQuestion = false
+    /*
+     * The 50:50 effect dies with the question - here, at the one place a new
+     * question arrives. The player's SPENT lifeline is not touched: it lives on
+     * the player and survives until a new game starts.
+     */
+    draft.activeFiftyFifty = undefined
     draft.buzzer = { open: false }
     draft.reveal = isImageReveal(runtime.question.questionType)
       ? createRevealClock(work.timing.imageRevealDurationMs)
@@ -1282,7 +1421,14 @@ function drawQuestionForCurrentSlot(
  * ------------------------------------------------------------------ */
 
 function createPlayer(id: PlayerId, label: string): PlayerState {
-  return { id, label, score: 0, lockedForCurrentQuestion: false }
+  /*
+   * A new player enters with both lifelines untouched, whether or not the
+   * installation offers them: the state is the same everywhere, and only the
+   * configuration decides whether anybody ever sees it. That is what makes a
+   * game started without lifelines and one started with them the same shape -
+   * and why enabling them needs no migration.
+   */
+  return { id, label, score: 0, lockedForCurrentQuestion: false, lifelines: createPlayerLifelines() }
 }
 
 function createAttempt(work: Draft, draft: GameState, playerId: PlayerId | null): AnswerAttempt {

@@ -7,18 +7,21 @@
  */
 import {
   gameTiming,
+  normalizeLifelineConfig,
   selfServiceTiming,
   type Command,
   type FlowProfile,
   type GameState,
   type PlayerCount,
+  type LifelineConfig,
+  type OperatorQuizViewModel,
   type PublicQuizViewModel,
   type Question,
   type QuizConfig,
   type RuntimeQuestion,
 } from '../src'
 import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine/engine'
-import { projectPublic } from '../src/engine/projection'
+import { projectOperator, projectPublic } from '../src/engine/projection'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
   return {
@@ -76,6 +79,8 @@ export interface Harness {
   settle(): void
   /** Das oeffentliche View-Modell zum aktuellen Stand - das, was der Saal saehe. */
   publicView(): PublicQuizViewModel
+  /** Die Operatoransicht - sie traegt die Joker-Schaltflaechen. */
+  operatorView(): OperatorQuizViewModel
   events: { category: string; message: string }[]
   scoreTransactions: { playerId: string; delta: number; reason: string }[]
   usages: { questionId: string; slotId: string }[]
@@ -83,7 +88,14 @@ export interface Harness {
 
 export function createHarness(
   script: Question[],
-  options: { spare?: Question[]; startNow?: number } = {},
+  options: {
+    spare?: Question[]
+    startNow?: number
+    /** Lifelines this installation offers. Left out means none. */
+    lifelines?: Partial<LifelineConfig>
+    /** Fixed source of chance - lets a test say which wrong answer survives. */
+    random?: () => number
+  } = {},
 ): Harness {
   let counter = 0
   const source = scriptedSource(script, options.spare ?? [])
@@ -134,13 +146,11 @@ export function createHarness(
      * bis zum Ende weiterlaufen.
      */
     publicView() {
-      return projectPublic(harness.state, {
-        nowMs: harness.now,
-        config: testConfig,
-        assetUrl: (assetId) => (assetId ? `/media/${assetId}` : undefined),
-        contentVersion: 'test',
-        eventDayId: 'event-day-test',
-      })
+      return projectPublic(harness.state, projectionContext())
+    },
+
+    operatorView() {
+      return projectOperator(harness.state, projectionContext())
     },
 
     settle() {
@@ -161,6 +171,19 @@ export function createHarness(
       newId: (prefix) => `${prefix}-${(counter += 1)}`,
       questionSource: source,
       timing: gameTiming,
+      ...(options.lifelines === undefined ? {} : { lifelines: normalizeLifelineConfig(options.lifelines) }),
+      ...(options.random === undefined ? {} : { random: options.random }),
+    }
+  }
+
+  function projectionContext() {
+    return {
+      nowMs: harness.now,
+      config: testConfig,
+      assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+      contentVersion: 'test',
+      eventDayId: 'event-day-test',
+      ...(options.lifelines === undefined ? {} : { lifelines: normalizeLifelineConfig(options.lifelines) }),
     }
   }
 

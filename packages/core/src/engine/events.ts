@@ -10,7 +10,7 @@
  * beim ersten Snapshot BEREITS dasteht (Neustart vor einem alten Spielstand),
  * ist kein Ereignis dieser Sitzung - ohne Vorgaenger gibt es keine Ereignisse.
  */
-import type { AttemptOutcome, PlayerId, PublicQuizViewModel } from '../contracts'
+import { lifelineTypes, type AttemptOutcome, type LifelineType, type PlayerId, type PublicQuizViewModel } from '../contracts'
 
 /** Ergebnis eines beendeten Spiels - die Nutzlast fuer den Gastgeber. */
 export interface QuizGameResult {
@@ -30,6 +30,13 @@ export type QuizEvent =
   | { type: 'buzz'; playerId: PlayerId | null }
   | { type: 'answer-logged'; optionId: string }
   | { type: 'attempt-resolved'; outcome: AttemptOutcome; playerId: PlayerId | null }
+  /**
+   * A lifeline changed hands. Derived from the snapshot like every other event
+   * here, so a host learns about it without listening to the transport - and
+   * so a client that reconnects mid-game does not replay it.
+   */
+  | { type: 'lifelineUsed'; playerId: PlayerId; lifelineType: LifelineType }
+  | { type: 'lifelineRestored'; playerId: PlayerId; lifelineType: LifelineType }
   | { type: 'game-finished'; result: QuizGameResult }
   | { type: 'game-aborted' }
 
@@ -38,6 +45,15 @@ const idleScenes: readonly string[] = ['start']
 
 function chosenOptionId(view: PublicQuizViewModel): string | null {
   return view.visibleOptions?.find((option) => option.state === 'chosen')?.id ?? null
+}
+
+/** `player-1:fiftyFifty` -> used, for a cheap diff of two snapshots. */
+function lifelineUsage(view: PublicQuizViewModel): Map<string, boolean> {
+  const usage = new Map<string, boolean>()
+  for (const score of view.playerScores) {
+    for (const entry of score.lifelines ?? []) usage.set(`${score.playerId}:${entry.type}`, entry.used)
+  }
+  return usage
 }
 
 export function deriveQuizEvents(
@@ -90,6 +106,28 @@ export function deriveQuizEvents(
         questionCount: next.progress.total,
       },
     })
+  }
+
+  /*
+   * Lifelines: compared per player and type. A game that ends and a new one
+   * that starts reset every entry to unused - which would look like a whole
+   * row of restores. Hence the guard: only while the SAME game runs.
+   */
+  if (prevInGame && nextInGame && next.progress.total === prev.progress.total) {
+    const before = lifelineUsage(prev)
+    const after = lifelineUsage(next)
+    for (const score of next.playerScores) {
+      for (const type of lifelineTypes) {
+        const key = `${score.playerId}:${type}`
+        if (!after.has(key) || !before.has(key)) continue
+        if (after.get(key) === before.get(key)) continue
+        events.push({
+          type: after.get(key) ? 'lifelineUsed' : 'lifelineRestored',
+          playerId: score.playerId,
+          lifelineType: type,
+        })
+      }
+    }
   }
 
   // Zurueck zur Startszene mitten aus dem Spiel gibt es nur durch Abbruch.
