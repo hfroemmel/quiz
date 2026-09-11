@@ -15,6 +15,20 @@
   align-items: flex-start;
 }
 /*
+ * Rahmen um EINE Punktekarte - der Anker fuer den Slot `besidePlayer`.
+ *
+ * Er nimmt keinen eigenen Platz: Groesse und Position kommen weiter von der
+ * Karte darin. Wer im Slot etwas absolut positioniert, haengt es damit an diese
+ * Karte, ohne die Kopfzeile zu verbreitern. `position: relative` ohne `z-index`
+ * bleibt bewusst ohne eigenen Stapelkontext - so kann der Slotinhalt mit
+ * `z-index: -1` HINTER die Karte rutschen, ohne aus der Kopfzeile zu fallen.
+ */
+.scoreGroup {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+/*
  * Wortmarke. Sie liegt als Maske ueber einer Farbflaeche und folgt damit der
  * Textfarbe der Welt. Das Seitenverhaeltnis stammt aus dem viewBox der Datei
  * (339,417 x 55).

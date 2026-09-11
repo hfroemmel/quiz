@@ -5,7 +5,7 @@
  * und rendern gefilterte View-Modelle; sie veraendern diesen Zustand niemals selbst.
  */
 import type { Question, QuestionPresentationType } from './content'
-import type { ActiveFiftyFiftyEffect, PlayerLifelines } from './lifelines'
+import type { ActiveFiftyFiftyEffect, PlayerJokerStates } from './joker'
 
 /**
  * Phasen des Spielablaufs.
@@ -92,15 +92,6 @@ export interface PlayerState {
    * genau diese Frage gesperrt. Beim Bilderkennen wird nie gesperrt.
    */
   lockedForCurrentQuestion: boolean
-  /**
-   * Lifelines of this player, for the length of THIS game (see `lifelines.ts`).
-   *
-   * Optional on purpose: a game saved before the feature existed has no such
-   * field, and a resumed game must not crash over it. Read it through
-   * `lifelinesOf(player)`, never directly - that helper fills the gap with a
-   * fresh, unspent set.
-   */
-  lifelines?: PlayerLifelines
 }
 
 export interface BuzzerState {
@@ -236,13 +227,25 @@ export interface GameState {
   locale?: string
 
   /**
+   * The joker of every player, keyed by player id (see `joker.ts`).
+   *
+   * ONE supply per player, spendable as a 50:50 or as an audience joker.
+   *
+   * ITS ABSENCE IS THE STATEMENT "this game has no jokers": only an operated
+   * game gets a supply, and a self-service game at a kiosk or a touch device
+   * therefore carries nothing here - as does a game saved before the feature
+   * existed. Read it through `jokerOf` and ask `gameHasJokers(state)`; nothing
+   * else decides whether this game knows jokers.
+   */
+  jokerByPlayer?: PlayerJokerStates
+
+  /**
    * The 50:50 currently in effect - it belongs to the CURRENT QUESTION.
    *
    * It sits on the game and not on the player because there is one shared
-   * screen: the hidden answers are hidden for everyone, even though the
-   * lifeline is charged to one player. It is cleared on every question change,
-   * while the player's spent lifeline (see `PlayerState.lifelines`) survives
-   * until a new game starts.
+   * screen: the hidden answers are hidden for everyone, even though the joker
+   * is charged to one player. It is cleared on every question change, while the
+   * spent joker above survives until a new game starts.
    */
   activeFiftyFifty?: ActiveFiftyFiftyEffect
 

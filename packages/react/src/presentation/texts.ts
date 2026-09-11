@@ -24,14 +24,13 @@ export const standardTexte = {
   'stage.points': 'Punkte',
   'stage.question': 'Frage',
   /*
-   * Lifelines. The two names are what the room calls them; `used` and
-   * `available` are only ever read out loud by a screen reader - the dots
-   * themselves say it without words.
+   * The joker card on the stage. The card itself carries no words, so these two
+   * sentences exist for a screen reader alone - and for nobody in the hall,
+   * which is why they name no variant: which joker it became is announced out
+   * loud and stays legible at the operator's desk.
    */
-  'stage.lifeline.fiftyFifty': '50:50-Joker',
-  'stage.lifeline.audience': 'Publikumsjoker',
-  'stage.lifeline.used': 'verbraucht',
-  'stage.lifeline.available': 'verfügbar',
+  'stage.joker.available': '{player} hat noch einen Joker.',
+  'stage.joker.used': '{player} hat den Joker eingesetzt.',
   'stage.questionOf': 'Frage {current} von {total}',
   'feedback.correct': 'Richtig!',
   'feedback.incorrect': 'Falsch!',

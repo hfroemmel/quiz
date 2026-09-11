@@ -63,18 +63,18 @@ export function PreviewApp() {
    */
   const [longText, setLongText] = useState(false)
   /*
-   * Joker. Sie gehoeren der Aufstellung und nicht der Szene, sind hier also ein
-   * Schalter wie die reduzierte Bewegung: Ein Stand mit Jokern zeigt beide
-   * Zustaende gleichzeitig - Spieler 1 hat seinen 50:50 verbraucht, Spieler 2
-   * noch nicht - und blendet in der Frageszene zwei Antworten aus.
+   * Der 50:50-Joker. Er gehoert zum Live-Quiz und nicht zur Szene, ist hier
+   * also ein Schalter wie die reduzierte Bewegung: Er blendet in der Frageszene
+   * zwei Antworten aus, damit die Darstellung ausgeblendeter Antworten ohne
+   * Server pruefbar bleibt. Die Jokerkarte selbst liegt im Live-Quiz.
    */
-  const [lifelines, setLifelines] = useState(false)
+  const [fiftyFifty, setFiftyFifty] = useState(false)
   // Neu montieren, um denselben Uebergang erneut abzuspielen.
   const [runId, setRunId] = useState(0)
 
   const view = useMemo(
-    () => buildSampleView({ scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, lifelines }),
-    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, lifelines],
+    () => buildSampleView({ scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty }),
+    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty],
   )
 
   if (!import.meta.env.DEV) {
@@ -198,11 +198,11 @@ export function PreviewApp() {
         <label className="field field--checkbox">
           <input
             type="checkbox"
-            data-preview-lifelines=""
-            checked={lifelines}
-            onChange={(event) => setLifelines(event.target.checked)}
+            data-preview-fifty-fifty=""
+            checked={fiftyFifty}
+            onChange={(event) => setFiftyFifty(event.target.checked)}
           />
-          <span>Joker (Spieler 1 hat 50:50 verbraucht, zwei Antworten ausgeblendet)</span>
+          <span>50:50-Joker (zwei Antworten ausgeblendet)</span>
         </label>
 
         <button className="button button--primary" onClick={() => setRunId((value) => value + 1)}>
@@ -343,7 +343,7 @@ function buildSampleView(input: {
   revealElapsedMs: number
   draw: boolean
   longText: boolean
-  lifelines: boolean
+  fiftyFifty: boolean
 }): PublicQuizViewModel {
   /*
    * Fester Zeitpunkt fuer alles Dargestellte - Screenshots duerfen nicht von der
@@ -352,30 +352,15 @@ function buildSampleView(input: {
    * abgelaufen, bevor die Vorschau es zeigt.
    */
   const serverTimeMs = input.scene === 'video' ? Date.now() : 1_700_000_000_000
-  /*
-   * Joker der beiden Spieler - absichtlich in verschiedenen Zustaenden: So steht
-   * in einem Bild, wie ein verfuegbarer und ein verbrauchter Punkt aussehen.
-   * Ohne Joker fehlt das Feld ganz, genau wie im Server ohne Konfiguration.
-   */
-  const lifelinesFor = (playerId: 'player-1' | 'player-2') =>
-    input.lifelines
-      ? {
-          lifelines: [
-            { type: 'fiftyFifty' as const, used: playerId === 'player-1' },
-            { type: 'audience' as const, used: false },
-          ],
-        }
-      : {}
   const scores = [
     // Dreistellige Punktestaende sind der Regelfall, nicht die Ausnahme.
-    { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false, ...lifelinesFor('player-1') },
+    { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false },
     {
       playerId: 'player-2' as const,
       label: 'Spieler 2',
       score: input.draw ? 200 : 150,
       active: false,
       locked: false,
-      ...lifelinesFor('player-2'),
     },
   ]
   const text = (short: string, index: number) => (input.longText ? (LONG_ANSWERS[index] ?? short) : short)
@@ -408,19 +393,19 @@ function buildSampleView(input: {
           // Eingeloggte Antwort: oeffentlich markiert, aber ohne Bewertung.
           { id: 'o2', text: text(sample.answers[1]!, 1), state: 'chosen' },
           /*
-           * Mit Jokern: diese beiden hat ein 50:50 genommen. Sie behalten ihren
+           * Mit 50:50: diese beiden hat der Joker genommen. Sie behalten ihren
            * Platz und ihren Buchstaben - genau das soll im Bild zu sehen sein.
            */
-          { id: 'o3', text: text(sample.answers[2]!, 2), ...(input.lifelines ? { hidden: true } : {}) },
+          { id: 'o3', text: text(sample.answers[2]!, 2), ...(input.fiftyFifty ? { hidden: true } : {}) },
           // Zweite Chance: diese Antwort war schon falsch und ist verbraucht.
           {
             id: 'o4',
             text: text(sample.answers[3]!, 3),
             state: 'chosen-incorrect',
-            ...(input.lifelines ? { hidden: true } : {}),
+            ...(input.fiftyFifty ? { hidden: true } : {}),
           },
         ],
-        ...(input.lifelines
+        ...(input.fiftyFifty
           ? { activeFiftyFifty: { playerId: 'player-1' as const, hiddenOptionIds: ['o3', 'o4'] } }
           : {}),
         currentPlayer: 'player-1',

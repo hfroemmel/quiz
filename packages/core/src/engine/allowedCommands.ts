@@ -10,35 +10,21 @@
  * weiterhin die Engine beim Verarbeiten des Befehls.
  */
 import {
-  defaultLifelineConfig,
-  enabledLifelineTypes,
   isChoiceQuestion,
+  jokerTypes,
   roleMayIssue,
   type ActorRole,
   type CommandType,
   type GameState,
-  type LifelineConfig,
 } from '../contracts'
 import { isBuzzablePhase, isSelfServiceAnswerPhase } from './buzzer'
-import { evaluateLifelineRestore, evaluateLifelineUse } from './lifelines'
+import { evaluateJokerRestore, evaluateJokerUse } from './joker'
 
-/**
- * What the preview needs to know beyond the state.
- *
- * The lifeline configuration belongs to the installation, not to the game, so
- * it cannot be read off `GameState`. Without it the preview simply offers no
- * lifeline command - which is exactly right for a host that has none.
- */
-export interface CommandPreviewOptions {
-  lifelines?: LifelineConfig
-}
-
-export function availableCommands(state: GameState | null, options: CommandPreviewOptions = {}): CommandType[] {
+export function availableCommands(state: GameState | null): CommandType[] {
   const list = new Set<CommandType>()
-  const lifelines = options.lifelines ?? defaultLifelineConfig
 
   if (state?.status === 'active' && state.flowProfile === 'self-service') {
-    return [...selfServiceCommands(state), ...lifelineCommands(state, lifelines)]
+    return selfServiceCommands(state)
   }
 
   if (!state || state.status !== 'active') {
@@ -165,27 +151,31 @@ export function availableCommands(state: GameState | null, options: CommandPrevi
       break
   }
 
-  for (const type of lifelineCommands(state, lifelines)) list.add(type)
+  for (const type of jokerCommands(state)) list.add(type)
   return [...list]
 }
 
 /**
- * Are lifeline commands worth offering at all right now?
+ * Are joker commands worth offering at all right now?
  *
- * Asked against the SAME rules the engine applies, for every player and every
- * offered type: if not a single combination would be accepted, the command does
- * not appear, and the operator gets no button that leads to a refusal. Which
+ * Asked against the SAME rules the engine applies, for every player and both
+ * variants: if not a single combination would be accepted, the command does not
+ * appear, and the operator gets no button that leads to a refusal. Which
  * individual button is live is a finer question - the operator view answers it
- * per player and type (see `projection.ts`).
+ * per player (see `projection.ts`).
  */
-function lifelineCommands(state: GameState | null, config: LifelineConfig): CommandType[] {
-  const types = enabledLifelineTypes(config)
-  if (types.length === 0 || !state || state.status !== 'active') return []
+function jokerCommands(state: GameState): CommandType[] {
   const list: CommandType[] = []
-  const anyPlayer = (check: typeof evaluateLifelineUse) =>
-    state.players.some((player) => types.some((type) => check(state, config, player.id, type).allowed))
-  if (anyPlayer(evaluateLifelineUse)) list.push('USE_LIFELINE')
-  if (anyPlayer(evaluateLifelineRestore)) list.push('RESTORE_LIFELINE')
+  if (
+    state.players.some((player) =>
+      jokerTypes.some((type) => evaluateJokerUse(state, player.id, type).allowed),
+    )
+  ) {
+    list.push('USE_JOKER')
+  }
+  if (state.players.some((player) => evaluateJokerRestore(state, player.id).allowed)) {
+    list.push('RESTORE_JOKER')
+  }
   return list
 }
 
@@ -221,10 +211,6 @@ function selfServiceCommands(state: GameState): CommandType[] {
 }
 
 /** Auf die Rolle eingeschraenkte Befehlsliste. */
-export function allowedCommandsForRole(
-  state: GameState | null,
-  role: ActorRole,
-  options: CommandPreviewOptions = {},
-): CommandType[] {
-  return availableCommands(state, options).filter((type) => roleMayIssue(role, type))
+export function allowedCommandsForRole(state: GameState | null, role: ActorRole): CommandType[] {
+  return availableCommands(state).filter((type) => roleMayIssue(role, type))
 }

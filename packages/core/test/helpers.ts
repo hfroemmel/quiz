@@ -7,13 +7,11 @@
  */
 import {
   gameTiming,
-  normalizeLifelineConfig,
   selfServiceTiming,
   type Command,
   type FlowProfile,
   type GameState,
   type PlayerCount,
-  type LifelineConfig,
   type OperatorQuizViewModel,
   type PublicQuizViewModel,
   type Question,
@@ -91,8 +89,6 @@ export function createHarness(
   options: {
     spare?: Question[]
     startNow?: number
-    /** Lifelines this installation offers. Left out means none. */
-    lifelines?: Partial<LifelineConfig>
     /** Fixed source of chance - lets a test say which wrong answer survives. */
     random?: () => number
   } = {},
@@ -171,7 +167,6 @@ export function createHarness(
       newId: (prefix) => `${prefix}-${(counter += 1)}`,
       questionSource: source,
       timing: gameTiming,
-      ...(options.lifelines === undefined ? {} : { lifelines: normalizeLifelineConfig(options.lifelines) }),
       ...(options.random === undefined ? {} : { random: options.random }),
     }
   }
@@ -183,7 +178,6 @@ export function createHarness(
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',
-      ...(options.lifelines === undefined ? {} : { lifelines: normalizeLifelineConfig(options.lifelines) }),
     }
   }
 

@@ -15,7 +15,6 @@
  */
 import {
   commandEnvelopeSchema,
-  normalizeLifelineConfig,
   questionPatchSchema,
   requiresRevisionCheck,
   roleMayIssue,
@@ -26,7 +25,6 @@ import {
   type CommandRejection,
   type CommandType,
   type GameState,
-  type LifelineConfig,
   type ModeratorQuizViewModel,
   type OperatorQuizViewModel,
   type PlayerQuizViewModel,
@@ -65,12 +63,6 @@ export interface QuizServiceOptions {
   random?: () => number
   sessionCode?: string
   lanUrls?: string[]
-  /**
-   * What this installation offers in the way of lifelines. Partial is fine -
-   * it is completed by `normalizeLifelineConfig`. Left out means none, and the
-   * service then behaves exactly as it did before the feature existed.
-   */
-  lifelines?: Partial<LifelineConfig>
 }
 
 /**
@@ -83,12 +75,6 @@ const playerFlowCommands: readonly CommandType[] = [
   'LOG_OPTION_ANSWER',
   'RESOLVE_ATTEMPT',
   'CONTINUE',
-  /*
-   * A player triggering their own lifeline is the kiosk case, and it is a game
-   * command like the others: only in self-service, and only where the
-   * configuration says `activationMode: 'player'` (checked separately below).
-   */
-  'USE_LIFELINE',
 ]
 
 const SETTING_SOUND = 'sound-enabled'
@@ -117,8 +103,6 @@ export class QuizService {
   private readonly random: () => number
   private readonly sessionCode: string | undefined
   private lanUrls: string[]
-  /** Complete, normalized lifeline configuration of this installation. */
-  readonly lifelines: LifelineConfig
 
   constructor(options: QuizServiceOptions) {
     this.store = options.store
@@ -127,7 +111,6 @@ export class QuizService {
     this.random = options.random ?? Math.random
     this.sessionCode = options.sessionCode
     this.lanUrls = options.lanUrls ?? []
-    this.lifelines = normalizeLifelineConfig(options.lifelines)
 
     this.soundEnabled = this.store.getSetting(SETTING_SOUND) !== 'false'
     this.locale = this.store.getSetting(SETTING_LOCALE) ?? undefined
@@ -269,26 +252,6 @@ export class QuizService {
     }
 
     /*
-     * Whose command triggers a lifeline is the one thing `activationMode`
-     * decides - and it is a policy of the installation, not a game rule, which
-     * is why it stands here and not in the engine. On stage the operator
-     * triggers it for the player who asked out loud; at a kiosk the player taps
-     * it. A player command in operator mode is refused, and the refusal says
-     * why rather than pretending the lifeline is spent.
-     */
-    if (
-      envelope.command.type === 'USE_LIFELINE' &&
-      envelope.actor.role === 'player' &&
-      this.lifelines.activationMode !== 'player'
-    ) {
-      return this.rejectAndRecord(
-        envelope,
-        'forbidden-role',
-        'In diesem Spiel setzt der Operator die Joker ein. Am Gerät ist das nicht vorgesehen.',
-      )
-    }
-
-    /*
      * 6. Der Ton gehoert dem GERAET und nicht dem Spiel.
      *
      * Laeuft ein Spiel, geht der Befehl durch die Engine und steht danach im
@@ -336,7 +299,6 @@ export class QuizService {
       ),
       initialSoundEnabled: this.soundEnabled,
       initialLocale: this.locale,
-      lifelines: this.lifelines,
       random: this.random,
     })
 
@@ -626,7 +588,6 @@ export class QuizService {
       gameCounts: this.store.gameCountsByAudience(statisticsSince),
       statisticsSinceIso: statisticsSince ?? undefined,
       additionalOperatorCommands: additional,
-      lifelines: this.lifelines,
       resumable: this.resumable
         ? {
             gameId: this.resumable.gameId,

@@ -21,7 +21,7 @@
  * dieselben Bauteile, nur an einem anderen Platz (`game/PlayerFoot.tsx`).
  */
 import type { CSSProperties, ReactNode } from 'react'
-import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
+import type { PublicQuizViewModel, PublicScore } from '@hfroemmel/quiz-core'
 import { cssUrl } from '../cssUrl'
 import { texteFuer } from '../texts'
 import { Counter } from './Counter'
@@ -34,6 +34,18 @@ export interface StageHeaderSlots {
   beforePlayerOne?: ReactNode
   /** Nach der Karte von Spieler 2. */
   afterPlayerTwo?: ReactNode
+  /**
+   * AN der Karte eines Spielers - je Spieler einmal aufgerufen.
+   *
+   * Der Inhalt liegt in einem eigenen, relativ positionierten Rahmen um die
+   * Punktekarte und HINTER ihr. Wer hier etwas absolut positioniert, haengt es
+   * an die Karte, ohne die Kopfzeile zu verbreitern oder die Karten zu
+   * verschieben - genau das braucht die Jokerkarte des Live-Quiz.
+   *
+   * Die Kopfzeile selbst weiss nicht, was dort haengt: Sie gibt den Punktestand
+   * dieses Spielers weiter und stellt nur den Platz.
+   */
+  besidePlayer?: (score: PublicScore) => ReactNode
 }
 
 export function StageHeader({
@@ -79,31 +91,31 @@ export function StageHeader({
       <div className={styles.scores}>
         {slots?.beforePlayerOne}
         {showsScores && playerOne && (
-          <Score
-            label={playerOne.label}
-            score={playerOne.score}
-            active={playerOne.active}
-            locked={playerOne.locked}
-            playerText={t('stage.player')}
-            pointsText={t('stage.points')}
-            playerId={playerOne.playerId}
-            {...(playerOne.lifelines ? { lifelines: playerOne.lifelines } : {})}
-            {...lifelineTexts(t)}
-          />
+          <div className={styles.scoreGroup} data-score-group={playerOne.playerId}>
+            {slots?.besidePlayer?.(playerOne)}
+            <Score
+              label={playerOne.label}
+              score={playerOne.score}
+              active={playerOne.active}
+              locked={playerOne.locked}
+              playerText={t('stage.player')}
+              pointsText={t('stage.points')}
+            />
+          </div>
         )}
         {showsScores && playerTwo && (
-          <Score
-            label={playerTwo.label}
-            score={playerTwo.score}
-            active={playerTwo.active}
-            locked={playerTwo.locked}
-            playerText={t('stage.player')}
-            pointsText={t('stage.points')}
-            playerId={playerTwo.playerId}
-            {...(playerTwo.lifelines ? { lifelines: playerTwo.lifelines } : {})}
-            {...lifelineTexts(t)}
-            mirrored
-          />
+          <div className={styles.scoreGroup} data-score-group={playerTwo.playerId}>
+            {slots?.besidePlayer?.(playerTwo)}
+            <Score
+              label={playerTwo.label}
+              score={playerTwo.score}
+              active={playerTwo.active}
+              locked={playerTwo.locked}
+              playerText={t('stage.player')}
+              pointsText={t('stage.points')}
+              mirrored
+            />
+          </div>
         )}
         {slots?.afterPlayerTwo}
       </div>
@@ -115,21 +127,4 @@ export function StageHeader({
       )}
     </header>
   )
-}
-
-/**
- * The wording of the lifeline dots, in the language of the game.
- *
- * Gathered once and spread onto both cards: two lists of the same four keys
- * would be two places to forget one.
- */
-function lifelineTexts(t: ReturnType<typeof texteFuer>) {
-  return {
-    lifelineLabels: {
-      fiftyFifty: t('stage.lifeline.fiftyFifty'),
-      audience: t('stage.lifeline.audience'),
-    },
-    lifelineUsedText: t('stage.lifeline.used'),
-    lifelineAvailableText: t('stage.lifeline.available'),
-  }
 }

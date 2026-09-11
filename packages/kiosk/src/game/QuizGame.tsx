@@ -532,14 +532,6 @@ export function QuizGame({
               onBuzz={(playerId) => send({ type: 'BUZZ', playerId })}
               onResolve={() => send({ type: 'RESOLVE_ATTEMPT' })}
               onContinue={() => send({ type: 'CONTINUE' })}
-              /*
-               * A player tapping their own lifeline. The command goes out
-               * unconditionally - whether it is accepted is decided by the
-               * host's configuration (`activationMode`) and by the engine, not
-               * here. Where the host offers no lifelines the view model carries
-               * none, so there is no dot to tap in the first place.
-               */
-              onUseLifeline={(playerId, lifelineType) => send({ type: 'USE_LIFELINE', playerId, lifelineType })}
             />
           ),
         }}

@@ -26,7 +26,7 @@
  * hier nur die Farbe ihres Spielers; alles andere - Aufbau, Hochzaehlen,
  * gezeichnete Karte der Kinderwelt - kommt unveraendert von dort.
  */
-import type { LifelineType, PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { Counter, Score } from '@hfroemmel/quiz-react'
 import { Buzzer } from './Buzzer'
 import { texteFuer } from '@hfroemmel/quiz-react'
@@ -43,11 +43,6 @@ interface PlayerFootProps {
   onResolve(): void
   /** Naechste Frage anfordern - nur nach der Loesung moeglich. */
   onContinue(): void
-  /**
-   * Only where this device lets a player use their own lifeline. Absent - the
-   * default - means the dots are pure status, exactly as on the live stage.
-   */
-  onUseLifeline?: ((playerId: PlayerId, type: LifelineType) => void) | undefined
 }
 
 /**
@@ -64,7 +59,7 @@ function hinweis(view: PlayerQuizViewModel): string | null {
   return gegner ? texteFuer(view)('kiosk.secondChance', { player: gegner.label }) : null
 }
 
-export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue, onUseLifeline }: PlayerFootProps) {
+export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue }: PlayerFootProps) {
   const t = texteFuer(view)
   const [playerOne, playerTwo] = view.playerScores
   if (!playerOne) return null
@@ -85,15 +80,6 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue,
         mirrored={side === 'right'}
         playerText={t('stage.player')}
         pointsText={t('stage.points')}
-        playerId={player.playerId}
-        {...(player.lifelines ? { lifelines: player.lifelines } : {})}
-        lifelineLabels={{
-          fiftyFifty: t('stage.lifeline.fiftyFifty'),
-          audience: t('stage.lifeline.audience'),
-        }}
-        lifelineUsedText={t('stage.lifeline.used')}
-        lifelineAvailableText={t('stage.lifeline.available')}
-        {...(onUseLifeline ? { onUseLifeline: (type: LifelineType) => onUseLifeline(player.playerId, type) } : {})}
       />
       {!solo && (
         <Buzzer

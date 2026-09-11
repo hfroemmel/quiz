@@ -10,7 +10,7 @@
  */
 import { z } from 'zod'
 import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state'
-import { lifelineTypes, type LifelineType } from './lifelines'
+import { jokerTypes, type JokerType } from './joker'
 import { patchableQuestionFieldsSchema } from './content'
 
 /**
@@ -26,7 +26,7 @@ export const actorRoles = ['operator', 'moderator', 'system', 'buzzer', 'player'
 export type ActorRole = (typeof actorRoles)[number]
 
 const playerIdSchema = z.enum(playerIds as unknown as [PlayerId, ...PlayerId[]])
-const lifelineTypeSchema = z.enum(lifelineTypes as unknown as [LifelineType, ...LifelineType[]])
+const jokerTypeSchema = z.enum(jokerTypes as unknown as [JokerType, ...JokerType[]])
 const playerCountSchema = z.union(
   playerCounts.map((count) => z.literal(count)) as unknown as [z.ZodLiteral<PlayerCount>, z.ZodLiteral<PlayerCount>],
 )
@@ -105,27 +105,27 @@ export const commandSchema = z.discriminatedUnion('type', [
   }),
 
   /*
-   * ---- Lifelines (see `lifelines.ts`) ----
+   * ---- The joker (see `joker.ts`) ----
    *
-   * Two commands, not one per type: what a lifeline DOES is the engine's
-   * business, and a `USE_FIFTY_FIFTY` next to a `USE_AUDIENCE` would grow a new
-   * command with every new type, each needing its own role entry and its own
-   * branch. `lifelineType` is validated against the same list every other
+   * ONE command for both variants, carrying which one was chosen: a
+   * `USE_FIFTY_FIFTY` next to a `USE_AUDIENCE` would suggest two supplies, and
+   * there is one. `jokerType` is validated against the same list every other
    * consumer derives from.
    *
-   * `RESTORE_LIFELINE` is the operator's undo: a lifeline triggered by mistake,
-   * or one a player was talked out of. It is administrative, never part of
-   * playing - see the role table below.
+   * `RESTORE_JOKER` carries no type, because there is nothing to choose: it
+   * hands the one joker back. It is the operator's correction of a misclick,
+   * never part of playing.
+   *
+   * Both are the operator's alone - see the role table below.
    */
   z.object({
-    type: z.literal('USE_LIFELINE'),
+    type: z.literal('USE_JOKER'),
     playerId: playerIdSchema,
-    lifelineType: lifelineTypeSchema,
+    jokerType: jokerTypeSchema,
   }),
   z.object({
-    type: z.literal('RESTORE_LIFELINE'),
+    type: z.literal('RESTORE_JOKER'),
     playerId: playerIdSchema,
-    lifelineType: lifelineTypeSchema,
   }),
 
   /** Manuelle Punktkorrektur in 100er-Schritten. */
@@ -240,20 +240,17 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
    */
   SET_LOCALE: ['operator', 'moderator', 'player'],
   /*
-   * On stage the operator triggers a lifeline for the player who asked out
-   * loud. `player` is listed for local integrations, where the player taps it
-   * themselves - but only where the configuration says so: whether a player
-   * command is accepted is decided by `activationMode` in the application layer
-   * (`QuizService`), exactly as the flow profile is. This table knows roles and
-   * command types, nothing else.
+   * THE JOKER IS THE OPERATOR'S BUTTON, in both directions.
+   *
+   * A player asks out loud - "I'll take the 50:50" - and the operator triggers
+   * it. Nobody else: not the moderator, who stands next to the players and
+   * would be guessing, and not a player client, which is why the joker exists
+   * only where an operator does. Restoring is the correction of a misclick and
+   * belongs to the same desk; a player who could hand their own joker back
+   * would have an unlimited one.
    */
-  USE_LIFELINE: ['operator', 'player'],
-  /*
-   * Restoring is administrative and stays with the operator in every
-   * integration. A player who could give their own lifeline back would have an
-   * unlimited one.
-   */
-  RESTORE_LIFELINE: ['operator'],
+  USE_JOKER: ['operator'],
+  RESTORE_JOKER: ['operator'],
   ADJUST_SCORE: ['operator'],
   /*
    * `player` ist die Selbstbedienung: Dort haelt die Loesung an, bis jemand
@@ -332,19 +329,17 @@ export const commandRejectionReasons = [
   'answer-not-logged',
   /** Diese Option wurde in einem frueheren Versuch schon als falsch bewertet. */
   'option-already-answered',
-  /* ---- Lifelines: one reason per way a lifeline can be refused ---- */
-  /** This installation does not offer lifelines at all. */
-  'lifelines-disabled',
-  /** Lifelines are offered, but not this type. */
-  'lifeline-type-disabled',
-  /** This player has already spent this lifeline in this game. */
-  'lifeline-already-used',
-  /** Nothing to restore - this lifeline was never spent. */
-  'lifeline-not-used',
-  /** The current question cannot carry this lifeline (type or option count). */
-  'lifeline-not-applicable',
-  /** Another 50:50 is already in effect on the shared stage. */
-  'lifeline-effect-active',
+  /* ---- The joker: one reason per way it can be refused ---- */
+  /** This player has already spent their joker in this game. */
+  'joker-already-used',
+  /** Nothing to hand back - this player still holds their joker. */
+  'joker-not-used',
+  /** The current question cannot carry a 50:50 (type or option count). */
+  'joker-not-applicable',
+  /** A 50:50 is already in effect on this question. */
+  'joker-effect-active',
+  /** This player cannot answer the current question, so a hint is pointless. */
+  'joker-player-not-answering',
   /** No such player in this game. */
   'unknown-player',
   'no-candidate-question',

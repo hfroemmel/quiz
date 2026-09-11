@@ -49,25 +49,15 @@ function App() {
      * einrichten kann:
      *   ?audience=adults   Zielgruppe des Geraets
      *   ?idle=120          Leerlauf-Aufsicht in Sekunden
-     *   ?lifelines=1       Joker anbieten, von den Spielern selbst ausgeloest
-     *
-     * Die Joker sind im Kiosk AUS. Der Schalter hier ist der Nachweis, dass
-     * eine lokale Aufstellung sie allein ueber Konfiguration einschaltet - ohne
-     * eine Zeile Code im Spiel.
      */
     case '/play': {
       const params = new URLSearchParams(window.location.search)
       const audience = params.get('audience') ?? 'adults'
       const idleSeconds = Number(params.get('idle'))
-      const lifelines =
-        params.get('lifelines') === '1'
-          ? { enabled: true, types: { fiftyFifty: true, audience: true }, activationMode: 'player' as const }
-          : undefined
       return (
         <TouchGeraet
           audience={audience}
           {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
-          {...(lifelines === undefined ? {} : { lifelines })}
         />
       )
     }

@@ -8,7 +8,7 @@
  */
 import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content'
 import type { AttemptOutcome, GamePhase, PlayerId } from './state'
-import type { LifelineType } from './lifelines'
+import type { JokerType } from './joker'
 import type { ActorRole, CommandType } from './commands'
 
 /** Szenen des Buehnenscreens. Sie werden aus der Phase abgeleitet, nicht frei gesetzt. */
@@ -88,9 +88,16 @@ export interface PublicSolution {
   imageUrl?: string
 }
 
-/** One lifeline of one player, as far as anybody watching may know. */
-export interface PublicLifelineStatus {
-  type: LifelineType
+/**
+ * The joker of one player, as far as anybody watching may know.
+ *
+ * DELIBERATELY WITHOUT THE TYPE. The stage shows one neutral card, and it shows
+ * it while the joker is there; which variant it was spent as is a matter for the
+ * operator's desk, where it stays readable. Putting the type here would invite a
+ * screen that announces "50:50 used" - and that is a piece of information the
+ * room is told out loud, not shown as an icon.
+ */
+export interface PublicJokerStatus {
   used: boolean
 }
 
@@ -103,14 +110,14 @@ export interface PublicScore {
   /** Fuer diese Frage gesperrt (zweite Chance liegt beim anderen Spieler). */
   locked: boolean
   /**
-   * Lifelines of this player - ONLY where the installation offers them.
+   * The joker of this player - ONLY in a game that has jokers.
    *
-   * They sit on the score and not next to it because that is where they are
-   * shown: two small dots in the player's own area of the scoreboard. Missing
-   * means "this installation has no lifelines", and a client that finds nothing
-   * here renders exactly what it rendered before the feature existed.
+   * It sits on the score and not next to it because that is where it is shown:
+   * the card leans against this player's own scoreboard. Missing means "this
+   * game has no jokers" - a kiosk or touch game - and a client that finds
+   * nothing here renders exactly what it rendered before the feature existed.
    */
-  lifelines?: PublicLifelineStatus[]
+  joker?: PublicJokerStatus
 }
 
 /** Alles, was der Buehnenscreen zum synchronen Rendern der Enthuellung braucht. */
@@ -179,7 +186,7 @@ export interface PublicQuizViewModel {
    * The 50:50 in effect on the current question, if any.
    *
    * The hidden ids are here as well as on the options themselves: the options
-   * say WHAT to dim, this says WHOSE lifeline did it - which is what an
+   * say WHAT to dim, this says WHOSE joker did it - which is what an
    * announcement over the stage needs, and what lets a test assert that two
    * clients really did receive the same pair. No question id: that is
    * moderator-only information everywhere else, and it stays that way.
@@ -279,22 +286,33 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
 }
 
 /**
- * One lifeline button in the operator's view, ready to render.
+ * The joker area of ONE player in the operator's view, ready to render.
  *
- * `canUse` and `blockedReason` come from the SAME rule function the engine uses
- * (`evaluateLifelineUse`), so a button that looks available is one the server
+ * One entry per player, not per variant: there is one joker, and the two
+ * buttons on it are two ways of spending the same thing. `canUseFiftyFifty`,
+ * `canUseAudience` and the reasons come from the SAME rule function the engine
+ * uses (`evaluateJokerUse`), so a button that looks available is one the server
  * will accept, and a disabled one carries the sentence explaining why. The
  * operator client must not re-derive any of this.
  */
-export interface OperatorLifelineControl {
+export interface OperatorJokerControl {
   playerId: PlayerId
   playerLabel: string
-  type: LifelineType
+  /** Spent? Then both buttons are dead and `usedType` says how. */
   used: boolean
-  canUse: boolean
+  usedType?: JokerType
+  usedAtQuestionId?: string
+  canUseFiftyFifty: boolean
+  canUseAudience: boolean
+  /**
+   * Plain text for the operator - why the 50:50 is unavailable. The 50:50 is
+   * the variant with conditions of its own (enough answers, nothing logged
+   * yet), so it is the one that needs a sentence; absent when it is available.
+   */
+  fiftyFiftyBlockedReason?: string
+  /** Why the audience joker is unavailable - the situation alone. */
+  audienceBlockedReason?: string
   canRestore: boolean
-  /** Plain text for the operator - why `canUse` is false. Absent when it is true. */
-  blockedReason?: string
 }
 
 export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
@@ -315,11 +333,10 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
     acceptedAnswerText: string[]
   }
   /**
-   * Every lifeline of every player, in a fixed order: player 1 before player 2,
-   * and within a player the canonical type order. Absent where the installation
-   * offers no lifelines - the operator then sees no lifeline area at all.
+   * One joker area per player, in player order. Absent in a game without
+   * jokers - the operator then sees no joker area at all.
    */
-  lifelines?: OperatorLifelineControl[]
+  jokers?: OperatorJokerControl[]
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
   /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */

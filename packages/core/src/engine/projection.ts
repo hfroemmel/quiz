@@ -35,17 +35,15 @@ import {
   fragenTextFuer,
   gueltigeSprache,
   oberflaechenTexte,
-  enabledLifelineTypes,
-  lifelinesOf,
-  normalizeLifelineConfig,
-  type LifelineConfig,
-  type OperatorLifelineControl,
+  jokerOf,
+  jokerTypes,
+  type OperatorJokerControl,
 } from '../contracts'
 import { activePlayerId } from './buzzer'
 import { allowedCommandsForRole } from './allowedCommands'
 import { attemptsForCurrentQuestion, determineResult, pendingAttempt, pointsForCorrectAnswer } from './scoring'
 import { revealElapsedMs } from './reveal'
-import { evaluateLifelineRestore, evaluateLifelineUse } from './lifelines'
+import { evaluateJokerRestore, evaluateJokerUse, gameHasJokers } from './joker'
 
 export interface ProjectionContext {
   nowMs: number
@@ -82,11 +80,6 @@ export interface ProjectionContext {
   gameCounts?: { audience: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
   /** Zeitpunkt, ab dem das Protokoll zaehlt. */
   statisticsSinceIso?: string
-  /**
-   * What this installation offers in the way of lifelines. Missing means none,
-   * and then no view model mentions them - see `contracts/lifelines.ts`.
-   */
-  lifelines?: LifelineConfig
 }
 
 /**
@@ -170,8 +163,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
         }
       : undefined
 
-  const lifelineConfig = normalizeLifelineConfig(ctx.lifelines)
-  const offeredLifelines = enabledLifelineTypes(lifelineConfig)
+  const hasJokers = gameHasJokers(state)
   const scores: PublicScore[] = state.players.map((player) => ({
     playerId: player.id,
     label: player.label,
@@ -179,15 +171,14 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     active: player.id === active,
     locked: player.lockedForCurrentQuestion,
     /*
-     * Only the types this installation offers, and only if it offers any: the
-     * field stays absent otherwise, so a client sees no lifeline area and
-     * nothing in its layout moves.
+     * Only in a game that has jokers - the field stays absent otherwise, so a
+     * kiosk client sees no joker anywhere and nothing in its layout moves.
+     *
+     * WITHOUT THE VARIANT. The stage shows one neutral card while the joker is
+     * there; how it was spent is told out loud in the hall and stays legible at
+     * the operator's desk.
      */
-    ...(offeredLifelines.length > 0
-      ? {
-          lifelines: offeredLifelines.map((type) => ({ type, used: lifelinesOf(player)[type].used })),
-        }
-      : {}),
+    ...(hasJokers ? { joker: { used: jokerOf(state.jokerByPlayer, player.id).status === 'used' } } : {}),
   }))
 
   const view: PublicQuizViewModel = {
@@ -196,11 +187,9 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     theme,
     question: publicQuestion,
     /*
-     * The running 50:50 - only while the question it belongs to is on screen,
-     * and only where lifelines are offered at all.
+     * The running 50:50 - only while the question it belongs to is on screen.
      */
-    ...(lifelineConfig.enabled &&
-    state.activeFiftyFifty &&
+    ...(state.activeFiftyFifty &&
     state.activeFiftyFifty.questionId === question?.id
       ? {
           activeFiftyFifty: {
@@ -274,7 +263,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
 export function projectPlayer(state: GameState | null, ctx: ProjectionContext): PlayerQuizViewModel {
   return {
     ...projectPublic(state, ctx),
-    allowedCommands: allowedCommandsForRole(state ?? null, 'player', { lifelines: normalizeLifelineConfig(ctx.lifelines) }),
+    allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
     catalog: buildPlayerCatalog(ctx, spracheFuer(state, ctx)),
   }
 }
@@ -355,11 +344,11 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
       : undefined,
     allowedCommands: [
       ...new Set([
-        ...allowedCommandsForRole(state ?? null, 'operator', { lifelines: normalizeLifelineConfig(ctx.lifelines) }),
+        ...allowedCommandsForRole(state ?? null, 'operator'),
         ...(ctx.additionalOperatorCommands ?? []),
       ]),
     ],
-    ...(operatorLifelines(state, ctx) ?? {}),
+    ...(operatorJokers(state) ?? {}),
     auditSummary: ctx.auditSummary ?? [],
     diagnostics: {
       contentVersion: ctx.contentVersion,
@@ -377,39 +366,43 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
 }
 
 /**
- * The operator's lifeline buttons - one per player and offered type.
+ * The operator's joker area - one entry per player.
  *
- * Every entry is answered by the rule functions in `lifelines.ts`, the same
- * ones the engine calls when the command arrives. That is the whole point of
- * this function: the operator client renders what it is told and decides
- * nothing, so a button can neither offer a refused action nor hide an allowed
- * one.
+ * Every field is answered by the rule functions in `joker.ts`, the same ones
+ * the engine calls when the command arrives. That is the whole point of this
+ * function: the operator client renders what it is told and decides nothing, so
+ * a button can neither offer a refused action nor hide an allowed one.
+ *
+ * BOTH VARIANTS ARE ASKED SEPARATELY, because they can differ: on a free-answer
+ * question the audience joker is available while the 50:50 is not. The reason
+ * travels with each of them.
  */
-function operatorLifelines(
-  state: GameState | null,
-  ctx: ProjectionContext,
-): { lifelines: OperatorLifelineControl[] } | undefined {
-  const config = normalizeLifelineConfig(ctx.lifelines)
-  const types = enabledLifelineTypes(config)
-  if (types.length === 0 || !state) return undefined
+function operatorJokers(state: GameState | null): { jokers: OperatorJokerControl[] } | undefined {
+  if (!gameHasJokers(state) || !state) return undefined
 
-  const controls: OperatorLifelineControl[] = []
-  for (const player of state.players) {
-    for (const type of types) {
-      const use = evaluateLifelineUse(state, config, player.id, type)
-      const restore = evaluateLifelineRestore(state, config, player.id, type)
-      controls.push({
-        playerId: player.id,
-        playerLabel: player.label,
-        type,
-        used: lifelinesOf(player)[type].used,
-        canUse: use.allowed,
-        canRestore: restore.allowed,
-        ...(use.allowed ? {} : { blockedReason: use.message }),
-      })
+  const controls: OperatorJokerControl[] = state.players.map((player) => {
+    const joker = jokerOf(state.jokerByPlayer, player.id)
+    const decisions = Object.fromEntries(
+      jokerTypes.map((type) => [type, evaluateJokerUse(state, player.id, type)]),
+    ) as Record<(typeof jokerTypes)[number], ReturnType<typeof evaluateJokerUse>>
+    const fiftyFifty = decisions.fiftyFifty
+    const audience = decisions.audience
+    return {
+      playerId: player.id,
+      playerLabel: player.label,
+      used: joker.status === 'used',
+      ...(joker.status === 'used' ? { usedType: joker.type } : {}),
+      ...(joker.status === 'used' && joker.usedAtQuestionId
+        ? { usedAtQuestionId: joker.usedAtQuestionId }
+        : {}),
+      canUseFiftyFifty: fiftyFifty.allowed,
+      canUseAudience: audience.allowed,
+      ...(fiftyFifty.allowed ? {} : { fiftyFiftyBlockedReason: fiftyFifty.message }),
+      ...(audience.allowed ? {} : { audienceBlockedReason: audience.message }),
+      canRestore: evaluateJokerRestore(state, player.id).allowed,
     }
-  }
-  return { lifelines: controls }
+  })
+  return { jokers: controls }
 }
 
 /* ------------------------------------------------------------------ *
