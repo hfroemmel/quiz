@@ -183,6 +183,26 @@ export interface PublicQuizViewModel {
   scene: PublicScene
   phase: GamePhase
   theme: PublicTheme
+  /**
+   * Die Quizart des laufenden Spiels, so wie der Server sie bestaetigt hat.
+   *
+   * Sie fehlt, solange keines laeuft - und bei Spielen, die ohne Quizauswahl
+   * beginnen. Die Buehne LIEST sie und leitet nichts daraus ab: Theme und
+   * Fragenpool stehen bereits aufgeloest im Rest dieser Ansicht.
+   */
+  quizId?: string
+  /**
+   * Die Quizangebote des Hauses - Kennung, Name, Untertitel, sonst nichts.
+   *
+   * WOFUER: Die Buehne zeigt vor dem ersten Spiel, WAS es hier zu spielen gibt.
+   * Das ist eine Ankuendigung an den Saal und keine Auswahl: Es gibt keinen
+   * Befehl, der aus dieser Liste folgt, und welches Quiz laeuft, entscheidet
+   * ausschliesslich das Pult.
+   *
+   * Zielgruppe, Pools, Presets und Theme stehen ABSICHTLICH nicht darin. Sie
+   * waeren Konfiguration, und die Buehne soll keine ableiten koennen.
+   */
+  quizOffers: { id: string; label: string; subtitle?: string }[]
   question?: PublicQuestion
   /**
    * Rubrik der NAECHSTEN Frage - ausschliesslich fuer den Zwischenscreen.
@@ -429,6 +449,25 @@ export interface CatalogViewModel {
     skin?: ThemeSkin
     startVisualUrl?: string
     allowedPresetIds: string[]
+  }[]
+  /**
+   * Die Quizarten, die am Pult zur Wahl stehen - fertig aufgeloest.
+   *
+   * `supportsDifficulty` ist HIER schon entschieden (`quizSupportsDifficulty`),
+   * damit kein Client die Regel nachbaut. Ein Formular zeigt die
+   * Schwierigkeitswahl genau dann, wenn hier `true` steht.
+   */
+  quizzes: {
+    id: string
+    label: string
+    subtitle?: string
+    audienceId: string
+    themeId: string
+    poolIds?: string[]
+    /** Waehlbare Schwierigkeitsgrade in der Reihenfolge des Angebots. */
+    presetIds: string[]
+    supportsDifficulty: boolean
+    defaultPresetId: string
   }[]
   /** Waehlbare Fragenpools - "Saarbruecken" ist genau so einer. */
   pools: { id: string; label: string }[]

@@ -15,6 +15,7 @@ import type { Question, QuestionPatch, QuizPackage, RuntimeQuestion } from '../c
 import {
   poolForGame,
   repetitionKey,
+  resolveQuizMode,
   selectQuestionForSlot,
   shuffleOptionOrder,
   type Rng,
@@ -127,6 +128,13 @@ export class ContentService {
         const preset = config.presets.find((entry) => entry.id === presetId)
         return preset ? preset.slots.length : null
       },
+
+      /*
+       * DIE PRUEFUNG STEHT IN `resolveQuizMode` und nicht hier: Sie gilt auch
+       * fuer die Inhaltsvalidierung, und zwei Fassungen davon liefen
+       * auseinander. Dieser Port reicht nur die Konfiguration hinein.
+       */
+      quizFor: (quizId) => resolveQuizMode(config, quizId),
 
       selectForSlot: (request: SlotRequest): SlotResponse => {
         const audienceConfig = config.audiences.find((entry) => entry.id === request.audience)

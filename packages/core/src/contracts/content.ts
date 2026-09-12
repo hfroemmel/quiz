@@ -340,6 +340,73 @@ export const questionPoolSchema = z.object({
 })
 export type QuestionPool = z.infer<typeof questionPoolSchema>
 
+/**
+ * Eine QUIZART - das eine Angebot, das am Pult gewaehlt wird.
+ *
+ * Zielgruppe, Fragenpool, Theme und die Schwierigkeitswahl sind seit Schema v2
+ * getrennte Achsen. Eine Quizart verbindet sie, ohne sie zu verschmelzen: Sie
+ * nennt jede einzeln, als Wert, an genau dieser Stelle. "Bremen-Quiz" ist damit
+ * eine Zeile in der Konfiguration und keine Bedingung im Code - wer es umhaengt,
+ * aendert die Zeile und nichts sonst.
+ *
+ * WARUM DAS THEME HIER UND NICHT NUR AN DER ZIELGRUPPE STEHT: Zwei Quizarten
+ * duerfen dieselbe Zielgruppe und verschiedene Gestaltung haben. Die Zielgruppe
+ * behaelt ihr Theme fuer alles, was ohne Quizart startet (Geraet, Kiosk); laeuft
+ * ein Spiel MIT Quizart, gilt deren Theme. Es gibt also zu jedem Zeitpunkt genau
+ * eine Zuordnung, nicht zwei konkurrierende.
+ *
+ * DIE SCHWIERIGKEITSWAHL STEHT NICHT ALS SCHALTER DA, sondern folgt aus
+ * `presetIds`: Ein einziges Preset heisst, dass es nichts zu waehlen gibt
+ * (`quizSupportsDifficulty`). Ein zusaetzliches Feld "unterstuetzt Schwierigkeit"
+ * koennte der Liste widersprechen, und dann waere unklar, welches gilt.
+ */
+export const quizModeSchema = z.object({
+  id: idSchema,
+  label: z.string().min(1),
+  labels: uebersetzteBeschriftung.optional(),
+  /** Zweite Zeile der Angebotskarte - worum es in diesem Quiz geht. */
+  subtitle: z.string().min(1).optional(),
+  subtitles: uebersetzteBeschriftung.optional(),
+  /** Zielgruppe, in der dieses Quiz spielt. */
+  audienceId: idSchema,
+  /** Gestaltungswelt dieses Quiz. Muss es in `themes` geben. */
+  themeId: idSchema,
+  /** Fragenpools. Ohne Angabe spielen alle Pools der Zielgruppe mit. */
+  poolIds: z.array(idSchema).min(1).optional(),
+  /**
+   * Waehlbare Schwierigkeitsgrade, in der Reihenfolge, in der sie angeboten
+   * werden. Genau ein Eintrag heisst: keine Auswahl, dieses Preset gilt.
+   */
+  presetIds: z.array(idSchema).min(1),
+  /**
+   * Voreinstellung der Schwierigkeitswahl. Ohne Angabe der erste Eintrag.
+   *
+   * Sie steht getrennt von der Reihenfolge, weil beides verschiedene Fragen
+   * beantwortet: Angeboten wird von leicht nach schwer, voreingestellt ist die
+   * Stufe, mit der das Haus ueblicherweise spielt.
+   */
+  defaultPresetId: idSchema.optional(),
+})
+export type QuizMode = z.infer<typeof quizModeSchema>
+
+/**
+ * Bietet diese Quizart eine Schwierigkeitswahl an?
+ *
+ * EINZIGE QUELLE DIESER ENTSCHEIDUNG - Formular, Server und Validierung fragen
+ * hier. Eine Stufe zur Wahl zu stellen, die es nur einmal gibt, waere ein leeres
+ * Auswahlfeld vor dem Start.
+ */
+export function quizSupportsDifficulty(quiz: Pick<QuizMode, 'presetIds'>): boolean {
+  return quiz.presetIds.length > 1
+}
+
+/** Die voreingestellte Stufe einer Quizart - ohne eigene Angabe die erste. */
+export function defaultPresetIdOf(quiz: Pick<QuizMode, 'presetIds' | 'defaultPresetId'>): string {
+  const named = quiz.defaultPresetId
+  if (named && quiz.presetIds.includes(named)) return named
+  return quiz.presetIds[0]!
+}
+
 export const categorySchema = z.object({
   id: idSchema,
   label: z.string().min(1),
@@ -362,6 +429,15 @@ export const quizConfigSchema = z.object({
   themes: z.array(quizThemeSchema).min(1),
   presets: z.array(difficultyPresetSchema).min(1),
   audiences: z.array(audienceConfigSchema).min(1),
+  /**
+   * Die Quizarten, die am Pult zur Wahl stehen (siehe `quizModeSchema`).
+   *
+   * OPTIONAL, weil nicht jede Aufstellung sie braucht: Ein Kioskgeraet startet
+   * mit Zielgruppe und Preset und kennt gar keine Quizarten. Fehlt die Liste,
+   * gibt es am Pult nichts auszuwaehlen - und das ist eine Aussage der
+   * Konfiguration, kein Programmfehler.
+   */
+  quizzes: z.array(quizModeSchema).optional(),
   /**
    * Sprachen, in denen dieses Quiz gespielt werden kann.
    *

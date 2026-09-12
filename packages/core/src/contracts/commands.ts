@@ -36,14 +36,34 @@ const playerCountSchema = z.union(
 export const commandSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('START_GAME'),
+    /**
+     * Die gewaehlte QUIZART (siehe `quizModeSchema`).
+     *
+     * ENTWEDER SIE ODER `audience` - niemals beides. Die Quizart nennt
+     * Zielgruppe, Pools und Theme bereits; kaeme daneben noch eine Zielgruppe
+     * herein, gaebe es zwei Angaben, die sich widersprechen koennen. Der Server
+     * weist eine solche Mischung ab.
+     *
+     * Das Pult startet ueber die Quizart. Geraete ohne Quizauswahl - Kiosk,
+     * Touchgeraet, eingebettetes Quiz - nennen weiterhin Zielgruppe und Preset.
+     */
+    quizId: z.string().min(1).optional(),
     /** Zielgruppe des Spiels (frueher `quizModeId`). */
-    audience: z.string().min(1),
+    audience: z.string().min(1).optional(),
     /**
      * Fragenpools, aus denen gezogen wird. Ohne Angabe wird nicht nach Pool
-     * gefiltert - alle Pools der Zielgruppe spielen mit.
+     * gefiltert - alle Pools der Zielgruppe spielen mit. Zu einer Quizart
+     * gehoeren die Pools der Konfiguration; hier waeren sie eine zweite Quelle.
      */
     poolIds: z.array(z.string().min(1)).min(1).optional(),
-    presetId: z.string().min(1),
+    /**
+     * Der Schwierigkeitsgrad als Preset.
+     *
+     * Zu einer Quizart gehoert er nur, wenn sie eine Wahl anbietet
+     * (`quizSupportsDifficulty`); sonst weist der Server ihn ab. Ohne Quizart
+     * ist er Pflicht.
+     */
+    presetId: z.string().min(1).optional(),
     /**
      * Ohne Angabe wird ein Duell gestartet. Der Buehnenbetrieb laesst das Feld
      * deshalb weg; das Einzelspiel gibt es ausdruecklich an.
@@ -319,6 +339,14 @@ export const commandRejectionReasons = [
   'buzzer-already-taken',
   'wrong-flow-profile',
   'no-pending-attempt',
+  /* ---- Der Start ueber eine Quizart ---- */
+  /** Die genannte Quizart steht nicht in der Konfiguration - oder unvollstaendig. */
+  'unknown-quiz',
+  /**
+   * Der Schwierigkeitsgrad passt nicht zur Quizart: Er fehlt, gehoert nicht zu
+   * ihr, oder sie bietet gar keine Wahl an und bekommt trotzdem einen.
+   */
+  'invalid-difficulty',
   'attempt-already-resolved',
   'answer-not-logged',
   /** Diese Option wurde in einem frueheren Versuch schon als falsch bewertet. */

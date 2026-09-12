@@ -10,7 +10,7 @@ Die redaktionellen Inhalte leben in
 ```text
 content/dist/
   manifest.json     Version, Zeitstempel, Medienliste, Pruefsumme
-  config.json       Zielgruppen, Pools, Presets, Themes, Kategorien, Schwierigkeiten
+  config.json       Quizarten, Zielgruppen, Pools, Presets, Themes, Kategorien, Schwierigkeiten
   questions.json    alle Fragen, nach ID sortiert
   assets.json       Medienverzeichnis
   assets/           Bilder und Videos
@@ -156,7 +156,8 @@ je Preset bleibt gleich - ein Platz, der nur Videofragen zuliess, wird zum
 freien Platz. Beide Profile werden getrennt validiert; das gebaute Paket nennt
 sein Profil im Manifest.
 
-Welche Pools ein Spiel zieht, entscheidet `START_GAME` (`audience`, optional
-`poolIds`); ohne Angabe spielen alle Pools mit. Das Quizpaket traegt seit
+Welche Pools ein Spiel zieht, entscheidet `START_GAME` - entweder ueber die
+Quizart (`quizId`, die Pools stehen dann in `quizzes`) oder direkt (`audience`,
+optional `poolIds`); ohne Angabe spielen alle Pools mit. Das Quizpaket traegt seit
 Schema v2 KEINE Farben und Schriften mehr - Darstellung ist Sache des
 Gastgebers (`quiz-themes`).

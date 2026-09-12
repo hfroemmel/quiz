@@ -39,6 +39,19 @@ export function beschriftung(
 }
 
 /**
+ * Untertitel in der gewuenschten Sprache - oder der des Originals.
+ *
+ * Getrennt von `beschriftung`, weil es ihn geben darf oder nicht: Eine Karte
+ * ohne zweite Zeile ist kein Fehler, eine ohne Namen schon.
+ */
+export function untertitel(
+  eintrag: { subtitle?: string; subtitles?: Record<string, string> },
+  locale: string | undefined,
+): string | undefined {
+  return (locale ? eintrag.subtitles?.[locale] : undefined) ?? eintrag.subtitle
+}
+
+/**
  * Die Frage in der gewuenschten Sprache.
  *
  * Zurueck kommt eine Frage, keine Textsammlung: Wer sie weiterreicht, muss
