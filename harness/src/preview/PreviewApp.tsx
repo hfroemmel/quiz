@@ -416,7 +416,7 @@ function buildSampleView(input: {
                 sequenceId: 'joker-preview',
                 playerId: 'player-1' as const,
                 startedAtServerMs: serverTimeMs,
-                revealCompleteMs: 1_500,
+                revealAtMs: 820,
                 type: 'fiftyFifty' as const,
               },
             }

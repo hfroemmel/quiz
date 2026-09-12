@@ -11,7 +11,7 @@ import {
   activeJokerSequence,
   gameTiming,
   jokerOf,
-  jokerRevealCompleteMs,
+  jokerRevealAtMs,
   jokerRules,
   roleMayIssue,
   type PlayerId,
@@ -104,7 +104,7 @@ function running(harness: Harness) {
 
 /** Lets the reveal run out - the server turns the card, not the client. */
 function awaitReveal(harness: Harness): void {
-  harness.advance(jokerRevealCompleteMs)
+  harness.advance(jokerRevealAtMs)
 }
 
 /** The whole draw, up to the effect being applied. */
@@ -292,7 +292,7 @@ describe('the coin is the server', () => {
     expect(flying.phase).toBe('drawing')
     expect(flying.type).toBeUndefined()
     expect(flying.playerId).toBe('player-1')
-    expect(flying.revealCompleteMs).toBe(jokerRevealCompleteMs)
+    expect(flying.revealAtMs).toBe(jokerRevealAtMs)
     expect(harness.publicView().visibleOptions?.some((option) => option.eliminated)).toBe(false)
 
     awaitReveal(harness)
@@ -312,7 +312,7 @@ describe('the coin is the server', () => {
 
     expect(running(harness).phase).toBe('drawing')
     // One millisecond short of the reveal it is still turning.
-    harness.advance(jokerRevealCompleteMs - 1)
+    harness.advance(jokerRevealAtMs - 1)
     expect(running(harness).phase).toBe('drawing')
     harness.advance(1)
     expect(running(harness).phase).toBe('revealed')

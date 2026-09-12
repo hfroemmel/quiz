@@ -36,7 +36,7 @@ import {
   gueltigeSprache,
   oberflaechenTexte,
   jokerOf,
-  jokerRevealCompleteMs,
+  jokerRevealAtMs,
   type OperatorJokerControl,
   type PublicJokerDraw,
 } from '../contracts'
@@ -403,7 +403,7 @@ function publicJokerDraw(
       sequenceId: sequence.sequenceId,
       playerId: sequence.playerId,
       startedAtServerMs: Date.parse(sequence.startedAt),
-      revealCompleteMs: jokerRevealCompleteMs,
+      revealAtMs: jokerRevealAtMs,
       ...(sequence.phase === 'drawing' ? {} : { type: sequence.type }),
     },
   }

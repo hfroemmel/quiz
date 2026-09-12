@@ -21,7 +21,7 @@ import {
   isChoiceQuestion,
   isImageReveal,
   isSelfServiceAnswerable,
-  jokerRevealCompleteMs,
+  jokerRevealAtMs,
   jokerTypeLabel,
   playerIds,
   scoringRules,
@@ -545,7 +545,7 @@ function drawJoker(work: Draft): EngineResult {
    * is in. `still` keeps the scene from rebuilding - the draw happens in the
    * overlay above it, and the question underneath must stay exactly as it was.
    */
-  work.scheduleTimedTransition(work.phase, jokerRevealCompleteMs, JOKER_REVEAL_TRANSITION, { still: true })
+  work.scheduleTimedTransition(work.phase, jokerRevealAtMs, JOKER_REVEAL_TRANSITION, { still: true })
 
   /*
    * `event` NAMES the domain event; the rest is its payload. There is no event

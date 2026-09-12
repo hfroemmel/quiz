@@ -291,15 +291,16 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
  *
  * `startedAtServerMs` is the same clock as `serverTimeMs`, so a client that
  * joins mid-flight can compute where the card should be instead of starting the
- * animation over. `revealCompleteMs` is how long the whole draw takes, handed
- * down rather than duplicated in a stylesheet.
+ * animation over. `revealAtMs` is how long the flight takes, handed down rather
+ * than duplicated in a stylesheet.
  */
 export interface PublicJokerDraw {
   phase: Exclude<JokerSequence['phase'], 'idle'>
   sequenceId: string
   playerId: PlayerId
   startedAtServerMs: number
-  revealCompleteMs: number
+  /** When the card reaches the middle - the turn starts from there. */
+  revealAtMs: number
   /** What came out - present from `revealed` on, never before. */
   type?: JokerType
 }

@@ -36,7 +36,7 @@ das vor dieser Funktion gespeichert wurde. Genau das prueft
 ## Der Ablauf
 
 ```
-                 DRAW_JOKER              Server, nach 1500 ms
+                 DRAW_JOKER              Server, nach 820 ms
 verfuegbar  ────────────────►  drawing  ────────────────────►  revealed
                                                                   │
                                                    CONTINUE_JOKER │
@@ -51,10 +51,15 @@ Spielzustand. Kein spaeterer Schritt und kein Client wuerfelt noch.
 
 Der Schritt `drawing -> revealed` gehoert ebenfalls dem Server: Er plant ihn als
 zeitgesteuerten Uebergang ein (`pendingTransition`, dieselbe Mechanik wie die
-Feedback-Animation) und schaltet nach `jokerRevealCompleteMs` selbst um. Deshalb
-findet ein Client, der mitten in der Ziehung dazukommt, denselben Zustand wie
-alle anderen - und deshalb erscheint der Knopf "Weiter" erst, wenn die Karte
-wirklich liegt.
+Feedback-Animation) und schaltet nach `jokerRevealAtMs` selbst um - also genau
+dann, wenn die Karte in der Mitte angekommen ist. Deshalb findet ein Client, der
+mitten in der Ziehung dazukommt, denselben Zustand wie alle anderen.
+
+**Die Drehung kommt danach, nicht davor.** Waehrend `drawing` kennt kein Client
+den Jokertyp (siehe unten) - eine Karte, die sich vorher dreht, zeigt eine leere
+Rueckseite und traegt das Ergebnis hinterher nach. Der Snapshot mit dem Ergebnis
+ist deshalb derselbe, der die Drehung startet: kein Timer im Client, nichts, was
+auseinanderlaufen koennte.
 
 ## Commands
 
@@ -254,6 +259,7 @@ Der Ablauf, alle Dauern aus `jokerDrawTiming` im Kern:
 | Abheben | 120 ms | Ebene blendet ein, Frage und Antworten dimmen und werden weichgezeichnet, die kleine Karte verschwindet |
 | Flug | 580 ms | Die Karte fliegt in einem Bogen von ihrer **gemessenen** Position in die Mitte, richtet sich von der Neigung auf `0deg` auf und waechst auf Kartengroesse |
 | Einrasten | 120 ms | Kurzes Ueberschwingen auf `scale(1.03)`, dann `scale(1)` |
+| *(Server meldet `revealed`)* | | Erst jetzt kennt der Client den Jokertyp |
 | Drehen | 680 ms | Die Karte dreht um die senkrechte Achse; bei 90 Grad wechselt das Bild |
 
 **Der Start ist gemessen, nicht gesetzt.** Die Komponente liest die Position der
@@ -270,10 +276,10 @@ Zeichen (`joker-fifty-fifty-icon.svg` / `joker-audience-icon.svg`, als Maske
 ueber der Textfarbe) und den Namen als Wort.
 
 **Fortsetzen statt neu anfangen:** Jede Animation startet mit einem negativen
-Versatz, der aus `startedAtServerMs` und der Serveruhr berechnet wird. Ein
-Buehnenfenster, das mitten im Flug neu laedt, sieht die Karte dort, wo sie
-gehoert; eines, das erst bei `revealed` dazukommt, sieht sofort die
-aufgedeckte Seite.
+Versatz, der aus `startedAtServerMs`, `revealAtMs` und der Serveruhr berechnet
+wird. Ein Buehnenfenster, das mitten im Flug neu laedt, sieht die Karte dort, wo
+sie gehoert; eines, das mitten in der Drehung dazukommt, steigt in die Drehung
+ein, statt sie von vorn zu beginnen.
 
 Die aufgedeckte Karte bleibt **unbegrenzt** stehen. Kein automatisches
 Ausblenden - der Operator entscheidet. Mit `CONTINUE_JOKER` verkleinert sie sich
