@@ -291,15 +291,16 @@ export interface ModeratorQuizViewModel extends PublicQuizViewModel {
  *
  * `startedAtServerMs` is the same clock as `serverTimeMs`, so a client that
  * joins mid-flight can compute where the card should be instead of starting the
- * animation over. `revealCompleteMs` is how long the whole draw takes, handed
- * down rather than duplicated in a stylesheet.
+ * animation over. `revealAtMs` is how long the flight takes, handed down rather
+ * than duplicated in a stylesheet.
  */
 export interface PublicJokerDraw {
   phase: Exclude<JokerSequence['phase'], 'idle'>
   sequenceId: string
   playerId: PlayerId
   startedAtServerMs: number
-  revealCompleteMs: number
+  /** When the card reaches the middle - the turn starts from there. */
+  revealAtMs: number
   /** What came out - present from `revealed` on, never before. */
   type?: JokerType
 }
@@ -319,6 +320,13 @@ export interface OperatorJokerControl {
   canDraw: boolean
   /** Plain text for the operator - why not. Absent when it can. */
   blockedReason?: string
+  /**
+   * The only variant this question can produce, where there is only one.
+   *
+   * Absent whenever both are possible - which is the normal case, and then the
+   * desk must not suggest that anything is known in advance.
+   */
+  onlyType?: JokerType
   /** Whose joker the draw would spend, as far as that is decided. */
   playerId?: PlayerId
   playerLabel?: string

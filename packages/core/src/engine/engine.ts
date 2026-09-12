@@ -21,7 +21,7 @@ import {
   isChoiceQuestion,
   isImageReveal,
   isSelfServiceAnswerable,
-  jokerRevealCompleteMs,
+  jokerRevealAtMs,
   jokerTypeLabel,
   playerIds,
   scoringRules,
@@ -57,6 +57,7 @@ import {
 import {
   JOKER_REVEAL_TRANSITION,
   drawJokerType,
+  drawableJokerTypes,
   drawableOptionIds,
   evaluateJokerContinue,
   evaluateJokerDraw,
@@ -509,7 +510,7 @@ function drawJoker(work: Draft): EngineResult {
    * client - ever draws again. The eliminated ids exist from this moment even
    * though nobody may see them until the card has turned.
    */
-  const type = drawJokerType(work.ctx.random ?? Math.random)
+  const type = drawJokerType(work.ctx.random ?? Math.random, drawableJokerTypes(state))
   const eliminatedOptionIds =
     type === 'fiftyFifty'
       ? pickEliminatedOptions({
@@ -545,7 +546,7 @@ function drawJoker(work: Draft): EngineResult {
    * is in. `still` keeps the scene from rebuilding - the draw happens in the
    * overlay above it, and the question underneath must stay exactly as it was.
    */
-  work.scheduleTimedTransition(work.phase, jokerRevealCompleteMs, JOKER_REVEAL_TRANSITION, { still: true })
+  work.scheduleTimedTransition(work.phase, jokerRevealAtMs, JOKER_REVEAL_TRANSITION, { still: true })
 
   /*
    * `event` NAMES the domain event; the rest is its payload. There is no event

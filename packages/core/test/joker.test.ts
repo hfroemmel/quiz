@@ -10,8 +10,9 @@ import { describe, expect, it } from 'vitest'
 import {
   activeJokerSequence,
   gameTiming,
+  jokerTypes,
   jokerOf,
-  jokerRevealCompleteMs,
+  jokerRevealAtMs,
   jokerRules,
   roleMayIssue,
   type PlayerId,
@@ -104,7 +105,7 @@ function running(harness: Harness) {
 
 /** Lets the reveal run out - the server turns the card, not the client. */
 function awaitReveal(harness: Harness): void {
-  harness.advance(jokerRevealCompleteMs)
+  harness.advance(jokerRevealAtMs)
 }
 
 /** The whole draw, up to the effect being applied. */
@@ -248,10 +249,12 @@ describe('one joker per player', () => {
 describe('the coin is the server', () => {
   it('produces both outcomes from the injected source of chance', () => {
     // The boundary is exactly 0.5 - below it the 50:50, above it the audience.
-    expect(drawJokerType(() => 0)).toBe('fiftyFifty')
-    expect(drawJokerType(() => 0.49)).toBe('fiftyFifty')
-    expect(drawJokerType(() => 0.5)).toBe('audience')
-    expect(drawJokerType(() => 0.99)).toBe('audience')
+    expect(drawJokerType(() => 0, jokerTypes)).toBe('fiftyFifty')
+    expect(drawJokerType(() => 0.49, jokerTypes)).toBe('fiftyFifty')
+    expect(drawJokerType(() => 0.5, jokerTypes)).toBe('audience')
+    expect(drawJokerType(() => 0.99, jokerTypes)).toBe('audience')
+    // With one possible variant there is no coin, whatever chance would say.
+    expect(drawJokerType(() => 0, ['audience'])).toBe('audience')
   })
 
   it('draws a 50:50 with its eliminated answers in one go', () => {
@@ -292,7 +295,7 @@ describe('the coin is the server', () => {
     expect(flying.phase).toBe('drawing')
     expect(flying.type).toBeUndefined()
     expect(flying.playerId).toBe('player-1')
-    expect(flying.revealCompleteMs).toBe(jokerRevealCompleteMs)
+    expect(flying.revealAtMs).toBe(jokerRevealAtMs)
     expect(harness.publicView().visibleOptions?.some((option) => option.eliminated)).toBe(false)
 
     awaitReveal(harness)
@@ -312,7 +315,7 @@ describe('the coin is the server', () => {
 
     expect(running(harness).phase).toBe('drawing')
     // One millisecond short of the reveal it is still turning.
-    harness.advance(jokerRevealCompleteMs - 1)
+    harness.advance(jokerRevealAtMs - 1)
     expect(running(harness).phase).toBe('drawing')
     harness.advance(1)
     expect(running(harness).phase).toBe('revealed')
@@ -479,26 +482,22 @@ describe('the 50:50', () => {
     expect(options.some((option) => option.state === 'chosen')).toBe(false)
   })
 
-  it('refuses the draw on a question that cannot carry a 50:50', () => {
-    for (const [name, questions] of [
-      ['two answers', script(twoAnswers)],
-      ['no choice at all', script(pictureQuestion)],
-    ] as const) {
-      const harness = rig(questions, drawsAudience())
-      startGame(harness)
-      buzzIn(harness, 'player-1')
+  it('refuses the draw on a choice question that cannot carry a 50:50', () => {
+    const harness = rig(script(twoAnswers), drawsAudience())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
 
-      /*
-       * THE UNSUITABILITY IS FOUND BEFORE THE COIN, not after. Even a draw
-       * whose chance would have come out `audience` is refused - anything else
-       * would make the question's suitability part of the lottery.
-       */
-      const rejection = harness.expectReject({ type: 'DRAW_JOKER' })
-      expect(rejection.reason, name).toBe('joker-not-applicable')
-      expect(isUsed(harness, 'player-1'), name).toBe(false)
-      expect(sequence(harness)).toEqual({ phase: 'idle' })
-      expect(availableCommands(harness.state), name).not.toContain('DRAW_JOKER')
-    }
+    /*
+     * THE UNSUITABILITY IS FOUND BEFORE THE COIN, not after. Even a draw whose
+     * chance would have come out `audience` is refused: the player would get
+     * the lesser help because their question happened to be short - a lottery
+     * on top of a lottery.
+     */
+    const rejection = harness.expectReject({ type: 'DRAW_JOKER' })
+    expect(rejection.reason).toBe('joker-not-applicable')
+    expect(isUsed(harness, 'player-1')).toBe(false)
+    expect(sequence(harness)).toEqual({ phase: 'idle' })
+    expect(availableCommands(harness.state)).not.toContain('DRAW_JOKER')
   })
 
   it('states the number of answers it needs', () => {
@@ -537,6 +536,58 @@ describe('the 50:50', () => {
 
     expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('answer-not-logged')
     expect(isUsed(harness, 'player-1')).toBe(false)
+  })
+})
+
+describe('a picture question', () => {
+  /*
+   * Ein Bilderkennen hat keine Auswahl: Das Bild IST die Frage, geantwortet
+   * wird frei. Halbieren laesst sich daran nichts - den Saal fragen schon.
+   */
+  it('can be drawn, and can only come out as the audience joker', () => {
+    // Die Zufallsquelle zeigt auf den 50:50 - und wird trotzdem nicht gefragt.
+    const harness = rig(script(pictureQuestion), drawsFiftyFifty())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    expect(availableCommands(harness.state)).toContain('DRAW_JOKER')
+    harness.dispatch({ type: 'DRAW_JOKER' })
+
+    expect(running(harness).type).toBe('audience')
+    expect(running(harness).eliminatedOptionIds).toBeUndefined()
+    expect(isUsed(harness, 'player-1')).toBe(true)
+  })
+
+  it('says at the desk that only the audience joker can come out', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    const joker = harness.operatorView().joker!
+    expect(joker.canDraw).toBe(true)
+    expect(joker.onlyType).toBe('audience')
+
+    /*
+     * Bei einer Auswahlfrage steht dort NICHTS - beide Ergebnisse sind
+     * moeglich, und das Pult darf nicht so tun, als waere etwas vorher bekannt.
+     */
+    const choice = rig()
+    startGame(choice)
+    buzzIn(choice, 'player-1')
+    expect(choice.operatorView().joker!.onlyType).toBeUndefined()
+  })
+
+  it('marks the answering player and leaves the reveal alone', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    buzzIn(harness, 'player-2')
+    drawJoker(harness)
+
+    const view = harness.publicView()
+    expect(view.jokerDraw).toMatchObject({ phase: 'applied', type: 'audience', playerId: 'player-2' })
+    // Die Enthuellung laeuft weiter, und die Antwort gehoert weiter Spieler 2.
+    expect(view.currentPlayer).toBe('player-2')
+    expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-2')
   })
 })
 

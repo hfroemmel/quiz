@@ -140,13 +140,25 @@ export const jokerDrawTiming = {
   flightMs: 580,
   /** Short overshoot and settle once the middle is reached. */
   settleMs: 120,
-  /** The card turning on its vertical axis. */
+  /**
+   * The card turning on its vertical axis - AFTER the server has revealed the
+   * variant, because that is what the back of the card shows.
+   */
   flipMs: 680,
 } as const
 
-/** When the card stands still and fully revealed, counted from `startedAt`. */
-export const jokerRevealCompleteMs =
-  jokerDrawTiming.liftOffMs + jokerDrawTiming.flightMs + jokerDrawTiming.settleMs + jokerDrawTiming.flipMs
+/**
+ * When the card is in the middle and the variant may be told, counted from
+ * `startedAt`.
+ *
+ * THE TURN COMES AFTER THIS, not before. The clients do not learn what was
+ * drawn while the card is flying (see `projection.ts`) - and a card that
+ * started turning before the variant arrived would show an empty back. So the
+ * server holds `drawing` exactly as long as the flight takes, and the turn
+ * begins with the snapshot that carries the result.
+ */
+export const jokerRevealAtMs =
+  jokerDrawTiming.liftOffMs + jokerDrawTiming.flightMs + jokerDrawTiming.settleMs
 
 /** A fresh supply: every player of a new game holds their joker. */
 export function createJokerStates(playerIds: readonly PlayerId[]): PlayerJokerStates {

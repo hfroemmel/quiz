@@ -6,6 +6,11 @@ der **Server** entscheidet mit 50:50, ob daraus ein **50:50-Joker** oder ein
 **Publikumsjoker** wird. Weder Spieler noch Operator koennen den Typ bestimmen -
 eine Wahl waere eine taktische Entscheidung, eine Ziehung ist ein Moment.
 
+Die Muenze faellt nur dort, wo beide Ergebnisse moeglich sind. Eine
+Bilderkennen-Frage hat keine Antworten zum Halbieren; dort ist der
+Publikumsjoker das einzig moegliche Ergebnis (siehe
+[Was diese Frage hergibt](#was-diese-frage-hergibt)).
+
 Zurueck kommt der Joker nur mit einem neuen Spiel. Nicht mit einer neuen Frage,
 nicht mit einer neuen Runde, nicht durch Neuladen, nicht durch einen Reconnect -
 und es gibt keinen Befehl, der eine Ziehung zurueckholt. Sie ist mit ihrem
@@ -36,7 +41,7 @@ das vor dieser Funktion gespeichert wurde. Genau das prueft
 ## Der Ablauf
 
 ```
-                 DRAW_JOKER              Server, nach 1500 ms
+                 DRAW_JOKER              Server, nach 820 ms
 verfuegbar  ────────────────►  drawing  ────────────────────►  revealed
                                                                   │
                                                    CONTINUE_JOKER │
@@ -51,10 +56,15 @@ Spielzustand. Kein spaeterer Schritt und kein Client wuerfelt noch.
 
 Der Schritt `drawing -> revealed` gehoert ebenfalls dem Server: Er plant ihn als
 zeitgesteuerten Uebergang ein (`pendingTransition`, dieselbe Mechanik wie die
-Feedback-Animation) und schaltet nach `jokerRevealCompleteMs` selbst um. Deshalb
-findet ein Client, der mitten in der Ziehung dazukommt, denselben Zustand wie
-alle anderen - und deshalb erscheint der Knopf "Weiter" erst, wenn die Karte
-wirklich liegt.
+Feedback-Animation) und schaltet nach `jokerRevealAtMs` selbst um - also genau
+dann, wenn die Karte in der Mitte angekommen ist. Deshalb findet ein Client, der
+mitten in der Ziehung dazukommt, denselben Zustand wie alle anderen.
+
+**Die Drehung kommt danach, nicht davor.** Waehrend `drawing` kennt kein Client
+den Jokertyp (siehe unten) - eine Karte, die sich vorher dreht, zeigt eine leere
+Rueckseite und traegt das Ergebnis hinterher nach. Der Snapshot mit dem Ergebnis
+ist deshalb derselbe, der die Drehung startet: kein Timer im Client, nichts, was
+auseinanderlaufen koennte.
 
 ## Commands
 
@@ -139,19 +149,37 @@ ausgeblendeten Antworten: entschieden beim Ziehen, uebertragen erst mit
 `applied`. Eine Buehne, die es frueher wuesste, koennte es verraten - und eine,
 der man vertrauen muesste, waere der falsche Entwurf.
 
-## Der 50:50
+## Was diese Frage hergibt
 
 Gezogen werden kann nur, wenn eine Frage laeuft, **die Antworten sichtbar sind**
 und sie noch nicht aufgeloest ist, ein Spieler **gueltig gebuzzert hat** und
 antworten darf, sein Joker noch verfuegbar ist, keine Antwort eingeloggt ist,
-keine andere Ziehung laeuft - und die Frage **fuer beide Ergebnisse geeignet**
-ist.
+keine andere Ziehung laeuft - und die Frage **wenigstens ein Ergebnis tragen
+kann**.
 
-Der letzte Punkt ist der Grund, warum die Eignung VOR der Muenze geprueft wird:
-Eine Frage, die keinen 50:50 tragen kann, ist gar nicht ziehbar. Sonst wuerde
+Welche das sind, sagt `drawableJokerTypes(state)`, und zwar VOR der Muenze:
+
+| Frage | Moeglich | Warum |
+| --- | --- | --- |
+| Auswahlfrage mit genug offenen Antworten | 50:50 **und** Publikum | der Normalfall, die Muenze entscheidet |
+| Bilderkennen und andere freie Fragen | nur Publikum | es gibt keine Antworten zum Halbieren; der Saal zu fragen ist dort die einzige Hilfe, die etwas bedeutet |
+| Auswahlfrage mit zu wenig offenen Antworten | nichts - nicht ziehbar | siehe unten |
+
+Bei genau einer Moeglichkeit **faellt die Muenze aus**: `drawJokerType` gibt den
+einen Typ zurueck und fasst `random` nicht an. Ein Wurf koennte sonst etwas
+ergeben, was die Frage nicht tragen kann. Das Pult sagt in diesem Fall vorher,
+was kommt (`view.joker.onlyType`) - der Operator soll es ansagen koennen und
+nicht hinterher erklaeren muessen.
+
+Die dritte Zeile ist der Grund, warum ueberhaupt vorher geprueft wird: Eine
+Auswahlfrage, die keinen 50:50 tragen kann, ist gar nicht ziehbar. Sonst wuerde
 man es nach dem Wurf merken und dem Spieler einen Publikumsjoker geben, weil
-seine Frage ungeeignet war - eine Lotterie auf der Lotterie. Am Pult ist der
-Knopf dann deaktiviert und nennt den Grund.
+seine Frage zu kurz war - eine Lotterie auf der Lotterie. Am Pult ist der Knopf
+dann deaktiviert und nennt den Grund. Bei einer Bilderfrage ist das etwas
+anderes: Dort ist von vornherein nur ein Ergebnis im Spiel, und niemand verliert
+eine Chance, die es nie gab.
+
+## Der 50:50
 
 Geeignet heisst: Auswahlfrage mit genau einer richtigen Antwort und mindestens
 **drei** offenen Antworten. Gezaehlt werden nur die **offenen**: Eine Antwort,
@@ -254,6 +282,7 @@ Der Ablauf, alle Dauern aus `jokerDrawTiming` im Kern:
 | Abheben | 120 ms | Ebene blendet ein, Frage und Antworten dimmen und werden weichgezeichnet, die kleine Karte verschwindet |
 | Flug | 580 ms | Die Karte fliegt in einem Bogen von ihrer **gemessenen** Position in die Mitte, richtet sich von der Neigung auf `0deg` auf und waechst auf Kartengroesse |
 | Einrasten | 120 ms | Kurzes Ueberschwingen auf `scale(1.03)`, dann `scale(1)` |
+| *(Server meldet `revealed`)* | | Erst jetzt kennt der Client den Jokertyp |
 | Drehen | 680 ms | Die Karte dreht um die senkrechte Achse; bei 90 Grad wechselt das Bild |
 
 **Der Start ist gemessen, nicht gesetzt.** Die Komponente liest die Position der
@@ -270,10 +299,10 @@ Zeichen (`joker-fifty-fifty-icon.svg` / `joker-audience-icon.svg`, als Maske
 ueber der Textfarbe) und den Namen als Wort.
 
 **Fortsetzen statt neu anfangen:** Jede Animation startet mit einem negativen
-Versatz, der aus `startedAtServerMs` und der Serveruhr berechnet wird. Ein
-Buehnenfenster, das mitten im Flug neu laedt, sieht die Karte dort, wo sie
-gehoert; eines, das erst bei `revealed` dazukommt, sieht sofort die
-aufgedeckte Seite.
+Versatz, der aus `startedAtServerMs`, `revealAtMs` und der Serveruhr berechnet
+wird. Ein Buehnenfenster, das mitten im Flug neu laedt, sieht die Karte dort, wo
+sie gehoert; eines, das mitten in der Drehung dazukommt, steigt in die Drehung
+ein, statt sie von vorn zu beginnen.
 
 Die aufgedeckte Karte bleibt **unbegrenzt** stehen. Kein automatisches
 Ausblenden - der Operator entscheidet. Mit `CONTINUE_JOKER` verkleinert sie sich
@@ -293,11 +322,15 @@ gebuzzert, sich aber noch nicht festgelegt.
 
 | Zustand | Was zu sehen ist |
 | --- | --- |
-| verfuegbar | `Joker ziehen` und daneben, fuer wen |
+| verfuegbar | `Joker ziehen` |
+| nur ein Ergebnis moeglich | derselbe Knopf, darunter `Bei dieser Frage kann nur der Publikumsjoker gezogen werden.` |
 | Frage ungeeignet | derselbe Knopf, deaktiviert, mit dem Grund darunter |
 | verbraucht | `Joker bereits eingesetzt` - kein Knopf |
 | `drawing` | `Joker wird gezogen …`, alle Antwort- und Aufloeseknoepfe sind weg |
-| `revealed` | `50:50-Joker gezogen` bzw. `Publikumsjoker gezogen` und `Weiter` |
+| `revealed` | `Weiter` |
+
+Das Ergebnis nennt das Pult **nicht**: Es steht gross auf der Buehne, und ein
+zweites Mal am Pult waere nur eine weitere Stelle, die es sagen muss.
 
 Es gibt **einen** Knopf. Kein 50:50 und kein Publikumsjoker zur Wahl, weil es
 nichts zu waehlen gibt. `Weiter` schickt `CONTINUE_JOKER` mit der `sequenceId`
@@ -346,9 +379,9 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 
 | Suite | Anzahl | Was |
 | --- | --- | --- |
-| `packages/core/test/joker.test.ts` | 35 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
+| `packages/core/test/joker.test.ts` | 38 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, die Bilderfrage mit nur einem moeglichen Ergebnis, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
 | `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
 | `test/e2e/joker.spec.ts` (quiz) | 3 | weggefallene Antworten bleiben an ihrem Platz und ohne Strich, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
-| `test/e2e/joker.spec.ts` (quiz-live) | 8 | der Knopf erst nach dem Buzzer und nur einer, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
+| `test/e2e/joker.spec.ts` (quiz-live) | 10 | der Knopf erst nach dem Buzzer und nur einer, die Bilderfrage mit dem Hinweis und dem Publikumsjoker, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
 
 Laufen mit `pnpm test` und `pnpm test:e2e` in beiden Repositories.

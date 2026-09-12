@@ -211,17 +211,36 @@ export function evaluateJokerDraw(
   }
 
   /*
-   * THE QUESTION HAS TO SUIT BOTH OUTCOMES.
-   *
-   * The coin is flipped after this check, so a question that cannot carry a
-   * 50:50 must not be drawable at all. The alternative would be to discover it
-   * afterwards and hand the player an audience joker because their question
-   * happened to be unsuitable - a lottery on top of a lottery.
+   * WHAT COULD COME OUT OF THIS QUESTION? If nothing, the draw is refused with
+   * the reason - and the coin is never flipped over a question that cannot
+   * carry the result.
    */
-  const suitability = evaluateFiftyFiftySuitability(state)
-  if (!suitability.allowed) return suitability
+  const possible = drawableJokerTypes(state)
+  if (possible.length === 0) return evaluateFiftyFiftySuitability(state)
 
   return { allowed: true, playerId }
+}
+
+/**
+ * The variants this question could produce.
+ *
+ * A FREE-ANSWER QUESTION CAN ONLY GIVE THE AUDIENCE JOKER. There is nothing to
+ * halve when there are no options - the picture is the question, and the answer
+ * is spoken. Asking the room is the only help that means anything there, so the
+ * draw stays open and the coin simply has one side.
+ *
+ * A CHOICE QUESTION WITH TOO FEW OPEN ANSWERS gives nothing at all. Removing a
+ * wrong answer from two would leave the correct one alone on screen, and an
+ * audience joker on a question the 50:50 cannot serve would be a lottery on top
+ * of a lottery: the player would get the lesser help because their question
+ * happened to be short. Such a question is not drawable - see
+ * `evaluateFiftyFiftySuitability` for the sentence the operator reads.
+ */
+export function drawableJokerTypes(state: GameState): JokerType[] {
+  const question = state.currentQuestion?.question
+  if (!question) return []
+  if (!isChoiceQuestion(question)) return ['audience']
+  return evaluateFiftyFiftySuitability(state).allowed ? [...jokerTypes] : []
 }
 
 /**
@@ -274,8 +293,14 @@ export function evaluateFiftyFiftySuitability(state: GameState): JokerDecision {
  * The order of `jokerTypes` decides which half is which, and the boundary is
  * exactly 0.5: `random() < 0.5` is the 50:50 joker, everything else the
  * audience joker.
+ *
+ * WITH ONE POSSIBLE VARIANT THERE IS NO COIN. A picture question can only
+ * produce the audience joker, and a draw that asked chance anyway would spend a
+ * number for nothing - and, worse, could come out as something the question
+ * cannot carry.
  */
-export function drawJokerType(random: () => number): JokerType {
+export function drawJokerType(random: () => number, possible: readonly JokerType[]): JokerType {
+  if (possible.length === 1) return possible[0]!
   return random() < 0.5 ? jokerTypes[0] : jokerTypes[1]
 }
 
