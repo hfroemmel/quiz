@@ -1,5 +1,97 @@
 # @hfroemmel/quiz-content
 
+## 0.13.0
+
+### Minor Changes
+
+- cef9ecc: Reveal the drawn joker when the card reaches the middle
+  
+  `jokerRevealCompleteMs` becomes `jokerRevealAtMs`, and
+  `PublicJokerDraw.revealCompleteMs` becomes `revealAtMs`. Both now mark the
+  moment the card arrives in the middle rather than the end of the whole draw.
+  
+  The reason is what a client may know: the variant is deliberately withheld while
+  the card is flying, so a card that turned before `revealed` arrived showed an
+  empty back and filled the result in afterwards. The server now holds `drawing`
+  for the flight alone, and the snapshot that carries the result is the one the
+  stage turns the card on.
+- 33b59de: Allow the joker on picture questions, where only the audience joker can come out
+  
+  A question without answer options has nothing for a 50:50 to halve, so until now
+  it refused the draw altogether. It is now drawable, and the only result it can
+  produce is the audience joker - asking the room is the one help that means
+  anything there.
+  
+  New `drawableJokerTypes(state)` says which variants a question can produce, and
+  `drawJokerType(random, possible)` takes that set: with a single possibility it
+  returns it and never touches `random`, so a draw cannot come out as something
+  the question cannot carry. `OperatorJokerControl.onlyType` carries the same
+  information to the desk before the draw.
+  
+  A choice question with too few open answers stays undrawable, with the reason it
+  had before, and the draw leaves the question itself untouched: neither command
+  writes to the reveal clock, the buzzer or the phase, so a picture question comes
+  back from the draw frozen exactly where the buzzer stopped it.
+- 7a110fb: Add the colours of the quiz selection, and the wordmark as a file
+  
+  The live quiz replaces its start form with a screen of five quiz cards, and two
+  things it needs belong in the packages rather than beside them.
+  
+  `quizSelectPalette` is the colour set of that screen, prefixed `quiz-select-` in
+  the generated palette. It is its own set on purpose: the operator shell is dark
+  and wants nothing, the stage belongs to the quiz that has not been chosen yet,
+  and the device start screen is a different design altogether.
+  
+  `brandWordmarkUrl` exports the bundled Bundestag wordmark as an address. The
+  stage header lays it over a colour area as a mask so it follows the ink of the
+  world; a host that simply needs the file - a selection screen on a light ground -
+  now gets the same one instead of keeping a second copy.
+- 00756de: Turn the video question into a one-way flow: an order out, nothing back
+  
+  The video used to be modelled twice - once in the browser that played it and once
+  in the server state, which carried a status, a position, a reported duration and
+  an error, and scheduled the end of the phase from that duration. Two truths about
+  one playback drift apart, and everything the operator saw about the stage was the
+  drifting copy.
+  
+  Now the server publishes an order and stops there:
+  
+  ```ts
+  interface VideoPlaybackRequest { questionId: string; requestId: string; requestedAt: string }
+  ```
+  
+  `START_VIDEO` carries the `questionId` it was clicked for and writes a fresh
+  `requestId`; the stage remembers the last one it executed and starts from zero on
+  any other. A second click is simply a new order. Nothing is reported back, and the
+  end of the video is no longer a server-side transition - the last frame stands
+  until the operator shows the question.
+  
+  Breaking changes for hosts:
+  
+  - The phases `video-ready`, `video-playing` and `video-ended` are one phase,
+    `video`.
+  - `START_VIDEO` now requires `{ questionId }`; `PAUSE_VIDEO`, `RESTART_VIDEO` and
+    `REPORT_VIDEO_STATUS` are gone, as is `gameTiming.videoTailMs`.
+  - `PublicVideoState` (status, position, duration, error) becomes
+    `PublicVideoRequest` (`questionId`, `requestId`).
+  - `SHOW_QUESTION_AFTER_VIDEO` is open to the `player` role, because a self-service
+    device has no operator to press it.
+  - `PublicQuestion` gained `id`, so a client can tell whether an order belongs to
+    what it is showing.
+  - `StageScreen`'s `onReport` prop is now `onCommand` - the stage does not report,
+    and in the operated flow it sends nothing at all.
+  
+  The empty host overlay pad no longer swallows pointer events, which it did over
+  anything laid out beside a scaled stage.
+
+### Patch Changes
+
+- Updated dependencies [cef9ecc]
+- Updated dependencies [33b59de]
+- Updated dependencies [7a110fb]
+- Updated dependencies [00756de]
+  - @hfroemmel/quiz-core@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
