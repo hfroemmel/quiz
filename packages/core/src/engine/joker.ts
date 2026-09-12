@@ -207,7 +207,7 @@ export function evaluateJokerDraw(
    */
   const pending = pendingAttempt(state)
   if (pending?.loggedOptionId || pending?.loggedManualVerdict) {
-    return deny('answer-not-logged', 'Es ist schon eine Antwort eingeloggt. Der Joker kommt davor.')
+    return deny('answer-not-logged', 'Antwort eingeloggt. Joker kommt davor.')
   }
 
   /*
@@ -266,7 +266,7 @@ export function evaluateFiftyFiftySuitability(state: GameState): JokerDecision {
   if (!isChoiceQuestion(question) || !question.correctOptionId) {
     return deny(
       'joker-not-applicable',
-      'Diese Frage ist für den Joker nicht geeignet: Der 50:50-Joker braucht eine Auswahlfrage mit genau einer richtigen Antwort.',
+      'Joker nicht anwendbar.',
     )
   }
 
