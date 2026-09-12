@@ -320,6 +320,13 @@ export interface OperatorJokerControl {
   canDraw: boolean
   /** Plain text for the operator - why not. Absent when it can. */
   blockedReason?: string
+  /**
+   * The only variant this question can produce, where there is only one.
+   *
+   * Absent whenever both are possible - which is the normal case, and then the
+   * desk must not suggest that anything is known in advance.
+   */
+  onlyType?: JokerType
   /** Whose joker the draw would spend, as far as that is decided. */
   playerId?: PlayerId
   playerLabel?: string

@@ -44,7 +44,7 @@ import { activePlayerId } from './buzzer'
 import { allowedCommandsForRole } from './allowedCommands'
 import { attemptsForCurrentQuestion, determineResult, pendingAttempt, pointsForCorrectAnswer } from './scoring'
 import { revealElapsedMs } from './reveal'
-import { evaluateJokerDraw, gameHasJokers, questionStillOpen } from './joker'
+import { drawableJokerTypes, evaluateJokerDraw, gameHasJokers, questionStillOpen } from './joker'
 
 export interface ProjectionContext {
   nowMs: number
@@ -434,6 +434,15 @@ function operatorJoker(state: GameState | null): { joker: OperatorJokerControl }
     joker: {
       canDraw: draw.allowed,
       ...(draw.allowed ? {} : { blockedReason: draw.message }),
+      /*
+       * A question that can only produce one variant - a picture question,
+       * where there is nothing to halve. The desk says so BEFORE the draw, so
+       * the operator can tell the player what is coming rather than explain it
+       * afterwards.
+       */
+      ...(draw.allowed && drawableJokerTypes(state).length === 1
+        ? { onlyType: drawableJokerTypes(state)[0]! }
+        : {}),
       ...(player ? { playerId: player.id, playerLabel: player.label } : {}),
       /*
        * Spent is asked of the PLAYER, not of the draw: after the question has

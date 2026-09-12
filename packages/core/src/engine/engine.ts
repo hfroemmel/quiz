@@ -57,6 +57,7 @@ import {
 import {
   JOKER_REVEAL_TRANSITION,
   drawJokerType,
+  drawableJokerTypes,
   drawableOptionIds,
   evaluateJokerContinue,
   evaluateJokerDraw,
@@ -509,7 +510,7 @@ function drawJoker(work: Draft): EngineResult {
    * client - ever draws again. The eliminated ids exist from this moment even
    * though nobody may see them until the card has turned.
    */
-  const type = drawJokerType(work.ctx.random ?? Math.random)
+  const type = drawJokerType(work.ctx.random ?? Math.random, drawableJokerTypes(state))
   const eliminatedOptionIds =
     type === 'fiftyFifty'
       ? pickEliminatedOptions({
