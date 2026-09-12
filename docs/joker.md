@@ -227,9 +227,24 @@ aktiven Spielers, und nur solange der Joker wirkt.
 
 ## Die Jokerkarte auf der Buehne
 
-`JokerCard` (in `hfroemmel/quiz-live`, `apps/web/src/components/`) zeigt
-**eine** neutrale Karte - `Jokerkarte_Livequiz_verfuegbar.png`, ueber den
-normalen Build-Weg importiert, ein Asset fuer beide Spieler.
+`JokerCard` (in `hfroemmel/quiz-live`, `apps/web/src/components/`) zeigt eine
+neutrale Karte - dieselbe fuer beide Spieler, ueber den normalen Build-Weg
+importiert.
+
+**Jede Gestaltungswelt hat ihre eigene Karte**, denn eine Jokerkarte ist ein
+Gegenstand mit einem Gesicht und keine eingefaerbte Flaeche:
+
+| `theme.skin` | Datei |
+| --- | --- |
+| `default` | `Jokerkarte_Livequiz_verfuegbar.png` |
+| `kids` | `Jokerkarte_Kinderquiz_verfuegbar.webp` - Karlchen mit Narrenkappe |
+
+Ausgewaehlt wird in `jokerCardArt.ts`, allein ueber `view.theme.skin` - nicht
+ueber die Zielgruppe und nicht ueber einen Modusnamen. Dieselbe Funktion liefert
+`--joker-card-ratio`: Beide Karten werden ueber ihre **Breite** gestellt und
+holen ihre Hoehe aus der Datei, sodass unterschiedliche Proportionen weder
+beschnitten werden noch einen Rand bekommen. Die kleine Karte am Scoreboard und
+die fliegende im Overlay lesen dieselbe Variable - es ist derselbe Gegenstand.
 
 Sie liegt **vor** dem Scoreboard und ueberlappt es zur Haelfte: bei Spieler 1
 links aussen und leicht gegen den Uhrzeigersinn gedreht, bei Spieler 2 rechts
@@ -367,7 +382,8 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 
 | Datei | Was |
 | --- | --- |
-| `apps/web/src/assets/Jokerkarte_Livequiz_verfuegbar.png` | das Asset |
+| `apps/web/src/assets/Jokerkarte_Livequiz_verfuegbar.png`, `Jokerkarte_Kinderquiz_verfuegbar.webp` | die Karten der beiden Gestaltungswelten |
+| `apps/web/src/components/jokerCardArt.ts` | welche Karte welche Welt bekommt, samt Proportionen |
 | `apps/web/src/components/JokerCard.tsx`, `.module.css` | die kleine Karte am Scoreboard und der Header-Slot |
 | `apps/web/src/components/JokerDrawOverlay.tsx`, `.module.css` | die Ziehung: Ebene, Flug, Einrasten, Ausblenden |
 | `apps/web/src/components/JokerFlipCard.tsx`, `.module.css` | die Karte mit Vorder- und Rueckseite |
@@ -382,6 +398,6 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 | `packages/core/test/joker.test.ts` | 38 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, die Bilderfrage mit nur einem moeglichen Ergebnis, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
 | `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
 | `test/e2e/joker.spec.ts` (quiz) | 3 | weggefallene Antworten bleiben an ihrem Platz und ohne Strich, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
-| `test/e2e/joker.spec.ts` (quiz-live) | 10 | der Knopf erst nach dem Buzzer und nur einer, die Bilderfrage mit dem Hinweis und dem Publikumsjoker, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
+| `test/e2e/joker.spec.ts` (quiz-live) | 11 | der Knopf erst nach dem Buzzer und nur einer, die Bilderfrage mit dem Hinweis und dem Publikumsjoker, die eigene Karte des Kinderquiz, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
 
 Laufen mit `pnpm test` und `pnpm test:e2e` in beiden Repositories.
