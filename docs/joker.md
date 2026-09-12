@@ -171,13 +171,35 @@ ergeben, was die Frage nicht tragen kann. Das Pult sagt in diesem Fall vorher,
 was kommt (`view.joker.onlyType`) - der Operator soll es ansagen koennen und
 nicht hinterher erklaeren muessen.
 
-Die dritte Zeile ist der Grund, warum ueberhaupt vorher geprueft wird: Eine
+Die dritte Zeile der Tabelle ist der Grund, warum ueberhaupt vorher geprueft wird: Eine
 Auswahlfrage, die keinen 50:50 tragen kann, ist gar nicht ziehbar. Sonst wuerde
 man es nach dem Wurf merken und dem Spieler einen Publikumsjoker geben, weil
 seine Frage zu kurz war - eine Lotterie auf der Lotterie. Am Pult ist der Knopf
 dann deaktiviert und nennt den Grund. Bei einer Bilderfrage ist das etwas
 anderes: Dort ist von vornherein nur ein Ergebnis im Spiel, und niemand verliert
 eine Chance, die es nie gab.
+
+### Das Bilderkennen im Besonderen
+
+Fuer den Saal bleibt es derselbe Vorgang wie sonst: Die Karte loest sich, fliegt,
+richtet sich auf, dreht sich und zeigt den Publikumsjoker. Die Animation verraet
+nicht, dass hier nichts zu entscheiden war.
+
+Die Ziehung laesst die Frage dabei vollstaendig in Ruhe. `DRAW_JOKER` und
+`CONTINUE_JOKER` fassen weder `reveal` noch `buzzer` noch `phase` an, und die
+Kartendrehung ist ausdruecklich **kein** Phasenwechsel (siehe
+`isJokerRevealTransition` - sie wird auf die Phase geplant, in der sie schon
+steht). Nach `Weiter` gilt deshalb:
+
+* Das Bild steht auf dem Stand, auf dem der Buzzer es eingefroren hat - ein
+  gueltiger Buzzer ruft `pauseReveal`, und nichts an der Ziehung ruft
+  `resumeReveal` oder `resetReveal`.
+* Die Restsekunden des Moderators laufen nicht neu an: Sie werden aus derselben
+  Enthuellungsuhr abgeleitet, es gibt keinen zweiten Zeitgeber.
+* `buzzer.acceptedPlayerId` und der offene Versuch bleiben, wie sie waren;
+  Punkte gehen weiterhin an den Spieler, der gebuzzert hat.
+* Sichtbar wechselt nur die Ziffer des aktiven Spielers auf das Gruppenzeichen -
+  und zwar so lange, wie die Frage offen ist (`questionStillOpen`).
 
 ## Der 50:50
 
@@ -395,8 +417,8 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 
 | Suite | Anzahl | Was |
 | --- | --- | --- |
-| `packages/core/test/joker.test.ts` | 38 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, die Bilderfrage mit nur einem moeglichen Ergebnis, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
-| `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
+| `packages/core/test/joker.test.ts` | 44 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, das Bilderkennen von der Verfuegbarkeit ueber die ungefragte Zufallsquelle bis zum eingefrorenen Bildstand, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
+| `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, das Bilderkennen mit `audience` ueber einen Neustart hinweg, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
 | `test/e2e/joker.spec.ts` (quiz) | 3 | weggefallene Antworten bleiben an ihrem Platz und ohne Strich, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
 | `test/e2e/joker.spec.ts` (quiz-live) | 11 | der Knopf erst nach dem Buzzer und nur einer, die Bilderfrage mit dem Hinweis und dem Publikumsjoker, die eigene Karte des Kinderquiz, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
 

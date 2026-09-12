@@ -125,6 +125,22 @@ function remainingOptionIds(harness: Harness): string[] {
 }
 
 /**
+ * The same for a picture question, which has no options to log.
+ *
+ * It is resolved by a verdict of the operator - that is what a free answer is:
+ * somebody in the hall decides whether it was right. The verdict is `correct`
+ * because that is the short way out: a wrong answer opens the second chance,
+ * and the callers here only want to reach the next question.
+ */
+function resolveManuallyAndContinue(harness: Harness): void {
+  harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
+  harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+  harness.settle()
+  harness.dispatch({ type: 'CONTINUE' })
+  harness.advance(gameTiming.pauseScreenMs)
+}
+
+/**
  * Plays the current question to its solution so the next one can be reached.
  *
  * Without a buzz of its own: every test that uses it has one player on the
@@ -539,13 +555,14 @@ describe('the 50:50', () => {
   })
 })
 
+/*
+ * A picture question has no choice on screen: the picture IS the question, and
+ * the answer is spoken. There is nothing to halve - but there is a room to ask,
+ * so the draw stays open and can only come out one way.
+ */
 describe('a picture question', () => {
-  /*
-   * Ein Bilderkennen hat keine Auswahl: Das Bild IST die Frage, geantwortet
-   * wird frei. Halbieren laesst sich daran nichts - den Saal fragen schon.
-   */
   it('can be drawn, and can only come out as the audience joker', () => {
-    // Die Zufallsquelle zeigt auf den 50:50 - und wird trotzdem nicht gefragt.
+    // The source of chance points at the 50:50 - and is not asked anyway.
     const harness = rig(script(pictureQuestion), drawsFiftyFifty())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -568,8 +585,8 @@ describe('a picture question', () => {
     expect(joker.onlyType).toBe('audience')
 
     /*
-     * Bei einer Auswahlfrage steht dort NICHTS - beide Ergebnisse sind
-     * moeglich, und das Pult darf nicht so tun, als waere etwas vorher bekannt.
+     * On a choice question it says NOTHING: both outcomes are possible, and the
+     * desk must not suggest that anything is known in advance.
      */
     const choice = rig()
     startGame(choice)
@@ -585,9 +602,132 @@ describe('a picture question', () => {
 
     const view = harness.publicView()
     expect(view.jokerDraw).toMatchObject({ phase: 'applied', type: 'audience', playerId: 'player-2' })
-    // Die Enthuellung laeuft weiter, und die Antwort gehoert weiter Spieler 2.
+    // The answer still belongs to player 2, and so will the points.
     expect(view.currentPlayer).toBe('player-2')
     expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-2')
+  })
+
+  it('cannot be drawn before anybody has buzzed', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    releaseRound(harness)
+
+    /*
+     * The picture is on screen and the clock is running - but a joker belongs
+     * to whoever is answering, and so far nobody is. The type of the question
+     * changes nothing about that.
+     */
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('joker-no-answering-player')
+    expect(availableCommands(harness.state)).not.toContain('DRAW_JOKER')
+    expect(isUsed(harness, 'player-1')).toBe(false)
+  })
+
+  it('stays refused once that player has spent their joker', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+
+    resolveManuallyAndContinue(harness)
+    buzzIn(harness, 'player-1')
+
+    const rejection = harness.expectReject({ type: 'DRAW_JOKER' })
+    expect(rejection.reason).toBe('joker-already-used')
+    expect(availableCommands(harness.state)).not.toContain('DRAW_JOKER')
+  })
+
+  it('never asks the source of chance, whatever it would have said', () => {
+    /*
+     * THE COIN IS NOT FLIPPED AND THEN OVERRULED - it is not flipped at all. A
+     * draw that asked anyway would spend a number for nothing and, worse, could
+     * come out as something the question cannot carry. So the test counts the
+     * calls instead of only reading the result.
+     */
+    for (const value of [0, 0.49, 0.5, 0.99]) {
+      let asked = 0
+      const harness = rig(script(pictureQuestion), () => {
+        asked += 1
+        return value
+      })
+      startGame(harness)
+      buzzIn(harness, 'player-1')
+      harness.dispatch({ type: 'DRAW_JOKER' })
+
+      expect(running(harness).type).toBe('audience')
+      expect(asked).toBe(0)
+    }
+  })
+
+  it('spends the joker exactly once, even when two draws arrive together', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    harness.dispatch({ type: 'DRAW_JOKER' })
+    const first = sequence(harness)!
+    const revisionAfterFirst = harness.state!.revision
+
+    // A double click, or two operator windows on the same revision.
+    expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('joker-sequence-active')
+    expect(sequence(harness)).toEqual(first)
+    expect(harness.state!.revision).toBe(revisionAfterFirst)
+    expect(jokerState(harness, 'player-1')).toMatchObject({ status: 'used', type: 'audience' })
+    expect(jokerState(harness, 'player-2')).toEqual({ status: 'available' })
+  })
+
+  it('leaves the picture exactly where the buzzer stopped it', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    releaseRound(harness)
+    // A stretch of the reveal, then the buzzer - which freezes the picture.
+    harness.advance(4_000)
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
+    const frozen = harness.publicView().reveal!
+    expect(frozen.status).toBe('paused')
+
+    /*
+     * THE WHOLE DRAW TAKES TIME - flight, turn, and an operator who lets the
+     * card stand. None of it may move the picture: the room has to find it
+     * exactly where it was, or the draw would have cost the player their place.
+     */
+    harness.dispatch({ type: 'DRAW_JOKER' })
+    awaitReveal(harness)
+    harness.advance(9_000)
+    harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: running(harness).sequenceId })
+    harness.advance(3_000)
+
+    /*
+     * Progress and the moderator's countdown are both derived from this one
+     * value, so an unchanged reveal state is an unchanged picture AND an
+     * unchanged countdown - there is no second clock that could have restarted.
+     */
+    expect(harness.publicView().reveal).toEqual(frozen)
+    expect(harness.state!.phase).toBe('answer-locked')
+  })
+
+  it('swaps the mark on the scoreboard and nothing else', () => {
+    const harness = rig(script(pictureQuestion))
+    startGame(harness)
+    buzzIn(harness, 'player-2')
+    const before = harness.publicView().playerScores.map((score) => ({ ...score, joker: undefined }))
+
+    drawJoker(harness)
+
+    const view = harness.publicView()
+    // The audience mark rides on the draw - the scores themselves are untouched.
+    expect(view.jokerDraw).toMatchObject({ type: 'audience', playerId: 'player-2' })
+    expect(view.playerScores.map((score) => ({ ...score, joker: undefined }))).toEqual(before)
+    expect(view.currentPlayer).toBe('player-2')
+
+    /*
+     * And the points follow the buzz, not the mark: the audience helps the
+     * player who is answering, it does not answer in their place.
+     */
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    const scored = harness.publicView().playerScores.find((score) => score.playerId === 'player-2')!
+    expect(scored.score).toBeGreaterThan(0)
+    expect(harness.publicView().playerScores.find((score) => score.playerId === 'player-1')!.score).toBe(0)
   })
 })
 
