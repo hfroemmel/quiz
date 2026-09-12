@@ -1,5 +1,64 @@
 # @hfroemmel/quiz-themes
 
+## 0.15.0
+
+### Minor Changes
+
+- 1b64ce5: Give the two jokers their drawn signs
+  
+  The joker signs were placeholders: three outlined circles for the audience, a
+  split circle for the 50:50. They are now the drawn artwork - three figures with
+  the middle one carried forward, and the `50:50` lettering between two arcs.
+  
+  Both signs keep the mask over `currentColor` as their default, and that is a
+  decision rather than a leftover. The 50:50 is lettered in a near-black grey; on
+  the dark stage of the adults' quiz it would sink into the ground, and the group
+  mark in a score card has to carry the colour of the digit it replaces, never one
+  of its own. A face whose ground is known to be light can ask for the drawing
+  with its own colours: `<JokerTypeIcon type="audience" tone="art" />`.
+  
+  Neither sign is square, and they are not cut alike. `JokerTypeIcon` now sets
+  only the height and derives the width from the file, so both stand equally tall
+  wherever they appear together and neither is squeezed into a square box - the
+  audience mark would otherwise have stood beside the player number at 62 per cent
+  of its height. The proportions ship as `jokerIconRatios` for a host that shapes
+  its own box around the file.
+- ac1d181: Make the quiz type a configured value, not a decision spread over the screens
+  
+  The desk picks ONE thing before an evening: which quiz runs. Until now that was
+  three pickers - audience, preset, pool - and lately five cards that each carried
+  their own `START_GAME` payload. Both said the same thing twice, in two places
+  that could drift apart.
+  
+  `quizzes` in the quiz package is now that one thing. An entry names its audience,
+  its theme, its pools and the difficulty presets it offers, each as a separate
+  value: "Bremen-Quiz" is a line in the configuration, not a condition in a
+  component. `START_GAME` takes `quizId` instead of `audience`, and the server
+  resolves the rest and writes it into the game state - so a reload or a
+  reconnect reads the confirmed configuration back instead of recomputing it.
+  
+  The difficulty choice is not a flag beside the list, it FOLLOWS from it:
+  `presetIds` with one entry means there is nothing to choose, more than one means
+  the operator chooses. `catalog.quizzes[].supportsDifficulty` hands that decision
+  to the form already made, and the server refuses a difficulty for a quiz that
+  offers none - and a missing one for a quiz that does.
+  
+  `PublicQuizViewModel` gains `quizOffers`, the names of the quizzes on offer, so a
+  stage can announce to the hall what there is to play. Deliberately without
+  audience, pools, presets or theme: the stage should not be able to derive any
+  configuration, only to write the names on the wall.
+  
+  The selection palette loses `shadow-lifted` and `focus`. Those five cards moved
+  to the stage, where they are a poster: nothing about them can be hovered,
+  focused or picked. A colour kept for a state that no longer exists is an
+  invitation to build the state back in.
+
+### Patch Changes
+
+- Updated dependencies [1b64ce5]
+- Updated dependencies [ac1d181]
+  - @hfroemmel/quiz-core@0.15.0
+
 ## 0.14.0
 
 ### Minor Changes

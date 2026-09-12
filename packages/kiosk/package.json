@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-kiosk",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "type": "module",
   "description": "Das spielbare Quiz als eine Komponente: Startauswahl, Spiel und Ergebnis fuer Kiosk und Einbettung",
   "exports": {
