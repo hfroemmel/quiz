@@ -341,16 +341,6 @@
  * ------------------------------------------------------------------ */
 
 /*
- * Am Touchgeraet steht keine Figur auf der Buehne (siehe `Mascot.module.css`):
- * Links und rechts liegen die Buzzer, und Karlchen deckte den rechten zu. Ohne
- * ihn muss auch nichts mehr fuer ihn frei bleiben - Frage und Antworten nehmen
- * die ganze Breite der Mitte.
- */
-.stage--kids.stage--touch {
-  --kids-content-width: 100%;
-}
-
-/*
  * DIE EINE SCHWELLE, DIE BLEIBT - UND SIE AENDERT KEINE GROESSE.
  *
  * Der Grund der Kinderwelt ist eine gezeichnete Szene, kein Verlauf: Auf einer

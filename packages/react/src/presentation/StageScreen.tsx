@@ -222,22 +222,34 @@ export function StageScreen({
 
         <StageHeader view={view} slots={headerSlots} variant={variant} />
 
-        <div
-          key={entryKey}
-          className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
-          data-scene-root=""
-        >
-          {renderScene(view, sceneProps, isAudioMaster, onCommand)}
+        {/*
+          * DIE SZENE UND IHRE FIGUR SIND EINE FLAECHE.
+          *
+          * Karlchen gehoert zur Komposition der Szene und nicht zum Geraet: Er
+          * steht an ihrer unteren rechten Ecke, in jedem Gastgeber gleich. Am
+          * Touchgeraet ist die Szene eine verkleinerte Buehne in der Mitte -
+          * misst die Figur gegen das ganze Geraet, landet sie auf dem Buzzer
+          * darunter. Hier misst sie gegen DIESE Flaeche, und damit stimmt es
+          * ueberall ohne eine zweite Regel.
+          *
+          * Sie liegt NEBEN dem Szenenkasten und nicht darin: Der wird bei jedem
+          * Szenenwechsel neu aufgebaut und animiert, und eine Figur darin ginge
+          * bei jedem Wechsel mit.
+          */}
+        <div className={stage.sceneArea}>
+          <div
+            key={entryKey}
+            className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
+            data-scene-root=""
+          >
+            {renderScene(view, sceneProps, isAudioMaster, onCommand)}
+          </div>
+          <Mascot />
         </div>
 
         {pads?.bottom}
 
-        {/*
-          * Figuren- und Koernungsebene. Beide sind reine Dekoration und stehen
-          * in jeder Welt im Markup; ob dort etwas zu sehen ist, entscheidet
-          * allein das Stylesheet.
-          */}
-        <Mascot />
+        {/* Koernungsebene - reine Dekoration, in jeder Welt im Markup. */}
         <div className={stage.grain} aria-hidden="true" />
 
         {/*

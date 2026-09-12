@@ -51,8 +51,15 @@
   background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
 }
 
-/* Alles Inhaltliche liegt ueber dem Hintergrund. */
-.sceneRoot {
+/*
+ * Die Flaeche der Szene: der Szenenkasten und die Figur daneben.
+ *
+ * Sie ist der Bezug fuer beide - Karlchen misst seine Groesse und seinen Platz
+ * gegen DIESE Flaeche und nicht gegen das Geraet. Im Saal sind beide dasselbe;
+ * am Geraet ist die Szene eine verkleinerte Buehne, und nur so steht die Figur
+ * dort an derselben Stelle ihrer Szene statt auf dem Buzzer.
+ */
+.sceneArea {
   position: relative;
   z-index: 1;
   flex: 1;
@@ -61,7 +68,46 @@
   min-height: 0;
 }
 
-:global(.stage--touch) .sceneRoot {
+/* Alles Inhaltliche liegt ueber dem Hintergrund. */
+.sceneRoot {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+/*
+ * AM TOUCHGERAET IST DIE SZENE EINE VERKLEINERTE BUEHNE - 16:9 UND EIGENER
+ * CONTAINER.
+ *
+ * Alle Groessen der Buehne sind fuer 16:9 entworfen. Deshalb behaelt die Szene
+ * ihr Seitenverhaeltnis und verkleinert sich als Ganzes: Damit gilt im Zentrum
+ * GENAU dieselbe Komposition wie im Saal, nur kleiner - kein Bauteil braucht ein
+ * zweites Mass fuer das Geraet.
+ *
+ * SIE NIMMT SICH DIE BREITE, NICHT DIE HOEHE. Anders herum gerechnet - Hoehe aus
+ * dem uebrigen Platz, Breite daraus - haenge die ganze Komposition an der
+ * FENSTERHOEHE: Zwei Geraete gleicher Breite zeigten die Frage in verschiedener
+ * Groesse, sobald eines flacher ist. Genau so war es, und genau das ist weg.
+ *
+ * ZOOM: DIE SZENE SCHRUMPFT ZUM KOPF HIN, IHR PLATZ BLEIBT. Skaliert wird die
+ * Darstellung, nicht der Kasten - haette der Kasten die kleinere Groesse,
+ * ruecken Buzzer und Punkte mit nach oben. `scale` UND NICHT
+ * `transform: scale()`: Auf dem Szenenkasten darin liegen die
+ * Szenenuebergaenge, und die animieren `transform`; die eigene Eigenschaft
+ * `scale` wird damit verrechnet statt davon ueberschrieben.
+ *
+ * `container-type: size` macht die Flaeche zum Bezug: Ohne das rechneten die
+ * Bauteile weiter gegen das ganze Geraet und die Verkleinerung bliebe aus.
+ * Breite und Hoehe stehen im festen Verhaeltnis - jedes `cqw` darin bleibt damit
+ * eine reine Funktion der Breite.
+ *
+ * DIE VERKLEINERUNG SITZT AN DER FLAECHE, NICHT AM SZENENKASTEN: So geht die
+ * Figur mit, statt neben einer geschrumpften Szene in voller Groesse stehen zu
+ * bleiben.
+ */
+:global(.stage--touch) .sceneArea {
   container-type: size;
   flex: 0 0 auto;
   align-self: center;
@@ -69,6 +115,11 @@
   width: 100%;
   scale: 0.8;
   transform-origin: top center;
+}
+/* Der Szenenkasten fuellt die Flaeche aus. */
+:global(.stage--touch) .sceneRoot {
+  width: 100%;
+  height: 100%;
 }
 
 /* Koernungsebene ganz oben - nur die Kinderwelt fuellt sie. */

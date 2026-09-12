@@ -57,6 +57,16 @@
   justify-content: center;
 }
 
+/*
+ * Der Rahmen um Zaehler und Rubrik ist in der Buehne der Erwachsenen KEIN
+ * Element: `display: contents` nimmt ihn aus dem Layout, und die beiden Absaetze
+ * bleiben direkte Kinder der Szene - dieselbe Anordnung wie vorher, Zeile fuer
+ * Zeile. Nur die Kinderwelt macht daraus eine Tafel.
+ */
+.pauseCard {
+  display: contents;
+}
+
 .pauseProgress {
   color: var(--color-text);
   font-family: var(--font-heading);
@@ -333,6 +343,66 @@
 :global(.stage--kids) .videoMissing {
   font-family: var(--kids-hand);
   font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ *
+ * Die Zwischenansicht der Kinderwelt
+ *
+ * Zaehler und Rubrik stehen gemeinsam auf einer gezeichneten Tafel - derselben,
+ * die in der Frageszene den Fragetext traegt. Sie ist gross genug, dass sie aus
+ * fuenf Metern zu lesen ist, und sie ist EINE Tafel: keine zweite Box darin,
+ * keine Zierde daneben.
+ * ------------------------------------------------------------------ */
+
+:global(.stage--kids) .pauseCard {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  /*
+   * Die Tafel waechst mit ihrem Inhalt und hat dabei zwei Grenzen: Sie beginnt
+   * nicht schmaler als ein Drittel der Szene und wird nicht breiter als ihre
+   * Inhaltsbreite. Eine lange uebersetzte Rubrik bricht damit um, statt aus der
+   * Szene zu laufen oder beschnitten zu werden.
+   */
+  min-width: 34cqw;
+  max-width: var(--kids-content-width);
+  padding: 3.2cqw 4cqw;
+  text-align: center;
+}
+/*
+ * Die Zeichnung liegt HINTER dem Inhalt - cremefarbene Flaeche, unregelmaessige
+ * dunkelblaue Kontur und der harte versetzte Schatten stecken in der Datei. Ein
+ * nachgebauter Rahmen aus `border` und `box-shadow` traefe die Handzeichnung
+ * nicht und waere eine zweite Fassung derselben Tafel.
+ */
+:global(.stage--kids) .pauseCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 3.7cqw;
+  border-image: url('../../assets/kinderquiz/boxes/panel-question.svg') 71 fill / 3.7cqw / 0 stretch;
+  pointer-events: none;
+}
+/*
+ * DER ZAEHLER IST DIE HAUPTSACHE und steht deshalb oben und am groessten; die
+ * Rubrik darunter ist kleiner und in der roten Hausfarbe. Vorher war es
+ * umgekehrt - die Rubrik war die groesste Schrift des Screens.
+ */
+:global(.stage--kids) .pauseProgress {
+  font-size: 7cqw;
+  line-height: 1.05;
+}
+:global(.stage--kids) .pauseCategory {
+  margin-top: 1cqw;
+  font-size: 5cqw;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--kids-red);
+  /* Lange Rubriken brechen um und bleiben vollstaendig lesbar. */
+  text-wrap: balance;
 }
 
 /* Reduzierte Bewegung: Die Rubrik erscheint ohne Nachlauf. */

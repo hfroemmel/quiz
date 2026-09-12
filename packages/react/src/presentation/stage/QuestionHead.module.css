@@ -78,7 +78,20 @@
 :global(.stage--kids.stage--scene-solution) .head {
   display: grid;
   width: var(--kids-content-width);
-  grid-template-columns: 38% minmax(0, 1fr);
+  /*
+   * DIE BILDSPALTE IST SO BREIT WIE DAS BILD - kein Anteil der Zeile.
+   *
+   * Mit einem festen Anteil (frueher 38 %) blieb rechts vom Foto Luft stehen,
+   * sobald das Bild schmaler ausfiel als die Spalte: Am Geraet waren das ueber
+   * hundert Pixel, die wie eine viel breitere Fuge aussahen. Der Abstand zur
+   * Fragetafel ist jetzt IMMER die Fuge und sonst nichts - in jedem Gastgeber
+   * dieselbe, und unabhaengig davon, wie lang der Fragetext ist.
+   *
+   * Das Bild behaelt dabei sein eigenes Mass (`28cqw`, Seitenverhaeltnis 4:3 in
+   * `Media.module.css`); die Tafel nimmt mit `minmax(0, 1fr)` den ganzen Rest
+   * und kann trotzdem schrumpfen, statt lange Fragen aus der Zeile zu schieben.
+   */
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--kids-stage-gap);
   /*
    * Foto und Frageflaeche stehen gleich hoch nebeneinander. Deshalb stretch:

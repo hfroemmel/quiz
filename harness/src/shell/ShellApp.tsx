@@ -69,13 +69,24 @@ function Spiel({
   return (
     <QuizGame
       runtime={runtime}
-      audience="adults"
+      /*
+       * Die Zielgruppe kommt wie am Geraet aus der Adresse (`?audience=kids`).
+       * Ein Gastgeber stellt sie fest ein; der Pruefstand muss aber BEIDE Welten
+       * zeigen koennen - die Kinderwelt sieht eingebettet genauso aus wie sonst,
+       * und genau das wird hier geprueft.
+       */
+      audience={audienceFromLocation()}
       idleTimeoutMs={120_000}
       onFinished={onFinished}
       onExit={onExit}
       {...(overlay ? { overlay } : {})}
     />
   )
+}
+
+/** Zielgruppe aus der Adresse - ohne Angabe die der Erwachsenen. */
+function audienceFromLocation(): string {
+  return new URLSearchParams(window.location.search).get('audience') ?? 'adults'
 }
 
 export function ShellApp() {

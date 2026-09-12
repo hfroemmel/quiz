@@ -9,7 +9,14 @@
 }
 
 /*
- * Karlchen steht am unteren rechten Rand der GANZEN Ansicht, nicht in der
+ * SIE ERSCHEINT UEBERALL, WO DIE KINDERWELT LAEUFT - im Saal, in der
+ * eigenstaendigen Anwendung und in der eingebetteten. Die Bedingung ist die
+ * Welt und nicht der Gastgeber; ein `.stage--touch` in dieser Regel waere genau
+ * die Kopplung, die es hier nicht geben darf. Was am Geraet anders ist, ist
+ * allein der Bezug: Die Figur steht in der Flaeche der Szene (`.sceneArea`),
+ * und die ist dort die verkleinerte Buehne in der Mitte.
+ *
+ * Karlchen steht am unteren rechten Rand der Szene, nicht in der
  * Fragezeile: In der Referenz steht die Figur auf dem Boden neben den
  * Antworten, praesentiert mit dem ausgestreckten Fluegel nach links zu ihnen
  * hinueber und reicht dabei bis weit ueber die halbe Bildhoehe.
@@ -28,15 +35,4 @@
   height: 32.625cqw;
   aspect-ratio: 927 / 1131;
   background: url('../../assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
-}
-
-/*
- * Am Touchgeraet nicht. Dort gehoeren die aeusseren Draittel den Buzzern, und
- * die Figur stuende genau auf einem davon - sie deckte ihn zu, und der Spieler
- * druckte auf einen Fluegel. Der kleine Karlchen am Bildrahmen bleibt: Er
- * gehoert zur Bildeinfassung und steht niemandem im Weg.
- */
-:global(.stage--kids.stage--touch.stage--scene-question) .mascot,
-:global(.stage--kids.stage--touch.stage--scene-solution) .mascot {
-  display: none;
 }
