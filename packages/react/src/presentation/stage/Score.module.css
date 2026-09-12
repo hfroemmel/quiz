@@ -107,7 +107,8 @@
   font-family: var(--font-heading);
 }
 /* Der Spieler am Zug traegt die Akzentfarbe, ein gesperrter die ruhige. */
-:global(.stage--default) .score[data-active='true'] .cellPlayer {
+:global(.stage--default) .score[data-active='true'] .cellPlayer,
+:global(.stage--default) .score[data-active='true'] .cellPoints {
   background: var(--color-accent);
 }
 :global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer {
@@ -160,7 +161,7 @@
  * abgeben und aufloesen" - und die Antwortzeilen, die dann nur einem gehoeren.
  */
 :global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPlayer {
+:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints {
   background: var(--color-tile);
 }
 /*
@@ -168,10 +169,12 @@
  * Fassung setzt auf der kraeftigen Akzentkachel weisse Schrift (siehe unten) -
  * auf der neutralen Kachel waere sie unsichtbar.
  */
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer {
+:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
+:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints {
   color: var(--color-text);
 }
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer .label {
+:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer .label,
+:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints .label {
   color: var(--color-textMuted);
 }
 
