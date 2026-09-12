@@ -102,8 +102,6 @@
   --quiz-select-card-bremen: linear-gradient(135deg, #fbe5e2 0%, #efbfc2 100%);
   --quiz-select-ink-on-europe: #ffffff;
   --quiz-select-shadow: rgb(7 21 45 / 0.055);
-  --quiz-select-shadow-lifted: rgb(7 21 45 / 0.1);
-  --quiz-select-focus: #07152d;
 }
 
 /* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */

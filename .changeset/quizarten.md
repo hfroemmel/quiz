@@ -30,3 +30,8 @@ offers none - and a missing one for a quiz that does.
 stage can announce to the hall what there is to play. Deliberately without
 audience, pools, presets or theme: the stage should not be able to derive any
 configuration, only to write the names on the wall.
+
+The selection palette loses `shadow-lifted` and `focus`. Those five cards moved
+to the stage, where they are a poster: nothing about them can be hovered,
+focused or picked. A colour kept for a state that no longer exists is an
+invitation to build the state back in.

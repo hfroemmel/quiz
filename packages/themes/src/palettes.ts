@@ -190,6 +190,11 @@ export const stageExtras = {
  * JEDE KARTE HAT IHRE EIGENE FLAECHE, weil sie fuer ihr Quiz steht: das Blau
  * der Union, das Rot des Bremer Wappens, das Papier der Einheit. Deshalb sind es
  * benannte Flaechen und keine Abstufungen einer Grundfarbe.
+ *
+ * KEIN FOKUSRING UND KEIN ANGEHOBENER SCHATTEN: Die Uebersicht steht auf der
+ * BUEHNE und ist ein Plakat - sie hat keine Zustaende, weil man sie nicht
+ * bedienen kann. Ein Ton fuer einen Zustand, den es nicht gibt, waere eine
+ * Einladung, ihn doch einzubauen.
  */
 export const quizSelectPalette = {
   page: '#fbfbfa',
@@ -205,9 +210,6 @@ export const quizSelectPalette = {
   'ink-on-europe': '#ffffff',
   /* Der Schatten ist ein Hauch - die Karten liegen, sie schweben nicht. */
   shadow: 'rgb(7 21 45 / 0.055)',
-  'shadow-lifted': 'rgb(7 21 45 / 0.1)',
-  /* Der Fokusring muss auf allen fuenf Flaechen zu sehen sein. */
-  focus: '#07152d',
 } as const
 
 export const uiPalette = {
