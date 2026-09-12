@@ -20,4 +20,6 @@ the question cannot carry. `OperatorJokerControl.onlyType` carries the same
 information to the desk before the draw.
 
 A choice question with too few open answers stays undrawable, with the reason it
-had before.
+had before, and the draw leaves the question itself untouched: neither command
+writes to the reveal clock, the buzzer or the phase, so a picture question comes
+back from the draw frozen exactly where the buzzer stopped it.

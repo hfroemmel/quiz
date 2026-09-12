@@ -224,10 +224,18 @@ export function evaluateJokerDraw(
 /**
  * The variants this question could produce.
  *
- * A FREE-ANSWER QUESTION CAN ONLY GIVE THE AUDIENCE JOKER. There is nothing to
- * halve when there are no options - the picture is the question, and the answer
- * is spoken. Asking the room is the only help that means anything there, so the
- * draw stays open and the coin simply has one side.
+ * A FREE-ANSWER QUESTION CAN ONLY GIVE THE AUDIENCE JOKER - today that is
+ * `image-reveal`, where the picture is the question and the answer is spoken.
+ * There is nothing to halve without options, and asking the room is the only
+ * help that means anything there, so the draw stays open and the coin simply
+ * has one side.
+ *
+ * THE ANSWERS DECIDE THIS, NOT THE NAME OF THE TYPE. `image-reveal` is the case
+ * because it carries no options, and a `video-then-question` carries them and
+ * is therefore an ordinary choice question with a prologue. A list of type names
+ * here would be a second rule beside `isChoiceQuestion` and would get the next
+ * type wrong - which is exactly how a 50:50 could be drawn on a question with
+ * nothing to remove.
  *
  * A CHOICE QUESTION WITH TOO FEW OPEN ANSWERS gives nothing at all. Removing a
  * wrong answer from two would leave the correct one alone on screen, and an
