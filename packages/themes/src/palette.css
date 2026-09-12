@@ -92,6 +92,18 @@
   --start-icon: #a9b6c4;
   --start-glass: #ffffff;
   --start-shade: #000000;
+  --quiz-select-page: #fbfbfa;
+  --quiz-select-ink: #07152d;
+  --quiz-select-ink-quiet: #284d73;
+  --quiz-select-card-bundestag: linear-gradient(135deg, #eef2f6 0%, #d5dee8 100%);
+  --quiz-select-card-kids: linear-gradient(180deg, #aed5f0 0%, #c1d6f1 50%, #d5d7f1 100%);
+  --quiz-select-card-europe: #003399;
+  --quiz-select-card-unity: linear-gradient(135deg, #f7f7f5 0%, #ececea 100%);
+  --quiz-select-card-bremen: linear-gradient(135deg, #fbe5e2 0%, #efbfc2 100%);
+  --quiz-select-ink-on-europe: #ffffff;
+  --quiz-select-shadow: rgb(7 21 45 / 0.055);
+  --quiz-select-shadow-lifted: rgb(7 21 45 / 0.1);
+  --quiz-select-focus: #07152d;
 }
 
 /* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */
