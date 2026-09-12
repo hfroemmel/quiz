@@ -32,6 +32,9 @@ import {
   type PlayerQuizViewModel,
   isSelfServicePreset,
   beschriftung,
+  untertitel,
+  quizSupportsDifficulty,
+  defaultPresetIdOf,
   fragenTextFuer,
   gueltigeSprache,
   oberflaechenTexte,
@@ -130,6 +133,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
       scene: 'start',
       phase: state?.phase ?? 'idle',
       theme,
+      quizOffers: quizOffers(ctx, spracheFuer(state, ctx)),
       playerScores: [],
       progress: { current: 0, total: ctx.config.questionsPerGame },
       soundEnabled: state?.soundEnabled ?? ctx.soundEnabled ?? true,
@@ -186,6 +190,8 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     scene,
     phase: state.phase,
     theme,
+    ...(state.quizId === undefined ? {} : { quizId: state.quizId }),
+    quizOffers: quizOffers(ctx, locale),
     question: publicQuestion,
     ...(publicJokerDraw(state, question?.id) ?? {}),
     // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
@@ -611,7 +617,17 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
   const audienceId = state?.audience ?? ctx.previewAudienceId
   const audienceConfig =
     ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
-  const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId) ?? ctx.config.themes[0]!
+  /*
+   * DIE QUIZART ENTSCHEIDET, WENN ES EINE GIBT - sonst die Zielgruppe.
+   *
+   * Damit gilt zu jedem Zeitpunkt genau eine Zuordnung: Ein Spiel, das ueber
+   * eine Quizart gestartet wurde, traegt deren Theme; ein Geraet, das ohne
+   * Quizart startet, traegt das der Zielgruppe. Eine Bedingung auf einen
+   * Modusnamen steht hier nicht - die Kennung kommt aus der Konfiguration.
+   */
+  const quiz = state?.quizId ? ctx.config.quizzes?.find((entry) => entry.id === state.quizId) : undefined
+  const themeId = quiz?.themeId ?? audienceConfig.themeId
+  const theme = ctx.config.themes.find((entry) => entry.id === themeId) ?? ctx.config.themes[0]!
   // Farben und Schriften stehen bewusst nicht im View-Modell - Darstellung ist
   // Sache des Gastgebers und kommt aus dessen Theme-Schicht.
   return {
@@ -626,6 +642,20 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
   }
 }
 
+/**
+ * Die Quizangebote fuer den Saal - Name und Untertitel, sonst nichts.
+ *
+ * BEWUSST NICHT DER KATALOG: Der traegt Zielgruppen, Pools und Presets, also
+ * Konfiguration. Die Buehne bekommt davon nichts, weil sie nichts davon
+ * ableiten koennen soll; sie soll die Namen anschreiben, mehr nicht.
+ */
+function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel['quizOffers'] {
+  return (ctx.config.quizzes ?? []).map((quiz) => {
+    const subtitle = untertitel(quiz, locale)
+    return { id: quiz.id, label: beschriftung(quiz, locale), ...(subtitle === undefined ? {} : { subtitle }) }
+  })
+}
+
 function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
   return {
     questionsPerGame: ctx.config.questionsPerGame,
@@ -638,6 +668,25 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
         ...(theme?.skin ? { skin: theme.skin } : {}),
         startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId),
         allowedPresetIds: audienceConfig.allowedPresetIds,
+      }
+    }),
+    /*
+     * Die Quizarten, fertig aufgeloest. `supportsDifficulty` wird HIER aus
+     * `presetIds` abgeleitet und nicht im Client noch einmal: Es gibt eine
+     * Regel dafuer (`quizSupportsDifficulty`), und sie steht im Kern.
+     */
+    quizzes: (ctx.config.quizzes ?? []).map((quiz) => {
+      const subtitle = untertitel(quiz, locale)
+      return {
+        id: quiz.id,
+        label: beschriftung(quiz, locale),
+        ...(subtitle === undefined ? {} : { subtitle }),
+        audienceId: quiz.audienceId,
+        themeId: quiz.themeId,
+        ...(quiz.poolIds ? { poolIds: quiz.poolIds } : {}),
+        presetIds: quiz.presetIds,
+        supportsDifficulty: quizSupportsDifficulty(quiz),
+        defaultPresetId: defaultPresetIdOf(quiz),
       }
     }),
     pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: beschriftung(pool, locale) })),
@@ -656,7 +705,7 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
 
 /** Klartexthinweis, was als naechstes passiert - hilft Moderator und Operator. */
 function nextStepHint(state: GameState | null): string {
-  if (!state) return 'Zielgruppe und Preset wählen, dann "Spiel starten".'
+  if (!state) return 'Quizart wählen, beim Bundestagsquiz die Schwierigkeit, dann "Spiel starten".'
   if (state.status === 'aborted') return 'Spiel abgebrochen. Zurück zur Startansicht.'
   if (state.status === 'completed') return 'Ergebnis sichtbar. Punkte können noch korrigiert werden.'
 

@@ -389,6 +389,13 @@ function buildSampleView(input: {
       startVisualUrl: previewStartVisual,
       startTitle: 'Bundestags-Quiz',
     },
+    /*
+     * Leer, und das ist die Aussage: Die Angebotsuebersicht ist Sache der
+     * Anwendung (der Buehnenclient von `quiz-live` zeigt sie vor dem ersten
+     * Spiel). Die Szenen dieses Pakets kennen sie nicht, und diese Vorschau
+     * prueft die Szenen.
+     */
+    quizOffers: [],
     playerScores: scores,
     progress: { current: 3, total: 7 },
     soundEnabled: false,

@@ -19,6 +19,7 @@ import {
   type RuntimeQuestion,
 } from '../src'
 import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine/engine'
+import { resolveQuizMode } from '../src/engine/quizModes'
 import { projectOperator, projectPublic } from '../src/engine/projection'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
@@ -48,6 +49,12 @@ export function makeQuestion(overrides: Partial<Question> & { id: string }): Que
 function scriptedSource(script: Question[], spare: Question[]): QuestionSource {
   return {
     slotCountFor: () => script.length,
+    /*
+     * Die Quizarten kommen aus derselben Konfiguration, die auch die Projektion
+     * benutzt, und werden mit derselben Funktion aufgeloest wie im Server. Ein
+     * nachgebautes Nachschlagen haette hier andere Regeln als dort.
+     */
+    quizFor: (quizId) => resolveQuizMode(testConfig, quizId),
     selectForSlot: (request: SlotRequest) => {
       const preferred = script[request.slotIndex]
       const candidates = preferred ? [preferred, ...spare] : spare
@@ -184,15 +191,53 @@ export function createHarness(
   return harness
 }
 
-/** Minimalkonfiguration fuer die Projektion - die Farbwerte selbst sind hier egal. */
-const testConfig: QuizConfig = {
+/**
+ * Minimalkonfiguration fuer die Projektion - die Farbwerte selbst sind hier egal.
+ *
+ * Die Quizarten bilden die drei Faelle ab, die es zu unterscheiden gibt: eine
+ * mit Schwierigkeitswahl, eine mit eigener Gestaltungswelt und eine, die ihr
+ * Fragenpool IST.
+ */
+export const testConfig: QuizConfig = {
   questionsPerGame: 7,
   difficulties: [{ id: 'medium', label: 'Mittel' }],
   categories: [{ id: 'general', label: 'Allgemein' }],
-  pools: [{ id: 'bundestag', label: 'Bundestag' }],
-  themes: [{ id: 'default', label: 'Standard' }],
-  presets: [{ id: 'medium', label: 'Mittel', slots: [{ id: 'text', filters: {} }] }],
-  audiences: [{ id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['medium'] }],
+  pools: [
+    { id: 'bundestag', label: 'Bundestag' },
+    { id: 'bremen', label: 'Bremen' },
+  ],
+  themes: [
+    { id: 'default', label: 'Standard' },
+    { id: 'kids', label: 'Kinder', skin: 'kids' },
+  ],
+  presets: [
+    { id: 'easy', label: 'Leicht', slots: [{ id: 'text', filters: {} }] },
+    { id: 'medium', label: 'Mittel', slots: [{ id: 'text', filters: {} }] },
+    { id: 'hard', label: 'Schwer', slots: [{ id: 'text', filters: {} }] },
+  ],
+  audiences: [
+    { id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['easy', 'medium', 'hard'] },
+    { id: 'kids', label: 'Kinder', themeId: 'kids', allowedPresetIds: ['easy'] },
+  ],
+  quizzes: [
+    {
+      id: 'bundestag',
+      label: 'Bundestagsquiz',
+      audienceId: 'adults',
+      themeId: 'default',
+      presetIds: ['easy', 'medium', 'hard'],
+      defaultPresetId: 'medium',
+    },
+    { id: 'kids', label: 'Kinderquiz', audienceId: 'kids', themeId: 'kids', presetIds: ['easy'] },
+    {
+      id: 'bremen',
+      label: 'Bremen-Quiz',
+      audienceId: 'adults',
+      themeId: 'default',
+      poolIds: ['bremen'],
+      presetIds: ['medium'],
+    },
+  ],
 }
 
 /** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */

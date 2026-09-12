@@ -13,6 +13,48 @@ Seit Schema v2 sind die drei Achsen getrennt:
   entscheidet `START_GAME` - ohne Angabe spielen alle mit.
 * **Preset**: die dramaturgische Ablaufkonfiguration der Fragenplaetze.
 
+Darueber liegt seit der Quizauswahl am Pult eine vierte, zusammenfassende
+Achse:
+
+* **Quizart** (`quizzes`): das eine Angebot, das ein Operator vor dem Abend
+  waehlt - „Bundestagsquiz“, „Kinderquiz“, „Bremen-Quiz“. Sie NENNT die drei
+  Achsen darunter, sie ersetzt sie nicht.
+
+## Quizart anlegen
+
+```jsonc
+{
+  "id": "bremen",
+  "label": "Bremen-Quiz",
+  "subtitle": "Ein Quiz zur Freien Hansestadt",
+  "audienceId": "adults",
+  "themeId": "default",
+  "poolIds": ["bremen"],
+  "presetIds": ["medium"]
+}
+```
+
+Regeln:
+
+* `audienceId`, `themeId`, `poolIds` und `presetIds` muessen existieren; jedes
+  Preset muss der Zielgruppe offenstehen. Alles andere ist ein harter
+  Validierungsfehler.
+* **Die Schwierigkeitswahl steht nicht als Schalter da**, sondern folgt aus
+  `presetIds`: Genau ein Preset heisst „keine Wahl, dieses gilt“; mehrere heissen
+  „der Operator waehlt“. Das Formular fragt `catalog.quizzes[].supportsDifficulty`
+  und baut die Regel nicht nach.
+* `defaultPresetId` ist die Voreinstellung der Wahl. Ohne Angabe gilt der erste
+  Eintrag. Die Reihenfolge von `presetIds` ist die Reihenfolge des Angebots.
+* Das Theme der Quizart gilt WAEHREND des Spiels und geht dem der Zielgruppe
+  vor. Ohne Quizart - am Kioskgeraet etwa - bleibt es beim Theme der Zielgruppe.
+  Es gibt also zu jedem Zeitpunkt genau eine Zuordnung.
+* Eine bunte Karte auf der Buehne ist KEIN Theme. Die Angebotsuebersicht faerbt
+  ihre Karten nach dem Quiz, das Quiz selbst laeuft im Theme aus dieser Zeile.
+
+Der Server loest die Quizart beim Start auf (`resolveQuizMode`), schreibt
+Zielgruppe, Pools und Preset in den Spielstand und liefert sie danach nur noch
+aus. Weder Pult noch Buehne leiten daraus etwas ab.
+
 ## Neue Zielgruppe anlegen
 
 1. Optional ein Theme ergaenzen:

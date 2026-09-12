@@ -66,6 +66,7 @@ import {
   jokerSequenceHoldsQuestion,
   pickEliminatedOptions,
 } from './joker'
+import type { QuizLookup } from './quizModes'
 
 /* ------------------------------------------------------------------ *
  * Ports und Ergebnisstruktur
@@ -92,6 +93,11 @@ export type SlotResponse =
 export interface QuestionSource {
   /** Anzahl Fragenplaetze der Kombination, oder `null` wenn sie nicht existiert. */
   slotCountFor(audience: string, presetId: string): number | null
+  /**
+   * Die Quizart aus der Konfiguration, mit Zielgruppe, Pools, Theme und
+   * Schwierigkeitsgraden - vollstaendig geprueft.
+   */
+  quizFor(quizId: string): QuizLookup
   selectForSlot(request: SlotRequest): SlotResponse
 }
 
@@ -386,21 +392,115 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
  * Befehlsimplementierungen
  * ------------------------------------------------------------------ */
 
+/**
+ * Die Startkonfiguration, auf die sich der Server festlegt.
+ *
+ * Sie entsteht an genau EINER Stelle - `resolveStartConfig` - und wird danach
+ * nur noch in den Spielstand geschrieben. Weder Pult noch Buehne leiten etwas
+ * davon ab: Was hier steht, hat der Server bestaetigt.
+ */
+interface StartConfig {
+  quizId?: string
+  audience: string
+  poolIds?: string[] | undefined
+  presetId: string
+}
+
+/**
+ * Aus dem Befehl die verbindliche Startkonfiguration machen - oder ablehnen.
+ *
+ * ZWEI WEGE, EIN ERGEBNIS: Das Pult nennt eine Quizart, ein Geraet nennt
+ * Zielgruppe und Preset. Beides zusammen ist ein Widerspruch und wird abgelehnt,
+ * nicht stillschweigend gewichtet.
+ */
+function resolveStartConfig(
+  work: Draft,
+  command: { quizId?: string; audience?: string; poolIds?: string[]; presetId?: string },
+): { ok: true; config: StartConfig } | { ok: false; rejection: EngineResult } {
+  const { quizId, audience, poolIds, presetId } = command
+
+  if (quizId === undefined) {
+    if (!audience || !presetId) {
+      return {
+        ok: false,
+        rejection: reject('invalid-payload', 'Zum Start fehlt die Quizart beziehungsweise Zielgruppe und Preset.'),
+      }
+    }
+    return { ok: true, config: { audience, ...(poolIds === undefined ? {} : { poolIds }), presetId } }
+  }
+
+  if (audience !== undefined || poolIds !== undefined) {
+    return {
+      ok: false,
+      rejection: reject(
+        'invalid-payload',
+        'Eine Quizart bringt Zielgruppe und Fragenpool schon mit. Beides zusätzlich zu senden wäre eine zweite Angabe.',
+      ),
+    }
+  }
+
+  const lookup = work.ctx.questionSource.quizFor(quizId)
+  if (!lookup.ok) return { ok: false, rejection: reject('unknown-quiz', lookup.message) }
+  const quiz = lookup.quiz
+
+  /*
+   * DIE SCHWIERIGKEIT GEHOERT NUR ZU EINER QUIZART, DIE SIE ANBIETET. Ein
+   * Formular, das beim Wechsel die alte Stufe stehen laesst, faellt hier auf -
+   * und zwar als Ablehnung und nicht als still gespieltes anderes Quiz.
+   */
+  const hasChoice = quiz.presetIds.length > 1
+  if (!hasChoice) {
+    if (presetId !== undefined) {
+      return {
+        ok: false,
+        rejection: reject(
+          'invalid-difficulty',
+          `Das Quiz "${quiz.id}" kennt keine Schwierigkeitswahl. Ein Schwierigkeitsgrad darf dazu nicht mitgeschickt werden.`,
+        ),
+      }
+    }
+    return { ok: true, config: { quizId: quiz.id, audience: quiz.audience, poolIds: quiz.poolIds, presetId: quiz.defaultPresetId } }
+  }
+
+  if (presetId === undefined) {
+    return {
+      ok: false,
+      rejection: reject('invalid-difficulty', `Für das Quiz "${quiz.id}" fehlt der Schwierigkeitsgrad.`),
+    }
+  }
+  if (!quiz.presetIds.includes(presetId)) {
+    return {
+      ok: false,
+      rejection: reject(
+        'invalid-difficulty',
+        `Den Schwierigkeitsgrad "${presetId}" gibt es im Quiz "${quiz.id}" nicht.`,
+      ),
+    }
+  }
+  return { ok: true, config: { quizId: quiz.id, audience: quiz.audience, poolIds: quiz.poolIds, presetId } }
+}
+
 function startGame(
   work: Draft,
   command: {
-    audience: string
+    quizId?: string
+    audience?: string
     poolIds?: string[]
-    presetId: string
+    presetId?: string
     playerCount?: PlayerCount
     playerLabels?: string[]
     flowProfile?: FlowProfile
   },
 ): EngineResult {
-  const { audience, poolIds, presetId, playerLabels } = command
+  const { playerLabels } = command
   if (work.state && work.state.status === 'active') {
     return reject('invalid-phase', 'Es läuft bereits ein Spiel. Bitte zuerst beenden.')
   }
+
+  const resolved = resolveStartConfig(work, command)
+  if (!resolved.ok) return resolved.rejection
+  const { quizId, audience, poolIds, presetId } = resolved.config
+
   const slotCount = work.ctx.questionSource.slotCountFor(audience, presetId)
   if (slotCount === null) {
     return reject('invalid-payload', 'Diese Kombination aus Zielgruppe und Schwierigkeits-Preset gibt es nicht.')
@@ -420,6 +520,7 @@ function startGame(
     status: 'active',
     phase: 'pause-screen',
     revision: 0,
+    ...(quizId === undefined ? {} : { quizId }),
     audience,
     ...(poolIds === undefined ? {} : { poolIds }),
     presetId,
@@ -458,7 +559,11 @@ function startGame(
 
   work.replaceState(fresh)
   const poolNote = poolIds?.length ? `, Pools ${poolIds.join('+')}` : ''
-  work.log('game', `Spiel gestartet: Zielgruppe "${audience}"${poolNote}, Preset "${presetId}", ${slotCount} Fragen.`)
+  const quizNote = quizId ? `Quiz "${quizId}", ` : ''
+  work.log(
+    'game',
+    `Spiel gestartet: ${quizNote}Zielgruppe "${audience}"${poolNote}, Preset "${presetId}", ${slotCount} Fragen.`,
+  )
 
   const selection = drawQuestionForCurrentSlot(work, [])
   if (!selection.ok) return selection.rejection

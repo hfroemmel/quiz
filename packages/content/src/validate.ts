@@ -160,6 +160,54 @@ export function validateContent(input: ValidationInput): ValidationResult {
       add('error', 'asset-reference', `Startgrafik "${audienceConfig.startVisualAssetId}" von Zielgruppe "${audienceConfig.id}" fehlt.`, audienceConfig.id)
     }
   }
+  /* -------- Quizarten -------- */
+
+  /*
+   * EINE QUIZART IST NUR SO GUT WIE IHRE VIER VERWEISE. Sie nennt Zielgruppe,
+   * Theme, Pools und Schwierigkeitsgrade; faellt einer davon ins Leere, weist
+   * der Server den Start am Abend ab - und das soll hier auffallen, nicht dort.
+   */
+  const quizIds = new Set<string>()
+  for (const quiz of config.quizzes ?? []) {
+    if (quizIds.has(quiz.id)) {
+      add('error', 'quiz-duplicate', `Die Quizart "${quiz.id}" ist mehrfach konfiguriert.`, quiz.id)
+    }
+    quizIds.add(quiz.id)
+
+    const audienceConfig = config.audiences.find((entry) => entry.id === quiz.audienceId)
+    if (!audienceConfig) {
+      add('error', 'audience-reference', `Quizart "${quiz.id}" verweist auf unbekannte Zielgruppe "${quiz.audienceId}".`, quiz.id)
+    }
+    if (!knownThemes.has(quiz.themeId)) {
+      add('error', 'theme-reference', `Quizart "${quiz.id}" verweist auf unbekanntes Theme "${quiz.themeId}".`, quiz.id)
+    }
+    for (const poolId of quiz.poolIds ?? []) {
+      if (!knownPools.has(poolId)) {
+        add('error', 'pool-reference', `Quizart "${quiz.id}" verweist auf unbekannten Fragenpool "${poolId}".`, quiz.id)
+      }
+    }
+    for (const presetId of quiz.presetIds) {
+      if (!knownPresets.has(presetId)) {
+        add('error', 'preset-reference', `Quizart "${quiz.id}" nennt unbekanntes Preset "${presetId}".`, quiz.id)
+      } else if (audienceConfig && !audienceConfig.allowedPresetIds.includes(presetId)) {
+        add(
+          'error',
+          'preset-reference',
+          `Quizart "${quiz.id}" nennt Preset "${presetId}", das der Zielgruppe "${audienceConfig.id}" nicht offensteht.`,
+          quiz.id,
+        )
+      }
+    }
+    if (quiz.defaultPresetId && !quiz.presetIds.includes(quiz.defaultPresetId)) {
+      add(
+        'error',
+        'preset-reference',
+        `Die Voreinstellung "${quiz.defaultPresetId}" der Quizart "${quiz.id}" steht nicht in ihren Schwierigkeitsgraden.`,
+        quiz.id,
+      )
+    }
+  }
+
   /* -------- Sprachen -------- */
 
   const bekannteSprachen = new Set((config.locales ?? []).map((sprache) => sprache.id))

@@ -819,6 +819,54 @@
       }
     }
   ],
+  "quizzes": [
+    {
+      "id": "bundestag",
+      "label": "Bundestagsquiz",
+      "labels": {
+        "en-GB": "Bundestag Quiz"
+      },
+      "audienceId": "adults",
+      "themeId": "default",
+      "presetIds": [
+        "easy",
+        "medium",
+        "hard"
+      ],
+      "defaultPresetId": "medium"
+    },
+    {
+      "id": "kids",
+      "label": "Kinderquiz",
+      "labels": {
+        "en-GB": "Children's Quiz"
+      },
+      "audienceId": "kids",
+      "themeId": "kids",
+      "presetIds": [
+        "easy"
+      ]
+    },
+    {
+      "id": "saarbruecken",
+      "label": "Saarbrücken-Quiz",
+      "subtitle": "Ein Quiz über die Stadt an der Saar",
+      "labels": {
+        "en-GB": "Saarbrücken Quiz"
+      },
+      "subtitles": {
+        "en-GB": "A quiz about the city on the Saar"
+      },
+      "audienceId": "adults",
+      "themeId": "default",
+      "poolIds": [
+        "saarbruecken"
+      ],
+      "presetIds": [
+        "regional"
+      ]
+    }
+  ],
   "locales": [
     {
       "id": "de-DE",

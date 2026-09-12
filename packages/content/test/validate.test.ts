@@ -14,6 +14,17 @@ const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg'
  */
 type TestSlot = { id: string; label?: string; filters: Record<string, unknown> }
 
+/** Quizart der Testkonfiguration - ebenfalls vor der Schemapruefung. */
+type TestQuiz = {
+  id: string
+  label: string
+  audienceId: string
+  themeId: string
+  poolIds?: string[]
+  presetIds: string[]
+  defaultPresetId?: string
+}
+
 const baseConfig = {
   questionsPerGame: 2,
   difficulties: [{ id: 'easy', label: 'Leicht' }],
@@ -31,6 +42,8 @@ const baseConfig = {
     },
   ],
   audiences: [{ id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['standard'] }],
+  /* Ohne Quizarten laeuft der Bestand weiterhin - das Pult hat dann nichts anzubieten. */
+  quizzes: [] as TestQuiz[],
 }
 
 function question(overrides: Partial<Question> & { id: string }): Question {
@@ -274,6 +287,60 @@ describe('Themes ohne Darstellung', () => {
       themes: [{ id: 'default', label: 'Standard' }],
     })
     expect(result.ok).toBe(true)
+  })
+})
+
+describe('Quizarten', () => {
+  const quiz = (overrides: Partial<TestQuiz> = {}): TestQuiz => ({
+    id: 'bundestag',
+    label: 'Bundestagsquiz',
+    audienceId: 'adults',
+    themeId: 'default',
+    presetIds: ['standard'],
+    ...overrides,
+  })
+
+  it('nimmt eine vollstaendig verdrahtete Quizart an', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], { quizzes: [quiz()] })
+    expect(result.ok).toBe(true)
+  })
+
+  it('erkennt eine unbekannte Zielgruppe', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ audienceId: 'marsmenschen' })],
+    })
+    expect(result.errors.some((issue) => issue.code === 'audience-reference')).toBe(true)
+  })
+
+  it('erkennt ein unbekanntes Theme', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], { quizzes: [quiz({ themeId: 'neon' })] })
+    expect(result.errors.some((issue) => issue.code === 'theme-reference')).toBe(true)
+  })
+
+  it('erkennt einen unbekannten Fragenpool', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ poolIds: ['atlantis'] })],
+    })
+    expect(result.errors.some((issue) => issue.code === 'pool-reference')).toBe(true)
+  })
+
+  it('erkennt ein Preset, das der Zielgruppe nicht offensteht', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ presetIds: ['gibt-es-nicht'] })],
+    })
+    expect(result.errors.some((issue) => issue.code === 'preset-reference')).toBe(true)
+  })
+
+  it('erkennt eine Voreinstellung, die nicht unter den Stufen steht', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ defaultPresetId: 'schwer' })],
+    })
+    expect(result.errors.some((issue) => issue.code === 'preset-reference')).toBe(true)
+  })
+
+  it('erkennt eine doppelt konfigurierte Quizart', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], { quizzes: [quiz(), quiz()] })
+    expect(result.errors.some((issue) => issue.code === 'quiz-duplicate')).toBe(true)
   })
 })
 

@@ -27,6 +27,23 @@ interface CommandEnvelope {
 6. Zustand, Punktebuchung, Nutzung und Auditlog in EINER Transaktion speichern
 7. Revision erhoehen und rollenabhaengige Snapshots verteilen
 
+## Quizart oder Zielgruppe
+
+`START_GAME` kennt zwei Wege, und genau einen davon je Befehl:
+
+* **Mit `quizId`**: der Weg des Pults. Die Quizart nennt Zielgruppe, Pools und
+  Theme bereits (siehe [neue-modi-und-presets.md](neue-modi-und-presets.md));
+  `presetId` gehoert nur dazu, wenn die Quizart eine Schwierigkeitswahl
+  anbietet. Eine zusaetzliche `audience` oder `poolIds` lehnt der Server ab -
+  das waere eine zweite Angabe zur selben Sache.
+* **Mit `audience` und `presetId`**: der Weg der Geraete ohne Quizauswahl
+  (Kiosk, Touchgeraet, eingebettetes Quiz).
+
+Ablehnungsgruende: `unknown-quiz` fuer eine Quizart, die es nicht gibt oder
+deren Pool beziehungsweise Theme fehlt; `invalid-difficulty`, wenn die
+Schwierigkeit fehlt, nicht zur Quizart gehoert oder mitgeschickt wird, obwohl
+die Quizart keine anbietet.
+
 ## Spielerzahl und Steuerprofil
 
 `START_GAME` traegt optional `playerCount` (1 oder 2), `playerLabels` und

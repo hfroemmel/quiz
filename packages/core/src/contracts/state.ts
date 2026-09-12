@@ -217,6 +217,18 @@ export interface GameState {
   /** Wird bei jeder akzeptierten Zustandsaenderung erhoeht (optimistische Nebenlaeufigkeit). */
   revision: number
 
+  /**
+   * Die Quizart, mit der dieses Spiel gestartet wurde.
+   *
+   * SIE IST DIE BESTAETIGTE KONFIGURATION: Zielgruppe, Pools, Preset und Theme
+   * darunter hat der Server aus ihr aufgeloest und hier festgeschrieben. Ein
+   * Neuladen oder ein wiederaufgenommenes Spiel liest denselben Stand und
+   * rechnet nichts neu.
+   *
+   * Sie fehlt bei Spielen, die ohne Quizauswahl beginnen - am Kioskgeraet, am
+   * Touchgeraet und in Staenden aus aelteren Fassungen.
+   */
+  quizId?: string
   /** Zielgruppe des Spiels (frueher `quizModeId`). */
   audience: string
   /** Gewaehlte Fragenpools. Fehlt das Feld, wird nicht nach Pool gefiltert. */
