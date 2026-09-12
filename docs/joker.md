@@ -357,22 +357,48 @@ Die Jokersteuerung sitzt in `OperatorControls` **zwischen "Antwort einloggen"
 und "Aufloesen"** - genau dort, wo der Joker hingehoert: Ein Spieler hat
 gebuzzert, sich aber noch nicht festgelegt.
 
+**Der Bereich IST der Knopf.** Ueberschrift und `Joker ziehen` erscheinen
+gemeinsam und verschwinden gemeinsam; es gibt keinen erreichbaren Zustand, in
+dem das eine ohne das andere steht:
+
+```ts
+showJokerSection === showDrawJokerButton
+```
+
+Die Bedingung ist `allowedCommands.includes('DRAW_JOKER')` - dieselbe
+Regelfunktion, die der Server anwendet, wenn der Befehl ankommt
+(`evaluateJokerDraw`). Das Pult leitet nichts selbst her und prueft nichts
+doppelt. Der Bereich ist damit weg, sobald einer dieser Punkte zutrifft:
+
+* der antwortende Spieler hat seinen Joker schon gezogen,
+* es hat niemand gebuzzert bzw. niemand darf gerade antworten,
+* eine Zwischenansicht laeuft (Richtig-, Falsch- oder Aufloesungsanimation),
+* eine Antwort ist eingeloggt oder aufgeloest,
+* eine Ziehung fliegt, liegt oder wirkt gerade,
+* die Frage traegt keinen Joker.
+
+Ein verbrauchter Joker bekommt **keinen** Ersatztext und kein graues Feld: Ein
+Kasten "Joker", in dem nichts zu tun ist, sagt dem Operator nur, dass er etwas
+verpasst hat.
+
 | Zustand | Was zu sehen ist |
 | --- | --- |
-| verfuegbar | `Joker ziehen` |
-| nur ein Ergebnis moeglich | derselbe Knopf, darunter `Bei dieser Frage kann nur der Publikumsjoker gezogen werden.` |
-| Frage ungeeignet | derselbe Knopf, deaktiviert, mit dem Grund darunter |
-| verbraucht | `Joker bereits eingesetzt` - kein Knopf |
-| `drawing` | `Joker wird gezogen …`, alle Antwort- und Aufloeseknoepfe sind weg |
-| `revealed` | `Weiter` |
+| ziehbar | Ueberschrift `Joker` und `Joker ziehen` |
+| nur ein Ergebnis moeglich | dazu `Bei dieser Frage kann nur der Publikumsjoker gezogen werden.` |
+| nicht ziehbar | gar nichts |
+| `drawing` | `Joker wird gezogen …`, ohne Ueberschrift; alle Antwort- und Aufloeseknoepfe sind weg |
+| `revealed` | `Weiter`, ohne Ueberschrift, an der Stelle jedes anderen `Weiter` |
+
+Die laufende Ziehung steht bewusst **ausserhalb** des Bereichs: Waehrend die
+Karte fliegt und liegt, gibt es nichts zu ziehen, und eine Ueberschrift "Joker"
+waere dort eine Behauptung. `Weiter` muss es trotzdem geben - `CONTINUE_JOKER`
+ist der einzige Befehl, den die Engine dann annimmt; ohne ihn bliebe die Karte
+im Saal liegen und die Frage gesperrt. Es schickt `CONTINUE_JOKER` mit der
+`sequenceId` und ausdruecklich nicht die allgemeine Weiter-Aktion - es laedt
+keine neue Frage.
 
 Das Ergebnis nennt das Pult **nicht**: Es steht gross auf der Buehne, und ein
 zweites Mal am Pult waere nur eine weitere Stelle, die es sagen muss.
-
-Es gibt **einen** Knopf. Kein 50:50 und kein Publikumsjoker zur Wahl, weil es
-nichts zu waehlen gibt. `Weiter` schickt `CONTINUE_JOKER` mit der `sequenceId`
-und ausdruecklich nicht die allgemeine Weiter-Aktion - es laedt keine neue
-Frage.
 
 Alles davon kommt aus `view.joker`, also aus denselben Regelfunktionen, die die
 Engine beim Command anwendet. Das Pult leitet nichts selbst her: Ein Knopf, der
@@ -417,9 +443,9 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 
 | Suite | Anzahl | Was |
 | --- | --- | --- |
-| `packages/core/test/joker.test.ts` | 44 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, das Bilderkennen von der Verfuegbarkeit ueber die ungefragte Zufallsquelle bis zum eingefrorenen Bildstand, der Publikumsjoker und der Antwortbesitz, Lebensdauer, der Operatorbereich, und ein Spiel ohne Joker |
+| `packages/core/test/joker.test.ts` | 53 | ein Joker je Spieler, nichts vor dem Buzzer, nur der Antwortende, kein zweites Mal, unabhaengige Spieler, doppelte Befehle, die Muenze aus injiziertem Zufall, verborgener Typ bis zur Aufdeckung, der Aufdeckschritt des Servers, die Sperre der Frage, `CONTINUE_JOKER` samt veralteter Kennung, alle 50:50-Regeln, das Bilderkennen von der Verfuegbarkeit ueber die ungefragte Zufallsquelle bis zum eingefrorenen Bildstand, der Publikumsjoker und der Antwortbesitz, Lebensdauer, jeder Zustand, in dem das Pult ziehen laesst oder eben nicht, der Operatorbereich, und ein Spiel ohne Joker |
 | `packages/server/test/joker.test.ts` | 12 | der Server besitzt Muenze und Ergebnis, das Bilderkennen mit `audience` ueber einen Neustart hinweg, ein Snapshot fuer alle Rollen, Aufdecken von selbst, Anwenden erst mit `Weiter`, Neustart ohne neue Ziehung, wiederholter Command, veraltete Kennung, die Sperre, die Rollen, und ein Spiel ohne Joker |
 | `test/e2e/joker.spec.ts` (quiz) | 3 | weggefallene Antworten bleiben an ihrem Platz und ohne Strich, Scoreboards unveraendert, und das Touchgeraet hat nichts davon |
-| `test/e2e/joker.spec.ts` (quiz-live) | 11 | der Knopf erst nach dem Buzzer und nur einer, die Bilderfrage mit dem Hinweis und dem Publikumsjoker, die eigene Karte des Kinderquiz, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
+| `test/e2e/joker.spec.ts` (quiz-live) | 14 | Ueberschrift und Knopf immer nur gemeinsam (ueber eine ganze Frage, beim Spielerwechsel und nach verbrauchtem Joker), der Knopf erst nach dem Buzzer und nur einer, die Bilderfrage mit dem Hinweis und dem Publikumsjoker, die eigene Karte des Kinderquiz, die Reihenfolge der Sektionen, der Flug vom richtigen Scoreboard in die Mitte, Aufdecken erst nach der Drehung und Stehenbleiben, Anwenden mit `Weiter` ohne neue Frage, Neuladen beider Ansichten, und der Modus ohne Bewegung |
 
 Laufen mit `pnpm test` und `pnpm test:e2e` in beiden Repositories.
