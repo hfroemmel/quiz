@@ -905,11 +905,10 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.phase).toBe('buzzer-open')
   })
 
-  it('geht auch im gefuehrten Spiel von selbst in die Frage ueber', () => {
+  it('blendet das Video im gefuehrten Spiel aus und haelt an, bis der Operator die Frage einblendet', () => {
     /*
-     * Ein durchgelaufenes Video hat nichts mehr zu zeigen. Frueher blieb im Saal
-     * ein schwarzes Bild stehen, bis der Operator umschaltete - sein Knopf
-     * bleibt, aber er muss ihn nicht mehr suchen.
+     * Das Video endet von selbst - die Frage kommt aber erst, wenn der Operator
+     * sie einblendet. Er sieht, ob der Saal so weit ist.
      */
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
@@ -919,7 +918,54 @@ describe('Selbstbedienung', () => {
     harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
     harness.advance(5_000 + gameTiming.videoTailMs)
 
+    expect(harness.state!.phase).toBe('video-ended')
+    expect(harness.state!.video).toMatchObject({ status: 'ended', positionMs: 5_000 })
+    expect(harness.state!.pendingTransition).toBeUndefined()
+    expect(harness.publicView().scene).toBe('video')
+    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
+
+    // Es wartet wirklich: Auch lange danach steht noch keine Frage.
+    harness.advance(60_000)
+    expect(harness.state!.phase).toBe('video-ended')
+
+    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
     expect(harness.state!.phase).toBe('question-presented')
+  })
+
+  it('laesst nach dem Ende nur Neustart, Einblenden und Ueberspringen zu', () => {
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    harness.dispatch({ type: 'START_VIDEO' })
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    harness.advance(5_000 + gameTiming.videoTailMs)
+
+    const erlaubt = harness.operatorView().allowedCommands
+    expect(erlaubt).toEqual(expect.arrayContaining(['RESTART_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
+    expect(erlaubt).not.toContain('START_VIDEO')
+    expect(erlaubt).not.toContain('PAUSE_VIDEO')
+    expect(harness.expectReject({ type: 'START_VIDEO' }).reason).toBe('invalid-phase')
+
+    // Von vorn: Das Video laeuft wieder, und sein Ende steht erneut fest.
+    harness.dispatch({ type: 'RESTART_VIDEO' })
+    expect(harness.state!.phase).toBe('video-playing')
+    expect(harness.state!.video).toMatchObject({ status: 'playing', positionMs: 0 })
+    expect(harness.state!.pendingTransition?.nextPhase).toBe('video-ended')
+  })
+
+  it('faellt nach dem Ende nicht zurueck, wenn ein Fenster die Datei nicht laden kann', () => {
+    /*
+     * Ein Buehnenfenster, das erst nach dem Video dazukommt, meldet seinen
+     * Ladefehler trotzdem. Das darf den Operator nicht wieder vor "Video
+     * starten" stellen - das Video ist gelaufen.
+     */
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    harness.dispatch({ type: 'START_VIDEO' })
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
+    harness.advance(5_000 + gameTiming.videoTailMs)
+
+    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
+    expect(harness.state!.phase).toBe('video-ended')
     expect(harness.state!.video!.status).toBe('ended')
   })
 
@@ -937,7 +983,7 @@ describe('Selbstbedienung', () => {
 
     harness.dispatch({ type: 'START_VIDEO' })
     harness.advance(4_000 + gameTiming.videoTailMs)
-    expect(harness.state!.phase).toBe('question-presented')
+    expect(harness.state!.phase).toBe('video-ended')
   })
 
   it('erzeugt fuer wiederholte Meldungen KEINEN neuen Uebergang', () => {
@@ -985,7 +1031,7 @@ describe('Selbstbedienung', () => {
 
     // Und beim Fortsetzen steht das Ende wieder fest.
     harness.dispatch({ type: 'START_VIDEO' })
-    expect(harness.state!.pendingTransition?.nextPhase).toBe('question-presented')
+    expect(harness.state!.pendingTransition?.nextPhase).toBe('video-ended')
   })
 
   it('haelt im gefuehrten Spiel an, wenn das Video nicht abgespielt werden kann', () => {

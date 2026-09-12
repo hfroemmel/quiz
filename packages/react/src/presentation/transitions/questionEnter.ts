@@ -39,10 +39,10 @@ export const revealEnter: PresentationTransitionDefinition = {
 
 export const videoEnter: PresentationTransitionDefinition = {
   id: 'video-enter',
-  description: 'Videophase: Bühne verdunkelt, Videofläche fährt auf.',
+  description: 'Videophase: die Videofläche wächst aus der Mitte heraus und blendet ein.',
   appliesTo: { from: '*', to: 'video' },
-  durationMs: presentationTiming.sceneFadeMs,
-  easing: easings.standard,
+  durationMs: 640,
+  easing: easings.emphasized,
   reducedMotionDurationMs: 120,
   classNames: { active: 'video-enter', to: 'scene-enter' },
 }

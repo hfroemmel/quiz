@@ -190,7 +190,7 @@ describe('LocalQuizRuntime', () => {
 
     expect(alsOperator({ type: 'START_VIDEO' }).ok).toBe(true)
     const geplant = service.authoritativeState!.pendingTransition
-    expect(geplant?.nextPhase).toBe('question-presented')
+    expect(geplant?.nextPhase).toBe('video-ended')
     expect(geplant!.endsAtMs - clock.nowMs).toBe(5_000 + gameTiming.videoTailMs)
 
     // Und der Uebergang selbst beendet das Video, statt es weiterlaufen zu lassen.
@@ -201,7 +201,7 @@ describe('LocalQuizRuntime', () => {
       actor: { clientId: 'test-system', role: 'system' },
       expectedRevision: service.currentRevision,
     })
-    expect(service.authoritativeState!.phase).toBe('question-presented')
+    expect(service.authoritativeState!.phase).toBe('video-ended')
     expect(service.authoritativeState!.video!.status).toBe('ended')
     runtime.dispose()
   })

@@ -13,7 +13,6 @@
 export * from './presentation/QuizScene'
 export * from './presentation/StageScreen'
 export * from './presentation/soundCues'
-export * from './presentation/videoClock'
 export * from './presentation/texts'
 export * from './presentation/useAudioUnlock'
 export * from './presentation/stageTheme'

@@ -43,12 +43,11 @@ export const gameTiming = {
   /** Kurze definierte Pause zwischen Feedback und Loesungsansicht. */
   solutionDelayMs: 250,
   /**
-   * Zuschlag nach dem gemeldeten Ende eines Videos, bevor die Frage erscheint.
+   * Zuschlag nach dem gemeldeten Ende eines Videos, bevor die Videophase endet.
    *
-   * Er deckt Ausspielverzoegerungen ab und gilt in JEDEM Ablaufprofil: Ein
-   * Video, das durchgelaufen ist, hat nichts mehr zu zeigen - weder am Geraet
-   * noch im Saal soll ein schwarzes Bild stehen, bis jemand weiterschaltet.
-   * Deshalb steht der Wert hier und nicht mehr bei den Zeiten, die nur den
+   * Er deckt Ausspielverzoegerungen ab und gilt in JEDEM Ablaufprofil: Im Saal
+   * blendet das Video danach aus und der Ablauf haelt an, am Geraet folgt die
+   * Frage. Deshalb steht der Wert hier und nicht bei den Zeiten, die nur den
    * fehlenden Operator ersetzen.
    */
   videoTailMs: 400,

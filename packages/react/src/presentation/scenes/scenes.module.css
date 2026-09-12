@@ -103,10 +103,14 @@
  * nicht das Video: Sonst haette die Vorschau eine andere Komposition als der
  * Saal, und waehrend des Ladens spraenge die Flaeche.
  *
+ * Die GROESSE traegt der Kasten darum herum, nicht die Flaeche selbst: Die
+ * Flaeche blendet am Ende aus und tritt dabei zurueck, der Stand in der
+ * Operatorvorschau muss aber an seinem Platz stehen bleiben.
+ *
  * `aspect-ratio` gibt ihm die uebliche Breitbildform, in die sich jedes
  * Seitenverhaeltnis einpasst.
  */
-.videoFrame {
+.videoBox {
   position: relative;
   /*
    * `flex: 0 0 auto` ist Pflicht, nicht Geschmack. Die Szene ist eine Spalte,
@@ -119,12 +123,27 @@
   align-self: center;
   width: 65cqw;
   aspect-ratio: 16 / 9;
+}
+.videoFrame {
+  position: absolute;
+  inset: 0;
   border-radius: 1.4cqw;
   background: var(--color-tile);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition:
+    opacity var(--video-exit-duration) ease-in,
+    transform var(--video-exit-duration) ease-in;
+}
+/*
+ * Abgang: Das Video ist durch. Die Flaeche tritt ein Stueck zurueck und blendet
+ * aus; zurueck kommt sie nur, wenn der Operator von vorn beginnt.
+ */
+.videoFrame[data-video-state='ended'] {
+  opacity: 0;
+  transform: scale(0.94);
 }
 /*
  * `contain` statt `cover`: Ein Video wird nicht beschnitten. Was an den Seiten
@@ -147,38 +166,44 @@
 }
 
 /*
- * Die Uhr in der Operatorvorschau.
+ * Der Stand in der Operatorvorschau.
  *
- * Sie steht dort, wo im Saal das Bild ist, und fuellt das Rechteck aus: Der
- * Operator schaut waehrend eines Videos nicht auf seinen Bildschirm, sondern in
- * den Saal - der Blick zurueck muss die Zahl in einem Zug finden.
- *
- * Ziffern mit fester Laufweite, damit die Zeile beim Herunterzaehlen nicht
- * zappelt.
+ * Er steht mitten auf der Flaeche, dort, wo im Saal das Bild ist: Der Operator
+ * schaut waehrend eines Videos in den Saal, nicht auf seinen Bildschirm - der
+ * Blick zurueck muss das eine Wort in einem Zug finden. Der Punkt davor traegt
+ * die Akzentfarbe nur, solange das Video laeuft; er blinkt nicht.
  */
-.videoClock {
+.videoStatus {
   position: absolute;
   inset: 0;
+  margin: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6cqw;
-  text-align: center;
-}
-.videoClockTime {
+  gap: 1.6cqw;
   font-family: var(--font-heading);
-  font-variant-numeric: tabular-nums;
-  font-size: 9cqw;
+  font-size: 4.2cqw;
   line-height: 1;
   color: var(--color-text);
 }
-.videoClockLabel {
-  font-family: var(--font-ui);
-  font-size: 1.5cqw;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.videoStatusDot {
+  flex: 0 0 auto;
+  width: 2.2cqw;
+  height: 2.2cqw;
+  border-radius: 50%;
+  background: var(--color-textMuted);
+}
+.videoStatus[data-video-status='playing'] .videoStatusDot {
+  background: var(--color-accent);
+}
+.videoStatus[data-video-status='ended'] {
   color: var(--color-textMuted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .videoFrame {
+    transition-duration: 1ms;
+  }
 }
 
 /* Rueckmeldung */
@@ -309,8 +334,7 @@
 :global(.stage--kids) .pauseCategory,
 :global(.stage--kids) .startTitle,
 :global(.stage--kids) .pausePlaceholder,
-:global(.stage--kids) .videoClockTime,
-:global(.stage--kids) .videoClockLabel,
+:global(.stage--kids) .videoStatus,
 :global(.stage--kids) .videoError,
 :global(.stage--kids) .videoMissing {
   font-family: var(--kids-hand);

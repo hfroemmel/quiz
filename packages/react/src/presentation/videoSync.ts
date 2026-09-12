@@ -14,13 +14,22 @@
  * ANGEGLICHEN WIRD DESHALB NUR, WENN ES NICHTS ZU ZERSTOEREN GIBT:
  *   - Das Element laeuft nicht. Dann ist der Sprung unsichtbar - genau der Fall
  *     eines Fensters, das mitten im Video dazukommt.
- *   - Die Serverposition ist ZURUECKGEGANGEN. Waehrend einer durchlaufenden
- *     Wiedergabe kann sie das nicht; sie tut es nur, wenn jemand das Video von
- *     vorn gestartet hat. Dann ist der Sprung der Sinn der Sache.
+ *   - Das Element liegt deutlich VOR dem Server. Eine Wiedergabe kann der
+ *     Wanduhr nicht vorauslaufen, sie beginnt immer ein Stueck spaeter. Liegt
+ *     sie trotzdem vorn, hat jemand das Video von vorn gestartet - dann ist der
+ *     Sprung der Sinn der Sache.
  *
- * Ein Vorlauf des Servers bleibt dagegen unbeantwortet. Die Frage kommt ohnehin
+ * Ein Vorlauf des Servers bleibt dagegen unbeantwortet. Das Ende kommt ohnehin
  * zur Serverzeit - das Video wird dann um seinen Rueckstand beschnitten, und das
  * ist allemal besser als ein Bild, das im Sekundentakt schwarz wird.
+ *
+ * VERGLICHEN WIRD MIT DER SERVERPOSITION VON JETZT, nicht mit der des
+ * Schnappschusses (`serverpositionJetzt`). Waehrend ein Video laeuft, kommen
+ * keine Schnappschuesse: Ein Neustart war frueher daran zu erkennen, dass die
+ * gemeldete Position zurueckging - nur stand sie vor dem Neustart genauso bei
+ * null wie danach, und die Buehne lief einfach weiter. Umgekehrt laege ein
+ * Schnappschuss, der erst spaeter ausgewertet wird, scheinbar weit hinter dem
+ * Element und liesse das Video grundlos zurueckspringen.
  *
  * OHNE BROWSER PRUEFBAR: Deshalb steht die Entscheidung hier und nicht in der
  * Szene. Hinein gehen zwei Zahlen und zwei Wahrheitswerte, heraus kommt, was zu
@@ -52,16 +61,31 @@ export interface Videoangleich {
  */
 export const angleichToleranzMs = 600
 
+/**
+ * Wo steht das Video nach Serveruhr JETZT?
+ *
+ * Die Position im Ansichtsmodell gilt fuer den Zeitpunkt des Schnappschusses;
+ * ein laufendes Video ist seitdem weitergelaufen. Gerechnet wird mit der
+ * Serverzeit des Clients, nicht mit seiner eigenen Uhr.
+ */
+export function serverpositionJetzt(
+  video: Pick<PublicVideoState, 'status' | 'positionMs'>,
+  schnappschussMs: number,
+  jetztMs: number,
+): number {
+  if (video.status !== 'playing') return video.positionMs
+  return video.positionMs + Math.max(0, jetztMs - schnappschussMs)
+}
+
 export function videoangleich(
+  /** Stand des Servers - die Position bereits auf jetzt hochgerechnet. */
   server: Pick<PublicVideoState, 'status' | 'positionMs'>,
   element: Elementstand,
-  zuletztGesehenePositionMs: number | undefined,
 ): Videoangleich {
   const laeuft = server.status === 'playing'
 
-  // Ein Ruecksprung der Serverposition kann nur ein Neustart sein.
-  const neuGestartet =
-    zuletztGesehenePositionMs !== undefined && server.positionMs < zuletztGesehenePositionMs - angleichToleranzMs
+  // Liegt das Element deutlich vorn, kann das nur ein Neustart sein.
+  const neuGestartet = laeuft && element.positionMs > server.positionMs + angleichToleranzMs
 
   const abweichungMs = Math.abs(element.positionMs - server.positionMs)
   const angleichen = (element.paused || neuGestartet) && abweichungMs > angleichToleranzMs
@@ -71,8 +95,8 @@ export function videoangleich(
     /*
      * Ein Element am Ende wird NICHT gestartet: `play()` spulte dort von selbst
      * zurueck und spielte das Video ein zweites Mal - waehrend der Server nur
-     * noch auf seinen Nachlauf zur Frage wartet. Wird zugleich angeglichen,
-     * hebt der Sprung das Ende auf, und gestartet wird wieder.
+     * noch auf seinen Nachlauf wartet. Wird zugleich angeglichen, hebt der
+     * Sprung das Ende auf, und gestartet wird wieder.
      */
     starten: laeuft && element.paused && (!element.ended || angleichen),
     anhalten: !laeuft && !element.paused,
@@ -88,8 +112,7 @@ export function videoangleich(
  * deshalb nur, was der Server noch nicht weiss.
  *
  * `Infinity` meldet ein Element, dessen Laenge nicht feststeht. Als Laufzeit
- * eingetragen, machte sie die Restzeitanzeige des Operators unbrauchbar und
- * legte den Uebergang zur Frage auf die Unendlichkeit.
+ * eingetragen, legte sie das Ende der Videophase auf die Unendlichkeit.
  */
 export function laufzeitMelden(bekannteMs: number | undefined, gemesseneMs: number): boolean {
   if (!Number.isFinite(gemesseneMs) || gemesseneMs <= 0) return false

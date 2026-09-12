@@ -11,6 +11,7 @@ Alle Phasenwechsel finden ausschliesslich in `packages/domain/src/engine.ts` sta
 | `question-presented` | Frage sichtbar, Antworten noch verborgen | gesperrt |
 | `video-ready` | Videofrage vorbereitet | gesperrt |
 | `video-playing` | Video laeuft | gesperrt |
+| `video-ended` | Video durchgelaufen und ausgeblendet, Ablauf haelt bis `Frage einblenden` (nur gefuehrtes Spiel) | gesperrt |
 | `buzzer-open` | normale Frage, Buzzer offen | **offen** |
 | `answer-locked` | ein Spieler hat den Zuschlag | gesperrt |
 | `attempt-feedback` | Richtig-/Falsch-Animation (zeitgesteuert) | gesperrt |
@@ -75,7 +76,7 @@ Zustandsmaschine. Unterschiedlich ist nur, wer einen Uebergang ausloest:
 | Bilderkennen | Operator startet die Enthuellung | beginnt direkt in `reveal-running` |
 | Antwort | Operator loggt ein und loest auf | dieselbe Sequenz durch die Spieler selbst: `BUZZ` sperrt den anderen, `LOG_OPTION_ANSWER` markiert (umentscheidbar), `RESOLVE_ATTEMPT` gibt ab und wertet |
 | nach der Loesung | Operator drueckt `Weiter` | ein SPIELER drueckt `Weiter` (`CONTINUE`); eingeplant wird hier nichts |
-| Videofrage | Operator startet und blendet um | startet nach `videoLeadInMs`, die Frage folgt aus der gemeldeten Laufzeit |
+| Videofrage | Operator startet; am Ende blendet das Video aus und der Ablauf haelt, bis der Operator die Frage einblendet | startet nach `videoLeadInMs`, die Frage folgt aus der gemeldeten Laufzeit |
 
 Alle automatischen Uebergaenge nutzen dieselbe Mechanik wie Feedback und
 Pausenscreen: `pendingTransition` mit serverseitiger Fallbackzeit. Eine
@@ -142,16 +143,23 @@ und `RESUME_IMAGE_REVEAL` wechseln zwischen `reveal-running` und `reveal-paused`
 ## Videofrage
 
 ```text
-pause-screen ──(Zeit)──> video-ready ──START_VIDEO──> video-playing
-                              ▲                            │
-                              └──────PAUSE_VIDEO───────────┘
+pause-screen ──(Zeit)──> video-ready ──START_VIDEO──> video-playing ──(Laufzeit)──> video-ended
+                              ▲                            │                            │
+                              └──────PAUSE_VIDEO───────────┘                            │
+                              │                                                         │
+                              │ SHOW_QUESTION_AFTER_VIDEO     SHOW_QUESTION_AFTER_VIDEO │
+                              ▼                                                         │
+                       question-presented <─────────────────────────────────────────────┘
                               │
-                              │ SHOW_QUESTION_AFTER_VIDEO
-                              ▼
-                       question-presented ──> normaler Ablauf
+                              └──> normaler Ablauf
 ```
 
 Video und Frage sind zwei Phasen **derselben** Frage, nicht zwei Fragen.
+
+Ist das Video durchgelaufen (gemeldete Laufzeit plus `videoTailMs`), blendet die
+Buehne die Videoflaeche aus, und der Ablauf **haelt an**: Die Frage blendet der
+Operator von Hand ein. `RESTART_VIDEO` beginnt von vorn, `SKIP_QUESTION` bleibt
+moeglich. Am Geraet (`self-service`) folgt die Frage stattdessen unmittelbar.
 
 ## Zeitgesteuerte Phasen
 

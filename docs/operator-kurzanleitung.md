@@ -60,8 +60,12 @@ Zusatzinformationen. Der Saal sieht davon nichts.
 ## Videofragen
 
 Video bewusst starten (kein Autoplay), bei Bedarf pausieren oder neu starten.
-Springen gibt es nicht. Waehrend des Videos ist der Buzzer gesperrt. Danach `Frage einblenden`,
-dann `Antworten einblenden`.
+Springen gibt es nicht. Waehrend des Videos ist der Buzzer gesperrt. Abgespielt wird
+nur auf der Buehne; die Vorschau am Pult zeigt, ob das Video bereit ist, laeuft,
+angehalten oder zu Ende ist.
+
+Am Ende blendet das Video von selbst aus, und der Ablauf haelt an. Dann
+`Frage einblenden`, danach `Antworten einblenden`.
 
 Laesst sich ein Video nicht abspielen, erscheint eine Warnung im Diagnosebereich.
 Sichere naechste Aktion: `Frage ueberspringen`.

@@ -110,6 +110,7 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
       return 'question'
     case 'video-ready':
     case 'video-playing':
+    case 'video-ended':
       return 'video'
     case 'reveal-ready':
     case 'reveal-running':
@@ -680,7 +681,9 @@ function nextStepHint(state: GameState | null): string {
     case 'video-ready':
       return 'Video steht bereit. Der Operator startet es; Buzzern ist erst nach dem Video möglich.'
     case 'video-playing':
-      return 'Video läuft. Danach "Frage einblenden" und "Antworten einblenden".'
+      return 'Video läuft. Am Ende blendet es aus und der Ablauf hält an.'
+    case 'video-ended':
+      return 'Video ist zu Ende. "Frage einblenden", dann "Antworten einblenden".'
     case 'buzzer-open':
       return 'Buzzer offen. Wer zuerst drückt, antwortet.'
     case 'reveal-running':

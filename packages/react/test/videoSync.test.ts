@@ -8,7 +8,13 @@
  * Abweichung erzeugte.
  */
 import { describe, expect, it } from 'vitest'
-import { angleichToleranzMs, laufzeitMelden, videoangleich, type Elementstand } from '../src/presentation/videoSync'
+import {
+  angleichToleranzMs,
+  laufzeitMelden,
+  serverpositionJetzt,
+  videoangleich,
+  type Elementstand,
+} from '../src/presentation/videoSync'
 
 const element = (ueberschreibung: Partial<Elementstand> = {}): Elementstand => ({
   positionMs: 0,
@@ -19,41 +25,32 @@ const element = (ueberschreibung: Partial<Elementstand> = {}): Elementstand => (
 
 describe('videoangleich', () => {
   it('laesst ein laufendes Bild in Ruhe, auch wenn es dem Server hinterherhinkt', () => {
-    const befund = videoangleich(
-      { status: 'playing', positionMs: 12_000 },
-      element({ positionMs: 8_000 }),
-      11_000,
-    )
+    const befund = videoangleich({ status: 'playing', positionMs: 12_000 }, element({ positionMs: 8_000 }))
     expect(befund.springeNachMs).toBeUndefined()
     expect(befund.starten).toBe(false)
     expect(befund.anhalten).toBe(false)
   })
 
   it('gleicht ein Fenster an, das mitten im Video dazukommt', () => {
-    const befund = videoangleich(
-      { status: 'playing', positionMs: 30_000 },
-      element({ paused: true }),
-      undefined,
-    )
+    const befund = videoangleich({ status: 'playing', positionMs: 30_000 }, element({ paused: true }))
     expect(befund.springeNachMs).toBe(30_000)
     expect(befund.starten).toBe(true)
   })
 
   it('springt zurueck, wenn das Video neu gestartet wurde', () => {
-    const befund = videoangleich(
-      { status: 'playing', positionMs: 0 },
-      element({ positionMs: 20_000 }),
-      20_000,
-    )
+    /*
+     * Waehrend das Video laeuft, kommt kein Schnappschuss: Zuletzt gesehen hat
+     * die Buehne die Position beim Start - null. Nach dem Neustart steht sie
+     * wieder bei null. Erkennbar ist der Neustart allein daran, dass das
+     * Element weit vorn liegt.
+     */
+    const befund = videoangleich({ status: 'playing', positionMs: 0 }, element({ positionMs: 4_000 }))
     expect(befund.springeNachMs).toBe(0)
+    expect(befund.anhalten).toBe(false)
   })
 
   it('haelt an, sobald der Server nicht mehr spielt', () => {
-    const befund = videoangleich(
-      { status: 'paused', positionMs: 9_000 },
-      element({ positionMs: 9_100 }),
-      9_000,
-    )
+    const befund = videoangleich({ status: 'paused', positionMs: 9_000 }, element({ positionMs: 9_100 }))
     expect(befund.anhalten).toBe(true)
     expect(befund.starten).toBe(false)
     expect(befund.springeNachMs).toBeUndefined()
@@ -63,7 +60,6 @@ describe('videoangleich', () => {
     const befund = videoangleich(
       { status: 'playing', positionMs: 60_000 },
       element({ positionMs: 60_000, paused: true, ended: true }),
-      59_000,
     )
     expect(befund.starten).toBe(false)
   })
@@ -72,7 +68,6 @@ describe('videoangleich', () => {
     const befund = videoangleich(
       { status: 'playing', positionMs: 0 },
       element({ positionMs: 60_000, paused: true, ended: true }),
-      60_000,
     )
     expect(befund.springeNachMs).toBe(0)
     expect(befund.starten).toBe(true)
@@ -82,8 +77,30 @@ describe('videoangleich', () => {
     const befund = videoangleich(
       { status: 'idle', positionMs: 5_000 },
       element({ positionMs: 5_000 + angleichToleranzMs - 1, paused: true }),
-      5_000,
     )
+    expect(befund.springeNachMs).toBeUndefined()
+  })
+})
+
+describe('serverpositionJetzt', () => {
+  it('rechnet ein laufendes Video vom Schnappschuss bis jetzt hoch', () => {
+    expect(serverpositionJetzt({ status: 'playing', positionMs: 4_000 }, 1_000_000, 1_003_000)).toBe(7_000)
+  })
+
+  it('laesst ein stehendes Video, wo es ist', () => {
+    expect(serverpositionJetzt({ status: 'paused', positionMs: 4_000 }, 1_000_000, 1_003_000)).toBe(4_000)
+    expect(serverpositionJetzt({ status: 'ended', positionMs: 4_000 }, 1_000_000, 1_003_000)).toBe(4_000)
+  })
+
+  /*
+   * Der Fall, den die Hochrechnung verhindert: Ein Schnappschuss wird erst
+   * spaeter ausgewertet - etwa weil die Tonfreigabe die Szene neu zeichnet. Ohne
+   * Hochrechnung laege das Element scheinbar weit vor dem Server, und das Video
+   * spraenge grundlos an den Anfang.
+   */
+  it('haelt einen spaet ausgewerteten Schnappschuss nicht fuer einen Neustart', () => {
+    const jetzt = serverpositionJetzt({ status: 'playing', positionMs: 1_000 }, 1_000_000, 1_010_000)
+    const befund = videoangleich({ status: 'playing', positionMs: jetzt }, element({ positionMs: 10_800 }))
     expect(befund.springeNachMs).toBeUndefined()
   })
 })

@@ -91,10 +91,32 @@
 }
 
 
+/*
+ * Auftritt der Videoflaeche: Sie waechst aus der Mitte heraus und blendet ein.
+ */
+@keyframes video-rise {
+  from {
+    opacity: 0;
+    transform: translateY(2.5cqw) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
 /* Klassen, die das Uebergangsregistry setzt. */
-.scene-fade,
-.video-enter {
+.scene-fade {
   animation: scene-fade-in var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
+}
+/*
+ * Bewegt wird die Videoflaeche, nicht die ganze Szene: Der Rahmen ist der
+ * Auftritt. Ein Fenster, das erst nach dem Video dazukommt, zeigt keinen
+ * Auftritt einer Flaeche, die gleich wieder ausgeblendet ist.
+ */
+.video-enter [data-video-placeholder]:not([data-video-state='ended']) {
+  animation: video-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
 }
 .question-enter,
 .reveal-enter {
@@ -122,7 +144,7 @@
  */
 @media (prefers-reduced-motion: reduce) {
   .scene-fade,
-  .video-enter,
+  .video-enter [data-video-placeholder],
   .question-enter,
   .reveal-enter,
   .feedback-correct,

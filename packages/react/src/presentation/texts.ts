@@ -47,9 +47,14 @@ export const standardTexte = {
   'result.soloHeadline': '{correct} von {total} richtig',
   'video.missing': 'Kein Video hinterlegt.',
   'video.error': 'Video nicht verfügbar.',
-  'video.remaining': 'bis zur Frage',
-  'video.paused': 'verbleibend - angehalten',
-  'video.unknownDuration': 'gelaufen - Laufzeit noch nicht gemeldet',
+  /*
+   * Wie es um das Video steht - nur in der Operatorvorschau. Im Saal steht an
+   * dieser Stelle das Bild.
+   */
+  'video.status.ready': 'Video bereit',
+  'video.status.playing': 'Video läuft',
+  'video.status.paused': 'Video angehalten',
+  'video.status.ended': 'Video zu Ende',
 
   /* Geraet: Startauswahl */
   'kiosk.setupTitle': 'Spiel starten',

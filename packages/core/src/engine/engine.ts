@@ -913,7 +913,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
       return work.commit()
     }
     case 'RESTART_VIDEO': {
-      if (!['video-ready', 'video-playing'].includes(work.phase)) {
+      if (!['video-ready', 'video-playing', 'video-ended'].includes(work.phase)) {
         return reject('invalid-phase', 'Das Video kann in dieser Phase nicht neu gestartet werden.')
       }
       work.mutate((draft) => {
@@ -932,7 +932,12 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
           durationMs: command.durationMs ?? draft.video!.durationMs,
           error: command.error ?? undefined,
         }
-        if (command.error) {
+        /*
+         * Ein Video, das schon durchgelaufen ist, faellt nicht mehr zurueck: Ein
+         * Fenster, das erst jetzt dazukommt und die Datei nicht laden kann, darf
+         * den Operator nicht wieder vor "Video starten" stellen.
+         */
+        if (command.error && work.phase !== 'video-ended') {
           draft.video!.status = 'idle'
           draft.phase = 'video-ready'
         }
@@ -947,7 +952,7 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
       return work.commit()
     }
     case 'SHOW_QUESTION_AFTER_VIDEO': {
-      if (!['video-ready', 'video-playing'].includes(work.phase)) {
+      if (!['video-ready', 'video-playing', 'video-ended'].includes(work.phase)) {
         return reject('invalid-phase', 'Die Videophase ist nicht aktiv.')
       }
       work.mutate((draft) => {
@@ -1054,6 +1059,7 @@ function skipQuestion(work: Draft, reason: string | undefined): EngineResult {
     'second-chance',
     'video-ready',
     'video-playing',
+    'video-ended',
     'reveal-ready',
     'reveal-running',
     'reveal-paused',
@@ -1211,6 +1217,22 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
         // Das Ende wird unten geplant - erst muss die neue Phase stehen.
         break
       }
+      case 'video-ended': {
+        // Das Video ist durch; die Frage blendet der Operator von Hand ein.
+        draft.phase = 'video-ended'
+        draft.buzzer = { open: false }
+        if (draft.video) {
+          const elapsed = draft.video.startedAtServerMs ? work.ctx.nowMs - draft.video.startedAtServerMs : 0
+          const played = draft.video.positionMs + Math.max(0, elapsed)
+          draft.video = {
+            ...draft.video,
+            status: 'ended',
+            positionMs: draft.video.durationMs === undefined ? played : Math.min(played, draft.video.durationMs),
+            startedAtServerMs: undefined,
+          }
+        }
+        break
+      }
       case 'question-presented': {
         draft.phase = 'question-presented'
         draft.buzzer = { open: false }
@@ -1291,10 +1313,14 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
 /**
  * Wann endet die Videophase?
  *
- * EIN DURCHGELAUFENES VIDEO GEHT VON SELBST IN DIE FRAGE UEBER - im Saal wie am
- * Geraet. Ein schwarzes Bild, das stehen bleibt, bis jemand weiterschaltet, ist
- * in beiden Faellen ein Ausfall; der Operator behaelt seinen Knopf, um frueher
- * umzuschalten, muss ihn aber nicht mehr suchen.
+ * EIN DURCHGELAUFENES VIDEO ENDET VON SELBST - wohin es danach geht, haengt am
+ * Ablaufprofil:
+ *   - Im gefuehrten Spiel wird das Video ausgeblendet und der Ablauf haelt an
+ *     (`video-ended`). Die Frage blendet der Operator von Hand ein: Er sieht, ob
+ *     der Saal so weit ist, und die Moderation bekommt ihren Moment.
+ *   - Am Geraet steht niemand, der einblenden koennte. Dort folgt die Frage
+ *     unmittelbar.
+ * Seinen Knopf, um frueher umzuschalten, behaelt der Operator in beiden Faellen.
  *
  * Der Server hat keine eigene Sicht auf das Medium, deshalb plant er den Wechsel
  * aus der Laufzeit, die der Client meldet. Massgeblich bleibt trotzdem der
@@ -1331,14 +1357,13 @@ function scheduleVideoEnd(work: Draft, hasError: boolean, erzwinge = false): voi
    * Nur ein Befehl plant neu (`erzwinge`) - Starten, Fortsetzen, Zuruecksetzen.
    * Eine Statusmeldung ist keine Entscheidung, sondern eine Beobachtung.
    */
-  const steht = state.pendingTransition?.nextPhase === 'question-presented'
+  const ziel: GamePhase = state.flowProfile === 'self-service' ? 'question-presented' : 'video-ended'
+  const steht = state.pendingTransition?.nextPhase === ziel
   if (steht && !erzwinge) return
 
   const played = video.positionMs + (video.startedAtServerMs ? work.ctx.nowMs - video.startedAtServerMs : 0)
   const remainingMs = Math.max(0, video.durationMs - played)
-  work.scheduleTimedTransition('question-presented', remainingMs + work.timing.videoTailMs, 'video-to-question', {
-    still: true,
-  })
+  work.scheduleTimedTransition(ziel, remainingMs + work.timing.videoTailMs, 'video-end', { still: true })
 }
 
 /**

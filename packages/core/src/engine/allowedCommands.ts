@@ -144,6 +144,13 @@ export function availableCommands(state: GameState | null): CommandType[] {
       list.add('SKIP_QUESTION')
       break
 
+    case 'video-ended':
+      // Starten und Pausieren gibt es nicht mehr - nur noch von vorn oder weiter.
+      list.add('RESTART_VIDEO')
+      list.add('SHOW_QUESTION_AFTER_VIDEO')
+      list.add('SKIP_QUESTION')
+      break
+
     case 'solution':
       list.add('CONTINUE')
       break

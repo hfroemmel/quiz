@@ -28,6 +28,13 @@ export const gamePhases = [
   'video-ready',
   /** Video laeuft, Buzzer gesperrt. */
   'video-playing',
+  /**
+   * Video ist durchgelaufen und ausgeblendet, die Frage steht noch nicht.
+   *
+   * Nur im gefuehrten Spiel: Der Ablauf haelt hier an, bis der Operator die
+   * Frage von Hand einblendet. Buzzer gesperrt.
+   */
+  'video-ended',
   /** Buzzer offen (normale Frage). */
   'buzzer-open',
   /** Ein Spieler hat den Zuschlag, Operator loggt die Antwort ein. */

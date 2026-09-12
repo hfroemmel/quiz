@@ -11,7 +11,13 @@
  *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
  */
 import { useMemo, useState } from 'react'
-import type { PublicQuizViewModel, PublicScene, QuestionPresentationType, ThemeSkin } from '@hfroemmel/quiz-core'
+import type {
+  PublicQuizViewModel,
+  PublicScene,
+  PublicVideoState,
+  QuestionPresentationType,
+  ThemeSkin,
+} from '@hfroemmel/quiz-core'
 import { gameTiming } from '@hfroemmel/quiz-core'
 import { stagePalettes } from '@hfroemmel/quiz-themes'
 import { StageScreen } from '@hfroemmel/quiz-react'
@@ -69,12 +75,28 @@ export function PreviewApp() {
    * Server pruefbar bleibt. Die Jokerkarte selbst liegt im Live-Quiz.
    */
   const [fiftyFifty, setFiftyFifty] = useState(false)
+  /*
+   * Wie es um das Video steht. Die Operatorvorschau sagt genau das an, und die
+   * Buehne blendet die Flaeche aus, sobald es zu Ende ist.
+   */
+  const [videoStatus, setVideoStatus] = useState<PublicVideoState['status']>('playing')
   // Neu montieren, um denselben Uebergang erneut abzuspielen.
   const [runId, setRunId] = useState(0)
 
   const view = useMemo(
-    () => buildSampleView({ scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty }),
-    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty],
+    () =>
+      buildSampleView({
+        scene,
+        questionType,
+        themeId,
+        feedbackOutcome,
+        revealElapsedMs,
+        draw,
+        longText,
+        fiftyFifty,
+        videoStatus,
+      }),
+    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty, videoStatus],
   )
 
   if (!import.meta.env.DEV) {
@@ -175,8 +197,8 @@ export function PreviewApp() {
           *
           * WO DIE SZENE LAEUFT, ist Teil der Paketoberflaeche und gehoert
           * deshalb in den Pruefstand. Die Vorschau des Operators ist nicht
-          * dieselbe Ansicht wie der Beamer: Sie darf Regiehinweise tragen - die
-          * Restzeit eines Videos etwa -, die im Saal nichts zu suchen haben.
+          * dieselbe Ansicht wie der Beamer: Sie darf Regiehinweise tragen - ob
+          * ein Video gerade laeuft etwa -, die im Saal nichts zu suchen haben.
           */}
         <label className="field">
           <span>Ansicht</span>
@@ -204,6 +226,22 @@ export function PreviewApp() {
           />
           <span>50:50-Joker (zwei Antworten ausgeblendet)</span>
         </label>
+
+        {scene === 'video' && (
+          <label className="field">
+            <span>Videostatus</span>
+            <select
+              data-preview-video-status=""
+              value={videoStatus}
+              onChange={(event) => setVideoStatus(event.target.value as PublicVideoState['status'])}
+            >
+              <option value="idle">bereit</option>
+              <option value="playing">läuft</option>
+              <option value="paused">angehalten</option>
+              <option value="ended">zu Ende</option>
+            </select>
+          </label>
+        )}
 
         <button className="button button--primary" onClick={() => setRunId((value) => value + 1)}>
           Uebergang erneut abspielen
@@ -236,11 +274,9 @@ export function PreviewApp() {
           view={view}
           /*
            * Fuer alles Dargestellte steht die Zeit still - sonst liefe die
-           * Enthuellungsuhr sofort ab und jeder Screenshot zeigte etwas
-           * anderes. Nur die Videoszene laeuft mit: Ihre Uhr IST der Gegenstand
-           * der Vorschau, und ihr Schnappschuss traegt deshalb die echte Zeit.
+           * Enthuellungsuhr sofort ab und jeder Screenshot zeigte etwas anderes.
            */
-          serverNow={() => (view.scene === 'video' ? Date.now() : view.serverTimeMs)}
+          serverNow={() => view.serverTimeMs}
           isAudioMaster={false}
           variant={variant}
         />
@@ -344,14 +380,10 @@ function buildSampleView(input: {
   draw: boolean
   longText: boolean
   fiftyFifty: boolean
+  videoStatus: PublicVideoState['status']
 }): PublicQuizViewModel {
-  /*
-   * Fester Zeitpunkt fuer alles Dargestellte - Screenshots duerfen nicht von der
-   * Uhr abhaengen. EINE Ausnahme: die Videoszene. Deren Uhr laeuft gegen die
-   * Serverzeit, und mit einem Zeitpunkt aus dem Jahr 2023 waere jedes Video
-   * abgelaufen, bevor die Vorschau es zeigt.
-   */
-  const serverTimeMs = input.scene === 'video' ? Date.now() : 1_700_000_000_000
+  // Fester Zeitpunkt fuer alles Dargestellte - Screenshots duerfen nicht von der Uhr abhaengen.
+  const serverTimeMs = 1_700_000_000_000
   const scores = [
     // Dreistellige Punktestaende sind der Regelfall, nicht die Ausnahme.
     { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false },
@@ -438,15 +470,24 @@ function buildSampleView(input: {
       }
     case 'video':
       /*
-       * Ein LAUFENDES Video: Nur so ist die Uhr der Operatorvorschau zu sehen,
-       * die dort steht, wo im Saal das Bild ist. Die Adresse zeigt bewusst ins
-       * Leere - geprueft wird die Komposition, nicht die Wiedergabe.
+       * Die Phase folgt dem gewaehlten Stand, wie beim Server. Die Adresse zeigt
+       * bewusst ins Leere - geprueft wird die Komposition, nicht die Wiedergabe.
        */
       return {
         ...base,
-        phase: 'video-playing',
+        phase:
+          input.videoStatus === 'playing'
+            ? 'video-playing'
+            : input.videoStatus === 'ended'
+              ? 'video-ended'
+              : 'video-ready',
         question: { prompt: 'Videofrage', presentationType: 'video-then-question', videoUrl: '/media/beispielvideo' },
-        video: { status: 'playing', positionMs: 12_000, durationMs: 95_000, hasError: false },
+        video: {
+          status: input.videoStatus,
+          positionMs: input.videoStatus === 'ended' ? 95_000 : 12_000,
+          durationMs: 95_000,
+          hasError: false,
+        },
       }
     case 'feedback':
       return {

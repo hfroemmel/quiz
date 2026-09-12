@@ -29,7 +29,7 @@ bewegt.
 | `question-enter` | `pause`/`start` → `question` | 420 ms | 120 ms | emphasized | Medium und Text steigen 12 px auf und blenden ein | `question-appear` |
 | `options-stagger` | innerhalb `question` | 70 ms Versatz je Zeile | 0 ms | standard | Antwortleisten laufen nacheinander von links 16 px ein | - |
 | `reveal-enter` | `question` → `reveal` | 420 ms | 120 ms | emphasized | die verdeckte Bildflaeche blendet ein | `question-appear` |
-| `video-enter` | `question` → `video` | 420 ms | 120 ms | standard | Videorahmen blendet ein | `scene-change` |
+| `video-enter` | jede → `video` | 640 ms | 120 ms | emphasized | Videoflaeche waechst aus der Mitte (90 % → 100 %), steigt leicht auf und blendet ein | - |
 | `solution-reveal` | `feedback` → `solution` | 520 ms | 150 ms | emphasized | Loesungsbalken waechst von der Mitte auf volle Breite, Text blendet 120 ms spaeter ein | `solution` |
 | `result-celebration` | `solution` → `result` | 6000 ms | 0 ms | standard | Konfetti faellt, Ergebniskacheln steigen 20 px auf | `result` |
 | `start-return` | jede → `start` | 400 ms | 120 ms | standard | Kreuzblende zum Startbild | `scene-change` |
@@ -47,6 +47,7 @@ erscheinen.
 | `option-choose` | Antwort eingeloggt | 200 ms | 80 ms | gewaehlte Leiste faerbt sich nach `--accent` | - |
 | `option-clear` | `Zurücksetzen` | 200 ms | 80 ms | Faerbung faellt zurueck auf neutral | - |
 | `options-appear` | `Starten` | 420 ms | 120 ms | Antwortzone klappt auf, danach `options-stagger` | `question-appear` |
+| `video-exit` | Video durchgelaufen (`video.status = ended`) | 700 ms (`videoExitMs`) | 1 ms | Videoflaeche blendet aus und tritt leicht zurueck; das Element haelt erst danach an | - |
 | `score-count-up` | Punktestand aendert sich | 600 ms | entfaellt | Ziffern zaehlen vom alten zum neuen Snapshotwert | `score` |
 | `score-stars` | Punktestand **steigt** | 1000 ms | entfaellt | gelieferte Grafik `stars.webm` laeuft ueber der Punktekachel | - |
 
