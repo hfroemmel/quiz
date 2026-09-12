@@ -14,7 +14,6 @@ import { useMemo, useState } from 'react'
 import type {
   PublicQuizViewModel,
   PublicScene,
-  PublicVideoState,
   QuestionPresentationType,
   ThemeSkin,
 } from '@hfroemmel/quiz-core'
@@ -79,7 +78,6 @@ export function PreviewApp() {
    * Wie es um das Video steht. Die Operatorvorschau sagt genau das an, und die
    * Buehne blendet die Flaeche aus, sobald es zu Ende ist.
    */
-  const [videoStatus, setVideoStatus] = useState<PublicVideoState['status']>('playing')
   // Neu montieren, um denselben Uebergang erneut abzuspielen.
   const [runId, setRunId] = useState(0)
 
@@ -94,9 +92,8 @@ export function PreviewApp() {
         draw,
         longText,
         fiftyFifty,
-        videoStatus,
       }),
-    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty, videoStatus],
+    [scene, questionType, themeId, feedbackOutcome, revealElapsedMs, draw, longText, fiftyFifty],
   )
 
   if (!import.meta.env.DEV) {
@@ -227,21 +224,6 @@ export function PreviewApp() {
           <span>50:50-Joker (zwei Antworten ausgeblendet)</span>
         </label>
 
-        {scene === 'video' && (
-          <label className="field">
-            <span>Videostatus</span>
-            <select
-              data-preview-video-status=""
-              value={videoStatus}
-              onChange={(event) => setVideoStatus(event.target.value as PublicVideoState['status'])}
-            >
-              <option value="idle">bereit</option>
-              <option value="playing">läuft</option>
-              <option value="paused">angehalten</option>
-              <option value="ended">zu Ende</option>
-            </select>
-          </label>
-        )}
 
         <button className="button button--primary" onClick={() => setRunId((value) => value + 1)}>
           Uebergang erneut abspielen
@@ -352,6 +334,7 @@ function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
   if (type === 'person') {
     return {
       question: {
+        id: 'person-1',
         prompt: longText ? LONG_PROMPT : 'Wer ist diese Politikerin?',
         presentationType: type,
         categoryLabel: 'Personen',
@@ -362,6 +345,7 @@ function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
   }
   return {
     question: {
+      id: 'frage-1',
       prompt: longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
       presentationType: type,
       categoryLabel: 'Erdkunde',
@@ -380,7 +364,6 @@ function buildSampleView(input: {
   draw: boolean
   longText: boolean
   fiftyFifty: boolean
-  videoStatus: PublicVideoState['status']
 }): PublicQuizViewModel {
   // Fester Zeitpunkt fuer alles Dargestellte - Screenshots duerfen nicht von der Uhr abhaengen.
   const serverTimeMs = 1_700_000_000_000
@@ -461,6 +444,7 @@ function buildSampleView(input: {
         ...base,
         phase: 'reveal-running',
         question: {
+          id: 'reveal-1',
           prompt: 'Welches Bauwerk ist hier zu sehen?',
           presentationType: 'image-reveal',
           imageUrl: previewImage,
@@ -470,24 +454,20 @@ function buildSampleView(input: {
       }
     case 'video':
       /*
-       * Die Phase folgt dem gewaehlten Stand, wie beim Server. Die Adresse zeigt
-       * bewusst ins Leere - geprueft wird die Komposition, nicht die Wiedergabe.
+       * Es gibt genau EINEN Stand: Die Videoflaeche steht, ein Auftrag liegt an.
+       * Wie weit die Wiedergabe ist, weiss die Vorschau so wenig wie der Server.
+       * Die Adresse zeigt bewusst ins Leere - geprueft wird die Komposition.
        */
       return {
         ...base,
-        phase:
-          input.videoStatus === 'playing'
-            ? 'video-playing'
-            : input.videoStatus === 'ended'
-              ? 'video-ended'
-              : 'video-ready',
-        question: { prompt: 'Videofrage', presentationType: 'video-then-question', videoUrl: '/media/beispielvideo' },
-        video: {
-          status: input.videoStatus,
-          positionMs: input.videoStatus === 'ended' ? 95_000 : 12_000,
-          durationMs: 95_000,
-          hasError: false,
+        phase: 'video',
+        question: {
+          id: 'video-1',
+          prompt: 'Videofrage',
+          presentationType: 'video-then-question',
+          videoUrl: '/media/beispielvideo',
         },
+        video: { questionId: 'video-1', requestId: 'vorschau' },
       }
     case 'feedback':
       return {

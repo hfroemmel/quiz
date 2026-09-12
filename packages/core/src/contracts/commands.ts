@@ -80,12 +80,21 @@ export const commandSchema = z.discriminatedUnion('type', [
   /** Technische Korrektur: Enthuellung zurueck auf Sekunde 10. Nicht mit RESET_BUZZER mischen. */
   z.object({ type: z.literal('RESET_IMAGE_REVEAL') }),
 
-  z.object({ type: z.literal('START_VIDEO') }),
-  z.object({ type: z.literal('PAUSE_VIDEO') }),
-  z.object({ type: z.literal('RESTART_VIDEO') }),
+  /*
+   * Das Video dieser Frage von vorn abspielen lassen.
+   *
+   * DIE FRAGE STEHT IM BEFEHL, weil er sonst nicht zu pruefen waere: Ein Klick,
+   * der auf dem Weg war, als der Operator die Frage uebersprungen hat, wuerde
+   * sonst das Video der naechsten Frage starten. Mit der Kennung weist der
+   * Server ihn ab.
+   *
+   * Ein zweiter Klick ist kein Sonderfall - er erzeugt einfach einen neuen
+   * Auftrag, und die Buehne spielt wieder von vorn. Es gibt deshalb weder
+   * "pausieren" noch "neu starten".
+   */
+  z.object({ type: z.literal('START_VIDEO'), questionId: z.string().min(1) }),
   /** Nach der Videophase die eigentliche Frage einblenden. Gleiche Frage, zweite Phase. */
   z.object({ type: z.literal('SHOW_QUESTION_AFTER_VIDEO') }),
-  /** Der Client meldet die Laufzeit bzw. einen Ladefehler des Mediums. */
   /**
    * Sprache des Quiz umstellen.
    *
@@ -95,12 +104,6 @@ export const commandSchema = z.discriminatedUnion('type', [
    * Sprache ist eine andere.
    */
   z.object({ type: z.literal('SET_LOCALE'), locale: z.string().min(2) }),
-
-  z.object({
-    type: z.literal('REPORT_VIDEO_STATUS'),
-    durationMs: z.number().min(0).optional(),
-    error: z.string().min(1).optional(),
-  }),
 
   /*
    * ---- The joker (see `joker.ts`) ----
@@ -220,10 +223,13 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   REVEAL_IMAGE_COMPLETELY: ['operator'],
   RESET_IMAGE_REVEAL: ['operator'],
   START_VIDEO: ['operator'],
-  PAUSE_VIDEO: ['operator'],
-  RESTART_VIDEO: ['operator'],
-  SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator'],
-  REPORT_VIDEO_STATUS: ['operator', 'system', 'player'],
+  /*
+   * Auch der Spieler - denn am Touchgeraet gibt es keinen Operator, der
+   * einblenden koennte. Dort ist das Geraet sein eigenes Pult: Es zeigt das
+   * Video, es sieht dessen Ende, und es blendet danach die Frage ein. Im Saal
+   * aendert das nichts; dort kommt der Befehl weiterhin vom Pult.
+   */
+  SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator', 'player'],
   /*
    * Die Sprache darf jeder umstellen, der vor dem Quiz steht - am Geraet ist das
    * der Spieler selbst, am Buehnenabend der Operator. Sie aendert keine Wertung
@@ -295,8 +301,6 @@ export const revisionExemptCommands: ReadonlySet<CommandType> = new Set<CommandT
   'LOG_OPTION_ANSWER',
   // Serverinterner Timer; gegen Doppelausloesung schuetzt die `transitionId`.
   'ADVANCE_TIMED_PHASE',
-  // Reine Statusmeldung des Mediums, keine Spielentscheidung.
-  'REPORT_VIDEO_STATUS',
 ])
 
 export function requiresRevisionCheck(type: CommandType): boolean {
@@ -337,6 +341,11 @@ export const commandRejectionReasons = [
   'joker-no-answering-player',
   /** No such player in this game. */
   'unknown-player',
+  /* ---- Die Videofrage ---- */
+  /** Der Befehl nennt eine andere Frage als die, die gerade laeuft. */
+  'video-question-mismatch',
+  /** Zu dieser Frage ist kein Video hinterlegt - es gibt nichts abzuspielen. */
+  'video-source-missing',
   'no-candidate-question',
   'nothing-to-resume',
   'invalid-patch',

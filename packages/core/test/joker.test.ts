@@ -820,6 +820,149 @@ describe('lifetime', () => {
   })
 })
 
+/*
+ * THE DESK SHOWS THE JOKER EXACTLY WHEN IT CAN BE DRAWN.
+ *
+ * `DRAW_JOKER` in `allowedCommands` is the ONE condition the operator's panel
+ * renders on - heading and button together, or neither. These tests walk the
+ * states the panel can be in and pin down that answer, because a heading over an
+ * empty box tells the operator he missed something.
+ */
+describe('when the desk may offer a draw', () => {
+  const mayDraw = (harness: Harness) => availableCommands(harness.state).includes('DRAW_JOKER')
+
+  it('offers it to a player who still holds their joker', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    expect(mayDraw(harness)).toBe(true)
+    expect(harness.operatorView().joker!.canDraw).toBe(true)
+  })
+
+  it('takes it away once that player has spent theirs', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+    answerAndContinue(harness)
+
+    buzzIn(harness, 'player-1')
+    expect(mayDraw(harness)).toBe(false)
+  })
+
+  it('follows the player who is answering, not the game', () => {
+    /*
+     * Spieler 1 hat seinen verbraucht, Spieler 2 nicht. Am selben Pult, in
+     * derselben Frage, entscheidet allein, wer gerade antworten darf.
+     */
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+    drawJoker(harness)
+    answerAndContinue(harness)
+
+    buzzIn(harness, 'player-1')
+    expect(mayDraw(harness)).toBe(false)
+
+    // Zuschlag zuruecknehmen und dem anderen Spieler geben.
+    harness.dispatch({ type: 'RESET_BUZZER' })
+    harness.dispatch({ type: 'BUZZ', playerId: 'player-2' })
+    expect(mayDraw(harness)).toBe(true)
+  })
+
+  it('offers nothing while nobody is answering', () => {
+    const harness = rig()
+    startGame(harness)
+    releaseRound(harness)
+
+    // Antworten stehen, Frage laeuft - aber der Joker gehoert niemandem.
+    expect(mayDraw(harness)).toBe(false)
+  })
+
+  it('offers nothing during the right- and wrong-answer animation', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-2')
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+
+    // Die Zwischenanimation laeuft - hier ist nichts mehr zu holen.
+    expect(harness.state!.phase).toBe('attempt-feedback')
+    expect(mayDraw(harness)).toBe(false)
+
+    // Und danach, in der zweiten Chance des anderen Spielers, wieder schon.
+    harness.settle()
+    expect(harness.state!.phase).toBe('second-chance')
+    expect(mayDraw(harness)).toBe(true)
+  })
+
+  it('offers nothing once an answer is logged or resolved', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
+    expect(mayDraw(harness)).toBe(false)
+
+    harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
+    harness.settle()
+    expect(harness.state!.phase).toBe('solution')
+    expect(mayDraw(harness)).toBe(false)
+  })
+
+  it('offers nothing while a draw is flying, lying or being applied', () => {
+    const harness = rig()
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    harness.dispatch({ type: 'DRAW_JOKER' })
+    expect(running(harness).phase).toBe('drawing')
+    expect(mayDraw(harness)).toBe(false)
+
+    awaitReveal(harness)
+    expect(running(harness).phase).toBe('revealed')
+    expect(mayDraw(harness)).toBe(false)
+
+    harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: running(harness).sequenceId })
+    expect(running(harness).phase).toBe('applied')
+    expect(mayDraw(harness)).toBe(false)
+  })
+
+  it('offers nothing on a question that cannot carry a draw', () => {
+    const harness = rig(script(twoAnswers))
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    expect(mayDraw(harness)).toBe(false)
+  })
+
+  it('says the same thing in the view model as in the command list', () => {
+    /*
+     * DIE EINE BEDINGUNG. Das Pult rendert auf `allowedCommands`, die
+     * Begruendung steht in `joker.canDraw` - laufen die beiden auseinander,
+     * steht am Pult ein Knopf, den der Server ablehnt, oder es fehlt einer, den
+     * er annaehme.
+     */
+    const harness = rig()
+    startGame(harness)
+    const stationen = [
+      () => releaseRound(harness),
+      () => harness.dispatch({ type: 'BUZZ', playerId: 'player-1' }),
+      () => harness.dispatch({ type: 'DRAW_JOKER' }),
+      () => awaitReveal(harness),
+      () => harness.dispatch({ type: 'CONTINUE_JOKER', sequenceId: running(harness).sequenceId }),
+      () => harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' }),
+      () => harness.dispatch({ type: 'RESOLVE_ATTEMPT' }),
+      () => harness.settle(),
+    ]
+    for (const schritt of stationen) {
+      schritt()
+      expect(harness.operatorView().joker?.canDraw ?? false).toBe(mayDraw(harness))
+    }
+  })
+})
+
 describe('what the operator sees', () => {
   it('offers one button and names the player it belongs to', () => {
     const harness = rig()

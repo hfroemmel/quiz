@@ -115,7 +115,7 @@
  * Auftritt. Ein Fenster, das erst nach dem Video dazukommt, zeigt keinen
  * Auftritt einer Flaeche, die gleich wieder ausgeblendet ist.
  */
-.video-enter [data-video-placeholder]:not([data-video-state='ended']) {
+.video-enter [data-video-placeholder] {
   animation: video-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
 }
 .question-enter,

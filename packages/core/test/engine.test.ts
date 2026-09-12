@@ -78,11 +78,11 @@ describe('Buzzerregeln', () => {
   it('der Buzzer ist waehrend des Videos gesperrt', () => {
     const harness = createHarness([videoQuestion('v1'), ...sevenNormal().slice(1)])
     startGame(harness)
-    expect(harness.state!.phase).toBe('video-ready')
+    expect(harness.state!.phase).toBe('video')
 
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
-    harness.dispatch({ type: 'START_VIDEO' })
-    expect(harness.state!.phase).toBe('video-playing')
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'v1' })
+    expect(harness.state!.phase).toBe('video')
     expect(harness.state!.buzzer.open).toBe(false)
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-2' }).reason).toBe('invalid-phase')
 
@@ -886,177 +886,149 @@ describe('Selbstbedienung', () => {
     expect(rejection.reason).toBe('no-candidate-question')
   })
 
-  it('startet das Video von selbst und blendet danach die Frage ein', () => {
+  it('startet das Video am Geraet von selbst und blendet die Frage nach dem Ende ein', () => {
+    /*
+     * Am Touchgeraet steht niemand am Pult. Den Auftrag erteilt deshalb der
+     * Server selbst - nach kurzem Vorlauf, damit die Videoflaeche erst auffaehrt.
+     * Das Ende sieht nur das Geraet, und es blendet danach selbst die Frage ein.
+     */
     const harness = createHarness([videoQuestion('video-1')])
     startGame(harness, selfService)
-    expect(harness.state!.phase).toBe('video-ready')
+    expect(harness.state!.phase).toBe('video')
+    expect(harness.state!.video).toBeUndefined()
 
     harness.advance(selfServiceTiming.videoLeadInMs)
-    expect(harness.state!.phase).toBe('video-playing')
+    // Der Auftrag steht - die Phase hat sich dabei NICHT geaendert.
+    expect(harness.state!.phase).toBe('video')
+    expect(harness.state!.video).toMatchObject({ questionId: 'video-1' })
+    expect(harness.state!.pendingTransition).toBeUndefined()
 
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    harness.advance(5_000 + gameTiming.videoTailMs)
+    // Der Server wartet auf nichts: Auch lange danach steht die Frage nicht.
+    harness.advance(60_000)
+    expect(harness.state!.phase).toBe('video')
 
-    // Auch nach einem Video steht die Frage zuerst allein da.
+    /*
+     * Und das Geraet darf das auch: `SHOW_QUESTION_AFTER_VIDEO` steht dem
+     * Spieler offen, weil es dort kein Pult gibt, das den Schritt machen koennte.
+     */
+    expect(roleMayIssue('player', 'SHOW_QUESTION_AFTER_VIDEO')).toBe(true)
+    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
     expect(harness.state!.phase).toBe('question-presented')
-    expect(harness.state!.video!.status).toBe('ended')
-
     harness.advance(selfServiceTiming.questionLeadInMs)
     expect(harness.state!.phase).toBe('buzzer-open')
   })
 
-  it('blendet das Video im gefuehrten Spiel aus und haelt an, bis der Operator die Frage einblendet', () => {
+  it('veroeffentlicht auf Befehl einen Auftrag und wartet danach auf nichts', () => {
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    expect(harness.state!.phase).toBe('video')
+    expect(harness.state!.video).toBeUndefined()
+
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
+
+    const auftrag = harness.state!.video!
+    expect(auftrag.questionId).toBe('video-1')
+    expect(auftrag.requestId).toBeTruthy()
+    expect(auftrag.requestedAt).toBeTruthy()
     /*
-     * Das Video endet von selbst - die Frage kommt aber erst, wenn der Operator
-     * sie einblendet. Er sieht, ob der Saal so weit ist.
+     * KEIN GEPLANTES ENDE. Der Server kennt die Laufzeit nicht und bildet sie
+     * auch nicht nach - das Videoende ist kein serverseitiger Uebergang.
+     */
+    expect(harness.state!.pendingTransition).toBeUndefined()
+    expect(harness.state!.phase).toBe('video')
+
+    // Auch nach beliebig langer Zeit bleibt alles, wie es ist.
+    harness.advance(10 * 60_000)
+    expect(harness.state!.phase).toBe('video')
+    expect(harness.state!.video).toEqual(auftrag)
+  })
+
+  it('erzeugt bei jedem Klick einen neuen Auftrag', () => {
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
+    const erster = harness.state!.video!.requestId
+    harness.advance(3_000)
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
+
+    // Eine neue Kennung ist die ganze Nachricht: die Buehne spielt wieder von vorn.
+    expect(harness.state!.video!.requestId).not.toBe(erster)
+    expect(harness.state!.video!.questionId).toBe('video-1')
+  })
+
+  it('weist einen Klick ab, der zu einer anderen Frage gehoert', () => {
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    const abgelehnt = harness.expectReject({ type: 'START_VIDEO', questionId: 'video-von-gestern' })
+    expect(abgelehnt.reason).toBe('video-question-mismatch')
+    expect(harness.state!.video).toBeUndefined()
+  })
+
+  it('weist einen Klick ab, wenn zu der Frage kein Video hinterlegt ist', () => {
+    const ohneDatei = { ...videoQuestion('video-1'), media: undefined }
+    const harness = createHarness([ohneDatei, ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe(
+      'video-source-missing',
+    )
+  })
+
+  it('weist einen Klick ausserhalb der Videophase ab', () => {
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
+
+    expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe('invalid-phase')
+  })
+
+  it('bietet am Pult nur Starten, Einblenden und Ueberspringen an', () => {
+    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+
+    const erlaubt = harness.operatorView().allowedCommands
+    expect(erlaubt).toEqual(expect.arrayContaining(['START_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
+    /*
+     * Was es nicht mehr gibt: Pausieren, Neustarten und die Statusmeldung des
+     * Clients. Ein Knopf dafuer waere ein Knopf fuer einen Zustand, den niemand
+     * mehr fuehrt.
+     */
+    expect(erlaubt).not.toContain('PAUSE_VIDEO')
+    expect(erlaubt).not.toContain('RESTART_VIDEO')
+    expect(erlaubt).not.toContain('REPORT_VIDEO_STATUS')
+
+    // Und der Startknopf bleibt die ganze Phase ueber da, auch nach einem Klick.
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
+    expect(harness.operatorView().allowedCommands).toContain('START_VIDEO')
+  })
+
+  it('raeumt den Auftrag ab, sobald die Frage eingeblendet ist', () => {
+    /*
+     * Sonst fuehrte ihn jedes Fenster aus, das jetzt neu laedt - und das Video
+     * liefe unter der schon stehenden Frage noch einmal los.
      */
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
-    expect(harness.state!.phase).toBe('video-ready')
-
-    harness.dispatch({ type: 'START_VIDEO' })
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    harness.advance(5_000 + gameTiming.videoTailMs)
-
-    expect(harness.state!.phase).toBe('video-ended')
-    expect(harness.state!.video).toMatchObject({ status: 'ended', positionMs: 5_000 })
-    expect(harness.state!.pendingTransition).toBeUndefined()
-    expect(harness.publicView().scene).toBe('video')
-    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
-
-    // Es wartet wirklich: Auch lange danach steht noch keine Frage.
-    harness.advance(60_000)
-    expect(harness.state!.phase).toBe('video-ended')
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
+    expect(harness.state!.video).toBeDefined()
 
     harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
     expect(harness.state!.phase).toBe('question-presented')
+    expect(harness.state!.video).toBeUndefined()
   })
 
-  it('laesst nach dem Ende nur Neustart, Einblenden und Ueberspringen zu', () => {
+  it('traegt den Auftrag unveraendert in den Schnappschuss', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
-    harness.dispatch({ type: 'START_VIDEO' })
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    harness.advance(5_000 + gameTiming.videoTailMs)
+    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
-    const erlaubt = harness.operatorView().allowedCommands
-    expect(erlaubt).toEqual(expect.arrayContaining(['RESTART_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
-    expect(erlaubt).not.toContain('START_VIDEO')
-    expect(erlaubt).not.toContain('PAUSE_VIDEO')
-    expect(harness.expectReject({ type: 'START_VIDEO' }).reason).toBe('invalid-phase')
-
-    // Von vorn: Das Video laeuft wieder, und sein Ende steht erneut fest.
-    harness.dispatch({ type: 'RESTART_VIDEO' })
-    expect(harness.state!.phase).toBe('video-playing')
-    expect(harness.state!.video).toMatchObject({ status: 'playing', positionMs: 0 })
-    expect(harness.state!.pendingTransition?.nextPhase).toBe('video-ended')
-  })
-
-  it('faellt nach dem Ende nicht zurueck, wenn ein Fenster die Datei nicht laden kann', () => {
-    /*
-     * Ein Buehnenfenster, das erst nach dem Video dazukommt, meldet seinen
-     * Ladefehler trotzdem. Das darf den Operator nicht wieder vor "Video
-     * starten" stellen - das Video ist gelaufen.
-     */
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    harness.dispatch({ type: 'START_VIDEO' })
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    harness.advance(5_000 + gameTiming.videoTailMs)
-
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
-    expect(harness.state!.phase).toBe('video-ended')
-    expect(harness.state!.video!.status).toBe('ended')
-  })
-
-  it('plant das Ende auch, wenn die Laufzeit vor dem Start gemeldet wird', () => {
-    /*
-     * Der Browser meldet die Laufzeit, sobald er die Datei gelesen hat - das ist
-     * regelmaessig FRUEHER, als jemand auf Start drueckt. Wurde nur beim Melden
-     * geplant, lief das Video danach ohne Ende weiter.
-     */
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 4_000 })
-    expect(harness.state!.phase).toBe('video-ready')
-
-    harness.dispatch({ type: 'START_VIDEO' })
-    harness.advance(4_000 + gameTiming.videoTailMs)
-    expect(harness.state!.phase).toBe('video-ended')
-  })
-
-  it('erzeugt fuer wiederholte Meldungen KEINEN neuen Uebergang', () => {
-    /*
-     * DER TEUERSTE FEHLER DIESES ABLAUFS.
-     *
-     * Der Buehnenclient haengt seinen Szenenknoten an die Kennung des letzten
-     * Uebergangs (`key={scene}:{transition.id}`). Erzeugt eine Statusmeldung
-     * eine neue Kennung, baut React die ganze Szene neu auf - samt
-     * Videoelement. Das frisch eingesetzte Element meldet daraufhin wieder
-     * seine Laufzeit, und der Kreis beginnt von vorn: Das Bild flackert, das
-     * Video kommt nie zum Abspielen, und der geplante Uebergang wird bei jedem
-     * Durchlauf durch einen neuen ersetzt - er wird also nie faellig.
-     *
-     * Nichts davon wirft einen Fehler. Deshalb steht dieser Test hier.
-     */
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    harness.dispatch({ type: 'START_VIDEO' })
-
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    const zuerst = harness.state!.lastTransition
-    const geplant = harness.state!.pendingTransition
-
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-
-    expect(harness.state!.lastTransition).toEqual(zuerst)
-    expect(harness.state!.pendingTransition).toEqual(geplant)
-  })
-
-  it('nimmt den geplanten Uebergang zurueck, wenn der Operator das Video anhaelt', () => {
-    /*
-     * Sonst laeuft die Uhr weiter, waehrend das Bild steht: Der Saal saehe die
-     * Frage, obwohl der Operator gerade angehalten hat, um etwas zu sagen.
-     */
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    harness.dispatch({ type: 'START_VIDEO' })
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 })
-    expect(harness.state!.pendingTransition).toBeDefined()
-
-    harness.dispatch({ type: 'PAUSE_VIDEO' })
-    expect(harness.state!.pendingTransition).toBeUndefined()
-
-    // Und beim Fortsetzen steht das Ende wieder fest.
-    harness.dispatch({ type: 'START_VIDEO' })
-    expect(harness.state!.pendingTransition?.nextPhase).toBe('video-ended')
-  })
-
-  it('haelt im gefuehrten Spiel an, wenn das Video nicht abgespielt werden kann', () => {
-    /*
-     * Hier steht ein Operator: Er sieht die Meldung und entscheidet, ob die
-     * Frage ohne Video weiterlaeuft oder uebersprungen wird. Ihm die Frage
-     * einzublenden waere ein Eingriff in seine Regie.
-     */
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
-    harness.advance(0)
-
-    expect(harness.state!.phase).toBe('video-ready')
-  })
-
-  it('blendet die Frage sofort ein, wenn das Video nicht abgespielt werden kann', () => {
-    const harness = createHarness([videoQuestion('video-1')])
-    startGame(harness, selfService)
-
-    harness.dispatch({ type: 'REPORT_VIDEO_STATUS', error: 'Datei fehlt' })
-    harness.advance(0)
-
-    expect(harness.state!.phase).toBe('question-presented')
+    const auftrag = harness.state!.video!
+    for (const view of [harness.publicView(), harness.operatorView()]) {
+      // Kennung und Frage - und nichts ueber die Wiedergabe.
+      expect(view.video).toEqual({ questionId: 'video-1', requestId: auftrag.requestId })
+    }
   })
 })
 

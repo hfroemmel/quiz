@@ -70,6 +70,15 @@ export interface PublicOption {
 }
 
 export interface PublicQuestion {
+  /**
+   * Kennung der Frage, die gerade auf dem Schirm steht.
+   *
+   * SIE IST KEINE ANZEIGE, sondern eine Identitaet: Ein Client, der einen
+   * Auftrag ausfuehren soll (heute der Abspielauftrag des Videos), muss pruefen
+   * koennen, ob der Auftrag zu dem gehoert, was er zeigt. Ohne sie bliebe nur
+   * Vertrauen.
+   */
+  id: string
   prompt: string
   presentationType: QuestionPresentationType
   imageUrl?: string
@@ -132,18 +141,20 @@ export interface PublicRevealState {
   elapsedMs: number
 }
 
-export interface PublicVideoState {
-  status: 'idle' | 'playing' | 'paused' | 'ended'
-  positionMs: number
-  /**
-   * Laufzeit des Mediums, sobald der Buehnenclient sie gemeldet hat.
-   *
-   * Sie steht hier, weil der Operator ohne sie NICHT VORWAERTS SPRINGEN kann:
-   * Sein Regler braucht eine obere Grenze, und die kannte bisher nur der
-   * Buehnenclient. Vor der ersten Meldung bleibt sie offen.
-   */
-  durationMs?: number
-  hasError: boolean
+/**
+ * Der stehende Auftrag, das Video abzuspielen - kein Wiedergabestatus.
+ *
+ * ER SAGT NUR: "Spiele das Video dieser Frage, von vorn." Wie weit die Buehne
+ * damit ist, steht hier nicht und kommt auch nirgends zurueck; der Ablauf geht
+ * in eine Richtung. Fehlt das Feld, ist noch nichts gestartet worden.
+ *
+ * Die Buehne merkt sich die zuletzt ausgefuehrte `requestId` LOKAL und startet
+ * bei jeder anderen von Sekunde null. Deshalb reicht derselbe Schnappschuss
+ * beliebig oft: Gleiche Kennung heisst "schon erledigt".
+ */
+export interface PublicVideoRequest {
+  questionId: string
+  requestId: string
 }
 
 export interface PublicFeedback {
@@ -199,7 +210,7 @@ export interface PublicQuizViewModel {
   currentPlayer?: PlayerId
   progress: { current: number; total: number }
   reveal?: PublicRevealState
-  video?: PublicVideoState
+  video?: PublicVideoRequest
   result?: PublicResult
   soundEnabled: boolean
   /** Sprache, in der diese Ansicht steht. */

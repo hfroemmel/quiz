@@ -59,16 +59,22 @@ Zusatzinformationen. Der Saal sieht davon nichts.
 
 ## Videofragen
 
-Video bewusst starten (kein Autoplay), bei Bedarf pausieren oder neu starten.
-Springen gibt es nicht. Waehrend des Videos ist der Buzzer gesperrt. Abgespielt wird
-nur auf der Buehne; die Vorschau am Pult zeigt, ob das Video bereit ist, laeuft,
-angehalten oder zu Ende ist.
+Es gibt **einen** Knopf: `Video starten`. Er spielt das Video auf der Buehne von
+vorn ab. Pausieren und Springen gibt es nicht - laeuft etwas schief, einfach
+noch einmal `Video starten`; es beginnt dann wieder bei null. Waehrend der
+Videophase ist der Buzzer gesperrt. Abgespielt wird nur auf der Buehne; am Pult
+steht die Flaeche leer, damit die Komposition erkennbar bleibt.
 
-Am Ende blendet das Video von selbst aus, und der Ablauf haelt an. Dann
-`Frage einblenden`, danach `Antworten einblenden`.
+**Am Pult steht nicht, wie es um das Video steht** - weder bereit noch laeuft
+noch zu Ende. Das ist Absicht: Nichts davon wird gebraucht. Der Blick in den
+Saal sagt es besser als jede Anzeige.
 
-Laesst sich ein Video nicht abspielen, erscheint eine Warnung im Diagnosebereich.
-Sichere naechste Aktion: `Frage ueberspringen`.
+Am Ende passiert von selbst **nichts**; das letzte Bild bleibt stehen, bis
+`Frage einblenden` gedrueckt wird, danach `Antworten einblenden`.
+
+Bleibt die Flaeche schwarz, ist die Datei am Buehnenrechner das Problem.
+Moeglichkeiten: noch einmal `Video starten`, ohne Video mit `Frage einblenden`
+weitermachen, oder `Frage ueberspringen`.
 
 ## Wenn etwas schiefgeht
 

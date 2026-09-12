@@ -59,10 +59,7 @@ das auf einen Operator wartet, den es am Geraet nicht gibt, waere sonst startbar
 | `REVEAL_IMAGE_COMPLETELY` | operator | ja |
 | `RESET_IMAGE_REVEAL` | operator | ja |
 | `START_VIDEO` | operator | ja |
-| `PAUSE_VIDEO` | operator | ja |
-| `RESTART_VIDEO` | operator | ja |
-| `SHOW_QUESTION_AFTER_VIDEO` | operator, moderator | ja |
-| `REPORT_VIDEO_STATUS` | operator, system, player | nein |
+| `SHOW_QUESTION_AFTER_VIDEO` | operator, moderator, player | ja |
 | `ADJUST_SCORE` | operator | ja |
 | `CONTINUE` | operator, moderator, player | ja |
 | `ABORT_GAME` | operator, player | ja |
@@ -88,8 +85,7 @@ Freigabe und Spielersperre werden bei jedem Ereignis frisch geprueft, und nach d
 ersten angenommenen Buzzer wird jeder weitere abgewiesen.
 
 Ausgenommen sind ausschliesslich `BUZZ`, `SELECT_PLAYER_MANUALLY`,
-`LOG_OPTION_ANSWER`, `ADVANCE_TIMED_PHASE` (durch `transitionId` geschuetzt) und
-`REPORT_VIDEO_STATUS`.
+`LOG_OPTION_ANSWER` und `ADVANCE_TIMED_PHASE` (durch `transitionId` geschuetzt).
 
 `LOG_OPTION_ANSWER` steht auf dieser Liste, weil das Einloggen am Touchgeraet
 unmittelbar auf den eigenen Buzz folgt - im Einzelspiel sogar im selben
@@ -125,8 +121,9 @@ fortsetzen, die naechste Antwortphase freigeben. Er darf **nicht**: Punkte aende
 das Spiel abbrechen, technische Einstellungen aendern, Inhalte bearbeiten oder Daten
 zuruecksetzen. Moderatoraktionen erscheinen im Operatorprotokoll.
 
-**Buehnenclients** duerfen ueberhaupt keine Steuerbefehle senden. Einzige Ausnahme ist
-`REPORT_VIDEO_STATUS`, damit ein Medienfehler den Operator erreicht.
+**Buehnenclients** duerfen ueberhaupt keine Steuerbefehle senden - ohne Ausnahme.
+Auch ueber das Video melden sie nichts zurueck; was dort geladen, gespielt oder
+schiefgegangen ist, bleibt im Fenster (siehe `docs/zustandsmaschine.md`).
 
 ## Ablehnungsgruende
 

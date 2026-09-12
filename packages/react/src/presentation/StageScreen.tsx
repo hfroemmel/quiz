@@ -43,7 +43,7 @@ export interface StageScreenProps {
   /** Nur der Audio-Master spielt Sounds und Videoton ab. */
   isAudioMaster: boolean
   /** Der Buehnenclient darf ausschliesslich Medienstatus zurueckmelden. */
-  onReport?: (command: Command) => void
+  onCommand?: (command: Command) => void
   /**
    * Dieselbe Komposition in einer anderen Flaeche: klein in der Operatorvorschau,
    * zwischen den Buzzern am Touchgeraet.
@@ -81,7 +81,7 @@ export function StageScreen({
   view,
   serverNow,
   isAudioMaster,
-  onReport,
+  onCommand,
   variant = 'stage',
   headerSlots,
   pads,
@@ -227,7 +227,7 @@ export function StageScreen({
           className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
           data-scene-root=""
         >
-          {renderScene(view, sceneProps, isAudioMaster, onReport)}
+          {renderScene(view, sceneProps, isAudioMaster, onCommand)}
         </div>
 
         {pads?.bottom}
@@ -269,7 +269,7 @@ function renderScene(
   view: PublicQuizViewModel,
   props: SceneProps,
   isAudioMaster: boolean,
-  onReport?: (command: Command) => void,
+  onCommand?: (command: Command) => void,
 ) {
   switch (view.scene) {
     case 'start':
@@ -281,7 +281,7 @@ function renderScene(
     case 'reveal':
       return <RevealScene {...props} />
     case 'video':
-      return <VideoScene {...props} isAudioMaster={isAudioMaster} onReport={onReport} />
+      return <VideoScene {...props} isAudioMaster={isAudioMaster} onCommand={onCommand} />
     case 'feedback':
       return <FeedbackScene {...props} />
     case 'solution':

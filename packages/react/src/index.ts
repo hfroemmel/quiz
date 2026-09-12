@@ -24,6 +24,8 @@ export * from './presentation/stage/Score'
  */
 export * from './presentation/stage/jokerIcons'
 export * from './presentation/stage/StageHeader'
+/* Die Wortmarke als Datei - fuer Gastgeber, die sie ausserhalb der Buehne zeigen. */
+export * from './presentation/brandAssets'
 export * from './client/useQuizConnection'
 export * from './client/useQuizRuntime'
 export * from './client/useQuizSnapshot'

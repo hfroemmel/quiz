@@ -26,7 +26,7 @@ import { cssUrl } from '../cssUrl'
 import { texteFuer } from '../texts'
 import { Counter } from './Counter'
 import { Score } from './Score'
-import eigenesLogo from '../../assets/images/logo.svg'
+import { brandWordmarkUrl } from '../brandAssets'
 import styles from './StageHeader.module.css'
 
 export interface StageHeaderSlots {
@@ -83,7 +83,7 @@ export function StageHeader({
         <span
           className={styles.brand}
           data-brand=""
-          style={{ '--logo-url': cssUrl(eigenesLogo) } as CSSProperties}
+          style={{ '--logo-url': cssUrl(brandWordmarkUrl) } as CSSProperties}
           aria-hidden="true"
         />
       )}

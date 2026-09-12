@@ -170,6 +170,46 @@ export const stageExtras = {
  * Flaeche, damit der Operator seine Tasten blind findet und die Buehnenvorschau
  * als einziges helles Feld heraussticht.
  */
+/* ------------------------------------------------------------------ *
+ * Quizauswahl vor dem Buehnenabend
+ * ------------------------------------------------------------------ */
+
+/**
+ * Die Farben der Quizauswahl am Pult - ein eigener Satz, und mit Absicht.
+ *
+ * WARUM NICHT DER BEDIENRAHMEN: Der ist dunkel und will nichts. Diese Ansicht
+ * ist das Erste, was vor einem Abend auf dem Schirm steht; sie ist hell, ruhig
+ * und traegt fuenf Karten, die man auseinanderhalten koennen muss.
+ *
+ * WARUM NICHT DIE BUEHNE: Die gehoert dem gewaehlten Quiz - und die Auswahl
+ * steht genau davor. Sie kann keine Farbe tragen, die erst danach feststeht.
+ *
+ * WARUM NICHT `startPalette`: Das ist der Startbildschirm des GERAETS, dunkel
+ * und aus einem anderen Entwurf. Zwei Bildschirme, zwei Entwuerfe, zwei Saetze.
+ *
+ * JEDE KARTE HAT IHRE EIGENE FLAECHE, weil sie fuer ihr Quiz steht: das Blau
+ * der Union, das Rot des Bremer Wappens, das Papier der Einheit. Deshalb sind es
+ * benannte Flaechen und keine Abstufungen einer Grundfarbe.
+ */
+export const quizSelectPalette = {
+  page: '#fbfbfa',
+  ink: '#07152d',
+  'ink-quiet': '#284d73',
+  /* Die fuenf Kartenflaechen. Verlaeufe, weil eine flache Flaeche hier leer wirkt. */
+  'card-bundestag': 'linear-gradient(135deg, #eef2f6 0%, #d5dee8 100%)',
+  'card-kids': 'linear-gradient(180deg, #aed5f0 0%, #c1d6f1 50%, #d5d7f1 100%)',
+  'card-europe': '#003399',
+  'card-unity': 'linear-gradient(135deg, #f7f7f5 0%, #ececea 100%)',
+  'card-bremen': 'linear-gradient(135deg, #fbe5e2 0%, #efbfc2 100%)',
+  /* Auf dem Unionsblau traegt nur Weiss. */
+  'ink-on-europe': '#ffffff',
+  /* Der Schatten ist ein Hauch - die Karten liegen, sie schweben nicht. */
+  shadow: 'rgb(7 21 45 / 0.055)',
+  'shadow-lifted': 'rgb(7 21 45 / 0.1)',
+  /* Der Fokusring muss auf allen fuenf Flaechen zu sehen sein. */
+  focus: '#07152d',
+} as const
+
 export const uiPalette = {
   page: '#0d0f13',
   /* Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel. */

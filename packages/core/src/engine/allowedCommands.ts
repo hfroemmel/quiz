@@ -130,23 +130,14 @@ export function availableCommands(state: GameState | null): CommandType[] {
       list.add('SKIP_QUESTION')
       break
 
-    case 'video-ready':
+    /*
+     * Zum Video gehoert genau ein Knopf, und er bleibt die ganze Phase ueber
+     * verfuegbar: Der Server weiss nicht, ob gerade gespielt wird, und ein
+     * zweiter Klick ist einfach ein neuer Auftrag von vorn. "Frage einblenden"
+     * daneben ist keine Videosteuerung, sondern der Weiter-Schritt des Ablaufs.
+     */
+    case 'video':
       list.add('START_VIDEO')
-      list.add('RESTART_VIDEO')
-      list.add('SHOW_QUESTION_AFTER_VIDEO')
-      list.add('SKIP_QUESTION')
-      break
-
-    case 'video-playing':
-      list.add('PAUSE_VIDEO')
-      list.add('RESTART_VIDEO')
-      list.add('SHOW_QUESTION_AFTER_VIDEO')
-      list.add('SKIP_QUESTION')
-      break
-
-    case 'video-ended':
-      // Starten und Pausieren gibt es nicht mehr - nur noch von vorn oder weiter.
-      list.add('RESTART_VIDEO')
       list.add('SHOW_QUESTION_AFTER_VIDEO')
       list.add('SKIP_QUESTION')
       break
@@ -221,9 +212,6 @@ function selfServiceCommands(state: GameState): CommandType[] {
    * Antwort falsch war, verlor dabei das Bild unter den Augen.
    */
   if (state.phase === 'solution') list.add('CONTINUE')
-  if (state.currentQuestion?.question.questionType === 'video-then-question') {
-    list.add('REPORT_VIDEO_STATUS')
-  }
 
   return [...list]
 }

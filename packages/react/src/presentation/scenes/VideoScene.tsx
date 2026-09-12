@@ -1,186 +1,220 @@
 /**
- * Videophase einer Videofrage (Spezifikation 12).
+ * Der Videoteil einer Videofrage (Spezifikation 12).
  *
- * Das Video ist Teil DERSELBEN Frage, nicht eine eigene Frage. Waehrend es laeuft,
- * ist der Buzzer serverseitig gesperrt.
+ * Das Video gehoert zu DERSELBEN Frage wie die Antworten danach, es ist keine
+ * eigene Frage. Waehrend es laeuft, ist der Buzzer serverseitig gesperrt.
  *
- * Wiedergabe und Position folgen dem Serverzustand; der Client startet nichts von
- * sich aus (kein Autoplay mit Ton). Kann das Medium nicht geladen werden, meldet der
- * Client das an den Server, damit der Operator eine verstaendliche Meldung und die
- * Aktion "Frage ueberspringen" bekommt.
+ * DER ABLAUF GEHT IN EINE RICHTUNG. Der Server veroeffentlicht einen Auftrag
+ * (`view.video`), diese Szene fuehrt ihn aus, und damit ist der Weg zu Ende. Was
+ * hier passiert - laedt, laeuft, ist durch -, erfaehrt niemand sonst: kein
+ * Befehl zurueck, kein Status im Serverzustand, keine Anzeige am Pult. Der
+ * Operator braucht davon nichts, um weiterzumachen.
  *
- * AUFTRITT UND ABGANG SIND ANIMIERT. Beim Eintritt in die Szene faehrt die
- * Videoflaeche auf (`video-enter` im Uebergangsregistry). Ist das Video
- * durchgelaufen, meldet der Server `ended`, und die Flaeche blendet aus - im
- * gefuehrten Spiel steht der Ablauf dann, bis der Operator die Frage einblendet.
+ * DER AUFTRAG IST EINE KENNUNG, KEIN ZUSTAND. Gemerkt wird lokal, welcher
+ * Auftrag zuletzt ausgefuehrt wurde - Frage und Kennung zusammen:
+ *
+ *   gleicher Auftrag -> nichts tun (Rerender, wiederholter Schnappschuss)
+ *   neuer Auftrag    -> von Sekunde null starten
+ *
+ * Damit ist auch das Wiederverbinden geklaert, ohne dass es ein Sonderfall
+ * waere: Eine Buehne, die neu laedt, kennt noch keine Kennung und fuehrt den
+ * stehenden Auftrag genau einmal aus.
  *
  * ABGESPIELT WIRD NUR, WO JEMAND ZUSCHAUT: auf der Buehne und am Touchgeraet.
- * Die Operatorvorschau zeigt dieselbe Flaeche in derselben Groesse, darin aber
- * nur, WIE ES UM DAS VIDEO STEHT - bereit, laeuft, angehalten, zu Ende. Ein
- * zweites Medium kostete Rechenzeit auf demselben Rechner, liefe unweigerlich
- * auseinander und meldete Ladefehler doppelt. Gefahren wird das Video ueber die
- * Bedienleiste, und was der Saal sieht, steht auf der Buehne.
- *
- * Am Touchgeraet gibt es keine Vorschau daneben: Dort IST diese Flaeche das Bild.
- * Und es ist zugleich der Client, der die Laufzeit meldet - ohne ihn wuesste der
- * Server im Selbstbedienungsbetrieb nicht, wann das Video zu Ende ist.
+ * Die Operatorvorschau zeigt dieselbe Flaeche in derselben Groesse, aber leer -
+ * ein zweites Medium kostete Rechenzeit auf demselben Rechner und liefe
+ * unweigerlich auseinander. Was der Saal sieht, steht auf der Buehne.
  */
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import type { Command, PublicVideoState } from '@hfroemmel/quiz-core'
-import { presentationTiming } from '../animationPresets'
-import { texteFuer, type TextKey } from '../texts'
-import { laufzeitMelden, serverpositionJetzt, videoangleich } from '../videoSync'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Command } from '@hfroemmel/quiz-core'
+import { texteFuer } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 interface VideoSceneProps extends SceneProps {
   /** Nur der Audio-Master spielt den Ton ab. */
   isAudioMaster?: boolean
-  onReport?: (command: Command) => void
+  /**
+   * Befehl des Geraets an den Server - nur am Touchgeraet in Gebrauch.
+   *
+   * Die Buehne meldet NICHTS zurueck. Am Touchgeraet gibt es aber keinen
+   * Operator: Dort ist das Geraet sein eigenes Pult und blendet nach dem Video
+   * selbst die Frage ein.
+   */
+  onCommand?: (command: Command) => void
 }
 
-/** Was die Operatorvorschau zu jedem Stand des Videos sagt. */
-const statusTexte: Record<PublicVideoState['status'], TextKey> = {
-  idle: 'video.status.ready',
-  playing: 'video.status.playing',
-  paused: 'video.status.paused',
-  ended: 'video.status.ended',
-}
+/**
+ * Der zuletzt ausgefuehrte Auftrag - MODULWEIT, nicht in der Komponente.
+ *
+ * Die Buehne baut den Szenenknoten bei jedem Uebergang neu auf (er haengt an der
+ * Kennung des Uebergangs). Laege der Merker in der Komponente, verschwaende er
+ * dabei, und derselbe Auftrag liefe mitten im Video ein zweites Mal los. Hier
+ * ueberlebt er den Neuaufbau - und faellt genau dann weg, wenn er soll: beim
+ * Neuladen der Seite, wo der stehende Auftrag nachgeholt werden MUSS.
+ *
+ * Ein Fenster zeigt eine Buehne, deshalb genuegt ein Wert.
+ */
+let zuletztAusgefuehrt: string | null = null
 
-export function VideoScene({ view, variant, serverNow, isAudioMaster = true, onReport }: VideoSceneProps) {
+export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: VideoSceneProps) {
   const t = texteFuer(view)
   const elementRef = useRef<HTMLVideoElement | null>(null)
   const question = view.question
-  const video = view.video
+  const request = view.video
   const plays = variant !== 'preview'
-  const ended = video?.status === 'ended'
+  /*
+   * Am Touchgeraet steht niemand, der "Frage einblenden" druecken koennte -
+   * dort geht es nach dem Video von selbst weiter. Im Saal gehoert dieser
+   * Schritt dem Operator, und die Buehne schickt keinen einzigen Befehl.
+   */
+  const advancesItself = variant === 'touch'
+  /*
+   * Genau EINMAL je Frage. Der Befehl waere zwar beim zweiten Mal abgewiesen
+   * (die Phase ist dann vorbei), aber ein Geraet, das dieselbe Bitte mehrfach
+   * schickt, ist ein Geraet, das man nicht verstanden hat.
+   */
+  const weitergegangenRef = useRef<string | null>(null)
+  const geheWeiter = useCallback(() => {
+    if (!advancesItself || !question || weitergegangenRef.current === question.id) return
+    weitergegangenRef.current = question.id
+    onCommand?.({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
+  }, [advancesItself, question?.id, onCommand])
 
   /*
    * Der Browser hat die hoerbare Wiedergabe verweigert.
    *
-   * Das ist KEIN Medienfehler und darf deshalb auch nicht als solcher gemeldet
-   * werden - es ist die Autoplay-Regel des Fensters, in dem noch niemand
-   * geklickt hat. Das Bild muss trotzdem laufen: Ein stummes Video ist im Saal
-   * unangenehm, ein stehendes ist ein Ausfall. Sobald die Tonhoheit hier
-   * ankommt, wird der Versuch wiederholt.
+   * Das ist kein Medienfehler, sondern die Autoplay-Regel eines Fensters, in dem
+   * noch niemand geklickt hat - in der Desktophuelle tritt sie nicht auf (siehe
+   * `autoplayPolicy` dort). Das Bild muss trotzdem laufen: Ein stummes Video ist
+   * im Saal unangenehm, ein stehendes ist ein Ausfall. Gemeldet wird es in der
+   * Konsole des Fensters, das es betrifft, und sonst nirgends.
    */
   const [soundRefused, setSoundRefused] = useState(false)
   useEffect(() => setSoundRefused(false), [isAudioMaster])
   const muted = !isAudioMaster || soundRefused
 
+  const spiele = useCallback((element: HTMLVideoElement) => {
+    void element.play().catch((error: Error) => {
+      if (error.name === 'NotAllowedError' && !element.muted) {
+        console.warn('Video ohne Ton gestartet: Das Fenster erlaubt noch keine hörbare Wiedergabe.', error)
+        setSoundRefused(true)
+        return
+      }
+      /*
+       * "AbortError" heisst: Ein neuerer Auftrag hat den Startversuch abgeloest.
+       * Alles andere ist ein echtes Problem mit der Datei - und bleibt in diesem
+       * Fenster, weil der Operator davon nichts hat.
+       */
+      if (error.name === 'AbortError') return
+      console.error('Video konnte nicht abgespielt werden.', error)
+    })
+  }, [])
+
   useEffect(() => {
     const element = elementRef.current
-    if (!element || !video) return
+    if (!element || !plays) return
 
     /*
-     * Verglichen wird mit der Position von JETZT: Waehrend das Video laeuft,
-     * kommt kein Schnappschuss, und ein Neustart ist nur daran zu erkennen, dass
-     * das Element weit vor dem Server liegt. Siehe `videoSync`.
+     * Kein Auftrag, oder einer fuer eine andere Frage: Dann steht das Video
+     * einfach da. Ein Auftrag, der nicht zur angezeigten Frage gehoert, ist ein
+     * Nachzuegler - er startete sonst das falsche Video.
      */
-    const angleich = videoangleich(
-      { status: video.status, positionMs: serverpositionJetzt(video, view.serverTimeMs, serverNow()) },
-      { positionMs: element.currentTime * 1000, paused: element.paused, ended: element.ended },
-    )
+    if (!request || !question || request.questionId !== question.id) return
+    // Frage UND Kennung: Zwei Fragen koennten sonst dieselbe Kennung tragen.
+    const auftrag = `${request.questionId}:${request.requestId}`
+    if (zuletztAusgefuehrt === auftrag) return
+    zuletztAusgefuehrt = auftrag
 
-    if (angleich.springeNachMs !== undefined) element.currentTime = angleich.springeNachMs / 1000
+    /*
+     * Von vorn heisst von vorn: anhalten, zuruecksetzen, starten.
+     *
+     * GESTARTET WIRD SOFORT, auch wenn die Datei noch laedt - der Browser
+     * beginnt dann, sobald er kann, und zwar bei null. Ist er noch nicht so
+     * weit, holt der Nachschlag unten den Start nach; das ist der Fall, in dem
+     * `play()` nichts bewirkt hat. Gewartet wird dabei ausschliesslich lokal:
+     * niemand ausserhalb dieses Fensters erfaehrt davon.
+     */
+    element.pause()
+    element.currentTime = 0
+    spiele(element)
+    if (element.readyState >= 2 /* HAVE_CURRENT_DATA */) return
 
-    if (angleich.starten) {
-      void element.play().catch((error: Error) => {
-        if (error.name === 'NotAllowedError' && !element.muted) {
-          setSoundRefused(true)
-          return
-        }
-        /*
-         * "AbortError" heisst: Ein neuerer Befehl hat den Startversuch abgeloest -
-         * typischerweise ein Pausieren, das waehrend des Anlaufs eintrifft. Das
-         * ist kein Medienfehler, und es als solchen zu melden hinterliesse die
-         * Meldung "Video nicht verfuegbar" unter einem laufenden Video.
-         */
-        if (error.name === 'AbortError') return
-        onReport?.({ type: 'REPORT_VIDEO_STATUS', error: error.message })
-      })
+    const bereit = () => {
+      if (element.paused) spiele(element)
     }
-    // Ein beendetes Video haelt erst nach seinem Abgang an - siehe unten.
-    if (angleich.anhalten && video.status !== 'ended') element.pause()
-  }, [video, view.serverTimeMs, serverNow, muted, onReport])
+    element.addEventListener('canplay', bereit, { once: true })
+    return () => element.removeEventListener('canplay', bereit)
+  }, [request?.questionId, request?.requestId, question?.id, plays, spiele])
 
   /*
-   * DAS ENDE LAESST DAS BILD AUSLAUFEN.
+   * FRAGENWECHSEL UND ABGANG HALTEN AN. Das Element gehoert der Szene: Bliebe es
+   * beim Verlassen laufen, spielte der Ton unter der naechsten Frage weiter.
    *
-   * Der Server meldet das Ende nach seiner Uhr, und das Element hinkt ihr meist
-   * ein paar Bilder hinterher. Angehalten wird deshalb erst, wenn die Flaeche
-   * ausgeblendet ist - sonst froere das letzte Bild mitten im Abgang ein.
-   *
-   * Der Zeitgeber haengt allein am Ende und nicht an jedem Schnappschuss: Jeder
-   * Schnappschuss waehrend des Abgangs schoebe das Anhalten sonst weiter hinaus.
+   * Der Merker wird dabei NICHT geleert - er traegt die Frage in sich, und ein
+   * Neuaufbau der Szene ist kein neuer Auftrag.
    */
   useEffect(() => {
     const element = elementRef.current
-    if (!ended || !element) return
-    const abgang = setTimeout(() => element.pause(), presentationTiming.videoExitMs)
-    return () => clearTimeout(abgang)
-  }, [ended])
+    return () => element?.pause()
+  }, [question?.id])
+
+  /*
+   * OHNE DATEI GIBT ES NICHTS ABZUWARTEN.
+   *
+   * Im Saal steht dann der Operator davor und geht weiter, wenn er so weit ist.
+   * Am Geraet steht niemand - dort darf eine fehlende Datei den Ablauf nicht
+   * anhalten, sonst bliebe das Quiz an dieser Frage haengen.
+   */
+  useEffect(() => {
+    if (!question || question.videoUrl) return
+    geheWeiter()
+  }, [question?.id, question?.videoUrl, geheWeiter])
 
   if (!question) return null
 
   return (
     <div className={`${styles.scene} ${styles.video}`}>
-      <div
-        className={styles.videoBox}
-        style={{ '--video-exit-duration': `${presentationTiming.videoExitMs}ms` } as CSSProperties}
-      >
+      <div className={styles.videoBox}>
         {/*
          * Der Platzhalter ist die Flaeche des Videos, nicht seine Beigabe: Buehne
          * und Operatorvorschau zeigen dasselbe Rechteck an derselben Stelle, und
          * das Medium legt sich auf der Buehne hinein. Fehlt es oder laedt es noch,
          * bleibt die Komposition trotzdem stehen.
          */}
-        <div className={styles.videoFrame} data-video-placeholder data-video-state={video?.status ?? 'idle'}>
+        <div className={styles.videoFrame} data-video-placeholder>
           {plays && question.videoUrl && (
             <video
               ref={elementRef}
               className={styles.videoPlayer}
               src={question.videoUrl}
               muted={muted}
+              /*
+               * VORGELADEN, ABER NICHT GESTARTET. Die Datei liegt bereit, sobald
+               * die Frage steht; losgehen darf sie erst auf Auftrag.
+               */
+              preload="auto"
               playsInline
+              loop={false}
               /*
-               * Die Laufzeit wird nur gemeldet, wenn der Server sie noch nicht hat:
-               * Zwei Fenster messen dieselbe Datei, und jede Meldung ist ein Befehl,
-               * der gespeichert und an alle verteilt wird.
+               * Das Ende ist ein lokales Ereignis. Im Saal passiert daraufhin
+               * NICHTS - das letzte Bild bleibt stehen, bis der Operator
+               * weitergeht. Nur das Touchgeraet, das keinen Operator hat,
+               * blendet danach selbst die Frage ein.
                */
-              onLoadedMetadata={(event) => {
-                const dauerMs = event.currentTarget.duration * 1000
-                if (!laufzeitMelden(video?.durationMs, dauerMs)) return
-                onReport?.({ type: 'REPORT_VIDEO_STATUS', durationMs: dauerMs })
-              }}
-              onError={() => onReport?.({ type: 'REPORT_VIDEO_STATUS', error: 'Datei konnte nicht geladen werden' })}
+              onEnded={geheWeiter}
               /*
-               * Es laeuft - damit ist jede fruehere Fehlermeldung ueberholt. Gemeldet
-               * wird nur dann, wenn wirklich eine steht: Sonst schickte jedes
-               * Fortsetzen einen Befehl, den niemand braucht.
+               * Und wenn die Datei gar nicht spielt, ist das am Geraet genau
+               * dasselbe: weitergehen. Im Saal bleibt es folgenlos - dort
+               * entscheidet der Operator, ob er es noch einmal versucht, die
+               * Frage einblendet oder sie ueberspringt.
                */
-              onPlaying={() => {
-                if (video?.hasError) onReport?.({ type: 'REPORT_VIDEO_STATUS' })
-              }}
+              onError={geheWeiter}
             />
           )}
           {!question.videoUrl && <p className={styles.videoMissing}>{t('video.missing')}</p>}
         </div>
-        {!plays && question.videoUrl && video && !video.hasError && (
-          /*
-           * WAS DER OPERATOR HIER BRAUCHT, IST DER STAND - NICHT DAS BILD.
-           *
-           * Er steht NEBEN der Flaeche und nicht darin: Blendet das Video am Ende
-           * aus, bleibt "zu Ende" trotzdem lesbar - genau dann, wenn der Operator
-           * wieder dran ist.
-           */
-          <p className={styles.videoStatus} data-video-status={video.status} role="status">
-            <span className={styles.videoStatusDot} aria-hidden="true" />
-            {t(statusTexte[video.status])}
-          </p>
-        )}
       </div>
-      {video?.hasError && !ended && <p className={styles.videoError}>{t('video.error')}</p>}
     </div>
   )
 }

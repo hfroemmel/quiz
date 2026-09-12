@@ -29,7 +29,7 @@ alle Uebergaenge in [`docs/animationskatalog.md`](animationskatalog.md).
 | 1 | `result` | `result` | Konfetti, Ergebniskacheln, `Spiel beenden` |
 
 Nicht in den Vorlagen enthalten und deshalb unten entworfen: `pause-screen`,
-`video-ready`, `video-playing`, `second-chance`, `aborted`, Verbindungsverlust,
+`video`, `second-chance`, `aborted`, Verbindungsverlust,
 Wiederaufnahme nach Neustart, Moderatoransicht.
 
 ## Gemeinsamer Rahmen
@@ -402,18 +402,19 @@ Zeitgesteuerter Zwischenzustand nach Spezifikation 6.2.
 - Bedienleiste: alles gesperrt; der Server schaltet nach
   `gameTiming.pauseScreenMs` selbst weiter.
 
-## Videofrage (`video-ready`, `video-playing`) - entworfen
+## Videofrage (`video`) - umgesetzt
 
-- `video-ready`: Das Video steht auf dem ersten Bild, mittig in 16:9 mit
-  schwarzen Randflaechen; darueber die Rubrik und die Frage wie im Fragelayout.
-  In der Mitte des Videobildes liegt ein Abspielsymbol als reine Anzeige.
-- `video-playing`: gleiche Anordnung ohne Symbol, darunter ein 4 px hoher
-  Fortschrittsbalken in `--accent`, gespeist aus `video.positionMs`.
-- Bedienleiste: Gruppe 1 traegt in dieser Frage `Video starten`,
-  `Video pausieren` und `Zum Anfang`; danach gilt der normale Ablauf.
-- Bei `video.hasError` erscheint mittig `Video nicht verfuegbar` und die
-  Bedienleiste gibt `Ohne Video fortfahren` frei - der Ablauf darf nie an einer
-  Datei haengen bleiben.
+- Das Video liegt mittig in 16:9 auf der Flaeche der Buehne. Eine Phase, ein
+  Bild: Ob es steht, laeuft oder durch ist, zeigt das Bild selbst.
+- KEINE Anzeige des Wiedergabestands, kein Fortschrittsbalken, kein
+  Abspielsymbol - weder auf der Buehne noch am Pult. Nichts davon erreicht den
+  Server, also kann es auch nichts anzeigen (siehe `docs/zustandsmaschine.md`).
+- Am Ende blendet nichts aus: Das letzte Bild bleibt stehen, bis der Operator
+  die Frage einblendet.
+- Bedienleiste: `Video starten` (spielt von vorn, beliebig oft) und
+  `Frage einblenden`. Laesst sich die Datei nicht abspielen, bleibt die Flaeche
+  leer - `Frage einblenden` und `Frage ueberspringen` sind davon unberuehrt, der
+  Ablauf kann also nie an einer Datei haengen bleiben.
 
 ## Abbruch (`aborted`) - entworfen
 
