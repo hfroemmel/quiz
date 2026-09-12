@@ -87,6 +87,10 @@
  * uebrig bleibt - und gibt ihn wieder her, wenn eine zweite Leiste dazukommt.
  */
 .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   flex: 0 0 auto;
   display: flex;
   justify-content: center;

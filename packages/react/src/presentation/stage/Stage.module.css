@@ -61,58 +61,14 @@
   min-height: 0;
 }
 
-/*
- * AM TOUCHGERAET IST DIE SZENE EINE VERKLEINERTE BUEHNE - 16:9 UND EIGENER
- * CONTAINER.
- *
- * Links und rechts stehen die Buzzer, darunter liegt die Fussleiste mit den
- * Punkten; der Szene bleibt ein Kasten, der viel breiter als hoch ist. Alle
- * Groessen der Buehne sind aber fuer 16:9 entworfen. Deshalb behaelt die Szene
- * ihr Seitenverhaeltnis: Damit gilt im Zentrum GENAU dieselbe Komposition wie im
- * Saal, nur kleiner - kein Bauteil braucht ein zweites Mass fuer das Geraet.
- *
- * SIE NIMMT SICH DAVON DIE BREITE, NICHT DIE HOEHE. Anders herum gerechnet -
- * Hoehe aus dem uebrigen Platz, Breite daraus - haenge die ganze Komposition an
- * der FENSTERHOEHE: Zwei Geraete gleicher Breite zeigten die Frage in
- * verschiedener Groesse, sobald eines flacher ist. Genau so war es, und genau
- * das ist weg.
- *
- * WOHER DIE 63,57 % KOMMEN: Sie sind das Mass, das die Aufstellung im Duell auf
- * der Zeichenflaeche 1440x810 hatte - 915,4 von 1440 px. Kopfzeile (62,7 px) und
- * Fussleiste mit Punkten und Buzzern (232,3 px) stehen darueber und darunter;
- * zusammen mit der Szene fuellen sie die 810 px genau aus. Die 1134 px, die der
- * Entwurf fuer die Buehne im Saal nennt, passen hier NICHT: Dort gibt es keine
- * Buzzer unter der Frage. Was an Hoehe uebrig bleibt - im Einzelspiel fehlen die
- * Buzzer, auf einem hoeheren Geraet fehlt nichts -, ist Luft ueber und unter der
- * Flaeche (`justify-content: center` an der Buehne), nicht mehr Szene.
- *
- * `container-type: size` macht die Szene dabei zum Bezug: Ohne das rechneten die
- * Bauteile weiter gegen das ganze Geraet und die Verkleinerung bliebe aus. Ihre
- * Breite ist ein Anteil der Buehnenbreite, ihre Hoehe folgt daraus - jedes
- * `cqw` darin bleibt damit eine reine Funktion der Breite.
- */
 :global(.stage--touch) .sceneRoot {
   container-type: size;
   flex: 0 0 auto;
   align-self: center;
   aspect-ratio: 16 / 9;
-  width: 63.57%;
-  /*
-   * ZOOM: DIE SZENE SCHRUMPFT ZUR MITTE, IHR PLATZ BLEIBT.
-   *
-   * Skaliert wird die Darstellung, nicht der Kasten - haette der Kasten die
-   * kleinere Groesse, rutschte die Fussleiste mit nach oben und ihre Ecken
-   * verliessen den Bildrand. So bleibt unten alles an seinem Platz und in der
-   * Mitte entsteht Luft.
-   *
-   * `scale` UND NICHT `transform: scale()`: Auf genau diesem Element liegen die
-   * Szenenuebergaenge, und die animieren `transform`. Als Transformation
-   * geschrieben wuerde die Zoomstufe davon ueberschrieben - die Frage erschiene
-   * in voller Groesse und spraenge am Ende der Animation klein. Die eigene
-   * Eigenschaft `scale` wird dagegen MIT der Transformation verrechnet.
-   */
-  scale: var(--stage-zoom, 1);
-  transform-origin: center center;
+  width: 100%;
+  scale: 0.8;
+  transform-origin: top center;
 }
 
 /* Koernungsebene ganz oben - nur die Kinderwelt fuellt sie. */
