@@ -133,18 +133,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    opacity var(--video-exit-duration) ease-in,
-    transform var(--video-exit-duration) ease-in;
 }
 /*
- * Abgang: Das Video ist durch. Die Flaeche tritt ein Stueck zurueck und blendet
- * aus; zurueck kommt sie nur, wenn der Operator von vorn beginnt.
+ * KEIN ABGANG NACH DEM VIDEO. Das letzte Bild bleibt stehen, bis der Operator
+ * die Frage einblendet - der Server weiss gar nicht, wann das Video durch ist,
+ * und eine Flaeche, die von selbst verschwindet, waere eine Behauptung darueber.
  */
-.videoFrame[data-video-state='ended'] {
-  opacity: 0;
-  transform: scale(0.94);
-}
 /*
  * `contain` statt `cover`: Ein Video wird nicht beschnitten. Was an den Seiten
  * frei bleibt, zeigt den Platzhalter - das ist gewollt und sieht wie ein Rahmen aus.

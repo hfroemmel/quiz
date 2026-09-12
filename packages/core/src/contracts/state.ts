@@ -12,7 +12,7 @@ import type { JokerSequence, PlayerJokerStates } from './joker'
  *
  * Unmoegliche Kombinationen werden strukturell verhindert: Die Buzzer-Freigabe
  * haengt allein an der Phase (siehe `packages/domain/src/buzzer.ts`), deshalb kann
- * z. B. `video-playing` keine offenen Buzzer besitzen.
+ * z. B. `video` keine offenen Buzzer besitzen.
  */
 export const gamePhases = [
   /** Kein Spiel aktiv. */
@@ -24,17 +24,15 @@ export const gamePhases = [
    * Der Moderator liest die Frage vor, bevor der Operator freigibt.
    */
   'question-presented',
-  /** Videofrage vorbereitet, Video steht, Buzzer gesperrt. */
-  'video-ready',
-  /** Video laeuft, Buzzer gesperrt. */
-  'video-playing',
   /**
-   * Video ist durchgelaufen und ausgeblendet, die Frage steht noch nicht.
+   * Videoteil einer Videofrage: Die Videoflaeche steht, der Buzzer ist gesperrt.
    *
-   * Nur im gefuehrten Spiel: Der Ablauf haelt hier an, bis der Operator die
-   * Frage von Hand einblendet. Buzzer gesperrt.
+   * EINE PHASE, NICHT DREI. Ob das Video gerade laeuft, geladen wird oder schon
+   * durch ist, weiss allein der Client, der es abspielt - der Server erfaehrt es
+   * nicht und braucht es nicht. Was er fuehrt, ist der Abschnitt der Frage:
+   * Video auf dem Schirm, und weiter geht es durch `SHOW_QUESTION_AFTER_VIDEO`.
    */
-  'video-ended',
+  'video',
   /** Buzzer offen (normale Frage). */
   'buzzer-open',
   /** Ein Spieler hat den Zuschlag, Operator loggt die Antwort ein. */
@@ -148,15 +146,37 @@ export interface RevealClockState {
   elapsedBeforeStartMs: number
 }
 
-export interface VideoRuntimeState {
-  status: 'idle' | 'playing' | 'paused' | 'ended'
-  /** Position in Millisekunden zu Beginn des aktuellen Laufabschnitts. */
-  positionMs: number
-  startedAtServerMs?: number
-  /** Vom Client gemeldete Laufzeit, sobald bekannt. Rein informativ. */
-  durationMs?: number
-  /** Verstaendliche Fehlermeldung, falls das Medium nicht geladen werden konnte. */
-  error?: string
+/**
+ * Der Auftrag, ein Video abzuspielen - und ausdruecklich KEIN Wiedergabestatus.
+ *
+ * Er sagt: "Spiele das Video dieser Frage, von vorn." Er sagt nicht, ob es
+ * geladen, gestartet, weit gekommen oder zu Ende ist; nichts davon steht im
+ * Serverzustand, und niemand meldet es zurueck. Der Ablauf laeuft in eine
+ * Richtung - Pult, Server, Buehne - und endet dort.
+ *
+ * ER STEHT IM ZUSTAND UND NICHT IN EINEM EREIGNIS. Ein fluechtiges Ereignis
+ * verpasst, wer im falschen Moment die Verbindung verliert. Ein Auftrag im
+ * Schnappschuss ist auch nach einem Neuladen noch da, und eine Buehne, die
+ * gerade dazukommt, fuehrt ihn genau einmal aus.
+ */
+export interface VideoPlaybackRequest {
+  /**
+   * Frage, zu der dieser Auftrag gehoert.
+   *
+   * Damit erkennt die Buehne einen Auftrag, der nicht zu dem gehoert, was sie
+   * gerade zeigt - und laesst ihn liegen, statt das falsche Video zu starten.
+   */
+  questionId: string
+  /**
+   * Identitaet DIESES Auftrags. Jeder angenommene Klick erzeugt eine neue.
+   *
+   * Sie ist der ganze Mechanismus: Gleiche Kennung heisst "schon ausgefuehrt",
+   * neue Kennung heisst "von Sekunde null starten". Deshalb braucht es weder
+   * eine Bestaetigung noch einen Statuswert.
+   */
+  requestId: string
+  /** ISO-Zeitstempel der Annahme - fuer das Protokoll, nicht fuer den Ablauf. */
+  requestedAt: string
 }
 
 /** Eine im Spiel eingesetzte Frage inklusive spielspezifischer Praesentationsdaten. */
@@ -220,7 +240,7 @@ export interface GameState {
   buzzer: BuzzerState
   attempts: AnswerAttempt[]
   reveal?: RevealClockState
-  video?: VideoRuntimeState
+  video?: VideoPlaybackRequest
 
   /** Globaler Soundstatus; bleibt waehrend des Spiels erhalten. */
   soundEnabled: boolean

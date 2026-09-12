@@ -108,9 +108,7 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
     case 'answer-locked':
     case 'second-chance':
       return 'question'
-    case 'video-ready':
-    case 'video-playing':
-    case 'video-ended':
+    case 'video':
       return 'video'
     case 'reveal-ready':
     case 'reveal-running':
@@ -157,6 +155,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
   const publicQuestion: PublicQuestion | undefined =
     showsQuestion && question
       ? {
+          id: question.id,
           prompt: question.prompt,
           presentationType: question.questionType,
           imageUrl: ctx.assetUrl(question.media?.imageAssetId),
@@ -213,16 +212,12 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           elapsedMs: revealElapsedMs(state.reveal, ctx.nowMs),
         }
       : undefined,
-    video: state.video
-      ? {
-          status: state.video.status,
-          positionMs: videoPositionMs(state, ctx.nowMs),
-          // Erst die gemeldete Laufzeit macht den Positionsregler des Operators
-          // brauchbar - ohne sie reicht er nur bis zur bereits erreichten Stelle.
-          durationMs: state.video.durationMs,
-          hasError: Boolean(state.video.error),
-        }
-      : undefined,
+    /*
+     * Der Abspielauftrag geht unveraendert durch - er IST schon das Minimum.
+     * Der Zeitstempel bleibt im Serverzustand: Er gehoert ins Protokoll, und die
+     * Buehne entscheidet allein an der Kennung.
+     */
+    video: state.video ? { questionId: state.video.questionId, requestId: state.video.requestId } : undefined,
     result:
       scene === 'result'
         ? { ...determineResult(state), scores }
@@ -348,7 +343,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
       connectedClients: ctx.connectedClients ?? [],
       sessionCode: ctx.sessionCode,
       lanUrls: ctx.lanUrls,
-      warnings: [...(ctx.warnings ?? []), ...videoWarnings(state)],
+      warnings: [...(ctx.warnings ?? [])],
     },
     statistics: gameStatistics(ctx),
     resumable: ctx.resumable,
@@ -611,20 +606,6 @@ function publicFeedback(state: GameState): PublicQuizViewModel['feedback'] {
   return { outcome: last.outcome!, playerId: last.playerId, awardedPoints: last.awardedPoints }
 }
 
-function videoPositionMs(state: GameState, nowMs: number): number {
-  const video = state.video
-  if (!video) return 0
-  if (video.status !== 'playing' || video.startedAtServerMs === undefined) return video.positionMs
-  return video.positionMs + Math.max(0, nowMs - video.startedAtServerMs)
-}
-
-function videoWarnings(state: GameState | null): string[] {
-  if (!state?.video?.error) return []
-  return [
-    `Video konnte nicht geladen werden (${state.video.error}). Sichere nächste Aktion: Frage überspringen oder ohne Video weiterfuehren.`,
-  ]
-}
-
 function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTheme {
   const locale = spracheFuer(state, ctx)
   const audienceId = state?.audience ?? ctx.previewAudienceId
@@ -687,12 +668,8 @@ function nextStepHint(state: GameState | null): string {
       return 'Frage steht. Vorlesen, dann "Antworten einblenden".'
     case 'reveal-ready':
       return 'Bild steht unscharf. Vorlesen, dann "Enthüllung starten".'
-    case 'video-ready':
-      return 'Video steht bereit. Der Operator startet es; Buzzern ist erst nach dem Video möglich.'
-    case 'video-playing':
-      return 'Video läuft. Am Ende blendet es aus und der Ablauf hält an.'
-    case 'video-ended':
-      return 'Video ist zu Ende. "Frage einblenden", dann "Antworten einblenden".'
+    case 'video':
+      return 'Videofrage: "Video starten" spielt es auf der Bühne ab, "Frage einblenden" geht weiter. Buzzern ist erst nach dem Video möglich.'
     case 'buzzer-open':
       return 'Buzzer offen. Wer zuerst drückt, antwortet.'
     case 'reveal-running':

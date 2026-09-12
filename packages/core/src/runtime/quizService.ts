@@ -132,7 +132,7 @@ export class QuizService {
    * Deterministische Strategie fuer laufende Uhren (fuer Live-Sicherheit bewusst so
    * gewaehlt): Eine beim Absturz laufende Enthuellung wird als PAUSIERT
    * wiederhergestellt - eingefroren auf dem zuletzt persistierten Stand. Ein laufendes
-   * Video wird ebenfalls pausiert. Ein zeitgesteuerter Uebergang (Feedback,
+   * Video ist nach dem Neustart nicht mehr beauftragt. Ein zeitgesteuerter Uebergang (Feedback,
    * Pausenscreen) wird beim Fortsetzen sofort abgeschlossen, statt eine bereits
    * abgelaufene Frist erneut abzuwarten.
    */
@@ -150,15 +150,19 @@ export class QuizService {
       // fachlich `reveal-paused`. Der Buzzer bleibt dabei bewusst offen.
       if (prepared.phase === 'reveal-running') prepared.phase = 'reveal-paused'
     }
-    if (prepared.video?.status === 'playing') {
-      const elapsed = prepared.video.startedAtServerMs ? prepared.updatedAtMs - prepared.video.startedAtServerMs : 0
-      prepared.video = {
-        ...prepared.video,
-        status: 'paused',
-        positionMs: prepared.video.positionMs + Math.max(0, elapsed),
-        startedAtServerMs: undefined,
-      }
-    }
+    /*
+     * EIN ABSPIELAUFTRAG UEBERLEBT DEN NEUSTART NICHT.
+     *
+     * Eine Buehne fuehrt jeden Auftrag aus, den sie noch nicht kennt - nach
+     * einem Neustart also auch diesen, und das Video liefe im Saal von vorn los,
+     * ohne dass jemand darum gebeten hat. Nach einem Absturz entscheidet der
+     * Operator: Der Knopf steht bereit, die Phase stimmt, und ein Klick erzeugt
+     * einen neuen Auftrag.
+     *
+     * Ein WIEDERVERBINDEN der Buehne ist etwas anderes - dort bleibt der Auftrag
+     * stehen und wird genau einmal nachgeholt.
+     */
+    prepared.video = undefined
     if (prepared.pendingTransition) {
       prepared.pendingTransition = { ...prepared.pendingTransition, endsAtMs: 0 }
     }
@@ -169,7 +173,7 @@ export class QuizService {
       atMs: this.now(),
       actorRole: 'system',
       category: 'system',
-      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Enthüllung und Video wurden pausiert wiederhergestellt.`,
+      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Die Enthüllung wurde pausiert wiederhergestellt; ein Video startet erst wieder auf Befehl.`,
     })
   }
 

@@ -140,6 +140,19 @@
   inset: 0;
   z-index: 7;
   display: flex;
+  /*
+   * DIE LEERE EBENE FAENGT NICHTS AB - IHR INHALT SCHON.
+   *
+   * Sie spannt sich ueber die ganze Buehne, auch wenn der Gastgeber gerade
+   * nichts hineinstellt. In der Operatorvorschau lag sie damit ueber
+   * Bedienelementen, und die Klicks landeten in einem leeren Kasten. Also: der
+   * Rahmen ist fuer den Zeiger durchsichtig, was darin steht, ist es nicht -
+   * eine Ebene des Gastgebers mit einem Knopf darin bleibt bedienbar.
+   */
+  pointer-events: none;
+}
+.overlay > * {
+  pointer-events: auto;
 }
 
 /* ------------------------------------------------------------------ *

@@ -484,42 +484,34 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
 
 test.describe('Video', () => {
   /*
-   * In der Vorschau des Operators laeuft kein zweites Medium. Sie sagt ihm nur,
-   * wie es um das Video steht - abgespielt wird allein auf der Buehne.
+   * In der Vorschau des Operators laeuft kein zweites Medium - und sie sagt ihm
+   * auch nichts ueber die Wiedergabe. Es gibt dort nichts zu sehen ausser der
+   * Flaeche, an der er die Komposition erkennt.
    */
-  test('die Operatorvorschau zeigt, ob das Video laeuft, und spielt selbst nichts ab', async ({ page }) => {
+  test('die Operatorvorschau spielt nichts ab und zeigt keinen Stand', async ({ page }) => {
     await page.goto('/preview')
     await selectScene(page, 'video')
     await page.locator('[data-preview-variant]').selectOption('preview')
 
-    const stand = page.locator('[data-video-status]')
-    await expect(stand).toHaveAttribute('data-video-status', 'playing')
-    await expect(stand).toHaveText('Video läuft')
-    await expect(page.locator('video')).toHaveCount(0)
-
-    // Auch wenn die Flaeche am Ende ausblendet, bleibt der Stand lesbar.
-    await page.locator('[data-preview-video-status]').selectOption('ended')
-    await expect(stand).toHaveText('Video zu Ende')
-    await expect(stand).toBeVisible()
-  })
-
-  // Auf der Buehne waere der Stand ein Regiehinweis im Saal.
-  test('auf der Buehne steht kein Stand, nur das Bild', async ({ page }) => {
-    await page.goto('/preview')
-    await selectScene(page, 'video')
     await expect(page.locator('[data-video-placeholder]')).toBeVisible()
-    await expect(page.locator('video')).toHaveCount(1)
+    await expect(page.locator('video')).toHaveCount(0)
+    /*
+     * Kein "bereit", kein "laeuft", kein "zu Ende": Der Operator braucht von der
+     * Buehne nichts, um das Video zu starten oder danach weiterzumachen.
+     */
     await expect(page.locator('[data-video-status]')).toHaveCount(0)
   })
 
-  test('ein durchgelaufenes Video blendet aus', async ({ page }) => {
+  test('auf der Buehne steht das Bild, vorgeladen und ungestartet', async ({ page }) => {
     await page.goto('/preview')
     await selectScene(page, 'video')
-    const flaeche = page.locator('[data-video-placeholder]')
-    await expect(flaeche).toHaveCSS('opacity', '1')
+    await expect(page.locator('[data-video-placeholder]')).toBeVisible()
 
-    await page.locator('[data-preview-video-status]').selectOption('ended')
-    await expect(flaeche).toHaveAttribute('data-video-state', 'ended')
-    await expect(flaeche).toHaveCSS('opacity', '0')
+    const medium = page.locator('video')
+    await expect(medium).toHaveCount(1)
+    await expect(medium).toHaveAttribute('preload', 'auto')
+    // Die Flaeche bleibt sichtbar - sie blendet nach dem Video nicht mehr aus.
+    await expect(page.locator('[data-video-placeholder]')).toHaveCSS('opacity', '1')
+    await expect(page.locator('[data-video-status]')).toHaveCount(0)
   })
 })

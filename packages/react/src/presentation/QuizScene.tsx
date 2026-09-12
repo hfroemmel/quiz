@@ -71,7 +71,7 @@ export function QuizScene<TView extends PublicQuizViewModel>({
   }, [view, onEvent])
 
   const serverNow = useCallback(() => runtime.serverNow(), [runtime])
-  const report = useCallback((command: Command) => void runtime.dispatch(command), [runtime])
+  const command = useCallback((entry: Command) => void runtime.dispatch(entry), [runtime])
 
   if (!view) return null
 
@@ -81,7 +81,7 @@ export function QuizScene<TView extends PublicQuizViewModel>({
         view={view}
         serverNow={serverNow}
         isAudioMaster={snapshot.connection.audioMaster && audible}
-        onReport={report}
+        onCommand={command}
         variant={variant}
         {...(headerSlots ? { headerSlots } : {})}
         {...(pads ? { pads } : {})}

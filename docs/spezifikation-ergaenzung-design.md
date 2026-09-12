@@ -71,7 +71,7 @@ Enthuellung - und erst dann darf gebuzzert werden.
 |---|---|---|
 | Auswahlfrage | `question-presented` | `OPEN_BUZZER` ("Antworten einblenden") |
 | Bilderkennen | `reveal-ready` (neu) | `START_IMAGE_REVEAL` ("Enthuellung starten") |
-| Videofrage | `video-ready` | `SHOW_QUESTION_AFTER_VIDEO`, danach wie Auswahlfrage |
+| Videofrage | `video` | `SHOW_QUESTION_AFTER_VIDEO`, danach wie Auswahlfrage |
 
 Zwei Punkte sind dabei keine Anzeigefragen, sondern Fachlogik:
 

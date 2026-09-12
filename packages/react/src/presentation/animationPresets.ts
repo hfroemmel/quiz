@@ -38,11 +38,6 @@ export const presentationTiming = {
   resultConfettiMs: 6_000,
   /** Dauer der Punktestand-Hochzaehlanimation. */
   scoreCountUpMs: 600,
-  /**
-   * Abgang der Videoflaeche, wenn das Video durchgelaufen ist. Erst danach wird
-   * das Element angehalten - das letzte Bild laeuft unter der Blende aus.
-   */
-  videoExitMs: 700,
 
   /* --- die Jokerziehung --- */
   /*

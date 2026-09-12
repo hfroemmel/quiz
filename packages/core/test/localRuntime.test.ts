@@ -90,8 +90,13 @@ describe('LocalQuizRuntime', () => {
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
-    if (runtime.service.authoritativeState?.phase === 'video-playing') {
-      runtime.dispatch({ type: 'REPORT_VIDEO_STATUS', durationMs: 1_000 })
+    /*
+     * Am Geraet startet das Video von selbst und blendet nach seinem Ende die
+     * Frage ein - hier gibt es kein Element, das enden koennte, also macht der
+     * Test den Schritt, den dort die Szene macht.
+     */
+    if (runtime.service.authoritativeState?.phase === 'video') {
+      runtime.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
       settle()
     }
 
@@ -146,17 +151,16 @@ describe('LocalQuizRuntime', () => {
     restored.dispose()
   })
 
-  it('plant das Ende der Videophase im gefuehrten Spiel ueber den Dienst', () => {
+  it('veroeffentlicht den Abspielauftrag ueber den Dienst - und plant nichts darueber hinaus', () => {
     /*
      * DIE ENGINE ALLEIN GENUEGT ALS NACHWEIS NICHT. Zwischen ihr und dem Saal
      * steht der Dienst: Er nimmt den Befehl an, prueft Rolle und Revision und
-     * stellt den Timer, der den Uebergang spaeter ausloest. Faellt eine dieser
-     * Stufen aus, bleibt im Saal ein schwarzes Bild stehen - und die
-     * Engine-Tests waeren trotzdem gruen.
+     * schreibt den Auftrag in den Zustand, aus dem alle Clients ihren
+     * Schnappschuss bekommen.
      *
-     * Nachgestellt wird die Reihenfolge des Betriebs: Der Browser meldet die
-     * Laufzeit, SOBALD er die Datei gelesen hat - also regelmaessig BEVOR der
-     * Operator auf Start drueckt.
+     * Und er stellt KEINEN Timer: Das Videoende ist kein serverseitiger
+     * Uebergang mehr. Bliebe hier einer stehen, wechselte im Saal die Frage,
+     * waehrend das Video noch laeuft.
      */
     const { runtime, clock } = createRuntime()
     const service = runtime.service
@@ -177,32 +181,34 @@ describe('LocalQuizRuntime', () => {
     const faellig = service.authoritativeState!.pendingTransition!
     clock.nowMs = faellig.endsAtMs
     service.dispatch({
-      commandId: 'video-pause',
+      commandId: 'video-pausenscreen',
       command: { type: 'ADVANCE_TIMED_PHASE', transitionId: faellig.transitionId },
       actor: { clientId: 'test-system', role: 'system' },
       expectedRevision: service.currentRevision,
     })
-    expect(service.authoritativeState!.phase).toBe('video-ready')
+    expect(service.authoritativeState!.phase).toBe('video')
+    expect(service.authoritativeState!.video).toBeUndefined()
 
-    expect(alsOperator({ type: 'REPORT_VIDEO_STATUS', durationMs: 5_000 }).ok).toBe(true)
-    // Solange nichts laeuft, gibt es auch nichts zu planen.
+    const frageId = service.authoritativeState!.currentQuestion!.question.id
+    expect(alsOperator({ type: 'START_VIDEO', questionId: frageId }).ok).toBe(true)
+
+    const auftrag = service.authoritativeState!.video!
+    expect(auftrag.questionId).toBe(frageId)
     expect(service.authoritativeState!.pendingTransition).toBeUndefined()
 
-    expect(alsOperator({ type: 'START_VIDEO' }).ok).toBe(true)
-    const geplant = service.authoritativeState!.pendingTransition
-    expect(geplant?.nextPhase).toBe('video-ended')
-    expect(geplant!.endsAtMs - clock.nowMs).toBe(5_000 + gameTiming.videoTailMs)
-
-    // Und der Uebergang selbst beendet das Video, statt es weiterlaufen zu lassen.
-    clock.nowMs = geplant!.endsAtMs
-    service.dispatch({
-      commandId: 'video-ende',
-      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: geplant!.transitionId },
-      actor: { clientId: 'test-system', role: 'system' },
-      expectedRevision: service.currentRevision,
+    // Der Schnappschuss traegt ihn an die Buehne - und nichts sonst ueber das Video.
+    expect(service.snapshotFor('stage').video).toEqual({
+      questionId: frageId,
+      requestId: auftrag.requestId,
     })
-    expect(service.authoritativeState!.phase).toBe('video-ended')
-    expect(service.authoritativeState!.video!.status).toBe('ended')
+
+    // Ein zweiter Klick ist ein neuer Auftrag, kein Sonderfall.
+    expect(alsOperator({ type: 'START_VIDEO', questionId: frageId }).ok).toBe(true)
+    expect(service.authoritativeState!.video!.requestId).not.toBe(auftrag.requestId)
+
+    // Und die Phase steht die ganze Zeit still: Der Server wartet auf niemanden.
+    clock.nowMs += 10 * 60_000
+    expect(service.authoritativeState!.phase).toBe('video')
     runtime.dispose()
   })
 

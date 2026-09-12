@@ -9,9 +9,7 @@ Alle Phasenwechsel finden ausschliesslich in `packages/domain/src/engine.ts` sta
 | `idle` | kein Spiel aktiv | gesperrt |
 | `pause-screen` | Pausen-/Logoscreen zwischen zwei Fragen (zeitgesteuert) | gesperrt |
 | `question-presented` | Frage sichtbar, Antworten noch verborgen | gesperrt |
-| `video-ready` | Videofrage vorbereitet | gesperrt |
-| `video-playing` | Video laeuft | gesperrt |
-| `video-ended` | Video durchgelaufen und ausgeblendet, Ablauf haelt bis `Frage einblenden` (nur gefuehrtes Spiel) | gesperrt |
+| `video` | Videoteil einer Videofrage; ob das Video gerade laeuft, weiss nur der Client | gesperrt |
 | `buzzer-open` | normale Frage, Buzzer offen | **offen** |
 | `answer-locked` | ein Spieler hat den Zuschlag | gesperrt |
 | `attempt-feedback` | Richtig-/Falsch-Animation (zeitgesteuert) | gesperrt |
@@ -24,7 +22,7 @@ Alle Phasenwechsel finden ausschliesslich in `packages/domain/src/engine.ts` sta
 | `aborted` | Spiel abgebrochen, kein Ergebnis | gesperrt |
 
 Die Buzzer-Spalte ist keine zweite Wahrheit: Sie folgt aus `buzzablePhases` in
-`packages/domain/src/buzzer.ts`. Dadurch kann `video-playing` strukturell keine
+`packages/domain/src/buzzer.ts`. Dadurch kann `video` strukturell keine
 offenen Buzzer besitzen.
 
 ## Normale Multiple-Choice-Frage
@@ -143,23 +141,47 @@ und `RESUME_IMAGE_REVEAL` wechseln zwischen `reveal-running` und `reveal-paused`
 ## Videofrage
 
 ```text
-pause-screen ──(Zeit)──> video-ready ──START_VIDEO──> video-playing ──(Laufzeit)──> video-ended
-                              ▲                            │                            │
-                              └──────PAUSE_VIDEO───────────┘                            │
-                              │                                                         │
-                              │ SHOW_QUESTION_AFTER_VIDEO     SHOW_QUESTION_AFTER_VIDEO │
-                              ▼                                                         │
-                       question-presented <─────────────────────────────────────────────┘
-                              │
-                              └──> normaler Ablauf
+pause-screen ──(Zeit)──> video ──SHOW_QUESTION_AFTER_VIDEO──> question-presented
+                           │ ▲                                        │
+                           └─┘ START_VIDEO                            └──> normaler Ablauf
+                          (Auftrag, kein Phasenwechsel)
 ```
 
 Video und Frage sind zwei Phasen **derselben** Frage, nicht zwei Fragen.
 
-Ist das Video durchgelaufen (gemeldete Laufzeit plus `videoTailMs`), blendet die
-Buehne die Videoflaeche aus, und der Ablauf **haelt an**: Die Frage blendet der
-Operator von Hand ein. `RESTART_VIDEO` beginnt von vorn, `SKIP_QUESTION` bleibt
-moeglich. Am Geraet (`self-service`) folgt die Frage stattdessen unmittelbar.
+**Der Ablauf geht in eine Richtung.** `START_VIDEO` (mit der `questionId` der
+laufenden Frage) schreibt einen Abspielauftrag in den Zustand:
+
+```ts
+interface VideoPlaybackRequest {
+  questionId: string
+  requestId: string   // neu bei jedem angenommenen Klick
+  requestedAt: string
+}
+```
+
+Die Buehne merkt sich lokal die zuletzt ausgefuehrte Kennung und startet bei
+jeder anderen von Sekunde null. Mehr passiert nicht: Der Server kennt weder
+Ladezustand noch Laufzeit noch Ende, plant keinen Uebergang aus einer
+Videolaenge und wartet auf keine Bestaetigung. Das Videoende ist **kein**
+Zustandsuebergang - das letzte Bild bleibt stehen, bis der Operator
+`Frage einblenden` drueckt. Ein zweiter Klick auf `Video starten` erzeugt einen
+neuen Auftrag und spielt von vorn; `SKIP_QUESTION` bleibt moeglich.
+
+Abgewiesen wird ein Befehl, der eine andere als die laufende Frage nennt
+(`video-question-mismatch`), einer zu einer Frage ohne hinterlegtes Video
+(`video-source-missing`) und jeder ausserhalb der Videophase (`invalid-phase`).
+
+Der Auftrag faellt weg, sobald die Frage eingeblendet ist, und er ueberlebt
+keinen **Serverneustart** - sonst liefe das Video im Saal von selbst wieder los.
+Ein **Wiederverbinden der Buehne** ist etwas anderes: Dort bleibt er stehen und
+wird genau einmal nachgeholt.
+
+Am Geraet (`self-service`) gibt es kein Pult: Dort erteilt der Server den Auftrag
+nach `videoLeadInMs` selbst, und das Geraet blendet nach dem Ende des Videos -
+oder wenn die Datei sich nicht abspielen laesst - selbst die Frage ein. Das ist
+der einzige Ort, an dem ein Client nach dem Video etwas sendet, und er ist dort
+sein eigener Operator.
 
 ## Zeitgesteuerte Phasen
 
