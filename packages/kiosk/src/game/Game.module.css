@@ -110,7 +110,9 @@
  */
 .foot {
   flex: 0 0 auto;
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   z-index: 1;
   display: flex;
   align-items: flex-end;
