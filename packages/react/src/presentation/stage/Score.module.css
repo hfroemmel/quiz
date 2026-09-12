@@ -52,9 +52,12 @@
 /*
  * Das Gruppenzeichen steht so hoch wie die Ziffer daneben und traegt deren
  * Farbe - es ersetzt sie, es kommt nicht dazu.
+ *
+ * Nur die Hoehe wird gesetzt: Die Breite holt sich das Zeichen aus seiner
+ * eigenen Zeichnung (`jokerIcons.module.css`). Ein quadratisches Feld haette
+ * die drei Figuren auf 62 Prozent der Ziffernhoehe gestaucht.
  */
 .groupMark {
-  width: 1em;
   height: 1em;
   font-size: 3cqw;
   color: var(--color-text);

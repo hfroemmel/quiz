@@ -247,6 +247,37 @@ nicht. "Scoreboards bleiben unveraendert" ist deshalb so umgesetzt: Layout,
 Farben und Punktestaende bleiben, getauscht wird ausschliesslich die Ziffer des
 aktiven Spielers, und nur solange der Joker wirkt.
 
+## Die beiden Zeichen
+
+Jede Jokerart hat ein Zeichen, und es liegt **einmal** im Paket:
+
+| Datei | Zeichnung | Seitenverhaeltnis |
+| --- | --- | --- |
+| `joker-audience-icon.svg` | drei Figuren, die mittlere hervorgehoben | 640 : 398 |
+| `joker-fifty-fifty-icon.svg` | der Schriftzug `50:50` zwischen zwei Boegen | 704 : 553 |
+
+Gezeigt werden sie mit `JokerTypeIcon`, und zwar in einer von zwei Tonarten:
+
+| `tone` | Womit | Wofuer |
+| --- | --- | --- |
+| `text` (Vorgabe) | Maske ueber `currentColor` | ueberall dort, wo die Umgebung die Farbe setzt |
+| `art` | die Zeichnung mit ihren eigenen Farben | eine Kartenflaeche mit **hellem** Grund |
+
+**Die Maske ist die Vorgabe, und das ist kein Vorbehalt gegen die Zeichnung.**
+Der Schriftzug des 50:50 ist in einem sehr dunklen Grau gesetzt; auf der dunklen
+Buehne der Erwachsenen verschwindet er darin fast. Als Maske traegt dasselbe
+Zeichen die Textfarbe seiner Umgebung und steht auf beiden Buehnen. `art` ist
+deshalb ausdruecklich anzufordern - von einer Flaeche, die ihren Grund kennt.
+
+Dasselbe gilt fuer das Gruppenzeichen in der Punktekarte: Es **ersetzt** eine
+Ziffer und muss deren Farbe tragen, nie eine eigene.
+
+**Die Breite kommt aus der Datei.** Keines der beiden Zeichen ist quadratisch,
+und sie sind nicht gleich geschnitten. Gesetzt wird nur die Hoehe (`1em`), die
+Breite rechnet `--joker-icon-ratio` daraus - so stehen beide Zeichen gleich hoch,
+und keines wird gestaucht. Ein Feld mit eigenen Massen bekommt trotzdem kein
+verzerrtes Zeichen: Die Maske sitzt mit `contain` darin.
+
 ## Die Jokerkarte auf der Buehne
 
 `JokerCard` (in `hfroemmel/quiz-live`, `apps/web/src/components/`) zeigt eine
@@ -418,7 +449,7 @@ verfuegbar aussieht, fuehrt zu einem Command, den der Server annimmt.
 | `packages/core/src/engine/engine.ts` | `drawJoker`, `continueJoker`, der Aufdeckschritt als zeitgesteuerter Uebergang, die Sperre waehrend der Ziehung, Vorrat bei `START_GAME` (nur `operated`) |
 | `packages/core/src/engine/allowedCommands.ts` | die Jokerbefehle, und was eine laufende Ziehung vom Pult nimmt |
 | `packages/core/src/engine/projection.ts` | `jokerDraw`, weggefallene Antworten ab `applied`, der Operatorbereich |
-| `packages/react/src/presentation/stage/jokerIcons.tsx`, `.module.css` | die beiden Jokerzeichen als Maske |
+| `packages/react/src/presentation/stage/jokerIcons.tsx`, `.module.css` | die beiden Jokerzeichen, als Maske oder als Zeichnung, samt ihren Seitenverhaeltnissen |
 | `packages/react/src/assets/joker-*-icon.svg` | die Zeichen selbst |
 | `packages/react/src/presentation/stage/AnswerList.tsx`, `.module.css`, `answerState.ts` | weggefallene Antworten treten an ihrem Platz zurueck |
 | `packages/react/src/presentation/stage/Score.tsx`, `.module.css` | Gruppenzeichen statt Spielernummer, mit Ueberblendung |
