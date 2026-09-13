@@ -80,7 +80,7 @@
 .pauseCategory {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 4.4cqw;
+  font-size: 2.4cqw;
   font-weight: 700;
   color: var(--color-text);
   animation: pause-category-in 600ms var(--transition-easing) 400ms backwards;

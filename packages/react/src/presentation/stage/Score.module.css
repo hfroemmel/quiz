@@ -114,7 +114,8 @@
 :global(.stage--default) .score[data-active='true'] .cellPoints {
   background: var(--color-accent);
 }
-:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer {
+:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer,
+:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPoints {
   background: var(--color-accentQuiet);
 }
 /* Innen aneinanderstossend, aussen abgerundet - die Karte wirkt als ein Block. */
@@ -163,8 +164,8 @@
  * Wer den Zuschlag hat, sagt damit die Mitte der Leiste - dort steht "Antwort
  * abgeben und aufloesen" - und die Antwortzeilen, die dann nur einem gehoeren.
  */
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints {
+:global(.stage--default.stage--touch) .score[data-active='true'],
+:global(.stage--default.stage--touch) .score[data-locked='true'] {
   background: var(--color-tile);
 }
 /*
@@ -172,13 +173,9 @@
  * Fassung setzt auf der kraeftigen Akzentkachel weisse Schrift (siehe unten) -
  * auf der neutralen Kachel waere sie unsichtbar.
  */
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints {
+:global(.stage--default.stage--touch) .score[data-active='true'],
+:global(.stage--default.stage--touch) .score[data-locked='true'] {
   color: var(--color-text);
-}
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer .label,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints .label {
-  color: var(--color-textMuted);
 }
 
 /* Die Karte fuellt die Breite ihrer Ecke, damit sie mit dem Buzzer buendig steht. */

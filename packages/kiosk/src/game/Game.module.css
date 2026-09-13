@@ -304,8 +304,11 @@
  * tut, plus die Klasse: Damit gilt die Regel, gleich in welcher Reihenfolge ein
  * Gastgeber die Stylesheets einbindet.
  */
-.buzzer:disabled {
-  opacity: 1;
+[data-skin='default'] .buzzer:disabled {
+  color: var(--color-textMuted);
+  background: var(--color-tile);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
 }
 
 /*
