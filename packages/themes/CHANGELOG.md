@@ -1,5 +1,22 @@
 # @hfroemmel/quiz-themes
 
+## 0.15.1
+
+### Patch Changes
+
+- Fix the buzzer and score card styles
+  
+  A disabled buzzer in the default skin no longer keeps its full-strength face: it
+  steps back to muted text on the frosted tile ground, so it reads as out of play.
+  
+  On the stage, both player colours now follow the accent colour instead of a fixed
+  red and blue. A locked-out player's points cell takes the quiet accent together
+  with the name cell, and on touch stages the card of the player who holds the
+  turn takes the tile ground and text colour as a whole rather than cell by cell.
+  The category heading of the pause scene is set smaller.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.15.1
+
 ## 0.15.0
 
 ### Minor Changes
