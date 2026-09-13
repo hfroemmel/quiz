@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-themes",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "type": "module",
   "description": "Darstellung der Buehne: Farbpaletten, Schriften und Theme-Objekte fuer QuizScene",
   "exports": {

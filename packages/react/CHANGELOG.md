@@ -1,5 +1,26 @@
 # @hfroemmel/quiz-react
 
+## 0.15.3
+
+### Patch Changes
+
+- Tune the stage type and spacing, and shorten the submit label
+  
+  The category above the question is no longer set in the accent colour with wide
+  letter spacing; it takes the text colour in Noto Sans with a little more room
+  below. In the pause scene the category now leads and the progress line steps
+  back beneath it.
+  
+  The kids' world shows its celebration stars on the score card again. The light
+  text for the player on turn is bound to the dark and bright stage themes, which
+  leaves the adults' stage as it was and keeps it off the kids' paper.
+  
+  The kiosk sets the notice field further above the counter, and the default label of
+  the submit button reads "Antwort abgeben".
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.15.3
+  - @hfroemmel/quiz-themes@0.15.3
+
 ## 0.15.2
 
 ### Patch Changes
