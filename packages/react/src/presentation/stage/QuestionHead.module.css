@@ -20,12 +20,10 @@
   min-width: 0;
 }
 .category {
-  margin: 0 0 0.6cqw;
-  font-family: var(--font-ui);
+  margin: 0 0 1cqw;
+  font-family: 'Noto Sans', sans-serif;
   font-size: 1.25vw;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--color-accent);
 }
 /*
  * `--prompt-scale` setzt `useFittedPrompt` an das Element, wenn eine lange Frage

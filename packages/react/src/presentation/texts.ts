@@ -92,7 +92,7 @@ export const standardTexte = {
   'kiosk.keepPlaying': 'Weiterspielen',
   'kiosk.playAgain': 'Nochmal spielen',
   'kiosk.buzzer': 'Buzzern',
-  'kiosk.submit': 'Antwort abgeben und auflösen',
+  'kiosk.submit': 'Antwort abgeben',
   'kiosk.secondChance': '{player}, du darfst es jetzt auch versuchen',
   'kiosk.continue': 'Weiter',
 } as const

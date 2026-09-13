@@ -270,14 +270,10 @@
   font-weight: 700;
   font-size: var(--kids-size-score);
 }
-/* Die Kinderwelt feiert mit ihren eigenen Mitteln - ohne Sternegrafik. */
-:global(.stage--kids) .stars {
-  display: none;
-}
 
 /* Helle Fassung: Der Spieler am Zug traegt seine Farbe kraeftig - Text hell. */
-:global(.stage--default) .score[data-active='true'] .value,
-:global(.stage--default) .score[data-active='true'] .label,
+:global(.stage--dark) .score[data-active='true'] .value,
+:global(.stage--dark) .score[data-active='true'] .label,
 :global(.stage--bright) .score[data-active='true'] .value,
 :global(.stage--bright) .score[data-active='true'] .label {
   color: var(--stage-inkOnStrong);

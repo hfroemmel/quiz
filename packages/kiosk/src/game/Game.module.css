@@ -166,7 +166,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.675cqw;
+  gap: 2cqw;
   min-width: 0;
 }
 .notice {
