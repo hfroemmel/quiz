@@ -1,5 +1,17 @@
 # @hfroemmel/quiz-themes
 
+## 0.15.2
+
+### Patch Changes
+
+- Set the score card of the player on turn in light text
+  
+  The card of the player who holds the turn stands on the strong accent colour, so
+  its values and labels now take the light ink on the default stage as well as on
+  the bright one - in the points cell too, not only beside the name.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.15.2
+
 ## 0.15.1
 
 ### Patch Changes
