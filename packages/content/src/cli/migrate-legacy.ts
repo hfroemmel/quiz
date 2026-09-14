@@ -1,10 +1,10 @@
 /**
  * `pnpm content:migrate <questions.js> [config.js]`
  *
- * Uebersetzt die Legacy-Quellen in das neue Fragenmodell (Spezifikation 26).
- * Der Parser fuehrt die Dateien NICHT aus. Das Ergebnis landet als Vorschlag unter
- * `content/migrated/` und wird bewusst nicht automatisch nach `content/source`
- * uebernommen - der Korrekturbericht braucht menschliche Freigabe.
+ * Translates the legacy sources into the new question model (specification
+ * 26). The parser does NOT execute the files. The result lands as a proposal
+ * under `content/migrated/` and is deliberately not adopted automatically into
+ * `content/source` - the correction report needs human approval.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'

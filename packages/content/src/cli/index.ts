@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Einstiegspunkt der Kommandozeile: `quiz-content <befehl> [optionen]`.
+ * Command line entry point: `quiz-content <command> [options]`.
  *
- * Die Unterbefehle sind eigenstaendige Module - sie laufen beim Import los und
- * werten `process.argv` selbst aus. Dieser Dispatcher waehlt nur aus und haelt
- * die Hilfe an einer Stelle.
+ * The subcommands are standalone modules - they start on import and evaluate
+ * `process.argv` themselves. This dispatcher only selects and keeps the help
+ * in one place.
  *
- * WARUM EIN GEBUENDELTES CLI: Das Inhalte-Repository hat keinen eigenen Code.
- * Was es zum Pruefen, Bauen und Laden braucht, kommt aus diesem Paket - ein
- * einziges Werkzeug, dieselbe Verzeichniskonvention (`<cwd>/content/...`).
+ * WHY A BUNDLED CLI: The content repository has no code of its own. What it
+ * needs for validating, building and loading comes from this package - one
+ * single tool, the same directory convention (`<cwd>/content/...`).
  */
 const commands: Record<string, () => Promise<unknown>> = {
   validate: () => import('./validate'),
@@ -47,7 +47,7 @@ if (!chosen) {
   process.exit(1)
 }
 
-// Die Unterbefehle lesen `process.argv` selbst - ohne den Befehlsnamen davor.
+// The subcommands read `process.argv` themselves - without the command name in front.
 process.argv = [process.argv[0]!, process.argv[1]!, ...process.argv.slice(3)]
 await chosen()
 

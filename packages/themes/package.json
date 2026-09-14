@@ -2,7 +2,7 @@
   "name": "@hfroemmel/quiz-themes",
   "version": "0.14.0",
   "type": "module",
-  "description": "Darstellung der Buehne: Farbpaletten, Schriften und Theme-Objekte fuer QuizScene",
+  "description": "Presentation of the stage: colour palettes, fonts and theme objects for QuizScene",
   "exports": {
     ".": "./src/index.ts",
     "./palette.css": "./src/palette.css",

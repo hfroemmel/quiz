@@ -1,11 +1,11 @@
 /**
- * Serverseitige Projektion des autoritativen Zustands auf rollenabhaengige
- * View-Modelle (Spezifikation 19).
+ * Server-side projection of the authoritative state onto role-specific view
+ * models (specification 19).
  *
- * SICHERHEITSREGEL: Der Buehnenscreen bekommt ausschliesslich `PublicQuizViewModel`.
- * Die richtige Antwort, Erklaerungen, Regiehinweise und Auswahlbegruendungen werden
- * hier herausgefiltert und niemals uebertragen, bevor sie oeffentlich sein duerfen.
- * Ein Ausblenden per CSS waere nicht ausreichend.
+ * SECURITY RULE: the stage screen receives exclusively the `PublicQuizViewModel`.
+ * The correct answer, explanations, directing notes and selection rationales are
+ * filtered out here and never transmitted before they may be public. Hiding by
+ * CSS would not be enough.
  */
 import {
   isChoiceQuestion,
@@ -52,11 +52,11 @@ import { drawableJokerTypes, evaluateJokerDraw, gameHasJokers, questionStillOpen
 export interface ProjectionContext {
   nowMs: number
   config: QuizConfig
-  /** Aufloesung einer Asset-ID in eine ausspielbare URL. */
+  /** Resolution of an asset id into a servable URL. */
   assetUrl: (assetId: string | undefined) => string | undefined
   contentVersion: string
   eventDayId: string
-  /** Begruendung der aktuellen Fragenauswahl - nur fuer Operator-Diagnose. */
+  /** Rationale of the current question selection - for operator diagnostics only. */
   selectionRationale?: string
   auditSummary?: AuditEntry[]
   connectedClients?: { role: ActorRole; clientId: string }[]
@@ -65,34 +65,34 @@ export interface ProjectionContext {
   warnings?: string[]
   resumable?: OperatorQuizViewModel['resumable']
   /**
-   * Befehle, die nicht aus der Phase folgen, sondern aus dem Betriebszustand des
-   * Servers (Wiederherstellung, Veranstaltungstag, Hotfix). Sie werden hier ergaenzt,
-   * damit der Operatorclient weiterhin nur `allowedCommands` auswerten muss.
+   * Commands that do not follow from the phase but from the operating state of
+   * the server (recovery, event day, hotfix). They are added here so that the
+   * operator client still only has to evaluate `allowedCommands`.
    */
   additionalOperatorCommands?: import('../contracts').CommandType[]
-  /** Zielgruppe, deren Theme die Startansicht zeigt, solange kein Spiel laeuft. */
+  /** Audience whose theme the start view shows while no game runs. */
   previewAudienceId?: string
-  /** Globaler Soundstatus, solange kein Spiel laeuft. */
+  /** Global sound status while no game runs. */
   soundEnabled?: boolean
-  /** Sprache des Geraets, solange kein Spiel laeuft. */
+  /** Locale of the device while no game runs. */
   locale?: string
   /**
-   * Rohzahlen des Spielprotokolls aus der Datenbank, je Zielgruppe. Die Zuordnung
-   * zu lesbaren Namen passiert hier in der Projektion - dieselbe Regel wie
-   * bei Rubriken: rohe IDs kommen nicht in die Oberflaeche.
+   * Raw numbers of the game log from the database, per audience. The mapping to
+   * readable names happens here in the projection - the same rule as for
+   * category lines: raw ids do not reach the interface.
    */
   gameCounts?: { audience: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
-  /** Zeitpunkt, ab dem das Protokoll zaehlt. */
+  /** Point in time from which the log counts. */
   statisticsSinceIso?: string
 }
 
 /**
- * Szene des Buehnenscreens.
+ * Scene of the stage screen.
  *
- * Sie folgt der Phase - mit einer Ausnahme, die der Fragetyp vorgibt: Beim
- * Bilderkennen bleibt die Buehne auch dann in der Enthuellungsszene, wenn ein
- * Spieler den Zuschlag hat. Das eingefrorene Bild ist genau das, worueber jetzt
- * gesprochen wird; ein Sprung in das Fragelayout naehme es vom Schirm.
+ * It follows the phase - with one exception dictated by the question type: on
+ * the image reveal the stage stays in the reveal scene even when a player holds
+ * the buzz. The frozen picture is exactly what is being talked about now; a jump
+ * into the question layout would take it off the screen.
  */
 export function sceneForPhase(phase: GamePhase, presentationType?: QuestionPresentationType): PublicScene {
   if (presentationType === 'image-reveal' && phase === 'answer-locked') return 'reveal'
@@ -148,9 +148,9 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
   const runtime = state.currentQuestion
   const locale = localeFor(state, ctx)
   /*
-   * AB HIER IST DIE FRAGE UEBERSETZT. Alles darunter - Text, Optionen, Medium,
-   * Loesung - liest aus dieser einen Fassung; sonst stuende die Frage in einer
-   * und die Antworten in einer anderen Sprache.
+   * FROM HERE ON THE QUESTION IS TRANSLATED. Everything below - text, options,
+   * medium, solution - reads from this one version; otherwise the question would
+   * stand in one language and the answers in another.
    */
   const question = runtime ? questionTextFor(runtime.question, locale) : undefined
   const active = activePlayerId(state)
@@ -194,18 +194,18 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
     quizOffers: quizOffers(ctx, locale),
     question: publicQuestion,
     ...(publicJokerDraw(state, question?.id) ?? {}),
-    // Nur der Zwischenscreen bekommt die Rubrik der gleich folgenden Frage.
+    // Only the interstitial screen gets the category of the question about to follow.
     upcomingCategoryLabel: scene === 'pause' && question ? categoryLabel(question, ctx, locale) : undefined,
     /*
-     * Die Antwortmoeglichkeiten gehen erst auf die Leitung, wenn der Operator die
-     * Runde freigegeben hat. Solange nur die Frage steht, liest der Moderator sie
-     * vor - haette der Buehnenclient die Optionen bereits, waeren sie im DOM zu
-     * finden, bevor sie jemand sehen soll.
+     * The answer options only go on the wire once the operator has opened the
+     * round. While only the question stands, the moderator reads it aloud - if
+     * the stage client already had the options, they could be found in the DOM
+     * before anyone is supposed to see them.
      */
     visibleOptions:
       showsQuestion && state.phase !== 'question-presented' ? publicOptions(state, scene, question) : undefined,
-    // Die Loesung wird ausschliesslich in der Loesungsszene uebertragen. Nach einer
-    // falschen ersten Antwort bleibt sie damit auch technisch verborgen.
+    // The solution is transmitted exclusively in the solution scene. After a
+    // wrong first answer it thus stays hidden technically, too.
     visibleSolution: scene === 'solution' ? publicSolution(ctx, question!) : undefined,
     feedback: scene === 'feedback' ? publicFeedback(state) : undefined,
     playerScores: scores,
@@ -219,9 +219,9 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
         }
       : undefined,
     /*
-     * Der Abspielauftrag geht unveraendert durch - er IST schon das Minimum.
-     * Der Zeitstempel bleibt im Serverzustand: Er gehoert ins Protokoll, und die
-     * Buehne entscheidet allein an der Kennung.
+     * The playback request passes through unchanged - it IS the minimum
+     * already. The timestamp stays in the server state: it belongs to the log,
+     * and the stage decides on the id alone.
      */
     video: state.video ? { questionId: state.video.questionId, requestId: state.video.requestId } : undefined,
     result:
@@ -245,12 +245,12 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
 }
 
 /**
- * Ansicht der Spieler am Touchgeraet.
+ * View of the players at the touch device.
  *
- * SICHERHEITSREGEL wie beim Buehnenscreen: Es ist die oeffentliche Ansicht. Die
- * Loesung wird erst in der Loesungsszene uebertragen, Erklaerungen und
- * Regiehinweise nie. Dazu kommt allein die Liste der jetzt moeglichen Befehle,
- * damit der Touchclient seine Bedienbarkeit nicht selbst herleitet.
+ * SECURITY RULE as for the stage screen: it is the public view. The solution is
+ * only transmitted in the solution scene, explanations and directing notes
+ * never. Added to it is solely the list of the commands possible now, so that
+ * the touch client does not derive its controls itself.
  */
 export function projectPlayer(state: GameState | null, ctx: ProjectionContext): PlayerQuizViewModel {
   return {
@@ -261,11 +261,11 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
 }
 
 /**
- * Katalog fuer das Touchgeraet: nur Presets, die dort auch spielbar sind, und nur
- * Zielgruppen, die mindestens eines davon erlauben.
+ * Catalog for the touch device: only presets that are playable there, and only
+ * audiences that permit at least one of them.
  *
- * Damit steht am Geraet keine Schwierigkeitsstufe zur Wahl, die auf halber
- * Strecke einen Operator braeuchte - und der Client muss nichts darueber wissen.
+ * That way no difficulty level is offered at the device that would need an
+ * operator halfway through - and the client has to know nothing about it.
  */
 function buildPlayerCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
   const full = buildCatalog(ctx, locale)
@@ -284,10 +284,10 @@ export function projectModerator(state: GameState | null, ctx: ProjectionContext
   const base = projectPublic(state, ctx)
   const raw = state?.currentQuestion?.question
   /*
-   * Der Moderator liest vor, was im Saal steht - also die uebersetzte Fassung.
-   * Der Operator dagegen bearbeitet weiter unten das ORIGINAL: Ein Hotfix
-   * schreibt in den Bestand zurueck, und eine Uebersetzung dort einzutragen
-   * ueberschriebe die Grundsprache.
+   * The moderator reads aloud what stands in the hall - i.e. the translated
+   * version. The operator, however, edits the ORIGINAL further down: a hotfix
+   * writes back into the corpus, and entering a translation there would
+   * overwrite the base locale.
    */
   const question = raw ? questionTextFor(raw, base.locale) : undefined
   const attempt = state ? pendingAttempt(state) : undefined
@@ -295,7 +295,7 @@ export function projectModerator(state: GameState | null, ctx: ProjectionContext
   return {
     ...base,
     questionId: question?.id,
-    // Moderator und Operator sehen die Loesung jederzeit privat - der Buehnenscreen nie vorzeitig.
+    // Moderator and operator see the solution privately at any time - the stage screen never early.
     privateSolution: question ? privateSolution(question) : undefined,
     explanation: question?.explanation,
     allowedCommands: allowedCommandsForRole(state ?? null, 'moderator'),
@@ -321,10 +321,9 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
   return {
     ...moderator,
     /*
-     * Grundlage der Live-Korrektur: Fragetext und Antwortmoeglichkeiten in
-     * bearbeitbarer Form. Sie stehen unabhaengig davon bereit, ob die Antworten
-     * auf der Buehne schon eingeblendet sind - der Operator sieht ohnehin die
-     * vollstaendige Frage.
+     * Basis of the live correction: prompt and answer options in editable form.
+     * They are available regardless of whether the answers are already shown on
+     * the stage - the operator sees the complete question anyway.
      */
     editableQuestion: question
       ? {
@@ -466,7 +465,7 @@ function operatorJoker(state: GameState | null): { joker: OperatorJokerControl }
 }
 
 /* ------------------------------------------------------------------ *
- * Bausteine
+ * Building blocks
  * ------------------------------------------------------------------ */
 
 function publicOptions(state: GameState, scene: PublicScene, question: Question | undefined): PublicOption[] | undefined {
@@ -478,8 +477,8 @@ function publicOptions(state: GameState, scene: PublicScene, question: Question 
   const eliminated = new Set(eliminatedOptionIds(state, question?.id))
   const runtime = state.currentQuestion
   /*
-   * Ohne echte Auswahl gibt es keine Antwortleisten. Eine einzelne Option waere
-   * die Loesung auf der Buehne - die Frage laeuft dann als freie Antwort.
+   * Without a real choice there are no answer rows. A single option would be
+   * the solution on the stage - the question then runs as a free answer.
    */
   if (!runtime || !question || !isChoiceQuestion(question)) return undefined
 
@@ -496,19 +495,19 @@ function publicOptions(state: GameState, scene: PublicScene, question: Question 
     .map((option) => {
       const entry: PublicOption = { id: option.id, text: option.text }
       if (eliminated.has(option.id)) entry.eliminated = true
-      // Ob eine Option richtig ist, wird erst in der Loesungsszene uebertragen.
+      // Whether an option is correct is only transmitted in the solution scene.
       if (scene === 'solution' && option.id === question.correctOptionId) {
         entry.state = 'correct'
       } else if (chosenIncorrect.has(option.id)) {
         /*
-         * Eine bereits als falsch bewertete Option ist verbraucht. Sie wird sofort
-         * so markiert - nicht erst in der Loesungsszene -, damit die zweite Chance
-         * sie sichtbar ausschliesst. Der Saal hat die Bewertung ohnehin gehoert.
+         * An option already evaluated as wrong is used up. It is marked so at
+         * once - not only in the solution scene -, so that the second chance
+         * visibly excludes it. The room heard the verdict anyway.
          */
         entry.state = 'chosen-incorrect'
       } else if (option.id === pendingAttempt(state)?.loggedOptionId) {
-        // Die eingeloggte Antwort ist oeffentlich - aber nur als Festlegung,
-        // nicht als Bewertung.
+        // The logged answer is public - but only as a commitment,
+        // not as a verdict.
         entry.state = 'chosen'
       }
       return entry
@@ -516,10 +515,10 @@ function publicOptions(state: GameState, scene: PublicScene, question: Question 
 }
 
 /**
- * Spielprotokoll: jede konfigurierte Zielgruppe erscheint, auch mit null Spielen.
+ * Game log: every configured audience appears, even with zero games.
  *
- * Ein fehlender Eintrag waere zweideutig - "noch nie gespielt" sieht dann aus wie
- * "Zielgruppe gibt es nicht mehr".
+ * A missing entry would be ambiguous - "never played" would then look like
+ * "this audience no longer exists".
  */
 function gameStatistics(ctx: ProjectionContext): GameStatisticsViewModel {
   const byAudience = new Map((ctx.gameCounts ?? []).map((entry) => [entry.audience, entry]))
@@ -549,11 +548,11 @@ function correctAnswerText(question: Question | undefined): string {
 }
 
 /**
- * Rubrik ueber dem Fragetext: Label der ERSTEN Kategorie der Frage.
+ * Category line above the prompt: label of the FIRST category of the question.
  *
- * Die Reihenfolge der Kategorien ist redaktionell gesetzt; die erste ist die
- * fuehrende. Steht sie nicht in der Konfiguration, bleibt die Zeile leer, statt
- * eine rohe ID auf die Buehne zu bringen.
+ * The order of the categories is set editorially; the first one leads. If it
+ * is not in the configuration, the line stays empty instead of bringing a raw
+ * id onto the stage.
  */
 function categoryLabel(question: Question, ctx: ProjectionContext, locale: string): string | undefined {
   const first = question.categories[0]
@@ -563,22 +562,21 @@ function categoryLabel(question: Question, ctx: ProjectionContext, locale: strin
 }
 
 /**
- * In welcher Sprache steht diese Ansicht?
+ * Which language is this view in?
  *
- * Ein laufendes Spiel behaelt die Sprache, in der es begonnen wurde; ohne Spiel
- * gilt die des Geraets. Was der Inhalt nicht kennt, faellt auf die Grundsprache
- * zurueck - ein Tippfehler im Config File darf kein Geraet lahmlegen.
+ * A running game keeps the language it was started in; without a game the
+ * device's applies. What the content does not know falls back to the base
+ * locale - a typo in the config file must not disable a device.
  */
 function localeFor(state: GameState | null, ctx: ProjectionContext): string {
   return validLocale(ctx.config, state?.locale ?? ctx.locale)
 }
 
 /**
- * Die Oberflaechentexte - nur, wenn der Inhalt welche mitbringt.
+ * The interface texts - only if the content brings any.
  *
- * Ohne Eintraege bleibt das Feld weg, statt ein leeres Objekt durch jede
- * Nachricht zu tragen: Der Client haelt seine deutschen Fassungen ohnehin
- * selbst vor.
+ * Without entries the field is left out instead of carrying an empty object
+ * through every message: the client keeps its German versions itself anyway.
  */
 function textsFor(state: GameState | null, ctx: ProjectionContext): { texts?: Record<string, string> } {
   const texts = interfaceTexts(ctx.config, localeFor(state, ctx))
@@ -587,9 +585,9 @@ function textsFor(state: GameState | null, ctx: ProjectionContext): { texts?: Re
 
 function publicSolution(ctx: ProjectionContext, question: Question): PublicSolution {
   /*
-   * Die Loesungsansicht zeigt die Antwort - mehr nicht. Der Erklaerungstext bleibt
-   * dem Operator und dem Moderator vorbehalten; erzaehlt wird er auf der Buehne,
-   * nicht gelesen. Er wird deshalb gar nicht erst oeffentlich uebertragen.
+   * The solution view shows the answer - nothing more. The explanation stays
+   * reserved for operator and moderator; on the stage it is told, not read. So
+   * it is not transmitted publicly in the first place.
    */
   return {
     answerText: correctAnswerText(question),
@@ -618,24 +616,24 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
   const audienceConfig =
     ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
   /*
-   * DIE QUIZART ENTSCHEIDET, WENN ES EINE GIBT - sonst die Zielgruppe.
+   * THE QUIZ TYPE DECIDES, IF THERE IS ONE - otherwise the audience.
    *
-   * Damit gilt zu jedem Zeitpunkt genau eine Zuordnung: Ein Spiel, das ueber
-   * eine Quizart gestartet wurde, traegt deren Theme; ein Geraet, das ohne
-   * Quizart startet, traegt das der Zielgruppe. Eine Bedingung auf einen
-   * Modusnamen steht hier nicht - die Kennung kommt aus der Konfiguration.
+   * That way exactly one mapping applies at any moment: a game started through
+   * a quiz type carries that type's theme; a device that starts without a quiz
+   * type carries the audience's. No condition on a mode name stands here - the
+   * id comes from the configuration.
    */
   const quiz = state?.quizId ? ctx.config.quizzes?.find((entry) => entry.id === state.quizId) : undefined
   const themeId = quiz?.themeId ?? audienceConfig.themeId
   const theme = ctx.config.themes.find((entry) => entry.id === themeId) ?? ctx.config.themes[0]!
-  // Farben und Schriften stehen bewusst nicht im View-Modell - Darstellung ist
-  // Sache des Gastgebers und kommt aus dessen Theme-Schicht.
+  // Colours and fonts are deliberately not in the view model - presentation is
+  // the host's concern and comes from its theme layer.
   return {
     id: theme.id,
     skin: theme.skin,
     logoUrl: ctx.assetUrl(theme.logoAssetId),
     startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId ?? theme.logoAssetId),
-    // Auch der Titel ueber dem Startbild spricht die Sprache des Quiz.
+    // The title above the start visual speaks the language of the quiz, too.
     startTitle: audienceConfig.startTitles?.[locale] ?? audienceConfig.startTitle,
     startDescription: audienceConfig.startDescriptions?.[locale] ?? audienceConfig.startDescription,
     presentationAnimationSetId: theme.presentationAnimationSetId,
@@ -643,11 +641,11 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
 }
 
 /**
- * Die Quizangebote fuer den Saal - Name und Untertitel, sonst nichts.
+ * The quiz offers for the hall - name and subtitle, nothing else.
  *
- * BEWUSST NICHT DER KATALOG: Der traegt Zielgruppen, Pools und Presets, also
- * Konfiguration. Die Buehne bekommt davon nichts, weil sie nichts davon
- * ableiten koennen soll; sie soll die Namen anschreiben, mehr nicht.
+ * DELIBERATELY NOT THE CATALOG: that one carries audiences, pools and presets,
+ * i.e. configuration. The stage gets none of it because it must not be able to
+ * derive anything; it is to write up the names, nothing more.
  */
 function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel['quizOffers'] {
   return (ctx.config.quizzes ?? []).map((quiz) => {
@@ -671,9 +669,9 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
       }
     }),
     /*
-     * Die Quizarten, fertig aufgeloest. `supportsDifficulty` wird HIER aus
-     * `presetIds` abgeleitet und nicht im Client noch einmal: Es gibt eine
-     * Regel dafuer (`quizSupportsDifficulty`), und sie steht im Kern.
+     * The quiz types, fully resolved. `supportsDifficulty` is derived HERE from
+     * `presetIds` and not once more in the client: there is one rule for it
+     * (`quizSupportsDifficulty`), and it lives in the core.
      */
     quizzes: (ctx.config.quizzes ?? []).map((quiz) => {
       const subtitle = subtitleFor(quiz, locale)
@@ -696,14 +694,14 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
       slotCount: preset.slots.length,
     })),
     /*
-     * Die Sprachen tragen ihren EIGENEN Namen und werden deshalb nicht
-     * uebersetzt: Wer Englisch sucht, sucht "English" und nicht "Englisch".
+     * The locales carry their OWN name and are therefore not translated:
+     * whoever looks for English looks for "English" and not "Englisch".
      */
     locales: ctx.config.locales ?? [],
   }
 }
 
-/** Klartexthinweis, was als naechstes passiert - hilft Moderator und Operator. */
+/** Plain-text hint of what happens next - helps moderator and operator. */
 function nextStepHint(state: GameState | null): string {
   if (!state) return 'Quizart wählen, beim Bundestagsquiz die Schwierigkeit, dann "Spiel starten".'
   if (state.status === 'aborted') return 'Spiel abgebrochen. Zurück zur Startansicht.'
@@ -738,5 +736,5 @@ function nextStepHint(state: GameState | null): string {
   }
 }
 
-/** Nur zur Anzeige: wie viele Punkte gaebe es aktuell bei richtiger Antwort? */
+/** Display only: how many points would a correct answer earn right now? */
 export const maximumPointsPerQuestion = scoringRules.firstAnswerPoints

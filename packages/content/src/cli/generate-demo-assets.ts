@@ -1,14 +1,14 @@
 /**
- * Erzeugt Platzhalter-Medien fuer das mitgelieferte Beispielpaket.
+ * Generates placeholder media for the bundled example package.
  *
- * WICHTIG: Diese Grafiken sind bewusst abstrakt. Sie zeigen nichts, was die Loesung
- * verraten koennte, und sie sind kein Ersatz fuer redaktionell freigegebenes
- * Bildmaterial. Vor einer echten Veranstaltung werden die Dateien unter
- * `content/source/assets/questions/` durch die freigegebenen Bilder ersetzt
- * (gleicher Dateiname, oder Dateiname in `assets.json` anpassen).
+ * IMPORTANT: These graphics are deliberately abstract. They show nothing that
+ * could give away the solution, and they are no substitute for editorially
+ * approved image material. Before a real event the files under
+ * `content/source/assets/questions/` are replaced by the approved images
+ * (same file name, or adjust the file name in `assets.json`).
  *
- * Die Grafiken werden deterministisch aus der Asset-ID abgeleitet, damit wiederholte
- * Laeufe reproduzierbare Dateien erzeugen.
+ * The graphics are derived deterministically from the asset id so that
+ * repeated runs produce reproducible files.
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -16,7 +16,7 @@ import { mediaAssetSchema } from '@hfroemmel/quiz-core'
 import { contentDir } from './dirs'
 import { readJson, resolveAssetPath } from '../package'
 
-/** Stabiler Hash einer Zeichenkette - ersetzt Zufall, damit Builds reproduzierbar bleiben. */
+/** Stable hash of a string - replaces randomness so that builds stay reproducible. */
 function hash(value: string): number {
   let result = 2166136261
   for (let index = 0; index < value.length; index += 1) {
@@ -38,7 +38,7 @@ function paletteFor(id: string): { background: string; shapes: string[] } {
   }
 }
 
-/** Abstrakte Komposition: verraet nichts, fuellt aber die Flaeche formatfuellend. */
+/** Abstract composition: gives nothing away but fills the whole area. */
 function questionImageSvg(id: string): string {
   const palette = paletteFor(id)
   const seed = hash(id)
@@ -79,10 +79,10 @@ function brandingSvg(id: string, label: string): string {
 }
 
 /* ------------------------------------------------------------------ *
- * Video-Platzhalter
+ * Video placeholder
  * ------------------------------------------------------------------ */
 
-/** Eine MP4-Box: Laenge, Typ, Inhalt. */
+/** An MP4 box: length, type, content. */
 function box(type: string, ...parts: Uint8Array[]): Uint8Array {
   const payload = Buffer.concat(parts)
   const header = Buffer.alloc(8)
@@ -102,20 +102,20 @@ function uint32(value: number): Uint8Array {
 }
 
 /**
- * Ein gueltiger, LEERER MP4-Container.
+ * A valid, EMPTY MP4 container.
  *
- * WOFUER: Eine Videofrage braucht eine Datei, sonst schlaegt die Validierung
- * fehl und die Frage waere unspielbar. Ein echtes Video kann hier nicht
- * entstehen - es gibt keinen Encoder, und ein Platzhaltervideo waere ohnehin
- * so aussagelos wie eine Platzhaltergrafik.
+ * WHAT FOR: A video question needs a file, otherwise validation fails and the
+ * question would be unplayable. A real video cannot be produced here - there
+ * is no encoder, and a placeholder video would be as meaningless as a
+ * placeholder graphic anyway.
  *
- * Erzeugt wird deshalb ein Container mit einem Videotrack OHNE Bilddaten: Der
- * Browser laedt ihn, meldet die Laufzeit und beendet sofort. Der Ablauf ist
- * damit vollstaendig durchspielbar - zu sehen ist die Platzhalterflaeche der
- * Buehne, genau wie bei einem Medienfehler.
+ * So a container with a video track WITHOUT picture data is produced: the
+ * browser loads it, reports the duration and ends immediately. The flow can
+ * thus be played through completely - what is visible is the stage's
+ * placeholder area, exactly as with a media error.
  *
- * Die Boxen stehen in der Reihenfolge des Standards (ISO/IEC 14496-12);
- * Zeitskala und Dauer sind 1000 bzw. 1000, also eine Sekunde.
+ * The boxes are in the order of the standard (ISO/IEC 14496-12); timescale
+ * and duration are 1000 and 1000, i.e. one second.
  */
 function placeholderMp4(): Uint8Array {
   const timescale = uint32(1000)
@@ -133,7 +133,7 @@ function placeholderMp4(): Uint8Array {
     uint32(0x00010000), // Abspielrate 1.0
     bytes(1, 0, 0, 0), // Lautstaerke 1.0, Reserve
     new Uint8Array(8), // Reserve
-    // Einheitsmatrix
+    // Identity matrix
     Buffer.concat([uint32(0x00010000), uint32(0), uint32(0), uint32(0), uint32(0x00010000), uint32(0), uint32(0), uint32(0), uint32(0x40000000)]),
     new Uint8Array(24), // vordefiniert
     uint32(2), // naechste Track-ID
@@ -167,7 +167,7 @@ function placeholderMp4(): Uint8Array {
   const vmhd = box('vmhd', bytes(0, 0, 0, 1), new Uint8Array(8))
   const dref = box('dref', bytes(0, 0, 0, 0), uint32(1), box('url ', bytes(0, 0, 0, 1)))
   const dinf = box('dinf', dref)
-  // Leere Tabellen: Der Track enthaelt bewusst keine einzige Bildprobe.
+  // Empty tables: the track deliberately contains not a single picture sample.
   const stbl = box(
     'stbl',
     box('stsd', bytes(0, 0, 0, 0), uint32(0)),
@@ -207,9 +207,9 @@ function main(): void {
     if (!target) {
       throw new Error(`Asset-Pfad "${asset.filename}" liegt ausserhalb des Asset-Verzeichnisses.`)
     }
-    // Vorhandene Dateien bleiben unangetastet: Sobald freigegebenes Material im
-    // Bestand liegt, darf ein erneuter Lauf es nicht wieder durch einen Platzhalter
-    // ersetzen.
+    // Existing files stay untouched: as soon as approved material is in the
+    // pool, a repeated run must not replace it with a placeholder
+    // again.
     if (existsSync(target)) {
       kept += 1
       continue

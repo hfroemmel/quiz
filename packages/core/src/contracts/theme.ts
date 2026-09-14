@@ -1,24 +1,24 @@
 /**
- * Das Farb-VOKABULAR der Buehne: die Token, die jedes Theme belegen muss.
+ * The colour VOCABULARY of the stage: the tokens every theme has to fill.
  *
- * Die konkreten Werte - Gestaltungswelten, helle Fassung, Bedienrahmen - stehen
- * seit der Paketierung in `@hfroemmel/quiz-themes`: Darstellung ist Sache des
- * Gastgebers, der Kern kennt nur die Struktur.
+ * The concrete values - design worlds, bright variant, control chrome - live in
+ * `@hfroemmel/quiz-themes` since the packaging: presentation is the host's
+ * concern, the core knows only the structure.
  */
 
 export const designColorTokens = [
-  /* Grundflaechen */
+  /* Base surfaces */
   'pageTop',
   'pageBottom',
   'stageTop',
   'stageBottom',
   'controls',
-  /* Kacheln und Schaltflaechen */
+  /* Tiles and controls */
   'tile',
   'tileDisabled',
   'tileQuiet',
   'option',
-  /* Bedeutungsfarben */
+  /* Semantic colours */
   'accent',
   'accentQuiet',
   'primary',
@@ -26,14 +26,14 @@ export const designColorTokens = [
   'solutionChip',
   'correct',
   'incorrect',
-  /* Schrift */
+  /* Type */
   'text',
   'textMuted',
 ] as const
 
 export type DesignColorToken = (typeof designColorTokens)[number]
 
-/** Vollstaendiger Tokensatz eines Themes. */
+/** Complete token set of a theme. */
 export type DesignColors = Record<DesignColorToken, string>
 
 export function missingColorTokens(colors: Record<string, string>): DesignColorToken[] {

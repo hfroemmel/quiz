@@ -1,9 +1,9 @@
 /**
- * Szenenwahl der Buehne (Spezifikation 22.1).
+ * Scene choice of the stage (specification 22.1).
  *
- * Die Szene folgt der Phase. Einzige Ausnahme ist das Bilderkennen: Auch wenn ein
- * Spieler den Zuschlag hat, bleibt das eingefrorene Bild stehen -
- * genau darueber wird in diesem Moment gesprochen.
+ * The scene follows the phase. The only exception is the image reveal: even
+ * when a player holds the buzz, the frozen picture stays - that is exactly what
+ * is being talked about at this moment.
  */
 import { describe, expect, it } from 'vitest'
 import { sceneForPhase } from '../src/engine/projection'

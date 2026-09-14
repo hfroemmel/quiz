@@ -1,25 +1,25 @@
 # @quiz/content
 
-**Verantwortung:** Alles rund um Quizdaten - Legacy-Import, Validierung, versionierte
-Pakete und das Hotfix-Overlay. Kennt keine Spielregeln und kein Netzwerk.
+**Responsibility:** Everything around quiz data - legacy import, validation, versioned
+packages, and the hotfix overlay. Knows nothing about game rules or the network.
 
-| Datei | Verantwortung |
+| File | Responsibility |
 |---|---|
-| `validate.ts` | strenge Validierung in zwei Stufen plus Poolabdeckung je Modus/Preset/Slot |
-| `package.ts` | Quelle lesen, Paket bauen, Paket laden, sichere Asset-Pfadaufloesung |
-| `hotfix.ts` | Patches als Overlay ueber dem Basispaket, Aenderungsbericht, Abgleichwarnung |
-| `report.ts` | menschenlesbarer Validierungs- und Buildbericht |
-| `legacy/parseLiteral.ts` | sicherer Parser fuer JS-Objektliterale - fuehrt nichts aus |
-| `legacy/migrate.ts` | Zuordnung der Altdaten zum neuen Fragenmodell plus Korrekturbericht |
-| `paths.ts` | Projektpfade (`content/source`, `content/dist`, `runtime`) |
+| `validate.ts` | strict two-stage validation plus pool coverage per mode/preset/slot |
+| `package.ts` | read source, build package, load package, safe asset path resolution |
+| `hotfix.ts` | patches as an overlay over the base package, change report, mismatch warning |
+| `report.ts` | human-readable validation and build report |
+| `legacy/parseLiteral.ts` | safe parser for JS object literals - executes nothing |
+| `legacy/migrate.ts` | mapping of legacy data to the new question model plus correction report |
+| `paths.ts` | project paths (`content/source`, `content/dist`, `runtime`) |
 | `cli/` | `content:fetch`, `content:validate`, `content:build`, `content:migrate`, `content:assets` |
 
-**Abhaengigkeiten:** `@quiz/contracts` (Schemas), `@quiz/domain` (Slotfilter und
-Wiederholungsschluessel fuer die Poolanalyse), `zod`, Node-Dateisystem.
+**Dependencies:** `@quiz/contracts` (schemas), `@quiz/domain` (slot filters and
+repeat keys for pool analysis), `zod`, Node filesystem.
 
-**Sicherheit:** `resolveAssetPath` stellt sicher, dass Dateipfade aus Quizdaten
-niemals ausserhalb des Asset-Verzeichnisses aufgeloest werden. Der Legacy-Parser
-verwendet weder `eval` noch `vm`.
+**Security:** `resolveAssetPath` ensures file paths from quiz data never
+resolve outside the asset directory. The legacy parser uses neither `eval`
+nor `vm`.
 
-Details: [docs/inhalte-import.md](../../docs/inhalte-import.md) und
+Details: [docs/inhalte-import.md](../../docs/inhalte-import.md) and
 [docs/quizpaket.md](../../docs/quizpaket.md).

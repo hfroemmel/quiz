@@ -1,27 +1,27 @@
 /**
- * Punkteregeln (Spezifikation 14).
+ * Scoring rules (specification 14).
  *
- * DRY-Regel: Scoring existiert ausschliesslich hier. Weder Operator- noch
- * Moderatorclient noch Persistenz berechnen Punkte selbst.
+ * DRY rule: scoring exists exclusively here. Neither operator nor moderator
+ * client nor persistence compute points themselves.
  */
 import { scoringRules, type AnswerAttempt, type GameState, type PlayerId } from '../contracts'
 
 /**
- * Punkte fuer eine richtige Antwort.
+ * Points for a correct answer.
  *
- * Beide bestaetigten Faelle folgen derselben Regel und brauchen deshalb keinen
- * Sonderfall pro Fragetyp:
- *  - normale Frage: erste Antwort 100, zweite Chance 50;
- *  - Bilderkennen: ohne vorherigen Fehlversuch 100, sonst 50.
+ * Both confirmed cases follow the same rule and therefore need no special case
+ * per question type:
+ *  - normal question: first answer 100, second chance 50;
+ *  - image reveal: without a previous failed attempt 100, otherwise 50.
  *
- * Weitere Fehlversuche senken die Punktzahl nicht weiter, falsche Antworten
- * geben nie Abzug.
+ * Further failed attempts do not lower the score any further, wrong answers
+ * never deduct.
  */
 export function pointsForCorrectAnswer(previousFailedAttempts: number): number {
   return previousFailedAttempts === 0 ? scoringRules.firstAnswerPoints : scoringRules.secondChancePoints
 }
 
-/** Anzahl bereits falsch beantworteter Versuche der aktuellen Frage. */
+/** Number of attempts of the current question already answered wrongly. */
 export function countFailedAttemptsForCurrentQuestion(state: GameState): number {
   const questionId = state.currentQuestion?.question.id
   if (!questionId) return 0
@@ -33,7 +33,7 @@ export function countFailedAttemptsForCurrentQuestion(state: GameState): number 
   ).length
 }
 
-/** Alle Versuche der aktuell laufenden Frage, in Reihenfolge ihrer Entstehung. */
+/** All attempts of the question currently running, in order of creation. */
 export function attemptsForCurrentQuestion(state: GameState): AnswerAttempt[] {
   const questionId = state.currentQuestion?.question.id
   if (!questionId) return []
@@ -42,15 +42,15 @@ export function attemptsForCurrentQuestion(state: GameState): AnswerAttempt[] {
   )
 }
 
-/** Der noch nicht ausgewertete Versuch, falls vorhanden. */
+/** The attempt not yet evaluated, if any. */
 export function pendingAttempt(state: GameState): AnswerAttempt | undefined {
   return attemptsForCurrentQuestion(state).find((attempt) => attempt.outcome === undefined)
 }
 
 /**
- * Punktestand aendern. Der Stand faellt standardmaessig nicht unter null.
- * Rueckgabe enthaelt den tatsaechlich gebuchten Delta-Wert, damit das Auditlog
- * nicht behauptet, es seien 100 Punkte abgezogen worden, obwohl bei 0 gedeckelt wurde.
+ * Change the score. By default the score does not drop below zero.
+ * The return value carries the delta actually booked, so that the audit log
+ * does not claim 100 points were deducted when it was capped at 0.
  */
 export function applyScoreDelta(currentScore: number, delta: number): { score: number; effectiveDelta: number } {
   const raw = currentScore + delta
@@ -66,11 +66,11 @@ export interface GameResult {
 }
 
 /**
- * Ergebnis eines abgeschlossenen Spiels. Deterministisch aus dem Zustand.
+ * Result of a finished game. Deterministic from the state.
  *
- * Im Duell gewinnt der hoehere Punktestand, bei Gleichstand gibt es ein
- * Unentschieden. Im Einzelspiel gibt es beides nicht: dort zaehlt der eigene
- * Punktestand und wie viele Fragen richtig beantwortet wurden.
+ * In a duel the higher score wins, on equal scores it is a draw. In a solo game
+ * there is neither: there the player's own score counts and how many questions
+ * were answered correctly.
  */
 export function determineResult(state: GameState): GameResult {
   const [first, second] = state.players
@@ -88,24 +88,24 @@ export function determineResult(state: GameState): GameResult {
 }
 
 /**
- * Richtig beantwortete Fragen - nicht richtige Versuche.
+ * Correctly answered questions - not correct attempts.
  *
- * Der Unterschied ist beim Bilderkennen sichtbar: Dort sind mehrere Versuche je
- * Frage erlaubt, richtig ist eine Frage aber trotzdem nur einmal.
+ * The difference shows on the image reveal: several attempts per question are
+ * allowed there, but a question is still correct only once.
  */
 function countCorrectAnswers(state: GameState): number {
   return countSlots(state, (attempt) => attempt.outcome === 'correct')
 }
 
 /**
- * Tatsaechlich gestellte Fragen - nicht die Zahl der Fragenplaetze. Beides faellt
- * auseinander, wenn ein Fragenplatz uebersprungen wurde.
+ * Questions actually asked - not the number of slots. The two differ when a
+ * slot was skipped.
  */
 function countPlayedQuestions(state: GameState): number {
   return countSlots(state, () => true)
 }
 
-/** Anzahl der Fragenplaetze, auf die ein passender Versuch entfaellt. */
+/** Number of slots on which a matching attempt falls. */
 function countSlots(state: GameState, matches: (attempt: AnswerAttempt) => boolean): number {
   const slots = new Set<number>()
   for (const attempt of state.attempts) {

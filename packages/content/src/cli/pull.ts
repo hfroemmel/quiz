@@ -1,13 +1,13 @@
 /**
- * `quiz-content pull` - laedt ein gebautes Quizpaket aus einem GitHub-Release.
+ * `quiz-content pull` - downloads a built quiz package from a GitHub release.
  *
- * WARUM NICHT AUS DEM INHALTE-REPOSITORY DIREKT: Die Medien liegen dort in Git
- * LFS. Ein Klon zoege bei jedem App-Build die volle LFS-Bandbreite, und ein
- * beweglicher Branch waere kein verlaesslicher Stand. Ein Release-Asset ist
- * dagegen unveraenderlich, traegt eine Pruefsumme und kostet keine LFS-Quota.
+ * WHY NOT DIRECTLY FROM THE CONTENT REPOSITORY: The media live there in Git
+ * LFS. A clone would pull the full LFS bandwidth on every app build, and a
+ * moving branch would not be a reliable state. A release asset, in contrast,
+ * is immutable, carries a checksum and costs no LFS quota.
  *
- * Der gewuenschte Stand steht in `content.lock.json` - versioniert, damit jeder
- * Build derselben Anwendung denselben Inhalt bekommt:
+ * The wanted state is in `content.lock.json` - versioned, so that every build
+ * of the same application gets the same content:
  *
  * ```json
  * {
@@ -19,8 +19,8 @@
  * }
  * ```
  *
- * Geladen wird mit `gh` - so gilt dieselbe Authentifizierung wie fuer alles
- * andere am privaten Repository, in CI ueber `GH_TOKEN`.
+ * Downloading uses `gh` - so the same authentication applies as for
+ * everything else on the private repository, in CI via `GH_TOKEN`.
  */
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
@@ -34,9 +34,9 @@ const lockSchema = z.object({
   repository: z.string().min(1),
   tag: z.string().min(1),
   profile: z.enum(['full', 'no-video']).default('full'),
-  /** `sha256:<hex>` des Archivs. Ohne Pruefsumme wird nicht entpackt. */
+  /** `sha256:<hex>` of the archive. Without a checksum nothing is unpacked. */
   checksum: z.string().regex(/^sha256:[0-9a-f]{64}$/, 'checksum muss "sha256:<64 Hexzeichen>" sein'),
-  /** Zielverzeichnis relativ zum Arbeitsverzeichnis. */
+  /** Target directory relative to the working directory. */
   target: z.string().min(1).default('content/dist'),
 })
 
@@ -68,7 +68,7 @@ try {
     process.exit(1)
   }
 
-  // Erst nach bestandener Pruefung wird das alte Paket ersetzt.
+  // The old package is replaced only after the check has passed.
   rmSync(target, { recursive: true, force: true })
   mkdirSync(target, { recursive: true })
   execFileSync('tar', ['--zstd', '-xf', file, '-C', target], { stdio: 'inherit' })

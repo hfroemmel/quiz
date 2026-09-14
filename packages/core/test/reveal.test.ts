@@ -1,6 +1,6 @@
 /**
- * Enthuellungsuhr: Fake-Clock-Tests fuer Restsekunden, Rasteraufloesung und
- * Pausenverhalten (Spezifikation 10.2 und 22.7).
+ * Reveal clock: fake-clock tests for remaining seconds, grid resolution and
+ * pause behaviour (specification 10.2 and 22.7).
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, revealGrid, type RevealGrid } from '../src'
@@ -26,14 +26,13 @@ describe('Reveal-Uhr', () => {
     const clock = startReveal(createRevealClock(DURATION), 0)
     const plan = revealTilePlan(revealGrid, revealSeed('bild.webp'))
 
-    // Bei jedem Zeitpunkt muessen Restsekunden und offene Kacheln zum selben `progress` passen.
+    // At every point in time remaining seconds and open tiles have to match the same `progress`.
     for (const elapsed of [0, 1_000, 2_500, 5_000, 7_500, 9_999, 10_000]) {
       const progress = revealProgress(clock, elapsed)
       expect(revealCountdownSeconds(clock, elapsed)).toBe(Math.ceil((1 - progress) * (DURATION / 1000)))
       /*
-       * Die Kacheln fallen gleichmaessig ueber die Zeit: Bei halbem Fortschritt
-       * ist die Haelfte offen. Die letzte oeffnet bei genau 1 - deshalb `floor`
-       * und nicht `round`.
+       * The tiles fall evenly over time: at half progress half of them are
+       * open. The last one opens at exactly 1 - hence `floor` and not `round`.
        */
       expect(openTiles(plan, progress)).toBe(Math.floor(progress * plan.length + 1e-9))
     }
@@ -55,7 +54,7 @@ describe('Reveal-Uhr', () => {
     expect(clock.status).toBe('paused')
     expect(revealElapsedMs(clock, 4_000)).toBe(3_000)
 
-    // Auch viel spaeter bleibt der Stand unveraendert - kein Informationsvorteil.
+    // Much later the state is still unchanged - no information advantage.
     expect(revealElapsedMs(clock, 60_000)).toBe(3_000)
     expect(revealCountdownSeconds(clock, 60_000)).toBe(7)
 
@@ -82,14 +81,14 @@ describe('Reveal-Uhr', () => {
   })
 
   it('rechnet nach einem Reconnect allein aus Serverzeiten weiter', () => {
-    // Der Client kennt nur `startedAtServerMs` und `elapsedBeforeStartMs`.
+    // The client knows only `startedAtServerMs` and `elapsedBeforeStartMs`.
     const clock = { status: 'running' as const, durationMs: DURATION, startedAtServerMs: 500, elapsedBeforeStartMs: 2_000 }
     expect(revealElapsedMs(clock, 3_500)).toBe(5_000)
     expect(revealProgress(clock, 3_500)).toBeCloseTo(0.5, 6)
   })
 })
 
-/** Wie viele Kacheln bei diesem Fortschritt offen sind. */
+/** How many tiles are open at this progress. */
 function openTiles(plan: number[], progress: number): number {
   return plan.filter((openAt) => progress >= openAt).length
 }
@@ -127,9 +126,9 @@ describe('Aufdeckplan des Rasters', () => {
   })
 
   /*
-   * Der Kern der Regel "markante Bereiche zuletzt": Gemittelt ueber viele Bilder
-   * muss die Mitte spaeter fallen als der Rand. Einzelne Faelle duerfen abweichen -
-   * genau dafuer ist die Streuung da.
+   * The core of the rule "distinctive areas last": averaged over many pictures
+   * the centre has to fall later than the edge. Individual cases may deviate -
+   * that is exactly what the scatter is for.
    */
   it('deckt die Bildmitte spaeter auf als den Rand', () => {
     const middle: number[] = []

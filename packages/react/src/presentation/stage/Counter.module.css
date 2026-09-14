@@ -1,6 +1,4 @@
-/*
- * Fragenzaehler. Aufbau in beiden Welten gleich, Rahmung je Welt verschieden.
- */
+/* Question counter. Same structure in both worlds, framing differs per world. */
 
 .counter {
   display: flex;
@@ -16,7 +14,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Buehne der Erwachsenen: dieselbe Milchglaskachel wie die Punktekarte. */
+/* Adult stage: the same frosted-glass tile as the score card. */
 :global(.stage--default) .counter {
   width: 7cqw;
   padding: 1cqw 1.2cqw 0.6cqw;
@@ -36,7 +34,7 @@
   font-family: var(--font-heading);
 }
 
-/* Kinderwelt: gezeichneter Zaehlerchip mit rotem Eck. */
+/* Kids' world: a drawn counter chip with a red corner. */
 :global(.stage--kids) .counter {
   min-width: 9cqw;
   padding: 0.6cqw 0 0.8cqw;

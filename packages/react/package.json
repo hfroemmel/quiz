@@ -2,7 +2,7 @@
   "name": "@hfroemmel/quiz-react",
   "version": "0.14.0",
   "type": "module",
-  "description": "React-Praesentationsschicht der Buehne: QuizScene, Szenen, Klaenge und Verbindungs-Hooks",
+  "description": "React presentation layer of the stage: QuizScene, scenes, sounds and connection hooks",
   "exports": {
     ".": "./src/index.ts",
     "./styles/stage.css": "./src/styles/stage.css",

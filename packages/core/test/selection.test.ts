@@ -1,7 +1,7 @@
 /**
- * Auswahltests (Spezifikation 31.2).
+ * Selection tests (specification 31.2).
  *
- * Randomisierte Faelle verwenden gesetzte Seeds, damit Fehler reproduzierbar sind.
+ * Randomised cases use fixed seeds, so that failures are reproducible.
  */
 import { describe, expect, it } from 'vitest'
 import type { Question, QuestionSlotRule } from '../src'
@@ -63,7 +63,7 @@ describe('Slotfilter', () => {
     expect(matchesSlot(question, slot({ filters: { categoryIds: ['saarbruecken'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { tags: ['regional'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { tags: ['regional', 'fehlt'] } }))).toBe(false)
-    // Alle Filter zusammen muessen gleichzeitig passen.
+    // All filters together have to match at the same time.
     expect(
       matchesSlot(question, slot({ filters: { difficultyIds: ['hard'], categoryIds: ['history'] } })),
     ).toBe(true)
@@ -85,7 +85,7 @@ describe('Slotfilter', () => {
 
     expect(matchesSlot(evaluable, rule)).toBe(true)
     expect(matchesSlot(oral, rule)).toBe(false)
-    // Ohne Filter bleibt beides zulaessig - so laeuft die Buehne.
+    // Without filters both stay admissible - that is how the stage runs.
     expect(matchesSlot(oral, slot())).toBe(true)
   })
 
@@ -164,7 +164,7 @@ describe('Wiederholungsvermeidung', () => {
     const usage = new Map<string, UsageSummary>(
       questions.map((question, index) => [question.id, { lastUsedAtMs: index * 1_000, useCount: 1 }]),
     )
-    // windowSize = max(3, ceil(10 * 0,2)) = 3 -> nur q1..q3 kommen in Frage.
+    // windowSize = max(3, ceil(10 * 0.2)) = 3 -> only q1..q3 are candidates.
     expect(candidateWindowSize(10)).toBe(3)
     const picked = new Set<string>()
     for (let seed = 0; seed < 60; seed += 1) {
@@ -176,7 +176,7 @@ describe('Wiederholungsvermeidung', () => {
         picked.add(result.question.id)
       }
     }
-    // Innerhalb der Frischeklasse bleibt echte Zufaelligkeit erhalten.
+    // Inside the freshness class real randomness is preserved.
     expect(picked.size).toBeGreaterThan(1)
   })
 
@@ -194,7 +194,7 @@ describe('Wiederholungsvermeidung', () => {
   })
 
   it('ist unabhaengig von Modus und Preset, weil die Historie global adressiert wird', () => {
-    // Die Historie wird ueber `repetitionKey` adressiert - ohne Modus oder Preset im Schluessel.
+    // The history is addressed via `repetitionKey` - without mode or preset in the key.
     const questions = pool(4)
     const usage = new Map<string, UsageSummary>([
       ['q1', { lastUsedAtMs: 10, useCount: 1 }],

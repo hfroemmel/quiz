@@ -1,78 +1,81 @@
-# Neuen Fragetyp hinzufuegen
+# Adding a new question type
 
-Praesentationsform, Bewertungsverfahren und Medium sind getrennt modelliert. Oft
-braucht ein neuer redaktioneller Wunsch daher gar keinen neuen Typ.
+Presentation form, evaluation method, and medium are modeled separately. So a
+new editorial request often does not need a new type at all.
 
-## Zuerst pruefen: reicht die Kombination bestehender Felder?
+## Check first: does a combination of existing fields suffice?
 
-| Wunsch | Loesung ohne neuen Typ |
+| Request | Solution without a new type |
 |---|---|
-| Bild mit muendlicher Antwort | `image-reveal` mit `manual-correct-incorrect` |
-| Frage ohne Optionen | `evaluationMode: "manual-correct-incorrect"` plus `acceptedAnswerText` |
-| Video vor der Frage | `video-then-question` - zwei Phasen derselben Frage |
+| Image with a spoken answer | `image-reveal` with `manual-correct-incorrect` |
+| Question without options | `evaluationMode: "manual-correct-incorrect"` plus `acceptedAnswerText` |
+| Video before the question | `video-then-question` - two phases of the same question |
 
-## Ein Typ, der nur anders aussieht
+## A type that only looks different
 
-Manche Typen unterscheiden sich ausschliesslich in der Anordnung. `person` - die
-Frage nach einer abgebildeten Person - spielt wie `image-choice`, zeigt das Bild
-aber gross neben Rubrik, Frage und Antworten. Solche Typen brauchen weder Phasen
-noch Befehle noch Scoring:
+Some types differ only in layout. `person` - the question about a pictured
+person - plays like `image-choice`, but shows the image large next to the
+category, question, and answers. Types like this need neither phases, nor
+commands, nor scoring:
 
-1. **Contracts** - Wert in `questionPresentationTypes` ergaenzen und in den
-   Praedikaten `presentationNeedsOptions` / `presentationNeedsImage` einordnen.
-   Diese beiden Funktionen sind die einzige Quelle dafuer, was ein Typ mitbringen
-   muss - Validierung und UI lesen sie, niemand fuehrt eigene Listen.
-2. **Praesentation** - Anordnung in `QuestionComposition` ergaenzen. Frage- und
-   Loesungsszene bleiben unveraendert, weil beide dieses Bauteil benutzen.
-3. **Daten und Tests** - Fragen umstellen, `pnpm content:validate && pnpm
-   content:build`, Szene in `test/e2e/presentation.spec.ts` aufnehmen.
+1. **Contracts** - add the value to `questionPresentationTypes` and place it in
+   the predicates `presentationNeedsOptions` / `presentationNeedsImage`. These
+   two functions are the single source of truth for what a type must bring -
+   validation and UI read them, nobody keeps their own lists.
+2. **Presentation** - add the layout to `QuestionComposition`. The question and
+   solution scenes stay unchanged, because both use this building block.
+3. **Data and tests** - convert questions, `pnpm content:validate && pnpm
+   content:build`, add the scene to `test/e2e/presentation.spec.ts`.
 
-Alles Weitere - Phasen, Buzzerregeln, Projektion, Befehle - bleibt unberuehrt.
+Everything else - phases, buzzer rules, projection, commands - stays untouched.
 
-## Wenn ein echter neuer Typ noetig ist
+## When a genuinely new type is needed
 
 1. **Contracts** - `packages/contracts/src/content.ts`:
-   `questionPresentationTypes` um den neuen Wert ergaenzen. Der Compiler zeigt danach
-   jede Stelle, die reagieren muss.
+   add the new value to `questionPresentationTypes`. The compiler then shows
+   every place that has to react.
 
-2. **Validierung** - `packages/content/src/validate.ts`:
-   In `validateMedia` und `validateAnswerModel` festlegen, welche Medien und
-   Antwortfelder verpflichtend sind.
+2. **Validation** - `packages/content/src/validate.ts`:
+   in `validateMedia` and `validateAnswerModel`, define which media and
+   answer fields are required.
 
 3. **Domain** - `packages/domain/src/engine.ts`:
-   In `questionEntryPhase` bestimmen, in welcher Phase die Frage startet. Falls der
-   Typ eigene Phasen braucht, `GamePhase` in `@quiz/contracts` erweitern und die
-   Uebergaenge in `applyPhase` ergaenzen.
+   in `questionEntryPhase`, decide which phase the question starts in. If the
+   type needs its own phases, extend `GamePhase` in `@quiz/contracts` and add
+   the transitions in `applyPhase`.
 
-4. **Buzzerregeln** - `packages/domain/src/buzzer.ts`:
-   Nur anfassen, wenn der Typ neue buzzbare Phasen einfuehrt (`buzzablePhases`).
+4. **Buzzer rules** - `packages/domain/src/buzzer.ts`:
+   touch this only if the type introduces new buzzable phases
+   (`buzzablePhases`).
 
-5. **Scoring** - in der Regel nichts. Die Regel „ohne vorherigen Fehlversuch 100,
-   sonst 50“ gilt typunabhaengig.
+5. **Scoring** - usually nothing. The rule "100 without a prior failed
+   attempt, 50 otherwise" applies regardless of type.
 
-6. **Projektion** - `packages/domain/src/projection.ts`:
-   `sceneForPhase` ergaenzen und pruefen, welche Felder oeffentlich werden duerfen.
+6. **Projection** - `packages/domain/src/projection.ts`:
+   extend `sceneForPhase` and check which fields may become public.
 
-7. **Befehle** - `packages/contracts/src/commands.ts`:
-   Neue Befehle in `commandSchema` **und** `commandRoles` eintragen, danach in
-   `allowedCommands.ts` einer Phase zuordnen.
+7. **Commands** - `packages/contracts/src/commands.ts`:
+   register new commands in `commandSchema` **and** `commandRoles`, then
+   assign them to a phase in `allowedCommands.ts`.
 
-8. **Praesentation** - `apps/web/src/presentation/scenes/`:
-   Neue Szene anlegen und in `StageScreen.tsx` einhaengen. Uebergang im Registry
-   registrieren (siehe [animationen.md](animationen.md)).
+8. **Presentation** - `apps/web/src/presentation/scenes/`:
+   create a new scene and hook it into `StageScreen.tsx`. Register the
+   transition in the registry (see [animationen.md](animationen.md)).
 
-9. **Operatorsteuerung** - `apps/web/src/apps/operator/OperatorControls.tsx`:
-   Neue Bedienelemente an `allowedCommands` binden, nicht an eigene Bedingungen.
+9. **Operator controls** - `apps/web/src/apps/operator/OperatorControls.tsx`:
+   bind new controls to `allowedCommands`, not to their own conditions.
 
-10. **Tests** - Regelfaelle in `packages/domain/test/engine.test.ts`, Validierung in
-    `packages/content/test/validate.test.ts`, Szene in `test/e2e/presentation.spec.ts`.
+10. **Tests** - rule cases in `packages/domain/test/engine.test.ts`, validation
+    in `packages/content/test/validate.test.ts`, scene in
+    `test/e2e/presentation.spec.ts`.
 
-## Beispiel: Audiofrage
+## Example: audio question
 
-* `presentationType: "audio-then-question"`, `evaluationMode` wie gehabt
-* Pflichtmedium `audioAssetId` (Validierung)
-* Phasen `audio-ready` und `audio-playing`, beide **nicht** in `buzzablePhases`
-* Befehle `START_AUDIO`, `PAUSE_AUDIO`, `SHOW_QUESTION_AFTER_AUDIO`
-* Szene `AudioScene.tsx`, Uebergang `audioEnter.ts`
+* `presentationType: "audio-then-question"`, `evaluationMode` as usual
+* Required medium `audioAssetId` (validation)
+* Phases `audio-ready` and `audio-playing`, both **not** in `buzzablePhases`
+* Commands `START_AUDIO`, `PAUSE_AUDIO`, `SHOW_QUESTION_AFTER_AUDIO`
+* Scene `AudioScene.tsx`, transition `audioEnter.ts`
 
-Das entspricht exakt dem Aufbau der Videofrage - sie ist die beste Vorlage.
+This matches exactly the structure of the video question - it is the best
+template.

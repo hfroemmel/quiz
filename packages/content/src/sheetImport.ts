@@ -1,32 +1,33 @@
 /**
- * Aus einer Redaktionstabelle werden Fragen.
+ * An editorial sheet becomes questions.
  *
- * WARUM UEBERHAUPT: Fragen entstehen nicht in JSON. Sie entstehen in einer
- * Tabelle, an der mehrere Leute gleichzeitig sitzen, mit Kommentaren und
- * Faerbungen daneben. Dieser Schritt ist die Bruecke - und er ist bewusst eine
- * EINBAHNSTRASSE: Die Tabelle ist die Quelle, `questions.json` das Erzeugnis.
- * Wer im Erzeugnis korrigiert, verliert es beim naechsten Import.
+ * WHY AT ALL: Questions are not born in JSON. They are born in a sheet that
+ * several people work on at the same time, with comments and colouring next
+ * to it. This step is the bridge - and it is deliberately a ONE-WAY STREET:
+ * the sheet is the source, `questions.json` the product. Whoever corrects the
+ * product loses it on the next import.
  *
- * WAS HIER NICHT STEHT: das Netz. Diese Datei rechnet auf einer Zeichenkette,
- * damit sie ohne Google und ohne Zugangsdaten pruefbar ist; das Holen macht das
+ * WHAT IS NOT HERE: the network. This file computes on a string so that it can
+ * be tested without Google and without credentials; fetching is done by the
  * CLI.
  *
- * DIE ZUORDNUNG DER SPALTEN IST KONFIGURATION, kein Code. Jede Redaktion nennt
- * ihre Spalten anders, und eine Tabelle umzubenennen ist die schlechtere
- * Loesung als eine Zuordnungsdatei danebenzulegen.
+ * THE COLUMN MAPPING IS CONFIGURATION, not code. Every editorial team names
+ * its columns differently, and renaming a sheet is the worse solution
+ * compared to placing a mapping file next to it.
  */
 import { questionSchema, type Question } from '@hfroemmel/quiz-core'
 import { csvToRows } from './csv'
 
-/** Buchstaben der Antwortoptionen - dieselbe Ordnung wie auf der Buehne. */
+/** Letters of the answer options - the same order as on stage. */
 const OPTION_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'] as const
 
 export interface SheetMapping {
   /**
-   * Welche Spalte traegt welches Feld. Fehlt ein Eintrag, greift die Vorgabe.
+   * Which column carries which field. If an entry is missing, the default
+   * applies.
    *
-   * `options` ist eine Liste: eine Spalte je Antwortmoeglichkeit, in der
-   * Reihenfolge A, B, C, D.
+   * `options` is a list: one column per answer option, in the order
+   * A, B, C, D.
    */
   columns: {
     id?: string
@@ -38,7 +39,7 @@ export interface SheetMapping {
     locale?: string
     questionType?: string
     options?: string[]
-    /** Die richtige Antwort - als Buchstabe (`B`), als Nummer (`2`) oder als Text. */
+    /** The correct answer - as a letter (`B`), as a number (`2`) or as text. */
     correct?: string
     acceptedAnswerText?: string
     imageAssetId?: string
@@ -48,7 +49,7 @@ export interface SheetMapping {
     tags?: string
     enabled?: string
   }
-  /** Was gilt, wo die Tabelle nichts sagt. */
+  /** What applies where the sheet says nothing. */
   defaults?: {
     poolIds?: string[]
     audiences?: string[]
@@ -58,24 +59,24 @@ export interface SheetMapping {
     tags?: string[]
   }
   /**
-   * Uebersetzung von Zellwerten auf Bezeichner - je Feld eine Tabelle.
+   * Translation of cell values to identifiers - one table per field.
    *
-   * In der Tabelle steht "leicht", im Schema steht `easy`. Ohne diese Ebene
-   * muesste die Redaktion Bezeichner tippen, und genau das erzeugt Tippfehler,
-   * die erst beim Bauen auffallen.
+   * The sheet says "leicht", the schema says `easy`. Without this layer the
+   * editors would have to type identifiers, and exactly that produces typos
+   * that are only noticed when building.
    */
   values?: Partial<Record<'difficulty' | 'questionType' | 'categories' | 'pools' | 'audiences', Record<string, string>>>
 }
 
 export interface ImportFinding {
   questions: Question[]
-  /** Zeilen, die nicht uebernommen wurden - mit Zeilennummer und Grund. */
+  /** Rows that were not adopted - with row number and reason. */
   skippedRows: { row: number; reason: string }[]
-  /** Gelesene Spaltenueberschriften, fuer die Fehlersuche an der Zuordnung. */
+  /** Column headers that were read, for debugging the mapping. */
   columns: string[]
 }
 
-/** Die Zuordnung, mit der ein Bestand ohne eigene Datei durchlaeuft. */
+/** The mapping a pool passes through without a file of its own. */
 export const defaultMapping: SheetMapping = {
   columns: {
     id: 'ID',
@@ -107,9 +108,9 @@ export const defaultMapping: SheetMapping = {
 
 function identifier(value: string): string {
   /*
-   * Aus "Ämter & Recht" wird "aemter-recht": Bezeichner duerfen nur a-z, 0-9
-   * und die drei Trennzeichen tragen (siehe `idSchema`). Umlaute werden
-   * ausgeschrieben statt entfernt - "Amter" waere ein anderer Begriff.
+   * "Ämter & Recht" becomes "aemter-recht": identifiers may only carry a-z,
+   * 0-9 and the three separators (see `idSchema`). Umlauts are spelled out
+   * instead of removed - "Amter" would be a different term.
    */
   return value
     .toLowerCase()
@@ -136,12 +137,11 @@ function yesNo(value: string | undefined): boolean | undefined {
 }
 
 /**
- * Welche Option ist die richtige?
+ * Which option is the correct one?
  *
- * Redaktionen schreiben das auf drei Arten auf: als Buchstabe, als Nummer oder
- * indem sie die Antwort noch einmal hinschreiben. Alle drei werden gelesen -
- * eine Tabelle umzuschreiben, weil das Werkzeug nur eine Schreibweise kennt,
- * waere die falsche Richtung.
+ * Editorial teams write that down in three ways: as a letter, as a number or
+ * by writing the answer once more. All three are read - rewriting a sheet
+ * because the tool only knows one notation would be the wrong direction.
  */
 function findCorrect(value: string, options: { id: string; text: string }[]): string | undefined {
   const wanted = value.trim()
@@ -160,12 +160,12 @@ function findCorrect(value: string, options: { id: string; text: string }[]): st
 }
 
 /**
- * Tabelle in Fragen uebersetzen.
+ * Translate a sheet into questions.
  *
- * Eine Zeile, die nicht durchgeht, hält den Import NICHT an: Sie wird mit
- * Zeilennummer und Grund gemeldet, und der Rest laeuft durch. Ein Bestand von
- * zweihundert Fragen wegen einer halbfertigen Zeile gar nicht zu bekommen, ist
- * in der Redaktion die teurere Antwort - der Bericht sagt, was fehlt.
+ * A row that does not pass does NOT stop the import: it is reported with row
+ * number and reason, and the rest passes through. Not getting a pool of two
+ * hundred questions at all because of one half-finished row is the more
+ * expensive answer for the editors - the report says what is missing.
  */
 export function importSheet(csv: string, mapping: SheetMapping = defaultMapping): ImportFinding {
   const { columns, rows } = csvToRows(csv)
@@ -177,7 +177,7 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
   const skippedRows: { row: number; reason: string }[] = []
 
   rows.forEach((row, index) => {
-    // Zeile 1 ist die Kopfzeile; die erste Datenzeile ist Zeile 2.
+    // Row 1 is the header row; the first data row is row 2.
     const rowNumber = index + 2
     const cell = (name: string | undefined): string | undefined => (name ? row[name] : undefined)
 
@@ -243,9 +243,9 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
     }
 
     /*
-     * GEPRUEFT WIRD HIER, nicht erst beim Bauen: Eine Frage, die das Schema
-     * nicht haelt, ist ein Fehler der Tabelle - und die Zeilennummer ist das
-     * Einzige, womit die Redaktion ihn findet.
+     * VALIDATION HAPPENS HERE, not only when building: a question that does
+     * not hold the schema is an error of the sheet - and the row number is
+     * the only thing the editors can find it with.
      */
     const checked = questionSchema.safeParse(raw)
     if (!checked.success) {
@@ -260,11 +260,11 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
 }
 
 /**
- * Die CSV-Adresse einer Google-Tabelle.
+ * The CSV address of a Google sheet.
  *
- * Google liefert jede Tabelle als CSV aus, ohne API und ohne Schluessel - eine
- * Freigabe "Jeder mit dem Link" genuegt. Das ist der Grund, warum dieser Import
- * ohne Zugangsdaten auskommt.
+ * Google serves every sheet as CSV, without API and without a key - sharing
+ * as "anyone with the link" is enough. That is why this import works without
+ * credentials.
  */
 export function csvUrl(sheet: string): string {
   const id = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/.exec(sheet)?.[1] ?? sheet

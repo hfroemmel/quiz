@@ -1,6 +1,6 @@
 /**
- * Hotfix-Overlay (Spezifikation 25): Das Basispaket bleibt unveraendert, die
- * Korrekturen legen sich zur Laufzeit darueber.
+ * Hotfix overlay (specification 25): the base package stays unchanged, the
+ * corrections lie over it at runtime.
  */
 import { describe, expect, it } from 'vitest'
 import type { Question, QuestionPatch } from '../src/contracts'
@@ -31,7 +31,7 @@ describe('Hotfix-Overlay', () => {
   it('veraendert das Basispaket nicht, sondern legt sich darueber', () => {
     const result = applyPatches(base, [patch])
     expect(result.questions[0]!.prompt).toBe('Korrigierter Text')
-    // Der Basisbestand bleibt unangetastet.
+    // The base set stays untouched.
     expect(base[0]!.prompt).toBe('Alter Text')
   })
 
@@ -63,9 +63,9 @@ describe('Hotfix-Overlay', () => {
 })
 
 /**
- * Fehlende Mediendateien waehrend der Entwicklung.
+ * Missing media files during development.
  *
- * Der freigegebene Bildbestand liegt spaeter vor als der Fragenkatalog. Damit die
- * Entwicklung nicht blockiert, laesst sich die Meldung zur Warnung herabstufen -
- * fuer den Livebetrieb bleibt sie ein Fehler.
+ * The approved image set arrives later than the question catalogue. So that
+ * development is not blocked, the finding can be downgraded to a warning - for
+ * live operation it stays an error.
  */

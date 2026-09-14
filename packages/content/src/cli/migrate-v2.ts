@@ -1,23 +1,23 @@
 /**
- * Einmalige Migration der Inhaltsquelle von Schema v1 auf v2.
+ * One-time migration of the content source from schema v1 to v2.
  *
  *   pnpm content:migrate-v2 [--source <dir>]
  *
- * Was sich aendert (Spezifikation der Paketierung, Schema v2):
- *   - `modeIds` wird zu `audiences`; die Zielgruppen selbst bleiben.
- *   - NEU `poolIds`: Fragen der Regionalkategorie "saarbruecken" bilden den
- *     Pool `saarbruecken`, alle uebrigen den Pool `bundestag`. Die Kategorie
- *     bleibt als Rubrik erhalten - der Pool ist die AUSWAHL, die Rubrik die
- *     Ueberschrift auf der Buehne.
- *   - `difficultyId`/`categoryIds`/`presentationType` heissen `difficulty`,
- *     `categories`, `questionType`; NEU `locale` (de-DE).
- *   - Konfiguration: `modes` wird zu `audiences` (ohne Filterausdruecke), der
- *     Sondermodus "saarbruecken" entfaellt zugunsten des Pools; sein Preset
- *     `regional` wandert zu den Erwachsenen. Slotfilter `presentationTypes`
- *     heisst `questionTypes`. Farben und Schriften verlassen die Themes.
+ * What changes (packaging specification, schema v2):
+ *   - `modeIds` becomes `audiences`; the audiences themselves stay.
+ *   - NEW `poolIds`: questions of the regional category "saarbruecken" form
+ *     the pool `saarbruecken`, all others the pool `bundestag`. The category
+ *     stays as a rubric - the pool is the SELECTION, the rubric the heading
+ *     on stage.
+ *   - `difficultyId`/`categoryIds`/`presentationType` are called `difficulty`,
+ *     `categories`, `questionType`; NEW `locale` (de-DE).
+ *   - Configuration: `modes` becomes `audiences` (without filter expressions),
+ *     the special mode "saarbruecken" is dropped in favour of the pool; its
+ *     preset `regional` moves to the adults. Slot filter `presentationTypes`
+ *     is called `questionTypes`. Colours and fonts leave the themes.
  *
- * Die Migration laeuft IN PLACE ueber `content/source` und ist idempotent:
- * Bereits migrierte Dateien werden erkannt und unveraendert gelassen.
+ * The migration runs IN PLACE over `content/source` and is idempotent:
+ * already migrated files are recognised and left unchanged.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -39,7 +39,7 @@ function writeJson(file: string, value: unknown): void {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`)
 }
 
-/* -------- Fragen -------- */
+/* -------- Questions -------- */
 
 const questionsFile = join(sourceDir, 'questions.json')
 const questions = readJson(questionsFile) as Record<string, unknown>[]
@@ -70,7 +70,7 @@ const migrated = questions.map((question) => {
 })
 writeJson(questionsFile, migrated)
 
-/* -------- Konfiguration -------- */
+/* -------- Configuration -------- */
 
 const configFile = join(sourceDir, 'config.json')
 const config = readJson(configFile) as Record<string, unknown>
@@ -86,8 +86,8 @@ if (!config['audiences']) {
       const { questionFilter, allowedPresetIds, ...rest } = mode
       void questionFilter
       const presets = [...(allowedPresetIds as string[])]
-      // Das Regionalpreset gehoert kuenftig den Erwachsenen; gespielt wird es
-      // ueber die Poolauswahl, nicht ueber einen Sondermodus.
+      // The regional preset belongs to the adults from now on; it is played
+      // via the pool selection, not via a special mode.
       if (regional && mode['id'] === 'adults') {
         for (const presetId of regional['allowedPresetIds'] as string[]) {
           if (!presets.includes(presetId)) presets.push(presetId)

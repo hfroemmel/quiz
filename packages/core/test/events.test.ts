@@ -1,9 +1,9 @@
 /**
- * Ereignisableitung aus Snapshot-Paaren (`deriveQuizEvents`).
+ * Event derivation from snapshot pairs (`deriveQuizEvents`).
  *
- * Die Snapshots kommen aus der echten Projektion eines gespielten Ablaufs -
- * nicht aus handgebauten Attrappen. So belegen die Faelle zugleich, dass die
- * Ableitung auf dem tatsaechlichen View-Modell funktioniert.
+ * The snapshots come from the real projection of a played flow - not from
+ * hand-built dummies. That way the cases also prove that the derivation works
+ * on the actual view model.
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, type PublicQuizViewModel } from '../src'
@@ -12,7 +12,7 @@ import { createHarness, makeQuestion, startGame, type Harness } from './helpers'
 
 const selfService = { flowProfile: 'self-service' } as const
 
-/** Sammelt je Zwischenstand die abgeleiteten Ereignisse ein. */
+/** Collects the derived events per intermediate state. */
 class Recorder {
   private last: PublicQuizViewModel | null = null
   readonly events: QuizEvent[] = []
@@ -47,7 +47,7 @@ describe('deriveQuizEvents', () => {
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
     recorder.observe()
 
-    // Umentscheiden erzeugt ein weiteres answer-logged - genau wie am Pult.
+    // Changing one's mind creates another answer-logged - exactly as at the desk.
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
     recorder.observe()
 

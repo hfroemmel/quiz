@@ -1,6 +1,6 @@
 /*
- * Figurenebene. In der Buehne der Erwachsenen bleibt sie leer; die Kinderwelt
- * stellt Karlchen an den rechten Rand.
+ * Mascot layer. In the adult stage it stays empty; the kids' world places
+ * Karlchen at the right edge.
  */
 
 .mascot {
@@ -9,23 +9,24 @@
 }
 
 /*
- * SIE ERSCHEINT UEBERALL, WO DIE KINDERWELT LAEUFT - im Saal, in der
- * eigenstaendigen Anwendung und in der eingebetteten. Die Bedingung ist die
- * Welt und nicht der Gastgeber; ein `.stage--touch` in dieser Regel waere genau
- * die Kopplung, die es hier nicht geben darf. Was am Geraet anders ist, ist
- * allein der Bezug: Die Figur steht in der Flaeche der Szene (`.sceneArea`),
- * und die ist dort die verkleinerte Buehne in der Mitte.
+ * IT APPEARS WHEREVER THE KIDS' WORLD RUNS - in the room, in the standalone
+ * app and in the embedded one. The condition is the world, not the host; a
+ * `.stage--touch` in this rule would be exactly the coupling that must not
+ * exist here. What differs on the device is only the reference: the mascot
+ * sits in the scene's area (`.sceneArea`), and there that is the
+ * shrunk-down stage in the centre.
  *
- * Karlchen steht am unteren rechten Rand der Szene, nicht in der
- * Fragezeile: In der Referenz steht die Figur auf dem Boden neben den
- * Antworten, praesentiert mit dem ausgestreckten Fluegel nach links zu ihnen
- * hinueber und reicht dabei bis weit ueber die halbe Bildhoehe.
+ * Karlchen stands at the bottom right edge of the scene, not in the
+ * question row: in the reference, the mascot stands on the ground next to
+ * the answers, presenting with the outstretched wing across toward them,
+ * reaching well past half the image height in the process.
  *
- * In den breiten Formaten beruehrt sie den Text ohnehin nie.
+ * In the wide formats it never touches the text anyway.
  *
- * Sie gehoert zur Komposition von Frage und Loesung - aber erst, wenn die
- * Antworten stehen. Solange die Frage allein da ist, wird sie vorgelesen; eine
- * Figur, die dabei schon praesentiert, zeigt auf eine leere Flaeche.
+ * It belongs to the composition of question and solution - but only once
+ * the answers are in place. As long as the question stands alone, it is
+ * being read aloud; a mascot already presenting at that point would be
+ * pointing at an empty area.
  */
 :global(.stage--kids.stage--scene-question[data-answers-shown='true']) .mascot,
 :global(.stage--kids.stage--scene-solution) .mascot {

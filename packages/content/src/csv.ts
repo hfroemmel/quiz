@@ -1,18 +1,18 @@
 /**
- * CSV lesen - nach RFC 4180, ohne Abhaengigkeit.
+ * Read CSV - per RFC 4180, without a dependency.
  *
- * WARUM NICHT `zeile.split(',')`: In einer redaktionellen Tabelle steht in fast
- * jeder zweiten Frage ein Komma, und in Erklaerungstexten stehen Zeilenumbrueche
- * und Anfuehrungszeichen. Ein naives Trennen zerlegt genau die Zellen, auf die
- * es ankommt - und zwar still, mit einer um eins verschobenen Spalte.
+ * WHY NOT `line.split(',')`: In an editorial sheet almost every second question
+ * contains a comma, and explanation texts contain line breaks and quotation
+ * marks. A naive split breaks exactly the cells that matter - silently, with a
+ * column shifted by one.
  *
- * Die Regeln sind kurz: Felder trennt das Komma, Zeilen der Umbruch. Ein Feld in
- * Anfuehrungszeichen darf beides enthalten; ein doppeltes Anfuehrungszeichen
- * darin bedeutet eines.
+ * The rules are short: fields are separated by the comma, rows by the line
+ * break. A quoted field may contain both; a doubled quotation mark inside it
+ * means one.
  */
 
 export function parseCsv(text: string): string[][] {
-  // Ein BOM aus Tabellenprogrammen gehoert nicht in die erste Spaltenueberschrift.
+  // A BOM from spreadsheet programs does not belong in the first column header.
   const raw = text.replace(/^﻿/, '')
 
   const rows: string[][] = []
@@ -28,7 +28,7 @@ export function parseCsv(text: string): string[][] {
         cell += char
         continue
       }
-      // Verdoppeltes Anfuehrungszeichen steht fuer eines im Text.
+      // A doubled quotation mark stands for one in the text.
       if (raw[i + 1] === '"') {
         cell += '"'
         i += 1
@@ -58,24 +58,24 @@ export function parseCsv(text: string): string[][] {
     cell += char
   }
 
-  // Die letzte Zeile endet oft ohne Umbruch.
+  // The last row often ends without a line break.
   if (cell !== '' || row.length > 0) {
     row.push(cell)
     rows.push(row)
   }
 
   /*
-   * Leere Zeilen fliegen raus. Tabellen haben am Ende regelmaessig ein paar
-   * davon, und aus ihnen entstuende sonst je eine Frage ohne Text.
+   * Empty rows are dropped. Sheets regularly have a few of them at the end,
+   * and each would otherwise become a question without text.
    */
   return rows.filter((entry) => entry.some((value) => value.trim() !== ''))
 }
 
 /**
- * Kopfzeile und Datenzeilen zu Objekten verbinden.
+ * Join the header row and the data rows into objects.
  *
- * Spaltennamen werden getrimmt; doppelte Namen gewinnt der erste - sonst
- * ueberschriebe eine zweite Spalte "Frage" still die erste.
+ * Column names are trimmed; on duplicate names the first wins - otherwise a
+ * second "Frage" column would silently overwrite the first.
  */
 export function csvToRows(text: string): { columns: string[]; rows: Record<string, string>[] } {
   const sheet = parseCsv(text)

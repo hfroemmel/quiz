@@ -1,21 +1,21 @@
 /*
- * Grundflaeche der Buehne: Hintergrund, Szenenebene, Dekorationsebenen.
+ * Base area of the stage: background, scene layer, decoration layers.
  *
- * Die Wurzelklassen `.stage`, `.stage--default` und `.stage--kids` stehen
- * bewusst GLOBAL in `styles/stage.css`: Sie sind der Schalter, auf den alle
- * Bauteilmodule zugreifen. Alles andere ist hier lokal.
+ * The root classes `.stage`, `.stage--default` and `.stage--kids`
+ * deliberately live GLOBALLY in `styles/stage.css`: they are the switch that
+ * every component module accesses. Everything else here is local.
  */
 
 /*
- * Unscharfes Fragebild als Hintergrund.
+ * Blurred question image as background.
  *
- * Der Rahmen liegt bewusst ueber die Kante hinaus (`inset: -8%`) und ist
- * zusaetzlich vergroessert: Eine Weichzeichnung zieht sonst die transparenten
- * Raender ins Bild und es entsteht ein heller Saum.
+ * The frame deliberately extends past the edge (`inset: -8%`) and is
+ * additionally enlarged: a blur otherwise pulls the transparent edges into
+ * the image and creates a light fringe.
  *
- * Darueber liegt ein Farbschleier aus denselben Flaechenfarben wie der Verlauf.
- * Er nimmt dem Bild so viel Helligkeit, dass Frage und Antworten darauf ruhig
- * lesbar bleiben - das Bild traegt Stimmung, nicht Information.
+ * A colour veil in the same area colours as the gradient lies on top. It
+ * takes enough brightness off the image that question and answers stay
+ * calmly readable on it - the image carries mood, not information.
  */
 .backdrop {
   position: absolute;
@@ -28,15 +28,15 @@
   pointer-events: none;
 
   /*
-   * ER BLENDET AUF, WENN DAS BILD FERTIG IST.
+   * IT FADES IN ONCE THE IMAGE IS READY.
    *
-   * `data-ready` setzt `StageScreen`, sobald die Adresse geladen UND dekodiert
-   * ist; bis dahin liegt hier nichts als der Verlauf der Buehne. Ohne das
-   * stuende auf einer neuen Frage fuer einen Moment das Bild der vorigen - ein
-   * `background-image` wechselt erst, wenn das neue da ist.
+   * `StageScreen` sets `data-ready` once the address is loaded AND decoded;
+   * until then only the stage's gradient sits here. Without this, a new
+   * question would briefly show the previous image - a `background-image`
+   * only changes once the new one is there.
    *
-   * Nur die Deckkraft bewegt sich, und der Kasten faengt keine Beruehrung
-   * (`pointer-events: none`): Der Uebergang haelt niemanden auf.
+   * Only the opacity moves, and the box does not catch any touch
+   * (`pointer-events: none`): the transition holds nobody up.
    */
   opacity: 0;
   transition: opacity var(--stage-fade-duration) var(--stage-fade-easing);
@@ -52,12 +52,13 @@
 }
 
 /*
- * Die Flaeche der Szene: der Szenenkasten und die Figur daneben.
+ * The scene's area: the scene box and the mascot beside it.
  *
- * Sie ist der Bezug fuer beide - Karlchen misst seine Groesse und seinen Platz
- * gegen DIESE Flaeche und nicht gegen das Geraet. Im Saal sind beide dasselbe;
- * am Geraet ist die Szene eine verkleinerte Buehne, und nur so steht die Figur
- * dort an derselben Stelle ihrer Szene statt auf dem Buzzer.
+ * It is the reference for both - Karlchen measures his size and his place
+ * against THIS area and not against the device. In the room they are the
+ * same; on the device the scene is a shrunk-down stage, and only this way
+ * does the mascot end up at the same spot within its scene instead of on
+ * the buzzer.
  */
 .sceneArea {
   position: relative;
@@ -68,7 +69,7 @@
   min-height: 0;
 }
 
-/* Alles Inhaltliche liegt ueber dem Hintergrund. */
+/* Everything content-related sits above the background. */
 .sceneRoot {
   position: relative;
   flex: 1;
@@ -78,34 +79,35 @@
 }
 
 /*
- * AM TOUCHGERAET IST DIE SZENE EINE VERKLEINERTE BUEHNE - 16:9 UND EIGENER
+ * ON A TOUCH DEVICE THE SCENE IS A SHRUNK-DOWN STAGE - 16:9 AND ITS OWN
  * CONTAINER.
  *
- * Alle Groessen der Buehne sind fuer 16:9 entworfen. Deshalb behaelt die Szene
- * ihr Seitenverhaeltnis und verkleinert sich als Ganzes: Damit gilt im Zentrum
- * GENAU dieselbe Komposition wie im Saal, nur kleiner - kein Bauteil braucht ein
- * zweites Mass fuer das Geraet.
+ * Every stage size is designed for 16:9. That is why the scene keeps its
+ * aspect ratio and shrinks as a whole: this way, EXACTLY the same
+ * composition applies at the centre as in the room, just smaller - no
+ * component needs a second measure for the device.
  *
- * SIE NIMMT SICH DIE BREITE, NICHT DIE HOEHE. Anders herum gerechnet - Hoehe aus
- * dem uebrigen Platz, Breite daraus - haenge die ganze Komposition an der
- * FENSTERHOEHE: Zwei Geraete gleicher Breite zeigten die Frage in verschiedener
- * Groesse, sobald eines flacher ist. Genau so war es, und genau das ist weg.
+ * IT TAKES ITS WIDTH, NOT ITS HEIGHT. Computed the other way round - height
+ * from the remaining space, width derived from that - the whole composition
+ * would hang off the WINDOW HEIGHT: two devices of the same width would show
+ * the question at different sizes as soon as one is flatter. That is
+ * exactly how it used to be, and exactly that is gone now.
  *
- * ZOOM: DIE SZENE SCHRUMPFT ZUM KOPF HIN, IHR PLATZ BLEIBT. Skaliert wird die
- * Darstellung, nicht der Kasten - haette der Kasten die kleinere Groesse,
- * ruecken Buzzer und Punkte mit nach oben. `scale` UND NICHT
- * `transform: scale()`: Auf dem Szenenkasten darin liegen die
- * Szenenuebergaenge, und die animieren `transform`; die eigene Eigenschaft
- * `scale` wird damit verrechnet statt davon ueberschrieben.
+ * ZOOM: THE SCENE SHRINKS TOWARD THE HEADER, ITS SPACE STAYS. What scales is
+ * the display, not the box - if the box had the smaller size, buzzers and
+ * score would move up with it. `scale` AND NOT `transform: scale()`: the
+ * scene transitions sit on the scene box inside it and those animate
+ * `transform`; the dedicated `scale` property is composed with that instead
+ * of being overwritten by it.
  *
- * `container-type: size` macht die Flaeche zum Bezug: Ohne das rechneten die
- * Bauteile weiter gegen das ganze Geraet und die Verkleinerung bliebe aus.
- * Breite und Hoehe stehen im festen Verhaeltnis - jedes `cqw` darin bleibt damit
- * eine reine Funktion der Breite.
+ * `container-type: size` makes the area the reference: without it, the
+ * components would keep computing against the whole device and the
+ * shrinking would not happen. Width and height stand in a fixed ratio - so
+ * every `cqw` inside it stays a pure function of the width.
  *
- * DIE VERKLEINERUNG SITZT AN DER FLAECHE, NICHT AM SZENENKASTEN: So geht die
- * Figur mit, statt neben einer geschrumpften Szene in voller Groesse stehen zu
- * bleiben.
+ * THE SHRINKING SITS ON THE AREA, NOT ON THE SCENE BOX: this way the mascot
+ * moves along with it, instead of standing at full size next to a shrunk
+ * scene.
  */
 :global(.stage--touch) .sceneArea {
   container-type: size;
@@ -127,13 +129,13 @@
   /* Stay right under the header; the footer is fixed and out of flow. */
   margin-block: 0 auto;
 }
-/* Der Szenenkasten fuellt die Flaeche aus. */
+/* The scene box fills the area. */
 :global(.stage--touch) .sceneRoot {
   width: 100%;
   height: 100%;
 }
 
-/* Koernungsebene ganz oben - nur die Kinderwelt fuellt sie. */
+/* Grain layer at the very top - only the kids' world fills it. */
 .grain {
   position: absolute;
   inset: 0;
@@ -142,16 +144,16 @@
 }
 
 /*
- * Die Flaeche fuer eine eigene Ebene des Gastgebers (`pads.overlay`).
+ * The area for a host's own layer (`pads.overlay`).
  *
- * WO SIE LIEGT, ENTSCHEIDET DIE BUEHNE - nicht der Gastgeber: ueber Szene,
- * Fussleiste und Koernung, und in derselben Flaeche wie sie. Muesste der
- * Gastgeber das selbst treffen, muesste er die Stapelfolge der Buehne kennen,
- * und ein zu niedriger Wert liesse seine Ebene stumm hinter der Szene liegen.
- * Was IN dieser Flaeche steht, ist dagegen ganz seine Sache.
+ * WHERE IT SITS IS DECIDED BY THE STAGE - not the host: above scene, footer
+ * and grain, and in the same area as they are. If the host had to decide
+ * that themselves, they would need to know the stage's stacking order, and
+ * too low a value would leave their layer silently behind the scene. What
+ * lives INSIDE this area, on the other hand, is entirely their business.
  *
- * Sie entsteht nur, wenn er etwas einsetzt: Eine leere Flaeche ueber der ganzen
- * Buehne finge sonst jeden Fingertipp ab.
+ * It is only created when they actually insert something: an empty area
+ * over the whole stage would otherwise catch every touch.
  */
 .overlay {
   position: absolute;
@@ -159,13 +161,13 @@
   z-index: 7;
   display: flex;
   /*
-   * DIE LEERE EBENE FAENGT NICHTS AB - IHR INHALT SCHON.
+   * THE EMPTY LAYER CATCHES NOTHING - ITS CONTENT DOES.
    *
-   * Sie spannt sich ueber die ganze Buehne, auch wenn der Gastgeber gerade
-   * nichts hineinstellt. In der Operatorvorschau lag sie damit ueber
-   * Bedienelementen, und die Klicks landeten in einem leeren Kasten. Also: der
-   * Rahmen ist fuer den Zeiger durchsichtig, was darin steht, ist es nicht -
-   * eine Ebene des Gastgebers mit einem Knopf darin bleibt bedienbar.
+   * It spans the whole stage even when the host is not currently placing
+   * anything into it. In the operator preview it therefore sat on top of
+   * controls, and clicks landed in an empty box. So: the box is transparent
+   * to the pointer, its content is not - a host's layer with a button in it
+   * stays operable.
    */
   pointer-events: none;
 }
@@ -174,15 +176,15 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen
+ * Adult stage
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .backdrop {
   /*
-   * Abdunkeln geschieht ZWEIFACH: am Bild selbst und ueber den Farbschleier.
-   * Ein heller Himmel wuerde die ganze Flaeche sonst aufhellen und die Buehne
-   * vom kuehlen Dunkel ins Milchige kippen - gepruefte Fragenbilder reichen von
-   * Nachtaufnahme bis Schneelandschaft.
+   * Darkening happens TWICE: on the image itself and via the colour veil. A
+   * bright sky would otherwise brighten the whole area and tip the stage
+   * from cool dark into milky - vetted question images range from night
+   * shots to snow landscapes.
    */
   filter: blur(3cqw) saturate(1) brightness(0.72);
 }
@@ -190,9 +192,9 @@
   opacity: 0.66;
 }
 /*
- * Waehrend der Bildenthuellung: viel staerker weichgezeichnet und staerker
- * verschleiert. Die Aufgabe ist, das Motiv zu erkennen - der Hintergrund darf
- * dabei keine Silhouette verraten.
+ * During the image reveal: much more heavily blurred and veiled. The task
+ * is to recognise the motif - the background must not give away a
+ * silhouette in the process.
  */
 :global(.stage--default) .backdrop[data-veiled='true'] {
   filter: blur(9cqw) saturate(0.9) brightness(0.5);
@@ -202,9 +204,10 @@
 }
 
 /*
- * Helle Fassung: Das unscharfe Fragebild muss AUFhellen statt abdunkeln - sonst
- * saesse ein dunkler Fleck mitten im Papier. Der Schleier traegt dieselbe
- * Aufgabe wie im Dunkeln und deckt dafuer etwas staerker.
+ * Light version: the blurred question image must LIGHTEN instead of
+ * darken - otherwise a dark patch would sit in the middle of the paper. The
+ * veil carries the same job as in the dark version and covers a bit more
+ * strongly for it.
  */
 :global(.stage--bright) .backdrop {
   filter: blur(3cqw) saturate(0.85) brightness(1.22);
@@ -220,17 +223,17 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt
+ * Kids' world
  * ------------------------------------------------------------------ */
 
-/* Dort traegt die illustrierte Szene den Grund; das Fragefoto bleibt draussen. */
+/* There the illustrated scene carries the background; the question photo stays out. */
 :global(.stage--kids) .backdrop {
   display: none;
 }
 /*
- * Papierkoernung ueber allem - auch ueber Karten und Figuren, damit die Ansicht
- * auf einem Blatt liegt statt aus Aufklebern zu bestehen. Sie ist dezent, aber
- * sichtbar; `multiply` haelt sie an hellen Flaechen zurueck.
+ * Paper grain over everything - even over cards and mascot, so the view
+ * sits on a sheet of paper instead of being made of stickers. It is
+ * subtle but visible; `multiply` holds it back on bright areas.
  */
 :global(.stage--kids) .grain {
   opacity: 0.4;
@@ -238,8 +241,8 @@
   background: url('../../assets/kinderquiz/backgrounds/paper-grain.svg') repeat;
 }
 /*
- * Abschaltbar fuer schwache Buehnenrechner: Die Koernung ist Geschmack, kein
- * Inhalt. `<html class="no-grain">` genuegt.
+ * Can be switched off for weak stage computers: the grain is taste, not
+ * content. `<html class="no-grain">` is enough.
  */
 :global(.no-grain) .grain {
   display: none;

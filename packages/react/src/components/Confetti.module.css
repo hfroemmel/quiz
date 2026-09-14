@@ -1,4 +1,4 @@
-/* Konfetti: Vollflaechengrafik ueber der Szene, ohne Platz zu nehmen. */
+/* Confetti: full-area graphic over the scene, without taking up space. */
 .confetti {
   position: absolute;
   inset: 0;
@@ -9,8 +9,8 @@
 }
 
 /*
- * Bei reduzierter Bewegung entfaellt das Konfetti ganz. Es traegt keine
- * Information - wer Bewegung meidet, verliert nichts.
+ * With reduced motion the confetti is dropped entirely. It carries no
+ * information - whoever avoids motion loses nothing.
  */
 @media (prefers-reduced-motion: reduce) {
   .confetti {

@@ -1,8 +1,8 @@
 /**
- * Die Sprachauflösung - die eine Stelle, die entscheidet, welcher Text gilt.
+ * The locale resolution - the one place that decides which text applies.
  *
- * Stuende diese Regel an drei Stellen, faellt eine davon irgendwann anders aus,
- * und im Saal stuende eine Frage auf Deutsch mit englischen Antworten.
+ * If this rule stood in three places, one of them would eventually differ, and
+ * the hall would see a German question with English answers.
  */
 import { describe, expect, it } from 'vitest'
 import { labelFor, questionTextFor, baseLocale, validLocale, interfaceTexts } from '../src/contracts/locale'
@@ -41,7 +41,7 @@ const config = { locales: [{ id: 'de-DE', label: 'Deutsch' }, { id: 'en-GB', lab
 
 describe('gueltigeSprache', () => {
   it('holt eine unbekannte Sprache auf die Grundsprache zurueck', () => {
-    // Der Wunsch kommt aus einem Config File; ein Tippfehler darf kein Geraet lahmlegen.
+    // The wish comes from a config file; a typo must not disable a device.
     expect(validLocale(config, 'kl-KL')).toBe('de-DE')
     expect(validLocale(config, 'en-GB')).toBe('en-GB')
     expect(validLocale(config, undefined)).toBe('de-DE')
@@ -62,8 +62,8 @@ describe('fragenTextFuer', () => {
 
   it('ersetzt Optionen EINZELN und laesst die Wertung unberuehrt', () => {
     /*
-     * Eine Uebersetzung, die eine Option vergisst, darf sie nicht verschwinden
-     * lassen - sonst fehlte womoeglich genau die, gegen die verglichen wird.
+     * A translation that forgets an option must not make it disappear -
+     * otherwise exactly the one compared against might be missing.
      */
     const english = questionTextFor(question, 'en-GB')
     expect(english.options).toEqual([
@@ -92,8 +92,8 @@ describe('beschriftung', () => {
 describe('oberflaechenTexte', () => {
   it('legt die gewaehlte Sprache ueber die Grundsprache', () => {
     /*
-     * Ein Eintrag, den nur die Grundsprache kennt, bleibt lesbar - statt als
-     * Schluessel auf dem Bildschirm zu stehen.
+     * An entry known only to the base locale stays readable - instead of
+     * standing on the screen as a key.
      */
     const withTexts = {
       ...config,

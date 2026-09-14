@@ -1,60 +1,60 @@
 /**
- * Autoritatives Laufzeitmodell (Spezifikation 18).
+ * Authoritative runtime model (specification 18).
  *
- * Dieser Zustand lebt ausschliesslich im lokalen Server. Clients senden Befehle
- * und rendern gefilterte View-Modelle; sie veraendern diesen Zustand niemals selbst.
+ * This state lives exclusively in the local server. Clients send commands and
+ * render filtered view models; they never change this state themselves.
  */
 import type { Question, QuestionPresentationType } from './content'
 import type { JokerSequence, PlayerJokerStates } from './joker'
 
 /**
- * Phasen des Spielablaufs.
+ * Phases of the game flow.
  *
- * Unmoegliche Kombinationen werden strukturell verhindert: Die Buzzer-Freigabe
- * haengt allein an der Phase (siehe `packages/domain/src/buzzer.ts`), deshalb kann
- * z. B. `video` keine offenen Buzzer besitzen.
+ * Impossible combinations are prevented structurally: opening the buzzer
+ * depends on the phase alone (see `packages/domain/src/buzzer.ts`), so for
+ * instance `video` can never have an open buzzer.
  */
 export const gamePhases = [
-  /** Kein Spiel aktiv. */
+  /** No game active. */
   'idle',
-  /** Neutraler Pausen-/Logoscreen zwischen zwei Fragen (zeitgesteuert). */
+  /** Neutral pause/logo screen between two questions (timed). */
   'pause-screen',
   /**
-   * Frage sichtbar, Antwortmoeglichkeiten noch verborgen, Buzzer gesperrt.
-   * Der Moderator liest die Frage vor, bevor der Operator freigibt.
+   * Question visible, answer options still hidden, buzzer locked.
+   * The moderator reads the question aloud before the operator opens it.
    */
   'question-presented',
   /**
-   * Videoteil einer Videofrage: Die Videoflaeche steht, der Buzzer ist gesperrt.
+   * Video part of a video question: the video area stands, the buzzer is locked.
    *
-   * EINE PHASE, NICHT DREI. Ob das Video gerade laeuft, geladen wird oder schon
-   * durch ist, weiss allein der Client, der es abspielt - der Server erfaehrt es
-   * nicht und braucht es nicht. Was er fuehrt, ist der Abschnitt der Frage:
-   * Video auf dem Schirm, und weiter geht es durch `SHOW_QUESTION_AFTER_VIDEO`.
+   * ONE PHASE, NOT THREE. Whether the video is playing, loading or already
+   * finished is known only to the client that plays it - the server does not
+   * learn it and does not need to. What it tracks is the section of the
+   * question: video on the screen, and on it goes via `SHOW_QUESTION_AFTER_VIDEO`.
    */
   'video',
-  /** Buzzer offen (normale Frage). */
+  /** Buzzer open (normal question). */
   'buzzer-open',
-  /** Ein Spieler hat den Zuschlag, Operator loggt die Antwort ein. */
+  /** A player holds the buzz, the operator logs the answer. */
   'answer-locked',
-  /** Richtig-/Falsch-Animation laeuft (zeitgesteuert). */
+  /** Correct/wrong animation running (timed). */
   'attempt-feedback',
-  /** Zweite Chance des anderen Spielers bei normaler Frage, kein Buzzern noetig. */
+  /** Second chance of the other player on a normal question, no buzz needed. */
   'second-chance',
   /**
-   * Bilderkennen: Bild steht unscharf, die Enthuellung ist noch nicht gestartet.
-   * Der Moderator liest die Frage vor; Buzzern ist noch gesperrt.
+   * Image reveal: the image stands blurred, the reveal has not started yet.
+   * The moderator reads the question aloud; buzzing is still locked.
    */
   'reveal-ready',
-  /** Bilderkennen: Enthuellung laeuft, Buzzer offen. */
+  /** Image reveal: reveal running, buzzer open. */
   'reveal-running',
-  /** Bilderkennen: Enthuellung eingefroren, Buzzer weiterhin offen. */
+  /** Image reveal: reveal frozen, buzzer still open. */
   'reveal-paused',
-  /** Loesung sichtbar, Frage abgeschlossen. */
+  /** Solution visible, question finished. */
   'solution',
-  /** Ergebnisansicht nach der letzten Frage. */
+  /** Result view after the last question. */
   'result',
-  /** Spiel wurde abgebrochen. Es gibt bewusst keine Gewinneransicht. */
+  /** The game was aborted. There is deliberately no winner view. */
   'aborted',
 ] as const
 export type GamePhase = (typeof gamePhases)[number]
@@ -63,27 +63,28 @@ export type PlayerId = 'player-1' | 'player-2'
 export const playerIds: readonly PlayerId[] = ['player-1', 'player-2']
 
 /**
- * Erlaubte Spielerzahlen.
+ * Permitted player counts.
  *
- * Ein Spiel hat entweder zwei Spieler (Duell, der Buehnenbetrieb) oder einen
- * (Einzelspiel auf dem Touchgeraet). Beides ist derselbe Ablauf; die Spielerzahl
- * entscheidet nur, ob es eine zweite Chance und einen Gewinner gibt.
+ * A game has either two players (duel, the stage operation) or one (solo game
+ * on the touch device). Both are the same flow; the player count only decides
+ * whether there is a second chance and a winner.
  */
 export const playerCounts = [1, 2] as const
 export type PlayerCount = (typeof playerCounts)[number]
 
 /**
- * Wer den Ablauf vorantreibt.
+ * Who drives the flow.
  *
- * `operated`      Ein Mensch steuert: Der Operator gibt den Buzzer frei, loggt die
- *                 Antwort ein, loest auf und schaltet weiter. So laeuft die Buehne.
- * `self-service`  Niemand steuert: Die Spieler tippen ihre Antwort selbst an, die
- *                 Auswertung folgt sofort, und die Uebergaenge laufen ueber die
- *                 zeitgesteuerten Phasen des Servers. So laeuft das Touchgeraet.
+ * `operated`      A human is in control: the operator opens the buzzer, logs
+ *                 the answer, resolves and advances. This is how the stage runs.
+ * `self-service`  Nobody is in control: the players tap their answer themselves,
+ *                 the evaluation follows at once, and the transitions run
+ *                 through the server's timed phases. This is how the touch
+ *                 device runs.
  *
- * Das Profil ist KEINE zweite Zustandsmaschine. Die Phasen sind in beiden Faellen
- * dieselben; das Profil entscheidet nur, wer einen Uebergang ausloest und welche
- * Uebergaenge automatisch eingeplant werden.
+ * The profile is NOT a second state machine. The phases are the same in both
+ * cases; the profile only decides who triggers a transition and which
+ * transitions are scheduled automatically.
  */
 export const flowProfiles = ['operated', 'self-service'] as const
 export type FlowProfile = (typeof flowProfiles)[number]
@@ -93,20 +94,20 @@ export interface PlayerState {
   label: string
   score: number
   /**
-   * Bei normalen Fragen ist ein Spieler nach einer falschen ersten Antwort fuer
-   * genau diese Frage gesperrt. Beim Bilderkennen wird nie gesperrt.
+   * On normal questions a player is locked for exactly this question after a
+   * wrong first answer. On image reveals nobody is ever locked.
    */
   lockedForCurrentQuestion: boolean
 }
 
 export interface BuzzerState {
-  /** Nimmt der Server aktuell Buzzer-Ereignisse an? */
+  /** Does the server currently accept buzzer events? */
   open: boolean
-  /** Spieler, dessen Buzzer als erster gueltig angenommen wurde. */
+  /** Player whose buzz was the first accepted as valid. */
   acceptedPlayerId?: PlayerId
-  /** Serverzeit der Annahme; dient der Nachvollziehbarkeit der Reihenfolge. */
+  /** Server time of acceptance; serves the traceability of the order. */
   acceptedAtMs?: number
-  /** Wie der aktive Spieler bestimmt wurde. */
+  /** How the active player was determined. */
   acceptedVia?: 'hardware' | 'manual'
 }
 
@@ -116,13 +117,13 @@ export interface AnswerAttempt {
   id: string
   questionId: string
   slotIndex: number
-  /** `null` bei Aufloesen ohne Spielerantwort. */
+  /** `null` when resolved without a player answer. */
   playerId: PlayerId | null
-  /** 1 = erster Versuch dieser Frage, 2 = zweiter usw. Beim Bilderkennen unbegrenzt. */
+  /** 1 = first attempt of this question, 2 = second, and so on. Unlimited on image reveals. */
   attemptNumber: number
-  /** Vom Operator eingeloggte Option (nur bei `option-comparison`). */
+  /** Option logged by the operator (only with `option-comparison`). */
   loggedOptionId?: string
-  /** Vom Operator eingeloggte manuelle Bewertung (nur bei `manual-correct-incorrect`). */
+  /** Manual verdict logged by the operator (only with `manual-correct-incorrect`). */
   loggedManualVerdict?: 'correct' | 'incorrect'
   outcome?: AttemptOutcome
   awardedPoints: number
@@ -131,78 +132,79 @@ export interface AnswerAttempt {
 }
 
 /**
- * Enthuellungsuhr des Bilderkennens (Spezifikation 10.2).
+ * Reveal clock of the image reveal (specification 10.2).
  *
- * Jede Anzeige der Enthuellung wird aus derselben Fortschrittsvariable berechnet.
- * Der Server haelt nur Startzeit, bereits verstrichene Zeit und Pausezustand;
- * Clients leiten daraus `progress` ab und rendern fluessig, ohne den Zustand zu aendern.
+ * Every display of the reveal is computed from the same progress variable. The
+ * server holds only the start time, the time already elapsed and the pause
+ * state; clients derive `progress` from that and render smoothly without
+ * changing the state.
  */
 export interface RevealClockState {
   status: 'idle' | 'running' | 'paused' | 'completed'
   durationMs: number
-  /** Serverzeit, zu der der aktuelle Laufabschnitt begann. */
+  /** Server time at which the current running section began. */
   startedAtServerMs?: number
-  /** Vor dem aktuellen Laufabschnitt bereits verstrichene Zeit. */
+  /** Time already elapsed before the current running section. */
   elapsedBeforeStartMs: number
 }
 
 /**
- * Der Auftrag, ein Video abzuspielen - und ausdruecklich KEIN Wiedergabestatus.
+ * The request to play a video - and explicitly NOT a playback status.
  *
- * Er sagt: "Spiele das Video dieser Frage, von vorn." Er sagt nicht, ob es
- * geladen, gestartet, weit gekommen oder zu Ende ist; nichts davon steht im
- * Serverzustand, und niemand meldet es zurueck. Der Ablauf laeuft in eine
- * Richtung - Pult, Server, Buehne - und endet dort.
+ * It says: "play the video of this question, from the start." It does not say
+ * whether it is loaded, started, far along or finished; none of that is in the
+ * server state, and nobody reports it back. The flow runs one way - desk,
+ * server, stage - and ends there.
  *
- * ER STEHT IM ZUSTAND UND NICHT IN EINEM EREIGNIS. Ein fluechtiges Ereignis
- * verpasst, wer im falschen Moment die Verbindung verliert. Ein Auftrag im
- * Schnappschuss ist auch nach einem Neuladen noch da, und eine Buehne, die
- * gerade dazukommt, fuehrt ihn genau einmal aus.
+ * IT LIVES IN THE STATE AND NOT IN AN EVENT. A fleeting event is missed by
+ * whoever loses the connection at the wrong moment. A request in the snapshot
+ * is still there after a reload, and a stage that joins just now executes it
+ * exactly once.
  */
 export interface VideoPlaybackRequest {
   /**
-   * Frage, zu der dieser Auftrag gehoert.
+   * Question this request belongs to.
    *
-   * Damit erkennt die Buehne einen Auftrag, der nicht zu dem gehoert, was sie
-   * gerade zeigt - und laesst ihn liegen, statt das falsche Video zu starten.
+   * This lets the stage recognise a request that does not belong to what it
+   * currently shows - and leave it be instead of starting the wrong video.
    */
   questionId: string
   /**
-   * Identitaet DIESES Auftrags. Jeder angenommene Klick erzeugt eine neue.
+   * Identity of THIS request. Every accepted click creates a new one.
    *
-   * Sie ist der ganze Mechanismus: Gleiche Kennung heisst "schon ausgefuehrt",
-   * neue Kennung heisst "von Sekunde null starten". Deshalb braucht es weder
-   * eine Bestaetigung noch einen Statuswert.
+   * It is the whole mechanism: the same id means "already executed", a new id
+   * means "start from second zero". So there is neither a confirmation nor a
+   * status value.
    */
   requestId: string
-  /** ISO-Zeitstempel der Annahme - fuer das Protokoll, nicht fuer den Ablauf. */
+  /** ISO timestamp of acceptance - for the log, not for the flow. */
   requestedAt: string
 }
 
-/** Eine im Spiel eingesetzte Frage inklusive spielspezifischer Praesentationsdaten. */
+/** A question used in the game, including game-specific presentation data. */
 export interface RuntimeQuestion {
   question: Question
-  /** Fragenplatz, aus dem sie gezogen wurde. */
+  /** Slot it was drawn from. */
   slotId: string
   slotIndex: number
   /**
-   * Sichtbare Reihenfolge der Optionen fuer dieses Spiel. Das Mischen veraendert
-   * die Auswertung nicht, weil immer gegen `correctOptionId` verglichen wird.
+   * Visible order of the options for this game. Shuffling does not change the
+   * evaluation because the comparison is always against `correctOptionId`.
    */
   optionOrder: string[]
 }
 
-/** Zeitgesteuerter Phasenwechsel mit definierter Fallbackzeit. */
+/** Timed phase transition with a defined fallback time. */
 export interface PendingTimedTransition {
-  /** Phase, in die nach Ablauf gewechselt wird. */
+  /** Phase to switch to when the time is up. */
   nextPhase: GamePhase
-  /** Serverzeit, zu der spaetestens gewechselt wird. */
+  /** Server time at which the switch happens at the latest. */
   endsAtMs: number
-  /** Kennung fuer die Praesentationsschicht, welcher Uebergang gerade laeuft. */
+  /** Id for the presentation layer of the transition currently running. */
   transitionId: string
 }
 
-/** Was der Buehnenscreen zuletzt fachlich signalisiert bekommen hat. */
+/** What the stage screen was last signalled by the rules. */
 export interface PresentationTransitionState {
   transitionId: string
   startedAtServerMs: number
@@ -214,39 +216,38 @@ export interface GameState {
   eventDayId: string
   status: 'active' | 'completed' | 'aborted'
   phase: GamePhase
-  /** Wird bei jeder akzeptierten Zustandsaenderung erhoeht (optimistische Nebenlaeufigkeit). */
+  /** Incremented on every accepted state change (optimistic concurrency). */
   revision: number
 
   /**
-   * Die Quizart, mit der dieses Spiel gestartet wurde.
+   * The quiz type this game was started with.
    *
-   * SIE IST DIE BESTAETIGTE KONFIGURATION: Zielgruppe, Pools, Preset und Theme
-   * darunter hat der Server aus ihr aufgeloest und hier festgeschrieben. Ein
-   * Neuladen oder ein wiederaufgenommenes Spiel liest denselben Stand und
-   * rechnet nichts neu.
+   * IT IS THE CONFIRMED CONFIGURATION: the server resolved audience, pools,
+   * preset and theme from it and fixed them here. A reload or a resumed game
+   * reads the same state and recomputes nothing.
    *
-   * Sie fehlt bei Spielen, die ohne Quizauswahl beginnen - am Kioskgeraet, am
-   * Touchgeraet und in Staenden aus aelteren Fassungen.
+   * It is absent for games that begin without a quiz choice - at the kiosk
+   * device, at the touch device and in states from older versions.
    */
   quizId?: string
-  /** Zielgruppe des Spiels (frueher `quizModeId`). */
+  /** Audience of the game (formerly `quizModeId`). */
   audience: string
-  /** Gewaehlte Fragenpools. Fehlt das Feld, wird nicht nach Pool gefiltert. */
+  /** Chosen question pools. If the field is missing, there is no pool filter. */
   poolIds?: string[]
   presetId: string
-  /** Steuerprofil des Spiels. Es wird beim Start festgelegt und aendert sich nicht. */
+  /** Flow profile of the game. Fixed at the start and never changes. */
   flowProfile: FlowProfile
   totalQuestions: number
   currentSlotIndex: number
-  /** Bereits im Spiel eingesetzte Frage-IDs, inklusive der aktuellen. */
+  /** Question ids already used in the game, including the current one. */
   selectedQuestionIds: string[]
-  /** Wiederholungsgruppen der bereits eingesetzten Fragen. */
+  /** Repetition groups of the questions already used. */
   selectedRepetitionGroupIds: string[]
   currentQuestion?: RuntimeQuestion
 
   /**
-   * Ein oder zwei Spieler, in fester Reihenfolge (`player-1`, `player-2`).
-   * Die Laenge wird beim Spielstart festgelegt und aendert sich danach nicht.
+   * One or two players, in fixed order (`player-1`, `player-2`).
+   * The length is fixed at game start and does not change afterwards.
    */
   players: PlayerState[]
   buzzer: BuzzerState
@@ -254,14 +255,14 @@ export interface GameState {
   reveal?: RevealClockState
   video?: VideoPlaybackRequest
 
-  /** Globaler Soundstatus; bleibt waehrend des Spiels erhalten. */
+  /** Global sound status; kept during the game. */
   soundEnabled: boolean
   /**
-   * Sprache, in der dieses Spiel laeuft.
+   * Locale this game runs in.
    *
-   * Sie steht im Spielstand und nicht nur am Geraet: Ein wiederaufgenommenes
-   * Spiel soll in derselben Sprache weitergehen, in der es begonnen wurde.
-   * Fehlt sie (Staende aus aelteren Fassungen), gilt die Grundsprache.
+   * It is part of the game state and not only of the device: a resumed game
+   * should continue in the language it was started in. If it is missing
+   * (states from older versions), the base locale applies.
    */
   locale?: string
 
@@ -297,7 +298,7 @@ export interface GameState {
   updatedAtMs: number
 }
 
-/** Hilfsfunktion: gehoert die Frage zum Bilderkennen mit unbegrenzten Fehlversuchen? */
+/** Helper: does the question belong to the image reveal with unlimited attempts? */
 export function isImageReveal(type: QuestionPresentationType): boolean {
   return type === 'image-reveal'
 }

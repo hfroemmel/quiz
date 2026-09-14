@@ -1,13 +1,15 @@
 /*
- * Portraetkomposition.
+ * Portrait composition.
  *
- * Das Bild traegt die Frage und bekommt deshalb die halbe Ansicht: links das
- * Portraet, rechts Rubrik, Fragetext und Antworten in einer Spalte.
+ * The image carries the question and therefore gets half the view: the
+ * portrait on the left, category, question text and answers in one column
+ * on the right.
  *
- * Die Breite der Bildspalte gibt das Portraet selbst vor: Es bringt Hoehe und
- * Seitenverhaeltnis mit (siehe `Media.module.css`), die Spalte nimmt das
- * Ergebnis. Deshalb steht hier `auto` und keine Prozentzahl - eine zweite Zahl
- * fuer dieselbe Breite muesste bei jeder Aenderung am Bild mitwandern.
+ * The width of the image column is dictated by the portrait itself: it
+ * brings height and aspect ratio with it (see `Media.module.css`), and the
+ * column takes the result. That is why `auto` sits here and not a
+ * percentage - a second number for the same width would have to move along
+ * with every change to the image.
  */
 
 .person {

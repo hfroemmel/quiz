@@ -1,18 +1,18 @@
 /**
- * `quiz-content import-sheet` - eine Redaktionstabelle wird zu `questions.json`.
+ * `quiz-content import-sheet` - an editorial sheet becomes `questions.json`.
  *
- * Der Weg ist Absicht so kurz: Google liefert jede freigegebene Tabelle als CSV
- * aus, ohne API-Schluessel und ohne Dienstkonto. Was dieses Werkzeug braucht,
- * ist die Adresse aus der Browserzeile und eine Freigabe "Jeder mit dem Link
- * kann lesen".
+ * The path is deliberately this short: Google serves every shared sheet as
+ * CSV, without API key and without a service account. What this tool needs is
+ * the address from the browser bar and sharing set to "anyone with the link
+ * can view".
  *
- * DIE TABELLE IST DIE QUELLE. `questions.json` ist das Erzeugnis und wird
- * ueberschrieben; wer im Erzeugnis korrigiert, verliert es beim naechsten Lauf.
+ * THE SHEET IS THE SOURCE. `questions.json` is the product and gets
+ * overwritten; whoever corrects the product loses it on the next run.
  *
- *   quiz-content import-sheet --url <adresse> [--mapping <datei>] [--out <datei>]
- *   quiz-content import-sheet --csv <datei>            aus einer heruntergeladenen Datei
- *   quiz-content import-sheet --url <adresse> --print-headers   nur die Spalten zeigen
- *   quiz-content import-sheet --url <adresse> --dry-run         nichts schreiben
+ *   quiz-content import-sheet --url <address> [--mapping <file>] [--out <file>]
+ *   quiz-content import-sheet --csv <file>             from a downloaded file
+ *   quiz-content import-sheet --url <address> --print-headers   only show the columns
+ *   quiz-content import-sheet --url <address> --dry-run         write nothing
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { csvUrl, importSheet, defaultMapping, type SheetMapping } from '../sheetImport'
@@ -49,8 +49,8 @@ async function readCsv(): Promise<string> {
   }
   const text = await answer.text()
   /*
-   * Eine nicht freigegebene Tabelle antwortet mit 200 und einer HTML-Seite -
-   * ohne diese Pruefung entstuenden daraus stumm null Fragen.
+   * A sheet that is not shared answers with 200 and an HTML page - without
+   * this check that would silently produce zero questions.
    */
   if (text.trimStart().startsWith('<')) {
     throw new Error(

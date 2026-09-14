@@ -1,9 +1,9 @@
 /*
- * Kopfzone einer Frage: Medium und Fragetafel nebeneinander.
+ * Header zone of a question: media and question board side by side.
  *
- * DREI SZENEN, EIN BAUTEIL: Frage, Enthuellung und Loesung benutzen dieselbe
- * Kopfzone. In der Enthuellung steht das Bild nicht hier, sondern gross auf der
- * ganzen Buehne - dann laeuft der Text ueber die volle Breite.
+ * THREE SCENES, ONE COMPONENT: question, reveal and solution use the same
+ * header zone. In the reveal, the image does not sit here but large on the
+ * whole stage - then the text runs the full width.
  */
 
 .head {
@@ -13,8 +13,8 @@
   align-items: flex-start;
   gap: 2cqw;
 }
-/* Ohne Bild bleibt in der Buehne der Erwachsenen alles, wie es ist: Die
-   Fragetafel nimmt als einziges Kind ohnehin die ganze Breite. */
+/* Without an image the adult stage stays exactly as it is: the question
+   board takes the full width anyway, being the only child. */
 .panel {
   flex: 1;
   min-width: 0;
@@ -28,9 +28,9 @@
   color: var(--color-accent);
 }
 /*
- * `--prompt-scale` setzt `useFittedPrompt` an das Element, wenn eine lange Frage
- * sonst die Antwortzeilen aus dem Bild schoebe. Ohne Anpassung ist der Faktor 1
- * und es bleibt bei der Grundgroesse.
+ * `useFittedPrompt` sets `--prompt-scale` on the element when a long
+ * question would otherwise push the answer rows out of the image. Without
+ * adjustment the factor is 1 and the base size applies.
  */
 .prompt {
   margin: 0;
@@ -41,9 +41,9 @@
 }
 
 /*
- * Portraetfrage: Die Rubrik steht als kleine Versalzeile ueber der Frage. Sie
- * hat dort keine Bildspalte neben sich, an der sie sich ausrichten koennte -
- * die Versalien geben ihr die Kante zurueck.
+ * Portrait question: the category sits as a small capitalised line above
+ * the question. There it has no image column beside it to align against -
+ * the capitals give it back its edge.
  */
 :global(.stage[data-presentation='person']) .category {
   text-transform: uppercase;
@@ -51,11 +51,12 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt
+ * Kids' world
  *
- * Die gezeichnete Fragetafel gehoert zur Komposition von Frage und Loesung:
- * Foto links, Tafel rechts, dazwischen eine sichtbare Fuge. In der Enthuellung
- * traegt das Bild die Flaeche - dort bleibt der Text frei auf dem Grund.
+ * The drawn question board belongs to the composition of question and
+ * solution: photo on the left, board on the right, a visible gap between
+ * them. In the reveal, the image carries the area - there the text stays
+ * free on the background.
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .category {
@@ -68,56 +69,58 @@
 }
 
 /*
- * Die Fragezeile ist der nachgiebige Teil der Ansicht: Sie waechst in den
- * freien Platz, damit die Komposition wie in der Referenz die ganze Hoehe
- * traegt, und sie gibt ihn wieder her, sobald vier zweizeilige Antworten
- * darunter mehr Raum brauchen. Ohne das laufen lange Texte im 16:9-Format
- * unten aus dem Bild.
+ * The question row is the yielding part of the view: it grows into the free
+ * space so the composition carries the full height as in the reference, and
+ * it gives it back again as soon as four two-line answers below need more
+ * room. Without this, long texts run out of the image at the bottom in the
+ * 16:9 format.
  */
 :global(.stage--kids.stage--scene-question) .head,
 :global(.stage--kids.stage--scene-solution) .head {
   display: grid;
   width: var(--kids-content-width);
   /*
-   * DIE BILDSPALTE IST SO BREIT WIE DAS BILD - kein Anteil der Zeile.
+   * THE IMAGE COLUMN IS AS WIDE AS THE IMAGE - not a share of the row.
    *
-   * Mit einem festen Anteil (frueher 38 %) blieb rechts vom Foto Luft stehen,
-   * sobald das Bild schmaler ausfiel als die Spalte: Am Geraet waren das ueber
-   * hundert Pixel, die wie eine viel breitere Fuge aussahen. Der Abstand zur
-   * Fragetafel ist jetzt IMMER die Fuge und sonst nichts - in jedem Gastgeber
-   * dieselbe, und unabhaengig davon, wie lang der Fragetext ist.
+   * With a fixed share (formerly 38 %), space was left to the right of the
+   * photo whenever the image turned out narrower than the column: on the
+   * device that was over a hundred pixels, which looked like a much wider
+   * gap. The distance to the question board is now ALWAYS the gap and
+   * nothing else - the same on every host, and independent of how long the
+   * question text is.
    *
-   * Das Bild behaelt dabei sein eigenes Mass (`28cqw`, Seitenverhaeltnis 4:3 in
-   * `Media.module.css`); die Tafel nimmt mit `minmax(0, 1fr)` den ganzen Rest
-   * und kann trotzdem schrumpfen, statt lange Fragen aus der Zeile zu schieben.
+   * The image keeps its own measure (`28cqw`, aspect ratio 4:3 in
+   * `Media.module.css`); the board takes up the rest with
+   * `minmax(0, 1fr)` and can still shrink instead of pushing long questions
+   * out of the row.
    */
   grid-template-columns: auto minmax(0, 1fr);
   gap: var(--kids-stage-gap);
   /*
-   * Foto und Frageflaeche stehen gleich hoch nebeneinander. Deshalb stretch:
-   * Die Rahmenzeichnung traegt `preserveAspectRatio="none"` und ist genau dafuer
-   * gemacht; das Seitenverhaeltnis des Fotos regelt `object-fit`, nicht das
-   * Kaestchen darum.
+   * Photo and question area sit side by side at the same height. Hence
+   * stretch: the frame artwork carries `preserveAspectRatio="none"` and is
+   * made exactly for that; the photo's aspect ratio is handled by
+   * `object-fit`, not by the box around it.
    */
   align-items: stretch;
   flex: 1 1 auto;
   min-height: 0;
   max-height: 21.375cqw;
 }
-/* Ohne Bild uebernimmt die Fragetafel die ganze Zeile. */
+/* Without an image the question board takes over the whole row. */
 :global(.stage--kids.stage--scene-question) .wide,
 :global(.stage--kids.stage--scene-solution) .wide {
   grid-template-columns: minmax(0, 1fr);
 }
 :global(.stage--kids.stage--scene-question) .panel,
 :global(.stage--kids.stage--scene-solution) .panel {
-  /* Nur die Untergrenze - die Zielhoehe kommt aus der Fragezeile. */
+  /* Only the lower bound - the target height comes from the question row. */
   min-height: 11.25cqw;
   padding: 1.9cqw 2.2cqw;
   position: relative;
   isolation: isolate;
 }
-/* Die Zeichnung liegt HINTER dem Inhalt, damit das Innenmass unberuehrt bleibt. */
+/* The artwork sits BEHIND the content, so the inner measure stays untouched. */
 :global(.stage--kids.stage--scene-question) .panel::before,
 :global(.stage--kids.stage--scene-solution) .panel::before {
   content: '';

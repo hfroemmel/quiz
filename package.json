@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@10.33.0",
-  "description": "Bibliotheken des Live-Quiz: Kern, Inhalts-Pipeline, Themes, React-Buehne und das spielbare Quiz",
+  "description": "Libraries of the live quiz: core, content pipeline, themes, React stage and the playable quiz",
   "type": "module",
   "engines": {
     "node": ">=20"

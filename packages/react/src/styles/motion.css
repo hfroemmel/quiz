@@ -1,11 +1,11 @@
 /* ------------------------------------------------------------------ *
- * Keyframes - Dauer und Easing kommen aus dem Uebergangsregistry
+ * Keyframes - duration and easing come from the transition registry
  *
- * Die Wege stehen in `cqw` wie jede andere Groesse der Buehne (siehe
- * `styles/stage.css`): Ein Weg in Pixeln waere in der kleinen Operatorvorschau
- * eine halbe Zeile und im Beamer-Vollbild ein Wimpernschlag. So ist die
- * Bewegung derselbe Anteil der Flaeche - und wie alles hier ein Anteil ihrer
- * BREITE.
+ * The distances are in `cqw` like every other size on the stage (see
+ * `styles/stage.css`): a distance in pixels would be half a line in the
+ * small operator preview and a blink of an eye on the projector's full
+ * screen. This way the motion is the same share of the area - and, like
+ * everything here, a share of its WIDTH.
  * ------------------------------------------------------------------ */
 
 @keyframes option-enter {
@@ -55,9 +55,10 @@
 }
 
 /*
- * Falsch: ruhiges Aufblenden, kein seitliches Wackeln.
- * Die Aussage traegt die gelieferte Bewegtgrafik in der Mitte; die Szene darunter
- * bleibt still, damit die Grafik nicht mitwandert.
+ * Wrong: a calm fade-in, no lateral wobble.
+ * The statement carries the delivered motion graphic in the centre; the
+ * scene underneath stays still so the graphic does not appear to drift
+ * along with it.
  */
 @keyframes incorrect-appear {
   from {
@@ -92,7 +93,7 @@
 
 
 /*
- * Auftritt der Videoflaeche: Sie waechst aus der Mitte heraus und blendet ein.
+ * Entrance of the video area: it grows out from the centre and fades in.
  */
 @keyframes video-rise {
   from {
@@ -106,14 +107,14 @@
 }
 
 
-/* Klassen, die das Uebergangsregistry setzt. */
+/* Classes that the transition registry sets. */
 .scene-fade {
   animation: scene-fade-in var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
 }
 /*
- * Bewegt wird die Videoflaeche, nicht die ganze Szene: Der Rahmen ist der
- * Auftritt. Ein Fenster, das erst nach dem Video dazukommt, zeigt keinen
- * Auftritt einer Flaeche, die gleich wieder ausgeblendet ist.
+ * What moves is the video area, not the whole scene: the frame is the
+ * entrance. A window that only joins after the video would show no entrance
+ * of an area that is about to be hidden again anyway.
  */
 .video-enter [data-video-placeholder] {
   animation: video-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
@@ -136,11 +137,12 @@
 }
 
 /*
- * Reduced-Motion-Fallback.
+ * Reduced-motion fallback.
  *
- * Die Dauern werden zusaetzlich in JavaScript reduziert (`effectiveDurationMs`),
- * damit auch die vom Registry gesetzten Timer kuerzer sind. Hier wird ergaenzend
- * jede Bewegung entfernt - der Inhalt bleibt vollstaendig sichtbar.
+ * The durations are additionally reduced in JavaScript
+ * (`effectiveDurationMs`), so the timers set by the registry are shorter
+ * too. Here, on top of that, all motion is removed - the content stays
+ * fully visible.
  */
 @media (prefers-reduced-motion: reduce) {
   .scene-fade,

@@ -1,15 +1,15 @@
 /**
- * @hfroemmel/quiz-core - der gemeinsame Kern des Quiz-Systems.
+ * @hfroemmel/quiz-core - the shared core of the quiz system.
  *
- * Drei Schichten, ein Paket:
- *   contracts  Typen, Laufzeitschemas, Befehle, View-Modelle, Runtime-Vertrag
- *   engine     Zustandsmaschine, Auswahl, Projektion, Ereignisableitung
- *   runtime    Befehlsverarbeitung hinter dem Speicher-Port, lokale und
- *              entfernte QuizRuntime, In-Memory-Store, Hotfix-Overlay
+ * Three layers, one package:
+ *   contracts  types, runtime schemas, commands, view models, runtime contract
+ *   engine     state machine, selection, projection, event derivation
+ *   runtime    command processing behind the store port, local and remote
+ *              QuizRuntime, in-memory store, hotfix overlay
  *
- * Hier gibt es KEIN Dateisystem und KEINE nativen Module: Alles laeuft im
- * Browser, im Renderer und in Node. Datei-IO liefert `@hfroemmel/quiz-content`,
- * SQLite der Buehnenbetrieb (quiz-live).
+ * There is NO file system and NO native module here: everything runs in the
+ * browser, in the renderer and in Node. File IO is provided by
+ * `@hfroemmel/quiz-content`, SQLite by the stage operation (quiz-live).
  */
 export * from './contracts'
 export * from './engine'

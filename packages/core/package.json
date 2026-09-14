@@ -2,7 +2,7 @@
   "name": "@hfroemmel/quiz-core",
   "version": "0.14.0",
   "type": "module",
-  "description": "Kern des Quiz-Systems: Vertraege, Engine und Laufzeit - ohne Dateisystem und native Module",
+  "description": "Core of the quiz system: contracts, engine and runtime - without file system and native modules",
   "exports": {
     ".": "./src/index.ts"
   },

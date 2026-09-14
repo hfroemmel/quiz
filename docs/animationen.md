@@ -1,49 +1,49 @@
-# Uebergangsanimationen anpassen und testen
+# Adjusting and testing transition animations
 
-Animationen sind austauschbare Praesentation. Sie steuern **nie** die
-Spielzustandsmaschine.
+Animations are interchangeable presentation. They **never** control the game
+state machine.
 
-Welche Bewegungen es geben soll, steht in
-[`docs/animationskatalog.md`](animationskatalog.md). Diese Datei beschreibt, wie
-sie technisch angelegt und geaendert werden.
+Which movements should exist is defined in
+[`docs/animationskatalog.md`](animationskatalog.md). This file describes how
+they are technically set up and changed.
 
-## Trennung von Zustand und Darstellung
+## Separation of state and presentation
 
 ```text
-Domain entscheidet:            phase = attempt-feedback, outcome = correct
-Praesentationsregistry:        welche Animation, welche Dauer, welches Easing,
-                               welche Soundmarke, welcher Reduced-Motion-Fallback
+Domain decides:                 phase = attempt-feedback, outcome = correct
+Presentation registry:          which animation, which duration, which easing,
+                                which sound cue, which reduced-motion fallback
 ```
 
-Der fachliche Zustandswechsel haengt nicht davon ab, ob ein Browser ein
-`animationend`-Event liefert. Der Server verwendet definierte Fallbackzeiten und
-schickt anschliessend `ADVANCE_TIMED_PHASE`.
+The business state transition does not depend on whether a browser delivers an
+`animationend` event. The server uses defined fallback times and then sends
+`ADVANCE_TIMED_PHASE`.
 
-## Wo liegt was?
+## Where is what?
 
 ```text
-apps/web/src/assets/animations/   gelieferte Bewegtgrafiken (WebM mit Alpha, SVG)
-apps/web/src/assets/audio/        gelieferte Klaenge (mp3, wav)
-apps/web/src/ui/AnimationClip.tsx Abspielbaustein, kennt keinen Spielzustand
+apps/web/src/assets/animations/   delivered motion graphics (WebM with alpha, SVG)
+apps/web/src/assets/audio/        delivered sounds (mp3, wav)
+apps/web/src/ui/AnimationClip.tsx playback building block, knows no game state
 apps/web/src/presentation/
-  animationAssets.ts       Registry der gelieferten Dateien: Laenge und Zeitpunkt
-                           der vollstaendigen Aussage (`payoffMs`)
-  animationPresets.ts      zentrale Timings und Easings
-  soundCues.ts             Zuordnung Cue -> Audiodatei
-  SoundProvider.tsx        Zugang zu den Cues fuer Szenen und Kacheln
-  useStageSounds.ts        Cues, die INNERHALB einer Szene entstehen
-  soundCues.ts             Soundmarken (Web Audio, keine Dateien)
-  StageScreen.tsx          waehlt Szene, wendet Uebergang an, spielt Soundmarke
+  animationAssets.ts       registry of delivered files: length and point in
+                           time of the complete statement (`payoffMs`)
+  animationPresets.ts      central timings and easings
+  soundCues.ts             mapping of cue -> audio file
+  SoundProvider.tsx        access to the cues for scenes and tiles
+  useStageSounds.ts        cues that arise WITHIN a scene
+  soundCues.ts             sound cues (Web Audio, no files)
+  StageScreen.tsx          selects scene, applies transition, plays sound cue
   scenes/                  PauseScene, QuestionScene, RevealScene, VideoScene,
                            FeedbackScene, SolutionScene, ResultScene, StartScene
   transitions/
-    types.ts               Animationsvertrag
-    registry.ts            alle Uebergaenge, Zuordnung zu Szenenkanten
+    types.ts               animation contract
+    registry.ts             all transitions, mapping to scene edges
     fadeThrough.ts  questionEnter.ts  correctFeedback.ts
     incorrectFeedback.ts  solutionReveal.ts  resultCelebration.ts
 ```
 
-## Der Animationsvertrag
+## The animation contract
 
 ```ts
 interface PresentationTransitionDefinition {
@@ -56,98 +56,98 @@ interface PresentationTransitionDefinition {
   reducedMotionDurationMs: number
   soundCueId?: SoundCueId
   classNames?: { from?: string; active?: string; to?: string }
-  locked?: string    // Begruendung, falls die Dauer nicht frei aenderbar ist
+  locked?: string    // reason, if the duration cannot be freely changed
 }
 ```
 
-Jede Definition beantwortet an genau einer Stelle: welcher Szenenwechsel, welche
-Elemente, welche Dauer und welches Easing, welche Soundmarke, welcher
-Reduced-Motion-Fallback und was aus Fairnessgruenden fest ist.
+Each definition answers, in exactly one place: which scene transition, which
+elements, which duration and which easing, which sound cue, which
+reduced-motion fallback, and what is fixed for fairness reasons.
 
-## Neue Uebergangsanimation hinzufuegen
+## Adding a new transition animation
 
-1. Definition im Verzeichnis `transitions/` anlegen
-2. ID und Timing im Registry registrieren (`transitions`-Liste in `registry.ts`)
-3. betroffene Szenenkante ueber `appliesTo` zuordnen
-4. Reduced-Motion-Fallback ergaenzen (`reducedMotionDurationMs`)
-5. in der Entwicklungsansicht `/preview` pruefen
-6. visuellen Regressionstest aktualisieren (`test/e2e/presentation.spec.ts`)
+1. create the definition in the `transitions/` directory
+2. register ID and timing in the registry (the `transitions` list in `registry.ts`)
+3. map the affected scene edge via `appliesTo`
+4. add the reduced-motion fallback (`reducedMotionDurationMs`)
+5. check it in the development view `/preview`
+6. update the visual regression test (`test/e2e/presentation.spec.ts`)
 
-Die zugehoerige CSS-Klasse kommt in `apps/web/src/styles.css`; Dauer, Verzoegerung und
-Easing werden dort **nicht** hart geschrieben, sondern ueber `--transition-duration`,
-`--transition-delay` und `--transition-easing` aus dem Registry gesetzt.
+The associated CSS class goes into `apps/web/src/styles.css`; duration, delay
+and easing are **not** hardcoded there, but set from the registry via
+`--transition-duration`, `--transition-delay` and `--transition-easing`.
 
-## Was darf ich aendern, was nicht?
+## What may I change, and what not?
 
-| Wert | Aenderbar? |
+| Value | Changeable? |
 |---|---|
-| `sceneFadeMs`, `optionStaggerMs`, `resultConfettiMs`, `scoreCountUpMs` | frei - rein visuell |
-| Easings, Klassennamen, Keyframes | frei |
-| `correctFeedbackMs`, `incorrectFeedbackMs`, `solutionDelayMs`, `pauseScreenMs` | nur in `gameTiming` (`packages/contracts/src/config.ts`) - der Server beendet die Phase nach genau dieser Zeit |
-| `imageRevealDurationMs` | bestaetigte zehn Sekunden; Aenderung nur nach Ruecksprache |
-| Ableitung der Bildaufloesung aus dem Reveal-Fortschritt | **nicht** aendern - Fairness |
-| `payoffMs` einer gelieferten Bewegtgrafik | nur gemeinsam mit der Datei; die Phase muss mindestens so lang laufen |
+| `sceneFadeMs`, `optionStaggerMs`, `resultConfettiMs`, `scoreCountUpMs` | free - purely visual |
+| Easings, class names, keyframes | free |
+| `correctFeedbackMs`, `incorrectFeedbackMs`, `solutionDelayMs`, `pauseScreenMs` | only in `gameTiming` (`packages/contracts/src/config.ts`) - the server ends the phase after exactly this time |
+| `imageRevealDurationMs` | confirmed at ten seconds; changes only after consultation |
+| Deriving the image resolution from the reveal progress | must **not** be changed - fairness |
+| `payoffMs` of a delivered motion graphic | only together with the file; the phase must run at least that long |
 
-Wer eine Feedbackdauer nur in der Animation aendert, laesst Anzeige und Spielzustand
-auseinanderlaufen: Die Loesung erschiene, waehrend die Animation noch laeuft. Deshalb
-spiegeln `correctFeedback.ts` und `incorrectFeedback.ts` bewusst `gameTiming` und
-tragen ein `locked`-Feld mit Begruendung.
+Anyone who changes a feedback duration only in the animation lets the display
+and the game state drift apart: the solution would appear while the animation
+is still running. That's why `correctFeedback.ts` and `incorrectFeedback.ts`
+deliberately mirror `gameTiming` and carry a `locked` field with a reason.
 
-## Bildaufloesung
+## Image resolution
 
-Das Bild liegt unter einer Decke aus Kacheln, die waehrend der Enthuellung eine
-nach der anderen verschwindet. Welche Kachel wann faellt, steht im Aufdeckplan
-der Domain und haengt allein am Fortschritt des Servers:
+The image lies under a blanket of tiles that disappear one after another
+during the reveal. Which tile falls when is defined in the domain's reveal
+plan and depends solely on the server's progress:
 
 ```text
 progress = clamp(elapsedMs / durationMs, 0, 1)
-offen    = progress >= plan[kachel]
+open     = progress >= plan[tile]
 ```
 
-Die Funktionen stehen in `packages/domain/src/reveal.ts`, der Client nutzt sie
-ueber `useRevealClock`. Es darf niemals eine unabhaengige CSS-Animation neben
-einem separaten JavaScript-Timer laufen - sonst bekaeme ein Spieler einen
-Informationsvorteil.
+The functions live in `packages/domain/src/reveal.ts`; the client uses them
+via `useRevealClock`. An independent CSS animation must never run alongside a
+separate JavaScript timer - otherwise a player would gain an informational
+advantage.
 
-Eine sichtbare Sekundenzahl gibt es nicht mehr: Die Kacheln SIND die Uhr. Der
-Moderator sieht die Restzeit weiterhin in seiner Ansicht.
+There is no longer a visible countdown: the tiles ARE the clock. The
+moderator still sees the remaining time in their own view.
 
-Anpassbar ist das Raster ueber `revealGrid` in
-`packages/contracts/src/config.ts` - Groesse, Streuung, Motivschwerpunkt und die
-Blende einer einzelnen Kachel.
+The grid can be adjusted via `revealGrid` in
+`packages/contracts/src/config.ts` - size, spread, focal point of the motif,
+and the fade of a single tile.
 
-## Pausieren und Reconnect
+## Pausing and reconnecting
 
-Pausiert der Server die Enthuellung, friert der Wert ein, weil `status !== 'running'`
-keine Weiterrechnung erlaubt. Nach einem Reconnect uebernimmt der naechste Snapshot
-sofort wieder den Serverstand - der Client startet nie bei 10 neu. Beides ist in
-`test/e2e/live-presentation.spec.ts` abgesichert.
+If the server pauses the reveal, the value freezes because `status !== 'running'`
+does not allow further calculation. After a reconnect, the next snapshot
+immediately takes over the server's state again - the client never restarts at
+10. Both are covered by `test/e2e/live-presentation.spec.ts`.
 
-## Entwicklungsansicht
+## Development view
 
 ```bash
-pnpm dev     # danach http://localhost:5180/preview
+pnpm dev     # then http://localhost:5180/preview
 ```
 
-Die Vorschau ist bewusst serverfrei: Sie baut keine WebSocket-Verbindung auf, sendet
-keine Befehle und verwendet lokal erzeugte Beispiel-View-Modelle. Im Produktionsbuild
-ist sie ueber `import.meta.env.DEV` gesperrt und greift damit nicht in den
-Produktionsworkflow ein.
+The preview is deliberately server-free: it does not open a WebSocket
+connection, sends no commands, and uses locally generated sample view models.
+In the production build it is locked via `import.meta.env.DEV` and thus does
+not interfere with the production workflow.
 
-Sie erlaubt: Szene waehlen, Theme wechseln, Feedbackvariante umschalten,
-Enthuellungsfortschritt per Regler pruefen, Unentschieden simulieren, Uebergang
-wiederholt abspielen und alle registrierten Uebergaenge mit Dauer, Reduced-Motion-Wert
-und gesperrten Stellen einsehen.
+It allows: choosing a scene, switching theme, toggling the feedback variant,
+checking the reveal progress via a slider, simulating a draw, replaying a
+transition repeatedly, and inspecting all registered transitions with
+duration, reduced-motion value, and locked spots.
 
 ## Tests
 
 ```bash
-pnpm test:e2e --project=preview   # Szenen, Themes, Reveal-Synchronitaet, Reduced Motion, Screenshots
-pnpm test:e2e --project=live      # Doppelklick, Reconnect, Fensterverlust, Loesungssperre
-pnpm test                          # Fake-Clock-Tests der Reveal- und Feedbacktimings
+pnpm test:e2e --project=preview   # scenes, themes, reveal synchronization, reduced motion, screenshots
+pnpm test:e2e --project=live      # double click, reconnect, window loss, solution lock
+pnpm test                          # fake-clock tests of reveal and feedback timings
 ```
 
-Screenshot-Baselines sind plattformabhaengig. Auf einem neuen System einmalig:
+Screenshot baselines are platform-dependent. Once on a new system:
 
 ```bash
 npx playwright test --project=preview --update-snapshots

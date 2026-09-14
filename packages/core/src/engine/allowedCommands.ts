@@ -1,13 +1,14 @@
 /**
- * Ableitung der aktuell sinnvollen Befehle aus dem Zustand (Spezifikation 21.1).
+ * Derivation of the commands that make sense right now from the state (specification 21.1).
  *
- * DRY-Regel: Operator- und Moderatorclient bauen diese Tabelle nicht nach. Sie
- * bekommen `allowedCommands` im View-Modell und blenden ihre Bedienelemente danach ein.
- * Dadurch benennt ein Button immer genau die Aktion, die er im aktuellen Zustand
- * tatsaechlich ausfuehrt - statt dauerhaft viele deaktivierte Buttons zu zeigen.
+ * DRY rule: operator and moderator clients do not rebuild this table. They
+ * receive `allowedCommands` in the view model and show their controls
+ * accordingly. That way a button always names exactly the action it actually
+ * performs in the current state - instead of permanently showing many disabled
+ * buttons.
  *
- * Diese Funktion ist eine Vorschau, keine zweite Validierung: verbindlich entscheidet
- * weiterhin die Engine beim Verarbeiten des Befehls.
+ * This function is a preview, not a second validation: the engine still decides
+ * for good when it processes the command.
  */
 import {
   isChoiceQuestion,
@@ -36,8 +37,8 @@ export function availableCommands(state: GameState | null): CommandType[] {
     if (state) {
       list.add('SET_SOUND_ENABLED')
       list.add('SET_LOCALE')
-      // Auf der Ergebnisansicht bleibt die manuelle Punktkorrektur verfuegbar;
-      // das Ergebnis wird danach deterministisch neu berechnet.
+      // On the result view the manual score correction stays available;
+      // the result is recomputed deterministically afterwards.
       if (state.status === 'completed') list.add('ADJUST_SCORE')
     }
     return [...list]
@@ -53,14 +54,14 @@ export function availableCommands(state: GameState | null): CommandType[] {
   const addAnswerLogging = () => {
     if (isChoice) list.add('LOG_OPTION_ANSWER')
     /*
-     * "Richtig"/"Falsch" von Hand gibt es nur, wo die Frage es vorsieht - beim
-     * Bilderkennen mit freier Antwort. Bei einer Auswahlfrage waere es ein
-     * zweiter Bewertungsweg neben der eingeloggten Option und wuerde die
-     * automatische Auswertung aushebeln.
+     * "Correct"/"wrong" by hand exists only where the question provides for
+     * it - the image reveal with a free answer. On a choice question it would
+     * be a second evaluation path next to the logged option and would bypass
+     * the automatic evaluation.
      *
-     * Eine Frage ohne echte Auswahl (weniger als zwei Optionen) hat keine
-     * Buchstabentasten - dort ist die Handbewertung der einzige Weg, egal was
-     * im Datensatz als Auswertungsart steht.
+     * A question without a real choice (fewer than two options) has no letter
+     * keys - there the manual verdict is the only way, whatever the record
+     * says as its evaluation mode.
      */
     if (question?.evaluationMode === 'manual-correct-incorrect' || !isChoice) list.add('MARK_MANUAL_ANSWER')
     list.add('RESOLVE_ATTEMPT')
@@ -102,7 +103,7 @@ export function availableCommands(state: GameState | null): CommandType[] {
       break
 
     case 'reveal-ready':
-      // Vor dem Start gibt es nichts zu buzzern - das Bild ist noch unscharf.
+      // Before the start there is nothing to buzz for - the image is still blurred.
       list.add('START_IMAGE_REVEAL')
       list.add('RESOLVE_WITHOUT_ANSWER')
       list.add('SKIP_QUESTION')
@@ -131,10 +132,10 @@ export function availableCommands(state: GameState | null): CommandType[] {
       break
 
     /*
-     * Zum Video gehoert genau ein Knopf, und er bleibt die ganze Phase ueber
-     * verfuegbar: Der Server weiss nicht, ob gerade gespielt wird, und ein
-     * zweiter Klick ist einfach ein neuer Auftrag von vorn. "Frage einblenden"
-     * daneben ist keine Videosteuerung, sondern der Weiter-Schritt des Ablaufs.
+     * The video has exactly one button, and it stays available for the whole
+     * phase: the server does not know whether it is playing right now, and a
+     * second click is simply a new request from the start. "Show question"
+     * next to it is no video control but the next step of the flow.
      */
     case 'video':
       list.add('START_VIDEO')
@@ -148,8 +149,8 @@ export function availableCommands(state: GameState | null): CommandType[] {
 
     case 'attempt-feedback':
     default:
-      // Waehrend der Feedbacksequenz gibt es bewusst keine Aktion: der Wechsel
-      // laeuft ueber die definierte Fallbackzeit des Servers.
+      // During the feedback sequence there is deliberately no action: the switch
+      // runs through the server's defined fallback time.
       break
   }
 
@@ -189,12 +190,12 @@ function jokerCommands(state: GameState): CommandType[] {
 }
 
 /**
- * Selbstbedienung: bewusst eine eigene, sehr kurze Liste.
+ * Self-service: deliberately its own, very short list.
  *
- * Sie entsteht NICHT durch Filtern der Operatorliste. Am Touchgeraet gibt es
- * kein Freigeben, kein Zuruecksetzen und kein Ueberspringen - der Server plant
- * diese Uebergaenge selbst ein. Was bleibt, ist dieselbe Befehlssequenz wie am
- * Operatorpult: Zuschlag holen, Antwort einloggen, Antwort bestaetigen.
+ * It is NOT created by filtering the operator list. At the touch device there
+ * is no opening, no resetting and no skipping - the server schedules these
+ * transitions itself. What remains is the same command sequence as at the
+ * operator's desk: take the buzz, log the answer, confirm the answer.
  */
 function selfServiceCommands(state: GameState): CommandType[] {
   const list = new Set<CommandType>(['SET_SOUND_ENABLED', 'SET_LOCALE', 'ABORT_GAME'])
@@ -202,21 +203,21 @@ function selfServiceCommands(state: GameState): CommandType[] {
   if (isBuzzablePhase(state.phase) && state.buzzer.open) list.add('BUZZ')
   if (isSelfServiceAnswerPhase(state.phase)) {
     list.add('LOG_OPTION_ANSWER')
-    // Bestaetigen ist erst sinnvoll, wenn eine Option eingeloggt ist; das
-    // entscheidet die Engine (`answer-not-logged`), nicht diese Vorschau.
+    // Confirming only makes sense once an option is logged; that is decided
+    // by the engine (`answer-not-logged`), not by this preview.
     list.add('RESOLVE_ATTEMPT')
   }
   /*
-   * Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. Frueher plante
-   * der Server hier einen Uebergang ein; wer gerade noch las, warum seine
-   * Antwort falsch war, verlor dabei das Bild unter den Augen.
+   * After the solution the game only goes on when a player taps. The server
+   * used to schedule a transition here; whoever was still reading why their
+   * answer was wrong lost the picture under their eyes.
    */
   if (state.phase === 'solution') list.add('CONTINUE')
 
   return [...list]
 }
 
-/** Auf die Rolle eingeschraenkte Befehlsliste. */
+/** Command list restricted to the role. */
 export function allowedCommandsForRole(state: GameState | null, role: ActorRole): CommandType[] {
   return availableCommands(state).filter((type) => roleMayIssue(role, type))
 }

@@ -1,9 +1,10 @@
 /*
- * Kopfzeile der Buehne: Wortmarke links, Punktekarten mittig, Zaehler rechts.
+ * Header of the stage: wordmark on the left, score cards in the middle,
+ * counter on the right.
  */
 
 .header {
-  /* Ueber Hintergrund und Figurenebene - alles Inhaltliche liegt auf Ebene 1. */
+  /* Above background and mascot layer - all content sits on layer 1. */
   position: relative;
   z-index: 1;
   display: flex;
@@ -15,14 +16,14 @@
   align-items: flex-start;
 }
 /*
- * Rahmen um EINE Punktekarte - der Anker fuer den Slot `besidePlayer`.
+ * Frame around ONE score card - the anchor for the `besidePlayer` slot.
  *
- * Er nimmt keinen eigenen Platz: Groesse und Position kommen weiter von der
- * Karte darin. Wer im Slot etwas absolut positioniert, haengt es damit an diese
- * Karte, ohne die Kopfzeile zu verbreitern. `position: relative` ohne `z-index`
- * bleibt bewusst ohne eigenen Stapelkontext - so entscheidet der Slotinhalt
- * selbst, ob er vor oder hinter der Karte liegt, ohne aus der Kopfzeile zu
- * fallen.
+ * It takes up no space of its own: size and position still come from the
+ * card inside it. Whoever absolutely positions something in the slot
+ * thereby hangs it off this card, without widening the header.
+ * `position: relative` without `z-index` deliberately stays without its own
+ * stacking context - this way the slot's content itself decides whether it
+ * sits in front of or behind the card, without falling out of the header.
  */
 .scoreGroup {
   position: relative;
@@ -30,8 +31,8 @@
   align-items: flex-start;
 }
 /*
- * Wortmarke. Sie liegt als Maske ueber einer Farbflaeche und folgt damit der
- * Textfarbe der Welt. Das Seitenverhaeltnis stammt aus dem viewBox der Datei
+ * Wordmark. It sits as a mask over a colour area and thereby follows the
+ * world's text colour. The aspect ratio comes from the file's viewBox
  * (339,417 x 55).
  */
 .brand {
@@ -43,9 +44,9 @@
 }
 
 /*
- * Das Logo aus dem Inhalt. Es traegt seine eigenen Farben, deshalb keine Maske
- * und kein festes Seitenverhaeltnis: Die Breite kommt aus denselben Regeln wie
- * bei der Wortmarke, die Hoehe aus dem Bild.
+ * The logo from the content. It carries its own colours, hence no mask and
+ * no fixed aspect ratio: the width comes from the same rules as the
+ * wordmark, the height from the image.
  */
 .brandImage {
   height: auto;
@@ -55,10 +56,10 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen
+ * Adult stage
  *
- * Wortmarke und Zaehler haengen in den Ecken der Flaeche, damit die
- * Punktekarten exakt mittig stehen - unabhaengig davon, wie breit sie werden.
+ * Wordmark and counter hang in the corners of the area, so the score cards
+ * sit exactly centred - independent of how wide they get.
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .header {
@@ -85,18 +86,19 @@
 }
 
 /*
- * Am Touchgeraet steht in der Kopfzeile nur die Wortmarke: Punkte und Zaehler
- * sind unten bei den Buzzern. Sie darf deshalb nicht mehr aus der Zeile
- * herausgeloest sein - ohne Karten haette die Kopfzeile sonst keine Hoehe, und
- * die Szene liefe darueber hinweg.
+ * On a touch device only the wordmark sits in the header: score and counter
+ * are down by the buzzers. It must therefore no longer be detached from the
+ * row - without cards the header would otherwise have no height, and the
+ * scene would run over it.
  *
- * Sie steht dabei weiter oben im Bild als im Saal: Der Kopf ist
- * dicht ueber der Flaeche, und ein zu knapper Rand laesst das Logo an der Kante
- * kleben. Der zusaetzliche Raum kommt allein aus dieser Zeile - die Szene
- * darunter nimmt sich, was uebrig bleibt.
+ * It sits further up in the image than in the room: the head is close above
+ * the area, and too tight a margin leaves the logo sticking to the edge.
+ * The extra space comes solely from this row - the scene below takes what
+ * is left.
  *
- * MIT DEM ZOOM SCHRUMPFT SIE ZUR ECKE HIN: Der Bezugspunkt ist die obere linke
- * Ecke des Bildes, damit das Logo am Rand bleibt und nur kleiner wird.
+ * WITH ZOOM IT SHRINKS TOWARD THE CORNER: the reference point is the
+ * image's top-left corner, so the logo stays at the edge and only gets
+ * smaller.
  */
 :global(.stage--default.stage--touch) .header {
   justify-content: flex-start;
@@ -111,7 +113,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt: alles steht in der Zeile, in drei Spalten
+ * Kids' world: everything sits in the row, in three columns
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .header {
@@ -132,8 +134,8 @@
 }
 
 /*
- * Die Kinderwelt am Touchgeraet folgt derselben Regel wie oben: mehr Luft nach
- * oben, und beim Verkleinern bleibt die Ecke der Bezugspunkt.
+ * The kids' world on a touch device follows the same rule as above: more
+ * space at the top, and the corner stays the reference point when shrinking.
  */
 :global(.stage--kids.stage--touch) .header {
   padding: calc(var(--kids-pad) * 2) var(--kids-pad) 0;

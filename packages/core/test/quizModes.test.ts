@@ -1,10 +1,11 @@
 /**
- * Quizarten: was der Server annimmt, was er abweist und was danach feststeht.
+ * Quiz types: what the server accepts, what it refuses and what is fixed
+ * afterwards.
  *
- * Die Quizart ist die EINE Entscheidung des Pults vor dem Abend. Alles, was ein
- * Quiz ausmacht - Zielgruppe, Fragenpool, Theme und ob es eine
- * Schwierigkeitswahl gibt -, steht in der Konfiguration; hier wird geprueft,
- * dass der Server genau daraus ableitet und nichts vom Client uebernimmt.
+ * The quiz type is the ONE decision of the desk before the evening. Everything
+ * that makes a quiz - audience, question pool, theme and whether there is a
+ * difficulty choice - is in the configuration; here it is checked that the
+ * server derives exactly from that and takes nothing from the client.
  */
 import { describe, expect, it } from 'vitest'
 import { defaultPresetIdOf, quizSupportsDifficulty } from '../src'
@@ -175,7 +176,7 @@ describe('Theme und Angebotsliste in der Buehnenansicht', () => {
   it('behaelt die bestaetigte Konfiguration ueber eine neue Projektion hinweg', () => {
     const harness = createHarness(script())
     harness.dispatch({ type: 'START_GAME', quizId: 'bundestag', presetId: 'hard' })
-    // Ein neu verbundener Client bekommt denselben Stand neu projiziert.
+    // A newly connected client gets the same state projected afresh.
     const first = harness.publicView()
     const second = harness.publicView()
     expect(second.quizId).toBe(first.quizId)

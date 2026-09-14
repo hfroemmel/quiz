@@ -1,105 +1,110 @@
-# Import und Validierung
+# Import and validation
 
-## Ablauf
+## Pipeline
 
 ```text
 Google Sheet
-  → finale redaktionelle Uebergabe
-  → KI-gestuetzte Rechtschreib- und Typopruefung
-  → MENSCHLICHE FREIGABE
-  → Import und Normalisierung
-  → strenge Validierung
-  → versioniertes Quizpaket
-  → Anwendungs-Build
+  → final editorial handoff
+  → AI-assisted spelling and typo check
+  → HUMAN APPROVAL
+  → import and normalization
+  → strict validation
+  → versioned quiz package
+  → application build
 ```
 
-KI-Vorschlaege duerfen nicht ungeprueft uebernommen werden: Eigennamen, politische
-Begriffe, historische Schreibweisen und absichtlich falsche Antwortoptionen wuerden
-sonst stillschweigend veraendert.
+AI suggestions must never be accepted unreviewed: proper names, political
+terms, historical spellings, and deliberately wrong answer options would
+otherwise be silently changed.
 
-## Befehle
+## Commands
 
 ```bash
-pnpm content:fetch      # optional: Rohdaten aus einer freigegebenen Sheet-Quelle holen
-pnpm content:validate   # Pflicht: Schema, Referenzen, Medien, Poolabdeckung
-pnpm content:build      # normalisiertes, versioniertes Paket erzeugen
-pnpm build              # Anwendung mit der freigegebenen Paketversion bauen
+pnpm content:fetch      # optional: fetch raw data from an approved sheet source
+pnpm content:validate   # required: schema, references, media, pool coverage
+pnpm content:build      # produce a normalized, versioned package
+pnpm build              # build the application with the approved package version
 ```
 
-`content:fetch` schreibt ausschliesslich nach `content/incoming/` und **nie** direkt
-nach `content/source/`. Ohne `QUIZ_SHEET_CSV_URL` tut es nichts - der Offline-Build
-funktioniert unveraendert.
+`content:fetch` writes exclusively to `content/incoming/` and **never**
+directly to `content/source/`. Without `QUIZ_SHEET_CSV_URL` it does nothing -
+the offline build is unaffected.
 
-Ein Build der Veranstaltungssoftware haengt zur Laufzeit nie von Google Sheets ab.
+A build of the event software never depends on Google Sheets at runtime.
 
-## Validierungsstufen
+## Validation levels
 
-**Fehler - der Build bricht ab:**
+**Errors - the build aborts:**
 
-fehlende oder doppelte Frage-ID · unbekannter Fragetyp · ungueltige Schwierigkeits-,
-Kategorie- oder Modusreferenz · fehlender Fragetext · Multiple Choice ohne korrekte
-Option · `correctOptionId` zeigt auf keine Option · falsche Optionsanzahl bei
-Fragetypen, die genau vier verlangen · fehlendes Pflichtmedium · nicht vorhandene
-Mediendatei einer aktiven Frage · nicht erfuellbarer Fragenplatz · ungueltige Preset-
-oder Theme-Referenz · nicht parsebare Versionsangabe.
+missing or duplicate question ID · unknown question type · invalid
+difficulty, category, or mode reference · missing question text · multiple
+choice without a correct option · `correctOptionId` points to no option ·
+wrong option count for question types that require exactly four · missing
+required medium · missing media file for an active question · unfulfillable
+question slot · invalid preset or theme reference · unparseable version
+string.
 
-**Warnung - bewusste Freigabe erforderlich:**
+**Warnings - require deliberate approval:**
 
-fehlender Erklaerungstext · fehlender Bildnachweis · sehr langer Frage- oder
-Antworttext · fast identische Fragen ohne gemeinsame Wiederholungsgruppe · identische
-Antwortoptionen · sehr kleiner Kandidatenpool · verwaiste Medien · Fragen, die von
-keinem Modus oder Preset erreichbar sind · ungenutzte Kategorien · ungewoehnliche
-Gross-/Kleinschreibung von IDs · fehlende Mediendatei einer **deaktivierten** Frage.
+missing explanation text · missing image credit · very long question or
+answer text · near-identical questions without a shared repeat group ·
+identical answer options · very small candidate pool · orphaned media ·
+questions unreachable from any mode or preset · unused categories · unusual
+capitalization of IDs · missing media file for a **disabled** question.
 
-## Bericht
+## Report
 
-`pnpm content:validate` schreibt `content/reports/validation.md`,
-`pnpm content:build` zusaetzlich `content/reports/build.md`. Der Bericht enthaelt:
+`pnpm content:validate` writes `content/reports/validation.md`,
+`pnpm content:build` additionally writes `content/reports/build.md`. The
+report contains:
 
-* Gesamtzahlen nach Modus, Schwierigkeit, Typ und Kategorie
-* Fehler und Warnungen mit Frage-ID
-* Poolabdeckung pro Modus, Preset und Fragenplatz
-* Zahl der Wiederholungsgruppen und moeglicher Spiele ohne Wiederholung
-* Medienstatus
-* Vergleich zur vorherigen Paketversion
+* Totals by mode, difficulty, type, and category
+* Errors and warnings with question ID
+* Pool coverage per mode, preset, and question slot
+* Number of repeat groups and possible games without repetition
+* Media status
+* Comparison with the previous package version
 
-### Wie „Spiele ohne Wiederholung“ berechnet wird
+### How "games without repetition" is calculated
 
-Fragenplaetze mit identischem Filter konkurrieren um denselben Pool. Fuer eine solche
-Gruppe aus `k` Plaetzen und `g` eindeutigen Wiederholungsgruppen sind `floor(g / k)`
-Spiele moeglich; massgeblich ist das Minimum ueber alle Gruppen. Die Zahl ist bewusst
-konservativ - ein Auswahlalgorithmus kann einen zu kleinen Pool nicht kaschieren.
+Question slots with identical filters compete for the same pool. For such a
+group of `k` slots and `g` unique repeat groups, `floor(g / k)` games are
+possible; the minimum across all groups is decisive. This number is
+deliberately conservative - a selection algorithm cannot mask a pool that is
+too small.
 
-## Legacy-Migration
+## Legacy migration
 
 ```bash
-pnpm content:migrate pfad/zu/questions.js pfad/zu/config.js
+pnpm content:migrate path/to/questions.js path/to/config.js
 ```
 
-Der Migrationscode fuehrt die Legacy-Dateien **nicht** aus. Er liest ausschliesslich
-Literale (`packages/content/src/legacy/parseLiteral.ts`); ein Funktionsaufruf oder ein
-Template-Literal fuehrt zu einem klaren Fehler statt zu einem Seiteneffekt.
+The migration code does **not** execute the legacy files. It only reads
+literals (`packages/content/src/legacy/parseLiteral.ts`); a function call or
+a template literal produces a clear error instead of a side effect.
 
-Ergebnis liegt unter `content/migrated/` und wird bewusst **nicht** automatisch nach
-`content/source/` uebernommen. Der Bericht `migration-report.md` nennt:
+The result lands under `content/migrated/` and is deliberately **not**
+carried over automatically into `content/source/`. The report
+`migration-report.md` names:
 
-* automatisch normalisierte Werte (`Kids` → `kids`, `mittel` → `medium`, IDs, Umlaute) -
-  korrigiert, aber niemals still;
-* erkannte Wiederholungsgruppen bei gleichem Fragetext - zur Bestaetigung;
-* aus `option_1` abgeleitete richtige Antworten - zur Stichprobe;
-* nicht uebernommene Fragen mit Begruendung;
-* abweichende Fragenplatzzahlen der Legacy-Presets (z. B. acht statt sieben).
+* automatically normalized values (`Kids` → `kids`, `mittel` → `medium`,
+  IDs, umlauts) - corrected, but never silently;
+* detected repeat groups with matching question text - for confirmation;
+* correct answers derived from `option_1` - for spot-checking;
+* questions not carried over, with a reason;
+* diverging question slot counts of the legacy presets (e.g. eight instead of
+  seven).
 
-`playCount` wird verworfen: Laufzeitdaten gehoeren nicht in den Inhalt.
+`playCount` is discarded: runtime data does not belong in the content.
 
-## Medien vorbereiten
+## Preparing media
 
-Unter `content/source/assets/questions/` liegt das echte Bildmaterial des
-uebernommenen Katalogs. `pnpm content:assets` erzeugt abstrakte Platzhalter-Grafiken
-und ist damit nur noch fuer neue, noch unbebilderte Fragen gedacht - es ueberschreibt
-vorhandene Dateien nicht. Ein neues Bild kommt unter denselben Dateinamen oder
-bekommt einen eigenen Eintrag in `assets.json`.
+The real image material of the adopted catalog lives under
+`content/source/assets/questions/`. `pnpm content:assets` generates abstract
+placeholder graphics and is therefore now meant only for new, still
+unillustrated questions - it does not overwrite existing files. A new image
+either gets the same file name or its own entry in `assets.json`.
 
-Videos liegen unter `content/source/assets/video/`. Sie werden wie Bilder ueber
-`assets.json` eingetragen (`"kind": "video"`) und ueber `media.videoAssetId` an eine
-Frage gehaengt.
+Videos live under `content/source/assets/video/`. They are registered via
+`assets.json` just like images (`"kind": "video"`) and attached to a
+question via `media.videoAssetId`.

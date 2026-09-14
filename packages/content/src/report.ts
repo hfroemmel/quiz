@@ -1,15 +1,15 @@
 /**
- * Menschenlesbarer Validierungsbericht (Spezifikation 24.5).
+ * Human-readable validation report (specification 24.5).
  *
- * Der Bericht ist bewusst Text und kein JSON: Die Redaktion soll ihn ohne Werkzeuge
- * lesen koennen. Maschinenlesbar bleibt das `ValidationResult` selbst.
+ * The report is deliberately text and not JSON: editors should be able to read
+ * it without tools. The `ValidationResult` itself stays machine-readable.
  */
 import type { ValidationResult } from './validate'
 
 export interface ReportOptions {
   title: string
   contentVersion?: string
-  /** Statistik der vorherigen Paketversion fuer den Vergleich. */
+  /** Statistics of the previous package version, for the comparison. */
   previous?: { contentVersion: string; totalQuestions: number }
 }
 

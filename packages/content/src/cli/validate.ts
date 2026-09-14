@@ -1,8 +1,8 @@
 /**
- * `pnpm content:validate` - Pflichtschritt vor jedem Build.
+ * `pnpm content:validate` - mandatory step before every build.
  *
- * Beendet sich mit Exit-Code 1, sobald ein Schemafehler vorliegt. Der CI-Build
- * schlaegt damit bei Schema- oder Referenzfehlern fehl (Spezifikation 31.5).
+ * Exits with exit code 1 as soon as a schema error exists. The CI build thus
+ * fails on schema or reference errors (specification 31.5).
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -12,16 +12,16 @@ import { formatValidationReport } from '../report'
 
 const args = process.argv.slice(2)
 /**
- * `--placeholder-media` stuft fehlende Mediendateien zur Warnung herab.
+ * `--placeholder-media` downgrades missing media files to a warning.
  *
- * Gedacht fuer die Entwicklung, solange der freigegebene Bildbestand fehlt: Der
- * Server zeigt dann ein erzeugtes Ersatzbild. Fuer den Livebetrieb bleibt der
- * Aufruf ohne Flag verbindlich.
+ * Meant for development while the approved image set is missing: the server
+ * then shows a generated placeholder image. For live operation the call
+ * without the flag remains binding.
  */
 const placeholderMedia = args.includes('--placeholder-media')
 const sourceDir = contentDir(args, 'source', 'source')
 const reportDir = contentDir(args, 'report', 'reports')
-/** `--profile no-video` prueft die Quelle so, wie sie die Offline-Apps sehen. */
+/** `--profile no-video` validates the source the way the offline apps see it. */
 const profile = flagValue(args, 'profile') === 'no-video' ? ('no-video' as const) : ('full' as const)
 const source = applyContentProfile(readSource(sourceDir), profile)
 const result = validateSource(source, { missingMediaSeverity: placeholderMedia ? 'warning' : 'error' })

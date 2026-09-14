@@ -1,32 +1,32 @@
 /**
- * Live-Hotfixes als Overlay ueber dem versionierten Basispaket (Spezifikation 25).
+ * Live hotfixes as an overlay over the versioned base package (specification 25).
  *
- * Grundregel: Die gebaute Basisdatei wird waehrend der Veranstaltung nicht veraendert.
+ * Ground rule: the built base file is not changed during the event.
  *
- *   versioniertes Basis-Quizpaket + lokaler validierter Hotfix = tatsaechlich geladener Inhalt
+ *   versioned base quiz package + local validated hotfix = content actually loaded
  *
- * Jeder Patch wird gegen dasselbe Schema validiert wie der Basisinhalt. Eine Frage mit
- * ungueltigem Patch wird nicht geladen - lieber faellt sie aus dem Pool, als dass sie
- * live inkonsistent erscheint.
+ * Every patch is validated against the same schema as the base content. A
+ * question with an invalid patch is not loaded - better it drops out of the pool
+ * than appear inconsistent live.
  */
 import { questionSchema, type Question, type QuestionPatch } from '../contracts'
 
 export interface OverlayResult {
   questions: Question[]
-  /** Fragen, deren Patch ungueltig war und die deshalb nicht geladen wurden. */
+  /** Questions whose patch was invalid and which were therefore not loaded. */
   rejected: { questionId: string; reason: string }[]
   appliedPatchIds: string[]
 }
 
 /**
- * Wendet Patches auf den Basisbestand an.
+ * Applies patches to the base set.
  *
- * `applyMode` entscheidet, wann ein Patch wirkt:
- *  - `next-use`: Der Patch gilt fuer den geladenen Pool, also ab dem naechsten Einsatz
- *    der Frage. Eine gerade oeffentlich sichtbare Frage wird davon nicht beruehrt,
- *    weil der Server ihre Laufzeitkopie behaelt.
- *  - `immediate-confirmed`: Der Operator hat "Jetzt uebernehmen" bestaetigt; der Server
- *    tauscht zusaetzlich die laufende Frage aus.
+ * `applyMode` decides when a patch takes effect:
+ *  - `next-use`: the patch applies to the loaded pool, i.e. from the next use of
+ *    the question. A question currently visible in public is not touched by it,
+ *    because the server keeps its runtime copy.
+ *  - `immediate-confirmed`: the operator has confirmed "apply now"; the server
+ *    additionally swaps the running question.
  */
 export function applyPatches(base: Question[], patches: QuestionPatch[]): OverlayResult {
   const byQuestion = new Map<string, QuestionPatch[]>()
@@ -44,7 +44,7 @@ export function applyPatches(base: Question[], patches: QuestionPatch[]): Overla
       questions.push(question)
       continue
     }
-    // Patches werden in Entstehungsreihenfolge angewendet; der spaetere gewinnt.
+    // Patches are applied in order of creation; the later one wins.
     const ordered = [...relevant].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     const merged = ordered.reduce<Question>((current, patch) => ({ ...current, ...patch.changes }), question)
 
@@ -74,9 +74,9 @@ export interface PatchChangeReportEntry {
 }
 
 /**
- * Aenderungsbericht fuer den Export nach der Veranstaltung (Spezifikation 25.4).
- * Er nennt alten und neuen Wert je Feld, damit die Redaktion die Korrektur in die
- * Kundenquelle uebernehmen kann.
+ * Change report for the export after the event (specification 25.4).
+ * It names the old and the new value per field, so that the editors can carry
+ * the correction into the customer source.
  */
 export function buildChangeReport(base: Question[], patches: QuestionPatch[]): PatchChangeReportEntry[] {
   const baseById = new Map(base.map((question) => [question.id, question]))
@@ -101,8 +101,8 @@ export function buildChangeReport(base: Question[], patches: QuestionPatch[]): P
 }
 
 /**
- * Warnung beim naechsten Inhaltsimport: Wurde ein lokaler Hotfix in der neuen
- * Kundenquelle noch nicht nachvollzogen?
+ * Warning at the next content import: has a local hotfix not yet been carried
+ * into the new customer source?
  */
 export function findUnreconciledPatches(
   patches: QuestionPatch[],
