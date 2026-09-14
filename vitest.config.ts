@@ -3,9 +3,10 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     /*
-     * Nur Node-Tests: Kern, Inhalts-Pipeline und die Quelltextpruefungen der
-     * Oberflaechenpakete - etwa, dass alle Farbwerte in der Palette stehen.
-     * Was der Browser zeigt, prueft Playwright unter test/e2e.
+     * Node tests only: the core, the content pipeline and the source checks
+     * of the interface packages - for instance, that every colour value sits
+     * in the palette. What the browser shows is checked by Playwright under
+     * test/e2e.
      */
     include: ['packages/*/test/**/*.test.ts'],
     environment: 'node',

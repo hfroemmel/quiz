@@ -1,85 +1,85 @@
 /**
- * Zentrale Timings und Easings der Praesentationsschicht (Spezifikation 22.5).
+ * Central timings and easings of the presentation layer (specification 22.5).
  *
- * KEINE MAGISCHEN ZAHLEN IN JSX: Jede Dauer, jede Verzoegerung und jedes Easing steht
- * hier oder in einer Uebergangsdefinition unter `transitions/`.
+ * NO MAGIC NUMBERS IN JSX: every duration, every delay and every easing lives
+ * here or in a transition definition under `transitions/`.
  *
- * Zwei Arten von Werten sind zu unterscheiden:
+ * There are two kinds of values to distinguish:
  *
- *  1. FACHLICH RELEVANT - kommt aus `@quiz/contracts` (`gameTiming`) und wird vom
- *     Server verwendet, um Phasen zu beenden. Diese Werte duerfen hier NICHT
- *     ueberschrieben werden, sonst laufen Anzeige und Spielzustand auseinander.
- *     Betroffen: Feedbackdauer, Loesungsverzoegerung, Enthuellungsdauer, Pausenscreen.
+ *  1. DOMAIN-RELEVANT - comes from `@quiz/contracts` (`gameTiming`) and is used
+ *     by the server to end phases. These values must NOT be overridden here,
+ *     or the display and the game state drift apart. Affected: feedback
+ *     duration, solution delay, reveal duration, pause screen.
  *
- *  2. REIN VISUELL - nur hier definiert. Aenderungen sind gefahrlos moeglich, weil
- *     kein Zustandswechsel davon abhaengt.
+ *  2. PURELY VISUAL - defined only here. Changes are safe because no state
+ *     transition depends on them.
  */
 import { gameTiming } from '@hfroemmel/quiz-core'
 
 export const presentationTiming = {
-  /* --- fachlich relevant: gespiegelt aus gameTiming, nicht hier aendern --- */
-  /** Dauer der Richtig-Animation. Der Server wechselt danach zur Loesung. */
+  /* --- domain-relevant: mirrored from gameTiming, do not change here --- */
+  /** Duration of the correct animation. The server switches to the solution after this. */
   correctFeedbackMs: gameTiming.correctFeedbackMs,
-  /** Dauer der Falsch-Animation. Danach folgt zweite Chance oder Loesung. */
+  /** Duration of the incorrect animation. Followed by a second chance or the solution. */
   incorrectFeedbackMs: gameTiming.incorrectFeedbackMs,
-  /** Kurze Pause zwischen Feedback und Loesung. */
+  /** Short pause between feedback and the solution. */
   solutionDelayMs: gameTiming.solutionDelayMs,
-  /** Bestaetigte zehn Sekunden der Bildenthuellung. Bindend. */
+  /** Confirmed ten seconds of the image reveal. Binding. */
   imageRevealDurationMs: gameTiming.imageRevealDurationMs,
-  /** Dauer des Pausenscreens zwischen zwei Fragen. */
+  /** Duration of the pause screen between two questions. */
   pauseScreenMs: gameTiming.pauseScreenMs,
 
-  /* --- rein visuell: hier gefahrlos anpassbar --- */
-  /** Ueberblendung beim Szenenwechsel. */
+  /* --- purely visual: safe to adjust here --- */
+  /** Cross-fade on a scene change. */
   sceneFadeMs: 400,
-  /** Verzoegerung, mit der Antwortoptionen nacheinander einlaufen. */
+  /** Delay with which answer options run in one after another. */
   optionStaggerMs: 70,
-  /** Wie lange Konfetti auf der Ergebnisansicht laeuft. */
+  /** How long confetti runs on the result view. */
   resultConfettiMs: 6_000,
-  /** Dauer der Punktestand-Hochzaehlanimation. */
+  /** Duration of the score count-up animation. */
   scoreCountUpMs: 600,
 
-  /* --- die Jokerziehung --- */
+  /* --- the joker draw --- */
   /*
-   * Die Dauern des Flugs und der Drehung stehen NICHT hier, sondern in
-   * `jokerDrawTiming` im Kern: Der Server plant den Aufdeckschritt damit ein,
-   * und ein Client, der mitten im Flug dazukommt, rechnet seine Position darin
-   * aus. Hier stehen nur die Zeiten, die allein die Darstellung betreffen.
+   * The durations of the flight and the turn do NOT live here but in
+   * `jokerDrawTiming` in the core: the server schedules the reveal step from
+   * them, and a client that joins mid-flight computes its position from them.
+   * Only the times that concern the presentation alone live here.
    */
-  /** Wie lange eine Antwort braucht, um nach einem 50:50 zurueckzutreten. */
+  /** How long an answer takes to step back after a 50:50. */
   jokerEliminateMs: 250,
-  /** Versatz, mit dem mehrere Antworten nacheinander zuruecktreten. */
+  /** Offset with which several answers step back one after another. */
   jokerEliminateStaggerMs: 110,
-  /** Ueberblendung zwischen Spielernummer und Gruppenzeichen. */
+  /** Cross-fade between the player number and the group marker. */
   jokerMarkerFadeMs: 200,
-  /** Ausblenden der aufgedeckten Karte, wenn der Operator weitergeht. */
+  /** Fading out the revealed card when the operator moves on. */
   jokerDismissMs: 200,
 } as const
 
 export const easings = {
   /**
-   * Der Flug der Jokerkarte: schneller Antritt, langes ruhiges Ausschwingen.
-   * Sie soll geworfen aussehen, nicht geschossen.
+   * The flight of the joker card: fast start, long calm settle. It should
+   * look thrown, not shot.
    */
   jokerFlight: 'cubic-bezier(0.22, 1, 0.36, 1)',
-  /** Standard fuer Ein- und Ausblenden. */
+  /** Default for fading in and out. */
   standard: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-  /** Betont den Eintritt, z. B. bei der Richtig-Animation. */
+  /** Emphasises the entrance, e.g. for the correct animation. */
   emphasized: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  /** Kurzes, hartes Ausschwingen fuer die Falsch-Animation. */
+  /** Short, hard settle for the incorrect animation. */
   sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
 } as const
 
 /*
- * Das Bilderkennen hat hier keinen Wert mehr: Rastergroesse, Reihenfolge und
- * Kachelblende stehen in `revealGrid` (`@quiz/contracts/config`), weil sie
- * bestimmen, WAS ein Spieler wann sieht, und damit zur Fairness gehoeren - nicht
- * zur Ausschmueckung.
+ * The image reveal no longer has a value here: grid size, order and tile
+ * fade live in `revealGrid` (`@quiz/contracts/config`), because they
+ * determine WHAT a player sees when, and therefore belong to fairness - not
+ * to decoration.
  */
 
 /**
- * Reduzierte Bewegung: Nutzer- bzw. Systemeinstellung `prefers-reduced-motion`.
- * Jede Uebergangsdefinition liefert dafuer eine eigene, kuerzere Dauer.
+ * Reduced motion: user or system setting `prefers-reduced-motion`. Every
+ * transition definition supplies its own, shorter duration for it.
  */
 export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || !window.matchMedia) return false

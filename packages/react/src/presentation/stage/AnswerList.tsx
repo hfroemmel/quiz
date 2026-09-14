@@ -1,24 +1,24 @@
 /**
- * Antwortzeilen - EIN Bauteil fuer alle Zeilen, alle Zustaende, beide Welten.
+ * Answer rows - ONE component for every row, every state, both worlds.
  *
- * Aufbau jeder Zeile: Buchstabenchip und Antwortflaeche sind zwei getrennte
- * Geschwister. Der breite Hintergrund gehoert ausschliesslich auf die Flaeche;
- * laege er auf der Zeile, saesse der Buchstabe mit darauf.
+ * Structure of each row: letter chip and answer surface are two separate
+ * siblings. The wide background belongs exclusively on the surface; if it
+ * sat on the row, the letter would sit on top of it too.
  *
  *   li.answer > span.chip + span.surface > span.text
  *
- * Auf der Buehne sind die Zeilen KEINE Schaltflaechen: Dort wird nicht geklickt,
- * gespielt wird ueber Buzzer und Operator, und der Screen zeigt nur den Zustand,
- * den der Server sendet.
+ * On the stage the rows are NOT buttons: nothing is clicked there, play
+ * happens through buzzers and the operator, and the screen only shows the
+ * state the server sends.
  *
- * Am Touchgeraet sind sie es. Dort ersetzt der Fingertipp den Buzzer, und dann
- * braucht jede Zeile ein echtes `button` - wegen der Tastatur, wegen der
- * Vorlesewerkzeuge und wegen der Trefferflaeche. Diese Zeilen bekommen deshalb
- * `onSelect`; ohne den Rueckruf bleibt alles wie auf der Buehne.
+ * On the touch device they are. There, the tap replaces the buzzer, and then
+ * every row needs a real `button` - for the keyboard, for screen readers, and
+ * for the hit area. These rows therefore receive `onSelect`; without that
+ * callback everything stays as it is on the stage.
  *
- * Es gibt bewusst keine zweite Zeilenkomponente, die spaeter abweichen koennte:
- * Zustaende, Buchstabenchip und Zeichnung sollen sich nie auseinanderentwickeln,
- * nur weil ein Kontext dazugekommen ist.
+ * There is deliberately no second row component that could drift apart
+ * later: states, letter chip and artwork must never diverge just because a
+ * context was added.
  */
 import type { CSSProperties } from 'react'
 import { presentationTiming } from '../animationPresets'
@@ -37,13 +37,13 @@ export interface AnswerRow {
 export interface AnswerListProps {
   rows: AnswerRow[]
   /**
-   * Nur am Touchgeraet: Was passiert, wenn eine Zeile getippt wird. Ist der
-   * Rueckruf gesetzt, wird jede Zeile zur Schaltflaeche.
+   * Touch device only: what happens when a row is tapped. If the callback is
+   * set, every row becomes a button.
    */
   onSelect?: (optionId: string) => void
-  /** Antworten gerade nicht moeglich - die Schaltflaechen sind stumpf. */
+  /** Answering is not currently possible - the buttons are inert. */
   disabled?: boolean
-  /** Vorlesewerkzeuge sollen wissen, wessen Antworten das sind. */
+  /** Screen readers should know whose answers these are. */
   label?: string
 }
 
@@ -58,9 +58,9 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
     >
       {rows.map((row, index) => {
         /*
-         * Feste Spalte, feste Groesse: Bei zweizeiligem Text darf der Buchstabe
-         * weder mitwachsen noch nach unten rutschen - sonst tanzen die Buchstaben
-         * A bis D in der Senkrechten.
+         * Fixed column, fixed size: with two-line text the letter must
+         * neither grow along with it nor slide downward - otherwise letters
+         * A through D would dance vertically out of line.
          */
         const content = (
           <>
@@ -95,11 +95,11 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
             {...(row.eliminated ? { 'data-eliminated': 'true', 'aria-hidden': true } : {})}
             style={
               {
-                /* Versatz der Einlaufanimation - die Zeilen erscheinen nacheinander. */
+                /* Offset of the entrance animation - the rows appear one after another. */
                 animationDelay: `${index * presentationTiming.optionStaggerMs}ms`,
                 /*
-                 * Und derselbe Gedanke beim Zuruecktreten: Mehrere Antworten,
-                 * die ein 50:50 nimmt, treten nacheinander zurueck.
+                 * And the same idea on stepping back: several answers taken
+                 * out by a 50:50 step back one after another.
                  */
                 '--joker-eliminate-duration': `${presentationTiming.jokerEliminateMs}ms`,
                 '--joker-eliminate-delay': `${index * presentationTiming.jokerEliminateStaggerMs}ms`,
@@ -108,9 +108,9 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
           >
             {onSelect ? (
               /*
-               * Die Schaltflaeche traegt dieselbe Aufteilung wie die Buehnenzeile
-               * und keine eigene Gestaltung: Chip und Flaeche sollen an beiden
-               * Orten gleich aussehen.
+               * The button carries the same layout as the stage row and no
+               * styling of its own: chip and surface should look the same in
+               * both places.
                */
               <button
                 type="button"

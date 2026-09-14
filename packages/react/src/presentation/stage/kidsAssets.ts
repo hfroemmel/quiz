@@ -1,16 +1,15 @@
 /**
- * Zeichnungen der Kinderwelt, die vor dem ersten Bild einer Show geladen sein
- * sollen.
+ * Kids' world artwork that should be loaded before a show's first image.
  *
- * WARUM NUR EINE LISTE: Die Adressen selbst stehen in den Stylesheets der
- * Bauteile - dorthin gehoeren sie, denn welche Zeichnung ein Zustand traegt,
- * ist eine Frage der Gestaltung und keine des Markups. Hier steht nur, was der
- * Browser vorab holen soll: Auf dem Buehnenscreen darf waehrend der Show nichts
- * nachladen. Ein Chip, der erst beim Wechsel auf 'richtig' geholt wird, blitzt
- * vor dem Saal leer auf.
+ * WHY JUST A LIST: the URLs themselves live in the components' stylesheets -
+ * that is where they belong, because which drawing a state carries is a
+ * design question, not a markup one. This only states what the browser
+ * should fetch ahead of time: nothing may load lazily on the stage screen
+ * during the show. A chip only fetched on switching to 'richtig' would flash
+ * up blank in front of the room.
  *
- * Die Eintraege sind bundlerneutral als `new URL(..., import.meta.url)`
- * adressiert - dieselben Dateien, die auch die Stylesheets emittieren lassen.
+ * The entries are addressed bundler-neutrally as `new URL(..., import.meta.url)`
+ * - the same files the stylesheets also cause to be emitted.
  */
 
 export const kidsPreloadImages: readonly string[] = [

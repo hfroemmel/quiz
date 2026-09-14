@@ -853,8 +853,8 @@ describe('when the desk may offer a draw', () => {
 
   it('follows the player who is answering, not the game', () => {
     /*
-     * Spieler 1 hat seinen verbraucht, Spieler 2 nicht. Am selben Pult, in
-     * derselben Frage, entscheidet allein, wer gerade antworten darf.
+     * Player 1 has used theirs, player 2 has not. At the same desk, in the
+     * same question, only who is currently allowed to answer decides.
      */
     const harness = rig()
     startGame(harness)
@@ -865,7 +865,7 @@ describe('when the desk may offer a draw', () => {
     buzzIn(harness, 'player-1')
     expect(mayDraw(harness)).toBe(false)
 
-    // Zuschlag zuruecknehmen und dem anderen Spieler geben.
+    // Withdraw the buzz and give it to the other player.
     harness.dispatch({ type: 'RESET_BUZZER' })
     harness.dispatch({ type: 'BUZZ', playerId: 'player-2' })
     expect(mayDraw(harness)).toBe(true)
@@ -876,7 +876,7 @@ describe('when the desk may offer a draw', () => {
     startGame(harness)
     releaseRound(harness)
 
-    // Antworten stehen, Frage laeuft - aber der Joker gehoert niemandem.
+    // Answers stand, question is running - but the joker belongs to nobody.
     expect(mayDraw(harness)).toBe(false)
   })
 
@@ -887,11 +887,11 @@ describe('when the desk may offer a draw', () => {
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
 
-    // Die Zwischenanimation laeuft - hier ist nichts mehr zu holen.
+    // The interstitial animation is running - there is nothing left to get here.
     expect(harness.state!.phase).toBe('attempt-feedback')
     expect(mayDraw(harness)).toBe(false)
 
-    // Und danach, in der zweiten Chance des anderen Spielers, wieder schon.
+    // And afterwards, in the other player's second chance, it is again.
     harness.settle()
     expect(harness.state!.phase).toBe('second-chance')
     expect(mayDraw(harness)).toBe(true)
@@ -939,10 +939,10 @@ describe('when the desk may offer a draw', () => {
 
   it('says the same thing in the view model as in the command list', () => {
     /*
-     * DIE EINE BEDINGUNG. Das Pult rendert auf `allowedCommands`, die
-     * Begruendung steht in `joker.canDraw` - laufen die beiden auseinander,
-     * steht am Pult ein Knopf, den der Server ablehnt, oder es fehlt einer, den
-     * er annaehme.
+     * THE ONE CONDITION. The desk renders on `allowedCommands`, the
+     * justification lives in `joker.canDraw` - if the two drift apart, the
+     * desk shows a button the server rejects, or one is missing that it
+     * would accept.
      */
     const harness = rig()
     startGame(harness)

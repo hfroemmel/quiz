@@ -69,7 +69,7 @@ test.describe('answers a 50:50 has taken away', () => {
     for (const row of after.filter((row) => row.eliminated !== 'true')) {
       expect(row.opacity).toBe('1')
     }
-    // Und ohne Strich: Die Zeile tritt zurueck, sie wird nicht ueberzeichnet.
+    // And without a line: the row recedes, it is not overdrawn.
     await expect(page.locator('[data-answer-strike]')).toHaveCount(0)
   })
 

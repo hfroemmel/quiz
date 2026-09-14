@@ -1,22 +1,23 @@
 /**
- * Frageszene fuer Text- und bildgestuetztes Multiple Choice.
+ * Question scene for text-based and image-based multiple choice.
  *
- * Aufbau nach Entwurf:
- *   mit Bild     Bild links, Rubrik und Frage rechts daneben, Antworten darunter
- *   ohne Bild    Rubrik und Frage ueber die volle Breite
- *   `person`     das Portraet gross links, alles andere rechts daneben
+ * Layout by design:
+ *   with image     image on the left, category and question beside it,
+ *                  answers below
+ *   without image  category and question span the full width
+ *   `person`       the portrait large on the left, everything else beside it
  *
- * Welche Anordnung gilt, entscheidet `QuestionComposition` anhand des Fragetyps -
- * diese Szene kennt den Unterschied nicht.
+ * Which layout applies is decided by `QuestionComposition` based on the
+ * question type - this scene does not know the difference.
  *
- * Die Optionsreihenfolge kommt vom Server (pro Spiel gemischt); der Client sortiert
- * nichts um. Sie erscheinen erst, wenn der Server sie mitsendet - also nach
- * "Starten". Der Zustand einer Option kommt ebenfalls vom Server.
+ * The option order comes from the server (shuffled per game); the client
+ * does not re-sort anything. They only appear once the server sends them -
+ * i.e. after "Starten". An option's state likewise comes from the server.
  *
- * AM TOUCHGERAET SIND DIESELBEN ZEILEN SCHALTFLAECHEN. Sie stehen genau einmal
- * da; wer sie antippen darf, sagt `answering`. Eine eigene Liste je Spieler gab
- * es frueher - vier Antworten standen dann doppelt auf dem Tisch, und getippt
- * werden konnte nur auf einer der beiden Fassungen.
+ * ON THE TOUCH DEVICE THE SAME ROWS ARE BUTTONS. They exist exactly once;
+ * `answering` says who is allowed to tap them. There used to be a separate
+ * list per player - four answers then sat on the table twice, and tapping
+ * only worked on one of the two versions.
  */
 import { answerRows } from '../stage/answerState'
 import { QuestionComposition } from '../stage/QuestionComposition'

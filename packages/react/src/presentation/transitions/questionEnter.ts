@@ -1,12 +1,12 @@
 /**
- * Auftritt einer neuen Frage.
+ * Entrance of a new question.
  *
- * Betrifft: Wechsel in die Frage-, Video- und Bilderkennen-Szene.
- * Animiert werden Fragetext (`question-prompt`) und Antwortkacheln (`option-card`);
- * die Kacheln laufen mit `optionStaggerMs` nacheinander ein.
+ * Affects: the switch into the question, video and image-reveal scenes.
+ * The question prompt (`question-prompt`) and answer tiles (`option-card`)
+ * are animated; the tiles run in one after another with `optionStaggerMs`.
  *
- * Wichtig: Die Buzzer-Freigabe haengt NICHT an dieser Animation. Der Server
- * entscheidet ueber `OPEN_BUZZER`, wann gebuzzert werden darf.
+ * Important: the buzzer being opened does NOT depend on this animation. The
+ * server decides via `OPEN_BUZZER` when buzzing is allowed.
  */
 import { easings, presentationTiming } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'

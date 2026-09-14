@@ -1,27 +1,29 @@
 /**
- * Bilderkennen mit synchroner Aufloesung (Spezifikation 10).
+ * Image guessing with synchronous reveal (spec 10).
  *
- * Das Bild liegt unter einer Decke aus Kacheln, die eine nach der anderen
- * verschwindet. Sie IST die Uhr: Wer sehen will, wie viel Zeit bleibt, sieht auf
- * das Bild. Eine Zahl daneben gab es frueher, sie ist bewusst entfallen - der
- * Saal soll auf das Motiv schauen, nicht auf einen Zaehler.
+ * The image sits under a cover of tiles that disappear one after another. It
+ * IS the clock: anyone wanting to see how much time is left looks at the
+ * image. There used to be a number beside it; it was deliberately dropped -
+ * the room should look at the picture, not at a counter.
  *
- * NEBEN DEM BILD STEHT NICHTS. Frueher stand hier ein Regievermerk fuer die
- * Vorschau (`pausiert`, `Buzzern weiterhin möglich`). Er kam und ging mit der
- * Phase und schob dabei das Motiv zur Seite - ausgerechnet in dem Moment, in
- * dem alle darauf schauen. Was er sagte, steht ohnehin in der Bedienleiste.
+ * NOTHING ELSE STANDS NEXT TO THE IMAGE. There used to be a director's note
+ * here for the preview (`pausiert`, `Buzzern weiterhin möglich`). It came and
+ * went with the phase and pushed the picture aside while doing so - right at
+ * the moment everyone is looking at it. What it said is in the control bar
+ * anyway.
  *
- * ABLEITUNG DER AUFLOESUNG: `reveal.progress` kommt aus `useRevealClock` und damit
- * aus dem Serverzustand. Hier darf niemals eine eigene CSS-Animation das
- * Aufdecken steuern - sonst liefe das Bild gegen die Uhr des Servers, und ein
- * Spieler bekaeme einen Informationsvorteil.
+ * DERIVING THE REVEAL: `reveal.progress` comes from `useRevealClock` and
+ * thus from server state. No CSS animation of its own may ever drive the
+ * reveal here - otherwise the picture would run against the server's clock,
+ * and a player could gain an information advantage.
  *
- * Am Bild selbst aendert sich nichts: kein Zoom, keine Bewegung (bestaetigte
- * Designvorgabe).
+ * Nothing changes about the image itself: no zoom, no motion (confirmed
+ * design decision).
  *
- * VERHALTEN BEI PAUSE UND RECONNECT: Pausiert der Server die Enthuellung, friert
- * der Wert ein, weil `status !== 'running'` keine Weiterrechnung erlaubt. Nach
- * einem Reconnect uebernimmt der naechste Snapshot sofort wieder den Serverstand.
+ * BEHAVIOUR ON PAUSE AND RECONNECT: if the server pauses the reveal, the
+ * value freezes, because `status !== 'running'` disallows any further
+ * advance. After a reconnect, the next snapshot immediately takes over the
+ * server's state again.
  */
 import { revealGrid } from '@hfroemmel/quiz-core'
 import { Media } from '../stage/Media'

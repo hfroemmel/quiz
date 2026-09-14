@@ -1,26 +1,26 @@
 /**
- * Klaenge, die sich aus dem Zustand ergeben - nicht aus einem Klick.
+ * Sounds that follow from the state - not from a click.
  *
- * Der Szenenwechsel bringt seine Soundmarke aus dem Uebergangsregistry mit. Alles
- * andere passiert INNERHALB einer Szene und braucht deshalb einen eigenen Blick
- * auf den Snapshot:
+ * The scene change brings its own sound cue from the transition registry.
+ * Everything else happens INSIDE a scene and therefore needs its own look at
+ * the snapshot:
  *
- *   Antworten eingeblendet   sichtbare Optionen wechseln von keiner auf welche
- *   Antwort eingeloggt       eine Option bekommt den Zustand `chosen`
- *   Buzzer betaetigt         die Phase wechselt auf `answer-locked`
+ *   Answers faded in       visible options change from none to some
+ *   Answer logged          an option gets the `chosen` state
+ *   Buzzer pressed          the phase switches to `answer-locked`
  *
- * Der Buzzerklang haengt bewusst am Phasenwechsel des Servers: Ein Tastendruck bei
- * gesperrtem Buzzer wird abgewiesen - und bleibt damit auch still.
+ * The buzzer sound deliberately hangs off the server's phase change: a key
+ * press on a locked buzzer is rejected - and therefore stays silent too.
  *
- * Die Entscheidung selbst steht als reine Funktion darunter (`klaengeFuer`),
- * damit sie ohne Browser pruefbar ist; der Hook fuehrt nur Buch darueber, was
- * zuletzt galt.
+ * The decision itself lives as a pure function below (`soundsFor`), so that
+ * it is testable without a browser; the hook only keeps track of what applied
+ * last.
  */
 import { useEffect, useRef } from 'react'
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import type { SoundCueId } from './soundCues'
 
-/** Was von einem Snapshot uebrig bleiben muss, um den naechsten zu beurteilen. */
+/** What has to survive from a snapshot in order to judge the next one. */
 export interface SoundState {
   optionCount: number
   chosenOptionId: string | undefined
@@ -36,18 +36,18 @@ export function soundState(view: PublicQuizViewModel): SoundState {
 }
 
 /**
- * Die Klaenge, die der Schritt von `vorher` nach `jetzt` ausloest.
+ * The sounds triggered by the step from `before` to `now`.
  *
- * IM EINZELSPIEL GIBT ES KEINEN BUZZERKLANG - nirgends und nie. Es gibt dort
- * auch keinen Buzzer: Der erste Fingertipp auf eine Antwort holt sich den
- * Zuschlag selbst, und die Buehne quittierte diesen Tipp bisher mit zwei
- * Klaengen uebereinander - dem Auswahlton und dem Buzzer. Gehoert hat sich das
- * wie ein Fehler, und der Buzzer ist der falsche von beiden: Er meldet, dass
- * jemand einem anderen zuvorgekommen ist, und niemand ist da.
+ * IN SOLO PLAY THERE IS NO BUZZER SOUND - nowhere and never. There is no
+ * buzzer there either: the first tap on an answer claims the buzz for itself,
+ * and until now the stage acknowledged that tap with two sounds on top of
+ * each other - the selection tone and the buzzer. That sounded like a bug,
+ * and the buzzer is the wrong one of the two: it announces that someone beat
+ * someone else to it, and there is no one else there.
  *
- * Im Duell bleibt er unveraendert. Die Phase `answer-locked` wird ausschliesslich
- * durch einen angenommenen Buzz erreicht (siehe `claimPlayer` in der Engine),
- * der Klang haengt damit weiter genau am Buzzern.
+ * In the duel it stays unchanged. The `answer-locked` phase is reached
+ * exclusively through an accepted buzz (see `claimPlayer` in the engine), so
+ * the sound continues to hang precisely off the buzz.
  */
 export function soundsFor(before: SoundState, now: SoundState, player: number): SoundCueId[] {
   const sounds: SoundCueId[] = []

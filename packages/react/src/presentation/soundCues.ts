@@ -1,30 +1,31 @@
 /**
- * Sound-Cues (Spezifikation 27.1).
+ * Sound cues (specification 27.1).
  *
- * Die Klaenge kommen als Audiodateien aus `packages/react/src/assets/audio/` und stehen
- * in einer STATISCHEN Registry (`new URL(..., import.meta.url)`): Jeder Bundler
- * emittiert die Dateien damit als eigene Artefakte - `import.meta.glob` waere
- * eine Vite-Sonderlocke und stuende der Bibliothekswerdung im Weg. Dass Registry
- * und Ordner uebereinstimmen, haelt `packages/react/test/audio.test.ts` fest; ein zur
- * Laufzeit fehlendes Soundfile bleibt still und blockiert nichts.
+ * The sounds come as audio files from `packages/react/src/assets/audio/` and
+ * sit in a STATIC registry (`new URL(..., import.meta.url)`): every bundler
+ * thereby emits the files as its own artefacts - `import.meta.glob` would be
+ * a Vite-specific quirk and would stand in the way of becoming a library. That
+ * the registry and the folder match is pinned down by
+ * `packages/react/test/audio.test.ts`; a sound file missing at runtime stays
+ * silent and blocks nothing.
  *
- * NUR DER AUDIO-MASTER SPIELT AB. Welcher Client das ist, entscheidet der Server
- * (`client-info`-Nachricht); entfernte Praesentationsclients starten stumm, damit
- * Sounds nicht mehrfach zeitversetzt zu hoeren sind.
+ * ONLY THE AUDIO MASTER PLAYS BACK. Which client that is is decided by the
+ * server (the `client-info` message); remote presentation clients start muted,
+ * so that sounds are not heard multiple times with an offset.
  *
- * ALLE CUES SIND ZUSTANDSABGELEITET. Sie haengen am Serverzustand, nicht an einem
- * Klick: Der Operator klickt, der Server entscheidet, und erst der neue Snapshot
- * loest den Klang aus. Ein abgewiesener Befehl bleibt deshalb still.
+ * ALL CUES ARE STATE-DERIVED. They hang off the server state, not off a
+ * click: the operator clicks, the server decides, and only the new snapshot
+ * triggers the sound. A rejected command therefore stays silent.
  */
 
 export const soundCueIds = [
-  /** Ein Spieler hat den Zuschlag bekommen. */
+  /** A player has been awarded the buzz. */
   'buzz',
-  /** Eine neue Frage erscheint. */
+  /** A new question appears. */
   'question-appear',
-  /** Die Antwortmoeglichkeiten werden eingeblendet. */
+  /** The answer options are faded in. */
   'options-appear',
-  /** Eine Antwort wurde eingeloggt. */
+  /** An answer has been logged. */
   'answer-logged',
   'answer-correct',
   'answer-incorrect',
@@ -36,11 +37,11 @@ export const soundCueIds = [
 export type SoundCueId = (typeof soundCueIds)[number]
 
 /**
- * Zuordnung Cue -> Datei. Mehrere Dateien spielen gleichzeitig; bei "richtig"
- * liegen Jingle und Applaus uebereinander.
+ * Mapping cue -> file. Several files play at the same time; for "correct"
+ * the jingle and applause overlap.
  *
- * Sie ist exportiert, damit ein Test sie gegen den Ordner haelt: Was hier steht,
- * muss es geben, und was es gibt, darf kein Countdown- oder Weckerton sein
+ * It is exported so that a test checks it against the folder: what stands
+ * here has to exist, and what exists must not be a countdown or alarm sound
  * (`packages/react/test/audio.test.ts`).
  */
 export const cueFilesForTest: Record<SoundCueId, string[]> = {
@@ -57,10 +58,10 @@ export const cueFilesForTest: Record<SoundCueId, string[]> = {
 }
 
 /**
- * Vorhandene Audiodateien - eine je Zeile, bundlerneutral adressiert.
+ * Existing audio files - one per line, addressed bundler-neutrally.
  *
- * `audio.test.ts` haelt diese Liste gegen den Ordner: Was hier steht, muss es
- * geben, und was im Ordner liegt, muss hier stehen.
+ * `audio.test.ts` checks this list against the folder: what stands here has
+ * to exist, and what is in the folder has to stand here.
  */
 const urlByName = new Map<string, string>([
   ['applause.wav', new URL('../assets/audio/applause.wav', import.meta.url).href],
@@ -73,10 +74,10 @@ const urlByName = new Map<string, string>([
   ['wrong.mp3', new URL('../assets/audio/wrong.mp3', import.meta.url).href],
 ])
 
-/** Nur fuer den Bestandstest: die Namen der registrierten Dateien. */
+/** Only for the inventory test: the names of the registered files. */
 export const registeredAudioFilesForTest = [...urlByName.keys()]
 
-/** Fehlende Dateien werden einmal gemeldet, nicht bei jedem Abspielen. */
+/** Missing files are reported once, not on every playback. */
 const reportedMissing = new Set<string>()
 
 const elements = new Map<string, HTMLAudioElement>()
@@ -100,8 +101,8 @@ function elementFor(name: string): HTMLAudioElement | null {
 }
 
 /**
- * Spielt einen Cue ab. Fehler werden bewusst verschluckt: Ein Soundproblem darf
- * niemals den Live-Ablauf stoppen.
+ * Plays a cue. Errors are deliberately swallowed: a sound problem must
+ * never stop the live show.
  */
 export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioMaster: boolean }): void {
   if (!options.enabled || !options.isAudioMaster) return
@@ -111,8 +112,8 @@ export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioM
     if (!element) continue
     try {
       /*
-       * Ein noch laufender Cue wird nicht abgewuergt, sondern parallel gespielt.
-       * Zwei schnelle Buzzer hintereinander sollen beide klingen.
+       * A cue still running is not choked off but played in parallel. Two
+       * fast buzzes in a row should both sound.
        */
       const instance = element.paused ? element : (element.cloneNode() as HTMLAudioElement)
       instance.currentTime = 0
@@ -124,17 +125,17 @@ export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioM
 }
 
 /**
- * Gibt alle Klangdateien wieder frei.
+ * Releases all sound files again.
  *
- * WOFUER: Als Gast in einer fremden Anwendung wird das Quiz eingesetzt und
- * wieder entfernt - womoeglich oft. Jedes `Audio`-Element haelt einen eigenen
- * Puffer und ueberlebt das Entfernen der Komponente, weil es hier in einer Karte
- * liegt und nicht im Baum. Ohne dieses Aufraeumen bliebe von jedem Besuch etwas
- * zurueck.
+ * WHAT FOR: the quiz is deployed as a guest inside a foreign application and
+ * removed again - possibly often. Every `Audio` element holds its own
+ * buffer and survives the component's removal, because it lives here in a
+ * map and not in the tree. Without this cleanup, something would remain
+ * behind from every visit.
  *
- * Danach klingt weiterhin alles: Beim naechsten Cue werden die Elemente neu
- * angelegt. Verloren geht nur die Freigabe durch die Nutzerinteraktion - die
- * Ansicht holt sie sich beim naechsten Einsetzen erneut.
+ * Everything still sounds afterwards: on the next cue the elements are
+ * recreated. Only the unlock granted by the user interaction is lost - the
+ * view fetches it again the next time it is mounted.
  */
 export function releaseAudio(): void {
   for (const element of elements.values()) {
@@ -150,18 +151,18 @@ export function releaseAudio(): void {
 }
 
 /**
- * Gibt die Tonausgabe frei.
+ * Releases audio output.
  *
- * Browser erlauben Audio erst, nachdem in DIESEM Dokument eine Nutzerinteraktion
- * stattgefunden hat. `load()` allein genuegt dafuer nicht - erst ein `play()`
- * innerhalb der Interaktion hebt die Sperre. Deshalb wird jedes Element hier
- * stumm angespielt und sofort wieder zurueckgesetzt: hoerbar ist nichts, aber der
- * spaetere Cue darf klingen.
+ * Browsers only allow audio once a user interaction has happened in THIS
+ * document. `load()` alone is not enough for that - only a `play()` inside
+ * the interaction lifts the lock. That is why every element here is played
+ * muted and immediately reset: nothing is audible, but the later cue is
+ * allowed to sound.
  *
- * Das muss in jedem Fenster passieren, das Ton ausgeben kann - Operator UND
- * Buehne. Im Buehnenfenster der Desktop-Anwendung ist die Wiedergabe ohnehin
- * ausdruecklich erlaubt (siehe die Electron-Huellen); der Aufruf schadet
- * dort nicht.
+ * This has to happen in every window that can output sound - operator AND
+ * stage. In the desktop application's stage window, playback is explicitly
+ * allowed from the start anyway (see the Electron wrappers); the call does
+ * no harm there.
  */
 export function unlockAudio(): void {
   for (const name of new Set(Object.values(cueFilesForTest).flat())) {

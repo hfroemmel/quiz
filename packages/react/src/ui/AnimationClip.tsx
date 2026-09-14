@@ -1,21 +1,21 @@
 /**
- * Abspielbaustein fuer die gelieferten Bewegtgrafiken.
+ * Playback building block for the delivered motion graphics.
  *
- * Er kennt genau eine Aufgabe: eine Datei aus `animationClips` darstellen.
- * Er liest keinen Spielzustand, sendet keine Befehle und entscheidet nichts
- * ueber Phasen - der fachliche Wechsel haengt niemals daran, ob dieses Video
- * fertig gespielt hat (Spezifikation 22.1).
+ * It knows exactly one job: display a file from `animationClips`. It reads
+ * no game state, sends no commands and decides nothing about phases - the
+ * domain transition never depends on whether this video has finished playing
+ * (specification 22.1).
  *
- * REDUZIERTE BEWEGUNG: Statt die Aussage wegzulassen, wird das Video auf sein
- * Endbild gesetzt und angehalten. Der Zuschauer sieht dann dasselbe Ergebnis -
- * nur ohne Bewegung.
+ * REDUCED MOTION: instead of leaving out the statement, the video is set to
+ * its final frame and paused. The viewer then sees the same result - just
+ * without motion.
  *
- * GROESSE: Der Clip fuellt immer sein Elternelement. Die Groesse bestimmt also
- * die Szene, nicht das Bauteil - so bleibt eine Datei an verschiedenen Stellen
- * unterschiedlich gross, ohne dass es zwei Varianten braucht.
+ * SIZE: the clip always fills its parent element. The scene thus determines
+ * the size, not the component - that way a single file stays a different
+ * size in different places without needing two variants.
  *
- * TON: Die Dateien haben keine Tonspur. Klang kommt ausschliesslich ueber die
- * Soundmarken, die nur der Audio-Master abspielt.
+ * SOUND: the files have no audio track. Sound comes exclusively through the
+ * sound cues, which only the audio master plays.
  */
 import { useEffect, useRef } from 'react'
 import { animationClips, type AnimationClipId } from '../presentation/animationAssets'
@@ -25,7 +25,7 @@ import styles from './AnimationClip.module.css'
 interface AnimationClipProps {
   clipId: AnimationClipId
   className?: string
-  /** Startet die Wiedergabe neu, sobald sich der Wert aendert. */
+  /** Restarts playback as soon as the value changes. */
   restartKey?: string | number
 }
 
@@ -37,13 +37,13 @@ export function AnimationClip({ clipId, className, restartKey }: AnimationClipPr
     const video = videoRef.current
     if (!video) return
     if (prefersReducedMotion()) {
-      // Auf das Endbild springen: Aussage sichtbar, keine Bewegung.
+      // Jump to the final frame: statement visible, no motion.
       video.pause()
       video.currentTime = clip.durationMs / 1000
       return
     }
     video.currentTime = 0
-    // Ein abgelehntes Autoplay darf nichts blockieren - dann steht das erste Bild.
+    // A rejected autoplay must not block anything - then the first frame shows.
     void video.play().catch(() => undefined)
   }, [clip, restartKey])
 

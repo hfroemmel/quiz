@@ -1,126 +1,131 @@
-# Uebernahme des Original-Fragenkatalogs
+# Adoption of the original question catalog
 
-> **Historisch.** Der Katalog liegt seit der Aufteilung des Systems in
+> **Historical.** Since the system split, the catalog lives in
 > [`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data);
-> `content/source` traegt hier einen erzeugten Testbestand. Diese Datei
-> beschreibt weiterhin, WAS uebernommen wurde und welche Eigenheiten der
-> Katalog hat - beides gilt unveraendert, nur der Ort ist ein anderer.
+> `content/source` here carries a generated test fixture set. This file
+> still describes WHAT was adopted and the catalog's particulars - both
+> still apply unchanged, only the location differs.
 
-Der gelieferte Katalog ist uebernommen: er traegt die 199 echten Fragen. Das
-frueher mitgelieferte Beispielpaket ist entfallen.
+The delivered catalog has been adopted: it carries the 199 real questions.
+The previously bundled sample package has been dropped.
 
-Der Ablauf und die Werkzeuge stehen in [`docs/inhalte-import.md`](inhalte-import.md);
-diese Datei haelt fest, was der konkrete Katalog braucht.
+The pipeline and tools are documented in
+[`docs/inhalte-import.md`](inhalte-import.md); this file records what the
+concrete catalog needs.
 
 ```bash
-pnpm content:migrate <pfad>/questions.js   # erzeugt content/migrated/ + Bericht
+pnpm content:migrate <path>/questions.js   # produces content/migrated/ + report
 ```
 
-## Was der Katalog enthaelt
+## What the catalog contains
 
-| Groesse | Wert |
+| Size | Value |
 |---|---|
-| Eintraege | 199 |
-| uebernommen | 199 |
-| Bilderkennen (`image-reveal`) | 64 |
-| Bildgestuetzte Auswahl (`image-choice`) | 128 |
-| Reine Textauswahl (`text-choice`) | 7 |
-| Schwierigkeiten | leicht 63, mittel 85, schwer 51 |
-| Modi | Erwachsene 143, Kinder 56 |
-| Kategorien | 12 |
-| Wiederholungsgruppen erkannt | 8 |
-| referenzierte Bilddateien | 156 |
+| Entries | 199 |
+| adopted | 199 |
+| Image recognition (`image-reveal`) | 64 |
+| Image-based choice (`image-choice`) | 128 |
+| Pure text choice (`text-choice`) | 7 |
+| Difficulties | leicht (easy) 63, mittel (medium) 85, schwer (hard) 51 |
+| Modes | adults 143, children 56 |
+| Categories | 12 |
+| Repeat groups detected | 8 |
+| Referenced image files | 156 |
 
-Der Legacy-Katalog fuehrt alle Bildfragen als bildgestuetzte Auswahl, und dabei
-bleibt es: Die Anordnung `person` ist eine Gestaltungsentscheidung der Redaktion
-und wird von der Migration nie gesetzt. Im Bestand traegt sie derzeit nur die
-Testfrage `test-person`. Die Kategorie `person` hat damit nichts zu tun - sie
-sagt, worum es geht, nicht, wie die Frage aussieht.
+The legacy catalog lists all image questions as image-based choice, and that
+stays as is: the `person` layout is an editorial design decision and is
+never set by the migration. In the current set, only the test question
+`test-person` carries it. The `person` category has nothing to do with this -
+it says what the question is about, not what the question looks like.
 
-Verteilung der Kategorien: Saarbruecken 64, Institution 36, Person 24, Gebaeude 18,
-Geschichte 13, Aemter 12, Recht 10, Wahl 9, Begriffe 5, Kurioses 4, Erdkunde 2,
-Fahnen und Symbole 2.
+Category distribution: Saarbrücken 64, Institution 36, Person 24, Gebäude
+(building) 18, Geschichte (history) 13, Ämter (offices) 12, Recht (law) 10,
+Wahl (election) 9, Begriffe (terms) 5, Kurioses (trivia) 4, Erdkunde
+(geography) 2, Fahnen und Symbole (flags and symbols) 2.
 
-## Was die Migration selbst korrigiert
+## What the migration corrects itself
 
-| Fall | Behandlung |
+| Case | Handling |
 |---|---|
-| `level` statt `difficulty` | uebernommen, im Bericht vermerkt |
-| `mittel` / `Kids` | auf `medium` / `kids` normalisiert, im Bericht vermerkt |
-| `img_filename`, `img_credit` | Datei und Bildnachweis am Medium hinterlegt |
-| `source_reference` | inhaltliche Quellenangabe an der Erlaeuterung, **nicht** als Bildnachweis |
-| `playCount` | verworfen - Nutzungen fuehrt der Server |
-| einzige Option beim Bilderkennen | wird zur erwarteten Antwort, **nicht** zu einer sichtbaren Antwortleiste |
-| IDs mit Umlauten | normalisiert (`Saarbrücken` zu `saarbruecken`) |
+| `level` instead of `difficulty` | adopted, noted in the report |
+| `mittel` / `Kids` | normalized to `medium` / `kids`, noted in the report |
+| `img_filename`, `img_credit` | file and image credit stored on the medium |
+| `source_reference` | recorded as content source reference on the explanation, **not** as an image credit |
+| `playCount` | discarded - usage is tracked by the server |
+| single option in image recognition | becomes the expected answer, **not** a visible answer bar |
+| IDs with umlauts | normalized (`Saarbrücken` to `saarbruecken`) |
 
-Die Umwandlung der einzigen Legacy-Option ist der wichtigste Punkt: Beim
-Bilderkennen gibt es keine Auswahl. Waere die Option erhalten geblieben, stuende
-die Loesung von der ersten Sekunde an auf der Buehne.
+Converting the single legacy option is the most important point: there is no
+selection in image recognition. Had the option been kept, the solution would
+have stood on the stage from the first second.
 
-## Fehlende Bilder: Ersatzbild statt Blockade
+## Missing images: replacement image instead of a block
 
-Die 156 Bilddateien des Katalogs liegen noch nicht vor. Statt darauf zu warten,
-laeuft die Entwicklung mit einem erzeugten Ersatzbild:
+The catalog's 156 image files do not yet exist. Rather than waiting for
+them, development runs with a generated replacement image:
 
-| Ebene | Verhalten |
+| Level | Behavior |
 |---|---|
-| Validierung | `pnpm content:validate` meldet eine fehlende Datei weiterhin als **Fehler** |
-| Validierung mit `--placeholder-media` | meldet sie als Warnung; dafuer gibt es `pnpm content:validate:dev` und `pnpm content:build:dev` |
-| Server | liefert unter der Asset-Adresse ein erzeugtes SVG mit dem gesuchten Dateinamen aus |
-| Operator | bekommt fuer jede fehlende Datei eine Warnung in der Diagnose |
+| Validation | `pnpm content:validate` still reports a missing file as an **error** |
+| Validation with `--placeholder-media` | reports it as a warning; that's what `pnpm content:validate:dev` and `pnpm content:build:dev` are for |
+| Server | serves a generated SVG with the requested file name at the asset address |
+| Operator | gets a warning in the diagnostics for every missing file |
 
-Damit ist die Luecke sichtbar, aber nicht blockierend. Sobald die Bilder unter
-`content/source/assets/questions/` liegen, verschwinden Warnung und Ersatzbild ohne
-weitere Aenderung - die Dateinamen stehen bereits in `assets.json`.
+This makes the gap visible without blocking it. As soon as the images are
+placed under `content/source/assets/questions/`, the warning and the
+replacement image disappear without further changes - the file names are
+already in `assets.json`.
 
-Der Livebetrieb bleibt geschuetzt: `pnpm build` verwendet die strenge Pruefung
-und bricht bei fehlenden Medien ab.
+Live operation stays protected: `pnpm build` uses strict validation and
+aborts on missing media.
 
-## Was noch menschliche Entscheidung braucht
+## What still needs a human decision
 
-1. **Richtige Antwort.** In den Altdaten ist `option_1` immer die richtige
-   Antwort. Die Migration uebersetzt das genau einmal in eine explizite
-   `correctOptionId`; beim Bau werden die Optionen gemischt. Eine Stichprobe
-   sollte das bestaetigen, bevor das Paket in den Livebetrieb geht.
+1. **Correct answer.** In the legacy data, `option_1` is always the correct
+   answer. The migration translates this exactly once into an explicit
+   `correctOptionId`; options are shuffled at build time. A spot check
+   should confirm this before the package goes into live operation.
 
-2. **16 Bilder ohne Bildnachweis.** Vor einer Veranstaltung ist zu klaeren, ob
-   sie ohne Nachweis gezeigt werden duerfen.
+2. **16 images without an image credit.** Before an event, it needs to be
+   clarified whether they may be shown without credit.
 
-3. **Eine Frage ist deaktiviert.** Frage 151 ("Sprachgrenze im Saarland") hat nur
-   drei statt vier Antwortoptionen. Sie steht als Vorlage im Bestand, ist aber
-   `enabled: false` und wird nicht gespielt. Sobald die vierte Option ergaenzt
-   ist, genuegt das Umschalten des Feldes.
+3. **One question is disabled.** Question 151 ("Sprachgrenze im Saarland" -
+   language border in Saarland) has only three instead of four answer
+   options. It stands as a template in the set but is `enabled: false` and
+   is not played. Once the fourth option is added, flipping the field is
+   enough.
 
-4. **Zwei Fragen mit doppeltem Antworttext** und 42 Fragen ohne Erklaerungstext
-   sind als Warnung im Bericht vermerkt - beides ist redaktionell, nicht technisch.
+4. **Two questions with duplicate answer text** and 42 questions without
+   explanation text are noted as warnings in the report - both are
+   editorial, not technical.
 
-5. **Modus Saarbruecken** - bestaetigt: Der Modus zieht seine Fragen ueber die
-   Kategorie `saarbruecken` aus beiden Legacy-Modi (64 Fragen). An den Fragen ist
-   dafuer nichts zu aendern.
+5. **Saarbrücken mode** - confirmed: the mode draws its questions via the
+   category `saarbruecken` from both legacy modes (64 questions). Nothing
+   needs to change on the questions for this.
 
-## Fragenplaetze der Presets
+## Question slots of the presets
 
-Die sieben Plaetze je Spiel sind auf den echten Bestand ausgelegt. Kein Platz
-hat weniger als acht Kandidaten - die Validierung meldet keine knappen Pools.
+The seven slots per game are designed for the real content set. No slot has
+fewer than eight candidates - validation reports no tight pools.
 
-| Preset | Modi | Aufbau der Plaetze |
+| Preset | Modes | Slot layout |
 |---|---|---|
-| `easy` | Erwachsene, Kinder | Einstieg leicht, Wissen leicht, Bilderkennen, Vertiefung, Steigerung, Bildauswahl, Finale |
-| `medium` | Erwachsene | Einstieg leicht, Wissen mittel, Bilderkennen, Parlament und Personen, Steigerung, Bildauswahl, Finale schwer |
-| `hard` | Erwachsene | wie `medium`, aber durchgehend eine Stufe haerter |
-| `mixed` | Erwachsene, Kinder | ohne Schwierigkeitsfilter, gemischt nach Typ und Kategorie |
-| `regional` | Saarbruecken | sieben Plaetze innerhalb der Kategorie Saarbruecken |
+| `easy` | adults, children | Easy intro, easy knowledge, image recognition, deep dive, step-up, image choice, finale |
+| `medium` | adults | Easy intro, medium knowledge, image recognition, parliament and people, step-up, image choice, hard finale |
+| `hard` | adults | like `medium`, but one level harder throughout |
+| `mixed` | adults, children | no difficulty filter, mixed by type and category |
+| `regional` | Saarbrücken | seven slots within the Saarbrücken category |
 
-Platz 1 ist immer eine Auswahlfrage und Platz 3 immer eine Bilderkennen-Frage.
-Darauf verlassen sich die End-to-End-Tests; wer die Reihenfolge aendert, zieht
-sie mit.
+Slot 1 is always a choice question and slot 3 is always an image-recognition
+question. The end-to-end tests rely on this; whoever changes the order must
+update them too.
 
-## Wenn die Bilder eintreffen
+## When the images arrive
 
-1. Dateien nach `content/source/assets/questions/` legen - die Namen stehen in
-   `content/source/assets.json`
-2. `pnpm content:validate` (ohne Flag) ausfuehren; die Warnungen zu fehlenden
-   Medien muessen verschwinden
+1. place the files under `content/source/assets/questions/` - the names are
+   in `content/source/assets.json`
+2. run `pnpm content:validate` (without a flag); the warnings about missing
+   media must disappear
 3. `pnpm content:build`
 
-Ein erneuter Migrationslauf ist dafuer nicht noetig.
+A fresh migration run is not needed for this.

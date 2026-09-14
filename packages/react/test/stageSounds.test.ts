@@ -1,9 +1,9 @@
 /**
- * Die Klangregeln der Buehne - ohne Browser.
+ * The stage's sound rules - without a browser.
  *
- * Geprueft wird die reine Entscheidung, nicht der Hook: Was ein Schritt von
- * einem Zustand zum naechsten ausloest, haengt an nichts als diesen beiden
- * Zustaenden und der Zahl der Spieler.
+ * What is tested is the pure decision, not the hook: what a step from one
+ * state to the next triggers depends on nothing but these two states and the
+ * number of players.
  */
 import { describe, expect, it } from 'vitest'
 import { soundsFor, type SoundState } from '../src/presentation/useStageSounds'
@@ -42,9 +42,9 @@ describe('klaengeFuer', () => {
 
   it('laesst im Einzelspiel den Auswahlton unberuehrt', () => {
     /*
-     * Der Fingertipp auf eine Antwort holt dort Zuschlag und Antwort in einem
-     * Zug: Phase und Auswahl wechseln im selben Schritt. Zu hoeren ist genau
-     * ein Klang - der der Auswahl.
+     * The tap on an answer there claims the buzz and the answer in one move:
+     * phase and selection change in the same step. Exactly one sound is
+     * heard - that of the selection.
      */
     const open = state({ optionCount: 4, phase: 'buzzer-open' })
     const tapped = state({ optionCount: 4, chosenOptionId: 'a', phase: 'answer-locked' })

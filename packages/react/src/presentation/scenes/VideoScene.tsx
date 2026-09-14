@@ -1,29 +1,31 @@
 /**
- * Der Videoteil einer Videofrage (Spezifikation 12).
+ * The video part of a video question (spec 12).
  *
- * Das Video gehoert zu DERSELBEN Frage wie die Antworten danach, es ist keine
- * eigene Frage. Waehrend es laeuft, ist der Buzzer serverseitig gesperrt.
+ * The video belongs to the SAME question as the answers that follow it, it
+ * is not a question of its own. While it plays, the buzzer is locked
+ * server-side.
  *
- * DER ABLAUF GEHT IN EINE RICHTUNG. Der Server veroeffentlicht einen Auftrag
- * (`view.video`), diese Szene fuehrt ihn aus, und damit ist der Weg zu Ende. Was
- * hier passiert - laedt, laeuft, ist durch -, erfaehrt niemand sonst: kein
- * Befehl zurueck, kein Status im Serverzustand, keine Anzeige am Pult. Der
- * Operator braucht davon nichts, um weiterzumachen.
+ * THE FLOW RUNS IN ONE DIRECTION. The server publishes a directive
+ * (`view.video`), this scene carries it out, and that is the end of the
+ * path. What happens here - loads, plays, is done - is not reported to
+ * anyone else: no command back, no status in the server state, no display at
+ * the operator's desk. The operator needs none of it to move on.
  *
- * DER AUFTRAG IST EINE KENNUNG, KEIN ZUSTAND. Gemerkt wird lokal, welcher
- * Auftrag zuletzt ausgefuehrt wurde - Frage und Kennung zusammen:
+ * THE DIRECTIVE IS AN IDENTIFIER, NOT STATE. What is remembered locally is
+ * which directive was last carried out - question and identifier together:
  *
- *   gleicher Auftrag -> nichts tun (Rerender, wiederholter Schnappschuss)
- *   neuer Auftrag    -> von Sekunde null starten
+ *   same directive -> do nothing (re-render, repeated snapshot)
+ *   new directive  -> start from second zero
  *
- * Damit ist auch das Wiederverbinden geklaert, ohne dass es ein Sonderfall
- * waere: Eine Buehne, die neu laedt, kennt noch keine Kennung und fuehrt den
- * stehenden Auftrag genau einmal aus.
+ * That also settles reconnecting without it being a special case: a stage
+ * that reloads knows no identifier yet and carries out the standing
+ * directive exactly once.
  *
- * ABGESPIELT WIRD NUR, WO JEMAND ZUSCHAUT: auf der Buehne und am Touchgeraet.
- * Die Operatorvorschau zeigt dieselbe Flaeche in derselben Groesse, aber leer -
- * ein zweites Medium kostete Rechenzeit auf demselben Rechner und liefe
- * unweigerlich auseinander. Was der Saal sieht, steht auf der Buehne.
+ * PLAYBACK ONLY HAPPENS WHERE SOMEONE IS WATCHING: on the stage and on the
+ * touch device. The operator's preview shows the same area at the same
+ * size, but empty - a second media element would cost compute time on the
+ * same machine and would inevitably drift out of sync. What the room sees is
+ * what is on the stage.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Command } from '@hfroemmel/quiz-core'
@@ -32,28 +34,29 @@ import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 interface VideoSceneProps extends SceneProps {
-  /** Nur der Audio-Master spielt den Ton ab. */
+  /** Only the audio master plays the sound. */
   isAudioMaster?: boolean
   /**
-   * Befehl des Geraets an den Server - nur am Touchgeraet in Gebrauch.
+   * The device's command to the server - used only on the touch device.
    *
-   * Die Buehne meldet NICHTS zurueck. Am Touchgeraet gibt es aber keinen
-   * Operator: Dort ist das Geraet sein eigenes Pult und blendet nach dem Video
-   * selbst die Frage ein.
+   * The stage reports NOTHING back. On the touch device, though, there is no
+   * operator: there, the device is its own control desk and shows the
+   * question itself after the video.
    */
   onCommand?: (command: Command) => void
 }
 
 /**
- * Der zuletzt ausgefuehrte Auftrag - MODULWEIT, nicht in der Komponente.
+ * The last directive carried out - MODULE-WIDE, not in the component.
  *
- * Die Buehne baut den Szenenknoten bei jedem Uebergang neu auf (er haengt an der
- * Kennung des Uebergangs). Laege der Merker in der Komponente, verschwaende er
- * dabei, und derselbe Auftrag liefe mitten im Video ein zweites Mal los. Hier
- * ueberlebt er den Neuaufbau - und faellt genau dann weg, wenn er soll: beim
- * Neuladen der Seite, wo der stehende Auftrag nachgeholt werden MUSS.
+ * The stage rebuilds the scene node on every transition (it is keyed on the
+ * transition's id). If this marker lived in the component, it would vanish
+ * along with it, and the same directive would start over a second time in
+ * the middle of the video. Here it survives the rebuild - and is dropped
+ * exactly when it should be: on reloading the page, where the standing
+ * directive MUST be caught up on.
  *
- * Ein Fenster zeigt eine Buehne, deshalb genuegt ein Wert.
+ * One window shows one stage, so a single value is enough.
  */
 let lastExecuted: string | null = null
 
@@ -64,15 +67,15 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
   const request = view.video
   const plays = variant !== 'preview'
   /*
-   * Am Touchgeraet steht niemand, der "Frage einblenden" druecken koennte -
-   * dort geht es nach dem Video von selbst weiter. Im Saal gehoert dieser
-   * Schritt dem Operator, und die Buehne schickt keinen einzigen Befehl.
+   * On the touch device nobody stands there to press "Frage einblenden" -
+   * there, it moves on by itself after the video. In the room this step
+   * belongs to the operator, and the stage sends not a single command.
    */
   const advancesItself = variant === 'touch'
   /*
-   * Genau EINMAL je Frage. Der Befehl waere zwar beim zweiten Mal abgewiesen
-   * (die Phase ist dann vorbei), aber ein Geraet, das dieselbe Bitte mehrfach
-   * schickt, ist ein Geraet, das man nicht verstanden hat.
+   * Exactly ONCE per question. The command would indeed be rejected the
+   * second time (the phase is over by then), but a device that sends the
+   * same request repeatedly is a device that has been misunderstood.
    */
   const advancedRef = useRef<string | null>(null)
   const goOn = useCallback(() => {
@@ -82,13 +85,13 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
   }, [advancesItself, question?.id, onCommand])
 
   /*
-   * Der Browser hat die hoerbare Wiedergabe verweigert.
+   * The browser refused audible playback.
    *
-   * Das ist kein Medienfehler, sondern die Autoplay-Regel eines Fensters, in dem
-   * noch niemand geklickt hat - in der Desktophuelle tritt sie nicht auf (siehe
-   * `autoplayPolicy` dort). Das Bild muss trotzdem laufen: Ein stummes Video ist
-   * im Saal unangenehm, ein stehendes ist ein Ausfall. Gemeldet wird es in der
-   * Konsole des Fensters, das es betrifft, und sonst nirgends.
+   * This is not a media error, but the autoplay policy of a window nobody
+   * has clicked in yet - it does not occur in the desktop shell (see
+   * `autoplayPolicy` there). The picture must run regardless: a silent video
+   * is unpleasant in the room, a frozen one is an outage. It is reported in
+   * the console of the window it concerns, and nowhere else.
    */
   const [soundRefused, setSoundRefused] = useState(false)
   useEffect(() => setSoundRefused(false), [isAudioMaster])
@@ -102,9 +105,9 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
         return
       }
       /*
-       * "AbortError" heisst: Ein neuerer Auftrag hat den Startversuch abgeloest.
-       * Alles andere ist ein echtes Problem mit der Datei - und bleibt in diesem
-       * Fenster, weil der Operator davon nichts hat.
+       * "AbortError" means a newer directive superseded the start attempt.
+       * Anything else is a genuine problem with the file - and stays in this
+       * window, because the operator gets nothing from knowing about it.
        */
       if (error.name === 'AbortError') return
       console.error('Video konnte nicht abgespielt werden.', error)
@@ -116,24 +119,24 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
     if (!element || !plays) return
 
     /*
-     * Kein Auftrag, oder einer fuer eine andere Frage: Dann steht das Video
-     * einfach da. Ein Auftrag, der nicht zur angezeigten Frage gehoert, ist ein
-     * Nachzuegler - er startete sonst das falsche Video.
+     * No directive, or one for a different question: then the video simply
+     * sits there. A directive that does not belong to the displayed question
+     * is a straggler - otherwise it would start the wrong video.
      */
     if (!request || !question || request.questionId !== question.id) return
-    // Frage UND Kennung: Zwei Fragen koennten sonst dieselbe Kennung tragen.
+    // Question AND identifier: otherwise two questions could carry the same identifier.
     const task = `${request.questionId}:${request.requestId}`
     if (lastExecuted === task) return
     lastExecuted = task
 
     /*
-     * Von vorn heisst von vorn: anhalten, zuruecksetzen, starten.
+     * From the top means from the top: pause, reset, start.
      *
-     * GESTARTET WIRD SOFORT, auch wenn die Datei noch laedt - der Browser
-     * beginnt dann, sobald er kann, und zwar bei null. Ist er noch nicht so
-     * weit, holt der Nachschlag unten den Start nach; das ist der Fall, in dem
-     * `play()` nichts bewirkt hat. Gewartet wird dabei ausschliesslich lokal:
-     * niemand ausserhalb dieses Fensters erfaehrt davon.
+     * STARTED IMMEDIATELY, even if the file is still loading - the browser
+     * then begins as soon as it can, and at zero. If it is not ready yet,
+     * the follow-up below catches the start; that is the case where `play()`
+     * had no effect. All the waiting here is purely local: nobody outside
+     * this window learns of it.
      */
     element.pause()
     element.currentTime = 0
@@ -148,11 +151,12 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
   }, [request?.questionId, request?.requestId, question?.id, plays, games])
 
   /*
-   * FRAGENWECHSEL UND ABGANG HALTEN AN. Das Element gehoert der Szene: Bliebe es
-   * beim Verlassen laufen, spielte der Ton unter der naechsten Frage weiter.
+   * QUESTION CHANGE AND UNMOUNT STOP PLAYBACK. The element belongs to the
+   * scene: if it kept running on exit, the sound would keep playing under the
+   * next question.
    *
-   * Der Merker wird dabei NICHT geleert - er traegt die Frage in sich, und ein
-   * Neuaufbau der Szene ist kein neuer Auftrag.
+   * The marker is NOT cleared here - it carries the question within it, and
+   * rebuilding the scene is not a new directive.
    */
   useEffect(() => {
     const element = elementRef.current
@@ -160,11 +164,11 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
   }, [question?.id])
 
   /*
-   * OHNE DATEI GIBT ES NICHTS ABZUWARTEN.
+   * WITHOUT A FILE THERE IS NOTHING TO WAIT FOR.
    *
-   * Im Saal steht dann der Operator davor und geht weiter, wenn er so weit ist.
-   * Am Geraet steht niemand - dort darf eine fehlende Datei den Ablauf nicht
-   * anhalten, sonst bliebe das Quiz an dieser Frage haengen.
+   * In the room, the operator is there and moves on when ready. On the
+   * device nobody is there - a missing file must not halt the flow there, or
+   * the quiz would get stuck on this question.
    */
   useEffect(() => {
     if (!question || question.videoUrl) return
@@ -190,24 +194,24 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
               src={question.videoUrl}
               muted={muted}
               /*
-               * VORGELADEN, ABER NICHT GESTARTET. Die Datei liegt bereit, sobald
-               * die Frage steht; losgehen darf sie erst auf Auftrag.
+               * PRELOADED, BUT NOT STARTED. The file sits ready as soon as
+               * the question is up; it may only start on a directive.
                */
               preload="auto"
               playsInline
               loop={false}
               /*
-               * Das Ende ist ein lokales Ereignis. Im Saal passiert daraufhin
-               * NICHTS - das letzte Bild bleibt stehen, bis der Operator
-               * weitergeht. Nur das Touchgeraet, das keinen Operator hat,
-               * blendet danach selbst die Frage ein.
+               * The end is a local event. In the room NOTHING happens as a
+               * result - the last frame stays on screen until the operator
+               * moves on. Only the touch device, which has no operator,
+               * shows the question itself afterward.
                */
               onEnded={goOn}
               /*
-               * Und wenn die Datei gar nicht spielt, ist das am Geraet genau
-               * dasselbe: weitergehen. Im Saal bleibt es folgenlos - dort
-               * entscheidet der Operator, ob er es noch einmal versucht, die
-               * Frage einblendet oder sie ueberspringt.
+               * And if the file does not play at all, it is exactly the same
+               * on the device: move on. In the room it has no consequence -
+               * there, the operator decides whether to try again, show the
+               * question, or skip it.
                */
               onError={goOn}
             />

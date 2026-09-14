@@ -1,14 +1,14 @@
 /**
- * Szenen- und Animationstests (Spezifikation 22.7).
+ * Scene and animation tests (specification 22.7).
  *
- * Diese Tests laufen gegen die Entwicklungsvorschau `/preview`. Sie ist bewusst
- * serverfrei: Die Szenen werden aus lokal erzeugten Beispiel-View-Modellen gerendert.
- * Dadurch sind visuelle Tests deterministisch und unabhaengig von der zufaelligen
- * Fragenauswahl eines echten Spiels.
+ * These tests run against the development preview `/preview`. It is
+ * deliberately server-free: the scenes are rendered from locally generated
+ * sample view models. That makes visual tests deterministic and independent
+ * of the random question selection of a real game.
  *
- * Screenshot-Baselines sind plattformabhaengig. Auf einem neuen System werden sie mit
+ * Screenshot baselines are platform-dependent. On a new system they are
+ * generated once with
  *   npx playwright test --project=preview --update-snapshots
- * einmalig erzeugt.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -21,7 +21,7 @@ async function selectTheme(page: Page, theme: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(1).selectOption(theme)
 }
 
-/** Nur in Frage- und Loesungsszene vorhanden; dort steht die Auswahl an dritter Stelle. */
+/** Only present in the question and solution scenes; there the selector sits in third place. */
 async function selectQuestionType(page: Page, type: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(2).selectOption(type)
   await expect(page.locator('.stage')).toHaveAttribute('data-presentation', type)
@@ -32,37 +32,38 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('[data-preview-stage]')).toBeVisible()
 })
 
-test.describe('Visuelle Smoke-Tests aller Szenen', () => {
-  test('Startbild zeigt nur Branding', async ({ page }) => {
+test.describe('Visual smoke tests of all scenes', () => {
+  test('start image shows only branding', async ({ page }) => {
     await selectScene(page, 'start')
     await expect(page.locator('.stage[data-scene="start"]')).toBeVisible()
-    // Auf dem Startbild darf keine Frage stehen.
+    // The start screen must not show a question.
     await expect(page.locator('[data-prompt]')).toHaveCount(0)
   })
 
-  test('Pausenscreen zeigt keine Frageninhalte', async ({ page }) => {
+  test('pause screen shows no question content', async ({ page }) => {
     await selectScene(page, 'pause')
     await expect(page.locator('.stage[data-scene="pause"]')).toBeVisible()
     await expect(page.locator('[data-prompt]')).toHaveCount(0)
     await expect(page.locator('[data-answer]')).toHaveCount(0)
   })
 
-  test('Frageszene zeigt die eingeloggte Antwort, aber keinen Loesungshinweis', async ({ page }) => {
+  test('question scene shows the logged answer but no solution hint', async ({ page }) => {
     await selectScene(page, 'question')
     await expect(page.locator('[data-prompt]')).toBeVisible()
     await expect(page.locator('[data-answer]')).toHaveCount(4)
-    // Die Festlegung des Spielers ist oeffentlich - genau eine Leiste ist markiert.
+    // The player's commitment is public - exactly one row is marked.
     await expect(page.locator('[data-answer][data-state="selected"]')).toHaveCount(1)
-    // Ob sie stimmt, verraet die Buehne erst in der Loesungsszene.
+    // Whether it is right is only revealed by the stage in the solution scene.
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
-  test('der unscharfe Bildgrund blendet auf und traegt nie das vorige Bild', async ({ page }) => {
+  test('the blurred image ground fades in and never carries the previous image', async ({ page }) => {
     /*
-     * EIN `background-image` WECHSELT ERST, WENN DAS NEUE BILD DA IST. Direkt
-     * gesetzt stuende auf einer neuen Frage deshalb einen Moment lang der Grund
-     * der vorigen. Das Bild wird darum vorgeladen und der Grund erst fertig
-     * gezeigt; bis dahin liegt dort nichts als der Verlauf der Buehne.
+     * A `background-image` ONLY CHANGES ONCE THE NEW IMAGE HAS ARRIVED. Set
+     * directly, a new question would therefore briefly show the previous
+     * question's background. The image is therefore preloaded and the
+     * background only shown once it is ready; until then nothing sits there
+     * but the stage's gradient.
      */
     await selectScene(page, 'question')
     await selectQuestionType(page, 'image-choice')
@@ -73,7 +74,7 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     const firstQuestion = await image()
     expect(firstQuestion).not.toBe('none')
 
-    // Aufgeblendet, nicht eingesetzt - und ohne eine Beruehrung abzufangen.
+    // Faded in, not swapped in - and without intercepting a touch.
     const style = await ground.evaluate((node) => {
       const measured = getComputedStyle(node)
       return { property: measured.transitionProperty, pointer: measured.pointerEvents }
@@ -82,28 +83,28 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     expect(style.pointer).toBe('none')
 
     /*
-     * Anderes Bild, andere Adresse: Der Grund traegt danach entweder noch
-     * nichts oder schon das neue - nie das alte.
+     * Different image, different address: afterwards the background carries
+     * either still nothing or already the new one - never the old one.
      */
     await selectQuestionType(page, 'person')
     await expect(ground).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
     expect(await image()).not.toBe(firstQuestion)
 
-    // Eine Frage ohne Bild hat auch keinen Grund.
+    // A question without an image also has no background.
     await selectQuestionType(page, 'text-choice')
     await expect(ground).toHaveCount(0)
   })
 
-  test('Portraetfrage stellt das Bild neben Rubrik, Frage und Antworten', async ({ page }) => {
+  test('portrait question puts the image next to rubric, question and answers', async ({ page }) => {
     await selectScene(page, 'question')
     await selectQuestionType(page, 'person')
     await expect(page.locator('[data-media][data-variant="portrait"] [data-media-image]')).toBeVisible()
     await expect(page.locator('[data-answer]')).toHaveCount(4)
 
     /*
-     * Der Kern dieser Anordnung ist die Nebeneinanderstellung: Das Portraet steht
-     * links, alles andere in einer Spalte rechts DANEBEN - nicht darunter wie bei
-     * den uebrigen Bildfragen.
+     * The core of this layout is the side-by-side placement: the portrait sits
+     * on the left, everything else in a column to the right, BESIDE it - not
+     * below it as with the other image questions.
      */
     const portrait = await page.locator('[data-variant="portrait"]').boundingBox()
     const prompt = await page.locator('[data-prompt]').boundingBox()
@@ -114,21 +115,21 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     expect(answers!.y).toBeLessThan(portrait!.y + portrait!.height)
   })
 
-  test('Bilderkennen zeigt ein verdecktes Bild und keinen Countdown', async ({ page }) => {
+  test('image recognition shows a covered image and no countdown', async ({ page }) => {
     await selectScene(page, 'reveal')
     await expect(page.locator('[data-media][data-variant="reveal"] [data-media-image]')).toBeVisible()
-    // Das Bild ist vollstaendig da - was fehlt, ist der Blick darauf.
+    // The image is fully there - what is missing is the view of it.
     await expect(page.locator('[data-reveal-tiles]')).toBeVisible()
-    // Die Kacheln sind die Uhr; eine Zahl daneben gibt es nicht mehr.
+    // The tiles are the clock; there is no longer a number next to it.
     await expect(page.locator('[data-seconds]')).toHaveCount(0)
   })
 
-  test('Videoszene zeigt die Videoflaeche', async ({ page }) => {
+  test('video scene shows the video area', async ({ page }) => {
     await selectScene(page, 'video')
     await expect(page.locator('.stage[data-scene="video"]')).toBeVisible()
   })
 
-  test('Feedbackszene zeigt Richtig und Falsch unterschiedlich', async ({ page }) => {
+  test('feedback scene shows correct and wrong differently', async ({ page }) => {
     await selectScene(page, 'feedback')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="correct"]')).toBeVisible()
     await expect(page.locator('[data-clip="correct"]')).toBeVisible()
@@ -136,19 +137,19 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await page.locator('[data-preview-panel] select').nth(2).selectOption('incorrect')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="incorrect"]')).toBeVisible()
     await expect(page.locator('[data-clip="wrong"]')).toBeVisible()
-    // Die Falsch-Animation darf die Loesung nicht vorwegnehmen.
+    // The wrong-answer animation must not give away the solution early.
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
-  test('Loesungsszene faerbt ausschliesslich die richtige Antwort', async ({ page }) => {
+  test('solution scene colours only the correct answer', async ({ page }) => {
     await selectScene(page, 'solution')
     await expect(page.locator('[data-answer][data-state="correct"]')).toBeVisible()
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(1)
-    // Auch eine vorher gewaehlte falsche Antwort tritt hier zurueck.
+    // A previously selected wrong answer also recedes here.
     await expect(page.locator('[data-answer][data-state="selected"]')).toHaveCount(0)
   })
 
-  test('Ergebnisszene zeigt Konfetti nur bei einem Gewinner', async ({ page }) => {
+  test('result scene shows confetti only with a winner', async ({ page }) => {
     await selectScene(page, 'result')
     await expect(page.locator('[data-result-label]')).toHaveText('Gewinner')
     await expect(page.locator('[data-confetti]')).toHaveCount(1)
@@ -161,10 +162,10 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
 
 test.describe('Themes', () => {
   /*
-   * Geprueft wird der Mechanismus, nicht der Farbwert: Jeder Modus bringt seinen
-   * eigenen, vollstaendigen Tokensatz mit. Derzeit tragen alle drei Modi dasselbe
-   * Graustufensystem - die eigenen Farbsysteme fuer Kinder und Saarbruecken
-   * werden nachgeliefert.
+   * What is checked is the mechanism, not the colour value: every mode brings
+   * its own, complete token set. Currently all three modes carry the same
+   * greyscale system - the dedicated colour systems for kids and Saarbruecken
+   * are still to follow.
    */
   const DESIGN_TOKENS = [
     'pageTop', 'pageBottom', 'stageTop', 'stageBottom', 'controls',
@@ -173,10 +174,10 @@ test.describe('Themes', () => {
     'correct', 'incorrect', 'text', 'textMuted',
   ]
 
-  test('jeder Modus setzt den vollstaendigen Tokensatz auf der Buehne', async ({ page }) => {
+  test('every mode sets the complete token set on the stage', async ({ page }) => {
     await selectScene(page, 'question')
 
-    // Es gibt genau zwei Gestaltungswelten - Saarbruecken benutzt die der Erwachsenen.
+    // There are exactly two design worlds - Saarbruecken uses the adults' one.
     for (const theme of ['default', 'kids']) {
       await selectTheme(page, theme)
       const missing = await page.locator('.stage').evaluate((element, tokens) => {
@@ -188,32 +189,32 @@ test.describe('Themes', () => {
   })
 })
 
-test.describe('Enthuellung: das Raster folgt dem Fortschritt des Servers', () => {
-  test('die Kacheln folgen dem Fortschritt', async ({ page }) => {
+test.describe("Reveal: the grid follows the server's progress", () => {
+  test('the tiles follow the progress', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
     const tiles = page.locator('[data-reveal-tiles] [data-reveal-tile]')
 
     const open = () => page.locator('[data-reveal-tile][data-open="true"]').count()
 
-    // Die Rastergroesse steht in `revealGrid` - hier zaehlt nur, dass ALLE Kacheln da sind.
+    // The grid size lives in `revealGrid` - here all that counts is that ALL tiles are there.
     const total = await tiles.count()
     expect(total).toBeGreaterThan(1)
 
     await slider.fill('0')
-    // Zu Beginn ist das Bild vollstaendig verdeckt.
+    // At the start the image is fully covered.
     expect(await open()).toBe(0)
 
-    // Halber Fortschritt, halbes Bild - dieselbe Variable wie im Server.
+    // Half progress, half the image - the same variable as in the server.
     await slider.fill('5000')
     expect(await open()).toBe(Math.floor(total / 2))
 
-    // Bei null Sekunden ist nichts mehr verdeckt.
+    // At zero seconds nothing is covered anymore.
     await slider.fill('10000')
     expect(await open()).toBe(total)
   })
 
-  test('einmal offene Kacheln bleiben offen', async ({ page }) => {
+  test('tiles once open stay open', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
     const openIndices = () =>
@@ -228,27 +229,27 @@ test.describe('Enthuellung: das Raster folgt dem Fortschritt des Servers', () =>
 
     expect(early.length).toBeGreaterThan(0)
     expect(late.length).toBeGreaterThan(early.length)
-    // Keine Kachel darf sich wieder schliessen: Der Vorrat waechst nur.
+    // No tile may close again: the pool only ever grows.
     expect(late).toEqual(expect.arrayContaining(early))
   })
 })
 
-test.describe('Reduzierte Bewegung', () => {
-  test('verkuerzt die Uebergangsdauer und blendet Konfetti aus', async ({ page }) => {
+test.describe('Reduced motion', () => {
+  test('shortens the transition duration and hides confetti', async ({ page }) => {
     await selectScene(page, 'question')
     const readDuration = () =>
       page
         .locator('.stage')
         .evaluate((element) => getComputedStyle(element).getPropertyValue('--transition-duration').trim())
 
-    // question-enter ist regulaer 520 ms lang.
+    // question-enter normally lasts 520 ms.
     expect(await readDuration()).toBe('520ms')
 
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.reload()
     await expect(page.locator('[data-preview-stage]')).toBeVisible()
     await selectScene(page, 'question')
-    // Reduced-Motion-Fallback der Definition question-enter.
+    // Reduced-motion fallback of the question-enter definition.
     expect(await readDuration()).toBe('140ms')
 
     await selectScene(page, 'result')
@@ -257,24 +258,25 @@ test.describe('Reduzierte Bewegung', () => {
 })
 
 /*
- * Lange Fragen (Spezifikation 22.1).
+ * Long questions (specification 22.1).
  *
- * Der Fall aus dem Betrieb: Eine Frage ueber mehrere Zeilen schob die unteren
- * Antwortzeilen aus dem Bild. Im Saal fehlten dann schlicht die Antworten C und
- * D, und nichts daran sah nach einem Fehler aus.
+ * The case from real operation: a question spanning multiple lines pushed the
+ * lower answer rows out of the picture. In the hall, answers C and D were then
+ * simply missing, and nothing about it looked like a bug.
  *
- * Gemessen wird die AUSSAGE - steht noch etwas ueber der Inhaltskante der Szene?
- * - und nicht eine bestimmte Schriftgroesse. Welche Groesse herauskommt, haengt
- * an Bild, Antwortlaenge und Zielformat; festzulegen waere sie nur eine zweite
- * Abschrift der Rechnung, die der Anpassung selbst zugrunde liegt.
+ * What is measured is the CLAIM - does anything still stick out past the
+ * content edge of the scene? - not a specific font size. Which size results
+ * depends on the image, the answer length and the target format; fixing it
+ * would only be a second copy of the calculation the adjustment itself is
+ * built on.
  */
-test.describe('Lange Fragen', () => {
+test.describe('Long questions', () => {
   const VIEWPORTS = [
     { name: '1920x1080', width: 1920, height: 1080 },
     { name: '1280x720', width: 1280, height: 720 },
   ] as const
 
-  /** Blendet die Bedienspalte aus - danach hat die Buehne die ganze Flaeche. */
+  /** Hides the control column - afterwards the stage has the whole area. */
   async function fullBleed(page: Page): Promise<void> {
     await page.addStyleTag({
       content:
@@ -282,14 +284,14 @@ test.describe('Lange Fragen', () => {
     })
   }
 
-  /** Groesster Ueberstand ueber die Inhaltskante der Szene, in Pixeln. */
+  /** Largest overhang past the content edge of the scene, in pixels. */
   async function overshoot(page: Page): Promise<number> {
     return await page.locator('[data-fit-box]').evaluate((box) => {
       const limit = box.getBoundingClientRect().bottom - Number.parseFloat(getComputedStyle(box).paddingBottom)
       let worst = 0
       for (const node of box.querySelectorAll('*')) {
         const position = getComputedStyle(node).position
-        // Absolut gesetzte Teile stehen bewusst ueber der Kante - siehe Regiehinweis.
+        // Absolutely positioned parts deliberately sit past the edge - see the director's note.
         if (position === 'absolute' || position === 'fixed') continue
         worst = Math.max(worst, node.getBoundingClientRect().bottom - limit)
       }
@@ -298,9 +300,9 @@ test.describe('Lange Fragen', () => {
   }
 
   /*
-   * Der Schalter wird ueber das DOM bedient, nicht ueber einen Klick: Nach
-   * `fullBleed` nimmt die Bedienspalte keine Zeigereingaben mehr an, damit sie
-   * die Buehnenflaeche nicht verdeckt.
+   * The switch is operated via the DOM, not via a click: after `fullBleed` the
+   * control column no longer accepts pointer input, so it does not cover the
+   * stage area.
    */
   async function toggleLongText(page: Page): Promise<void> {
     await page
@@ -315,7 +317,7 @@ test.describe('Lange Fragen', () => {
   }
 
   for (const viewport of VIEWPORTS) {
-    test(`Portraetfrage haelt alle vier Antworten im Bild - ${viewport.name}`, async ({ page }) => {
+    test(`portrait question keeps all four answers in view - ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
       await selectScene(page, 'question')
       await selectQuestionType(page, 'person')
@@ -328,14 +330,14 @@ test.describe('Lange Fragen', () => {
     })
   }
 
-  test('verkleinert die Frage nur so weit wie noetig', async ({ page }) => {
+  test('shrinks the question only as far as necessary', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 })
     await selectScene(page, 'question')
     await selectQuestionType(page, 'person')
     await fullBleed(page)
     await page.waitForTimeout(400)
 
-    // Eine kurze Frage passt ohnehin und bleibt deshalb in voller Groesse.
+    // A short question fits anyway and therefore stays at full size.
     const base = await promptSize(page)
     expect(base).toBeCloseTo(1920 * 0.028, 0)
 
@@ -344,15 +346,15 @@ test.describe('Lange Fragen', () => {
     const fitted = await promptSize(page)
 
     expect(fitted).toBeLessThan(base)
-    // Und nicht ins Bodenlose: Unter der Untergrenze waere sie im Saal unlesbar.
+    // And not without a limit: below the lower bound it would be unreadable in the hall.
     expect(fitted).toBeGreaterThanOrEqual(base * 0.55 - 1)
   })
 
-  test('laesst die Frage gross, wenn das Verkleinern nichts bringt', async ({ page }) => {
+  test('leaves the question large when shrinking gains nothing', async ({ page }) => {
     /*
-     * Bei der Bildfrage tragen die langen ANTWORTEN den Ueberstand. Die Frage
-     * kleiner zu setzen wuerde daran nichts aendern - eine winzige Frage UND ein
-     * Ueberstand waeren zweimal schlecht.
+     * For the image question, the long ANSWERS are the ones causing the
+     * overhang. Making the question smaller would not change that - a tiny
+     * question AND an overhang would be doubly bad.
      */
     await page.setViewportSize({ width: 1920, height: 1080 })
     await selectScene(page, 'question')
@@ -367,12 +369,13 @@ test.describe('Lange Fragen', () => {
     expect(await promptSize(page)).toBeCloseTo(base, 0)
   })
 
-  test('laesst eine kurze Frage in jeder Szene unangetastet', async ({ page }) => {
+  test('leaves a short question untouched in every scene', async ({ page }) => {
     /*
-     * Die Gegenprobe zur Anpassung: Eine kurze Frage passt in jeder Szene und
-     * muss deshalb ihre Grundgroesse behalten. Waere die Messung vom Einlauf der
-     * Antwortzeilen abhaengig - die stehen waehrend der Animation tiefer als am
-     * Ende -, bliebe die Frage danach zu klein, obwohl sie laengst passt.
+     * The counter-check for the adjustment: a short question fits in every
+     * scene and must therefore keep its base size. If the measurement
+     * depended on the answer rows sliding in - during the animation they sit
+     * lower than at the end - the question would stay too small afterwards,
+     * even though it has long since fit.
      */
     await page.setViewportSize({ width: 1920, height: 1080 })
     await fullBleed(page)
@@ -380,9 +383,9 @@ test.describe('Lange Fragen', () => {
     for (const scene of ['question', 'solution'] as const) {
       await selectScene(page, scene)
       await selectQuestionType(page, 'person')
-      // Die Flaeche mitten im Einlauf aendern - im Betrieb der Sprung ins
-      // Vollbild. Das stoesst eine zweite Messung an, waehrend die Zeilen noch
-      // unterwegs sind.
+      // Change the area in the middle of the entry animation - in operation, the jump into
+      // full screen. That triggers a second measurement while the rows are still
+      // on their way in.
       await page.setViewportSize({ width: 1900, height: 1080 })
       await page.setViewportSize({ width: 1920, height: 1080 })
       await page.waitForTimeout(600)
@@ -392,31 +395,31 @@ test.describe('Lange Fragen', () => {
 })
 
 /*
- * Die Buehne bemisst sich allein an ihrer BREITE.
+ * The stage measures itself solely by its WIDTH.
  *
- * Sie steht auf Beamern, in Fenstern und auf Touchtischen mit ganz
- * verschiedenen Formaten. Frueher rechneten Bildhoehen, Polsterungen und
- * Strichbreiten teils gegen die HOEHE der Flaeche (`cqh`): Dieselbe Frage sah
- * auf einem 4:3-Bildschirm anders proportioniert aus als auf 16:9, und niemand
- * konnte am Entwurf ablesen, wie gross sie am Ende steht. Jetzt gibt es ein
- * Mass.
+ * It runs on projectors, in windows and on touch tables with very different
+ * formats. Previously, image heights, paddings and stroke widths were partly
+ * computed against the HEIGHT of the area (`cqh`): the same question looked
+ * differently proportioned on a 4:3 screen than on 16:9, and nobody could tell
+ * from the design how big it would end up. Now there is one single measure.
  */
-test.describe('Groesse', () => {
-  test('haengt an der Breite und nicht an der Hoehe der Flaeche', async ({ page }) => {
+test.describe('Size', () => {
+  test('depends on the width and not on the height of the area', async ({ page }) => {
     /*
-     * Gemessen wird gegen die Ecke der Buehne, nicht gegen das Fenster: Die
-     * Vorschau setzt die Flaeche selbst, und ihr Platz darf sich ruhig
-     * verschieben - nur was DARIN steht, muss gleich bleiben.
+     * Measured against the corner of the stage, not against the window: the
+     * preview sets the area itself, and its position is free to shift - only
+     * what sits INSIDE it has to stay the same.
      */
     async function measures(): Promise<Record<string, number[] | null>> {
       await page.goto('/preview')
       await expect(page.locator('[data-preview-stage]')).toBeVisible()
       await selectScene(page, 'question')
       /*
-       * Der Szenenwechsel animiert `transform`, und eine Messung mitten darin
-       * liest eine Position, die es gleich nicht mehr gibt. Gewartet wird
-       * deshalb auf die Animationen selbst und nicht auf eine Zahl von
-       * Millisekunden - endlose bleiben aussen vor, sonst wartete das hier ewig.
+       * The scene change animates `transform`, and a measurement taken in the
+       * middle of it reads a position that will not exist a moment later. The
+       * test therefore waits for the animations themselves rather than for a
+       * number of milliseconds - endless ones are excluded, otherwise this
+       * would wait forever.
        */
       await page.evaluate(async () => {
         const finite = document
@@ -448,8 +451,8 @@ test.describe('Groesse', () => {
   })
 })
 
-test.describe('Screenshot-Regression zentraler Zustaende', () => {
-  // Animationen werden fuer die Aufnahme abgeschaltet, damit die Bilder stabil sind.
+test.describe('Screenshot regression of central states', () => {
+  // Animations are turned off for the capture so the images are stable.
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.reload()
@@ -457,7 +460,7 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
   })
 
   for (const scene of ['question', 'solution', 'result', 'pause'] as const) {
-    test(`Szene ${scene}`, async ({ page }) => {
+    test(`Scene ${scene}`, async ({ page }) => {
       await selectScene(page, scene)
       await page.waitForTimeout(300)
       await expect(page.locator('[data-preview-stage]')).toHaveScreenshot(`scene-${scene}.png`, {
@@ -467,7 +470,7 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
     })
   }
 
-  test('Szene question als Portraetfrage', async ({ page }) => {
+  test('Scene question as portrait question', async ({ page }) => {
     await selectScene(page, 'question')
     await selectQuestionType(page, 'person')
     await page.waitForTimeout(300)
@@ -479,16 +482,16 @@ test.describe('Screenshot-Regression zentraler Zustaende', () => {
 })
 
 /* ------------------------------------------------------------------ *
- * Videoszene
+ * Video scene
  * ------------------------------------------------------------------ */
 
 test.describe('Video', () => {
   /*
-   * In der Vorschau des Operators laeuft kein zweites Medium - und sie sagt ihm
-   * auch nichts ueber die Wiedergabe. Es gibt dort nichts zu sehen ausser der
-   * Flaeche, an der er die Komposition erkennt.
+   * In the operator's preview no second piece of media is playing - and it
+   * tells them nothing about the playback either. There is nothing to see
+   * there except the area by which they recognise the composition.
    */
-  test('die Operatorvorschau spielt nichts ab und zeigt keinen Stand', async ({ page }) => {
+  test('the operator preview plays nothing and shows no state', async ({ page }) => {
     await page.goto('/preview')
     await selectScene(page, 'video')
     await page.locator('[data-preview-variant]').selectOption('preview')
@@ -496,13 +499,13 @@ test.describe('Video', () => {
     await expect(page.locator('[data-video-placeholder]')).toBeVisible()
     await expect(page.locator('video')).toHaveCount(0)
     /*
-     * Kein "bereit", kein "laeuft", kein "zu Ende": Der Operator braucht von der
-     * Buehne nichts, um das Video zu starten oder danach weiterzumachen.
+     * No "ready", no "running", no "finished": the operator needs nothing from
+     * the stage in order to start the video or to move on afterwards.
      */
     await expect(page.locator('[data-video-status]')).toHaveCount(0)
   })
 
-  test('auf der Buehne steht das Bild, vorgeladen und ungestartet', async ({ page }) => {
+  test('on the stage the image stands, preloaded and unstarted', async ({ page }) => {
     await page.goto('/preview')
     await selectScene(page, 'video')
     await expect(page.locator('[data-video-placeholder]')).toBeVisible()
@@ -510,7 +513,7 @@ test.describe('Video', () => {
     const medium = page.locator('video')
     await expect(medium).toHaveCount(1)
     await expect(medium).toHaveAttribute('preload', 'auto')
-    // Die Flaeche bleibt sichtbar - sie blendet nach dem Video nicht mehr aus.
+    // The area stays visible - it no longer fades out after the video.
     await expect(page.locator('[data-video-placeholder]')).toHaveCSS('opacity', '1')
     await expect(page.locator('[data-video-status]')).toHaveCount(0)
   })

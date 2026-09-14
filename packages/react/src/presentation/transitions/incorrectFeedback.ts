@@ -1,12 +1,12 @@
 /**
- * Falsch-Animation.
+ * Incorrect animation.
  *
- * Nach einer falschen ERSTEN Antwort einer normalen Frage folgt bewusst NICHT die
- * Loesung, sondern die zweite Chance. Diese Animation darf deshalb nichts zeigen,
- * was auf die richtige Antwort schliessen laesst - der Server sendet die Loesung in
- * dieser Phase ohnehin nicht mit.
+ * After a FIRST wrong answer to a normal question, the solution deliberately
+ * does NOT follow - the second chance does. This animation must therefore
+ * show nothing that would allow the correct answer to be inferred - the
+ * server does not send the solution during this phase anyway.
  *
- * Dauer entspricht `gameTiming.incorrectFeedbackMs`.
+ * Duration matches `gameTiming.incorrectFeedbackMs`.
  */
 import { easings, presentationTiming } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'

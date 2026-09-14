@@ -1,14 +1,15 @@
 /**
- * Helle oder dunkle Fassung der Buehne.
+ * Light or dark version of the stage.
  *
- * WAS DAS IST UND WAS NICHT: Es ist eine Ansichtssache des Bedienenden, kein
- * Spielzustand. Der Server weiss nichts davon, es steht in keinem Snapshot und
- * es wird nicht uebertragen - jedes Fenster entscheidet fuer sich. Deshalb liegt
- * die Wahl im `localStorage` und nicht in der Zustandsmaschine.
+ * WHAT THIS IS AND WHAT IT IS NOT: it is a viewing preference of the person
+ * operating it, not game state. The server knows nothing about it, it is not
+ * part of any snapshot and it is not transmitted - every window decides for
+ * itself. That is why the choice lives in `localStorage` and not in the state
+ * machine.
  *
- * NUR DIE BUEHNE DER ERWACHSENEN kennt beide Fassungen. Die Kinderwelt ist eine
- * eigene Gestaltungswelt mit eigenem Papier und eigenen Zeichnungen; sie wird
- * vom Umschalter nicht beruehrt.
+ * ONLY THE ADULTS' STAGE knows both versions. The children's world is its own
+ * design world with its own paper and its own drawings; it is not touched by
+ * the switch.
  */
 import { useCallback, useEffect, useState } from 'react'
 
@@ -17,22 +18,22 @@ export type StageTheme = (typeof stageThemes)[number]
 
 const STORAGE_KEY = 'quiz.stageTheme'
 /**
- * DIE BUEHNE IST IM ZWEIFEL HELL.
+ * THE STAGE DEFAULTS TO LIGHT WHEN IN DOUBT.
  *
- * Sie war lange dunkel, weil sie fuer den abgedunkelten Saal entworfen wurde.
- * Ihr haeufigster Ort ist inzwischen ein Touchtisch in einem Foyer mit
- * Tageslicht, und dort ist Papier die ruhigere Flaeche. Wer es anders will,
- * schaltet um - die Wahl bleibt am Fenster gespeichert.
+ * It was dark for a long time because it was designed for a darkened hall.
+ * Its most common location by now is a touch table in a foyer with daylight,
+ * and there paper is the calmer surface. Anyone who wants it otherwise
+ * switches it - the choice stays saved on the window.
  *
- * Die Kinderwelt ist davon nicht beruehrt: Sie bringt ihr eigenes Papier mit
- * und kennt den Umschalter nicht (siehe `StageScreen`).
+ * The children's world is unaffected by this: it brings its own paper and
+ * does not have the switch (see `StageScreen`).
  */
 const FALLBACK: StageTheme = 'bright'
 
 /*
- * Ein Wechsel gilt sofort in ALLEN Fenstern derselben Herkunft: Der Operator
- * schaltet in seiner Vorschau, der Beamer zieht nach. Das `storage`-Ereignis
- * erreicht nur fremde Fenster, deshalb zusaetzlich das eigene Ereignis.
+ * A change applies immediately in ALL windows of the same origin: the
+ * operator switches it in their preview, the projector follows suit. The
+ * `storage` event only reaches other windows, hence the additional own event.
  */
 const CHANGE_EVENT = 'quiz:stage-theme'
 

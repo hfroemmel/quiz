@@ -1,26 +1,27 @@
-# Neue Zielgruppen, Pools und Schwierigkeits-Presets
+# New audiences, pools, and difficulty presets
 
-Zielgruppen, Fragenpools und Presets sind reine Konfiguration in
-`content/source/config.json`. In der Engine gibt es dafuer **keinen**
-Sondercode - insbesondere nicht fuer `kids` oder `Saarbruecken`.
+Audiences, question pools, and presets are pure configuration in
+`content/source/config.json`. There is **no** special-case code for them in
+the engine - in particular not for `kids` or `Saarbruecken`.
 
-Seit Schema v2 sind die drei Achsen getrennt:
+Since schema v2, the three axes are separate:
 
-* **Zielgruppe** (`audiences`): fuer wen gespielt wird. Sie traegt Theme,
-  Startgrafik und die erlaubten Presets.
-* **Fragenpool** (`pools`): welcher Inhaltsbestand gezogen wird. Die Fragen
-  nennen ihre Pools selbst (`poolIds`); welche Pools ein Spiel zieht,
-  entscheidet `START_GAME` - ohne Angabe spielen alle mit.
-* **Preset**: die dramaturgische Ablaufkonfiguration der Fragenplaetze.
+* **Audience** (`audiences`): who is playing. It carries the theme, start
+  graphic, and the allowed presets.
+* **Question pool** (`pools`): which content set is drawn from. The
+  questions name their own pools (`poolIds`); which pools a game draws from
+  is decided by `START_GAME` - without a specification, all of them
+  participate.
+* **Preset**: the dramaturgical flow configuration of the question slots.
 
-Darueber liegt seit der Quizauswahl am Pult eine vierte, zusammenfassende
-Achse:
+On top of that, since the quiz selection at the podium, there is a fourth,
+summarizing axis:
 
-* **Quizart** (`quizzes`): das eine Angebot, das ein Operator vor dem Abend
-  waehlt - „Bundestagsquiz“, „Kinderquiz“, „Bremen-Quiz“. Sie NENNT die drei
-  Achsen darunter, sie ersetzt sie nicht.
+* **Quiz type** (`quizzes`): the single offering an operator chooses before
+  the evening - "Bundestagsquiz", "Kinderquiz", "Bremen-Quiz". It NAMES the
+  three axes below, it does not replace them.
 
-## Quizart anlegen
+## Creating a quiz type
 
 ```jsonc
 {
@@ -34,30 +35,31 @@ Achse:
 }
 ```
 
-Regeln:
+Rules:
 
-* `audienceId`, `themeId`, `poolIds` und `presetIds` muessen existieren; jedes
-  Preset muss der Zielgruppe offenstehen. Alles andere ist ein harter
-  Validierungsfehler.
-* **Die Schwierigkeitswahl steht nicht als Schalter da**, sondern folgt aus
-  `presetIds`: Genau ein Preset heisst „keine Wahl, dieses gilt“; mehrere heissen
-  „der Operator waehlt“. Das Formular fragt `catalog.quizzes[].supportsDifficulty`
-  und baut die Regel nicht nach.
-* `defaultPresetId` ist die Voreinstellung der Wahl. Ohne Angabe gilt der erste
-  Eintrag. Die Reihenfolge von `presetIds` ist die Reihenfolge des Angebots.
-* Das Theme der Quizart gilt WAEHREND des Spiels und geht dem der Zielgruppe
-  vor. Ohne Quizart - am Kioskgeraet etwa - bleibt es beim Theme der Zielgruppe.
-  Es gibt also zu jedem Zeitpunkt genau eine Zuordnung.
-* Eine bunte Karte auf der Buehne ist KEIN Theme. Die Angebotsuebersicht faerbt
-  ihre Karten nach dem Quiz, das Quiz selbst laeuft im Theme aus dieser Zeile.
+* `audienceId`, `themeId`, `poolIds`, and `presetIds` must exist; every
+  preset must be open to the audience. Anything else is a hard validation
+  error.
+* **The difficulty choice is not represented as a separate switch**, but
+  follows from `presetIds`: exactly one preset means "no choice, this one
+  applies"; several mean "the operator chooses". The form asks
+  `catalog.quizzes[].supportsDifficulty` and does not rebuild the rule.
+* `defaultPresetId` is the default of the choice. Without one, the first
+  entry applies. The order of `presetIds` is the order of the offering.
+* The quiz type's theme applies DURING the game and takes precedence over the
+  audience's. Without a quiz type - at a kiosk device, for example - the
+  audience's theme applies. So there is exactly one mapping at any given time.
+* A colorful card on stage is NOT a theme. The offering overview colors its
+  cards by quiz, the quiz itself runs in the theme from this row.
 
-Der Server loest die Quizart beim Start auf (`resolveQuizMode`), schreibt
-Zielgruppe, Pools und Preset in den Spielstand und liefert sie danach nur noch
-aus. Weder Pult noch Buehne leiten daraus etwas ab.
+The server resolves the quiz type at start (`resolveQuizMode`), writes
+audience, pools, and preset into the game state, and only ever serves them
+from there afterward. Neither the podium nor the stage derives anything from
+it themselves.
 
-## Neue Zielgruppe anlegen
+## Creating a new audience
 
-1. Optional ein Theme ergaenzen:
+1. Optionally add a theme:
 
 ```jsonc
 {
@@ -67,19 +69,20 @@ aus. Weder Pult noch Buehne leiten daraus etwas ab.
 }
 ```
 
-Ein Theme kann ueber `skin` waehlen, in welcher **Gestaltungswelt** es steht:
-`default` (die Buehne, Voreinstellung) oder `kids` (die illustrierte
-Karlchen-Welt). Mehr Welten gibt es nicht - eine neue braeuchte eigene
-Zeichnungen und eigene Regeln in jedem Bauteilmodul.
+A theme can choose, via `skin`, which **design world** it belongs to:
+`default` (the stage, the default) or `kids` (the illustrated Karlchen
+world). There are no other worlds - a new one would need its own artwork and
+its own rules in every component module.
 
-Farben und Schriften stehen NICHT im Quizpaket: Darstellung ist Sache des
-Gastgebers und kommt aus der Theme-Schicht der Oberflaeche (`quiz-themes`,
-Werte aus `packages/contracts/src/theme.ts`). Das Paket nennt nur die Welt.
+Colors and fonts do NOT live in the quiz package: presentation is the host's
+responsibility and comes from the interface's theme layer (`quiz-themes`,
+values from `packages/contracts/src/theme.ts`). The package only names the
+world.
 
-Eine Zielgruppe ohne eigene Gestaltungswuensche verweist einfach auf ein
-vorhandenes Theme (`"themeId": "default"`).
+An audience without its own design preferences simply references an existing
+theme (`"themeId": "default"`).
 
-2. Die Zielgruppe ergaenzen:
+2. Add the audience:
 
 ```jsonc
 {
@@ -91,30 +94,30 @@ vorhandenes Theme (`"themeId": "default"`).
 }
 ```
 
-3. Fragen der Zielgruppe zuordnen (`"audiences": ["senioren"]`).
+3. Assign questions to the audience (`"audiences": ["senioren"]`).
 4. `pnpm content:validate && pnpm content:build`.
 
-Die Zielgruppe erscheint danach automatisch in der Startansicht des Operators -
-die Liste kommt aus `view.catalog` und damit aus validierter Konfiguration,
-nicht aus UI-Konstanten.
+The audience then appears automatically in the operator's start view - the
+list comes from `view.catalog`, and thus from validated configuration, not
+from UI constants.
 
-## Regionale Auswahl: ein Pool, kein Sondercode
+## Regional selection: a pool, no special-case code
 
-`Saarbruecken` ist ein **Fragenpool**. Die regionalen Fragen tragen
-`"poolIds": ["saarbruecken"]`, alle uebrigen `"poolIds": ["bundestag"]`; der
-Pool selbst steht mit Kennung und Beschriftung in `pools`. Ein regionales Spiel
-startet der Operator als Zielgruppe seiner Wahl plus Pool `Saarbrücken` plus
-Preset `regional` - Theme und Spielregeln bleiben unveraendert.
+`Saarbruecken` is a **question pool**. The regional questions carry
+`"poolIds": ["saarbruecken"]`, all others `"poolIds": ["bundestag"]`; the
+pool itself is listed with an ID and a label in `pools`. An operator starts a
+regional game by choosing any audience, plus the `Saarbrücken` pool, plus the
+`regional` preset - theme and game rules stay unchanged.
 
-Ein neuer Pool braucht damit drei Handgriffe: Eintrag in `pools`, `poolIds` an
-den Fragen, fertig. Die Startansicht des Operators zeigt die Poolauswahl von
-selbst, sobald es mehr als einen Pool gibt.
+A new pool thus needs three steps: an entry in `pools`, `poolIds` on the
+questions, done. The operator's start view shows the pool selection on its
+own, as soon as there is more than one pool.
 
-## Presets fuer das Touchgeraet
+## Presets for the touch device
 
-Am Touchgeraet gibt es niemanden, der eine muendliche Antwort bewerten koennte.
-Ein Preset ist dort deshalb nur spielbar, wenn **jeder** Fragenplatz auf
-auswertbare Fragen filtert:
+There is no one at the touch device who could evaluate a spoken answer. A
+preset is therefore only playable there if **every** question slot filters
+for evaluable questions:
 
 ```jsonc
 {
@@ -129,25 +132,25 @@ auswertbare Fragen filtert:
         "evaluationModes": ["option-comparison"]
       }
     }
-    // ... weitere Plaetze, jeder mit "evaluationModes"
+    // ... further slots, each with "evaluationModes"
   ]
 }
 ```
 
-Die Eignung wird aus den Filtern abgeleitet, nicht zusaetzlich erklaert - eine
-zweite Angabe koennte davon abweichen. Der Validierungsbericht weist sie je
-Preset aus („Fuer das Touchgeraet geeignet"), und die Startansicht am Geraet
-bekommt ausschliesslich geeignete Presets in ihren Katalog.
+Suitability is derived from the filters, not stated separately - a second
+statement could deviate from it. The validation report shows it per preset
+("Suitable for the touch device"), and the device's start view only gets
+suitable presets in its catalog.
 
-Ein Bilderkennen-Fragenplatz gehoert nur dann in ein Touch-Preset, wenn die
-Fragen dort Antwortoptionen haben: Die Enthuellung laeuft, ein Tipp friert sie
-ein. Muendlich zu beantwortende Bildfragen werden im Selbstbedienungsbetrieb
-uebersprungen.
+An image-recognition question slot only belongs in a touch preset if the
+questions there have answer options: the reveal runs, and a tap freezes it.
+Image questions that need a spoken answer are skipped in self-service
+operation.
 
-## Neues Preset anlegen
+## Creating a new preset
 
-Ein Preset ist eine **dramaturgische Ablaufkonfiguration**, kein globaler Filter.
-`easy` darf deshalb einzelne mittelschwere Fragenplaetze enthalten.
+A preset is a **dramaturgical flow configuration**, not a global filter.
+`easy` may therefore contain individual medium-difficulty question slots.
 
 ```jsonc
 {
@@ -165,20 +168,21 @@ Ein Preset ist eine **dramaturgische Ablaufkonfiguration**, kein globaler Filter
 }
 ```
 
-Regeln:
+Rules:
 
-* Die Anzahl der Slots muss `questionsPerGame` entsprechen; sonst bricht der Build ab.
-* Fehlende Filter bedeuten „beliebig“.
-* Slots mit **identischem** Filter konkurrieren um denselben Bestand. Unterschiedliche
-  Filter erhoehen die Zahl wiederholungsfreier Spiele deutlich.
-* Der Preset-Name ist kein automatischer Filter.
+* The number of slots must match `questionsPerGame`; otherwise the build
+  fails.
+* Missing filters mean "any".
+* Slots with **identical** filters compete for the same pool. Different
+  filters significantly increase the number of repetition-free games.
+* The preset's name is not an automatic filter.
 
-Danach das Preset in `allowedPresetIds` der gewuenschten Zielgruppen eintragen und
-`pnpm content:validate` ausfuehren. Nicht erfuellbare Fragenplaetze sind harte Fehler,
-zu kleine Bestaende erzeugen Warnungen mit konkreter Kandidatenzahl.
+Afterward, enter the preset in `allowedPresetIds` of the desired audiences and
+run `pnpm content:validate`. Unfillable question slots are hard errors; too
+small a pool produces warnings with a concrete candidate count.
 
-## Fragenanzahl aendern
+## Changing the number of questions
 
-`questionsPerGame` in `config.json` anpassen und **alle** Presets auf dieselbe
-Slotzahl bringen. Die Zahl ist nirgends sonst hart codiert: UI, Server und Datenmodell
-lesen sie aus der Konfiguration.
+Adjust `questionsPerGame` in `config.json` and bring **all** presets to the
+same slot count. The number is not hardcoded anywhere else: UI, server, and
+data model all read it from the configuration.

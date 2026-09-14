@@ -1,13 +1,13 @@
 /**
- * Auftritt der Loesungsansicht.
+ * Entrance of the solution view.
  *
- * Die richtige Option wird hervorgehoben, eine falsch genannte Option abgesetzt.
- * Beides stammt aus `visibleOptions[].state`, das der Server ERST in der
- * Loesungsszene mitsendet. Diese Animation deckt also nichts auf, was vorher schon
- * im Client gelegen haette.
+ * The correct option is highlighted, an incorrectly named option is dimmed.
+ * Both come from `visibleOptions[].state`, which the server sends ONLY in
+ * the solution scene. This animation therefore reveals nothing that would
+ * already have sat in the client beforehand.
  *
- * Beim Bilderkennen wird das Bild hier auf volle Schaerfe gebracht; der Zustand
- * `reveal.status === 'completed'` kommt ebenfalls vom Server.
+ * For the image reveal, the image is brought to full sharpness here; the
+ * `reveal.status === 'completed'` state likewise comes from the server.
  */
 import { easings, presentationTiming } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'

@@ -1,19 +1,21 @@
 /**
- * Ergebnisansicht (Spezifikation 14.3).
+ * Result view (spec 14.3).
  *
- * Der hoehere Punktestand gewinnt, bei Gleichstand erscheint "Unentschieden". Es gibt
- * bewusst keine manuelle Gewinnerauswahl und keine automatische Entscheidungsfrage.
+ * The higher score wins; on a tie, "Unentschieden" appears. There is
+ * deliberately no manual winner selection and no automatic tie-breaker
+ * question.
  *
- * Im Einzelspiel gibt es weder Gewinner noch Unentschieden. Welche Fassung gilt,
- * entscheidet `result.mode` aus dem Server - nicht die Anzahl der Punktestaende.
+ * In single-player games there is neither a winner nor a tie. Which version
+ * applies is decided by `result.mode` from the server - not by the number of
+ * scores.
  *
- * Konfetti laeuft nur bei einem Gewinner und ist reine Darstellung. Korrigiert der
- * Operator danach Punkte, berechnet der Server das Ergebnis deterministisch neu
- * und diese Ansicht folgt einfach dem neuen Snapshot.
+ * Confetti only runs for a winner and is purely decorative. If the operator
+ * corrects scores afterward, the server deterministically recomputes the
+ * result and this view simply follows the new snapshot.
  *
- * Die Ergebniskacheln stehen gespiegelt wie in der Kopfzeile: Spieler aussen,
- * Punkte innen. Sie zaehlen ebenfalls hoch - korrigiert der Operator hier noch
- * Punkte, ist die Aenderung dieselbe Bewegung wie im Spiel.
+ * The result tiles are mirrored like in the header: player on the outside,
+ * score on the inside. They also count up - if the operator still corrects
+ * scores here, the change is the same motion as in the game.
  */
 import type { PublicResult } from '@hfroemmel/quiz-core'
 import { Confetti } from '../../components/Confetti'
@@ -48,11 +50,12 @@ export function ResultScene({ view }: SceneProps) {
 }
 
 /**
- * Einzelspiel: kein Gewinner, kein Konfetti, kein Gegner - nur das eigene Ergebnis.
+ * Single-player game: no winner, no confetti, no opponent - just one's own
+ * result.
  *
- * Die Trefferzahl kommt aus dem Server; sie wird hier nicht aus den Punkten
- * zurueckgerechnet, weil eine richtige Antwort je nach Versuch verschieden viele
- * Punkte wert ist.
+ * The number of correct answers comes from the server; it is not
+ * back-computed here from the score, because a correct answer is worth a
+ * different number of points depending on the attempt.
  */
 function SoloResult({ result, view }: { result: PublicResult; view: SceneProps['view'] }) {
   const t = textsFor(view)

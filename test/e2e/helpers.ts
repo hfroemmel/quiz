@@ -1,16 +1,16 @@
 /**
- * Bedienhilfen fuer die End-to-End-Tests des Pruefstands.
+ * Helper functions for the end-to-end tests of the test rig.
  *
- * Die Tests bedienen die Oberflaeche so, wie zwei Menschen davor es tun - ueber
- * sichtbare Beschriftungen. Es wird bewusst nirgends in den Zustand oder in
- * DevTools eingegriffen (Abnahmekriterium Spezifikation 32).
+ * The tests operate the interface the way two people standing in front of it
+ * would - via visible labels. Deliberately, nothing ever reaches into state
+ * or DevTools (acceptance criterion, specification 32).
  *
- * Einen Server gibt es hier nicht: Jeder Seitenaufruf baut eine frische
- * `LocalQuizRuntime`. Das Neuladen IST der Ruecksetzknopf.
+ * There is no server here: every page load builds a fresh `LocalQuizRuntime`.
+ * Reloading IS the reset button.
  */
 import { expect, type Page } from '@playwright/test'
 
-/** Die Antwortzeilen der Szene sind da und tippbar - und noch nicht verbraucht. */
+/** The scene's answer rows are present and tappable - and not yet used up. */
 export const openAnswer = '[data-answer][data-state="idle"] [data-answer-button]:not([disabled])'
 
 export async function currentPhase(page: Page): Promise<string> {

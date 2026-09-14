@@ -1,15 +1,15 @@
 /**
- * Fluessige Darstellung der Bildenthuellung.
+ * Smooth rendering of the image reveal.
  *
- * FAIRNESSREGEL (Spezifikation 10.2): Das Raster auf der Buehne und die
- * Restsekunden beim Moderator stammen aus DERSELBEN Fortschrittsvariable.
- * Dieser Hook berechnet sie deshalb beide aus
- * `revealProgress` des Domain-Pakets - es gibt keine zweite, unabhaengige
- * CSS-Animation und keinen separaten Timer.
+ * FAIRNESS RULE (specification 10.2): the grid on the stage and the remaining
+ * seconds for the moderator come from the SAME progress variable. This hook
+ * therefore computes both of them from `revealProgress` of the domain
+ * package - there is no second, independent CSS animation and no separate
+ * timer.
  *
- * Der Client rendert nur; er veraendert den autoritativen Zustand nie. Bei jedem
- * Snapshot uebernimmt er wieder den Serverwert, wodurch sich Drift und
- * Reconnect-Abweichungen sofort korrigieren.
+ * The client only renders; it never changes the authoritative state. On
+ * every snapshot it takes over the server value again, which immediately
+ * corrects drift and reconnect deviations.
  */
 import { useEffect, useRef, useState } from 'react'
 import type { PublicRevealState } from '@hfroemmel/quiz-core'
@@ -33,8 +33,8 @@ export function useRevealClock(
 
   useEffect(() => {
     if (!running) return
-    // requestAnimationFrame sorgt nur fuer fluessiges Zeichnen. Die Werte selbst
-    // kommen weiterhin aus dem Serverzustand.
+    // requestAnimationFrame only provides smooth drawing. The values themselves
+    // still come from the server state.
     const tick = () => {
       forceRender((value) => (value + 1) % 1_000_000)
       frameRef.current = requestAnimationFrame(tick)
@@ -48,8 +48,8 @@ export function useRevealClock(
 
   if (!reveal) return { progress: 0, countdownSeconds: 0, running: false }
 
-  // Der Serverzustand wird in die Form gebracht, die die Domain-Funktionen erwarten:
-  // "verstrichene Zeit vor dem laufenden Abschnitt" plus Startzeitpunkt.
+  // The server state is brought into the shape the domain functions expect:
+  // "time elapsed before the running section" plus the start time.
   const clock = {
     status: reveal.status,
     durationMs: reveal.durationMs,

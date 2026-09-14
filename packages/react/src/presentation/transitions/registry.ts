@@ -1,16 +1,16 @@
 /**
- * Zentrales Registry aller Uebergangsanimationen (Spezifikation 22.1).
+ * Central registry of all transition animations (specification 22.1).
  *
- * Die Domain entscheidet nur, WELCHE Phase gilt. Diese Datei entscheidet, welche
- * Animation, welche Dauer, welches Easing und welche Soundmarke dazu gehoeren.
+ * The domain only decides WHICH phase applies. This file decides which
+ * animation, which duration, which easing and which sound cue belong to it.
  *
- * NEUE UEBERGANGSANIMATION HINZUFUEGEN
- *   1. Definition im Verzeichnis `transitions/` anlegen
- *   2. hier importieren und in `transitions` eintragen
- *   3. betroffene Szenenkante ueber `appliesTo` zuordnen
- *   4. `reducedMotionDurationMs` ergaenzen
- *   5. in der Entwicklungsansicht `/preview` pruefen
- *   6. visuellen Regressionstest aktualisieren (test/e2e/presentation.spec.ts)
+ * ADDING A NEW TRANSITION ANIMATION
+ *   1. create the definition in the `transitions/` directory
+ *   2. import it here and register it in `transitions`
+ *   3. map the affected scene edge via `appliesTo`
+ *   4. add `reducedMotionDurationMs`
+ *   5. check it in the `/preview` development view
+ *   6. update the visual regression test (test/e2e/presentation.spec.ts)
  */
 import type { PublicScene } from '@hfroemmel/quiz-core'
 import { prefersReducedMotion } from '../animationPresets'
@@ -36,10 +36,11 @@ export const transitions: PresentationTransitionDefinition[] = [
 export const transitionsById = new Map(transitions.map((definition) => [definition.id, definition]))
 
 /**
- * Waehlt den Uebergang fuer eine Szenenkante.
+ * Picks the transition for a scene edge.
  *
- * Die Feedbackszene hat zwei Varianten; welche gilt, entscheidet das Ergebnis des
- * Versuchs - und das kommt aus dem Serverzustand, nicht aus der Praesentation.
+ * The feedback scene has two variants; which one applies is decided by the
+ * attempt's outcome - and that comes from the server state, not from the
+ * presentation.
  */
 export function transitionFor(
   from: PublicScene | undefined,
@@ -52,12 +53,12 @@ export function transitionFor(
   )
 }
 
-/** Effektive Dauer unter Beruecksichtigung von `prefers-reduced-motion`. */
+/** Effective duration taking `prefers-reduced-motion` into account. */
 export function effectiveDurationMs(definition: PresentationTransitionDefinition): number {
   return prefersReducedMotion() ? definition.reducedMotionDurationMs : definition.durationMs
 }
 
-/** CSS-Variablen, mit denen eine Szene ihre Animation parametriert. */
+/** CSS variables with which a scene parameterises its animation. */
 export function transitionStyle(definition: PresentationTransitionDefinition | undefined): Record<string, string> {
   if (!definition) return {}
   return {

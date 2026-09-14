@@ -1,17 +1,17 @@
 /**
- * Selbstbedienung am Touchgeraet.
+ * Self-service on the touch device.
  *
- * Diese Tests laufen gegen das echte Quizpaket und dieselbe Engine wie die
- * Buehne - nur ohne Server, ueber eine `LocalQuizRuntime` im Browser, und ohne
- * einen einzigen Operatorbefehl. Genau das ist der Punkt: Wenn hier etwas
- * haengt, haengt es auch am Geraet, wo niemand eingreifen kann.
+ * These tests run against the real quiz package and the same engine as the
+ * stage - just without a server, via a `LocalQuizRuntime` in the browser, and
+ * without a single operator command. That is exactly the point: if something
+ * hangs here, it also hangs on the device, where nobody can intervene.
  */
 import { expect, test, type Page } from '@playwright/test'
 import { openAnswer } from './helpers'
 
 const freeBuzzer = '[data-buzzer][data-enabled="true"]'
 
-/** Ein Hexwert, wie `getComputedStyle` ihn meldet: `rgb(r, g, b)`. */
+/** A hex value, as `getComputedStyle` reports it: `rgb(r, g, b)`. */
 function color(hex: string): string {
   const raw = hex.replace('#', '')
   const voll = raw.length === 3 ? [...raw].map((char) => char + char).join('') : raw
@@ -20,8 +20,8 @@ function color(hex: string): string {
 }
 
 /**
- * Jeder Seitenaufruf baut eine frische Laufzeit im Browser - das Neuladen ist
- * hier der Ruecksetzknopf, den es am Geraet nicht gibt.
+ * Every page load builds a fresh runtime in the browser - reloading is
+ * the reset button here that the device does not have.
  */
 async function openStartScreen(page: Page): Promise<void> {
   await page.goto('/play')
@@ -37,10 +37,10 @@ async function startGame(page: Page, players: 'Allein' | 'Zu zweit', preset = 'L
 }
 
 /**
- * Antworten, wie es am Geraet zugeht: im Duell erst buzzern, dann tippen, dann
- * abgeben. Erst das Abgeben loest die Wertung aus.
+ * Answering, the way it works on the device: in a duel, buzz first, then tap,
+ * then submit. Only submitting triggers the scoring.
  *
- * Im Einzelspiel gibt es keinen Buzzer - dort holt der erste Tipp den Zuschlag.
+ * In solo play there is no buzzer - there, the first tap wins the turn.
  */
 async function answerWith(page: Page, side?: 'left' | 'right'): Promise<void> {
   if (side) await page.locator(`[data-buzzer][data-side="${side}"]`).click()
@@ -48,47 +48,47 @@ async function answerWith(page: Page, side?: 'left' | 'right'): Promise<void> {
   await page.locator('[data-confirm]').click()
 }
 
-/** Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. */
+/** After the solution, things only continue once a player taps. */
 async function next(page: Page): Promise<void> {
   await page.locator('[data-continue]').click()
 }
 
-test('die Startauswahl fragt nur nach Spielerzahl und Schwierigkeit', async ({ page }) => {
+test('the start selection asks only for player count and difficulty', async ({ page }) => {
   await openStartScreen(page)
 
   /*
-   * Zur Wahl stehen nur Presets, die am Geraet auch spielbar sind. Die
-   * Buehnenpresets enthalten einen Bilderkennen-Fragenplatz; dessen Fragen
-   * muesste ein Mensch bewerten, und hier steht keiner.
+   * Only presets that are actually playable on the device are offered. The
+   * stage presets contain an image-recognition question slot; its questions
+   * would need a human to judge them, and there is none here.
    */
   const presets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(presets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
-  // Der Quizmodus gehoert zur Aufstellung, nicht auf den Bildschirm der Spieler.
+  // The quiz mode belongs to the setup, not on the players' screen.
   await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Zu zweit/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
 })
 
 /* ------------------------------------------------------------------ *
- * Die Auswahl selbst
+ * The selection itself
  * ------------------------------------------------------------------ */
 
-test('die Auswahl ist immer genau eine - je Schritt', async ({ page }) => {
+test('the selection is always exactly one - per step', async ({ page }) => {
   await openStartScreen(page)
 
   /*
-   * Beim Aufschlagen steht in jedem Schritt schon eine Wahl. Ein Geraet, das
-   * mit lauter leeren Kaesten dasteht, verlangt zwei Entscheidungen, bevor
-   * ueberhaupt etwas passieren kann - dabei ist die erste Stufe die richtige
-   * Vermutung fuer den, der zufaellig davorsteht.
+   * On opening, a choice is already made at every step. A device that stands
+   * there with nothing but empty boxes demands two decisions before anything
+   * can happen at all - and the first level is the right guess for whoever
+   * happens to be standing in front of it.
    */
   await expect(page.locator('[data-player-count][aria-pressed="true"]')).toHaveCount(1)
   await expect(page.locator('[data-player-count="1"]')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('[data-preset][aria-pressed="true"]')).toHaveCount(1)
   await expect(page.locator('[data-preset="touch-easy"]')).toHaveAttribute('aria-pressed', 'true')
 
-  // Eine zweite Wahl ersetzt die erste; zwei gewaehlte Karten darf es nie geben.
+  // A second choice replaces the first; there must never be two selected cards.
   await page.locator('[data-player-count="2"]').click()
   await expect(page.locator('[data-player-count="2"]')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('[data-player-count][aria-pressed="true"]')).toHaveCount(1)
@@ -97,18 +97,18 @@ test('die Auswahl ist immer genau eine - je Schritt', async ({ page }) => {
   await expect(page.locator('[data-preset="touch-hard"]')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('[data-preset][aria-pressed="true"]')).toHaveCount(1)
 
-  // Das Haekchen sitzt auf der gewaehlten Karte - und nur dort.
+  // The checkmark sits on the selected card - and only there.
   await expect(page.locator('[data-preset="touch-hard"] [data-on="true"]')).toHaveCount(1)
   await expect(page.locator('[data-preset="touch-easy"] [data-on="true"]')).toHaveCount(0)
 })
 
-test('jede Stufenkarte nennt ihren eigenen Umfang', async ({ page }) => {
+test('every level card names its own scope', async ({ page }) => {
   await openStartScreen(page)
 
   /*
-   * "Lohnt sich das jetzt?" beantwortet die Karte selbst - die Zahl der Fragen
-   * steht auf ihr und nicht an einer zweiten Stelle, die der Auswahl folgen
-   * muesste.
+   * "Is it worth it right now?" is answered by the card itself - the number of
+   * questions is on it, not in a second place that would have to be looked up
+   * after the selection.
    */
   for (const level of ['touch-easy', 'touch-medium', 'touch-hard']) {
     await expect(page.locator(`[data-preset="${level}"]`)).toContainText(/\d+ Fragen/)
@@ -116,15 +116,15 @@ test('jede Stufenkarte nennt ihren eigenen Umfang', async ({ page }) => {
 })
 
 /* ------------------------------------------------------------------ *
- * Helle und dunkle Fassung der Startauswahl
+ * Light and dark version of the start selection
  *
- * Die Auswahl liegt UEBER der Buehne und konnte deren `.stage--bright` deshalb
- * nie lesen - sie war immer dunkel, auch wenn das Spiel danach auf Papier lief.
- * Die Fassung steht jetzt als `data-theme` am Wurzelelement, und die
- * `--start-*`-Farben haengen daran.
+ * The selection sits ABOVE the stage and could therefore never read its
+ * `.stage--bright` - it was always dark, even when the game afterwards ran on
+ * paper. The version now lives as `data-theme` on the root element, and the
+ * `--start-*` colours depend on it.
  * ------------------------------------------------------------------ */
 
-test('die Startauswahl steht in derselben Fassung wie die Buehne danach', async ({ page }) => {
+test('the start selection is in the same version as the stage afterwards', async ({ page }) => {
   await openStartScreen(page)
   await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-theme', 'bright')
 
@@ -133,17 +133,17 @@ test('die Startauswahl steht in derselben Fassung wie die Buehne danach', async 
     const value = (name: string) => measured.getPropertyValue(name).trim()
     return { ground: value('--start-bg-top'), selection: value('--start-selected'), green: value('--start-green') }
   })
-  // Papier, nicht Nacht.
+  // Paper, not night.
   expect(colors.ground).toBe('#fff')
   /*
-   * DIE AUSWAHL IST NICHT DIE HANDLUNG. Beide waren dasselbe Gruen; auf Papier
-   * traegt die Auswahl das Blau der markierten Antwort, und Gruen gehoert
-   * allein dem Knopf, der das Spiel startet.
+   * THE SELECTION IS NOT THE ACTION. Both used to be the same green; on paper
+   * the selection carries the blue of the marked answer, and green belongs
+   * solely to the button that starts the game.
    */
   expect(colors.selection).not.toBe(colors.green)
 })
 
-test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', async ({ page }) => {
+test('chosen, open and the three states in between can be told apart', async ({ page }) => {
   await openStartScreen(page)
 
   const chosen = page.locator('[data-preset][aria-pressed="true"]').first()
@@ -153,9 +153,9 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
     .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-selected').trim())
 
   /*
-   * Gewaehlt und offen unterscheiden sich in der FLAECHE und in der Tinte
-   * darauf - nicht in einer Kante. Dass keiner der Zustaende eine stellt,
-   * prueft der Test weiter unten ("die gewaehlte Karte ist eine Flaeche").
+   * Selected and open differ in the FILL and in the ink on top of it - not in
+   * a border. The test further below checks that neither state adds one
+   * ("the selected card is a fill").
    */
   const state = await chosen.evaluate((node) => {
     const measured = getComputedStyle(node)
@@ -167,13 +167,13 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
   })
   expect(state.area).not.toBe(openState.area)
   expect(state.font).not.toBe(openState.font)
-  // Die Auswahlmarke traegt genau die Auswahlfarbe - dieselbe wie die Flaeche darunter.
+  // The selection mark carries exactly the selection colour - the same as the fill beneath it.
   await expect(chosen.locator('[data-on="true"]')).toHaveCSS('background-color', color(selection))
 
   /*
-   * Zeigen: die Flaeche der offenen Karte hebt sich, ohne dass eine Linie
-   * erscheint. Gewartet wird auf den Uebergang - die Flaeche wechselt in 120 ms,
-   * und ein Blick sofort danach liest manchmal noch die alte.
+   * Shows that the fill of the open card lifts without a line appearing. The
+   * test waits for the transition - the fill changes over 120 ms, and a check
+   * right away sometimes still reads the old one.
    */
   await open.hover()
   await expect
@@ -181,12 +181,12 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
     .not.toBe(openState.area)
 
   /*
-   * Tastaturmarke: KEINE Linie, sondern ein Hauch Groesse und ein weicher
-   * Schein. Ein Ring darum haette auf der gewaehlten Karte neben der Auswahl
-   * gestanden, und aus zwei Metern waeren daraus zwei Striche geworden.
+   * Keyboard mark: NO line, but a touch of size and a soft glow. A ring around
+   * it would have sat next to the selection on the selected card, and from two
+   * metres away that would have turned into two strokes.
    */
   await open.focus()
-  // Gewartet wird auf den Uebergang: Die Groesse waechst in 120 ms, nicht sofort.
+  // The test waits for the transition: the size grows over 120 ms, not instantly.
   await expect
     .poll(() => open.evaluate((node) => Number(getComputedStyle(node).scale.split(' ')[0])))
     .toBeGreaterThan(1)
@@ -198,9 +198,9 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
   expect(brand.shadow).not.toBe('none')
 
   /*
-   * Gesperrt: Der Startknopf tritt zurueck, bleibt aber sichtbar. Er ist im
-   * Betrieb nie gesperrt - eine Stufe ist immer vorgewaehlt -, und genau
-   * deshalb wird der Zustand hier erzwungen statt erspielt.
+   * Disabled: the start button recedes but stays visible. In operation it is
+   * never disabled - a level is always preselected - and that is exactly why
+   * the state is forced here rather than reached by playing.
    */
   const start = page.locator('[data-start]')
   const awake = await start.evaluate((node) => getComputedStyle(node).opacity)
@@ -211,13 +211,13 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
   expect(Number(blocked)).toBeLessThan(Number(awake))
 })
 
-test('Gruen traegt allein der Startknopf', async ({ page }) => {
+test('only the start button carries green', async ({ page }) => {
   await openStartScreen(page)
   const green = await page
     .locator('[data-quiz-game]')
     .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-green').trim())
 
-  // Auf dem Knopf: als Flaeche, mit heller Aufschrift darauf.
+  // On the button: as a fill, with light-coloured lettering on top.
   const button = await page.locator('[data-start]').evaluate((node) => {
     const measured = getComputedStyle(node)
     return { ground: measured.backgroundImage, font: measured.color }
@@ -225,7 +225,7 @@ test('Gruen traegt allein der Startknopf', async ({ page }) => {
   expect(button.ground).toContain(color(green))
   expect(button.font).toBe('rgb(255, 255, 255)')
 
-  // Nirgends sonst: nicht auf einer Karte, nicht auf der Marke, nicht am Rueckweg.
+  // Nowhere else: not on a card, not on the mark, not on the way back.
   const elsewhere = await page.evaluate(() => {
     const places = ['[data-preset][aria-pressed="true"]', '[data-player-count][aria-pressed="true"]', '[data-game-start] button:not([data-start])']
     return places.flatMap((place) =>
@@ -239,16 +239,16 @@ test('Gruen traegt allein der Startknopf', async ({ page }) => {
 })
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt
+ * Kids world
  *
- * Die Startauswahl liegt UEBER der Buehne - die Klasse `.stage--kids` gibt es
- * dort nicht. Dass die Welt trotzdem ankommt, haengt an `data-skin` am
- * Wurzelelement und daran, dass die Welt schon aus der Zielgruppe kommt und
- * nicht erst aus dem laufenden Spiel. Beides ist unsichtbar, wenn es faellt:
- * Die Auswahl saehe einfach aus wie die der Erwachsenen.
+ * The start selection sits ABOVE the stage - the `.stage--kids` class does not
+ * exist there. That the world still comes through depends on `data-skin` on
+ * the root element and on the world already coming from the target audience
+ * rather than only from the running game. Both are invisible if they fail:
+ * the selection would simply look like the adults' one.
  * ------------------------------------------------------------------ */
 
-/** Die Zeichnung, die eine Flaeche traegt - als Dateiname, ohne Adresse davor. */
+/** The artwork that a fill carries - as a file name, without a path in front of it. */
 async function drawing(page: Page, choice: string, pseudo = '::before'): Promise<string> {
   return page.locator(choice).first().evaluate((node, ps) => {
     const source = getComputedStyle(node as Element, ps as string).borderImageSource
@@ -256,19 +256,19 @@ async function drawing(page: Page, choice: string, pseudo = '::before'): Promise
   }, pseudo)
 }
 
-test('das Kindergeraet traegt seine Welt schon in der Auswahl', async ({ page }) => {
+test('the kids device carries its world already in the selection', async ({ page }) => {
   await page.goto('/play?audience=kids')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
 
   await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'kids')
 
-  // Die Auswahlkarten sind dieselben gemalten Kartons wie die Antwortzeilen.
+  // The selection cards are the same painted cartons as the answer rows.
   expect(await drawing(page, '[data-preset][aria-pressed="false"]')).toBe('answer-box-a.svg')
 
   /*
-   * GEWAEHLT SIEHT AUS WIE EINE GEWAEHLTE ANTWORT: rote Karte, weisse Schrift.
-   * Kein gruener Ring und keine gruene Kante - das Gruen ist die Auswahlfarbe
-   * der Erwachsenen und hat in dieser Welt keine Bedeutung.
+   * SELECTED LOOKS LIKE A SELECTED ANSWER: red card, white text. No green ring
+   * and no green border - green is the adults' selection colour and has no
+   * meaning in this world.
    */
   const chosen = page.locator('[data-preset][aria-pressed="true"]').first()
   expect(await drawing(page, '[data-preset][aria-pressed="true"]')).toBe('answer-box-b.svg')
@@ -280,11 +280,11 @@ test('das Kindergeraet traegt seine Welt schon in der Auswahl', async ({ page })
   expect(edge.width).toBe('0px')
 })
 
-test('der primaere Knopf der Kinderwelt ist ueberall derselbe', async ({ page }) => {
+test('the primary button of the kids world is the same everywhere', async ({ page }) => {
   /*
-   * "Los geht\'s" in der Auswahl und "Antwort abgeben und aufloesen" in der
-   * Fussleiste sind zwei Bauteile an zwei Orten - und muessen aus derselben
-   * Zeichnung kommen. Sonst hat die Welt zwei primaere Knoepfe.
+   * "Los geht\'s" in the selection and "Antwort abgeben und aufloesen" in the
+   * footer are two components in two places - and must come from the same
+   * artwork. Otherwise the world would have two primary buttons.
    */
   await page.goto('/play?audience=kids')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
@@ -302,21 +302,21 @@ test('der primaere Knopf der Kinderwelt ist ueberall derselbe', async ({ page })
   expect(inGame).toBe(inSelection)
 })
 
-test('die Erwachsenenauswahl bleibt ungezeichnet', async ({ page }) => {
-  // Die Kinderwelt darf die andere nicht anfassen.
+test('the adults selection stays undrawn', async ({ page }) => {
+  // The kids world must not touch the other one.
   await openStartScreen(page)
   await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'default')
   expect(await drawing(page, '[data-preset]')).toBe('none')
 })
 
-test('die Startauswahl laesst sich vollstaendig mit der Tastatur bedienen', async ({ page }) => {
+test('the start selection can be operated completely with the keyboard', async ({ page }) => {
   await openStartScreen(page)
 
   /*
-   * Am Geraet im Foyer tippt jeder mit dem Finger - aber die Aufstellung wird
-   * mit einer Tastatur geprueft, und Barrierefreiheit ist keine Frage des
-   * Aufstellorts. Erreichbar heisst: mit Tab hin und mit der Leertaste
-   * ausloesen, ohne dass ein Klick noetig waere.
+   * On the device in the foyer everyone taps with a finger - but the setup is
+   * checked with a keyboard, and accessibility is not a question of where the
+   * device stands. Reachable means: get there with Tab and trigger it with the
+   * space key, without a click ever being necessary.
    */
   await page.locator('[data-player-count="1"]').focus()
   await page.keyboard.press('Tab')
@@ -334,11 +334,11 @@ test('die Startauswahl laesst sich vollstaendig mit der Tastatur bedienen', asyn
   await expect(page.locator(freeBuzzer)).toHaveCount(2)
 })
 
-test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ page }) => {
+test('first the question stands alone, then answers and buzzers come', async ({ page }) => {
   /*
-   * Am Geraet liest niemand die Frage vor. Die Frist davor ist der Ersatz: Wer
-   * noch liest, soll nicht vom schnelleren Daumen ueberholt werden. Solange sie
-   * laeuft, sind die Antworten nicht einmal auf der Leitung.
+   * On the device nobody reads the question aloud. The countdown beforehand is
+   * the substitute: whoever is still reading should not be beaten by a faster
+   * thumb. While it runs, the answers are not even live.
    */
   await openStartScreen(page)
   await page.getByRole('button', { name: /^Zu zweit/ }).click()
@@ -350,13 +350,13 @@ test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ p
   await expect(page.locator('[data-answer]')).toHaveCount(0)
   await expect(page.locator('[data-buzzer][data-enabled="true"]')).toHaveCount(0)
 
-  // Erst mit den Antworten geht der Buzzer auf.
+  // The buzzer only opens once the answers appear.
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
   await expect(page.locator(freeBuzzer)).toHaveCount(2)
 })
 
-test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
+test('after the solution the device waits for "next"', async ({ page }) => {
   await startGame(page, 'Allein')
   const stage = page.locator('.stage')
   const question = await page.locator('[data-prompt]').first().innerText()
@@ -365,13 +365,13 @@ test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
   await expect(stage).toHaveAttribute('data-scene', 'solution', { timeout: 20_000 })
 
   /*
-   * Und bleibt dort. Frueher plante der Server hier einen Uebergang ein; wer
-   * gerade noch las, warum seine Antwort falsch war, verlor das Bild.
+   * And stays there. The server used to schedule a transition here; whoever
+   * was still reading why their answer was wrong lost the picture.
    */
   await page.waitForTimeout(8_000)
   await expect(stage).toHaveAttribute('data-scene', 'solution')
   await expect(page.locator('[data-prompt]').first()).toHaveText(question)
-  // Aufgeloest heisst: niemand buzzert mehr und niemand tippt mehr.
+  // Resolved means: nobody can buzz anymore and nobody can tap anymore.
   await expect(page.locator(freeBuzzer)).toHaveCount(0)
   await expect(page.locator(openAnswer)).toHaveCount(0)
 
@@ -379,12 +379,12 @@ test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
   await expect(stage).toHaveAttribute('data-scene', 'pause', { timeout: 20_000 })
 })
 
-test('Einzelspiel: der Hinweis steht mittig, der Zaehler aussen', async ({ page }) => {
+test('solo game: the hint sits centred, the counter outside', async ({ page }) => {
   /*
-   * Ohne Gegner faellt die rechte Ecke weg. Der Zaehler nimmt ihren Platz ein,
-   * damit der Hinweis in der Mitte des Bildschirms bleibt - sonst schoebe er
-   * sich mit dem Zaehler nach rechts, und der Knopf laege nicht mehr da, wo ihn
-   * im Duell auch die zweite Hand erwartet.
+   * Without an opponent, the right-hand corner disappears. The counter takes
+   * its place so the hint stays in the middle of the screen - otherwise it
+   * would shift to the right along with the counter, and the button would no
+   * longer sit where the second hand also expects it in a duel.
    */
   await startGame(page, 'Allein')
   await answerWith(page)
@@ -394,14 +394,14 @@ test('Einzelspiel: der Hinweis steht mittig, der Zaehler aussen', async ({ page 
   const button = (await page.locator('[data-continue]').boundingBox())!
   expect(Math.round(button.x + button.width / 2)).toBe(Math.round(width / 2))
 
-  // Der Zaehler steht rechts vom Knopf, die Punktekarte links davon.
+  // The counter sits to the right of the button, the score card to its left.
   const counter = (await page.locator('[data-counter]').boundingBox())!
   const card = (await page.locator('[data-score]').boundingBox())!
   expect(counter.x).toBeGreaterThan(button.x + button.width)
   expect(card.x + card.width).toBeLessThan(button.x)
 })
 
-test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) => {
+test('hint and "next" share a field of fixed height', async ({ page }) => {
   await startGame(page, 'Allein')
 
   const field = page.locator('[data-notice]')
@@ -412,9 +412,9 @@ test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) 
   await expect(page.locator('[data-continue]')).toBeVisible({ timeout: 20_000 })
 
   /*
-   * Feld und Zaehler stehen exakt wie vorher. Ohne feste Hoehe rutschte alles
-   * darueber ein Stueck, sobald aus dem Hinweis ein Knopf wird - und zwar in
-   * dem Moment, in dem jemand mit dem Finger zielt.
+   * Field and counter stay exactly where they were. Without a fixed height,
+   * everything above it would shift a bit as soon as the hint turns into a
+   * button - right at the moment someone is aiming with their finger.
    */
   const withButton = (await field.boundingBox())!
   expect(Math.round(withButton.height)).toBe(Math.round(empty.height))
@@ -423,48 +423,48 @@ test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) 
   expect(Math.round(counterAfter.y)).toBe(Math.round(counter.y))
 })
 
-test('Einzelspiel: kein Buzzer, und die Auswertung laeuft ohne Operator', async ({ page }) => {
+test('solo game: no buzzer, and the evaluation runs without an operator', async ({ page }) => {
   await startGame(page, 'Allein')
 
-  // Gegen wen sollte man sich melden? Sobald die Antworten stehen, sind sie offen.
+  // Whom would you buzz against? As soon as the answers appear, they are open.
   await expect(page.locator('[data-buzzer]')).toHaveCount(0)
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
 
   await answerWith(page)
 
-  // Bewertung und Loesung laufen von selbst - nur der Schritt danach nicht.
+  // Scoring and the solution run on their own - only the step after that does not.
   await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'feedback', { timeout: 20_000 })
   await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'solution', { timeout: 20_000 })
   await expect(page.locator('[data-continue]')).toBeVisible()
 })
 
-test('die Antworten stehen genau einmal auf dem Tisch - als Schaltflaechen', async ({ page }) => {
+test('the answers are on the table exactly once - as buttons', async ({ page }) => {
   /*
-   * EINE Liste, auch im Duell. Frueher hatte jeder Spieler seine eigene; dieselben
-   * vier Antworten standen dann doppelt da, und getippt werden konnte nur auf
-   * einer der beiden Fassungen.
+   * ONE list, even in a duel. Each player used to have their own; the same
+   * four answers then appeared twice, and only one of the two copies could be
+   * tapped.
    */
   await startGame(page, 'Zu zweit')
 
   await expect(page.locator('[data-answers]')).toHaveCount(1)
   const rows = await page.locator('[data-answer]').count()
   expect(rows).toBeGreaterThan(1)
-  // Und jede Zeile ist eine echte Schaltflaeche, keine Flaeche mit Klickfaenger.
+  // And every row is a real button, not a fill with a click handler bolted on.
   await expect(page.locator('[data-answer-button]')).toHaveCount(rows)
 })
 
-test('Duell: zwei Buzzer, und wer zuerst drueckt, bekommt die Antworten', async ({ page }) => {
+test('duel: two buzzers, and whoever presses first gets the answers', async ({ page }) => {
   await startGame(page, 'Zu zweit')
 
-  // Beide Spieler stehen nebeneinander: ein Buzzer je Seite, beide offen.
+  // Both players stand side by side: one buzzer per side, both open.
   await expect(page.locator('[data-buzzer]')).toHaveCount(2)
   await expect(page.locator(freeBuzzer)).toHaveCount(2)
-  // Solange niemand gedrueckt hat, gehoeren die Antworten niemandem.
+  // As long as nobody has pressed, the answers belong to no one.
   await expect(page.locator(openAnswer)).toHaveCount(0)
 
   await page.locator('[data-buzzer][data-side="right"]').click()
 
-  // Der Zuschlag steht am Buzzer selbst, und der andere tritt zurueck.
+  // The turn is shown on the buzzer itself, and the other one recedes.
   await expect(page.locator('[data-buzzer][data-side="right"]')).toHaveAttribute('data-armed', 'true')
   await expect(page.locator(freeBuzzer)).toHaveCount(0)
   const rows = await page.locator('[data-answer]').count()
@@ -473,31 +473,31 @@ test('Duell: zwei Buzzer, und wer zuerst drueckt, bekommt die Antworten', async 
   await page.locator(openAnswer).first().click()
 
   /*
-   * Getippt ist nur eingeloggt: Die Antwort ist markiert, der Knopf zum Abgeben
-   * steht bereit, und bis dahin darf der Spieler umentscheiden. Gewertet wird
-   * erst, wenn er abgibt.
+   * Tapped is only logged: the answer is marked, the submit button is ready,
+   * and until then the player may change their mind. Scoring only happens
+   * once they submit.
    */
   await expect(page.locator('[data-confirm]')).toBeVisible()
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'answer-locked')
 
   await page.locator('[data-confirm]').click()
 
-  // Der Spieler, der abgegeben hat, ist fuer diese Frage durch - in jedem Ausgang.
+  // The player who has submitted is done with this question - whatever the outcome.
   await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'answer-locked')
   await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'buzzer-open')
 })
 
-test('die Szene bleibt ueber der Fussleiste - in jeder Aufloesung', async ({ page }) => {
+test('the scene stays above the footer - in every resolution', async ({ page }) => {
   /*
-   * Die Fussleiste gibt nichts her: Sie traegt Punktestand und Buzzer, und die
-   * Hand des Spielers darf nicht kleiner werden, weil eine Frage lang ist.
-   * Nachgiebig ist die Szene darueber. Laeuft sie trotzdem hinein, verschwindet
-   * ausgerechnet Antwort D hinter einer Punktekarte - ohne dass etwas nach
-   * einem Fehler aussieht.
+   * The footer gives up nothing: it carries the score and the buzzers, and the
+   * player's hand must not get smaller just because a question is long. The
+   * scene above it is the one that yields. If it still runs into the footer,
+   * of all things answer D disappears behind a score card - without anything
+   * looking like a bug.
    *
-   * Geprueft wird in allen Zielformaten: Die Flaeche ueber der Leiste ist viel
-   * breiter als hoch, und genau dort rechnen sich Groessen in Containerbreiten
-   * am leichtesten aus dem Bild.
+   * Checked across every target format: the area above the footer is much
+   * wider than it is tall, and that is exactly where sizes expressed in
+   * container widths are easiest to lose track of.
    */
   await startGame(page, 'Zu zweit')
 
@@ -507,7 +507,7 @@ test('die Szene bleibt ueber der Fussleiste - in jeder Aufloesung', async ({ pag
     [1024, 768],
   ] as const) {
     await page.setViewportSize({ width, height })
-    // Ein Frame fuer den Umbruch - die Frage misst sich nach der Groesse neu.
+    // One frame for the reflow - the question re-measures itself after the resize.
     await page.waitForTimeout(300)
 
     const foot = (await page.locator('[data-player-foot]').boundingBox())!
@@ -520,20 +520,20 @@ test('die Szene bleibt ueber der Fussleiste - in jeder Aufloesung', async ({ pag
   }
 })
 
-test('Punkte und Zaehler stehen unten bei den Buzzern, nicht in der Kopfzeile', async ({ page }) => {
+test('points and counter sit at the bottom by the buzzers, not in the header', async ({ page }) => {
   await startGame(page, 'Zu zweit')
 
   const foot = page.locator('[data-player-foot]')
   await expect(foot.locator('[data-score]')).toHaveCount(2)
   await expect(foot.locator('[data-counter]')).toHaveCount(1)
-  // Die Kopfzeile traegt am Geraet nur noch die Wortmarke.
+  // On the device, the header carries only the wordmark now.
   await expect(page.locator('header [data-score]')).toHaveCount(0)
   await expect(page.locator('[data-brand]')).toBeVisible()
 
   /*
-   * Jede Ecke gehoert einem Spieler: Die Punktekarte steht ueber SEINEM Buzzer
-   * und auf derselben Seite. Daran - und nicht am Lesen - erkennt er im Spiel,
-   * wo er hinschlagen muss.
+   * Every corner belongs to one player: the score card sits above THEIR buzzer
+   * and on the same side. That - not reading - is how they know during the
+   * game where to hit.
    */
   for (const [side, number] of [
     ['left', '1'],
@@ -546,11 +546,12 @@ test('Punkte und Zaehler stehen unten bei den Buzzern, nicht in der Kopfzeile', 
   }
 })
 
-test('die Leerlauf-Aufsicht gibt das Geraet wieder frei', async ({ page }) => {
+test('the idle watch releases the device again', async ({ page }) => {
   /*
-   * Acht Sekunden statt zwei Minuten - die Aufsicht kommt als Betriebsangabe
-   * herein. Kuerzer darf sie hier nicht sein: Die Frist laeuft ab dem Start des
-   * Spiels, und der Vorspann aus Video und Zwischenscreen gehoert noch dazu.
+   * Eight seconds instead of two minutes - the supervision limit comes in as
+   * an operating setting. It must not be any shorter here: the countdown runs
+   * from the start of the game, and the lead-in of video and interstitial
+   * screen still counts towards it.
    */
   await page.goto('/play?idle=8')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
@@ -559,26 +560,27 @@ test('die Leerlauf-Aufsicht gibt das Geraet wieder frei', async ({ page }) => {
   await page.getByRole('button', { name: "Los geht's" }).click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
 
-  // Niemand tippt mehr: Das Spiel wird abgebrochen und die Auswahl kehrt zurueck.
+  // Nobody is tapping anymore: the game is aborted and the selection returns.
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 25_000 })
 })
 
-test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis', async ({ page }) => {
-  // Ein vollstaendiges Spiel mit sieben Fragen dauert laenger als ein Klicktest.
+test('a solo game runs to the result without a single operator command', async ({ page }) => {
+  // A complete game with seven questions takes longer than a click test.
   test.setTimeout(240_000)
   await startGame(page, 'Allein')
 
   const stage = page.locator('.stage')
   /*
-   * Antworten, sobald die Flaechen aktiv sind - sonst warten. Alles dazwischen
-   * (Auswertung, Loesung, naechste Frage) macht der Server von selbst.
+   * Answer as soon as the tiles are active - otherwise wait. Everything in
+   * between (scoring, solution, next question) is handled by the server on
+   * its own.
    */
   const deadline = Date.now() + 180_000
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
     /*
-     * Erst abgeben, dann tippen: Nach einem Tipp bleiben die Zeilen absichtlich
-     * aktiv (umentscheiden), die Frage geht nur ueber das Abgeben weiter.
+     * Submit only after tapping: after a tap the rows deliberately stay active
+     * (to change your mind), the question only advances via submitting.
      */
     const submit = page.locator('[data-confirm]')
     if (await submit.isVisible().catch(() => false)) {
@@ -587,12 +589,12 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
     }
     const row = page.locator(openAnswer).first()
     if (await row.isVisible().catch(() => false)) {
-      // Kurzer Anlauf: Zwischen Pruefung und Tipp kann die Flaeche verschwinden,
-      // etwa weil das Spiel in diesem Moment endet.
+      // Short run-up: between the check and the tap, the tile can disappear,
+      // for instance because the game ends at that exact moment.
       await row.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
-    // Nach der Loesung wartet das Geraet auf einen Tipp - auch im Einzelspiel.
+    // After the solution, the device waits for a tap - even in solo play.
     const button = page.locator('[data-continue]')
     if (await button.isVisible().catch(() => false)) {
       await button.click({ timeout: 2_000 }).catch(() => undefined)
@@ -602,16 +604,16 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
   }
 
   await expect(stage).toHaveAttribute('data-scene', 'result', { timeout: 30_000 })
-  // Solo-Ergebnis: kein Gewinner, sondern die eigene Trefferzahl.
+  // Solo result: no winner, just your own number of correct answers.
   await expect(page.locator('[data-result-label]')).toHaveText('Ergebnis')
   await expect(page.getByRole('button', { name: 'Nochmal spielen' })).toBeVisible()
 })
 
 /* ------------------------------------------------------------------ *
- * Einstellungen, Zoom und Ausstieg
+ * Settings, zoom and exit
  * ------------------------------------------------------------------ */
 
-test('die Einstellungen haengen am Startbildschirm, nicht am laufenden Spiel', async ({ page }) => {
+test('the settings hang on the start screen, not on the running game', async ({ page }) => {
   await openStartScreen(page)
   await page.locator('[data-settings-open]').click()
 
@@ -625,8 +627,8 @@ test('die Einstellungen haengen am Startbildschirm, nicht am laufenden Spiel', a
   await expect(settings).toHaveCount(0)
 
   /*
-   * Waehrend gespielt wird, sind sie fort: Wer davorsteht, soll den Ton nicht
-   * abschalten koennen, waehrend die anderen zuhoeren.
+   * While a game is running, they are gone: whoever is standing at the device
+   * should not be able to mute the sound while everyone else is listening.
    */
   await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
@@ -635,7 +637,7 @@ test('die Einstellungen haengen am Startbildschirm, nicht am laufenden Spiel', a
   await expect(page.locator('[data-settings-open]')).toHaveCount(0)
 })
 
-test('der Tonschalter der Einstellungen gilt fuer das ganze Geraet', async ({ page }) => {
+test('the sound switch of the settings applies to the whole device', async ({ page }) => {
   await openStartScreen(page)
   await page.locator('[data-settings-open]').click()
   await page.locator('[data-sound-off]').click()
@@ -643,13 +645,13 @@ test('der Tonschalter der Einstellungen gilt fuer das ganze Geraet', async ({ pa
   await expect(page.locator('[data-sound-off]')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('[data-sound-on]')).toHaveAttribute('aria-pressed', 'false')
 
-  // Er haengt am Spielstand und nicht an der Ansicht: Er ueberlebt das Schliessen.
+  // It is tied to the game state, not to the view: it survives closing.
   await page.locator('[data-settings-close]').click()
   await page.locator('[data-settings-open]').click()
   await expect(page.locator('[data-sound-off]')).toHaveAttribute('aria-pressed', 'true')
 })
 
-test('ein kleinerer Zoom verkleinert die Szene zur Mitte, die Ecken bleiben am Rand', async ({ page }) => {
+test('a smaller zoom shrinks the scene towards the centre, the corners stay at the edge', async ({ page }) => {
   await startGame(page, 'Zu zweit')
 
   const scene = page.locator('[data-scene-root]')
@@ -665,23 +667,24 @@ test('ein kleinerer Zoom verkleinert die Szene zur Mitte, die Ecken bleiben am R
   const small = await scene.boundingBox()
   const leftCornerSmall = await page.locator('[data-corner="left"]').boundingBox()
 
-  // Die Szene wird kleiner ...
+  // The scene gets smaller ...
   expect(small!.width).toBeLessThan(large!.width * 0.8)
-  // ... und bleibt dabei mittig: Der Abstand nach links und rechts ist gleich.
+  // ... and stays centred while doing so: the gap to the left and right is equal.
   const left = small!.x - area!.x
   const right = area!.x + area!.width - (small!.x + small!.width)
   expect(Math.abs(left - right)).toBeLessThan(4)
 
-  // Die Punktekarte schrumpft mit, rueckt aber nicht von der Kante ab.
+  // The score card shrinks along with it but does not move away from the edge.
   expect(leftCornerSmall!.width).toBeLessThan(leftCornerLarge!.width * 0.8)
   expect(leftCornerSmall!.x - area!.x).toBeLessThan(leftCornerLarge!.x - area!.x + 1)
 })
 
-test('die Zoomstufe gilt auch fuer Auswahl und Einstellungen', async ({ page }) => {
+test('the zoom level also applies to selection and settings', async ({ page }) => {
   /*
-   * Wer die Anzeige kleiner stellt, weil er sonst nicht hinuebersieht, meint
-   * die Auswahl davor genauso wie die Frage danach. Eine Auswahl in voller
-   * Groesse vor einem verkleinerten Spiel waere die halbe Einstellung.
+   * Whoever shrinks the display because they otherwise cannot see across means
+   * the selection beforehand just as much as the question afterwards. A
+   * full-size selection in front of a shrunk game would only be half the
+   * setting.
    */
   await openStartScreen(page)
   const selectionLarge = (await page.locator('[data-game-start]').boundingBox())!.width
@@ -697,14 +700,14 @@ test('die Zoomstufe gilt auch fuer Auswahl und Einstellungen', async ({ page }) 
   expect(cardSmall).toBeLessThan(cardLarge * 0.8)
 })
 
-test('die Szene erscheint sofort in der eingestellten Groesse, nicht erst nach dem Uebergang', async ({ page }) => {
+test('the scene appears immediately in the set size, not only after the transition', async ({ page }) => {
   /*
-   * DIE SZENENUEBERGAENGE ANIMIEREN `transform`. Stuende die Zoomstufe als
-   * Transformation an demselben Element, ueberschriebe die Animation sie: Die
-   * Frage erschiene in voller Groesse und spraenge am Ende der Animation
-   * klein. Deshalb steht sie in der eigenen Eigenschaft `scale`, die MIT der
-   * Animation verrechnet wird - und deshalb misst dieser Test waehrend des
-   * Uebergangs und nicht danach.
+   * THE SCENE TRANSITIONS ANIMATE `transform`. If the zoom level lived as a
+   * transform on the same element, the animation would overwrite it: the
+   * question would appear at full size and jump small at the end of the
+   * animation. That is why it lives in its own `scale` property, which gets
+   * combined WITH the animation - and that is why this test measures during
+   * the transition and not after it.
    */
   await openStartScreen(page)
   await page.evaluate(() => {
@@ -724,13 +727,13 @@ test('die Szene erscheint sofort in der eingestellten Groesse, nicht erst nach d
   expect(Math.max(...measured) - Math.min(...measured)).toBeLessThan(2)
 })
 
-test('"Spiel beenden" fragt nach und fuehrt zurueck in die Auswahl', async ({ page }) => {
+test('"end game" asks first and leads back to the selection', async ({ page }) => {
   await startGame(page, 'Allein')
 
   await page.locator('[data-abort-game]').click()
   await expect(page.locator('[data-abort-dialog]')).toBeVisible()
 
-  // Wer weiterspielen will, steht danach wieder vor derselben Frage.
+  // Whoever wants to keep playing is back in front of the same question afterwards.
   await page.locator('[data-abort-cancel]').click()
   await expect(page.locator('[data-abort-dialog]')).toHaveCount(0)
   await expect(page.locator('[data-answers]')).toBeVisible()
@@ -741,14 +744,14 @@ test('"Spiel beenden" fragt nach und fuehrt zurueck in die Auswahl', async ({ pa
 })
 
 /* ------------------------------------------------------------------ *
- * Mehrsprachigkeit
+ * Multilingualism
  * ------------------------------------------------------------------ */
 
-test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
+test('the language switch changes selection and game', async ({ page }) => {
   /*
-   * Der ganze Weg im Browser: Umschalter -> Befehl -> Server -> Projektion ->
-   * Ansicht. Geprueft wird an drei Stellen, weil die Sprache an drei Stellen
-   * aufgeloest wird - Oberflaeche, Katalog und Frageninhalt.
+   * The whole path in the browser: switch -> command -> server -> projection
+   * -> view. Checked at three points, because the language is resolved at
+   * three points - the interface, the catalogue and the question content.
    */
   await openStartScreen(page)
 
@@ -756,7 +759,7 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
   await expect(switcher).toBeVisible()
   await expect(page.locator('[data-locale="de-DE"]')).toHaveAttribute('aria-pressed', 'true')
 
-  // Deutsch: die Oberflaeche und die Namen der Schwierigkeitsstufen.
+  // German: the interface and the names of the difficulty levels.
   await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
   const germanPresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(germanPresets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
@@ -769,7 +772,7 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
   expect(englishPresets.map((entry) => entry.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
   await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()
 
-  // Und das Spiel selbst laeuft in derselben Sprache weiter.
+  // And the game itself continues in the same language.
   await page.getByRole('button', { name: 'Alone' }).click()
   await page.getByRole('button', { name: /^Easy/ }).click()
   await page.getByRole('button', { name: "Let's go" }).click()
@@ -781,11 +784,11 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
   await expect(page.locator('[data-score-label]').first()).toHaveText('Player')
 })
 
-test('ohne zweite Sprache gibt es nichts umzuschalten', async ({ page }) => {
+test('without a second language there is nothing to switch', async ({ page }) => {
   /*
-   * Der Umschalter haengt an der Konfiguration und nicht am Code: Ein Bestand
-   * mit einer Sprache zeigt eine Auswahl mit genau einer Moeglichkeit nicht -
-   * das waere keine Auswahl, sondern eine Huerde.
+   * The switch depends on the configuration, not on the code: a package with
+   * only one language does not show a selector with exactly one option - that
+   * would not be a choice, it would be an obstacle.
    */
   await openStartScreen(page)
   const locales = await page.locator('[data-languages] button').count()
@@ -793,21 +796,22 @@ test('ohne zweite Sprache gibt es nichts umzuschalten', async ({ page }) => {
 })
 
 /*
- * Die Groesse haengt an der BREITE des Fensters - und an nichts sonst.
+ * The size depends on the WIDTH of the window - and on nothing else.
  *
- * Das ist die Zusage an die Aufstellung: Der Touchtisch im Foyer, das Tablet am
- * Stand und das Fenster in der Spielesammlung haben verschiedene Formate. Wer
- * eine Groesse aendert, aendert sie fuer alle auf einmal, weil es nur EIN Mass
- * gibt. Vorher rechnete die Szene ihre Hoehe aus dem uebrigen Platz und ihre
- * Breite daraus: Dasselbe Geraet, einmal flach gestellt, zeigte die Frage
- * kleiner - ohne dass eine Zahl im Entwurf sich geaendert haette.
+ * That is the promise to the setup: the touch table in the foyer, the tablet
+ * at the booth and the window in the game collection all have different
+ * formats. Whoever changes a size changes it for all of them at once, because
+ * there is only ONE measure. Previously the scene computed its height from
+ * the remaining space and its width from that: the same device, laid flat,
+ * showed the question smaller - without a single number in the design having
+ * changed.
  */
-test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern', async ({ page }) => {
+test('same width means same size, even on windows of different height', async ({ page }) => {
   /*
-   * Gemessen wird nichts Inhaltliches: der Kasten der Szene, der Kasten eines
-   * Buzzers und die Schriftgroesse eines Punktestands. Die Antwortliste taugt
-   * dafuer NICHT - eine Bildfrage stellt sie neben das Foto, eine Textfrage
-   * darunter, und welche Frage kommt, entscheidet die Auswahl.
+   * Nothing about the content is measured: the box of the scene, the box of a
+   * buzzer and the font size of a score. The answer list is NOT suitable for
+   * this - an image question places it beside the photo, a text question
+   * places it below, and which question shows up is decided by the selection.
    */
   async function measures(): Promise<Record<string, number>> {
     const box = async (choice: string) => {
@@ -861,33 +865,33 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
   expect(clearance, 'scene above the footer at 1280x720').toBeGreaterThanOrEqual(0)
 
   /*
-   * Und umgekehrt: Aendert sich NUR die Breite, waechst alles im gleichen
-   * Verhaeltnis mit. Die halbe Breite ergibt die halbe Schrift und den halben
-   * Kasten - kein Bauteil bricht aus der Proportion aus.
+   * And conversely: if ONLY the width changes, everything grows in the same
+   * proportion. Half the width yields half the font size and half the box -
+   * no component breaks out of the proportion.
    */
   await page.setViewportSize({ width: 640, height: 1000 })
   await startGame(page, 'Zu zweit')
   const half = await measures()
 
   for (const [name, value] of Object.entries(half)) {
-    // Ein Pixel Spielraum: Die Masse sind gerundet, die halbe Breite ist es nicht.
+    // One pixel of leeway: the measurements are rounded, half the width is not.
     expect(Math.abs(value - tall[name]! / 2), name).toBeLessThanOrEqual(1)
   }
 })
 
 /*
- * Die Fussleiste liegt an der unteren Kante - dort, wo die Haende sind.
+ * The footer sits at the bottom edge - where the hands are.
  *
- * Sie traegt Punktestand, Zaehler und die beiden Buzzer, also alles, was an
- * diesem Geraet angefasst wird. Seit die Komposition ihre Hoehe aus der Breite
- * nimmt, bleibt auf einem hoeheren Fenster Platz uebrig; der gehoert in die
- * Mitte und nicht unter die Leiste.
+ * It carries the score, the counter and the two buzzers, i.e. everything that
+ * gets touched on this device. Since the composition derives its height from
+ * the width, a taller window leaves space left over; that space belongs in
+ * the middle, not underneath the footer.
  */
-test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', async ({ page }) => {
+test('the footer sits at the bottom edge of the screen, however tall the window is', async ({ page }) => {
   async function spaceBelowBar(): Promise<number> {
     return page.evaluate(() => {
       const stage = document.querySelector('.stage')!.getBoundingClientRect()
-      /* Der Punktestand steht in einer Spielerecke, die Ecke in der Leiste. */
+      /* The score sits in a player corner, the corner sits in the footer. */
       const bar = document.querySelector('[data-score]')!.parentElement!.parentElement!
       return Math.round(stage.bottom - bar.getBoundingClientRect().bottom)
     })
@@ -900,8 +904,8 @@ test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', 
   }
 
   /*
-   * Und im Einzelspiel genauso: Dort fehlen die Buzzer, die Leiste ist also
-   * niedriger - sie rutscht deshalb nicht nach oben.
+   * And the same in solo play: there the buzzers are missing, so the footer is
+   * shorter - which is why it does not shift upward.
    */
   await page.setViewportSize({ width: 1280, height: 1000 })
   await startGame(page, 'Allein')
@@ -909,22 +913,22 @@ test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', 
 })
 
 /*
- * Die Spielerfarbe traegt genau eine Flaeche: der Buzzer.
+ * The player colour carries exactly one fill: the buzzer.
  *
- * Vorher trug die Punktekarte sie auch, und der Buzzer selbst nur als Kante mit
- * einem Hauch davon innen. In der hellen Fassung wurde daraus ein blasses Rosa
- * unter weisser Schrift, und die Ecke war ein Block, in dem nichts hervorstach.
- * Jetzt ist in jeder Ecke genau ein Ding farbig, und es ist das, was angefasst
- * wird.
+ * Previously the score card carried it too, and the buzzer itself only as a
+ * border with a hint of it inside. In the light version that turned into a
+ * pale pink under white text, and the corner was a block in which nothing
+ * stood out. Now exactly one thing per corner is coloured, and it is the
+ * thing that gets touched.
  */
-test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ page }) => {
+test('only the buzzer carries the player colour - in every state', async ({ page }) => {
   const playerColors = async () =>
     page.evaluate(() => {
       const style = getComputedStyle(document.querySelector('.stage')!)
       return ['--stage-playerOne', '--stage-playerTwo'].map((name) => style.getPropertyValue(name).trim())
     })
 
-  /** Jede Flaeche der Leiste: Grund, Kante und Deckkraft, wie sie wirklich steht. */
+  /** Every fill of the footer: background, border and opacity, as it actually stands. */
   const bar = async () =>
     page.evaluate(() => {
       const readInput = (element: Element) => {
@@ -941,7 +945,7 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
           side: button.getAttribute('data-side'),
           ...readInput(button),
         })),
-        /* Beide Kacheln jeder Karte - der Grund steht an ihnen, nicht an der Karte. */
+        /* Both tiles of each card - the background sits on them, not on the card. */
         cards: [...document.querySelectorAll('[data-score]')].flatMap((card) => [...card.children].map(readInput)),
       }
     })
@@ -952,8 +956,8 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
   })()
 
   /*
-   * Drei Zustaende in einer Runde: offen (beide bedienbar), gebuzzert (einer
-   * hat den Zuschlag, der andere ist gesperrt) und aufgeloest (beide gesperrt).
+   * Three states in one round: open (both operable), buzzed (one has the turn,
+   * the other is locked) and resolved (both locked).
    */
   const states = [] as Awaited<ReturnType<typeof bar>>[]
   states.push(await bar())
@@ -961,9 +965,9 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
   await expect(page.locator('[data-buzzer][data-armed="true"]')).toHaveCount(1)
   states.push(await bar())
   /*
-   * Bewusst die RICHTIGE Antwort des Testbestands: Eine falsche gibt dem anderen
-   * Spieler die zweite Chance, und dann ist die Runde nicht aufgeloest, sondern
-   * wieder offen - ein anderer Zustand als der, der hier gemeint ist.
+   * Deliberately the CORRECT answer of the test package: a wrong one gives the
+   * other player a second chance, and then the round is not resolved but open
+   * again - a different state than the one meant here.
    */
   await page.locator('[data-answer-button]', { hasText: /Richtige Antwort/ }).first().click()
   await page.locator('[data-confirm]').click()
@@ -974,12 +978,12 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
     for (const button of state.buzzer) {
       const expected = button.side === 'left' ? one : two
       expect(button.ground, `Zustand ${number}, ${button.side}`).toBe(color(expected!))
-      // Vollflaechig heisst auch: kein Zustand nimmt der Flaeche ihre Deckkraft.
+      // Full-fill also means: no state takes the fill's opacity away.
       expect(button.opacity, `Zustand ${number}, ${button.side}`).toBe('1')
       expect(button.edge, `Zustand ${number}, ${button.side}`).toBe('0px 0px 0px 0px')
       expect(button.font, `Zustand ${number}, ${button.side}`).toBe('rgb(255, 255, 255)')
     }
-    // Und die Karten bleiben in jedem dieser Zustaende neutral.
+    // And the cards stay neutral in every one of these states.
     for (const tile of state.cards) {
       expect([tile.ground, tile.edge], `Zustand ${number}`).not.toContain(color(one!))
       expect([tile.ground, tile.edge], `Zustand ${number}`).not.toContain(color(two!))
@@ -987,7 +991,7 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
     }
   }
 
-  /* Im Einzelspiel gibt es keinen Buzzer - und die Karte ist dieselbe neutrale. */
+  /* In solo play there is no buzzer - and the card is the same neutral one. */
   await startGame(page, 'Allein')
   const solo = await bar()
   expect(solo.buzzer).toHaveLength(0)
@@ -998,14 +1002,14 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
 })
 
 /*
- * Die Startauswahl steht in denselben Flaechen wie das Spiel danach.
+ * The start selection uses the same fills as the game that follows.
  *
- * Die gewaehlte Karte war ein Kasten mit vier Merkmalen: eine dickere Kante,
- * eine leicht eingefaerbte Flaeche, das Haekchen - und im Fokuszustand kam ein
- * Ring darum. Auf Papier waren die Kante und die Einfaerbung aus zwei Metern
- * nicht zu sehen, die beiden Linien dafuer umso mehr.
+ * The selected card used to be a box with four traits: a thicker border, a
+ * slightly tinted fill, the checkmark - and in the focus state a ring was
+ * added around it. On paper the border and the tint were not visible from two
+ * metres away, but the two lines were, all the more so.
  */
-test('die gewaehlte Karte ist eine Flaeche, und zwar dieselbe wie eine angetippte Antwort', async ({ page }) => {
+test('the chosen card is an area, and the same one as a tapped answer', async ({ page }) => {
   const cardState = async (choice: string) =>
     page.locator(choice).evaluate((element) => {
       const style = getComputedStyle(element)
@@ -1014,7 +1018,7 @@ test('die gewaehlte Karte ist eine Flaeche, und zwar dieselbe wie eine angetippt
         edge: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth].join(' '),
         outline: `${style.outlineStyle} ${style.outlineWidth}`,
         font: style.color,
-        /* Jede Schrift und jede Flaeche IN der Karte - Titel, Zeile, Zeichen, Haekchen. */
+        /* Every piece of text and every fill INSIDE the card - title, line, icon, checkmark. */
         inner: [...element.querySelectorAll('span')].map((part) => getComputedStyle(part).color),
       }
     })
@@ -1024,9 +1028,9 @@ test('die gewaehlte Karte ist eine Flaeche, und zwar dieselbe wie eine angetippt
   const open = '[data-player-count="2"]'
 
   /*
-   * Vier Zustaende an derselben Karte. `hover` und `focus-visible` liegen
-   * bewusst NACHEINANDER auf der offenen Karte: Genau ihre Ueberlagerung hat
-   * vorher zwei Linien uebereinander gelegt.
+   * Four states on the same card. `hover` and `focus-visible` are deliberately
+   * applied ONE AFTER ANOTHER on the open card: it was exactly their overlap
+   * that previously stacked two lines on top of each other.
    */
   const states: Record<string, Awaited<ReturnType<typeof cardState>>> = {}
   states['gewaehlt'] = await cardState(chosen)
@@ -1045,18 +1049,18 @@ test('die gewaehlte Karte ist eine Flaeche, und zwar dieselbe wie eine angetippt
     expect(state.outline, name).toBe('none 0px')
   }
 
-  /* Auf der gefuellten Karte ist alles weiss - Titel, Zeile darunter, Zeichen, Haekchen. */
+  /* On the filled card everything is white - title, line below it, icon, checkmark. */
   expect(states['gewaehlt']!.font).toBe('rgb(255, 255, 255)')
   for (const ink of states['gewaehlt']!.inner) {
     expect(ink).toMatch(/^rgba?\(255, 255, 255/)
   }
-  /* Und auf der offenen dunkel - sie ist eine ruhige graue Flaeche. */
+  /* And on the open one, dark - it is a calm grey fill. */
   expect(states['offen']!.font).not.toMatch(/^rgba?\(255, 255, 255/)
 
   /*
-   * DIE PROBE AUFS GANZE: dieselbe Farbe wie eine angetippte Antwort im Spiel.
-   * Gelesen wird sie nicht aus der Palette, sondern aus dem, was am Ende auf dem
-   * Bildschirm steht - einmal hier, einmal dort.
+   * THE ACID TEST: the same colour as a tapped answer in the game. It is not
+   * read from the palette but from what actually ends up on screen - once
+   * here, once there.
    */
   const cardBlue = states['gewaehlt']!.ground
   await startGame(page, 'Zu zweit')

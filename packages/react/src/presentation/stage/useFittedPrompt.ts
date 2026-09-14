@@ -1,48 +1,49 @@
 /**
- * Passt den Fragetext an den freien Platz an.
+ * Fits the question text into the free space.
  *
- * DAS PROBLEM: Die Schriftgroesse der Frage stand fest (2,8 cqw auf der Buehne
- * der Erwachsenen). Eine kurze Frage sah damit richtig aus, eine lange schob die
- * unteren Antwortzeilen aus dem Bild - im Saal fehlten dann schlicht die
- * Antworten C und D, ohne dass irgendetwas nach einem Fehler aussah.
+ * THE PROBLEM: The question's font size used to be fixed (2.8 cqw on the
+ * adults' stage). A short question looked right that way, but a long one pushed
+ * the lower answer rows out of the picture - in the room, answers C and D were
+ * simply missing, without anything looking like an error.
  *
- * DIE REGEL: Die Frage ist der nachgiebige Teil der Ansicht. Sie wird so weit
- * verkleinert, dass NICHTS mehr aus der Szenenflaeche ragt - und keinen Schritt
- * weiter. Passt sie ohnehin, bleibt alles, wie es war; kurze Fragen sehen also
- * aus wie bisher.
+ * THE RULE: The question is the yielding part of the view. It is shrunk just
+ * far enough that NOTHING sticks out of the scene area any more - and not one
+ * step further. If it already fits, everything stays as it was; short questions
+ * therefore look as they did before.
  *
- * WARUM GEMESSEN UND NICHT GERECHNET: Wie viel Platz die Frage hat, haengt an
- * Bild, Rubrik, Anzahl und Umbruch der Antwortzeilen, an der Gestaltungswelt und
- * am Seitenverhaeltnis des Bildschirms. Diese Rechnung waere an jeder einzelnen
- * Stelle angreifbar. Gemessen wird deshalb die Aussage selbst: Steht noch etwas
- * ueber der Kante? Die Suche ist eine Intervallhalbierung - sechs Schritte
- * genuegen fuer eine Genauigkeit, die niemand mehr sieht.
+ * WHY MEASURED AND NOT COMPUTED: How much space the question has depends on the
+ * image, the category, the number and wrapping of answer rows, the design
+ * world, and the screen's aspect ratio. A calculation would be vulnerable at
+ * every single one of those points. So instead the claim itself is measured:
+ * does anything still stick out past the edge? The search is a binary search -
+ * six steps are enough for a precision nobody notices any more.
  *
- * WAS NICHT SKALIERT: Antwortzeilen, Rubrik und Bild behalten ihre Groessen. Sie
- * tragen die Lesbarkeit im Saal; die Frage liest der Moderator ohnehin vor.
+ * WHAT DOES NOT SCALE: Answer rows, category and image keep their sizes. They
+ * carry readability in the room; the question itself is read aloud by the host
+ * anyway.
  */
 import { useLayoutEffect, useRef, type MutableRefObject } from 'react'
 
 /**
- * Untergrenze der Verkleinerung.
+ * Lower bound of the shrinking.
  *
- * Weiter herunter zu gehen brächte auf der Buehne nichts mehr: Aus zwanzig
- * Metern waere die Frage dann ohnehin nicht mehr zu lesen. Reicht das nicht,
- * ist der Fragetext zu lang - das gehoert in die Fragenpflege und nicht in die
- * Darstellung.
+ * Going any smaller would gain nothing on stage: from twenty metres away the
+ * question would no longer be readable anyway. If that is not enough, the
+ * question text is too long - that belongs in question upkeep, not in
+ * rendering.
  */
 const MIN_SCALE = 0.55
 
-/** Schritte der Intervallhalbierung; 6 Schritte treffen auf 0,7 Prozent genau. */
+/** Steps of the binary search; 6 steps land within 0.7 percent. */
 const STEPS = 6
 
 /**
- * Alle Elemente, die innerhalb der Flaeche bleiben muessen.
+ * All elements that must stay within the area.
  *
- * Absolut gesetzte Teile bleiben aussen vor: Der Regiehinweis unter dem Bild
- * steht bewusst ueber die Kante hinaus, und die Figur der Kinderwelt
- * schaut absichtlich aus dem Bild. Beide wuerden die Messung sonst dauerhaft auf
- * "passt nicht" stellen.
+ * Absolutely positioned parts are left out: the director's note under the
+ * image deliberately extends past the edge, and the kids' world mascot
+ * deliberately looks out of the picture. Otherwise both would permanently pin
+ * the measurement to "does not fit".
  */
 function measuredNodes(box: HTMLElement): HTMLElement[] {
   return [...box.querySelectorAll<HTMLElement>('*')].filter((node) => {
@@ -52,25 +53,26 @@ function measuredNodes(box: HTMLElement): HTMLElement[] {
 }
 
 /**
- * Untere Kante eines Elements - im LAYOUT, nicht auf dem Bildschirm.
+ * Bottom edge of an element - in LAYOUT terms, not on screen.
  *
- * Warum nicht `getBoundingClientRect`: Beim Szenenwechsel laufen die
- * Antwortzeilen versetzt von unten ein und die Szene blendet sich ein. Beides
- * sind Transformationen, und die stecken im Rechteck auf dem Bildschirm mit
- * drin. Eine Messung waehrend des Einlaufs saehe deshalb einen Ueberstand, den
- * es gleich nicht mehr gibt, und stellte die Frage dauerhaft zu klein - genau
- * das war in der Loesungsszene zu sehen.
+ * Why not `getBoundingClientRect`: on a scene change the answer rows slide in
+ * staggered from below and the scene fades in. Both are transforms, and those
+ * are baked into the rectangle on screen. A measurement taken during that
+ * entrance would therefore see an overhang that is about to disappear anyway,
+ * and would permanently size the question too small - which is exactly what
+ * happened in the solution scene.
  *
- * `offsetTop` und `offsetHeight` kennen keine Transformationen. Die Messung ist
- * damit vom Zeitpunkt unabhaengig: Sie gilt waehrend der Animation genauso wie
- * danach, und es braucht kein Warten auf irgendein Ereignis.
+ * `offsetTop` and `offsetHeight` know nothing about transforms. The
+ * measurement is therefore independent of timing: it holds during the
+ * animation just as it does afterwards, and there is no need to wait for any
+ * event.
  */
 function layoutBottom(node: HTMLElement): number {
   /*
-   * `offsetTop` misst bereits ab der Innenkante des Vorfahren. Aufsummiert
-   * ergibt das den Abstand zum Seitenanfang. Was dabei fehlt - die Rahmen der
-   * Vorfahren OBERHALB von Kasten und Element - fehlt auf beiden Seiten des
-   * Vergleichs gleichermassen und hebt sich damit auf.
+   * `offsetTop` already measures from the inner edge of its ancestor. Summed
+   * up, that gives the distance to the top of the page. What that leaves out -
+   * the borders of ancestors ABOVE the box and the element - is missing
+   * equally on both sides of the comparison, so it cancels out.
    */
   let bottom = node.offsetHeight
   let current: HTMLElement | null = node
@@ -82,22 +84,22 @@ function layoutBottom(node: HTMLElement): number {
 }
 
 /**
- * Untere Kante, die nichts ueberschreiten darf.
+ * Bottom edge that nothing may cross.
  *
- * Gemeint ist die INHALTSKANTE, nicht die Aussenkante: Die Polsterung der Szene
- * ist der Abstand zum Bildrand und gehoert dem Entwurf. Wuerde bis zur
- * Aussenkante gemessen, klebte die letzte Antwortzeile am unteren Bildrand -
- * abgeschnitten ist sie dann zwar nicht, aber die Komposition ist hin.
+ * This means the CONTENT edge, not the outer edge: the scene's padding is the
+ * margin to the screen edge and belongs to the design. Measuring to the outer
+ * edge would leave the last answer row stuck to the bottom of the screen -
+ * not clipped, but the composition would be ruined.
  *
- * Die Toleranz faengt die Rundung ab: `offsetHeight` ist ganzzahlig, und ueber
- * mehrere Ebenen summiert sich das.
+ * The tolerance absorbs the rounding: `offsetHeight` is an integer, and that
+ * adds up across several levels.
  */
 function contentBottom(box: HTMLElement): number {
   const padding = Number.parseFloat(getComputedStyle(box).paddingBottom)
   return layoutBottom(box) - (Number.isFinite(padding) ? padding : 0) + 2
 }
 
-/** Um wie viel steht der Inhalt ueber der Kante? Null heisst: Er passt. */
+/** By how much does the content cross the edge? Zero means: it fits. */
 function overshoot(limit: number, nodes: readonly HTMLElement[]): number {
   let worst = 0
   for (const node of nodes) worst = Math.max(worst, layoutBottom(node) - limit)
@@ -105,11 +107,11 @@ function overshoot(limit: number, nodes: readonly HTMLElement[]): number {
 }
 
 /**
- * Liefert die Referenz fuer den Fragetext.
+ * Supplies the ref for the question text.
  *
- * Die Flaeche, in die er passen muss, ist der naechste Vorfahr mit
- * `data-fit-box` - also die Szene. Fehlt sie, passiert nichts: Die Frage steht
- * dann in ihrer Grundgroesse da, so wie vorher.
+ * The area it must fit into is the nearest ancestor carrying `data-fit-box` -
+ * i.e. the scene. If that is missing, nothing happens: the question then
+ * stays at its base size, just as it did before.
  */
 export function useFittedPrompt(promptText: string): MutableRefObject<HTMLHeadingElement | null> {
   const ref = useRef<HTMLHeadingElement | null>(null)
@@ -125,7 +127,7 @@ export function useFittedPrompt(promptText: string): MutableRefObject<HTMLHeadin
       if (disposed) return
       const scale = (value: number) => element.style.setProperty('--prompt-scale', String(value))
 
-      // Erst zurueck auf volle Groesse, sonst misst dieser Lauf das Ergebnis des vorigen.
+      // Reset to full size first, or this run would measure the previous run's result.
       scale(1)
       const nodes = measuredNodes(box)
       const limit = contentBottom(box)
@@ -133,10 +135,10 @@ export function useFittedPrompt(promptText: string): MutableRefObject<HTMLHeadin
       if (atFullSize === 0) return
 
       /*
-       * Passt es selbst in der kleinsten Stufe nicht, liegt es nicht an der
-       * Frage - dann sind die Antwortzeilen allein schon zu hoch. Bringt das
-       * Verkleinern in dem Fall nichts, bleibt die Frage in voller Groesse:
-       * Eine winzige Frage UND ein Ueberstand waeren zweimal schlecht.
+       * If it still does not fit even at the smallest step, the question is
+       * not to blame - the answer rows alone are already too tall. In that
+       * case shrinking gains nothing, so the question stays at full size: a
+       * tiny question AND an overhang would be doubly bad.
        */
       scale(MIN_SCALE)
       const atMinimum = overshoot(limit, nodes)
@@ -165,17 +167,17 @@ export function useFittedPrompt(promptText: string): MutableRefObject<HTMLHeadin
     fit()
 
     /*
-     * Neu messen, wenn sich die Flaeche aendert - Fenstergroesse, Vollbild,
-     * Wechsel des Zielformats. Beobachtet wird die Flaeche und nicht der Text:
-     * Der Text aendert sich durch die Messung selbst, die Flaeche nicht. Sonst
-     * loeste jede Anpassung die naechste aus.
+     * Re-measure whenever the area changes - window size, fullscreen, a
+     * change of target aspect ratio. What is observed is the area, not the
+     * text: the text changes because of the measurement itself, the area does
+     * not. Otherwise every adjustment would trigger the next one.
      */
     const observer = new ResizeObserver(refit)
     observer.observe(box)
 
     /*
-     * Schriften kommen als Datei nach. Vor ihrem Eintreffen misst der Browser
-     * mit einer Ersatzschrift und damit an der falschen Zeilenzahl.
+     * Fonts arrive as files, later. Before they arrive the browser measures
+     * with a fallback font and therefore against the wrong line count.
      */
     void document.fonts?.ready.then(refit)
 

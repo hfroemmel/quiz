@@ -1,13 +1,13 @@
 /**
- * Animationsvertrag (Spezifikation 22.3).
+ * Animation contract (specification 22.3).
  *
- * Jede Uebergangsdefinition beantwortet an genau einer Stelle:
- *  - welchen Szenenwechsel sie betrifft (`appliesTo`);
- *  - welche Elemente animiert werden (`classNames`);
- *  - wie Dauer, Verzoegerung und Easing geaendert werden (`durationMs`, `easing`);
- *  - welche Soundmarke gekoppelt ist (`soundCueId`);
- *  - welcher Reduced-Motion-Fallback gilt (`reducedMotionDurationMs`);
- *  - welche Teile aus Fairness- oder Synchronitaetsgruenden fest sind (`locked`).
+ * Every transition definition answers, in exactly one place:
+ *  - which scene change it concerns (`appliesTo`);
+ *  - which elements are animated (`classNames`);
+ *  - how duration, delay and easing are set (`durationMs`, `easing`);
+ *  - which sound cue is coupled to it (`soundCueId`);
+ *  - which reduced-motion fallback applies (`reducedMotionDurationMs`);
+ *  - which parts are fixed for fairness or synchronisation reasons (`locked`).
  */
 import type { PublicScene } from '@hfroemmel/quiz-core'
 import type { SoundCueId } from '../soundCues'
@@ -15,7 +15,7 @@ import type { SoundCueId } from '../soundCues'
 export interface PresentationTransitionDefinition {
   id: string
   description: string
-  /** Szenenkante, fuer die dieser Uebergang gilt. `'*'` heisst "jede Vorgaengerszene". */
+  /** Scene edge this transition applies to. `'*'` means "any preceding scene". */
   appliesTo: { from: PublicScene | '*'; to: PublicScene }
   durationMs: number
   delayMs?: number
@@ -28,9 +28,9 @@ export interface PresentationTransitionDefinition {
     to?: string
   }
   /**
-   * Wenn gesetzt: Dieser Uebergang darf in seiner Dauer NICHT frei geaendert werden,
-   * weil der Server dieselbe Zeit fuer den fachlichen Phasenwechsel verwendet.
-   * Die Begruendung steht im Text.
+   * When set: this transition's duration must NOT be changed freely, because
+   * the server uses the same time for the domain phase change. The
+   * justification is in the text.
    */
   locked?: string
 }

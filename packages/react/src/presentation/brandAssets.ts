@@ -1,14 +1,14 @@
 /**
- * Die Wortmarke des Bundestages als Adresse, nicht als Bauteil.
+ * The Bundestag's wordmark as an address, not as a component.
  *
- * SIE STEHT NICHT NUR AUF DER BUEHNE. Die Kopfzeile der Buehne legt sie als
- * Maske ueber eine Farbflaeche, damit sie der Textfarbe der Welt folgt
- * (`StageHeader`). Ein Gastgeber, der sie schlicht als Bild braucht - etwa die
- * Quizauswahl am Pult, die auf hellem Grund steht -, bekommt hier dieselbe
- * Datei. Eine zweite Abschrift im Anwendungsrepository waere eine Marke, die an
- * zwei Stellen gepflegt werden muesste.
+ * IT IS NOT USED ON THE STAGE ALONE. The stage header lays it as a mask over
+ * a colour area, so that it follows the world's text colour
+ * (`StageHeader`). A host that simply needs it as an image - for instance
+ * the quiz selection at the desk, which sits on a light background - gets
+ * the same file here. A second copy in the application repository would be a
+ * mark that would have to be maintained in two places.
  */
 import wordmark from '../assets/images/logo.svg'
 
-/** Adresse der mitgelieferten Wortmarke, ueber den Build-Weg des Pakets. */
+/** Address of the bundled wordmark, via the package's build path. */
 export const brandWordmarkUrl: string = wordmark

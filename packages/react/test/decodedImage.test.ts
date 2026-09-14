@@ -1,9 +1,8 @@
 /**
- * Welche Bildadresse gilt als fertig - ohne Browser.
+ * Which image address counts as ready - without a browser.
  *
- * Der interessante Fall ist das schnelle Weiterklicken: Die Bilder kommen in
- * beliebiger Reihenfolge zurueck, und das zuletzt eingetroffene ist nicht das
- * zuletzt gefragte.
+ * The interesting case is clicking through fast: the images come back in any
+ * order, and the one that arrives last is not the one asked for last.
  */
 import { describe, expect, it } from 'vitest'
 import { imageState, type ImageState } from '../src/presentation/useDecodedImage'

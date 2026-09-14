@@ -1,10 +1,10 @@
 /**
- * Der Waechter ueber dem weissen Balken.
+ * The guard over the white bar.
  *
- * Ein unquotiertes `url()` bricht an einem Hochkomma - und genau die stecken in
- * den `data:`-Adressen, die der Bundler fuer eingebettete SVG erzeugt. Die
- * Regel faellt dann stillschweigend aus; sichtbar wird es erst im gebauten
- * Paket, wo statt der Wortmarke ihre nackte Farbflaeche steht.
+ * An unquoted `url()` breaks on a single quote - and exactly those are found
+ * in the `data:` addresses the bundler generates for embedded SVG. The rule
+ * then silently fails, and it only becomes visible in the built package,
+ * where the wordmark's bare colour area stands instead of the mark.
  */
 import { describe, expect, it } from 'vitest'
 import { cssUrl } from '../src/presentation/cssUrl'

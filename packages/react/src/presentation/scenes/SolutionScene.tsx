@@ -1,21 +1,21 @@
 /**
- * Loesungsansicht (Spezifikation 13.2).
+ * Solution view (spec 13.2).
  *
- * Enthaelt die richtige Antwort, gegebenenfalls das zugehoerige Bild und einen
- * klaren Abschlusszustand. Der Moderator hat jetzt Zeit zu sprechen - die App
- * wechselt NICHT automatisch weiter.
+ * Contains the correct answer, its associated image where applicable, and a
+ * clear closing state. The host now has time to speak - the app does NOT
+ * move on automatically.
  *
- * Aufbau: dieselbe Komposition wie die Frage, dazwischen die Zeile
- * "Richtige Antwort:". Bei Auswahlfragen stehen alle Optionen in der Reihenfolge
- * des Servers, und nur die richtige traegt Farbe; bei freien Antworten steht
- * eine einzelne Zeile ohne Buchstaben.
+ * Structure: the same composition as the question, with the "Richtige
+ * Antwort:" line in between. For multiple-choice questions, all options
+ * appear in the server's order, and only the correct one carries colour; for
+ * free-text answers there is a single row with no letter.
  *
- * WO DIE RICHTIGE ZEILE STEHT, ist Sache der Gestaltungswelt: Die Buehne der
- * Erwachsenen zieht sie im Stylesheet nach oben, die Kinderwelt laesst sie an
- * ihrem Platz. Das Markup ist in beiden Faellen dasselbe.
+ * WHERE THE CORRECT ROW SITS is a matter for the design world: the adults'
+ * stage moves it up in the stylesheet, the kids' world leaves it in place.
+ * The markup is the same in both cases.
  *
- * Alle hier sichtbaren Daten kommen aus `visibleSolution` bzw. `visibleOptions`, die
- * der Server ausschliesslich in dieser Szene mitsendet.
+ * All the data visible here comes from `visibleSolution` and
+ * `visibleOptions`, which the server sends only in this scene.
  */
 import { answerRows } from '../stage/answerState'
 import { QuestionComposition } from '../stage/QuestionComposition'
@@ -32,7 +32,7 @@ export function SolutionScene({ view }: SceneProps) {
   const rows: AnswerRow[] =
     options.length > 0
       ? answerRows(options, view.scene)
-      : // Freie Antwort - etwa beim Bilderkennen: eine Zeile, kein Buchstabe.
+      : // Free-text answer - as with image guessing: one row, no letter.
         [{ id: 'solution', text: solution.answerText, state: 'correct' }]
 
   return (

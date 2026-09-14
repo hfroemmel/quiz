@@ -1,14 +1,14 @@
 /**
- * Einbettungsvertrag im Browser.
+ * The embedding contract in the browser.
  *
- * Geprueft wird an der Beispielsammlung unter `/shell`, also an einer fremden
- * Anwendung, die das Quiz einbindet - nicht am Quiz selbst.
+ * Checked against the example collection at `/shell`, i.e. against a foreign
+ * application that embeds the quiz - not against the quiz itself.
  *
- * Der Gastgeber stellt hier die Laufzeit und raeumt sie beim Verlassen wieder
- * ab; einen Server, der verbundene Clients zaehlen koennte, gibt es nicht mehr.
- * Was hier geprueft wird, ist deshalb das, was ein Gastgeber SIEHT: dass das
- * Quiz in seinem Kasten bleibt, dass ein Ergebnis genau einmal herauskommt und
- * dass eine zweite Runde sauber von vorn beginnt.
+ * Here the host provides the runtime and tears it down again on leaving;
+ * there is no longer a server that could count connected clients. What is
+ * checked here is therefore what a host SEES: that the quiz stays within its
+ * box, that a result comes out exactly once, and that a second round starts
+ * cleanly from scratch.
  */
 import { expect, test, type Page } from '@playwright/test'
 import { openAnswer } from './helpers'
@@ -23,17 +23,17 @@ async function backToCollection(page: Page): Promise<void> {
   await expect(page.locator('[data-shell-menu]')).toBeVisible()
 }
 
-test('das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um', async ({ page }) => {
+test('the quiz stays in its box and does not recolour the collection', async ({ page }) => {
   await page.goto('/shell')
   const bar = page.locator('[data-shell-bar]')
   const before = await bar.evaluate((node) => getComputedStyle(node).backgroundColor)
 
   await intoQuiz(page)
 
-  // Die Leiste der Sammlung sieht unveraendert aus.
+  // The collection's bar looks unchanged.
   expect(await bar.evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(before)
 
-  // Und das Quiz haelt sich an die Flaeche, die der Gastgeber ihm gibt.
+  // And the quiz stays within the area the host gives it.
   const frame = (await page.locator('[data-shell-frame]').boundingBox())!
   const game = (await page.locator('[data-quiz-game]').boundingBox())!
   expect(game.y).toBeGreaterThanOrEqual(frame.y - 1)
@@ -42,7 +42,7 @@ test('das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um', async 
   await backToCollection(page)
 })
 
-test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page }) => {
+test('two rounds in a row each start from the beginning on their own', async ({ page }) => {
   await page.goto('/shell')
 
   for (const round of [1, 2]) {
@@ -52,14 +52,14 @@ test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page 
     await page.getByRole('button', { name: "Los geht's" }).click()
     await expect(page.locator('[data-answers]'), `Runde ${round}`).toBeVisible({ timeout: 30_000 })
 
-    // Mitten im Spiel zurueck - der haerteste Fall fuer den Abbau.
+    // Back in the middle of the game - the hardest case for teardown.
     await backToCollection(page)
-    // Ein Ergebnis gab es nicht; die Sammlung meldet auch keines.
+    // There was no result; the collection does not report one either.
     await expect(page.locator('[data-shell-result]')).toHaveCount(0)
   }
 })
 
-test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', async ({ page }) => {
+test('the result of a game reaches the host application exactly once', async ({ page }) => {
   test.setTimeout(240_000)
   await page.goto('/shell')
   await intoQuiz(page)
@@ -73,9 +73,10 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
   while (Date.now() < deadline) {
     if ((await stage.getAttribute('data-scene')) === 'result') break
     /*
-     * Tippen und abgeben gehoeren zusammen; nach einem Tipp bleiben die Zeilen
-     * absichtlich aktiv (umentscheiden), die Frage geht nur ueber das Abgeben
-     * weiter. Im Einzelspiel holt der erste Tipp zugleich den Zuschlag.
+     * Tapping and submitting belong together; after a tap the rows
+     * deliberately stay active (to change your mind), the question only
+     * advances via submitting. In solo play the first tap also wins the turn
+     * at the same time.
      */
     const row = page.locator(openAnswer).first()
     if (await row.isVisible().catch(() => false)) {
@@ -83,7 +84,7 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
       await page.locator('[data-confirm]').click({ timeout: 5_000 }).catch(() => undefined)
       continue
     }
-    // Nach der Loesung wartet das Geraet auf "Weiter".
+    // After the solution, the device waits for "Weiter".
     const button = page.locator('[data-continue]')
     if (await button.isVisible().catch(() => false)) {
       await button.click({ timeout: 2_000 }).catch(() => undefined)
@@ -94,31 +95,31 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
   await expect(stage).toHaveAttribute('data-scene', 'result', { timeout: 30_000 })
 
   /*
-   * `onFinished` hat die Sammlung erreicht - sie zeigt das Ergebnis in ihrer
-   * eigenen Darstellung, nicht in der des Quiz. Und genau einmal, obwohl
-   * waehrend der Ergebnisszene weitere Schnappschuesse eintreffen.
+   * `onFinished` has reached the collection - it shows the result in its own
+   * presentation, not in the quiz's. And exactly once, even though further
+   * snapshots keep arriving during the result scene.
    */
   await backToCollection(page)
   await expect(page.locator('[data-shell-result]')).toContainText('richtig')
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
 
-  // Erneut einbinden: Die frische Runde meldet kein zweites Ergebnis.
+  // Embed again: the fresh round does not report a second result.
   await intoQuiz(page)
   await backToCollection(page)
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
 })
 
-test('die eigene Ebene des Gastgebers steht in der Buehne und traegt deren Masse', async ({ page }) => {
+test("the host's own layer sits inside the stage and carries its dimensions", async ({ page }) => {
   /*
-   * Der Vertrag von `overlay` in drei Punkten. Er ist der Grund, warum es die
-   * Prop ueberhaupt gibt: Eine Ebene NEBEN der Buehne bekaeme weder ihre Masse
-   * noch ihre Zoomstufe und behielte bei kleiner Anzeige ihre volle Groesse -
-   * ein Kasten in Originalgroesse ueber einem verkleinerten Spiel.
+   * The contract of `overlay` in three points. It is the reason the prop
+   * exists at all: a layer NEXT TO the stage would get neither its dimensions
+   * nor its zoom level and would keep its full size even when the display
+   * shrinks - a box at original size on top of a shrunk game.
    */
   await page.goto('/shell')
   await intoQuiz(page)
 
-  // Kleiner gestellt wird VOR dem Start, so wie es jemand am Geraet taete.
+  // It is shrunk BEFORE the start, just as someone at the device would do it.
   await page.locator('[data-settings-open]').click()
   await page.locator('[data-zoom]').fill('0.7')
   await page.locator('[data-settings-close]').click()
@@ -132,24 +133,24 @@ test('die eigene Ebene des Gastgebers steht in der Buehne und traegt deren Masse
   const layer = page.locator('[data-shell-layer]')
   await expect(layer).toBeVisible()
 
-  // 1. Sie steht IN der Buehne - nicht daneben.
+  // 1. It sits INSIDE the stage - not next to it.
   await expect(page.locator('.stage [data-shell-layer]')).toHaveCount(1)
 
-  // 2. Sie skaliert mit der Zoomstufe wie alles andere auf der Flaeche.
+  // 2. It scales with the zoom level like everything else on the stage.
   const scaleFactor = await layer.locator('> div').evaluate((node) => getComputedStyle(node).scale)
   expect(Number(scaleFactor)).toBeCloseTo(0.7, 2)
 
   /*
-   * 3. Ihr Knopf ist derselbe Knopf. Schriftgroesse und Mindesthoehe kommen aus
-   * denselben Token wie beim Buzzer daneben (`--stage-button-*`); dass der
-   * Buzzer sich eine eigene Hoehe nimmt, aendert an der Schrift nichts.
+   * 3. Its button is the same button. Font size and minimum height come from
+   * the same tokens as the buzzer next to it (`--stage-button-*`); the fact
+   * that the buzzer takes its own height changes nothing about the font.
    */
   const button = page.locator('[data-shell-layer-close]')
   const buzzer = page.locator('[data-buzzer]').first()
   const font = (place: typeof button) => place.evaluate((node) => getComputedStyle(node).fontSize)
   expect(await font(button)).toBe(await font(buzzer))
 
-  // Und der Weg zurueck raeumt sie mit ab.
+  // And the way back tears it down along with everything else.
   await page.locator('[data-shell-layer-close]').click()
   await expect(layer).toHaveCount(0)
 })

@@ -1,12 +1,12 @@
 /**
- * Eine `RemoteQuizRuntime` fuer die Lebensdauer einer Komponente.
+ * A `RemoteQuizRuntime` for a component's lifetime.
  *
- * Fuer Gastgeber, die die Runtime selbst brauchen - etwa um sie an
- * `<QuizScene>` zu geben UND eigene Befehle zu senden. Wer nur die vertraute
- * Verbindungsoberflaeche will, nimmt weiterhin `useQuizConnection`.
+ * For hosts that need the runtime themselves - for instance to give it to
+ * `<QuizScene>` AND send their own commands. Anyone who only wants the
+ * familiar connection interface still uses `useQuizConnection`.
  *
- * Der WS-Endpunkt kommt aus `window.location`, weil die Clients vom Quizserver
- * selbst ausgeliefert werden.
+ * The WS endpoint comes from `window.location`, because the clients are
+ * served by the quiz server itself.
  */
 import { useEffect, useState } from 'react'
 import type { ClientRole, PublicQuizViewModel, QuizSnapshot } from '@hfroemmel/quiz-core'
@@ -14,18 +14,18 @@ import { RemoteQuizRuntime } from '@hfroemmel/quiz-core'
 import { useQuizSnapshot } from './useQuizSnapshot'
 
 export interface QuizRuntimeHandle<TView extends PublicQuizViewModel> {
-  /** `null`, bis der Verbindungsaufbau der Komponente begonnen hat. */
+  /** `null` until the component has begun establishing the connection. */
   runtime: RemoteQuizRuntime<TView> | null
   snapshot: QuizSnapshot<TView> | null
 }
 
 /**
- * `role === null` baut KEINE Verbindung auf.
+ * `role === null` establishes NO connection.
  *
- * Das ist kein Sonderfall, sondern der Normalfall der Offline-Gastgeber: Sie
- * bringen ihre eigene Laufzeit mit, und ein Hook laesst sich nicht bedingt
- * aufrufen. Ohne Rolle bleibt der Griff leer, und der Gastgeber setzt seine
- * Laufzeit an dieselbe Stelle.
+ * This is not a special case but the normal case for offline hosts: they
+ * bring their own runtime, and a hook cannot be called conditionally.
+ * Without a role the handle stays empty, and the host places its runtime at
+ * the same spot.
  */
 export function useQuizRuntime<TView extends PublicQuizViewModel>(
   role: ClientRole | null,
@@ -43,7 +43,7 @@ export function useQuizRuntime<TView extends PublicQuizViewModel>(
     })
     setRuntime(created)
 
-    // Zuverlaessige Bereinigung: kein Socket und kein Timer ueberlebt das Unmount.
+    // Reliable cleanup: no socket and no timer survives the unmount.
     return () => {
       created.dispose()
       setRuntime(null)

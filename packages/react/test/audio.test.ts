@@ -1,15 +1,15 @@
 /**
- * Der Bestand an Klangdateien - festgeschrieben.
+ * The inventory of sound files - pinned down.
  *
- * `soundCues.ts` fuehrt eine statische Registry. Frueher sammelte dort ein Glob
- * ein, was im Ordner lag - bequem und einmal ein Problem: Zum Countdown
- * gehoerten `tick.mp3` und ein Weckerton `ring.mp3`. Beide sind mit dem
- * Countdown entfallen, und beide duerfen nicht durch eine unbedacht
- * zurueckgelegte Datei wiederkommen.
+ * `soundCues.ts` runs a static registry. It used to be collected there by a
+ * glob of whatever was in the folder - convenient, and once a problem: the
+ * countdown used to have `tick.mp3` and an alarm sound `ring.mp3`. Both were
+ * removed along with the countdown, and neither may come back through a
+ * carelessly left-behind file.
  *
- * Deshalb steht der Bestand hier ALS LISTE und nicht als Regel: Wer eine Datei
- * hinzufuegt, muss sie hier nennen - und merkt dabei, ob sie ueberhaupt einen
- * Cue hat, der sie abspielt.
+ * That is why the inventory stands here AS A LIST and not as a rule: whoever
+ * adds a file has to name it here - and notices in doing so whether it even
+ * has a cue that plays it.
  */
 import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -33,7 +33,7 @@ const expected = [
 describe('Klangdateien', () => {
   it('enthaelt genau den festgeschriebenen Bestand', () => {
     expect(readdirSync(audioDir).sort()).toEqual([...expected].sort())
-    // Und die statische Registry kennt exakt diese Dateien.
+    // And the static registry knows exactly these files.
     expect([...registeredAudioFilesForTest].sort()).toEqual([...expected].sort())
   })
 
