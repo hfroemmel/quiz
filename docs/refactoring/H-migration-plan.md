@@ -37,6 +37,8 @@ flowchart LR
 
 **Packages touched.** none. **Hosts.** all five. **Risk.** low. **Tests.** all suites green or listed. **Result.** the acceptance criterion for every later phase.
 
+**Status: done** (branch `refactor` in all six repositories). The six red tests were fixed without loosening an assertion: the touch stage keeps the scene above the fixed footer and reads the zoom again (`Stage.module.css`), quiz-live got the 19 missing fixture assets plus a unique id for the second video question and a repetition test that no longer assumes a single candidate, and the bundestags-app zoom test now measures against the host's own `--quiz-start-zoom`. Every host pins `~0.15.3`, quiz-live stays `~0.14.0` until it is migrated. Measured green: quiz 279 unit + 100 E2E, quiz-live 72 unit + 64 E2E, bundestags-app 25 E2E. Lockfiles were not re-resolved here - the registry is unreachable from this environment.
+
 ## Phase 1 – English-only sweep
 
 **Goal.** No German in identifiers, comments, test names, fixtures or repo documents; German remains only in locale files and content.
@@ -57,6 +59,8 @@ Exported German identifiers that hosts import and therefore need a deprecation a
 **Changes.** Rename identifiers with codemods (ts-morph), rewrite comments, translate test names and docs, keep the *content* of comments (they carry design decisions). Locale JSON values, `content/**` and expected UI strings in tests stay German. Translated docs keep their file names for one release with a one-line redirect, then are renamed.
 
 **Packages touched.** all five. **Hosts.** all. **Dependencies.** Phase 0. **Risk.** medium (volume, ~150 files in quiz alone); mitigated by codemods and by doing it as one PR per repository with no behaviour change. **Tests.** full suites; screenshot baselines unchanged. **Result.** every later diff is readable without a dictionary and reviewers can enforce "English only" in CI with the heuristic script from this analysis.
+
+**Status: done.** Identifiers were renamed through the TypeScript language service so that every reference followed: 562 symbols in quiz, 175 in quiz-live, 109 in quiz-standalone, 139 in app-collection. Renamed package exports keep a deprecated alias for one release, and the sheet-import CLI still accepts the former mapping keys `spalten`, `vorgaben`, `werte`. Comments, test titles, CI notes, SQL notes in the migrations and the documents are English; the harness serves the package under `/quiz-package/` and three harness files carry English names. German stays where it is content or user-visible: locale files, operator and player labels, the expected-text assertions that match them, the server's console banner, the editorial column names and the difficulty aliases `leicht/mittel/schwer`. The heuristic now reports German outside string literals in 6 of 154 quiz files, 13 of 73 quiz-live files and 2 of 15 and 18 files in the two Electron apps - every one of them a quoted UI label. Suites after the sweep: quiz 279 unit + 100 E2E + package verification, quiz-live 72 unit, both Electron apps unchanged (no dependencies installable here). The configuration file of app-collection is now `collection.config.json`; the former name is still read so that a device set up earlier keeps its settings.
 
 ## Phase 2 – Content consolidation
 
