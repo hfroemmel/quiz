@@ -1,452 +1,476 @@
-# Screens: Zustand fuer Zustand
+# Screens: State by State
 
-Diese Datei uebersetzt die siebzehn Screendesigns in Zustaende der
-Zustandsmaschine und schreibt die Zustaende fest, fuer die keine Vorlage
-existiert. Sie ist die Referenz fuer Umsetzung und Abnahme.
+This file translates the seventeen screen designs into states of the state
+machine and pins down the states for which no template exists. It is the
+reference for implementation and acceptance.
 
-Alle Farbtokens sind in [`docs/design-system.md`](design-system.md) definiert,
-alle Uebergaenge in [`docs/animationskatalog.md`](animationskatalog.md).
+All color tokens are defined in [`docs/design-system.md`](design-system.md),
+all transitions in [`docs/animationskatalog.md`](animationskatalog.md).
 
-## Zuordnung der Vorlagen
+## Mapping of the Templates
 
-| Vorlage | Phase | Szene | Besonderheit |
+| Template | Phase | Scene | Notable feature |
 |---|---|---|---|
-| 9 | `idle` | `start` | Startbild Erwachsene, Modus- und Schwierigkeitswahl |
-| 17 | `idle` | `start` | Startbild Kinder, Maskottchen randlos |
-| 8 | `question-presented` | `question` | Bild und Frage sichtbar, Optionen noch verborgen |
-| 13 | `question-presented` | `question` | reine Textfrage, Rubrik und Frage ueber volle Breite |
-| 16 | `buzzer-open` | `question` | Optionen sichtbar, beide Spieler bedienbar |
-| 7 | `answer-locked` | `question` | Spieler 1 hat gebuzzert, Antwortwahl offen |
-| 15 | `answer-locked` | `question` | Antwort B eingeloggt, oeffentlich blau, `Auflösen` primaer |
-| 14 | `attempt-feedback` | `feedback` | Richtig, Textwahlfrage |
-| 2 | `attempt-feedback` | `feedback` | Richtig, muendliche Frage |
-| 6 | `attempt-feedback` | `feedback` | Falsch - Symbol fehlt, wird ergaenzt |
-| 5 | `solution` | `solution` | Loesung mit Buchstabenchip |
-| 10 | `solution` | `solution` | Loesung ohne Chip (freie Antwort) |
-| 12 | `reveal-running` | `reveal` | Enthuellung am Anfang, Bild fast ganz verdeckt |
-| 4 | `reveal-running` | `reveal` | Enthuellung kurz vor Schluss |
-| 3, 11 | `reveal-paused` bzw. Ende der Enthuellung | `reveal` | Bild vollstaendig offen |
-| 1 | `result` | `result` | Konfetti, Ergebniskacheln, `Spiel beenden` |
+| 9 | `idle` | `start` | Start screen for adults, mode and difficulty selection |
+| 17 | `idle` | `start` | Start screen for kids, mascot edge-to-edge |
+| 8 | `question-presented` | `question` | Image and question visible, options still hidden |
+| 13 | `question-presented` | `question` | pure text question, category and question span the full width |
+| 16 | `buzzer-open` | `question` | Options visible, both players can act |
+| 7 | `answer-locked` | `question` | Player 1 has buzzed in, answer choice open |
+| 15 | `answer-locked` | `question` | Answer B logged in, publicly blue, `Auflösen` ("Resolve") primary |
+| 14 | `attempt-feedback` | `feedback` | Correct, text multiple-choice question |
+| 2 | `attempt-feedback` | `feedback` | Correct, spoken-answer question |
+| 6 | `attempt-feedback` | `feedback` | Incorrect - symbol missing, to be added |
+| 5 | `solution` | `solution` | Solution with letter chip |
+| 10 | `solution` | `solution` | Solution without chip (free-form answer) |
+| 12 | `reveal-running` | `reveal` | Reveal at the start, image almost fully covered |
+| 4 | `reveal-running` | `reveal` | Reveal shortly before the end |
+| 3, 11 | `reveal-paused` or end of the reveal | `reveal` | Image fully open |
+| 1 | `result` | `result` | Confetti, result tiles, `Spiel beenden` ("End game") |
 
-Nicht in den Vorlagen enthalten und deshalb unten entworfen: `pause-screen`,
-`video`, `second-chance`, `aborted`, Verbindungsverlust,
-Wiederaufnahme nach Neustart, Moderatoransicht.
+Not included in the templates and therefore designed below: `pause-screen`,
+`video`, `second-chance`, `aborted`, connection loss, resumption after
+restart, moderator view.
 
-## Gemeinsamer Rahmen
+## Shared Frame
 
-### Grund und Atmosphaere
+### Ground and Atmosphere
 
-Die Buehne steht auf einem kuehlen, leicht blaeulichen Verlauf
-(`#171C21` nach `#293139`). Dahinter liegt das **Fragebild selbst**:
-formatfuellend, stark weichgezeichnet, abgedunkelt und mit einem Farbschleier
-ueberzogen. Jede Frage bekommt so ihre eigene Atmosphaere, ohne dass Text an
-Ruhe verliert.
+The stage sits on a cool, slightly bluish gradient (`#171C21` to `#293139`).
+Behind it lies the **question image itself**: filling the format, heavily
+blurred, darkened, and overlaid with a color veil. This way, every question
+gets its own atmosphere without the text losing any calm.
 
-Waehrend einer Bildenthuellung ist derselbe Hintergrund viel staerker
-weichgezeichnet und staerker verschleiert: Dort ist das Motiv die Aufgabe, und
-der Hintergrund darf keine Silhouette verraten.
+During an image reveal, the same background is blurred and veiled much more
+strongly: there, the motif itself is the task, and the background must not
+give away any silhouette.
 
-Kacheln, Buchstabenfelder und Antwortleisten sind halbtransparente Milchglas-
-flaechen mit leichter Weichzeichnung - ohne Rahmen, mit einem sehr weichen
-Schatten fuer raeumliche Tiefe. Die Werte stehen in
-[`docs/design-system.md`](design-system.md).
+Tiles, letter fields, and answer rows are semi-transparent frosted-glass
+surfaces with slight blur - no border, with a very soft shadow for spatial
+depth. The values are in [`docs/design-system.md`](design-system.md).
 
-### Wortmarke
+### Wordmark
 
-Oben links steht die Wortmarke (`apps/web/src/assets/images/logo.svg`), gespiegelt
-zum Fragezaehler oben rechts. Sie wird als CSS-Maske ueber einer Farbflaeche
-gezeichnet und traegt damit immer `--text` des aktiven Modus - eine zweite,
-weisse Fassung der Datei gibt es nicht. Auf dem Startbild entfaellt sie, dort
-traegt die Startgrafik das Branding.
+The wordmark (`apps/web/src/assets/images/logo.svg`) sits top left, mirrored
+by the question counter top right. It is drawn as a CSS mask over a color
+surface and thus always carries `--text` of the active mode - there is no
+second, white version of the file. It is omitted on the start screen, where
+the start graphic carries the branding instead.
 
-### Kopfzeile (oeffentlich, innerhalb der Buehnenflaeche)
+### Header Bar (Public, Inside the Stage Area)
 
 ```text
 [+][-] [Spieler|1][Punkte|100]   [Punkte|100][Spieler|2] [+][-]     [Frage|3/7]
 ```
 
-- Die beiden Spielergruppen sind **gespiegelt**: Bei Spieler 1 steht die
-  Spielerkachel aussen links, bei Spieler 2 aussen rechts. Die Punktekacheln
-  liegen innen und stossen in der Mitte aneinander.
-- Die Kachel `Spieler` faerbt sich `--accent`, sobald der Spieler am Zug ist.
-- `Frage x/y` steht rechts und verschwindet in `start` und `result`.
-- `+`/`-` gehoeren dem Operator und liegen als Overlay ueber der Vorschau. Auf
-  dem Beamer erscheinen sie nicht. Sie sind quadratisch. Sie behalten ihre Position auch dann, wenn
-  die Kacheln daneben ausgeblendet sind (Ergebnisansicht).
-- Schrittweite `+`/`-` ist `scoringRules.manualAdjustmentStep` - derzeit 50 Punkte.
+- The two player groups are **mirrored**: for player 1, the player tile sits
+  on the outer left; for player 2, on the outer right. The score tiles sit on
+  the inside and meet in the middle.
+- The `Spieler` ("Player") tile turns `--accent` as soon as that player is
+  up.
+- `Frage x/y` ("Question x/y") sits on the right and disappears in `start`
+  and `result`.
+- `+`/`-` belong to the operator and sit as an overlay over the preview.
+  They do not appear on the projector. They are square. They keep their
+  position even when the tiles next to them are hidden (result view).
+- The `+`/`-` step size is `scoringRules.manualAdjustmentStep` - currently 50
+  points.
 
-### Bedienleiste (nur Operator)
+### Control Bar (Operator Only)
 
-Zwei Zeilen:
+Two rows:
 
-1. **Private Antwortzeile.** Kleine Beschriftung
-   `Richtige Antwort (klicken um mehr zu erfahren)`, darunter die Loesung in
-   Serifenschrift; bei Wahlfragen mit vorangestelltem Buchstaben `(B) Bliesgau`.
-   Ein Klick klappt einen Zusatzbereich auf mit `explanation.summary`,
-   `explanation.details`, `explanation.source` und `explanation.moderatorNotes`.
-   Der Bereich klappt bei jedem Phasenwechsel automatisch wieder zu, damit die
-   Zeile im Live-Betrieb nie unerwartet Platz frisst.
-   Rechts aussen steht `Zurücksetzen`.
-2. **Nummerierte Handlungsgruppen.** Ueber jeder Gruppe steht eine kleine
-   Ordnungszahl, die den Ablauf lehrt:
+1. **Private answer row.** Small label
+   `Richtige Antwort (klicken um mehr zu erfahren)` ("Correct answer (click
+   to learn more)"), below it the solution in the serif typeface; for
+   multiple-choice questions with a leading letter, `(B) Bliesgau`. A click
+   expands an extra area with `explanation.summary`, `explanation.details`,
+   `explanation.source`, and `explanation.moderatorNotes`. The area
+   automatically collapses again on every phase change, so the row never
+   unexpectedly eats up space during live operation. `Zurücksetzen`
+   ("Reset") sits on the far right.
+2. **Numbered action groups.** Above each group sits a small ordinal number
+   that teaches the flow:
 
-   | Gruppe | Inhalt |
+   | Group | Content |
    |---|---|
-   | `1. Runde` | `Starten` |
-   | `2. Spieler ermitteln` | `Spieler 1`, `Spieler 2`, `zurücksetzen` |
-   | `3. Antwort auswählen` | `A B C D` bei Wahlfragen, `Richtig`/`Falsch` bei muendlichen Fragen |
-   | ohne Nummer | `Auflösen` |
-   | ohne Nummer, rechts aussen | `Weiter` bzw. `Spiel beenden`, nach dem Ergebnis `Zurück zur Startansicht` |
+   | `1. Runde` ("1. Round") | `Starten` ("Start") |
+   | `2. Spieler ermitteln` ("2. Determine player") | `Spieler 1`, `Spieler 2`, `zurücksetzen` |
+   | `3. Antwort auswählen` ("3. Select answer") | `A B C D` for multiple-choice questions, `Richtig`/`Falsch` ("Correct"/"Incorrect") for spoken-answer questions |
+   | unnumbered | `Auflösen` ("Resolve") |
+   | unnumbered, far right | `Weiter` ("Continue") or `Spiel beenden` ("End game"); after the result, `Zurück zur Startansicht` ("Back to start view") |
 
-   Ueber den Gruppen steht nur die Ueberschrift, sonst nichts. Versuchszaehler
-   und die Punkte des laufenden Versuchs erscheinen dort **nicht** - der Wert
-   steht bereits auf der Buehne, und eine zweite Fassung an dieser Stelle laesst
-   die Leiste bei jedem Versuchswechsel umbrechen.
+   Only the heading sits above the groups, nothing else. The attempt counter
+   and the points of the running attempt do **not** appear there - the value
+   already sits on the stage, and a second copy at this point would make the
+   bar wrap on every change of attempt.
 
-   Die Tasten der Antwortgruppe tragen **nur den Buchstaben**. Der Antworttext
-   steht bereits auf der Buehne; ihn zu wiederholen kostet Platz und Blickzeit.
-   Der Volltext bleibt als Tooltip erreichbar, und nur der Operator sieht die
-   Markierung der richtigen Option.
+   The buttons in the answer group carry **only the letter**. The answer
+   text already sits on the stage; repeating it costs space and glance time.
+   The full text remains reachable as a tooltip, and only the operator sees
+   the mark on the correct option.
 
-   `Richtig`/`Falsch` erscheinen ausschliesslich bei Fragen mit manueller
-   Bewertung, also beim Bilderkennen. Bei einer Auswahlfrage waeren sie ein
-   zweiter Bewertungsweg neben der eingeloggten Option; die Entscheidung darueber
-   faellt serverseitig in `allowedCommands`, nicht in der Oberflaeche.
+   `Richtig`/`Falsch` appear exclusively for questions with manual
+   evaluation, i.e. for image recognition. For a multiple-choice question,
+   they would be a second evaluation path alongside the logged-in option;
+   that decision is made server-side in `allowedCommands`, not in the
+   interface.
 
-   `Zurück zur Startansicht` steht in derselben Reihe wie `Weiter` und nicht in
-   der Kopfzeile: Es ist die Fortsetzung desselben Ablaufs, nur nach der letzten
-   Frage. Der Operator sucht die naechste Handlung immer an einer Stelle.
+   `Zurück zur Startansicht` sits in the same row as `Weiter` and not in the
+   header bar: it is the continuation of the same flow, just after the last
+   question. The operator always looks for the next action in one place.
 
-   Die Gruppen bleiben **immer sichtbar und an derselben Stelle**. Nicht
-   erlaubte Tasten werden gesperrt, nie ausgeblendet - der Operator soll seine
-   Tasten blind finden.
+   The groups stay **always visible and in the same place**. Buttons that
+   aren't allowed are locked, never hidden - the operator should be able to
+   find their buttons blind.
 
-Einen Hinweis `Zweite Chance · 50 Punkte` gibt es auf der Buehne **nicht** mehr:
-Der Saal sieht, dass der andere Spieler dran ist, und der halbe Punktwert ist
-eine Regel des Spiels, keine Bildschirmmeldung. Operator und Moderator sehen den
-Wert weiterhin in ihrer Ansicht.
+A note reading `Zweite Chance · 50 Punkte` ("Second chance - 50 points")
+**no longer** exists on the stage: the audience can see that the other
+player is up, and the halved point value is a rule of the game, not an
+on-screen message. Operator and moderator still see the value in their own
+view.
 
-In der zweiten Chance ist eine bereits als falsch bewertete Option **verbraucht**:
-Auf der Buehne steht ihre Leiste zurueckgenommen, im Bedienfeld ist ihre Taste
-gesperrt, und der Server weist ein erneutes Einloggen mit
-`option-already-answered` ab. Ein zweites "falsch" auf dieselbe Antwort waere nur
-ein verlorener Versuch.
+In the second chance, an option already scored as incorrect is **used up**:
+on the stage its row appears withdrawn, its button is locked in the control
+panel, and the server rejects logging it in again with
+`option-already-answered`. A second "incorrect" on the same answer would
+just be a wasted attempt.
 
-`zurücksetzen` verwirft die Spielerzuordnung und die eingeloggte Antwort des
-laufenden Versuchs. Ohne zugeordneten Spieler ist die Taste gesperrt - es gaebe
-nichts zurueckzunehmen. Sperren aus bereits bewerteten Fehlversuchen bleiben
-bestehen (Spezifikation 6.4).
+`zurücksetzen` discards the player assignment and the logged-in answer of
+the running attempt. Without an assigned player, the button is locked -
+there would be nothing to undo. Locks from already-scored failed attempts
+remain in place (specification 6.4).
 
-### Bedienleiste: Aufteilung
+### Control Bar: Layout
 
-Die Handlungsgruppen stehen **nebeneinander** und teilen sich die volle Breite;
-die primaere Handlung (`Weiter`, `Spiel beenden`) sitzt rechts aussen. Damit ist
-die Leiste in einer Zeile lesbar und der Blick springt nicht.
+The action groups sit **side by side** and share the full width; the primary
+action (`Weiter`, `Spiel beenden`) sits on the far right. This keeps the bar
+readable in a single row, and the eye doesn't have to jump.
 
-### Rueckfragen
+### Confirmation Prompts
 
-Handlungen, die sich nicht zuruecknehmen lassen - Spiel beenden, Enthuellung
-zuruecksetzen, Frage deaktivieren, unterbrochenes Spiel verwerfen, neuer
-Veranstaltungstag - fragen ueber einen Dialog **innerhalb** der Anwendung zurueck.
-Kein `confirm()` des Browsers: Das steht ausserhalb der Gestaltung und sieht auf
-einem Veranstaltungsrechner aus wie ein Fehler. Der Dialog benennt die Folge im
-Klartext, `Escape` bricht ab, und der Fokus liegt auf `Abbrechen`.
+Actions that cannot be undone - ending the game, resetting the reveal,
+deactivating a question, discarding an interrupted game, a new event day -
+ask for confirmation via a dialog **inside** the application. No browser
+`confirm()`: that sits outside the design and looks like an error on an
+event computer. The dialog states the consequence in plain language,
+`Escape` cancels, and focus sits on `Abbrechen` ("Cancel").
 
-### Session-Code
+### Session Code
 
-Oben rechts, links neben den Symbolschaltern: kleine Beschriftung
-`SESSION-CODE`, darunter der Code in Weiss. Der Moderator braucht ihn zum
-Anmelden am iPad; der Operator sucht ihn dort, wo die Fensterschalter sind.
+Top right, to the left of the icon switches: small label `SESSION-CODE`,
+below it the code in white. The moderator needs it to sign in on the iPad;
+the operator looks for it where the window switches are.
 
-### Fussbereich
+### Foot Area
 
-Technik, Protokoll und Verbindung liegen als flacher Fussbereich am unteren Rand
-des Fensters - eingeklappt eine Zeile, ausgeklappt der volle Diagnosebereich.
+Technical status, log, and connection sit as a flat foot area at the bottom
+edge of the window - one row when collapsed, the full diagnostics area when
+expanded.
 
-### Ausserhalb der Buehnenflaeche
+### Outside the Stage Area
 
-`Beenden` oben links; `Vollbild` und `Ton` als reine Symbolschalter oben rechts.
-Sie tragen keine Beschriftung, aber ein verpflichtendes `aria-label` und einen
-Tooltip. In `idle` ist `Beenden` gesperrt.
+`Beenden` ("Quit") top left; `Vollbild` ("Fullscreen") and `Ton` ("Sound")
+as pure icon switches top right. They carry no label, but a mandatory
+`aria-label` and a tooltip. In `idle`, `Beenden` is locked.
 
-Die Operatoransicht kommt ohne erklaerende Beschriftungen aus: Es gibt weder eine
-Anweisungszeile ueber der Bedienleiste noch Ueberschriften wie „Das sieht der
-Saal“ oder „Nur fuer Regie“. Der Aufbau selbst sagt, was oeffentlich ist und was
-nicht - die Buehnenflaeche oben, alles Private darunter.
+The operator view manages without explanatory labels: there is neither an
+instruction row above the control bar nor headings like "What the audience
+sees" or "For control room only". The layout itself says what's public and
+what isn't - the stage area on top, everything private below.
 
-### Fragenkorrektur
+### Question Correction
 
-Der Bereich `Fehlerhafte Frage korrigieren` zeigt Fragetext **und**
-Antwortmoeglichkeiten in bearbeitbaren Feldern. Je Antwort steht eine Zeile:
-vorn der Buchstabe, dann das Textfeld ueber die volle Breite der Spalte, hinten
-ein Radiobutton. Der Radiobutton markiert die richtige Antwort und setzt damit
-`correctOptionId` - nie die Reihenfolge und nie eine Markierung im Text.
-Fragen ohne Auswahl - Bilderkennen und jede andere freie Antwort - haben statt der
-Optionszeilen ein Feld `Richtige Antwort`. Es schreibt `acceptedAnswerText`;
-mehrere zulaessige Formulierungen werden mit Semikolon getrennt. Ohne dieses Feld
-liesse sich genau bei diesen Fragen die Loesung nicht korrigieren.
+The `Fehlerhafte Frage korrigieren` ("Correct faulty question") area shows
+the question text **and** the answer options in editable fields. Each
+answer has one row: the letter in front, then the text field spanning the
+full width of the column, a radio button at the back. The radio button
+marks the correct answer and thereby sets `correctOptionId` - never the
+order and never a mark in the text. Questions without a selection - image
+recognition and any other free-form answer - have a field
+`Richtige Antwort` ("Correct answer") instead of the option rows. It writes
+`acceptedAnswerText`; multiple acceptable phrasings are separated by
+semicolons. Without this field, the solution couldn't be corrected for
+exactly these questions.
 
-Gespeichert wird nur, was tatsaechlich geaendert wurde. Die Felder leeren sich
-beim Fragenwechsel - sonst stuende die Korrektur der vorigen Frage im Formular.
+Only what was actually changed gets saved. The fields clear on question
+change - otherwise the correction for the previous question would still be
+sitting in the form.
 
-### Fusszeile
+### Footer
 
-Flache Leiste am unteren Rand: links der aufklappbare Bereich
-`Technik, Protokoll und Verbindung`, rechts aussen die Taste `Spielprotokoll`.
-Sie oeffnet ein Popup mit den bisher gespielten Spielen je Quizmodus - gesamt,
-davon beendet, davon abgebrochen, und wann zuletzt gespielt wurde. Jeder
-konfigurierte Modus steht in der Tabelle, auch mit null Spielen: Ein fehlender
-Eintrag sieht sonst aus wie ein Modus, den es nicht mehr gibt.
+Flat bar at the bottom edge: on the left, the expandable area
+`Technik, Protokoll und Verbindung` ("Technical status, log, and
+connection"); on the far right, the `Spielprotokoll` ("Game log") button.
+It opens a popup with the games played so far per quiz mode - total, of
+which finished, of which aborted, and when it was last played. Every
+configured mode appears in the table, even with zero games: otherwise a
+missing entry looks like a mode that no longer exists.
 
-`Protokoll zurücksetzen` fragt in derselben Flaeche nach (`Wirklich zurücksetzen`)
-- ein zweites Popup ueber dem Popup waere unbedienbar. Zurueckgesetzt wird die
-**Zaehlung**: Die Spiele bleiben mit Punktestand und Auditlog in der Datenbank,
-und das Protokoll zaehlt ab diesem Zeitpunkt neu.
+`Protokoll zurücksetzen` ("Reset log") asks for confirmation within the
+same area (`Wirklich zurücksetzen`, "Really reset") - a second popup on top
+of the popup would be unusable. What gets reset is the **count**: the games
+stay in the database with their score and audit log, and the log starts
+counting anew from that point.
 
-## Antwortoptionen: zwei bis vier
+## Answer Options: Two to Four
 
-Der Entwurf zeigt vier Leisten, verlangt sie aber nicht. Erlaubt sind **zwei bis
-vier** Optionen (`contentThresholds.minChoiceOptionCount` und
-`maxChoiceOptionCount`); die Leisten teilen sich ohnehin die volle Breite, und die
-Buchstaben laufen von A weiter.
+The design shows four rows but doesn't require them. **Two to four**
+options are allowed (`contentThresholds.minChoiceOptionCount` and
+`maxChoiceOptionCount`); the rows share the full width regardless, and the
+letters keep running on from A.
 
-Unter zwei Optionen ist es **keine Auswahlfrage**. Eine einzelne Option waere die
-Loesung selbst auf der Buehne. Solche Fragen laufen ueberall als freie Antwort:
-Der Saal sieht keine Antwortleisten, der Operator bekommt statt der Buchstaben
-`Richtig`/`Falsch`, und die Loesung kommt aus `acceptedAnswerText`. Entschieden
-wird das an genau einer Stelle - `isChoiceQuestion` in
-`packages/contracts/src/content.ts`; Validierung, Engine, Befehlsfreigabe und
-Projektion fragen dort nach.
+Below two options, it is **not a multiple-choice question**. A single
+option would be the solution itself, right there on the stage. Such
+questions run everywhere as free-form answers: the audience sees no answer
+rows, the operator gets `Richtig`/`Falsch` instead of the letters, and the
+solution comes from `acceptedAnswerText`. This is decided in exactly one
+place - `isChoiceQuestion` in `packages/contracts/src/content.ts`;
+validation, engine, command authorization, and projection all query it
+there.
 
-## Zwischenscreen (`pause-screen`, Szene `pause`)
+## Interstitial Screen (`pause-screen`, Scene `pause`)
 
-- Logo des Modus, darunter `Frage 3 von 7`, darunter die **Rubrik** der gleich
-  folgenden Frage. Die Rubrik blendet mit kurzer Verzoegerung ein, damit der Blick
-  erst die Nummer und dann das Thema aufnimmt.
-- Uebertragen wird ausschliesslich die Rubrik (`upcomingCategoryLabel`).
-  Fragetext, Optionen und Bild bleiben bis zur Frageszene beim Server.
-- Der Screen steht `gameTiming.pauseScreenMs` (3 s) - kurz genug, um nicht zu
-  bremsen, lang genug, um die Rubrik zu lesen.
+- Logo of the mode, below it `Frage 3 von 7` ("Question 3 of 7"), below that
+  the **category** of the question coming up next. The category fades in
+  with a short delay, so the eye takes in the number first and the topic
+  second.
+- Only the category is transmitted (`upcomingCategoryLabel`). Question
+  text, options, and image stay on the server until the question scene.
+- The screen stands for `gameTiming.pauseScreenMs` (3 s) - short enough not
+  to slow things down, long enough to read the category.
 
-## Startansicht (`idle`, Szene `start`)
+## Start View (`idle`, Scene `start`)
 
-- Buehnenflaeche: Startbild des gewaehlten Modus. Erwachsene: Adler als
-  Wasserzeichen, darueber grosses `?` und der Titel. Kinder: randfuellende
-  Grafik auf eigener Hintergrundfarbe.
-- Kopfzeile: keine Kacheln, keine `+`/`-`.
-- Bedienleiste: einzeilig, ohne private Antwortzeile.
-  Gruppe `Modus` mit drei Chips aus `catalog.modes`, Gruppe `Schwierigkeitsgrad`
-  mit den Presets des gewaehlten Modus, rechts `Spiel starten` in `--primary`.
-- **Keine Namensfelder.** Die Spieler heissen `Spieler 1` und `Spieler 2`; die
-  Buehne zeigt keine Eigennamen, also gibt es auch nichts einzutragen. Der Befehl
-  `START_GAME` traegt deshalb kein `playerLabels`, und der Server setzt seine
-  Vorgabenamen.
-- Der aktive Chip ist `--accent`. Wechselt der Modus, wechselt sofort das
-  Farbsystem der **Buehnenflaeche** und das Startbild. Die Bedienoberflaeche
-  bleibt davon unberuehrt - sie traegt ihr eigenes, festes Farbsystem
-  (`--ui-*`, siehe `docs/design-system.md`), damit der Operator seine Tasten
-  nicht bei jedem Moduswechsel neu suchen muss.
-- Liegt ein wiederaufnehmbares Spiel vor (`resumable`), erscheint links neben
-  `Spiel starten` zusaetzlich `Spiel fortsetzen`; das Startbild traegt dann eine
-  Zeile `Unterbrochenes Spiel gefunden: Frage 4 von 7`.
+- Stage area: start image of the selected mode. Adults: eagle as a
+  watermark, with a large `?` and the title above it. Kids: edge-to-edge
+  graphic on its own background color.
+- Header bar: no tiles, no `+`/`-`.
+- Control bar: single row, without the private answer row. Group `Modus`
+  ("Mode") with three chips from `catalog.modes`, group
+  `Schwierigkeitsgrad` ("Difficulty") with the presets of the selected
+  mode, `Spiel starten` ("Start game") in `--primary` on the right.
+- **No name fields.** The players are called `Spieler 1` and `Spieler 2`;
+  the stage shows no personal names, so there is nothing to enter either.
+  The `START_GAME` command therefore carries no `playerLabels`, and the
+  server sets its default names.
+- The active chip is `--accent`. When the mode changes, the color system of
+  the **stage area** and the start image change immediately. The control
+  interface is unaffected by this - it carries its own, fixed color system
+  (`--ui-*`, see `docs/design-system.md`), so the operator doesn't have to
+  hunt for their buttons anew on every mode change.
+- If a resumable game exists (`resumable`), `Spiel fortsetzen`
+  ("Resume game") additionally appears to the left of `Spiel starten`; the
+  start image then carries a line
+  `Unterbrochenes Spiel gefunden: Frage 4 von 7`
+  ("Interrupted game found: Question 4 of 7").
 
-## Frageansichten
+## Question Views
 
-### Aufbau mit Bild (Vorlagen 7, 8, 15, 16)
+### Layout With Image (Templates 7, 8, 15, 16)
 
 ```text
 +---------------------------------------------+
-| [Bild 4:3]   Rubrik                          |
-|              Fragetext (max. 2 Zeilen)       |
-|                                              |
-| [A] Antwort ...............................  |
-| [B] Antwort ...............................  |
-| [C] Antwort ...............................  |
-| [D] Antwort ...............................  |
+| [Image 4:3]  Category                        |
+|              Question text (max. 2 lines)     |
+|                                               |
+| [A] Answer .................................  |
+| [B] Answer .................................  |
+| [C] Answer .................................  |
+| [D] Answer .................................  |
 +---------------------------------------------+
 ```
 
-- Das Bild steht links, etwa 18 % der Flaechenbreite, Verhaeltnis 4:3.
-- Die **Rubrik** ueber der Frage ist das Label der **ersten Kategorie** der Frage
-  (bestaetigt). Dafuer traegt das oeffentliche View-Modell
-  `question.categoryLabel`. Sie steht klein, halbfett, in der Groteske und in
-  `accent` - ein Orientierungselement, keine zweite Ueberschrift.
-- Optionsleisten: Buchstabenchip `tile` links, Text zentriert auf `option`.
-  Beide sind halbtransparent, tragen denselben Radius und stehen nur eine
-  schmale Fuge auseinander - der Buchstabe gehoert sichtbar zu seiner Zeile.
+- The image sits on the left, about 18% of the area's width, ratio 4:3.
+- The **category** above the question is the label of the question's
+  **first category** (confirmed). For this, the public view model carries
+  `question.categoryLabel`. It sits small, semi-bold, in the grotesque
+  typeface and in `accent` - an orientation element, not a second heading.
+- Option rows: letter chip `tile` on the left, text centered on `option`.
+  Both are semi-transparent, carry the same radius, and sit only a narrow
+  gap apart - the letter visibly belongs to its row.
 
-### Aufbau ohne Bild (Vorlage 13)
+### Layout Without Image (Template 13)
 
-Rubrik und Fragetext stehen ueber die **volle Breite**, die Optionen darunter -
-bestaetigt. Es bleibt bei einem Layout mit zwei Zonen: Kopfzone (Medium + Text)
-und Antwortzone.
+Category and question text span the **full width**, with the options below
+- confirmed. It stays a two-zone layout: head zone (media + text) and
+answer zone.
 
-### Sichtbarkeitsstufen
+### Visibility Levels
 
-| Phase | Kopfzone | Optionen | Bedienbar |
+| Phase | Head zone | Options | Actionable |
 |---|---|---|---|
-| `question-presented` | sichtbar | **verborgen** | `Antworten einblenden` |
-| `buzzer-open` | sichtbar | sichtbar, neutral | `Spieler 1`, `Spieler 2` |
-| `answer-locked` | sichtbar | sichtbar, neutral | `A`-`D` bzw. `Richtig`/`Falsch`, `Zurücksetzen` |
-| `answer-locked`, Antwort eingeloggt | sichtbar | gewaehlte Leiste `--accent` | zusaetzlich `Auflösen` primaer |
+| `question-presented` | visible | **hidden** | `Antworten einblenden` ("Show answers") |
+| `buzzer-open` | visible | visible, neutral | `Spieler 1`, `Spieler 2` |
+| `answer-locked` | visible | visible, neutral | `A`-`D` or `Richtig`/`Falsch`, `Zurücksetzen` |
+| `answer-locked`, answer logged in | visible | selected row `--accent` | additionally `Auflösen` primary |
 
-Die eingeloggte Antwort erscheint oeffentlich in `--accent`: Der Saal sieht die
-Festlegung, aber nicht ihre Bewertung. Ob sie stimmt, verraet erst die
-Loesungsszene.
+The logged-in answer appears publicly in `--accent`: the audience sees the
+commitment, but not its evaluation. Whether it's right is only revealed by
+the solution scene.
 
-Die Optionen erscheinen erst nach der Freigabe (bestaetigt) - und werden bis
-dahin auch nicht uebertragen. Der Moderator liest die Frage vor, bevor jemand
-buzzern kann. Die eingeloggte Antwort ist **oeffentlich** sichtbar - der Saal sieht, worauf sich der Spieler
-festgelegt hat, aber nicht, ob es stimmt.
+The options only appear after being released (confirmed) - and are not
+transmitted before then either. The moderator reads the question aloud
+before anyone can buzz in. The logged-in answer is **publicly** visible -
+the audience sees what the player has committed to, but not whether it's
+right.
 
-## Enthuellung (`reveal-ready`, `reveal-running`, `reveal-paused`)
+## Reveal (`reveal-ready`, `reveal-running`, `reveal-paused`)
 
-- `reveal-ready` ist der Zwischenschritt vor dem Start: Das Bild ist vollstaendig
-  verdeckt, die Uhr laeuft nicht und niemand kann buzzern. Der Operator startet
-  mit `Enthuellung starten`.
-- Das Bild fuellt die Buehne und liegt unter einem Raster aus Kacheln
-  (Voreinstellung 6 x 4), die
-  waehrend der Enthuellung nacheinander verschwinden. Am Bild selbst aendert sich
-  nichts - keine Skalierung, keine Bewegung, keine Deckkraft; eine offene Kachel
-  zeigt ihren Ausschnitt sofort vollstaendig und bleibt offen.
-- Die Reihenfolge ist gestreut, haelt die Bildmitte aber bis zuletzt verdeckt.
-  Sie haengt an der Bildadresse und ist deshalb auf jedem Screen dieselbe.
-- **Einen sichtbaren Countdown gibt es nicht** - weder eine Zahl noch einen
-  ablaufenden Ring. Die Kacheln sind die Uhr; alles daneben zoege den Blick vom
-  Motiv, um das es gerade geht. Der Moderator sieht die Restsekunden weiterhin
-  in seiner Ansicht.
-- Die Aufloesung stammt aus **einer** Fortschrittsvariablen
-  (`packages/domain/src/reveal.ts`). Das ist eine Fairnessregel, keine
-  Gestaltungsfrage. Rastergroesse und Streuung stehen in `revealGrid`
+- `reveal-ready` is the intermediate step before the start: the image is
+  completely covered, the clock isn't running, and no one can buzz in. The
+  operator starts it with `Enthuellung starten` ("Start reveal").
+- The image fills the stage and sits under a grid of tiles (default 6 x 4)
+  that disappear one after another during the reveal. Nothing changes about
+  the image itself - no scaling, no movement, no opacity change; an opened
+  tile shows its section fully immediately and stays open.
+- The order is scattered but keeps the center of the image covered until
+  last. It is tied to the image's address and is therefore the same on
+  every screen.
+- **There is no visible countdown** - neither a number nor a depleting
+  ring. The tiles are the clock; anything alongside them would pull the eye
+  away from the motif that is the whole point right now. The moderator
+  still sees the remaining seconds in their own view.
+- The resolution comes from **one** progress variable
+  (`packages/domain/src/reveal.ts`). This is a fairness rule, not a design
+  question. Grid size and scatter are in `revealGrid`
   (`packages/contracts/src/config.ts`).
-- Pausiert: Das Bild friert ein, es kommt keine Kachel hinzu.
-- Nach Ablauf ist das Bild vollstaendig offen, die Buzzer bleiben offen.
-- Buzzert ein Spieler waehrend der Enthuellung, **bleibt die Buehne in dieser
-  Szene** und friert das Bild ein. Ein Sprung ins Fragelayout wuerde das Motiv vom
-  Schirm nehmen, obwohl genau darueber gerade gesprochen wird
-  (`sceneForPhase` in `packages/domain/src/projection.ts`).
-- **Neben dem Bild steht nichts.** Die Regiehinweise `pausiert` und `Buzzern
-  weiterhin möglich` gab es frueher in der Operatorvorschau; sie kamen und
-  gingen mit der Phase und schoben dabei das Motiv zur Seite - ausgerechnet in
-  dem Moment, in dem alle darauf schauen. Was sie sagten, steht ohnehin in der
-  Bedienleiste.
+- Paused: the image freezes, no further tile opens.
+- Once it has run its course, the image is fully open, and the buzzers stay
+  open.
+- If a player buzzes in during the reveal, **the stage stays in this
+  scene** and freezes the image. Jumping to the question layout would take
+  the motif off the screen right when it's the very thing being talked
+  about (`sceneForPhase` in `packages/domain/src/projection.ts`).
+- **Nothing sits next to the image.** The directorial notes `pausiert`
+  ("paused") and `Buzzern weiterhin möglich` ("Buzzing still possible")
+  used to exist in the operator preview; they came and went with the phase
+  and pushed the motif aside in doing so - right at the moment when
+  everyone is looking at it. What they said is in the control bar anyway.
 
-## Rueckmeldung (`attempt-feedback`)
+## Feedback (`attempt-feedback`)
 
-- Grafik und Wort stehen mittig in der **gesamten** Buehnenflaeche, nicht nur in
-  dem Bereich unter der Kopfzeile. Der Ausgleich steckt als zusaetzliche
-  Polsterung unten in `.scene--feedback`.
-- Zentraler Kreis, darunter das Wort. Richtig: `--correct`, weisser Haken,
-  kurze Funkenpartikel nach aussen. Falsch: `--incorrect`, weisses Kreuz,
-  **keine** Partikel.
-- Die Punktekachel des bewerteten Spielers **zaehlt waehrend der
-  Richtig-Animation hoch** (bestaetigt) und ist am Ende der Animation auf dem
-  neuen Wert. Der Wert selbst kommt aus dem Snapshot; die Animation
-  interpoliert nur zwischen altem und neuem Snapshotwert. Bei einem Anstieg
-  laeuft zusaetzlich die gelieferte Sternegrafik ueber der Kachel.
-- Die Kachel traegt den Serverwert als `data-score`. Damit haengt keine
-  Auswertung - weder Test noch Diagnose - am Stand einer laufenden Animation.
-- Die Dauern sind an `gameTiming.correctFeedbackMs` bzw.
-  `gameTiming.incorrectFeedbackMs` gebunden und im Animationskatalog als
-  `locked` markiert.
+- Graphic and word sit centered in the **entire** stage area, not just in
+  the zone below the header bar. The compensation sits as extra padding at
+  the bottom, in `.scene--feedback`.
+- Central circle, with the word below it. Correct: `--correct`, white check
+  mark, short spark particles flying outward. Incorrect: `--incorrect`,
+  white cross, **no** particles.
+- The score tile of the evaluated player **counts up during the correct
+  animation** (confirmed) and sits at the new value by the end of the
+  animation. The value itself comes from the snapshot; the animation only
+  interpolates between the old and new snapshot value. On an increase, the
+  supplied star graphic additionally plays over the tile.
+- The tile carries the server value as `data-score`. This means no
+  evaluation - neither test nor diagnostics - depends on the state of a
+  running animation.
+- The durations are tied to `gameTiming.correctFeedbackMs` and
+  `gameTiming.incorrectFeedbackMs` respectively, and are marked `locked` in
+  the animation catalog.
 
-## Zweite Chance (`second-chance`) - entworfen
+## Second Chance (`second-chance`) - Designed
 
-Vorlagenlos, im gezeigten Stil festgelegt; bestaetigt: sichtbar gekennzeichnet.
+No template, fixed in the style shown; confirmed: visibly marked.
 
-- Die Buehnenflaeche behaelt das Fragelayout.
-- Der andere Spieler wird `--accent` markiert und ist am Zug; der erste Spieler
-  bleibt sichtbar, seine Spielerkachel steht in `--accent-quiet` mit einem
-  Schlosssymbol. Diese Markierung ist die gesamte Kennzeichnung - eine Zeile
-  mit dem halben Punktwert gibt es nicht (siehe `Gemeinsamer Rahmen`).
-- Bedienleiste: Gruppe 2 ist gesperrt (der Zug ist gesetzt), Gruppe 3 offen.
+- The stage area keeps the question layout.
+- The other player is marked `--accent` and is now up; the first player
+  stays visible, their player tile sits in `--accent-quiet` with a lock
+  icon. This mark is the entire indication - there is no line stating the
+  halved point value (see "Shared Frame").
+- Control bar: group 2 is locked (the turn is set), group 3 is open.
 
-## Loesung (`solution`)
+## Solution (`solution`)
 
-- Kopfzone unveraendert, darunter die Zeile `Richtige Antwort:` und der
-  Loesungsbalken in `--solution` ueber die volle Breite.
-- Wahlfragen behalten den Buchstabenchip in `--solution-chip`; freie Antworten
-  zeigen den Balken ohne Chip.
-- Bei Bilderkennen-Fragen wandert das Bild nach rechts oben und wird scharf
-  dargestellt; darunter steht der Balken.
-- **Nur die richtige Antwort traegt Farbe.** Alle uebrigen Optionen bleiben
-  stehen und treten gleichmaessig zurueck - auch die, die ein Spieler vorher
-  gewaehlt hatte. Zwei farbige Leisten nebeneinander wuerden die Aussage der
-  Szene aufweichen: Hier geht es nur noch darum, was richtig ist.
-- **Kein Erklaerungstext auf der Buehne.** Der Hintergrund gehoert dem Moderator,
-  der ihn erzaehlt; er wird deshalb gar nicht erst oeffentlich uebertragen. Im
-  privaten Bereich des Operators steht er unveraendert.
+- Head zone unchanged, below it the line `Richtige Antwort:`
+  ("Correct answer:") and the solution bar in `--solution` spanning the
+  full width.
+- Multiple-choice questions keep the letter chip in `--solution-chip`;
+  free-form answers show the bar without a chip.
+- For image-recognition questions, the image moves to the top right and is
+  shown in focus; the bar sits below it.
+- **Only the correct answer carries color.** All other options remain in
+  place and step back evenly - including the one a player had previously
+  chosen. Two colored rows side by side would dilute the point of the
+  scene: from here on it's only about what is correct.
+- **No explanatory text on the stage.** The background information belongs
+  to the moderator, who narrates it; it is therefore never transmitted
+  publicly in the first place. It remains unchanged in the operator's
+  private area.
 
-## Ergebnis (`result`)
+## Result (`result`)
 
-- Kopfzeile ohne Spieler- und Fragekacheln; nur die `+`/`-` des Operators
-  bleiben an ihrer Position.
-- Mittig die Ueberschrift `Spieler 1 hat gewonnen!` bzw. `Unentschieden!`,
-  darunter zwei grosse Ergebniskacheln - erneut gespiegelt: `Spieler|Punkte`
-  links, `Punkte|Spieler` rechts.
-- Konfetti faellt ueber die gesamte Flaeche, **ohne** Abdunkelung des
-  Hintergrunds.
-- Bedienleiste: alle Spieltasten gesperrt, rechts `Spiel beenden` in
-  `--primary`; die private Antwortzeile zeigt weiterhin die letzte Loesung.
-- Die Ergebniskacheln zaehlen wie die Kopfzeile hoch: Korrigiert der Operator
-  hier noch Punkte, ist das dieselbe Bewegung wie im Spiel.
+- Header bar without player and question tiles; only the operator's `+`/`-`
+  stay in their position.
+- The heading `Spieler 1 hat gewonnen!` ("Player 1 has won!") or
+  `Unentschieden!` ("Draw!") sits in the middle, below it two large result
+  tiles - mirrored again: `Spieler|Punkte` on the left, `Punkte|Spieler` on
+  the right.
+- Confetti falls over the entire area, **without** darkening the
+  background.
+- Control bar: all game buttons locked, `Spiel beenden` in `--primary` on
+  the right; the private answer row still shows the last solution.
+- The result tiles count up just like the header bar: if the operator
+  still corrects points here, it's the same motion as during the game.
 
-## Pausenbild (`pause-screen`) - entworfen
+## Pause Screen (`pause-screen`) - Designed
 
-Zeitgesteuerter Zwischenzustand nach Spezifikation 6.2.
+Time-driven interim state per specification 6.2.
 
-- Buehnenflaeche zeigt das Startbild des Modus als ruhiges Wasserzeichen bei
-  35 % Deckkraft, darueber `Frage 4 von 7` in Ergebnistitelgroesse.
-- Kopfzeile bleibt vollstaendig sichtbar - der Punktestand ist genau jetzt
-  interessant.
-- Bedienleiste: alles gesperrt; der Server schaltet nach
-  `gameTiming.pauseScreenMs` selbst weiter.
+- The stage area shows the mode's start image as a calm watermark at 35%
+  opacity, with `Frage 4 von 7` in result-title size above it.
+- The header bar stays fully visible - the score is exactly what's
+  interesting right now.
+- Control bar: everything locked; the server advances on its own after
+  `gameTiming.pauseScreenMs`.
 
-## Videofrage (`video`) - umgesetzt
+## Video Question (`video`) - Implemented
 
-- Das Video liegt mittig in 16:9 auf der Flaeche der Buehne. Eine Phase, ein
-  Bild: Ob es steht, laeuft oder durch ist, zeigt das Bild selbst.
-- KEINE Anzeige des Wiedergabestands, kein Fortschrittsbalken, kein
-  Abspielsymbol - weder auf der Buehne noch am Pult. Nichts davon erreicht den
-  Server, also kann es auch nichts anzeigen (siehe `docs/zustandsmaschine.md`).
-- Am Ende blendet nichts aus: Das letzte Bild bleibt stehen, bis der Operator
-  die Frage einblendet.
-- Bedienleiste: `Video starten` (spielt von vorn, beliebig oft) und
-  `Frage einblenden`. Laesst sich die Datei nicht abspielen, bleibt die Flaeche
-  leer - `Frage einblenden` und `Frage ueberspringen` sind davon unberuehrt, der
-  Ablauf kann also nie an einer Datei haengen bleiben.
+- The video sits centered in 16:9 on the stage area. One phase, one
+  picture: whether it's paused, playing, or finished is shown by the
+  picture itself.
+- NO display of playback status, no progress bar, no play icon - neither on
+  the stage nor at the console. None of that reaches the server, so nothing
+  can display it either (see `docs/zustandsmaschine.md`).
+- Nothing fades out at the end: the last frame stays on screen until the
+  operator brings in the question.
+- Control bar: `Video starten` ("Start video", plays from the beginning,
+  any number of times) and `Frage einblenden` ("Show question"). If the
+  file cannot be played, the area stays empty - `Frage einblenden` and
+  `Frage ueberspringen` ("Skip question") are unaffected by this, so the
+  flow can never get stuck on a file.
 
-## Abbruch (`aborted`) - entworfen
+## Abort (`aborted`) - Designed
 
-Nach `Beenden`: Die Buehnenflaeche geht auf das Startbild des Modus zurueck.
-Es gibt bewusst **keine** Gewinneransicht (Spezifikation 6.6). Die Bedienleiste
-zeigt nur `Neues Spiel`.
+After `Beenden`: the stage area returns to the mode's start image. There is
+deliberately **no** winner view (specification 6.6). The control bar shows
+only `Neues Spiel` ("New game").
 
-## Verbindungs- und Fehlerzustaende - entworfen
+## Connection and Error States - Designed
 
-- **Buehnenfenster ohne Verbindung:** Der letzte Snapshot bleibt stehen. Am
-  unteren Rand der Buehnenflaeche laeuft ein 4 px hoher Streifen in
-  `--incorrect` ein. Es gibt keine Fehlermeldung im Bild, weil der Saal
-  mitliest.
-- **Operator ohne Verbindung:** Ueber der Bedienleiste erscheint ein Band
-  `Keine Verbindung zum Server - Wiederverbindung laeuft` in `--incorrect`;
-  alle Tasten sind gesperrt, bis ein Snapshot eintrifft.
-- **Befehl abgelehnt:** Kurzer Hinweis in der Bedienleiste mit dem
-  Server-Klartext, drei Sekunden sichtbar. Der Zustand wird nie lokal
-  "repariert" - es gilt der naechste Snapshot.
+- **Stage window without a connection:** the last snapshot stays on screen.
+  A 4px-high strip in `--incorrect` slides in at the bottom edge of the
+  stage area. There is no error message in the picture, because the
+  audience is watching along.
+- **Operator without a connection:** a banner
+  `Keine Verbindung zum Server - Wiederverbindung laeuft`
+  ("No connection to the server - reconnecting") in `--incorrect` appears
+  above the control bar; all buttons are locked until a snapshot arrives.
+- **Command rejected:** a brief note in the control bar with the server's
+  plain-language message, visible for three seconds. The state is never
+  "repaired" locally - the next snapshot rules.
 
-## Moderatoransicht - entworfen
+## Moderator View - Designed
 
-Eigenes, textorientiertes Layout ohne Buehnenvorschau (Spezifikation 21):
+Its own text-oriented layout without a stage preview (specification 21):
 
 ```text
-Frage 3/7 · Person · mittel
-Fragetext gross
-Loesung: Bundestagsadler
-Hintergrund: ...
-Naechster Schritt: Antworten einblenden
-Punktestand: 100 : 100
+Question 3/7 · Person · mittel
+Question text (large)
+Solution: Bundestagsadler
+Background: ...
+Next step: Antworten einblenden
+Score: 100 : 100
 ```
 
-Es gilt dasselbe Farbsystem und dieselbe Schrift; die Schriftgroessen stehen
-hier in `rem`, weil das iPad kein Buehnenbild ist.
+The same color system and the same typeface apply; the font sizes here are
+in `rem`, because the iPad is not a stage image.
