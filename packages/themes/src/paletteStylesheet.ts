@@ -1,39 +1,40 @@
 /**
- * Die Farben der Palette als CSS-Regeln.
+ * The palette's colours as CSS rules.
  *
- * HIER STEHT KEIN FARBWERT. Alle Werte kommen aus `@quiz/contracts` (`theme.ts`);
- * diese Datei uebersetzt sie nur in Text. Geschrieben wird daraus
- * `src/palette.css` - siehe `pnpm palette:build`.
+ * NO COLOUR VALUE LIVES HERE. All values come from `@quiz/contracts`
+ * (`theme.ts`); this file only translates them into text. It is written out
+ * as `src/palette.css` - see `pnpm palette:build`.
  *
- * WARUM ERZEUGT UND NICHT VON HAND: Dieselben Werte muessen auch in das
- * Quizpaket, das der Server je Modus ausliefert. Ein handgeschriebenes
- * Stylesheet waere zwangslaeufig eine zweite Abschrift - genau die Doppelung,
- * die frueher unbemerkt auseinanderlief.
+ * WHY GENERATED AND NOT HAND-WRITTEN: The same values must also go into the
+ * quiz package that the server ships per mode. A hand-written stylesheet
+ * would inevitably be a second copy - exactly the duplication that once
+ * drifted apart unnoticed.
  *
- * WARUM EINE DATEI UND KEIN STYLE-TAG ZUR LAUFZEIT: Der Grund der Buehne wird
- * aus `--color-pageTop` gemalt. Kaeme die Variable erst mit dem JavaScript, gaebe
- * es davor ein Bild ohne Farbe - auf einem Beamer ein weisser Blitz.
+ * WHY A FILE AND NOT A RUNTIME STYLE TAG: The stage's background is painted
+ * from `--color-pageTop`. If the variable only arrived with the JavaScript,
+ * there would be an image without colour beforehand - a white flash on a
+ * projector.
  *
- * WELCHE REGELN ENTSTEHEN, UND WARUM NUR DIESE:
+ * WHICH RULES ARE PRODUCED, AND WHY ONLY THESE:
  *
- *   :root                          Rueckfallebene, bis der erste Snapshot des
- *                                  Servers da ist.
- *   .stage--default.stage--bright  die helle Fassung der Buehne. Sie MUSS am
- *                                  Buehnenelement selbst stehen: Die Themefarben
- *                                  kommen als Inline-Variablen am Rahmen an, und
- *                                  eine eigene Deklaration schlaegt einen
- *                                  geerbten Wert.
- *   [data-quiz-game][data-theme]   die helle Fassung des Startbildschirms. Er
- *                                  liegt UEBER der Buehne und kann ihre Klasse
- *                                  deshalb nicht lesen; die Fassung steht am
- *                                  Wurzelelement des Geraets als Attribut. Ein
- *                                  Datenattribut und keine Klasse, weil dieses
- *                                  Stylesheet erzeugt wird und die Klassen der
- *                                  Bauteile gehasht sind.
+ *   :root                          fallback level, until the server's first
+ *                                  snapshot arrives.
+ *   .stage--default.stage--bright  the light variant of the stage. It MUST
+ *                                  sit on the stage element itself: the
+ *                                  theme colours arrive as inline variables
+ *                                  on the frame, and a declaration of its
+ *                                  own beats an inherited value.
+ *   [data-quiz-game][data-theme]   the light variant of the start screen. It
+ *                                  sits ABOVE the stage and therefore cannot
+ *                                  read its class; the variant sits on the
+ *                                  device's root element as an attribute. A
+ *                                  data attribute and not a class, because
+ *                                  this stylesheet is generated and the
+ *                                  components' classes are hashed.
  *
- * Fuer die dunkle Fassung und die Kinderwelt entsteht BEWUSST keine Regel: Ihre
- * Farben liefert das Theme des laufenden Quiz. Eine Regel hier wuerde ein Theme
- * mit eigenen Farben aussperren.
+ * For the dark variant and the kids world, DELIBERATELY no rule is produced:
+ * their colours are supplied by the running quiz's theme. A rule here would
+ * lock out a theme with its own colours.
  */
 import {
   brightPalette,
@@ -62,12 +63,12 @@ function block(selector: string, entries: Record<string, string>): string {
   return `${selector} {\n${lines.join('\n')}\n}`
 }
 
-/** Der Praefix sagt, wem die Farbe gehoert - dem Modus, der Lage oder der Regie. */
+/** The prefix says who the colour belongs to - the mode, the layout, or the direction. */
 function prefixed(entries: Record<string, string>, prefix: string): Record<string, string> {
   return Object.fromEntries(Object.entries(entries).map(([name, value]) => [`${prefix}${name}`, value]))
 }
 
-/** Der vollstaendige Inhalt von `src/palette.css`. */
+/** The full content of `src/palette.css`. */
 export function paletteStyleSheet(): string {
   return [
     HEADER,

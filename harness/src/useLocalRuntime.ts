@@ -1,9 +1,9 @@
 /**
- * Eine `LocalQuizRuntime` fuer die Lebensdauer einer Komponente.
+ * A `LocalQuizRuntime` for the lifetime of a component.
  *
- * Der Pruefstand ist der Gastgeber - er stellt die Laufzeit und raeumt sie auf.
- * Genau so machen es Kiosk und Spielesammlung; hier steht dieselbe Rolle nur
- * ohne Electron drumherum.
+ * The harness is the host - it provides the runtime and tears it down. The
+ * kiosk and the game collection do exactly the same; here it's the same
+ * role, just without Electron around it.
  */
 import { useEffect, useState } from 'react'
 import { LocalQuizRuntime } from '@hfroemmel/quiz-core'
@@ -32,7 +32,7 @@ export function useLocalRuntime(): RuntimeHandle {
         setHandle({ runtime: null, errors: cause instanceof Error ? cause.message : String(cause) })
       })
 
-    // Auch ein Aufbau, der waehrend des Ladens abgebrochen wird, raeumt auf.
+    // Even a setup that's aborted during loading cleans up after itself.
     return () => {
       discarded = true
       built?.dispose()

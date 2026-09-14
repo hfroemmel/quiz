@@ -1,14 +1,14 @@
 /**
- * Das gebaute Quizpaket im Browser laden.
+ * Loads the built quiz package in the browser.
  *
- * Der Pruefstand betreibt das Quiz mit einer `LocalQuizRuntime` - ohne Server.
- * Die drei Dateien des Pakets liefert der Entwicklungsserver unter
- * `/quizpaket/` aus (siehe `vite.config.ts`), die Medien unter `/media/<id>` -
- * derselben Adresse, die der Kern bildet und die im Buehnenbetrieb der
- * Quizserver bedient.
+ * The harness runs the quiz with a `LocalQuizRuntime` - without a server.
+ * The development server serves the package's three files under
+ * `/quizpaket/` (see `vite.config.ts`), the media under `/media/<id>` - the
+ * same route the core builds and that the quiz server serves during a live
+ * stage show.
  *
- * Geprueft wird auch hier: Eine stillschweigend halb geladene Fragenmenge waere
- * unangenehmer als ein klarer Fehler.
+ * Checks run here too: a silently half-loaded question set would be more
+ * unpleasant than a clear error.
  */
 import {
   questionSchema,
@@ -36,7 +36,7 @@ export async function loadHarnessPackage(): Promise<QuizPackage> {
     config: quizConfigSchema.parse(rawConfig),
     questions: questionSchema.array().parse(rawQuestions),
     assetsById: new Map(manifest.assets.map((asset) => [asset.id, asset])),
-    // Ein Verzeichnis gibt es im Browser nicht; Medien kommen ueber die Adresse.
+    // There is no directory in the browser; media comes via the URL.
     rootDir: '',
   }
 }

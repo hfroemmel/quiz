@@ -1,10 +1,10 @@
 /**
- * Paketqualitaet pruefen, wie sie beim Veroeffentlichen ankommt.
+ * Checks package quality as it arrives when published.
  *
- * `pnpm pack` wendet die publishConfig an (exports zeigen dann auf dist/);
- * publint und @arethetypeswrong/cli pruefen anschliessend das TARBALL - nicht
- * den Arbeitsstand. Nur so fallen Fehler auf, die es erst im gepackten Paket
- * gibt: vergessene Dateien, kaputte exports-Pfade, fehlende Typen.
+ * `pnpm pack` applies the publishConfig (exports then point to dist/);
+ * publint and @arethetypeswrong/cli then check the TARBALL - not the
+ * working tree. Only this way do errors show up that only exist in the
+ * packed package: forgotten files, broken exports paths, missing types.
  */
 import { execSync } from 'node:child_process'
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
@@ -13,8 +13,8 @@ import { join } from 'node:path'
 
 const pakete = ['core', 'content', 'themes', 'react', 'kiosk']
 /*
- * Reine CSS- und Asset-Einstiege haben keine Typen - attw prueft nur die
- * JavaScript-Einstiege.
+ * Pure CSS and asset entry points have no types - attw only checks the
+ * JavaScript entry points.
  */
 const attwAusnahmen = {
   themes: ['./palette.css', './fonts.css', './controls.css'],

@@ -1,15 +1,15 @@
 /**
- * Erzeugt den TESTINHALT dieses Repositories.
+ * Generates the TEST CONTENT for this repository.
  *
- * Die redaktionellen Inhalte leben seit der Aufteilung in `quiz-content-data`.
- * Was hier bleibt, ist ein synthetischer Bestand, der genau eine Aufgabe hat:
- * jeden Fragenplatz jedes Presets bedienen, damit Unit- und E2E-Tests ein
- * vollstaendiges Spiel durchspielen koennen.
+ * The editorial content has lived in `quiz-content-data` since the split.
+ * What remains here is a synthetic set with exactly one job: fill every
+ * question slot of every preset, so unit and E2E tests can play through a
+ * complete game.
  *
- * ERZEUGT UND NICHT VON HAND GEPFLEGT: Kommt ein Preset oder ein Fragentyp
- * hinzu, faellt sonst erst im Testlauf auf, dass der Bestand nicht mehr passt.
- * Dieses Skript liest die Slotfilter und legt zu jeder gebrauchten Kombination
- * genug Fragen an.
+ * GENERATED AND NOT MAINTAINED BY HAND: if a preset or question type is
+ * added, it would otherwise only show up as a mismatch during a test run.
+ * This script reads the slot filters and creates enough questions for every
+ * combination that's actually used.
  *
  *   node scripts/build-content-fixtures.mjs
  *   pnpm content:demo-assets && pnpm content:validate && pnpm content:build
@@ -20,28 +20,28 @@ import { join } from 'node:path'
 const sourceDir = join(process.cwd(), 'content', 'source')
 const config = JSON.parse(await import('node:fs').then((fs) => fs.readFileSync(join(sourceDir, 'config.json'), 'utf8')))
 
-/** Drei Kandidaten je Kombination: genug fuer ein Spiel ohne Wiederholung. */
+/** Three candidates per combination: enough for one game without repeats. */
 const PRO_KOMBINATION = 3
 
 /**
- * Typen, von denen es genau EINE Frage gibt.
+ * Types of which there is exactly ONE question.
  *
- * Video- und Portraetfrage stehen im Preset auf eigenen Testplaetzen ohne
- * Schwierigkeitsfilter; im redaktionellen Bestand gibt es je genau eine. Die
- * Tests messen daran, dass ein zu kleiner Pool sich wiederholen MUSS - deshalb
- * bildet der Testbestand diese Eigenschaft nach.
+ * The video and portrait question types sit in the preset on their own test
+ * slots without a difficulty filter; in the editorial content there is
+ * exactly one of each. The tests rely on a pool that's too small being
+ * forced to repeat - so the test content reproduces that property.
  */
 const EINZELSTUECKE = ['video-then-question', 'person']
 
 const alleTypen = ['text-choice', 'image-choice', 'person', 'image-reveal', 'video-then-question']
 /**
- * Typen, die ein Slot OHNE Typfilter bekommen soll.
+ * Types that a slot WITHOUT a type filter should receive.
  *
- * Bilderkennen, Portraet und Video sind Sondertypen mit eigenen Fragenplaetzen:
- * Sie brauchen ein Bild in besonderer Komposition, eine Enthuellung oder einen
- * Vorspann. Ein Platz, der einfach "irgendeine Frage" verlangt, bekommt sie im
- * redaktionellen Bestand nur zufaellig - und ein Bilderkennen ohne
- * Enthuellungsslot waere im Test bloss verwirrend.
+ * Image recognition, portrait and video are special types with their own
+ * question slots: they need an image in a special composition, a reveal, or
+ * a lead-in. A slot that simply asks for "any question" only gets them by
+ * chance in the editorial content - and an image-recognition question
+ * without a reveal slot would just be confusing in a test.
  */
 const NEUTRALE_TYPEN = ['text-choice', 'image-choice']
 const alleSchwierigkeiten = config.difficulties.map((entry) => entry.id)
@@ -50,11 +50,11 @@ const allePools = config.pools.map((entry) => entry.id)
 const alleZielgruppen = config.audiences.map((entry) => entry.id)
 
 /**
- * Welche Kombinationen verlangen die Presets?
+ * Which combinations do the presets require?
  *
- * Ein Slot ohne Typfilter nimmt jeden Typ, einer ohne Schwierigkeitsfilter jede
- * Schwierigkeit. Um nichts zu uebersehen, wird das Kreuzprodukt aller genannten
- * Werte gebildet - der Bestand bleibt trotzdem klein.
+ * A slot without a type filter accepts any type, one without a difficulty
+ * filter accepts any difficulty. To not miss anything, the cross product of
+ * all named values is formed - the content set still stays small.
  */
 const kombinationen = new Map()
 for (const preset of config.presets) {
@@ -67,19 +67,19 @@ for (const preset of config.presets) {
     for (const typ of typen) {
       for (const schwierigkeit of schwierigkeiten) {
         /*
-         * Bilderkennen wird IMMER muendlich bewertet - so ist es im
-         * redaktionellen Bestand, und die Touch-Presets ziehen es deshalb gar
-         * nicht erst (sie filtern auf `option-comparison`). Eine Fassung mit
-         * Antwortoptionen gaebe es dort nur im Testbestand; sie wuerde den
-         * Buehnenpresets eine Frage unterschieben, die niemand vorliest.
+         * Image recognition is ALWAYS scored verbally - that's how it is in
+         * the editorial content, so the touch presets don't draw it at all
+         * (they filter on `option-comparison`). A version with answer
+         * options would only exist there in the test content; it would slip
+         * the stage presets a question that no one reads aloud.
          */
         if (typ === 'image-reveal' && !bewertungen.includes('manual-correct-incorrect')) continue
         const bewertung = typ === 'image-reveal' ? 'manual-correct-incorrect' : 'option-comparison'
         const kategorie = kategorien[0]
         /*
-         * Einzelstuecke bekommen EINEN Eintrag, egal ueber wie viele Slots sie
-         * gefordert werden: Ihr Testplatz filtert nicht nach Schwierigkeit, und
-         * ein Slot ohne Typfilter nimmt sie ohnehin nur nebenbei mit.
+         * One-off types get ONE entry, no matter how many slots demand them:
+         * their test slot doesn't filter by difficulty, and a slot without a
+         * type filter only picks them up incidentally anyway.
          */
         const einzelstueck = EINZELSTUECKE.includes(typ)
         const stufe = einzelstueck ? alleSchwierigkeiten[0] : schwierigkeit
@@ -97,12 +97,12 @@ let laufendeNummer = 0
 const braucht = { image: ['image-choice', 'person', 'image-reveal'], video: ['video-then-question'] }
 
 for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values()) {
-  // Von der Videofrage genuegt eine: Sie ist Vorspann, nicht Spielinhalt.
+  // One video question is enough: it's a lead-in, not game content.
   const anzahl = EINZELSTUECKE.includes(typ) ? 1 : PRO_KOMBINATION
   for (let index = 0; index < anzahl; index += 1) {
     laufendeNummer += 1
-    // Die Bewertungsart gehoert in die Kennung: Bilderkennen gibt es muendlich
-    // (Buehne) und mit Antwortoptionen (Touchgeraet) - sonst kollidieren die IDs.
+    // The scoring type belongs in the identifier: image recognition exists
+    // verbally (stage) and with answer options (touch device) - otherwise the IDs collide.
     const kuerzel = bewertung === 'option-comparison' ? 'auswahl' : 'muendlich'
     const id = `test-${typ}-${schwierigkeit}-${kuerzel}-${index + 1}`
     const mitOptionen = bewertung === 'option-comparison'
@@ -132,10 +132,10 @@ for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values(
         : { acceptedAnswerText: [`Richtige Antwort ${laufendeNummer}`] }),
       explanation: { summary: `Erklaerung zur Testfrage ${laufendeNummer}.` },
       /*
-       * JEDE Testfrage traegt eine englische Fassung. Die Mehrsprachigkeit ist
-       * kein Sonderfall einzelner Fragen, sondern eine Eigenschaft des ganzen
-       * Ablaufs - ein Bestand mit einer uebersetzten Frage darin wuerde die
-       * Stelle nicht finden, an der die Sprache verloren geht.
+       * EVERY test question carries an English version. Multilingualism is
+       * not a special case of individual questions but a property of the
+       * whole flow - a content set with just one translated question in it
+       * wouldn't find the spot where the language gets lost.
        */
       translations: {
         'en-GB': {
@@ -182,7 +182,7 @@ for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values(
   }
 }
 
-// Branding der Zielgruppen und Themes - sonst fehlten Startgrafik und Logo.
+// Branding of the audiences and themes - otherwise the start graphic and logo would be missing.
 const brandingIds = new Set()
 for (const audience of config.audiences) if (audience.startVisualAssetId) brandingIds.add(audience.startVisualAssetId)
 for (const theme of config.themes) if (theme.logoAssetId) brandingIds.add(theme.logoAssetId)

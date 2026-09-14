@@ -19,7 +19,7 @@
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 
 export const defaultTexts = {
-  /* Buehne */
+  /* Stage */
   'stage.player': 'Spieler',
   'stage.points': 'Punkte',
   'stage.question': 'Frage',
@@ -51,7 +51,7 @@ export const defaultTexts = {
    * image sits at this spot instead.
    */
 
-  /* Geraet: Startauswahl */
+  /* Device: start selection */
   'kiosk.setupTitle': 'Spiel starten',
   'kiosk.setupSubtitle': 'Wähle Modus und Schwierigkeit.',
   'kiosk.playerCount': 'Wie viele spielen?',
@@ -74,7 +74,7 @@ export const defaultTexts = {
   'kiosk.preparing': 'Das Quiz wird vorbereitet...',
   'kiosk.disconnected': 'Keine Verbindung zum Quiz.',
 
-  /* Geraet: Einstellungen */
+  /* Device: settings */
   'kiosk.settings': 'Einstellungen',
   'kiosk.sound': 'Ton',
   'kiosk.on': 'An',

@@ -1,9 +1,9 @@
 /**
- * Die Spieleransicht allein - der Pruefstand des Touchbetriebs.
+ * The player view on its own - the harness for touch operation.
  *
- * Sie betreibt dieselbe Komponente wie das Kioskgeraet, nur im Browser und mit
- * frischer Laufzeit bei jedem Seitenaufruf. Genau das ist hier praktisch: Ein
- * Neuladen ist der Ruecksetzknopf, den es am Geraet nicht gibt.
+ * It runs the same component as the kiosk device, just in the browser and
+ * with a fresh runtime on every page load. That's exactly what's handy
+ * here: a reload is the reset button the device doesn't have.
  */
 import { QuizGame } from '@hfroemmel/quiz-kiosk'
 import { useLocalRuntime } from './useLocalRuntime'

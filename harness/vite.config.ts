@@ -5,10 +5,10 @@ import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 /**
- * Der Pruefstand der Pakete - Szenenvorschau, Touchgeraet und Beispielsammlung.
+ * The packages' harness - scene preview, touch device and example collection.
  *
- * Er wird nie ausgeliefert. Ausgeliefert werden die fuenf Bibliotheken; die
- * Anwendungen liegen in eigenen Repositories.
+ * It is never shipped. What ships are the five libraries; the applications
+ * live in their own repositories.
  */
 const hier = dirname(fileURLToPath(import.meta.url))
 const paketVerzeichnis = join(hier, '..', 'content', 'dist')
@@ -28,15 +28,17 @@ const MIME: Record<string, string> = {
 }
 
 /**
- * Das gebaute Quizpaket ausliefern - die Aufgabe, die im Buehnenbetrieb der
- * Quizserver hat.
+ * Serves the built quiz package - the job the quiz server has during a
+ * live stage show.
  *
- * Zwei Adressen, mehr braucht es nicht: `/quizpaket/<datei>` fuer Manifest,
- * Konfiguration und Fragen, `/media/<id>` fuer die Mediendateien. Die zweite
- * bildet der Kern selbst - sie muss deshalb genau so heissen.
+ * Two routes, no more needed: `/quizpaket/<file>` for manifest,
+ * configuration and questions, `/media/<id>` for the media files. The
+ * second one is defined by the core itself - so it must be named exactly
+ * that.
  *
- * Der Dateiname kommt IMMER aus dem Manifest, nie aus der Adresse: So kann eine
- * Anfrage nichts erreichen, was nicht zum Quizpaket gehoert.
+ * The file name ALWAYS comes from the manifest, never from the URL: this
+ * way a request can never reach anything that isn't part of the quiz
+ * package.
  */
 function quizpaketAusliefern(): Plugin {
   const dateinamen = new Map<string, string>()
@@ -68,7 +70,7 @@ function quizpaketAusliefern(): Plugin {
 
         if (pfad.startsWith('/quizpaket/')) {
           const name = pfad.slice('/quizpaket/'.length)
-          // Nur die drei Dateien des Pakets, keine beliebigen Pfade.
+          // Only the package's three files, no arbitrary paths.
           if (!['manifest.json', 'config.json', 'questions.json'].includes(name)) {
             antwort.statusCode = 404
             antwort.end('Nicht gefunden')

@@ -1,12 +1,12 @@
 /**
- * Haelt die Palette zentral.
+ * Keeps the palette central.
  *
- * Zwei Zusagen werden hier geprueft, und beide sind leicht zu brechen, ohne dass
- * es jemandem auffiel: Farbwerte sind unauffaellig, und eine zweite Abschrift
- * sieht auf den ersten Blick harmlos aus. Genau daran ist das Farbsystem schon
- * einmal auseinandergelaufen - `tokens.css` und `config.json` trugen
- * verschiedene Akzentfarben, und weil eine geerbte Inline-Variable die
- * `:root`-Regel schlaegt, gewann stillschweigend das Quizpaket.
+ * Two guarantees are checked here, and both are easy to break without
+ * anyone noticing: colour values are inconspicuous, and a second copy looks
+ * harmless at first glance. This is exactly where the colour system drifted
+ * apart once before - `tokens.css` and `config.json` carried different
+ * accent colours, and because an inherited inline variable beats the
+ * `:root` rule, the quiz package silently won.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
@@ -17,8 +17,8 @@ import { paletteStyleSheet } from '../src/paletteStylesheet'
 const themesDir = fileURLToPath(new URL('..', import.meta.url))
 const generated = join(themesDir, 'src', 'palette.css')
 /*
- * Geprueft wird ueber ALLE Oberflaechenschichten hinweg: die Themes selbst,
- * die React-Buehne, das Kiosk-Paket und den Pruefstand.
+ * Checks run across ALL surface layers: the themes themselves, the React
+ * stage, the kiosk package and the harness.
  */
 const sourceDirs = [
   join(themesDir, 'src'),
@@ -28,20 +28,20 @@ const sourceDirs = [
 ]
 
 /**
- * Erlaubte Ausnahmen.
+ * Allowed exceptions.
  *
- * `PreviewApp.tsx` zeichnet Platzhaltergrafiken als Daten-URI - das sind Bilder,
- * keine Oberflaechenfarben. Sie stehen fuer Fotos, die im Betrieb vom Server
- * kommen, und haben in der Palette nichts zu suchen.
+ * `PreviewApp.tsx` draws placeholder graphics as data URIs - those are
+ * images, not surface colours. They stand in for photos that come from the
+ * server in production and have no business being in the palette.
  */
 const EXEMPT = ['palettes.ts', 'palette.css', 'preview/PreviewApp.tsx']
 
 /*
- * Hexwerte, `rgb(...)` und die benannten Farben von CSS.
+ * Hex values, `rgb(...)`, and CSS's named colours.
  *
- * Die Namen brauchen die Klammer davor und dahinter: `--kids-red` ist ein
- * Variablenname und keine Farbe, `text-shadow: 0 0 black` dagegen schon.
- * `transparent` und `currentColor` bleiben erlaubt - sie nennen keinen Ton.
+ * The names need the boundary before and after them: `--kids-red` is a
+ * variable name and not a colour, whereas `text-shadow: 0 0 black` is.
+ * `transparent` and `currentColor` remain allowed - they name no tone.
  */
 const NAMED = [
   'black', 'white', 'red', 'green', 'blue', 'yellow', 'orange', 'purple',

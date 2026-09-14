@@ -1,17 +1,17 @@
 /* ------------------------------------------------------------------ *
- * Schriften
+ * Fonts
  *
- * Die Dateien liegen im Paket und werden mitgebaut - nie ueber ein
- * Netzwerk-CDN, weil die Anwendung offline lauffaehig bleiben muss
- * (Spezifikation 2).
+ * The files live in the package and are built along with it - never over a
+ * network CDN, because the application must remain usable offline
+ * (spec 2).
  *
- * Melior traegt die Buehne: Fragen, Antworten, Kachelwerte, Ueberschriften.
- * Noto Sans Display traegt den Bedienrahmen des Operators, wo kleine
- * Beschriftungen auf kurze Distanz gelesen werden und eine Groteske klarer ist.
- * Auf dem Beamer erscheint sie nicht.
+ * Melior carries the stage: questions, answers, tile values, headings.
+ * Noto Sans Display carries the operator's control frame, where small
+ * labels are read at short distance and a sans-serif is clearer.
+ * It never appears on the projector.
  *
- * `font-display: block` statt `swap`: Ein Schriftwechsel mitten in der Show
- * waere sichtbarer als ein kurzer Moment ohne Text.
+ * `font-display: block` instead of `swap`: a font swap in the middle of the
+ * show would be more noticeable than a brief moment without text.
  * ------------------------------------------------------------------ */
 
 @font-face {

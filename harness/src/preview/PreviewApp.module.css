@@ -1,9 +1,9 @@
 /*
- * Szenen- und Animationsvorschau.
+ * Scene and animation preview.
  *
- * Nur Entwicklung: Bedienspalte links, Buehnenflaeche rechts. Sie traegt die
- * Farben des Bedienrahmens (`--ui-*`) - die Buehne daneben ist das einzige
- * Feld, das die Farben des Quizmodus zeigt.
+ * Development only: control column on the left, stage area on the right.
+ * It carries the control frame's colours (`--ui-*`) - the stage next to it
+ * is the only area that shows the quiz mode's colours.
  */
 
 .preview {

@@ -1,83 +1,83 @@
-# Umsetzungsplan Oberflaeche
+# UI implementation plan
 
-Plan fuer den Umbau der bestehenden Oberflaeche auf die gelieferten
-Screendesigns. Der Plan beschreibt Reihenfolge, Verantwortlichkeiten und
-Abnahmekriterien; die visuellen Vorgaben stehen in
-[`docs/design-system.md`](design-system.md) und [`docs/screens.md`](screens.md),
-die Bewegungen in [`docs/animationskatalog.md`](animationskatalog.md).
+Plan for rebuilding the existing interface to match the delivered screen
+designs. The plan describes order, responsibilities, and acceptance criteria;
+the visual specifications live in
+[`docs/design-system.md`](design-system.md) and [`docs/screens.md`](screens.md),
+the motion in [`docs/animationskatalog.md`](animationskatalog.md).
 
-## Was sich fachlich aendert - und was nicht
+## What changes functionally - and what doesn't
 
-**Unveraendert:** Zustandsmaschine, Befehle, Rollenrechte, Persistenz,
-Wiederherstellung, Inhaltspipeline, Punktelogik, Enthuellungsberechnung. Das
-Design ist Darstellung.
+**Unchanged:** state machine, commands, role permissions, persistence,
+recovery, content pipeline, scoring logic, reveal computation. The design is
+presentation.
 
-**Aenderungen ausserhalb der Oberflaeche** - klein, aber notwendig:
+**Changes outside the interface** - small, but necessary:
 
-| Aenderung | Ort | Grund |
+| Change | Location | Reason |
 |---|---|---|
-| `question.categoryLabel` im oeffentlichen View-Modell | `contracts/viewModels.ts`, `domain/projection.ts` | Die Rubrik ueber der Frage ist das Label der ersten Kategorie |
-| Vollstaendiger Farbtokensatz je Theme | `contracts/content.ts`, `content/source/config.json` | Jeder Modus bringt ein komplettes Farbsystem mit |
-| `theme.startVisualUrl` je Modus verpflichtend nutzbar | `domain/projection.ts` | Startbild ist Teil des Modus, nicht des Codes |
-| `pointsIfCorrect` in der Buehnenprojektion | `domain/projection.ts` | Hinweis `Zweite Chance · 50 Punkte` darf keine feste Zahl im Code sein |
+| `question.categoryLabel` in the public view model | `contracts/viewModels.ts`, `domain/projection.ts` | the category above the question is the label of the first category |
+| Full color token set per theme | `contracts/content.ts`, `content/source/config.json` | every mode brings a complete color system with it |
+| `theme.startVisualUrl` mandatory usable per mode | `domain/projection.ts` | the start image belongs to the mode, not to the code |
+| `pointsIfCorrect` in the stage projection | `domain/projection.ts` | the hint `Zweite Chance · 50 Punkte` ("Second chance · 50 points") must not be a fixed number in the code |
 
-Alles Weitere passiert in `apps/web`.
+Everything else happens in `apps/web`.
 
-## Leitgedanken
+## Guiding principles
 
-1. **Eine Quelle fuer die Buehne.** `StageScreen` rendert das oeffentliche
-   View-Modell. Buehnenfenster, Operatorvorschau und Entwicklungsvorschau
-   benutzen dieselbe Komponente. Es gibt keinen zweiten Renderpfad.
-2. **Tokens statt Farbwerte.** Kein Bauteil enthaelt einen Farb-, Radius- oder
-   Abstandswert. Alles kommt aus CSS-Variablen, die aus dem Theme des
-   Quizpakets gesetzt werden.
-3. **Deklarative Bedienleiste.** Die Tasten stehen als Datenstruktur da, nicht
-   als JSX-Kaskade. Der Zustand jeder Taste ergibt sich aus `allowedCommands`
-   und dem View-Modell.
-4. **Skalierung ueber Container-Queries.** Ein Layout, zwei Groessen. Keine
-   Geraeteabfragen, keine zweite Typografieskala.
-5. **Keine magischen Zahlen in JSX.** Zeiten kommen aus dem Uebergangsregistry,
-   Groessen aus Tokens.
-6. **Sperren statt Verstecken.** Bedienelemente behalten ihre Position; nicht
-   erlaubte Tasten werden gesperrt.
+1. **One source for the stage.** `StageScreen` renders the public view
+   model. Stage window, operator preview, and development preview all use
+   the same component. There is no second render path.
+2. **Tokens instead of color values.** No component contains a color,
+   radius, or spacing value. Everything comes from CSS variables set from
+   the quiz package's theme.
+3. **Declarative control bar.** The buttons exist as a data structure, not as
+   a JSX cascade. Each button's state follows from `allowedCommands` and the
+   view model.
+4. **Scaling via container queries.** One layout, two sizes. No device
+   queries, no second typography scale.
+5. **No magic numbers in JSX.** Timings come from the transition registry,
+   sizes from tokens.
+6. **Lock instead of hide.** Controls keep their position; disallowed
+   buttons are locked.
 
-## Zielstruktur
+## Target structure
 
 ```text
 apps/web/src/
   styles/
-    tokens.css            Basistokens, Verlaeufe, Radien, Abstaende
-    typography.css        @font-face, Typoskala in cqw und rem
-    stage.css             Buehnenflaeche und Szenen
-    chrome.css            Kopfleiste, Bedienleiste, Baender
-    animations.css        Keyframes; Dauern nur ueber CSS-Variablen
+    tokens.css            base tokens, gradients, radii, spacing
+    typography.css        @font-face, type scale in cqw and rem
+    stage.css             stage area and scenes
+    chrome.css             header bar, control bar, banners
+    animations.css         keyframes; durations only via CSS variables
   theme/
-    applyTheme.ts         Theme-Tokens -> CSS-Variablen auf dem Wurzelelement
+    applyTheme.ts         theme tokens -> CSS variables on the root element
   ui/
     Tile.tsx  OptionBar.tsx  ProgressRing.tsx  MediaFrame.tsx
-    AnimationClip.tsx     spielt eine gelieferte Bewegtgrafik ab
+    AnimationClip.tsx     plays a delivered motion graphic
   presentation/
-    StageScreen.tsx       Rahmen, Szenenwahl, Uebergang, Soundmarke
-    StageHeader.tsx       Punktekacheln, Fragezaehler, Slots fuer Operatortasten
-    animationAssets.ts    Registry der gelieferten Bewegtgrafiken
-    scenes/               je Szene eine Datei, nur Anordnung
-    scenes/QuestionHead.tsx  Medium, Rubrik und Fragetext - fuer drei Szenen
-    transitions/          unveraendert: Animationsvertrag und Registry
+    StageScreen.tsx       frame, scene selection, transition, sound cue
+    StageHeader.tsx       score tiles, question counter, slots for operator buttons
+    animationAssets.ts    registry of delivered motion graphics
+    scenes/               one file per scene, layout only
+    scenes/QuestionHead.tsx  media, category, and question text - for three scenes
+    transitions/          unchanged: animation contract and registry
   apps/operator/
-    OperatorApp.tsx       Verbindung, Vorschau, Rahmen
-    OperatorChrome.tsx    Beenden, Vollbild, Ton, Punktekorrektur
-    ControlBar.tsx        rendert das Modell aus controlModel.ts
-    controlModel.ts       Gruppen, Tasten, Zustandsableitung - ohne JSX
-    PrivateAnswerPanel.tsx  Loesungszeile mit aufklappbarem Zusatzbereich
+    OperatorApp.tsx       connection, preview, frame
+    OperatorChrome.tsx    quit, fullscreen, sound, score correction
+    ControlBar.tsx        renders the model from controlModel.ts
+    controlModel.ts       groups, buttons, state derivation - no JSX
+    PrivateAnswerPanel.tsx  solution row with an expandable extra area
 ```
 
-`ui/` kennt nur Tokens. `presentation/` kennt nur das oeffentliche View-Modell.
-`apps/operator/` kennt zusaetzlich Befehle. Diese Richtung wird nicht
-umgedreht.
+`ui/` knows only tokens. `presentation/` knows only the public view model.
+`apps/operator/` additionally knows commands. This direction is never
+reversed.
 
-### Das Bedienmodell
+### The control model
 
-Kern der Wartbarkeit ist eine einzige Datei ohne JSX:
+The core of maintainability is a single file with no JSX:
 
 ```ts
 export interface ControlDescriptor {
@@ -92,140 +92,143 @@ export interface ControlDescriptor {
 }
 ```
 
-`ControlBar` rendert die Liste, `ActionButton` stellt sie dar. Eine neue Taste
-ist damit ein Listeneintrag - kein neuer Sonderfall im Markup. Die
-Buchstabentasten `A`-`D` entstehen aus `visibleOptions`, nicht aus vier
-kopierten Bloecken.
+`ControlBar` renders the list, `ActionButton` displays it. A new button is
+thus a list entry - not a new special case in the markup. The letter buttons
+`A`-`D` are generated from `visibleOptions`, not from four copied blocks.
 
-## Arbeitspakete
+## Work packages
 
-Jedes Paket ist fuer sich lauffaehig, typgeprueft und getestet.
+Each package stands on its own, is runnable, type-checked, and tested.
 
-### P1 - Fundament — **erledigt**
+### P1 - Foundation — **done**
 
-Tokens, Typografie, Theme-Anwendung. Die Anwendung laeuft im Graustufensystem
-des Entwurfs, ohne dass ein Layout umgebaut ist.
+Tokens, typography, theme application. The application runs in the grayscale
+system of the design, without any layout being rebuilt.
 
-- `packages/contracts/src/theme.ts` fuehrt die achtzehn Farbtoken als Vertrag
-  zwischen Quizpaket, Validierung und Oberflaeche
-- die Inhaltsvalidierung meldet ein unvollstaendiges Theme als **Fehler**
-- `content/source/config.json` traegt den Tokensatz fuer alle drei Modi; Kinder
-  und Saarbruecken erben ihn, bis die eigenen Farbsysteme geliefert sind
-- die Werte selbst standen zunaechst dreifach - im Quizpaket, in
-  `apps/web/src/theme/designTokens.ts` und in `tokens.css`. Sie liefen
-  auseinander und stehen heute nur noch in `theme.ts`; Vorschau, Stylesheet und
-  Quizpaket werden daraus gespeist
-- Serifenschrift durchgehend, Radius auf 6 px
+- `packages/contracts/src/theme.ts` establishes the eighteen color tokens as
+  a contract between quiz package, validation, and interface
+- content validation reports an incomplete theme as an **error**
+- `content/source/config.json` carries the token set for all three modes;
+  Kinder and Saarbruecken inherit it until their own color systems are
+  delivered
+- the values themselves initially existed in three places - in the quiz
+  package, in `apps/web/src/theme/designTokens.ts`, and in `tokens.css`.
+  They drifted apart and now live only in `theme.ts`; preview, stylesheet,
+  and quiz package are all fed from there
+- serif typeface throughout, radius set to 6 px
 
-*Abgenommen:* alle Token auf der Buehne gesetzt (E2E), `pnpm typecheck`,
-`pnpm test` (108) und beide Playwright-Projekte gruen.
+*Accepted:* all tokens set on the stage (E2E), `pnpm typecheck`, `pnpm test`
+(108) and both Playwright projects green.
 
-### P2 - Primitive — **erledigt**
+### P2 - Primitives — **done**
 
-`Tile`, `OptionBar`, `ProgressRing`, `MediaFrame` unter `apps/web/src/ui/`.
-Jedes Bauteil kennt nur Tokens und seine Varianten; keines liest das
-View-Modell oder sendet Befehle.
+`Tile`, `OptionBar`, `ProgressRing`, `MediaFrame` under `apps/web/src/ui/`.
+Each component knows only tokens and its own variants; none of them reads the
+view model or sends commands.
 
-Zwei Bauteile aus der urspruenglichen Liste entfallen begruendet:
+Two components from the original list are dropped, with reason:
 
-- `CircleBadge` - Haken und Kreuz kommen als gelieferte Bewegtgrafik, nicht als
-  gezeichnete Form
-- `SectionLabel` - gehoert zur Bedienleiste und kommt mit P4
+- `CircleBadge` - checkmark and cross come as a delivered motion graphic, not
+  as a drawn shape
+- `SectionLabel` - belongs to the control bar and comes with P4
 
-*Abgenommen:* alle Varianten in `/preview` sichtbar, Screenshot-Regression neu
-aufgenommen.
+*Accepted:* all variants visible in `/preview`, screenshot regression
+re-recorded.
 
-### P3 - Buehnenflaeche und Kopfzeile — **erledigt**
+### P3 - Stage area and header — **done**
 
-- `StageHeader` mit gespiegelten Punktekacheln, Fragezaehler und Slots fuer die
-  Bedienelemente des Operators; das Buehnenfenster uebergibt keine Slots
-- `QuestionHead` traegt Medium, Rubrik und Fragetext fuer Frage-, Enthuellungs-
-  und Loesungsszene - einmal statt dreimal
-- Antwortleisten gestapelt ueber die volle Breite, Loesungsbalken mit Chip
-- Enthuellungsring ab 12 Uhr im Uhrzeigersinn, Bildaufloesung unveraendert aus
-  derselben Fortschrittsvariablen (damals als Schaerfe, heute als Kachelraster)
-- Ergebnisansicht mit Konfetti und gespiegelten Ergebniskacheln
-- die Buehnenflaeche ist ein Container; alle Groessen darin stehen in `cqw`
+- `StageHeader` with mirrored score tiles, question counter, and slots for
+  the operator's controls; the stage window passes no slots
+- `QuestionHead` carries media, category, and question text for the
+  question, reveal, and solution scenes - once instead of three times
+- answer bars stacked full width, solution bar with a chip
+- reveal ring starting at 12 o'clock clockwise, image resolution still
+  computed from the same progress variable (formerly as blur, now as a tile
+  grid)
+- results view with confetti and mirrored result tiles
+- the stage area is a container; all sizes within it are in `cqw`
 
-*Abgenommen:* Vorschau und Buehnenfenster zeigen dieselbe Komposition,
-`pnpm test` (108) sowie beide Playwright-Projekte gruen.
+*Accepted:* preview and stage window show the same composition, `pnpm test`
+(108) and both Playwright projects green.
 
-### P4 - Bedienrahmen
+### P4 - Control frame
 
-`OperatorChrome`, `ControlBar` aus `controlModel.ts`, private Antwortzeile mit
-aufklappbarem Zusatzbereich, `Zurücksetzen`, Vollbild- und Tonschalter.
-Beschriftungen wechseln auf echte Umlaute; die E2E-Selektoren werden
-mitgezogen.
+`OperatorChrome`, `ControlBar` from `controlModel.ts`, private answer row
+with an expandable extra area, `Zurücksetzen` ("Reset"), fullscreen and
+sound toggles. Labels switch to real umlauts; the E2E selectors are updated
+along with them.
 
-*Abnahme:* Jede Taste des Designs vorhanden, Position stabil ueber alle Phasen;
-`test/e2e/game-flows.spec.ts` gruen.
+*Acceptance:* every button of the design present, position stable across all
+phases; `test/e2e/game-flows.spec.ts` green.
 
-### P5 - Startansicht
+### P5 - Start view
 
-Startbild je Modus, Modus- und Schwierigkeitschips aus `catalog`,
-`Spiel starten`, `Spiel fortsetzen` bei wiederaufnehmbarem Spiel.
+Start image per mode, mode and difficulty chips from `catalog`, `Spiel
+starten` ("Start game"), `Spiel fortsetzen` ("Resume game") for a resumable
+game.
 
-*Abnahme:* Moduswechsel taucht sofort die Buehnenflaeche um; kein Modusname
-steht im Code. Die Bedienoberflaeche bleibt in ihrem festen Farbsystem.
+*Acceptance:* switching modes instantly re-skins the stage area; no mode name
+appears in the code. The control interface stays in its fixed color system.
 
-### P6 - Entworfene Zustaende
+### P6 - Designed states
 
-Pausenbild, Videofrage, zweite Chance mit sichtbarer Kennzeichnung, Abbruch,
-Verbindungsband, Fehlerhinweise, Moderatoransicht.
+Pause image, video question, second chance with visible marking, abort,
+connection banner, error notices, moderator view.
 
-*Abnahme:* Jeder Zustand aus `docs/screens.md` ist in `/preview` anwaehlbar.
+*Acceptance:* every state from `docs/screens.md` is selectable in `/preview`.
 
-### P7 - Animationen — **teilweise erledigt**
+### P7 - Animations — **partially done**
 
-Bereits umgesetzt: Richtig und Falsch aus den gelieferten Bewegtgrafiken,
-Ringrichtung ab 12 Uhr, Einlaufregel der Optionen, Punkte-Hochzaehlen mit
-Sternen ueber der Punktekachel.
+Already implemented: correct and incorrect from the delivered motion
+graphics, ring direction from 12 o'clock, options entry rule, score count-up
+with stars over the score tile.
 
-Offen: die Baender des Bedienrahmens (mit P4) und die Feinabstimmung der
-Szenenwechsel gegen die neuen Layouts.
+Open: the control frame's banners (with P4) and fine-tuning the scene
+transitions against the new layouts.
 
-*Abnahme:* Jede Zeile des Katalogs hat eine Definition mit
-`reducedMotionDurationMs`; gesperrte Dauern tragen `locked` mit Begruendung;
-Reduced-Motion-Test gruen.
+*Acceptance:* every row of the catalog has a definition with
+`reducedMotionDurationMs`; locked durations carry `locked` with a reason;
+reduced-motion test green.
 
-### P8 - Abnahme
+### P8 - Acceptance
 
-Vollstaendiger Durchlauf auf 16:10 und 16:9, Screenshotvergleich gegen die
-Vorlagen, Kontrollgang durch `docs/operator-kurzanleitung.md`.
+Full run-through at 16:10 and 16:9, screenshot comparison against the
+templates, a walkthrough of `docs/operator-kurzanleitung.md`.
 
 ## Tests
 
-| Ebene | Was abgesichert wird |
+| Level | What is covered |
 |---|---|
-| `pnpm test` | Ableitung der Tastenzustaende aus `allowedCommands`; Theme-Tokens vollstaendig; Rubrik aus der ersten Kategorie |
-| `pnpm test:e2e --project=preview` | Alle Szenen und Zustaende, Reduced Motion, Screenshots je Modus |
-| `pnpm test:e2e --project=live` | Bedienleiste ueber einen ganzen Spieldurchlauf, private Inhalte nie im Buehnen-DOM |
+| `pnpm test` | derivation of button states from `allowedCommands`; theme tokens complete; category from the first category |
+| `pnpm test:e2e --project=preview` | all scenes and states, reduced motion, screenshots per mode |
+| `pnpm test:e2e --project=live` | control bar across a full game run, private content never in the stage DOM |
 
-Der bestehende Test "der Buehnenscreen erhaelt die Loesung erst in der
-Loesungsszene" bleibt die wichtigste Absicherung des Umbaus: Er beweist, dass
-die neue Vorschau im Operatorfenster die Trennung nicht aufweicht.
+The existing test "the stage screen only receives the solution in the
+solution scene" remains the most important safeguard of the rebuild: it
+proves that the new preview in the operator window does not weaken the
+separation.
 
-## Offene Zulieferungen
+## Open deliveries
 
-Ohne diese Dateien wird mit den benannten Platzhaltern gearbeitet; der Austausch
-ist danach ein reiner Dateitausch ohne Codeaenderung.
+Without these files, the named placeholders are used; swapping them in
+afterward is then a plain file swap without any code change.
 
-| Zulieferung | Wofuer | Platzhalter bis dahin |
+| Delivery | For | Placeholder until then |
 |---|---|---|
-| Farbsysteme `Kinder` und `Saarbruecken` | Themes | erben von `Erwachsene` |
-| Startbild `Saarbruecken` | Startansicht | ohne Grafik, nur der Titel |
-| 156 Bilddateien des Fragenkatalogs | alle Bild- und Bilderkennen-Fragen | erzeugtes Ersatzbild (siehe [`docs/inhalte-uebernahme.md`](inhalte-uebernahme.md)) |
+| Color systems `Kinder` ("Kids") and `Saarbruecken` | themes | inherit from `Erwachsene` ("Adults") |
+| Start image `Saarbruecken` | start view | no graphic, title only |
+| 156 image files of the question catalog | all image and image-recognition questions | generated placeholder image (see [`docs/inhalte-uebernahme.md`](inhalte-uebernahme.md)) |
 
-Bereits geliefert und eingebaut: Melior und Noto Sans Display, Startbilder fuer
-`Erwachsene` und `Kinder`,
-die Bewegtgrafiken fuer Richtig, Falsch, Pokal, Sterne und Fragezeichen sowie
-das Konfetti-SVG. Die Symbole fuer Vollbild und Ton werden als Inline-SVG
-nachgezeichnet - sie sind reine Bedienelemente und nicht Teil der Buehnenausgabe.
+Already delivered and integrated: Melior and Noto Sans Display, start images
+for `Erwachsene` ("Adults") and `Kinder` ("Kids"), the motion graphics for
+correct, incorrect, trophy, stars, and question marks, and the confetti SVG.
+The fullscreen and sound icons are redrawn as inline SVG - they are pure
+controls and not part of the stage output.
 
-## Beobachtung ohne Festlegung
+## Observation without a decision
 
-Auf Vorlage 17 liegt unten rechts eine kleine Fensterminiatur, die den
-Startbildschirm des anderen Modus zeigt. Sie wird **nicht** umgesetzt, weil
-unklar ist, ob sie ein gestaltetes Bauteil oder ein Artefakt der
-Bildschirmaufnahme ist. Falls eine Vorschau des Buehnenfensters im
-Operatorfenster gewuenscht ist, wird sie als eigenes Arbeitspaket nachgezogen.
+Template 17 has a small window thumbnail in the bottom right that shows the
+start screen of the other mode. It is **not** implemented, because it is
+unclear whether it is a designed component or an artifact of the screen
+recording. If a preview of the stage window is wanted in the operator
+window, it will be picked up as its own work package.

@@ -1,26 +1,26 @@
 /*
- * Masse, Schriften und Dauern - gemeinsam fuer alle Rollen.
+ * Sizes, fonts and durations - shared across all roles.
  *
- * HIER STEHT KEINE FARBE. Alle Farbwerte kommen aus
- * `packages/contracts/src/theme.ts` und stehen als erzeugtes Stylesheet in
- * `palette.css`. Im Betrieb ueberschreibt das Theme des aktiven Quizmodus die
- * Buehnenfarben ohnehin (siehe `themeVariables` in theme/sceneTheme.ts) - eine
- * Farbe an dieser Stelle waere deshalb wirkungslos und nur eine zweite
- * Wahrheit.
+ * NO COLOUR LIVES HERE. All colour values come from
+ * `packages/contracts/src/theme.ts` and appear as a generated stylesheet in
+ * `palette.css`. In production, the active quiz mode's theme overrides the
+ * stage colours anyway (see `themeVariables` in theme/sceneTheme.ts) - a
+ * colour at this spot would therefore be ineffective and just a second
+ * source of truth.
  *
- * ANIMATIONSDAUERN stehen ebenfalls nicht fest verdrahtet, sondern kommen als
- * `--transition-duration`, `--transition-delay` und `--transition-easing` aus dem
- * Uebergangsregistry (`presentation/transitions/registry.ts`). So gibt es genau eine
- * Stelle, an der Timings geaendert werden.
+ * ANIMATION DURATIONS are likewise not hard-wired but come as
+ * `--transition-duration`, `--transition-delay` and `--transition-easing`
+ * from the transition registry (`presentation/transitions/registry.ts`).
+ * That way there is exactly one place where timings are changed.
  */
 
 :root {
   --font-heading: 'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --font-body: var(--font-heading);
-  /* Nur der Bedienrahmen des Operators - nichts davon steht auf der Buehne. */
+  /* Only the operator's control frame - none of this lives on the stage. */
   --font-ui: 'Noto Sans Display', 'Segoe UI', system-ui, sans-serif;
 
-  /* Fallbacks, falls eine Szene ohne registrierten Uebergang gerendert wird. */
+  /* Fallbacks in case a scene is rendered without a registered transition. */
   --transition-duration: 400ms;
   --transition-delay: 0ms;
   --transition-easing: cubic-bezier(0.22, 0.61, 0.36, 1);

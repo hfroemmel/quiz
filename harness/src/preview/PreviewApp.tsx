@@ -1,14 +1,14 @@
 /**
- * Entwicklungsansicht fuer Szenen und Uebergaenge (Spezifikation 22.6).
+ * Development view for scenes and transitions (spec 22.6).
  *
- * Zweck: Szenen und Animationen isoliert starten, wiederholen und mit verschiedenen
- * Themes pruefen - ohne ein vollstaendiges Quiz und ohne laufenden Server.
+ * Purpose: start, replay and check scenes and animations in isolation with
+ * different themes - without a complete quiz and without a running server.
  *
- * Diese Route greift NICHT in den Produktionsworkflow ein:
- *  - sie baut keine WebSocket-Verbindung auf;
- *  - sie sendet keine Befehle;
- *  - sie verwendet ausschliesslich lokal erzeugte Beispiel-View-Modelle;
- *  - im Produktionsbuild ist sie ueber `import.meta.env.DEV` gesperrt.
+ * This route does NOT interfere with the production workflow:
+ *  - it opens no WebSocket connection;
+ *  - it sends no commands;
+ *  - it exclusively uses locally generated sample view models;
+ *  - in the production build it is locked behind `import.meta.env.DEV`.
  */
 import { useMemo, useState } from 'react'
 import type {
@@ -26,34 +26,34 @@ import { prefersReducedMotion } from '@hfroemmel/quiz-react'
 import styles from './PreviewApp.module.css'
 
 /**
- * Themes der Vorschau.
+ * Themes of the preview.
  *
- * Die Vorschau laeuft ohne Server und baut ihre View-Modelle selbst; die Farben
- * holt sie sich deshalb direkt aus der Palette - derselben Quelle, aus der auch
- * das Quizpaket gebaut wird. Eine eigene Abschrift gaebe es hier sonst zwangs-
- * laeufig, und sie liefe irgendwann auseinander.
+ * The preview runs without a server and builds its own view models; that's
+ * why it fetches its colours directly from the palette - the same source
+ * the quiz package is built from. Otherwise a copy of its own would
+ * inevitably exist here, and it would eventually drift apart.
  *
- * Es gibt genau zwei Gestaltungswelten: die Buehne der Erwachsenen und die
- * illustrierte Kinderwelt. Der Modus Saarbruecken benutzt das Theme der
- * Erwachsenen und taucht hier deshalb nicht eigens auf.
+ * There are exactly two design worlds: the adult stage and the illustrated
+ * kids world. The Saarbruecken mode uses the adult theme and therefore
+ * doesn't appear separately here.
  */
 const SKINS: Record<string, ThemeSkin> = { default: 'default', kids: 'kids' }
 
 const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
 
 /**
- * Fragetypen mit eigener Anordnung, die sich in der Frage- und der Loesungsszene
- * pruefen lassen. `image-reveal` und `video-then-question` haben eigene Szenen und
- * stehen deshalb nicht zur Wahl.
+ * Question types with their own layout that can be checked in the question
+ * and solution scenes. `image-reveal` and `video-then-question` have their
+ * own scenes and are therefore not offered as a choice.
  */
 const QUESTION_TYPES: QuestionPresentationType[] = ['image-choice', 'text-choice', 'person']
 
 export function PreviewApp() {
   const [scene, setScene] = useState<PublicScene>('question')
   /*
-   * `null` heisst: die Szene behaelt ihren eigenen Beispieltyp. Nur so bleiben die
-   * Referenzbilder der Szenenvorschau vergleichbar, waehrend sich jeder Fragetyp
-   * bei Bedarf einzeln aufrufen laesst.
+   * `null` means: the scene keeps its own sample type. Only this way do the
+   * scene preview's reference images stay comparable, while every question
+   * type can still be opened individually when needed.
    */
   const [questionType, setQuestionType] = useState<QuestionPresentationType | null>(null)
   const [themeId, setThemeId] = useState('default')
@@ -62,23 +62,23 @@ export function PreviewApp() {
   const [revealElapsedMs, setRevealElapsedMs] = useState(3_000)
   const [draw, setDraw] = useState(false)
   /*
-   * Belastungsprobe der Textflaechen. Die Vorgabe des Kinderquiz-Assetpakets
-   * verlangt vier Fragezeilen und zweizeilige Antworten ohne Abschneiden; mit
-   * diesem Schalter laesst sich das in jeder Szene und jedem Theme pruefen.
+   * Stress test for the text areas. The kids-quiz asset package's
+   * specification demands four question lines and two-line answers without
+   * truncation; this toggle lets that be checked in every scene and theme.
    */
   const [longText, setLongText] = useState(false)
   /*
-   * Der 50:50-Joker. Er gehoert zum Live-Quiz und nicht zur Szene, ist hier
-   * also ein Schalter wie die reduzierte Bewegung: Er blendet in der Frageszene
-   * zwei Antworten aus, damit die Darstellung ausgeblendeter Antworten ohne
-   * Server pruefbar bleibt. Die Jokerkarte selbst liegt im Live-Quiz.
+   * The 50:50 joker. It belongs to the live quiz and not to the scene, so
+   * here it's a toggle like reduced motion: it hides two answers in the
+   * question scene, so the presentation of hidden answers stays checkable
+   * without a server. The joker card itself lives in the live quiz.
    */
   const [fiftyFifty, setFiftyFifty] = useState(false)
   /*
-   * Wie es um das Video steht. Die Operatorvorschau sagt genau das an, und die
-   * Buehne blendet die Flaeche aus, sobald es zu Ende ist.
+   * The video's current state. The operator preview announces exactly that,
+   * and the stage fades the area out as soon as it has ended.
    */
-  // Neu montieren, um denselben Uebergang erneut abzuspielen.
+  // Remount to replay the same transition.
   const [runId, setRunId] = useState(0)
 
   const view = useMemo(
@@ -188,14 +188,15 @@ export function PreviewApp() {
         )}
 
         {/*
-          * ANS ENDE DER LEISTE, nicht dazwischen: Die End-to-End-Tests sprechen
-          * die Auswahlfelder ueber ihre Reihenfolge an, und ein neues Feld
-          * weiter oben verschoebe stumm jedes andere.
+          * AT THE END OF THE BAR, not in between: the end-to-end tests
+          * address the select fields by their order, and a new field further
+          * up would silently shift every other one.
           *
-          * WO DIE SZENE LAEUFT, ist Teil der Paketoberflaeche und gehoert
-          * deshalb in den Pruefstand. Die Vorschau des Operators ist nicht
-          * dieselbe Ansicht wie der Beamer: Sie darf Regiehinweise tragen - ob
-          * ein Video gerade laeuft etwa -, die im Saal nichts zu suchen haben.
+          * WHERE THE SCENE RUNS is part of the package's surface and
+          * therefore belongs in the harness. The operator's preview is not
+          * the same view as the projector: it may carry direction cues -
+          * whether a video is currently playing, for instance - that have no
+          * business being in the hall.
           */}
         <label className="field">
           <span>Ansicht</span>
@@ -255,8 +256,9 @@ export function PreviewApp() {
           key={runId}
           view={view}
           /*
-           * Fuer alles Dargestellte steht die Zeit still - sonst liefe die
-           * Enthuellungsuhr sofort ab und jeder Screenshot zeigte etwas anderes.
+           * Time stands still for everything shown - otherwise the reveal
+           * clock would run out immediately and every screenshot would show
+           * something different.
            */
           serverNow={() => view.serverTimeMs}
           isAudioMaster={false}
@@ -268,10 +270,10 @@ export function PreviewApp() {
 }
 
 /**
- * Platzhalterbild der Vorschau.
+ * Placeholder image of the preview.
  *
- * Die Vorschau laeuft ohne Server und darf deshalb keine Medienadresse des
- * Servers benutzen. Das Bild steckt als Daten-URI direkt im Modul.
+ * The preview runs without a server and therefore may not use a media URL
+ * from the server. The image sits directly in the module as a data URI.
  */
 const previewImage =
   'data:image/svg+xml;charset=utf-8,' +
@@ -285,10 +287,11 @@ const previewImage =
   )
 
 /**
- * Portraet der Vorschau fuer den Fragetyp `person`.
+ * Portrait for the preview of the `person` question type.
  *
- * Nahezu quadratisch, weil die Anordnung das Bild hochkant gross herausstellt; ein
- * Querformat wuerde die Spaltenaufteilung falsch beurteilen lassen.
+ * Nearly square, because the layout displays the image large in portrait
+ * orientation; a landscape image would make the column split hard to judge
+ * correctly.
  */
 const previewPortrait =
   'data:image/svg+xml;charset=utf-8,' +
@@ -300,7 +303,7 @@ const previewPortrait =
     </svg>`,
   )
 
-/** Startbild der Vorschau - ebenfalls ohne Serveradresse. */
+/** Start image of the preview - likewise without a server URL. */
 const previewStartVisual =
   'data:image/svg+xml;charset=utf-8,' +
   encodeURIComponent(
@@ -311,10 +314,11 @@ const previewStartVisual =
   )
 
 /**
- * Beispiel-View-Modelle. Sie haben denselben Aufbau wie die echten Snapshots des
- * Servers, damit die Vorschau nicht an einer eigenen Datenstruktur vorbeientwickelt.
+ * Sample view models. They have the same shape as the server's real
+ * snapshots, so the preview doesn't get developed past its own data
+ * structure.
  */
-/** Testtexte aus `ASSET_INTEGRATION.md`, Abschnitt 8. */
+/** Test texts from `ASSET_INTEGRATION.md`, section 8. */
 const LONG_PROMPT =
   'Welche Aufgabe übernimmt die Bundestagspräsidentin während einer besonders unübersichtlichen und kontrovers geführten Plenarsitzung?'
 const LONG_ANSWERS = [
@@ -325,10 +329,10 @@ const LONG_ANSWERS = [
 ]
 
 /**
- * Beispielfrage je Anordnung.
+ * Sample question per layout.
  *
- * `person` bekommt eine eigene Frage samt Portraet: Die Anordnung stellt das Bild
- * gross heraus und laesst sich mit einer Erdkundefrage nicht beurteilen.
+ * `person` gets its own question complete with portrait: the layout
+ * displays the image large and cannot be judged with a geography question.
  */
 function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
   if (type === 'person') {
@@ -365,10 +369,10 @@ function buildSampleView(input: {
   longText: boolean
   fiftyFifty: boolean
 }): PublicQuizViewModel {
-  // Fester Zeitpunkt fuer alles Dargestellte - Screenshots duerfen nicht von der Uhr abhaengen.
+  // Fixed point in time for everything shown - screenshots must not depend on the clock.
   const serverTimeMs = 1_700_000_000_000
   const scores = [
-    // Dreistellige Punktestaende sind der Regelfall, nicht die Ausnahme.
+    // Three-digit scores are the rule, not the exception.
     { playerId: 'player-1' as const, label: 'Spieler 1', score: 200, active: true, locked: false },
     {
       playerId: 'player-2' as const,
@@ -390,10 +394,10 @@ function buildSampleView(input: {
       startTitle: 'Bundestags-Quiz',
     },
     /*
-     * Leer, und das ist die Aussage: Die Angebotsuebersicht ist Sache der
-     * Anwendung (der Buehnenclient von `quiz-live` zeigt sie vor dem ersten
-     * Spiel). Die Szenen dieses Pakets kennen sie nicht, und diese Vorschau
-     * prueft die Szenen.
+     * Empty, and that is the point: the offering overview is the
+     * application's business (the `quiz-live` stage client shows it before
+     * the first game). This package's scenes don't know it, and this
+     * preview checks the scenes.
      */
     quizOffers: [],
     playerScores: scores,
@@ -412,14 +416,14 @@ function buildSampleView(input: {
         question: sample.question,
         visibleOptions: [
           { id: 'o1', text: text(sample.answers[0]!, 0) },
-          // Eingeloggte Antwort: oeffentlich markiert, aber ohne Bewertung.
+          // Logged-in answer: marked as public, but without a score.
           { id: 'o2', text: text(sample.answers[1]!, 1), state: 'chosen' },
           /*
-           * Mit 50:50: diese beiden hat der Joker genommen. Sie behalten ihren
-           * Platz und ihren Buchstaben - genau das soll im Bild zu sehen sein.
+           * With 50:50: the joker took these two. They keep their place and
+           * their letter - that's exactly what should be visible in the image.
            */
           { id: 'o3', text: text(sample.answers[2]!, 2), ...(input.fiftyFifty ? { eliminated: true } : {}) },
-          // Zweite Chance: diese Antwort war schon falsch und ist verbraucht.
+          // Second chance: this answer was already wrong and is used up.
           {
             id: 'o4',
             text: text(sample.answers[3]!, 3),
@@ -428,8 +432,8 @@ function buildSampleView(input: {
           },
         ],
         /*
-         * Die Ziehung selbst gehoert dem Live-Quiz; die Vorschau zeigt nur,
-         * was danach auf der Buehne steht - ein angewendeter 50:50.
+         * The draw itself belongs to the live quiz; the preview only shows
+         * what's on the stage afterwards - an applied 50:50.
          */
         ...(input.fiftyFifty
           ? {
@@ -461,9 +465,10 @@ function buildSampleView(input: {
       }
     case 'video':
       /*
-       * Es gibt genau EINEN Stand: Die Videoflaeche steht, ein Auftrag liegt an.
-       * Wie weit die Wiedergabe ist, weiss die Vorschau so wenig wie der Server.
-       * Die Adresse zeigt bewusst ins Leere - geprueft wird die Komposition.
+       * There is exactly ONE state: the video area is present, a job is
+       * queued. How far playback has progressed is as unknown to the preview
+       * as to the server. The URL deliberately points nowhere - what's being
+       * checked is the composition.
        */
       return {
         ...base,
@@ -491,7 +496,7 @@ function buildSampleView(input: {
       return {
         ...base,
         phase: 'solution',
-        // Letzte Frage: prueft zugleich den Zaehler 7/7.
+        // Last question: also checks the 7/7 counter.
         progress: { current: 7, total: 7 },
         question: sample.question,
         visibleOptions: [
@@ -508,8 +513,8 @@ function buildSampleView(input: {
         ...base,
         phase: 'result',
         result: {
-          // Die Vorschau zeigt die Buehne des Zweikampfs; das Einzelspiel hat
-          // seine eigene Ergebnisszene und keinen Vorschaufall.
+          // The preview shows the duel's stage; the solo game has
+          // its own results scene and no preview case.
           mode: 'duel',
           winnerPlayerId: input.draw ? null : 'player-1',
           isDraw: input.draw,
@@ -517,7 +522,7 @@ function buildSampleView(input: {
         },
       }
     case 'pause':
-      // Der Zwischenscreen kuendigt Nummer und Rubrik der naechsten Frage an.
+      // The interstitial screen announces the number and category of the next question.
       return { ...base, phase: 'pause-screen', upcomingCategoryLabel: 'Erdkunde' }
     default:
       return { ...base, phase: 'idle', playerScores: [] }

@@ -1,13 +1,13 @@
 /**
- * Einstiegspunkt des Pruefstands.
+ * Entry point of the harness.
  *
- * Dieses Repository liefert Bibliotheken aus, keine Anwendung. Was hier laeuft,
- * ist ihr Pruefstand: die Szenenvorschau, das Touchgeraet und eine beispielhafte
- * Gastgeberanwendung. Alle drei kommen ohne Server aus - das Quiz laeuft ueber
- * eine `LocalQuizRuntime` im Browser.
+ * This repository ships libraries, not an application. What runs here is
+ * their harness: the scene preview, the touch device, and an example host
+ * application. All three work without a server - the quiz runs via a
+ * `LocalQuizRuntime` in the browser.
  *
- * Der Pruefstand traegt die Screenshot-Referenzen und den Einbettungsvertrag.
- * Er wird nie ausgeliefert.
+ * The harness carries the screenshot references and the embedding contract.
+ * It is never shipped.
  */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -15,22 +15,22 @@ import { PreviewApp } from './preview/PreviewApp'
 import { ShellApp } from './shell/ShellApp'
 import { TouchDevice } from './TouchDevice'
 /*
- * Globale Stylesheets - bewusst KEINE Module.
+ * Global stylesheets - deliberately NOT modules.
  *
- *   palette   ERZEUGT aus quiz-themes (`palettes.ts`) - alle Farbwerte
- *   fonts     die @font-face-Regeln aus quiz-themes
- *   tokens    Massvariablen, Schriften und Dauern am Wurzelelement
- *   base      Reset und Grundtypografie
- *   controls  Schaltflaechen und Formularfelder der Vorschau
- *   motion    Keyframes und Uebergangsklassen; das Uebergangsregistry setzt
- *             ihre Namen als Zeichenkette und braucht sie deshalb ungehasht
- *   stage     Wurzelklassen der Buehne (`.stage--default`, `.stage--kids`,
- *             `.stage--bright`) - der Schalter, auf den alle Bauteilmodule
- *             ueber `:global(...)` zugreifen
+ *   palette   GENERATED from quiz-themes (`palettes.ts`) - all colour values
+ *   fonts     the @font-face rules from quiz-themes
+ *   tokens    size variables, fonts and durations on the root element
+ *   base      reset and basic typography
+ *   controls  buttons and form fields of the preview
+ *   motion    keyframes and transition classes; the transition registry
+ *             sets their names as a string and therefore needs them unhashed
+ *   stage     root classes of the stage (`.stage--default`, `.stage--kids`,
+ *             `.stage--bright`) - the switch all component modules access
+ *             via `:global(...)`
  *
- * Hier kommen sie aus der QUELLE der Pakete; ein Gastgeber, der die
- * veroeffentlichten Pakete einbindet, holt die Bauteilstile zusaetzlich ueber
- * `@hfroemmel/quiz-react/styles.css` und `@hfroemmel/quiz-kiosk/styles.css`.
+ * Here they come from the packages' SOURCE; a host that includes the
+ * published packages additionally fetches the component styles via
+ * `@hfroemmel/quiz-react/styles.css` and `@hfroemmel/quiz-kiosk/styles.css`.
  */
 import '@hfroemmel/quiz-themes/palette.css'
 import '@hfroemmel/quiz-themes/fonts.css'
@@ -44,11 +44,11 @@ function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/'
   switch (path) {
     /*
-     * Selbstbedienung am Touchgeraet. Zwei Betriebsangaben kommen als
-     * Abfrageparameter, damit ein Geraet sein Fenster ohne eigenen Build
-     * einrichten kann:
-     *   ?audience=adults   Zielgruppe des Geraets
-     *   ?idle=120          Leerlauf-Aufsicht in Sekunden
+     * Self-service at the touch device. Two operating settings arrive as
+     * query parameters, so a device can set up its window without its own
+     * build:
+     *   ?audience=adults   audience of the device
+     *   ?idle=120          idle supervision in seconds
      */
     case '/play': {
       const params = new URLSearchParams(window.location.search)
@@ -62,8 +62,9 @@ function App() {
       )
     }
     /*
-     * Beispielhafte Gastgeberanwendung. Sie zeigt, wie eine fremde Anwendung das
-     * Quiz einbindet - und dient als Pruefstand fuer den Einbettungsvertrag.
+     * Example host application. It shows how an external application
+     * embeds the quiz - and serves as the harness for the embedding
+     * contract.
      */
     case '/shell':
       return <ShellApp />
