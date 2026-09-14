@@ -31,13 +31,13 @@ import {
   type ActorRole,
   type PlayerQuizViewModel,
   isSelfServicePreset,
-  beschriftung,
-  untertitel,
+  labelFor,
+  subtitleFor,
   quizSupportsDifficulty,
   defaultPresetIdOf,
-  fragenTextFuer,
-  gueltigeSprache,
-  oberflaechenTexte,
+  questionTextFor,
+  validLocale,
+  interfaceTexts,
   jokerOf,
   jokerRevealAtMs,
   type OperatorJokerControl,
@@ -133,12 +133,12 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
       scene: 'start',
       phase: state?.phase ?? 'idle',
       theme,
-      quizOffers: quizOffers(ctx, spracheFuer(state, ctx)),
+      quizOffers: quizOffers(ctx, localeFor(state, ctx)),
       playerScores: [],
       progress: { current: 0, total: ctx.config.questionsPerGame },
       soundEnabled: state?.soundEnabled ?? ctx.soundEnabled ?? true,
-      locale: spracheFuer(state, ctx),
-      ...texteFuer(state, ctx),
+      locale: localeFor(state, ctx),
+      ...textsFor(state, ctx),
       serverTimeMs: ctx.nowMs,
       revision: state?.revision ?? 0,
     }
@@ -146,13 +146,13 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
 
   const scene = sceneForPhase(state.phase, state.currentQuestion?.question.questionType)
   const runtime = state.currentQuestion
-  const locale = spracheFuer(state, ctx)
+  const locale = localeFor(state, ctx)
   /*
    * AB HIER IST DIE FRAGE UEBERSETZT. Alles darunter - Text, Optionen, Medium,
    * Loesung - liest aus dieser einen Fassung; sonst stuende die Frage in einer
    * und die Antworten in einer anderen Sprache.
    */
-  const question = runtime ? fragenTextFuer(runtime.question, locale) : undefined
+  const question = runtime ? questionTextFor(runtime.question, locale) : undefined
   const active = activePlayerId(state)
   const showsQuestion = scene === 'question' || scene === 'feedback' || scene === 'solution' || scene === 'reveal' || scene === 'video'
 
@@ -230,7 +230,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
         : undefined,
     soundEnabled: state.soundEnabled,
     locale,
-    ...texteFuer(state, ctx),
+    ...textsFor(state, ctx),
     transition: state.lastTransition
       ? {
           id: state.lastTransition.transitionId,
@@ -256,7 +256,7 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
   return {
     ...projectPublic(state, ctx),
     allowedCommands: allowedCommandsForRole(state ?? null, 'player'),
-    catalog: buildPlayerCatalog(ctx, spracheFuer(state, ctx)),
+    catalog: buildPlayerCatalog(ctx, localeFor(state, ctx)),
   }
 }
 
@@ -282,14 +282,14 @@ function buildPlayerCatalog(ctx: ProjectionContext, locale: string): CatalogView
 
 export function projectModerator(state: GameState | null, ctx: ProjectionContext): ModeratorQuizViewModel {
   const base = projectPublic(state, ctx)
-  const roh = state?.currentQuestion?.question
+  const raw = state?.currentQuestion?.question
   /*
    * Der Moderator liest vor, was im Saal steht - also die uebersetzte Fassung.
    * Der Operator dagegen bearbeitet weiter unten das ORIGINAL: Ein Hotfix
    * schreibt in den Bestand zurueck, und eine Uebersetzung dort einzutragen
    * ueberschriebe die Grundsprache.
    */
-  const question = roh ? fragenTextFuer(roh, base.locale) : undefined
+  const question = raw ? questionTextFor(raw, base.locale) : undefined
   const attempt = state ? pendingAttempt(state) : undefined
 
   return {
@@ -353,7 +353,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
     },
     statistics: gameStatistics(ctx),
     resumable: ctx.resumable,
-    catalog: buildCatalog(ctx, spracheFuer(state, ctx)),
+    catalog: buildCatalog(ctx, localeFor(state, ctx)),
   }
 }
 
@@ -558,8 +558,8 @@ function correctAnswerText(question: Question | undefined): string {
 function categoryLabel(question: Question, ctx: ProjectionContext, locale: string): string | undefined {
   const first = question.categories[0]
   if (!first) return undefined
-  const kategorie = ctx.config.categories.find((category) => category.id === first)
-  return kategorie ? beschriftung(kategorie, locale) : undefined
+  const category = ctx.config.categories.find((category) => category.id === first)
+  return category ? labelFor(category, locale) : undefined
 }
 
 /**
@@ -569,8 +569,8 @@ function categoryLabel(question: Question, ctx: ProjectionContext, locale: strin
  * gilt die des Geraets. Was der Inhalt nicht kennt, faellt auf die Grundsprache
  * zurueck - ein Tippfehler im Config File darf kein Geraet lahmlegen.
  */
-function spracheFuer(state: GameState | null, ctx: ProjectionContext): string {
-  return gueltigeSprache(ctx.config, state?.locale ?? ctx.locale)
+function localeFor(state: GameState | null, ctx: ProjectionContext): string {
+  return validLocale(ctx.config, state?.locale ?? ctx.locale)
 }
 
 /**
@@ -580,9 +580,9 @@ function spracheFuer(state: GameState | null, ctx: ProjectionContext): string {
  * Nachricht zu tragen: Der Client haelt seine deutschen Fassungen ohnehin
  * selbst vor.
  */
-function texteFuer(state: GameState | null, ctx: ProjectionContext): { texts?: Record<string, string> } {
-  const texte = oberflaechenTexte(ctx.config, spracheFuer(state, ctx))
-  return Object.keys(texte).length > 0 ? { texts: texte } : {}
+function textsFor(state: GameState | null, ctx: ProjectionContext): { texts?: Record<string, string> } {
+  const texts = interfaceTexts(ctx.config, localeFor(state, ctx))
+  return Object.keys(texts).length > 0 ? { texts: texts } : {}
 }
 
 function publicSolution(ctx: ProjectionContext, question: Question): PublicSolution {
@@ -613,7 +613,7 @@ function publicFeedback(state: GameState): PublicQuizViewModel['feedback'] {
 }
 
 function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTheme {
-  const locale = spracheFuer(state, ctx)
+  const locale = localeFor(state, ctx)
   const audienceId = state?.audience ?? ctx.previewAudienceId
   const audienceConfig =
     ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
@@ -651,8 +651,8 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
  */
 function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel['quizOffers'] {
   return (ctx.config.quizzes ?? []).map((quiz) => {
-    const subtitle = untertitel(quiz, locale)
-    return { id: quiz.id, label: beschriftung(quiz, locale), ...(subtitle === undefined ? {} : { subtitle }) }
+    const subtitle = subtitleFor(quiz, locale)
+    return { id: quiz.id, label: labelFor(quiz, locale), ...(subtitle === undefined ? {} : { subtitle }) }
   })
 }
 
@@ -663,7 +663,7 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
       const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId)
       return {
         id: audienceConfig.id,
-        label: beschriftung(audienceConfig, locale),
+        label: labelFor(audienceConfig, locale),
         themeId: audienceConfig.themeId,
         ...(theme?.skin ? { skin: theme.skin } : {}),
         startVisualUrl: ctx.assetUrl(audienceConfig.startVisualAssetId),
@@ -676,10 +676,10 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
      * Regel dafuer (`quizSupportsDifficulty`), und sie steht im Kern.
      */
     quizzes: (ctx.config.quizzes ?? []).map((quiz) => {
-      const subtitle = untertitel(quiz, locale)
+      const subtitle = subtitleFor(quiz, locale)
       return {
         id: quiz.id,
-        label: beschriftung(quiz, locale),
+        label: labelFor(quiz, locale),
         ...(subtitle === undefined ? {} : { subtitle }),
         audienceId: quiz.audienceId,
         themeId: quiz.themeId,
@@ -689,10 +689,10 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
         defaultPresetId: defaultPresetIdOf(quiz),
       }
     }),
-    pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: beschriftung(pool, locale) })),
+    pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: labelFor(pool, locale) })),
     presets: ctx.config.presets.map((preset) => ({
       id: preset.id,
-      label: beschriftung(preset, locale),
+      label: labelFor(preset, locale),
       slotCount: preset.slots.length,
     })),
     /*

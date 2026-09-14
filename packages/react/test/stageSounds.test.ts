@@ -6,38 +6,38 @@
  * Zustaenden und der Zahl der Spieler.
  */
 import { describe, expect, it } from 'vitest'
-import { klaengeFuer, type Klangstand } from '../src/presentation/useStageSounds'
+import { soundsFor, type SoundState } from '../src/presentation/useStageSounds'
 
-const leer: Klangstand = { optionCount: 0, chosenOptionId: undefined, phase: 'idle' }
+const empty: SoundState = { optionCount: 0, chosenOptionId: undefined, phase: 'idle' }
 
-const stand = (teil: Partial<Klangstand>): Klangstand => ({ ...leer, ...teil })
+const state = (part: Partial<SoundState>): SoundState => ({ ...empty, ...part })
 
 describe('klaengeFuer', () => {
   it('meldet die eingeblendeten Antworten genau einmal', () => {
-    const offen = stand({ optionCount: 4, phase: 'buzzer-open' })
-    expect(klaengeFuer(leer, offen, 2)).toEqual(['options-appear'])
-    expect(klaengeFuer(offen, offen, 2)).toEqual([])
+    const open = state({ optionCount: 4, phase: 'buzzer-open' })
+    expect(soundsFor(empty, open, 2)).toEqual(['options-appear'])
+    expect(soundsFor(open, open, 2)).toEqual([])
   })
 
   it('meldet jede neu eingeloggte Antwort - auch die geaenderte', () => {
-    const vorher = stand({ optionCount: 4, phase: 'answer-locked' })
-    const erste = stand({ optionCount: 4, chosenOptionId: 'a', phase: 'answer-locked' })
-    const zweite = stand({ optionCount: 4, chosenOptionId: 'b', phase: 'answer-locked' })
-    expect(klaengeFuer(vorher, erste, 2)).toEqual(['answer-logged'])
-    expect(klaengeFuer(erste, erste, 2)).toEqual([])
-    expect(klaengeFuer(erste, zweite, 2)).toEqual(['answer-logged'])
+    const before = state({ optionCount: 4, phase: 'answer-locked' })
+    const first = state({ optionCount: 4, chosenOptionId: 'a', phase: 'answer-locked' })
+    const second = state({ optionCount: 4, chosenOptionId: 'b', phase: 'answer-locked' })
+    expect(soundsFor(before, first, 2)).toEqual(['answer-logged'])
+    expect(soundsFor(first, first, 2)).toEqual([])
+    expect(soundsFor(first, second, 2)).toEqual(['answer-logged'])
   })
 
   it('meldet den Zuschlag im Duell', () => {
-    const offen = stand({ optionCount: 4, phase: 'buzzer-open' })
-    const zuschlag = stand({ optionCount: 4, phase: 'answer-locked' })
-    expect(klaengeFuer(offen, zuschlag, 2)).toEqual(['buzz'])
+    const open = state({ optionCount: 4, phase: 'buzzer-open' })
+    const award = state({ optionCount: 4, phase: 'answer-locked' })
+    expect(soundsFor(open, award, 2)).toEqual(['buzz'])
   })
 
   it('meldet den Zuschlag im Einzelspiel NIE', () => {
-    const offen = stand({ optionCount: 4, phase: 'buzzer-open' })
-    const zuschlag = stand({ optionCount: 4, phase: 'answer-locked' })
-    expect(klaengeFuer(offen, zuschlag, 1)).toEqual([])
+    const open = state({ optionCount: 4, phase: 'buzzer-open' })
+    const award = state({ optionCount: 4, phase: 'answer-locked' })
+    expect(soundsFor(open, award, 1)).toEqual([])
   })
 
   it('laesst im Einzelspiel den Auswahlton unberuehrt', () => {
@@ -46,9 +46,9 @@ describe('klaengeFuer', () => {
      * Zug: Phase und Auswahl wechseln im selben Schritt. Zu hoeren ist genau
      * ein Klang - der der Auswahl.
      */
-    const offen = stand({ optionCount: 4, phase: 'buzzer-open' })
-    const getippt = stand({ optionCount: 4, chosenOptionId: 'a', phase: 'answer-locked' })
-    expect(klaengeFuer(offen, getippt, 1)).toEqual(['answer-logged'])
-    expect(klaengeFuer(offen, getippt, 2)).toEqual(['answer-logged', 'buzz'])
+    const open = state({ optionCount: 4, phase: 'buzzer-open' })
+    const tapped = state({ optionCount: 4, chosenOptionId: 'a', phase: 'answer-locked' })
+    expect(soundsFor(open, tapped, 1)).toEqual(['answer-logged'])
+    expect(soundsFor(open, tapped, 2)).toEqual(['answer-logged', 'buzz'])
   })
 })

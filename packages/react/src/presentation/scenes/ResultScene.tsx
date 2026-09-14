@@ -18,12 +18,12 @@
 import type { PublicResult } from '@hfroemmel/quiz-core'
 import { Confetti } from '../../components/Confetti'
 import { Score } from '../stage/Score'
-import { texteFuer } from '../texts'
+import { textsFor } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 export function ResultScene({ view }: SceneProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const result = view.result
   if (!result) return null
 
@@ -55,7 +55,7 @@ export function ResultScene({ view }: SceneProps) {
  * Punkte wert ist.
  */
 function SoloResult({ result, view }: { result: PublicResult; view: SceneProps['view'] }) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const player = result.scores[0]
 
   return (

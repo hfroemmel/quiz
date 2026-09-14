@@ -11,14 +11,14 @@
  * dass eine zweite Runde sauber von vorn beginnt.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { offeneAntwort } from './helpers'
+import { openAnswer } from './helpers'
 
-async function insQuiz(page: Page): Promise<void> {
+async function intoQuiz(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Quiz' }).click()
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 30_000 })
 }
 
-async function zurueckZurSammlung(page: Page): Promise<void> {
+async function backToCollection(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Zur Sammlung' }).click()
   await expect(page.locator('[data-shell-menu]')).toBeVisible()
 }
@@ -28,7 +28,7 @@ test('das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um', async 
   const bar = page.locator('[data-shell-bar]')
   const before = await bar.evaluate((node) => getComputedStyle(node).backgroundColor)
 
-  await insQuiz(page)
+  await intoQuiz(page)
 
   // Die Leiste der Sammlung sieht unveraendert aus.
   expect(await bar.evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(before)
@@ -39,21 +39,21 @@ test('das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um', async 
   expect(game.y).toBeGreaterThanOrEqual(frame.y - 1)
   expect(game.height).toBeLessThanOrEqual(frame.height + 1)
 
-  await zurueckZurSammlung(page)
+  await backToCollection(page)
 })
 
 test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page }) => {
   await page.goto('/shell')
 
-  for (const runde of [1, 2]) {
-    await insQuiz(page)
+  for (const round of [1, 2]) {
+    await intoQuiz(page)
     await page.getByRole('button', { name: /^Zu zweit/ }).click()
     await page.getByRole('button', { name: /^Leicht/ }).click()
     await page.getByRole('button', { name: "Los geht's" }).click()
-    await expect(page.locator('[data-answers]'), `Runde ${runde}`).toBeVisible({ timeout: 30_000 })
+    await expect(page.locator('[data-answers]'), `Runde ${round}`).toBeVisible({ timeout: 30_000 })
 
     // Mitten im Spiel zurueck - der haerteste Fall fuer den Abbau.
-    await zurueckZurSammlung(page)
+    await backToCollection(page)
     // Ein Ergebnis gab es nicht; die Sammlung meldet auch keines.
     await expect(page.locator('[data-shell-result]')).toHaveCount(0)
   }
@@ -62,7 +62,7 @@ test('zwei Runden nacheinander beginnen jede fuer sich von vorn', async ({ page 
 test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', async ({ page }) => {
   test.setTimeout(240_000)
   await page.goto('/shell')
-  await insQuiz(page)
+  await intoQuiz(page)
 
   await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
@@ -77,16 +77,16 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
      * absichtlich aktiv (umentscheiden), die Frage geht nur ueber das Abgeben
      * weiter. Im Einzelspiel holt der erste Tipp zugleich den Zuschlag.
      */
-    const zeile = page.locator(offeneAntwort).first()
-    if (await zeile.isVisible().catch(() => false)) {
-      await zeile.click({ timeout: 2_000 }).catch(() => undefined)
+    const row = page.locator(openAnswer).first()
+    if (await row.isVisible().catch(() => false)) {
+      await row.click({ timeout: 2_000 }).catch(() => undefined)
       await page.locator('[data-confirm]').click({ timeout: 5_000 }).catch(() => undefined)
       continue
     }
     // Nach der Loesung wartet das Geraet auf "Weiter".
-    const knopf = page.locator('[data-continue]')
-    if (await knopf.isVisible().catch(() => false)) {
-      await knopf.click({ timeout: 2_000 }).catch(() => undefined)
+    const button = page.locator('[data-continue]')
+    if (await button.isVisible().catch(() => false)) {
+      await button.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
     await page.waitForTimeout(300)
@@ -98,13 +98,13 @@ test('das Ergebnis eines Spiels erreicht die Gastgeberanwendung genau einmal', a
    * eigenen Darstellung, nicht in der des Quiz. Und genau einmal, obwohl
    * waehrend der Ergebnisszene weitere Schnappschuesse eintreffen.
    */
-  await zurueckZurSammlung(page)
+  await backToCollection(page)
   await expect(page.locator('[data-shell-result]')).toContainText('richtig')
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
 
   // Erneut einbinden: Die frische Runde meldet kein zweites Ergebnis.
-  await insQuiz(page)
-  await zurueckZurSammlung(page)
+  await intoQuiz(page)
+  await backToCollection(page)
   await expect(page.locator('[data-shell-result]')).toHaveAttribute('data-rounds', '1')
 })
 
@@ -116,7 +116,7 @@ test('die eigene Ebene des Gastgebers steht in der Buehne und traegt deren Masse
    * ein Kasten in Originalgroesse ueber einem verkleinerten Spiel.
    */
   await page.goto('/shell')
-  await insQuiz(page)
+  await intoQuiz(page)
 
   // Kleiner gestellt wird VOR dem Start, so wie es jemand am Geraet taete.
   await page.locator('[data-settings-open]').click()
@@ -129,27 +129,27 @@ test('die eigene Ebene des Gastgebers steht in der Buehne und traegt deren Masse
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
 
   await page.locator('[data-shell-layer-open]').click()
-  const ebene = page.locator('[data-shell-layer]')
-  await expect(ebene).toBeVisible()
+  const layer = page.locator('[data-shell-layer]')
+  await expect(layer).toBeVisible()
 
   // 1. Sie steht IN der Buehne - nicht daneben.
   await expect(page.locator('.stage [data-shell-layer]')).toHaveCount(1)
 
   // 2. Sie skaliert mit der Zoomstufe wie alles andere auf der Flaeche.
-  const massstab = await ebene.locator('> div').evaluate((node) => getComputedStyle(node).scale)
-  expect(Number(massstab)).toBeCloseTo(0.7, 2)
+  const scaleFactor = await layer.locator('> div').evaluate((node) => getComputedStyle(node).scale)
+  expect(Number(scaleFactor)).toBeCloseTo(0.7, 2)
 
   /*
    * 3. Ihr Knopf ist derselbe Knopf. Schriftgroesse und Mindesthoehe kommen aus
    * denselben Token wie beim Buzzer daneben (`--stage-button-*`); dass der
    * Buzzer sich eine eigene Hoehe nimmt, aendert an der Schrift nichts.
    */
-  const knopf = page.locator('[data-shell-layer-close]')
+  const button = page.locator('[data-shell-layer-close]')
   const buzzer = page.locator('[data-buzzer]').first()
-  const schrift = (ort: typeof knopf) => ort.evaluate((node) => getComputedStyle(node).fontSize)
-  expect(await schrift(knopf)).toBe(await schrift(buzzer))
+  const font = (place: typeof button) => place.evaluate((node) => getComputedStyle(node).fontSize)
+  expect(await font(button)).toBe(await font(buzzer))
 
   // Und der Weg zurueck raeumt sie mit ab.
   await page.locator('[data-shell-layer-close]').click()
-  await expect(ebene).toHaveCount(0)
+  await expect(layer).toHaveCount(0)
 })

@@ -148,8 +148,8 @@ describe('Aufdeckplan des Rasters', () => {
   })
 
   it('nimmt jede Rastergroesse an - die Voreinstellung ist keine Bedingung', () => {
-    const winzig: RevealGrid = { ...revealGrid, columns: 2, rows: 2 }
-    const plan = revealTilePlan(winzig, seed)
+    const tiny: RevealGrid = { ...revealGrid, columns: 2, rows: 2 }
+    const plan = revealTilePlan(tiny, seed)
     expect(plan).toHaveLength(4)
     expect(openTiles(plan, 0.5)).toBe(2)
   })

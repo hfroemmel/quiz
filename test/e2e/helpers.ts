@@ -11,7 +11,7 @@
 import { expect, type Page } from '@playwright/test'
 
 /** Die Antwortzeilen der Szene sind da und tippbar - und noch nicht verbraucht. */
-export const offeneAntwort = '[data-answer][data-state="idle"] [data-answer-button]:not([disabled])'
+export const openAnswer = '[data-answer][data-state="idle"] [data-answer-button]:not([disabled])'
 
 export async function currentPhase(page: Page): Promise<string> {
   return (await page.locator('.stage').first().getAttribute('data-phase')) ?? ''

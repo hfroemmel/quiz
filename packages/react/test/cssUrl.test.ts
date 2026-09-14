@@ -15,8 +15,8 @@ describe('cssUrl', () => {
   })
 
   it('haelt eine eingebettete Grafik mit Hochkommata zusammen', () => {
-    const eingebettet = "data:image/svg+xml,%3csvg%20width='339.417'%20height='55'%3e%3c/svg%3e"
-    expect(cssUrl(eingebettet)).toBe(`url("${eingebettet}")`)
+    const embedded = "data:image/svg+xml,%3csvg%20width='339.417'%20height='55'%3e%3c/svg%3e"
+    expect(cssUrl(embedded)).toBe(`url("${embedded}")`)
   })
 
   it('entschaerft ein doppeltes Anfuehrungszeichen in der Adresse', () => {

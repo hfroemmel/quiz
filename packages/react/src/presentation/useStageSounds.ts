@@ -21,13 +21,13 @@ import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import type { SoundCueId } from './soundCues'
 
 /** Was von einem Snapshot uebrig bleiben muss, um den naechsten zu beurteilen. */
-export interface Klangstand {
+export interface SoundState {
   optionCount: number
   chosenOptionId: string | undefined
   phase: PublicQuizViewModel['phase']
 }
 
-export function klangstand(view: PublicQuizViewModel): Klangstand {
+export function soundState(view: PublicQuizViewModel): SoundState {
   return {
     optionCount: view.visibleOptions?.length ?? 0,
     chosenOptionId: view.visibleOptions?.find((option) => option.state === 'chosen')?.id,
@@ -49,24 +49,32 @@ export function klangstand(view: PublicQuizViewModel): Klangstand {
  * durch einen angenommenen Buzz erreicht (siehe `claimPlayer` in der Engine),
  * der Klang haengt damit weiter genau am Buzzern.
  */
-export function klaengeFuer(vorher: Klangstand, jetzt: Klangstand, spieler: number): SoundCueId[] {
-  const klaenge: SoundCueId[] = []
-  if (jetzt.optionCount > 0 && vorher.optionCount === 0) klaenge.push('options-appear')
-  if (jetzt.chosenOptionId && jetzt.chosenOptionId !== vorher.chosenOptionId) klaenge.push('answer-logged')
-  if (spieler > 1 && jetzt.phase === 'answer-locked' && vorher.phase !== 'answer-locked') klaenge.push('buzz')
-  return klaenge
+export function soundsFor(before: SoundState, now: SoundState, player: number): SoundCueId[] {
+  const sounds: SoundCueId[] = []
+  if (now.optionCount > 0 && before.optionCount === 0) sounds.push('options-appear')
+  if (now.chosenOptionId && now.chosenOptionId !== before.chosenOptionId) sounds.push('answer-logged')
+  if (player > 1 && now.phase === 'answer-locked' && before.phase !== 'answer-locked') sounds.push('buzz')
+  return sounds
 }
 
 export function useStageSounds(view: PublicQuizViewModel, play: (cueId: SoundCueId) => void): void {
-  const previous = useRef<Klangstand>({ optionCount: 0, chosenOptionId: undefined, phase: view.phase })
+  const previous = useRef<SoundState>({ optionCount: 0, chosenOptionId: undefined, phase: view.phase })
 
-  const stand = klangstand(view)
-  const { optionCount, chosenOptionId, phase } = stand
-  const spieler = view.playerScores.length
+  const state = soundState(view)
+  const { optionCount, chosenOptionId, phase } = state
+  const player = view.playerScores.length
 
   useEffect(() => {
-    const jetzt: Klangstand = { optionCount, chosenOptionId, phase }
-    for (const cue of klaengeFuer(previous.current, jetzt, spieler)) play(cue)
-    previous.current = jetzt
-  }, [optionCount, chosenOptionId, phase, spieler, play])
+    const now: SoundState = { optionCount, chosenOptionId, phase }
+    for (const cue of soundsFor(previous.current, now, player)) play(cue)
+    previous.current = now
+  }, [optionCount, chosenOptionId, phase, player, play])
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `SoundState`. */
+export type Klangstand = SoundState
+/** @deprecated Renamed to `soundState`. */
+export const klangstand = soundState
+/** @deprecated Renamed to `soundsFor`. */
+export const klaengeFuer = soundsFor

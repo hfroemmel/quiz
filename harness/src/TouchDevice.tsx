@@ -6,18 +6,18 @@
  * Neuladen ist der Ruecksetzknopf, den es am Geraet nicht gibt.
  */
 import { QuizGame } from '@hfroemmel/quiz-kiosk'
-import { useLokaleLaufzeit } from './useLokaleLaufzeit'
+import { useLocalRuntime } from './useLocalRuntime'
 
-export function TouchGeraet({
+export function TouchDevice({
   audience,
   idleTimeoutMs,
 }: {
   audience: string
   idleTimeoutMs?: number
 }) {
-  const { runtime, fehler } = useLokaleLaufzeit()
+  const { runtime, errors } = useLocalRuntime()
 
-  if (fehler) return <p style={{ padding: '2rem' }}>Das Quiz konnte nicht geladen werden: {fehler}</p>
+  if (errors) return <p style={{ padding: '2rem' }}>Das Quiz konnte nicht geladen werden: {errors}</p>
   if (!runtime) return <p style={{ padding: '2rem' }}>Das Quiz wird vorbereitet...</p>
 
   return (

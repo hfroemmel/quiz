@@ -29,7 +29,7 @@
 import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { Counter, Score } from '@hfroemmel/quiz-react'
 import { Buzzer } from './Buzzer'
-import { texteFuer } from '@hfroemmel/quiz-react'
+import { textsFor } from '@hfroemmel/quiz-react'
 import styles from './Game.module.css'
 
 interface PlayerFootProps {
@@ -53,14 +53,14 @@ interface PlayerFootProps {
  * Spieler, ohne dass er gebuzzert haette - das saehe er sonst nirgends.
  * Alles andere sagt der Bildschirm von selbst.
  */
-function hinweis(view: PlayerQuizViewModel): string | null {
+function hint(view: PlayerQuizViewModel): string | null {
   if (view.phase !== 'second-chance') return null
-  const gegner = view.playerScores.find((entry) => entry.playerId === view.currentPlayer)
-  return gegner ? texteFuer(view)('kiosk.secondChance', { player: gegner.label }) : null
+  const opponent = view.playerScores.find((entry) => entry.playerId === view.currentPlayer)
+  return opponent ? textsFor(view)('kiosk.secondChance', { player: opponent.label }) : null
 }
 
 export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue }: PlayerFootProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const [playerOne, playerTwo] = view.playerScores
   if (!playerOne) return null
 
@@ -71,7 +71,7 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
    */
   const solo = view.playerScores.length < 2
 
-  const ecke = (player: (typeof view.playerScores)[number], side: 'left' | 'right') => (
+  const corner = (player: (typeof view.playerScores)[number], side: 'left' | 'right') => (
     <div className={styles.corner} data-corner={side}>
       <Score
         label={player.label}
@@ -95,31 +95,31 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
     </div>
   )
 
-  const text = hinweis(view)
-  const weiter = view.allowedCommands.includes('CONTINUE')
+  const text = hint(view)
+  const next = view.allowedCommands.includes('CONTINUE')
   /*
    * Abgegeben werden kann erst, wenn eine Antwort eingeloggt ist. Ob eine
    * markiert ist, sagt das View-Modell - derselbe Stand, den auch alle anderen
    * sehen. Erst dieser Knopf loest die Wertung aus; bis dahin darf der Spieler
    * umentscheiden.
    */
-  const abgeben =
+  const submit =
     view.allowedCommands.includes('RESOLVE_ATTEMPT') &&
     (view.visibleOptions?.some((option) => option.state === 'chosen') ?? false)
-  const zaehler = view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} label={t('stage.question')} />
+  const counter = view.progress.total > 0 && <Counter current={view.progress.current} total={view.progress.total} label={t('stage.question')} />
 
   return (
     <div className={styles.foot} data-player-foot="">
-      {ecke(playerOne, 'left')}
+      {corner(playerOne, 'left')}
 
       <div className={styles.middle}>
         {/* Feste Hoehe, wechselnder Inhalt - siehe oben. */}
         <div className={styles.notice} data-notice="">
-          {weiter ? (
+          {next ? (
             <button type="button" className={`stage-button stage-button--primary ${styles.continue}`} data-continue="" onClick={onContinue}>
               {t('kiosk.continue')}
             </button>
-          ) : abgeben ? (
+          ) : submit ? (
             <button type="button" className={`stage-button stage-button--primary ${styles.continue}`} data-confirm="" onClick={onResolve}>
               {t('kiosk.submit')}
             </button>
@@ -127,10 +127,10 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
             text && <span className={styles.noticeText}>{text}</span>
           )}
         </div>
-        {!solo && zaehler}
+        {!solo && counter}
       </div>
 
-      {playerTwo ? ecke(playerTwo, 'right') : <div className={styles.corner} data-corner="right">{zaehler}</div>}
+      {playerTwo ? corner(playerTwo, 'right') : <div className={styles.corner} data-corner="right">{counter}</div>}
     </div>
   )
 }

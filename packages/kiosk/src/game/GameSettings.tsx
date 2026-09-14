@@ -18,9 +18,9 @@
  * ohne Zeichen und kleiner: Beides ist die Bedienung dieses Geraets, und beides
  * bekommt derselbe Mensch zu sehen.
  */
-import { playCue, texteFuer } from '@hfroemmel/quiz-react'
+import { playCue, textsFor } from '@hfroemmel/quiz-react'
 import type { PlayerQuizViewModel } from '@hfroemmel/quiz-core'
-import { maximalerZoom, minimalerZoom, zoomSchritt } from './zoom'
+import { maxZoom, minZoom, zoomStep } from './zoom'
 import styles from './Game.module.css'
 
 interface GameSettingsProps {
@@ -34,7 +34,7 @@ interface GameSettingsProps {
 }
 
 export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom, onClose }: GameSettingsProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   return (
     <div className={styles.overlay} data-settings="">
       <div className={styles.panel} role="dialog" aria-label={t('kiosk.settings')}>
@@ -90,12 +90,12 @@ export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom,
               className={styles.slider}
               type="range"
               data-zoom=""
-              min={minimalerZoom}
-              max={maximalerZoom}
-              step={zoomSchritt}
+              min={minZoom}
+              max={maxZoom}
+              step={zoomStep}
               value={zoom}
               aria-label={t('kiosk.size')}
-              onChange={(ereignis) => onZoom(Number(ereignis.target.value))}
+              onChange={(event) => onZoom(Number(event.target.value))}
             />
             <span className={styles.settingValue}>{Math.round(zoom * 100)} %</span>
           </div>

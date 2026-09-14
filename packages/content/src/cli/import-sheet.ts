@@ -15,39 +15,39 @@
  *   quiz-content import-sheet --url <adresse> --dry-run         nichts schreiben
  */
 import { readFileSync, writeFileSync } from 'node:fs'
-import { csvAdresse, importiereTabelle, standardMapping, type SheetMapping } from '../sheetImport'
+import { csvUrl, importSheet, defaultMapping, type SheetMapping } from '../sheetImport'
 import { contentDir } from './dirs'
 import { join } from 'node:path'
 
 const argv = process.argv.slice(2)
 
 function option(name: string): string | undefined {
-  const stelle = argv.indexOf(`--${name}`)
-  return stelle >= 0 ? argv[stelle + 1] : undefined
+  const position = argv.indexOf(`--${name}`)
+  return position >= 0 ? argv[position + 1] : undefined
 }
-const schalter = (name: string): boolean => argv.includes(`--${name}`)
+const toggle = (name: string): boolean => argv.includes(`--${name}`)
 
 const url = option('url')
-const csvDatei = option('csv')
+const csvFile = option('csv')
 
-if (!url && !csvDatei) {
+if (!url && !csvFile) {
   console.error('Es fehlt die Quelle: --url <Google-Tabelle> oder --csv <Datei>.')
   process.exit(1)
 }
 
-async function leseCsv(): Promise<string> {
-  if (csvDatei) return readFileSync(csvDatei, 'utf8')
+async function readCsv(): Promise<string> {
+  if (csvFile) return readFileSync(csvFile, 'utf8')
 
-  const adresse = csvAdresse(url!)
-  console.log(`Lade ${adresse}`)
-  const antwort = await fetch(adresse, { redirect: 'follow' })
-  if (!antwort.ok) {
+  const address = csvUrl(url!)
+  console.log(`Lade ${address}`)
+  const answer = await fetch(address, { redirect: 'follow' })
+  if (!answer.ok) {
     throw new Error(
-      `Die Tabelle antwortete mit ${antwort.status}. ` +
+      `Die Tabelle antwortete mit ${answer.status}. ` +
         'Ist sie fuer "Jeder mit dem Link" freigegeben? Sonst liefert Google statt der Daten eine Anmeldeseite.',
     )
   }
-  const text = await antwort.text()
+  const text = await answer.text()
   /*
    * Eine nicht freigegebene Tabelle antwortet mit 200 und einer HTML-Seite -
    * ohne diese Pruefung entstuenden daraus stumm null Fragen.
@@ -61,55 +61,60 @@ async function leseCsv(): Promise<string> {
   return text
 }
 
-function leseMapping(): SheetMapping {
-  const pfad = option('mapping')
-  if (!pfad) return standardMapping
-  const gelesen = JSON.parse(readFileSync(pfad, 'utf8')) as SheetMapping
-  // Vorgaben und Wertetabellen ergaenzen die Standardzuordnung, statt sie zu ersetzen.
+function readMapping(): SheetMapping {
+  const path = option('mapping')
+  if (!path) return defaultMapping
+  const raw = JSON.parse(readFileSync(path, 'utf8')) as Partial<SheetMapping> & {
+    /** Former key names, still accepted for one release. */
+    spalten?: SheetMapping['columns']
+    vorgaben?: SheetMapping['defaults']
+    werte?: SheetMapping['values']
+  }
+  // Defaults and value tables extend the default mapping instead of replacing it.
   return {
-    spalten: { ...standardMapping.spalten, ...gelesen.spalten },
-    vorgaben: { ...standardMapping.vorgaben, ...gelesen.vorgaben },
-    werte: { ...standardMapping.werte, ...gelesen.werte },
+    columns: { ...defaultMapping.columns, ...(raw.columns ?? raw.spalten) },
+    defaults: { ...defaultMapping.defaults, ...(raw.defaults ?? raw.vorgaben) },
+    values: { ...defaultMapping.values, ...(raw.values ?? raw.werte) },
   }
 }
 
-const csv = await leseCsv()
+const csv = await readCsv()
 
-if (schalter('print-headers')) {
-  const { spalten } = importiereTabelle(csv, { spalten: {} })
+if (toggle('print-headers')) {
+  const { columns } = importSheet(csv, { columns: {} })
   console.log('Spalten der Tabelle:')
-  for (const [stelle, name] of spalten.entries()) console.log(`  ${stelle + 1}. ${name}`)
+  for (const [position, name] of columns.entries()) console.log(`  ${position + 1}. ${name}`)
   console.log('')
   console.log('Diese Namen gehoeren in die Zuordnungsdatei (--mapping).')
   process.exit(0)
 }
 
-const befund = importiereTabelle(csv, leseMapping())
+const finding = importSheet(csv, readMapping())
 
-console.log(`Gelesen: ${befund.fragen.length} Fragen aus ${befund.spalten.length} Spalten.`)
-if (befund.uebersprungen.length > 0) {
+console.log(`Gelesen: ${finding.questions.length} Fragen aus ${finding.columns.length} Spalten.`)
+if (finding.skippedRows.length > 0) {
   console.log('')
-  console.log(`Uebersprungen: ${befund.uebersprungen.length} Zeilen`)
-  for (const eintrag of befund.uebersprungen) console.log(`  Zeile ${eintrag.zeile}: ${eintrag.grund}`)
+  console.log(`Uebersprungen: ${finding.skippedRows.length} Zeilen`)
+  for (const entry of finding.skippedRows) console.log(`  Zeile ${entry.row}: ${entry.reason}`)
 }
 
-if (befund.fragen.length === 0) {
+if (finding.questions.length === 0) {
   console.error('')
   console.error('Keine einzige Frage uebernommen. Meist stimmt die Spaltenzuordnung nicht -')
   console.error('"--print-headers" zeigt, wie die Spalten wirklich heissen.')
   process.exit(1)
 }
 
-if (schalter('dry-run')) {
+if (toggle('dry-run')) {
   console.log('')
   console.log('Probelauf - es wurde nichts geschrieben.')
   process.exit(0)
 }
 
-const ziel = option('out') ?? join(contentDir(argv, 'source', 'source'), 'questions.json')
-writeFileSync(ziel, `${JSON.stringify(befund.fragen, null, 2)}\n`, 'utf8')
+const target = option('out') ?? join(contentDir(argv, 'source', 'source'), 'questions.json')
+writeFileSync(target, `${JSON.stringify(finding.questions, null, 2)}\n`, 'utf8')
 console.log('')
-console.log(`Geschrieben: ${ziel}`)
+console.log(`Geschrieben: ${target}`)
 console.log('Naechster Schritt: quiz-content validate')
 
 export {}

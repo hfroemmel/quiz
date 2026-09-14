@@ -946,7 +946,7 @@ describe('when the desk may offer a draw', () => {
      */
     const harness = rig()
     startGame(harness)
-    const stationen = [
+    const stations = [
       () => releaseRound(harness),
       () => harness.dispatch({ type: 'BUZZ', playerId: 'player-1' }),
       () => harness.dispatch({ type: 'DRAW_JOKER' }),
@@ -956,8 +956,8 @@ describe('when the desk may offer a draw', () => {
       () => harness.dispatch({ type: 'RESOLVE_ATTEMPT' }),
       () => harness.settle(),
     ]
-    for (const schritt of stationen) {
-      schritt()
+    for (const step of stations) {
+      step()
       expect(harness.operatorView().joker?.canDraw ?? false).toBe(mayDraw(harness))
     }
   })

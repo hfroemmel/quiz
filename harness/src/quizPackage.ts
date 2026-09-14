@@ -17,24 +17,24 @@ import {
   type QuizPackage,
 } from '@hfroemmel/quiz-core'
 
-export async function ladeQuizPaket(): Promise<QuizPackage> {
-  const hole = async (name: string): Promise<unknown> => {
-    const antwort = await fetch(`/quizpaket/${name}`)
-    if (!antwort.ok) throw new Error(`${name} nicht ladbar (${antwort.status}) - erst "pnpm content:build" laufen lassen.`)
-    return antwort.json()
+export async function loadHarnessPackage(): Promise<QuizPackage> {
+  const fetchValue = async (name: string): Promise<unknown> => {
+    const answer = await fetch(`/quizpaket/${name}`)
+    if (!answer.ok) throw new Error(`${name} nicht ladbar (${answer.status}) - erst "pnpm content:build" laufen lassen.`)
+    return answer.json()
   }
 
-  const [rohManifest, rohConfig, rohFragen] = await Promise.all([
-    hole('manifest.json'),
-    hole('config.json'),
-    hole('questions.json'),
+  const [rawManifest, rawConfig, rawQuestions] = await Promise.all([
+    fetchValue('manifest.json'),
+    fetchValue('config.json'),
+    fetchValue('questions.json'),
   ])
 
-  const manifest = quizPackageManifestSchema.parse(rohManifest)
+  const manifest = quizPackageManifestSchema.parse(rawManifest)
   return {
     manifest,
-    config: quizConfigSchema.parse(rohConfig),
-    questions: questionSchema.array().parse(rohFragen),
+    config: quizConfigSchema.parse(rawConfig),
+    questions: questionSchema.array().parse(rawQuestions),
     assetsById: new Map(manifest.assets.map((asset) => [asset.id, asset])),
     // Ein Verzeichnis gibt es im Browser nicht; Medien kommen ueber die Adresse.
     rootDir: '',

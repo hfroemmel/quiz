@@ -4,12 +4,12 @@
  * Bewusst ohne jede Fragen- oder Loesungsinformation: In dieser Phase hat der Server
  * die naechste Frage zwar bereits gezogen, sendet sie aber nicht an den Buehnenscreen.
  */
-import { texteFuer } from '../texts'
+import { textsFor } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 export function PauseScene({ view }: SceneProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const logo = view.theme.startVisualUrl ?? view.theme.logoUrl
   return (
     <div className={`${styles.scene} ${styles.pause}`}>

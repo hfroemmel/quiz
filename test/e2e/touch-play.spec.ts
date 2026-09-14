@@ -7,15 +7,15 @@
  * haengt, haengt es auch am Geraet, wo niemand eingreifen kann.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { offeneAntwort } from './helpers'
+import { openAnswer } from './helpers'
 
-const freierBuzzer = '[data-buzzer][data-enabled="true"]'
+const freeBuzzer = '[data-buzzer][data-enabled="true"]'
 
 /** Ein Hexwert, wie `getComputedStyle` ihn meldet: `rgb(r, g, b)`. */
-function farbe(hex: string): string {
-  const roh = hex.replace('#', '')
-  const voll = roh.length === 3 ? [...roh].map((zeichen) => zeichen + zeichen).join('') : roh
-  const [r, g, b] = [0, 2, 4].map((stelle) => parseInt(voll.slice(stelle, stelle + 2), 16))
+function color(hex: string): string {
+  const raw = hex.replace('#', '')
+  const voll = raw.length === 3 ? [...raw].map((char) => char + char).join('') : raw
+  const [r, g, b] = [0, 2, 4].map((position) => parseInt(voll.slice(position, position + 2), 16))
   return `rgb(${r}, ${g}, ${b})`
 }
 
@@ -42,14 +42,14 @@ async function startGame(page: Page, players: 'Allein' | 'Zu zweit', preset = 'L
  *
  * Im Einzelspiel gibt es keinen Buzzer - dort holt der erste Tipp den Zuschlag.
  */
-async function antworte(page: Page, seite?: 'left' | 'right'): Promise<void> {
-  if (seite) await page.locator(`[data-buzzer][data-side="${seite}"]`).click()
-  await page.locator(offeneAntwort).first().click()
+async function answerWith(page: Page, side?: 'left' | 'right'): Promise<void> {
+  if (side) await page.locator(`[data-buzzer][data-side="${side}"]`).click()
+  await page.locator(openAnswer).first().click()
   await page.locator('[data-confirm]').click()
 }
 
 /** Nach der Loesung geht es nur weiter, wenn ein Spieler tippt. */
-async function weiter(page: Page): Promise<void> {
+async function next(page: Page): Promise<void> {
   await page.locator('[data-continue]').click()
 }
 
@@ -110,8 +110,8 @@ test('jede Stufenkarte nennt ihren eigenen Umfang', async ({ page }) => {
    * steht auf ihr und nicht an einer zweiten Stelle, die der Auswahl folgen
    * muesste.
    */
-  for (const stufe of ['touch-easy', 'touch-medium', 'touch-hard']) {
-    await expect(page.locator(`[data-preset="${stufe}"]`)).toContainText(/\d+ Fragen/)
+  for (const level of ['touch-easy', 'touch-medium', 'touch-hard']) {
+    await expect(page.locator(`[data-preset="${level}"]`)).toContainText(/\d+ Fragen/)
   }
 })
 
@@ -128,27 +128,27 @@ test('die Startauswahl steht in derselben Fassung wie die Buehne danach', async 
   await openStartScreen(page)
   await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-theme', 'bright')
 
-  const farben = await page.locator('[data-quiz-game]').evaluate((node) => {
-    const gemessen = getComputedStyle(node)
-    const wert = (name: string) => gemessen.getPropertyValue(name).trim()
-    return { grund: wert('--start-bg-top'), auswahl: wert('--start-selected'), gruen: wert('--start-green') }
+  const colors = await page.locator('[data-quiz-game]').evaluate((node) => {
+    const measured = getComputedStyle(node)
+    const value = (name: string) => measured.getPropertyValue(name).trim()
+    return { ground: value('--start-bg-top'), selection: value('--start-selected'), green: value('--start-green') }
   })
   // Papier, nicht Nacht.
-  expect(farben.grund).toBe('#fff')
+  expect(colors.ground).toBe('#fff')
   /*
    * DIE AUSWAHL IST NICHT DIE HANDLUNG. Beide waren dasselbe Gruen; auf Papier
    * traegt die Auswahl das Blau der markierten Antwort, und Gruen gehoert
    * allein dem Knopf, der das Spiel startet.
    */
-  expect(farben.auswahl).not.toBe(farben.gruen)
+  expect(colors.selection).not.toBe(colors.green)
 })
 
 test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', async ({ page }) => {
   await openStartScreen(page)
 
-  const gewaehlt = page.locator('[data-preset][aria-pressed="true"]').first()
-  const offen = page.locator('[data-preset][aria-pressed="false"]').first()
-  const auswahl = await page
+  const chosen = page.locator('[data-preset][aria-pressed="true"]').first()
+  const open = page.locator('[data-preset][aria-pressed="false"]').first()
+  const selection = await page
     .locator('[data-quiz-game]')
     .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-selected').trim())
 
@@ -157,45 +157,45 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
    * darauf - nicht in einer Kante. Dass keiner der Zustaende eine stellt,
    * prueft der Test weiter unten ("die gewaehlte Karte ist eine Flaeche").
    */
-  const stand = await gewaehlt.evaluate((node) => {
-    const gemessen = getComputedStyle(node)
-    return { flaeche: gemessen.backgroundColor, schrift: gemessen.color }
+  const state = await chosen.evaluate((node) => {
+    const measured = getComputedStyle(node)
+    return { area: measured.backgroundColor, font: measured.color }
   })
-  const offenerStand = await offen.evaluate((node) => {
-    const gemessen = getComputedStyle(node)
-    return { flaeche: gemessen.backgroundColor, schrift: gemessen.color }
+  const openState = await open.evaluate((node) => {
+    const measured = getComputedStyle(node)
+    return { area: measured.backgroundColor, font: measured.color }
   })
-  expect(stand.flaeche).not.toBe(offenerStand.flaeche)
-  expect(stand.schrift).not.toBe(offenerStand.schrift)
+  expect(state.area).not.toBe(openState.area)
+  expect(state.font).not.toBe(openState.font)
   // Die Auswahlmarke traegt genau die Auswahlfarbe - dieselbe wie die Flaeche darunter.
-  await expect(gewaehlt.locator('[data-on="true"]')).toHaveCSS('background-color', farbe(auswahl))
+  await expect(chosen.locator('[data-on="true"]')).toHaveCSS('background-color', color(selection))
 
   /*
    * Zeigen: die Flaeche der offenen Karte hebt sich, ohne dass eine Linie
    * erscheint. Gewartet wird auf den Uebergang - die Flaeche wechselt in 120 ms,
    * und ein Blick sofort danach liest manchmal noch die alte.
    */
-  await offen.hover()
+  await open.hover()
   await expect
-    .poll(() => offen.evaluate((node) => getComputedStyle(node).backgroundColor))
-    .not.toBe(offenerStand.flaeche)
+    .poll(() => open.evaluate((node) => getComputedStyle(node).backgroundColor))
+    .not.toBe(openState.area)
 
   /*
    * Tastaturmarke: KEINE Linie, sondern ein Hauch Groesse und ein weicher
    * Schein. Ein Ring darum haette auf der gewaehlten Karte neben der Auswahl
    * gestanden, und aus zwei Metern waeren daraus zwei Striche geworden.
    */
-  await offen.focus()
+  await open.focus()
   // Gewartet wird auf den Uebergang: Die Groesse waechst in 120 ms, nicht sofort.
   await expect
-    .poll(() => offen.evaluate((node) => Number(getComputedStyle(node).scale.split(' ')[0])))
+    .poll(() => open.evaluate((node) => Number(getComputedStyle(node).scale.split(' ')[0])))
     .toBeGreaterThan(1)
-  const marke = await offen.evaluate((node) => {
-    const gemessen = getComputedStyle(node)
-    return { umriss: gemessen.outlineStyle, schatten: gemessen.boxShadow }
+  const brand = await open.evaluate((node) => {
+    const measured = getComputedStyle(node)
+    return { outline: measured.outlineStyle, shadow: measured.boxShadow }
   })
-  expect(marke.umriss).toBe('none')
-  expect(marke.schatten).not.toBe('none')
+  expect(brand.outline).toBe('none')
+  expect(brand.shadow).not.toBe('none')
 
   /*
    * Gesperrt: Der Startknopf tritt zurueck, bleibt aber sichtbar. Er ist im
@@ -203,39 +203,39 @@ test('gewaehlt, offen und die drei Zustaende dazwischen sind zu unterscheiden', 
    * deshalb wird der Zustand hier erzwungen statt erspielt.
    */
   const start = page.locator('[data-start]')
-  const wach = await start.evaluate((node) => getComputedStyle(node).opacity)
-  const gesperrt = await start.evaluate((node) => {
+  const awake = await start.evaluate((node) => getComputedStyle(node).opacity)
+  const blocked = await start.evaluate((node) => {
     ;(node as HTMLButtonElement).disabled = true
     return getComputedStyle(node).opacity
   })
-  expect(Number(gesperrt)).toBeLessThan(Number(wach))
+  expect(Number(blocked)).toBeLessThan(Number(awake))
 })
 
 test('Gruen traegt allein der Startknopf', async ({ page }) => {
   await openStartScreen(page)
-  const gruen = await page
+  const green = await page
     .locator('[data-quiz-game]')
     .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-green').trim())
 
   // Auf dem Knopf: als Flaeche, mit heller Aufschrift darauf.
-  const knopf = await page.locator('[data-start]').evaluate((node) => {
-    const gemessen = getComputedStyle(node)
-    return { grund: gemessen.backgroundImage, schrift: gemessen.color }
+  const button = await page.locator('[data-start]').evaluate((node) => {
+    const measured = getComputedStyle(node)
+    return { ground: measured.backgroundImage, font: measured.color }
   })
-  expect(knopf.grund).toContain(farbe(gruen))
-  expect(knopf.schrift).toBe('rgb(255, 255, 255)')
+  expect(button.ground).toContain(color(green))
+  expect(button.font).toBe('rgb(255, 255, 255)')
 
   // Nirgends sonst: nicht auf einer Karte, nicht auf der Marke, nicht am Rueckweg.
-  const anderswo = await page.evaluate(() => {
-    const orte = ['[data-preset][aria-pressed="true"]', '[data-player-count][aria-pressed="true"]', '[data-game-start] button:not([data-start])']
-    return orte.flatMap((ort) =>
-      [...document.querySelectorAll(ort)].map((node) => {
-        const gemessen = getComputedStyle(node as Element)
-        return [gemessen.backgroundColor, gemessen.borderTopColor, gemessen.color].join(' ')
+  const elsewhere = await page.evaluate(() => {
+    const places = ['[data-preset][aria-pressed="true"]', '[data-player-count][aria-pressed="true"]', '[data-game-start] button:not([data-start])']
+    return places.flatMap((place) =>
+      [...document.querySelectorAll(place)].map((node) => {
+        const measured = getComputedStyle(node as Element)
+        return [measured.backgroundColor, measured.borderTopColor, measured.color].join(' ')
       }),
     )
   })
-  expect(anderswo.join(' ')).not.toContain(farbe(gruen))
+  expect(elsewhere.join(' ')).not.toContain(color(green))
 })
 
 /* ------------------------------------------------------------------ *
@@ -249,10 +249,10 @@ test('Gruen traegt allein der Startknopf', async ({ page }) => {
  * ------------------------------------------------------------------ */
 
 /** Die Zeichnung, die eine Flaeche traegt - als Dateiname, ohne Adresse davor. */
-async function zeichnung(page: Page, wahl: string, pseudo = '::before'): Promise<string> {
-  return page.locator(wahl).first().evaluate((node, ps) => {
-    const quelle = getComputedStyle(node as Element, ps as string).borderImageSource
-    return (quelle.match(/[\w-]+\.svg/)?.[0] ?? quelle.slice(0, 40)) as string
+async function drawing(page: Page, choice: string, pseudo = '::before'): Promise<string> {
+  return page.locator(choice).first().evaluate((node, ps) => {
+    const source = getComputedStyle(node as Element, ps as string).borderImageSource
+    return (source.match(/[\w-]+\.svg/)?.[0] ?? source.slice(0, 40)) as string
   }, pseudo)
 }
 
@@ -263,21 +263,21 @@ test('das Kindergeraet traegt seine Welt schon in der Auswahl', async ({ page })
   await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'kids')
 
   // Die Auswahlkarten sind dieselben gemalten Kartons wie die Antwortzeilen.
-  expect(await zeichnung(page, '[data-preset][aria-pressed="false"]')).toBe('answer-box-a.svg')
+  expect(await drawing(page, '[data-preset][aria-pressed="false"]')).toBe('answer-box-a.svg')
 
   /*
    * GEWAEHLT SIEHT AUS WIE EINE GEWAEHLTE ANTWORT: rote Karte, weisse Schrift.
    * Kein gruener Ring und keine gruene Kante - das Gruen ist die Auswahlfarbe
    * der Erwachsenen und hat in dieser Welt keine Bedeutung.
    */
-  const gewaehlt = page.locator('[data-preset][aria-pressed="true"]').first()
-  expect(await zeichnung(page, '[data-preset][aria-pressed="true"]')).toBe('answer-box-b.svg')
-  const kante = await gewaehlt.evaluate((node) => {
+  const chosen = page.locator('[data-preset][aria-pressed="true"]').first()
+  expect(await drawing(page, '[data-preset][aria-pressed="true"]')).toBe('answer-box-b.svg')
+  const edge = await chosen.evaluate((node) => {
     const s = getComputedStyle(node)
-    return { farbe: s.color, breite: s.borderTopWidth }
+    return { color: s.color, width: s.borderTopWidth }
   })
-  expect(kante.farbe).toBe('rgb(255, 255, 255)')
-  expect(kante.breite).toBe('0px')
+  expect(edge.color).toBe('rgb(255, 255, 255)')
+  expect(edge.width).toBe('0px')
 })
 
 test('der primaere Knopf der Kinderwelt ist ueberall derselbe', async ({ page }) => {
@@ -288,25 +288,25 @@ test('der primaere Knopf der Kinderwelt ist ueberall derselbe', async ({ page })
    */
   await page.goto('/play?audience=kids')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
-  const inDerAuswahl = await zeichnung(page, '[data-start]')
+  const inSelection = await drawing(page, '[data-start]')
 
   await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.locator('[data-start]').click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
 
-  await page.locator(offeneAntwort).first().click()
+  await page.locator(openAnswer).first().click()
   await expect(page.locator('[data-confirm]')).toBeVisible()
-  const imSpiel = await zeichnung(page, '[data-confirm]')
+  const inGame = await drawing(page, '[data-confirm]')
 
-  expect(imSpiel).toBe(inDerAuswahl)
+  expect(inGame).toBe(inSelection)
 })
 
 test('die Erwachsenenauswahl bleibt ungezeichnet', async ({ page }) => {
   // Die Kinderwelt darf die andere nicht anfassen.
   await openStartScreen(page)
   await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'default')
-  expect(await zeichnung(page, '[data-preset]')).toBe('none')
+  expect(await drawing(page, '[data-preset]')).toBe('none')
 })
 
 test('die Startauswahl laesst sich vollstaendig mit der Tastatur bedienen', async ({ page }) => {
@@ -331,7 +331,7 @@ test('die Startauswahl laesst sich vollstaendig mit der Tastatur bedienen', asyn
   await page.locator('[data-start]').focus()
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
-  await expect(page.locator(freierBuzzer)).toHaveCount(2)
+  await expect(page.locator(freeBuzzer)).toHaveCount(2)
 })
 
 test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ page }) => {
@@ -353,15 +353,15 @@ test('erst steht die Frage allein, dann kommen Antworten und Buzzer', async ({ p
   // Erst mit den Antworten geht der Buzzer auf.
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
-  await expect(page.locator(freierBuzzer)).toHaveCount(2)
+  await expect(page.locator(freeBuzzer)).toHaveCount(2)
 })
 
 test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
   await startGame(page, 'Allein')
   const stage = page.locator('.stage')
-  const frage = await page.locator('[data-prompt]').first().innerText()
+  const question = await page.locator('[data-prompt]').first().innerText()
 
-  await antworte(page)
+  await answerWith(page)
   await expect(stage).toHaveAttribute('data-scene', 'solution', { timeout: 20_000 })
 
   /*
@@ -370,12 +370,12 @@ test('nach der Loesung wartet das Geraet auf "Weiter"', async ({ page }) => {
    */
   await page.waitForTimeout(8_000)
   await expect(stage).toHaveAttribute('data-scene', 'solution')
-  await expect(page.locator('[data-prompt]').first()).toHaveText(frage)
+  await expect(page.locator('[data-prompt]').first()).toHaveText(question)
   // Aufgeloest heisst: niemand buzzert mehr und niemand tippt mehr.
-  await expect(page.locator(freierBuzzer)).toHaveCount(0)
-  await expect(page.locator(offeneAntwort)).toHaveCount(0)
+  await expect(page.locator(freeBuzzer)).toHaveCount(0)
+  await expect(page.locator(openAnswer)).toHaveCount(0)
 
-  await weiter(page)
+  await next(page)
   await expect(stage).toHaveAttribute('data-scene', 'pause', { timeout: 20_000 })
 })
 
@@ -387,28 +387,28 @@ test('Einzelspiel: der Hinweis steht mittig, der Zaehler aussen', async ({ page 
    * im Duell auch die zweite Hand erwartet.
    */
   await startGame(page, 'Allein')
-  await antworte(page)
+  await answerWith(page)
   await expect(page.locator('[data-continue]')).toBeVisible({ timeout: 20_000 })
 
-  const breite = page.viewportSize()!.width
-  const knopf = (await page.locator('[data-continue]').boundingBox())!
-  expect(Math.round(knopf.x + knopf.width / 2)).toBe(Math.round(breite / 2))
+  const width = page.viewportSize()!.width
+  const button = (await page.locator('[data-continue]').boundingBox())!
+  expect(Math.round(button.x + button.width / 2)).toBe(Math.round(width / 2))
 
   // Der Zaehler steht rechts vom Knopf, die Punktekarte links davon.
-  const zaehler = (await page.locator('[data-counter]').boundingBox())!
-  const karte = (await page.locator('[data-score]').boundingBox())!
-  expect(zaehler.x).toBeGreaterThan(knopf.x + knopf.width)
-  expect(karte.x + karte.width).toBeLessThan(knopf.x)
+  const counter = (await page.locator('[data-counter]').boundingBox())!
+  const card = (await page.locator('[data-score]').boundingBox())!
+  expect(counter.x).toBeGreaterThan(button.x + button.width)
+  expect(card.x + card.width).toBeLessThan(button.x)
 })
 
 test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) => {
   await startGame(page, 'Allein')
 
-  const feld = page.locator('[data-notice]')
-  const leer = (await feld.boundingBox())!
-  const zaehler = (await page.locator('[data-counter]').boundingBox())!
+  const field = page.locator('[data-notice]')
+  const empty = (await field.boundingBox())!
+  const counter = (await page.locator('[data-counter]').boundingBox())!
 
-  await antworte(page)
+  await answerWith(page)
   await expect(page.locator('[data-continue]')).toBeVisible({ timeout: 20_000 })
 
   /*
@@ -416,11 +416,11 @@ test('Hinweis und "Weiter" teilen sich ein Feld fester Hoehe', async ({ page }) 
    * darueber ein Stueck, sobald aus dem Hinweis ein Knopf wird - und zwar in
    * dem Moment, in dem jemand mit dem Finger zielt.
    */
-  const mitKnopf = (await feld.boundingBox())!
-  expect(Math.round(mitKnopf.height)).toBe(Math.round(leer.height))
-  expect(Math.round(mitKnopf.y)).toBe(Math.round(leer.y))
-  const zaehlerDanach = (await page.locator('[data-counter]').boundingBox())!
-  expect(Math.round(zaehlerDanach.y)).toBe(Math.round(zaehler.y))
+  const withButton = (await field.boundingBox())!
+  expect(Math.round(withButton.height)).toBe(Math.round(empty.height))
+  expect(Math.round(withButton.y)).toBe(Math.round(empty.y))
+  const counterAfter = (await page.locator('[data-counter]').boundingBox())!
+  expect(Math.round(counterAfter.y)).toBe(Math.round(counter.y))
 })
 
 test('Einzelspiel: kein Buzzer, und die Auswertung laeuft ohne Operator', async ({ page }) => {
@@ -430,7 +430,7 @@ test('Einzelspiel: kein Buzzer, und die Auswertung laeuft ohne Operator', async 
   await expect(page.locator('[data-buzzer]')).toHaveCount(0)
   await expect(page.locator('.stage')).toHaveAttribute('data-phase', 'buzzer-open')
 
-  await antworte(page)
+  await answerWith(page)
 
   // Bewertung und Loesung laufen von selbst - nur der Schritt danach nicht.
   await expect(page.locator('.stage')).toHaveAttribute('data-scene', 'feedback', { timeout: 20_000 })
@@ -458,19 +458,19 @@ test('Duell: zwei Buzzer, und wer zuerst drueckt, bekommt die Antworten', async 
 
   // Beide Spieler stehen nebeneinander: ein Buzzer je Seite, beide offen.
   await expect(page.locator('[data-buzzer]')).toHaveCount(2)
-  await expect(page.locator(freierBuzzer)).toHaveCount(2)
+  await expect(page.locator(freeBuzzer)).toHaveCount(2)
   // Solange niemand gedrueckt hat, gehoeren die Antworten niemandem.
-  await expect(page.locator(offeneAntwort)).toHaveCount(0)
+  await expect(page.locator(openAnswer)).toHaveCount(0)
 
   await page.locator('[data-buzzer][data-side="right"]').click()
 
   // Der Zuschlag steht am Buzzer selbst, und der andere tritt zurueck.
   await expect(page.locator('[data-buzzer][data-side="right"]')).toHaveAttribute('data-armed', 'true')
-  await expect(page.locator(freierBuzzer)).toHaveCount(0)
+  await expect(page.locator(freeBuzzer)).toHaveCount(0)
   const rows = await page.locator('[data-answer]').count()
-  await expect(page.locator(offeneAntwort)).toHaveCount(rows)
+  await expect(page.locator(openAnswer)).toHaveCount(rows)
 
-  await page.locator(offeneAntwort).first().click()
+  await page.locator(openAnswer).first().click()
 
   /*
    * Getippt ist nur eingeloggt: Die Antwort ist markiert, der Knopf zum Abgeben
@@ -501,21 +501,21 @@ test('die Szene bleibt ueber der Fussleiste - in jeder Aufloesung', async ({ pag
    */
   await startGame(page, 'Zu zweit')
 
-  for (const [breite, hoehe] of [
+  for (const [width, height] of [
     [1920, 1080],
     [1280, 720],
     [1024, 768],
-  ]) {
-    await page.setViewportSize({ width: breite, height: hoehe })
+  ] as const) {
+    await page.setViewportSize({ width, height })
     // Ein Frame fuer den Umbruch - die Frage misst sich nach der Groesse neu.
     await page.waitForTimeout(300)
 
-    const fuss = (await page.locator('[data-player-foot]').boundingBox())!
-    const zeilen = await page.locator('[data-answer]').all()
-    expect(zeilen.length, `${breite}x${hoehe}`).toBeGreaterThanOrEqual(4)
-    for (const zeile of zeilen) {
-      const box = (await zeile.boundingBox())!
-      expect(Math.round(box.y + box.height), `${breite}x${hoehe}`).toBeLessThanOrEqual(Math.round(fuss.y))
+    const foot = (await page.locator('[data-player-foot]').boundingBox())!
+    const rows = await page.locator('[data-answer]').all()
+    expect(rows.length, `${width}x${height}`).toBeGreaterThanOrEqual(4)
+    for (const row of rows) {
+      const box = (await row.boundingBox())!
+      expect(Math.round(box.y + box.height), `${width}x${height}`).toBeLessThanOrEqual(Math.round(foot.y))
     }
   }
 })
@@ -523,9 +523,9 @@ test('die Szene bleibt ueber der Fussleiste - in jeder Aufloesung', async ({ pag
 test('Punkte und Zaehler stehen unten bei den Buzzern, nicht in der Kopfzeile', async ({ page }) => {
   await startGame(page, 'Zu zweit')
 
-  const fuss = page.locator('[data-player-foot]')
-  await expect(fuss.locator('[data-score]')).toHaveCount(2)
-  await expect(fuss.locator('[data-counter]')).toHaveCount(1)
+  const foot = page.locator('[data-player-foot]')
+  await expect(foot.locator('[data-score]')).toHaveCount(2)
+  await expect(foot.locator('[data-counter]')).toHaveCount(1)
   // Die Kopfzeile traegt am Geraet nur noch die Wortmarke.
   await expect(page.locator('header [data-score]')).toHaveCount(0)
   await expect(page.locator('[data-brand]')).toBeVisible()
@@ -535,14 +535,14 @@ test('Punkte und Zaehler stehen unten bei den Buzzern, nicht in der Kopfzeile', 
    * und auf derselben Seite. Daran - und nicht am Lesen - erkennt er im Spiel,
    * wo er hinschlagen muss.
    */
-  for (const [seite, nummer] of [
+  for (const [side, number] of [
     ['left', '1'],
     ['right', '2'],
   ]) {
-    const karte = (await page.locator(`[data-score][data-player="${nummer}"]`).boundingBox())!
-    const buzzer = (await page.locator(`[data-buzzer][data-side="${seite}"]`).boundingBox())!
-    expect(Math.round(karte.x), seite).toBe(Math.round(buzzer.x))
-    expect(karte.y + karte.height, seite).toBeLessThanOrEqual(buzzer.y + 1)
+    const card = (await page.locator(`[data-score][data-player="${number}"]`).boundingBox())!
+    const buzzer = (await page.locator(`[data-buzzer][data-side="${side}"]`).boundingBox())!
+    expect(Math.round(card.x), side).toBe(Math.round(buzzer.x))
+    expect(card.y + card.height, side).toBeLessThanOrEqual(buzzer.y + 1)
   }
 })
 
@@ -580,22 +580,22 @@ test('ein Einzelspiel laeuft ohne einen einzigen Operatorbefehl bis zum Ergebnis
      * Erst abgeben, dann tippen: Nach einem Tipp bleiben die Zeilen absichtlich
      * aktiv (umentscheiden), die Frage geht nur ueber das Abgeben weiter.
      */
-    const abgeben = page.locator('[data-confirm]')
-    if (await abgeben.isVisible().catch(() => false)) {
-      await abgeben.click({ timeout: 2_000 }).catch(() => undefined)
+    const submit = page.locator('[data-confirm]')
+    if (await submit.isVisible().catch(() => false)) {
+      await submit.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
-    const zeile = page.locator(offeneAntwort).first()
-    if (await zeile.isVisible().catch(() => false)) {
+    const row = page.locator(openAnswer).first()
+    if (await row.isVisible().catch(() => false)) {
       // Kurzer Anlauf: Zwischen Pruefung und Tipp kann die Flaeche verschwinden,
       // etwa weil das Spiel in diesem Moment endet.
-      await zeile.click({ timeout: 2_000 }).catch(() => undefined)
+      await row.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
     // Nach der Loesung wartet das Geraet auf einen Tipp - auch im Einzelspiel.
-    const knopf = page.locator('[data-continue]')
-    if (await knopf.isVisible().catch(() => false)) {
-      await knopf.click({ timeout: 2_000 }).catch(() => undefined)
+    const button = page.locator('[data-continue]')
+    if (await button.isVisible().catch(() => false)) {
+      await button.click({ timeout: 2_000 }).catch(() => undefined)
       continue
     }
     await page.waitForTimeout(300)
@@ -615,14 +615,14 @@ test('die Einstellungen haengen am Startbildschirm, nicht am laufenden Spiel', a
   await openStartScreen(page)
   await page.locator('[data-settings-open]').click()
 
-  const einstellungen = page.locator('[data-settings]')
-  await expect(einstellungen).toBeVisible()
-  await expect(einstellungen.locator('[data-sound-on]')).toHaveAttribute('aria-pressed', 'true')
-  await expect(einstellungen.locator('[data-sound-test]')).toBeVisible()
-  await expect(einstellungen.locator('[data-zoom]')).toHaveValue('1')
+  const settings = page.locator('[data-settings]')
+  await expect(settings).toBeVisible()
+  await expect(settings.locator('[data-sound-on]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(settings.locator('[data-sound-test]')).toBeVisible()
+  await expect(settings.locator('[data-zoom]')).toHaveValue('1')
 
   await page.locator('[data-settings-close]').click()
-  await expect(einstellungen).toHaveCount(0)
+  await expect(settings).toHaveCount(0)
 
   /*
    * Waehrend gespielt wird, sind sie fort: Wer davorsteht, soll den Ton nicht
@@ -652,29 +652,29 @@ test('der Tonschalter der Einstellungen gilt fuer das ganze Geraet', async ({ pa
 test('ein kleinerer Zoom verkleinert die Szene zur Mitte, die Ecken bleiben am Rand', async ({ page }) => {
   await startGame(page, 'Zu zweit')
 
-  const szene = page.locator('[data-scene-root]')
-  const gross = await szene.boundingBox()
-  const linkeEckeGross = await page.locator('[data-corner="left"]').boundingBox()
-  const flaeche = await page.locator('[data-quiz-game]').boundingBox()
+  const scene = page.locator('[data-scene-root]')
+  const large = await scene.boundingBox()
+  const leftCornerLarge = await page.locator('[data-corner="left"]').boundingBox()
+  const area = await page.locator('[data-quiz-game]').boundingBox()
 
   await page.evaluate(() => {
-    const wurzel = document.querySelector('[data-quiz-game]') as HTMLElement
-    wurzel.style.setProperty('--stage-zoom', '0.7')
+    const root = document.querySelector('[data-quiz-game]') as HTMLElement
+    root.style.setProperty('--stage-zoom', '0.7')
   })
 
-  const klein = await szene.boundingBox()
-  const linkeEckeKlein = await page.locator('[data-corner="left"]').boundingBox()
+  const small = await scene.boundingBox()
+  const leftCornerSmall = await page.locator('[data-corner="left"]').boundingBox()
 
   // Die Szene wird kleiner ...
-  expect(klein!.width).toBeLessThan(gross!.width * 0.8)
+  expect(small!.width).toBeLessThan(large!.width * 0.8)
   // ... und bleibt dabei mittig: Der Abstand nach links und rechts ist gleich.
-  const links = klein!.x - flaeche!.x
-  const rechts = flaeche!.x + flaeche!.width - (klein!.x + klein!.width)
-  expect(Math.abs(links - rechts)).toBeLessThan(4)
+  const left = small!.x - area!.x
+  const right = area!.x + area!.width - (small!.x + small!.width)
+  expect(Math.abs(left - right)).toBeLessThan(4)
 
   // Die Punktekarte schrumpft mit, rueckt aber nicht von der Kante ab.
-  expect(linkeEckeKlein!.width).toBeLessThan(linkeEckeGross!.width * 0.8)
-  expect(linkeEckeKlein!.x - flaeche!.x).toBeLessThan(linkeEckeGross!.x - flaeche!.x + 1)
+  expect(leftCornerSmall!.width).toBeLessThan(leftCornerLarge!.width * 0.8)
+  expect(leftCornerSmall!.x - area!.x).toBeLessThan(leftCornerLarge!.x - area!.x + 1)
 })
 
 test('die Zoomstufe gilt auch fuer Auswahl und Einstellungen', async ({ page }) => {
@@ -684,17 +684,17 @@ test('die Zoomstufe gilt auch fuer Auswahl und Einstellungen', async ({ page }) 
    * Groesse vor einem verkleinerten Spiel waere die halbe Einstellung.
    */
   await openStartScreen(page)
-  const auswahlGross = (await page.locator('[data-game-start]').boundingBox())!.width
+  const selectionLarge = (await page.locator('[data-game-start]').boundingBox())!.width
 
   await page.locator('[data-settings-open]').click()
-  const karteGross = (await page.locator('[data-settings] > div').boundingBox())!.width
+  const cardLarge = (await page.locator('[data-settings] > div').boundingBox())!.width
   await page.locator('[data-zoom]').fill('0.7')
-  const karteKlein = (await page.locator('[data-settings] > div').boundingBox())!.width
+  const cardSmall = (await page.locator('[data-settings] > div').boundingBox())!.width
   await page.locator('[data-settings-close]').click()
-  const auswahlKlein = (await page.locator('[data-game-start]').boundingBox())!.width
+  const selectionSmall = (await page.locator('[data-game-start]').boundingBox())!.width
 
-  expect(auswahlKlein).toBeLessThan(auswahlGross * 0.8)
-  expect(karteKlein).toBeLessThan(karteGross * 0.8)
+  expect(selectionSmall).toBeLessThan(selectionLarge * 0.8)
+  expect(cardSmall).toBeLessThan(cardLarge * 0.8)
 })
 
 test('die Szene erscheint sofort in der eingestellten Groesse, nicht erst nach dem Uebergang', async ({ page }) => {
@@ -708,20 +708,20 @@ test('die Szene erscheint sofort in der eingestellten Groesse, nicht erst nach d
    */
   await openStartScreen(page)
   await page.evaluate(() => {
-    const wurzel = document.querySelector('[data-quiz-game]') as HTMLElement
-    wurzel.style.setProperty('--stage-zoom', '0.7')
+    const root = document.querySelector('[data-quiz-game]') as HTMLElement
+    root.style.setProperty('--stage-zoom', '0.7')
   })
   await page.getByRole('button', { name: /^Allein/ }).click()
   await page.getByRole('button', { name: /^Leicht/ }).click()
   await page.getByRole('button', { name: "Los geht's" }).click()
 
   await page.waitForSelector('[data-scene-root]', { timeout: 30_000 })
-  const gemessen: number[] = []
+  const measured: number[] = []
   for (let i = 0; i < 12; i += 1) {
-    gemessen.push((await page.locator('[data-scene-root]').boundingBox())!.width)
+    measured.push((await page.locator('[data-scene-root]').boundingBox())!.width)
     await page.waitForTimeout(60)
   }
-  expect(Math.max(...gemessen) - Math.min(...gemessen)).toBeLessThan(2)
+  expect(Math.max(...measured) - Math.min(...measured)).toBeLessThan(2)
 })
 
 test('"Spiel beenden" fragt nach und fuehrt zurueck in die Auswahl', async ({ page }) => {
@@ -752,21 +752,21 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
    */
   await openStartScreen(page)
 
-  const umschalter = page.locator('[data-languages]')
-  await expect(umschalter).toBeVisible()
+  const switcher = page.locator('[data-languages]')
+  await expect(switcher).toBeVisible()
   await expect(page.locator('[data-locale="de-DE"]')).toHaveAttribute('aria-pressed', 'true')
 
   // Deutsch: die Oberflaeche und die Namen der Schwierigkeitsstufen.
   await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
-  const deutschePresets = await page.locator('[data-preset-options] button').allInnerTexts()
-  expect(deutschePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
+  const germanPresets = await page.locator('[data-preset-options] button').allInnerTexts()
+  expect(germanPresets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
   await page.locator('[data-locale="en-GB"]').click()
 
   await expect(page.locator('[data-locale="en-GB"]')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('button', { name: /^Alone/ })).toBeVisible()
-  const englischePresets = await page.locator('[data-preset-options] button').allInnerTexts()
-  expect(englischePresets.map((eintrag) => eintrag.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
+  const englishPresets = await page.locator('[data-preset-options] button').allInnerTexts()
+  expect(englishPresets.map((entry) => entry.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
   await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()
 
   // Und das Spiel selbst laeuft in derselben Sprache weiter.
@@ -776,8 +776,8 @@ test('der Sprachumschalter stellt Auswahl und Spiel um', async ({ page }) => {
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
 
   await expect(page.locator('[data-prompt]')).toContainText('Test question')
-  const antworten = await page.locator('[data-answer]').allInnerTexts()
-  expect(antworten.join(' ')).toMatch(/Correct answer|Wrong answer/)
+  const answers = await page.locator('[data-answer]').allInnerTexts()
+  expect(answers.join(' ')).toMatch(/Correct answer|Wrong answer/)
   await expect(page.locator('[data-score-label]').first()).toHaveText('Player')
 })
 
@@ -788,8 +788,8 @@ test('ohne zweite Sprache gibt es nichts umzuschalten', async ({ page }) => {
    * das waere keine Auswahl, sondern eine Huerde.
    */
   await openStartScreen(page)
-  const sprachen = await page.locator('[data-languages] button').count()
-  expect(sprachen).toBeGreaterThan(1)
+  const locales = await page.locator('[data-languages] button').count()
+  expect(locales).toBeGreaterThan(1)
 })
 
 /*
@@ -809,30 +809,30 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
    * dafuer NICHT - eine Bildfrage stellt sie neben das Foto, eine Textfrage
    * darunter, und welche Frage kommt, entscheidet die Auswahl.
    */
-  async function masse(): Promise<Record<string, number>> {
-    const kasten = async (wahl: string) => {
-      const box = await page.locator(wahl).first().boundingBox()
-      if (!box) throw new Error(`ohne Kasten: ${wahl}`)
+  async function measures(): Promise<Record<string, number>> {
+    const box = async (choice: string) => {
+      const box = await page.locator(choice).first().boundingBox()
+      if (!box) throw new Error(`ohne Kasten: ${choice}`)
       return box
     }
-    const szene = await page.evaluate(() => {
+    const scene = await page.evaluate(() => {
       const element = document.querySelector('[class*="sceneRoot"]')
       if (!element) throw new Error('ohne Szene')
-      const kasten = element.getBoundingClientRect()
-      return { breite: kasten.width, hoehe: kasten.height, links: kasten.x }
+      const box = element.getBoundingClientRect()
+      return { width: box.width, height: box.height, left: box.x }
     })
-    const buzzer = await kasten('[data-buzzer]')
-    const punkte = await page
+    const buzzer = await box('[data-buzzer]')
+    const points = await page
       .locator('[data-score-value]')
       .first()
       .evaluate((element) => parseFloat(getComputedStyle(element).fontSize))
     return {
-      szeneBreite: Math.round(szene.breite),
-      szeneHoehe: Math.round(szene.hoehe),
-      szeneLinks: Math.round(szene.links),
-      buzzerBreite: Math.round(buzzer.width),
-      buzzerHoehe: Math.round(buzzer.height),
-      punkteSchrift: Math.round(punkte * 100) / 100,
+      sceneWidth: Math.round(scene.width),
+      sceneHeight: Math.round(scene.height),
+      sceneLeft: Math.round(scene.left),
+      buzzerWidth: Math.round(buzzer.width),
+      buzzerHeight: Math.round(buzzer.height),
+      pointsFont: Math.round(points * 100) / 100,
     }
   }
 
@@ -843,13 +843,13 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
    */
   await page.setViewportSize({ width: 1280, height: 900 })
   await startGame(page, 'Zu zweit')
-  const flach = await masse()
+  const flat = await measures()
 
   await page.setViewportSize({ width: 1280, height: 1000 })
   await startGame(page, 'Zu zweit')
-  const hoch = await masse()
+  const tall = await measures()
 
-  expect(hoch).toEqual(flach)
+  expect(tall).toEqual(flat)
 
   await page.setViewportSize({ width: 1280, height: 720 })
   await startGame(page, 'Zu zweit')
@@ -867,11 +867,11 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
    */
   await page.setViewportSize({ width: 640, height: 1000 })
   await startGame(page, 'Zu zweit')
-  const halb = await masse()
+  const half = await measures()
 
-  for (const [name, wert] of Object.entries(halb)) {
+  for (const [name, value] of Object.entries(half)) {
     // Ein Pixel Spielraum: Die Masse sind gerundet, die halbe Breite ist es nicht.
-    expect(Math.abs(wert - hoch[name]! / 2), name).toBeLessThanOrEqual(1)
+    expect(Math.abs(value - tall[name]! / 2), name).toBeLessThanOrEqual(1)
   }
 })
 
@@ -884,19 +884,19 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
  * Mitte und nicht unter die Leiste.
  */
 test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', async ({ page }) => {
-  async function luftUnterDerLeiste(): Promise<number> {
+  async function spaceBelowBar(): Promise<number> {
     return page.evaluate(() => {
-      const buehne = document.querySelector('.stage')!.getBoundingClientRect()
+      const stage = document.querySelector('.stage')!.getBoundingClientRect()
       /* Der Punktestand steht in einer Spielerecke, die Ecke in der Leiste. */
-      const leiste = document.querySelector('[data-score]')!.parentElement!.parentElement!
-      return Math.round(buehne.bottom - leiste.getBoundingClientRect().bottom)
+      const bar = document.querySelector('[data-score]')!.parentElement!.parentElement!
+      return Math.round(stage.bottom - bar.getBoundingClientRect().bottom)
     })
   }
 
-  for (const hoehe of [720, 1000]) {
-    await page.setViewportSize({ width: 1280, height: hoehe })
+  for (const height of [720, 1000]) {
+    await page.setViewportSize({ width: 1280, height: height })
     await startGame(page, 'Zu zweit')
-    expect(await luftUnterDerLeiste(), `Duell bei 1280x${hoehe}`).toBe(0)
+    expect(await spaceBelowBar(), `Duell bei 1280x${height}`).toBe(0)
   }
 
   /*
@@ -905,7 +905,7 @@ test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', 
    */
   await page.setViewportSize({ width: 1280, height: 1000 })
   await startGame(page, 'Allein')
-  expect(await luftUnterDerLeiste(), 'Einzelspiel bei 1280x1000').toBe(0)
+  expect(await spaceBelowBar(), 'Einzelspiel bei 1280x1000').toBe(0)
 })
 
 /*
@@ -918,48 +918,48 @@ test('die Fussleiste steht am unteren Bildrand, wie hoch das Fenster auch ist', 
  * wird.
  */
 test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ page }) => {
-  const spielerfarben = async () =>
+  const playerColors = async () =>
     page.evaluate(() => {
-      const stil = getComputedStyle(document.querySelector('.stage')!)
-      return ['--stage-playerOne', '--stage-playerTwo'].map((name) => stil.getPropertyValue(name).trim())
+      const style = getComputedStyle(document.querySelector('.stage')!)
+      return ['--stage-playerOne', '--stage-playerTwo'].map((name) => style.getPropertyValue(name).trim())
     })
 
   /** Jede Flaeche der Leiste: Grund, Kante und Deckkraft, wie sie wirklich steht. */
-  const leiste = async () =>
+  const bar = async () =>
     page.evaluate(() => {
-      const lesen = (element: Element) => {
-        const stil = getComputedStyle(element)
+      const readInput = (element: Element) => {
+        const style = getComputedStyle(element)
         return {
-          grund: stil.backgroundColor,
-          kante: [stil.borderTopWidth, stil.borderRightWidth, stil.borderBottomWidth, stil.borderLeftWidth].join(' '),
-          schrift: stil.color,
-          deckkraft: stil.opacity,
+          ground: style.backgroundColor,
+          edge: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth].join(' '),
+          font: style.color,
+          opacity: style.opacity,
         }
       }
       return {
-        buzzer: [...document.querySelectorAll('[data-buzzer]')].map((knopf) => ({
-          seite: knopf.getAttribute('data-side'),
-          ...lesen(knopf),
+        buzzer: [...document.querySelectorAll('[data-buzzer]')].map((button) => ({
+          side: button.getAttribute('data-side'),
+          ...readInput(button),
         })),
         /* Beide Kacheln jeder Karte - der Grund steht an ihnen, nicht an der Karte. */
-        karten: [...document.querySelectorAll('[data-score]')].flatMap((karte) => [...karte.children].map(lesen)),
+        cards: [...document.querySelectorAll('[data-score]')].flatMap((card) => [...card.children].map(readInput)),
       }
     })
 
-  const [eins, zwei] = await (async () => {
+  const [one, two] = await (async () => {
     await startGame(page, 'Zu zweit')
-    return spielerfarben()
+    return playerColors()
   })()
 
   /*
    * Drei Zustaende in einer Runde: offen (beide bedienbar), gebuzzert (einer
    * hat den Zuschlag, der andere ist gesperrt) und aufgeloest (beide gesperrt).
    */
-  const zustaende = [] as Awaited<ReturnType<typeof leiste>>[]
-  zustaende.push(await leiste())
+  const states = [] as Awaited<ReturnType<typeof bar>>[]
+  states.push(await bar())
   await page.locator('[data-buzzer][data-side="left"]').click()
   await expect(page.locator('[data-buzzer][data-armed="true"]')).toHaveCount(1)
-  zustaende.push(await leiste())
+  states.push(await bar())
   /*
    * Bewusst die RICHTIGE Antwort des Testbestands: Eine falsche gibt dem anderen
    * Spieler die zweite Chance, und dann ist die Runde nicht aufgeloest, sondern
@@ -968,32 +968,32 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
   await page.locator('[data-answer-button]', { hasText: /Richtige Antwort/ }).first().click()
   await page.locator('[data-confirm]').click()
   await expect(page.locator('[data-continue]')).toBeVisible()
-  zustaende.push(await leiste())
+  states.push(await bar())
 
-  for (const [nummer, stand] of zustaende.entries()) {
-    for (const knopf of stand.buzzer) {
-      const erwartet = knopf.seite === 'left' ? eins : zwei
-      expect(knopf.grund, `Zustand ${nummer}, ${knopf.seite}`).toBe(farbe(erwartet!))
+  for (const [number, state] of states.entries()) {
+    for (const button of state.buzzer) {
+      const expected = button.side === 'left' ? one : two
+      expect(button.ground, `Zustand ${number}, ${button.side}`).toBe(color(expected!))
       // Vollflaechig heisst auch: kein Zustand nimmt der Flaeche ihre Deckkraft.
-      expect(knopf.deckkraft, `Zustand ${nummer}, ${knopf.seite}`).toBe('1')
-      expect(knopf.kante, `Zustand ${nummer}, ${knopf.seite}`).toBe('0px 0px 0px 0px')
-      expect(knopf.schrift, `Zustand ${nummer}, ${knopf.seite}`).toBe('rgb(255, 255, 255)')
+      expect(button.opacity, `Zustand ${number}, ${button.side}`).toBe('1')
+      expect(button.edge, `Zustand ${number}, ${button.side}`).toBe('0px 0px 0px 0px')
+      expect(button.font, `Zustand ${number}, ${button.side}`).toBe('rgb(255, 255, 255)')
     }
     // Und die Karten bleiben in jedem dieser Zustaende neutral.
-    for (const kachel of stand.karten) {
-      expect([kachel.grund, kachel.kante], `Zustand ${nummer}`).not.toContain(farbe(eins!))
-      expect([kachel.grund, kachel.kante], `Zustand ${nummer}`).not.toContain(farbe(zwei!))
-      expect(kachel.kante, `Zustand ${nummer}`).toBe('0px 0px 0px 0px')
+    for (const tile of state.cards) {
+      expect([tile.ground, tile.edge], `Zustand ${number}`).not.toContain(color(one!))
+      expect([tile.ground, tile.edge], `Zustand ${number}`).not.toContain(color(two!))
+      expect(tile.edge, `Zustand ${number}`).toBe('0px 0px 0px 0px')
     }
   }
 
   /* Im Einzelspiel gibt es keinen Buzzer - und die Karte ist dieselbe neutrale. */
   await startGame(page, 'Allein')
-  const allein = await leiste()
-  expect(allein.buzzer).toHaveLength(0)
-  for (const kachel of allein.karten) {
-    expect([kachel.grund, kachel.kante]).not.toContain(farbe(eins!))
-    expect([kachel.grund, kachel.kante]).not.toContain(farbe(zwei!))
+  const solo = await bar()
+  expect(solo.buzzer).toHaveLength(0)
+  for (const tile of solo.cards) {
+    expect([tile.ground, tile.edge]).not.toContain(color(one!))
+    expect([tile.ground, tile.edge]).not.toContain(color(two!))
   }
 })
 
@@ -1006,67 +1006,67 @@ test('die Spielerfarbe traegt allein der Buzzer - in jedem Zustand', async ({ pa
  * nicht zu sehen, die beiden Linien dafuer umso mehr.
  */
 test('die gewaehlte Karte ist eine Flaeche, und zwar dieselbe wie eine angetippte Antwort', async ({ page }) => {
-  const kartenstand = async (wahl: string) =>
-    page.locator(wahl).evaluate((element) => {
-      const stil = getComputedStyle(element)
+  const cardState = async (choice: string) =>
+    page.locator(choice).evaluate((element) => {
+      const style = getComputedStyle(element)
       return {
-        grund: stil.backgroundColor,
-        kante: [stil.borderTopWidth, stil.borderRightWidth, stil.borderBottomWidth, stil.borderLeftWidth].join(' '),
-        umriss: `${stil.outlineStyle} ${stil.outlineWidth}`,
-        schrift: stil.color,
+        ground: style.backgroundColor,
+        edge: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth].join(' '),
+        outline: `${style.outlineStyle} ${style.outlineWidth}`,
+        font: style.color,
         /* Jede Schrift und jede Flaeche IN der Karte - Titel, Zeile, Zeichen, Haekchen. */
-        innen: [...element.querySelectorAll('span')].map((teil) => getComputedStyle(teil).color),
+        inner: [...element.querySelectorAll('span')].map((part) => getComputedStyle(part).color),
       }
     })
 
   await openStartScreen(page)
-  const gewaehlt = '[data-player-count="1"]'
-  const offen = '[data-player-count="2"]'
+  const chosen = '[data-player-count="1"]'
+  const open = '[data-player-count="2"]'
 
   /*
    * Vier Zustaende an derselben Karte. `hover` und `focus-visible` liegen
    * bewusst NACHEINANDER auf der offenen Karte: Genau ihre Ueberlagerung hat
    * vorher zwei Linien uebereinander gelegt.
    */
-  const zustaende: Record<string, Awaited<ReturnType<typeof kartenstand>>> = {}
-  zustaende['gewaehlt'] = await kartenstand(gewaehlt)
-  zustaende['offen'] = await kartenstand(offen)
-  await page.locator(offen).hover()
-  zustaende['hover'] = await kartenstand(offen)
+  const states: Record<string, Awaited<ReturnType<typeof cardState>>> = {}
+  states['gewaehlt'] = await cardState(chosen)
+  states['offen'] = await cardState(open)
+  await page.locator(open).hover()
+  states['hover'] = await cardState(open)
   await page.keyboard.press('Tab')
-  await page.locator(gewaehlt).focus()
-  zustaende['fokus'] = await kartenstand(gewaehlt)
-  await page.locator(offen).hover()
-  await page.locator(offen).focus()
-  zustaende['hover+fokus'] = await kartenstand(offen)
+  await page.locator(chosen).focus()
+  states['fokus'] = await cardState(chosen)
+  await page.locator(open).hover()
+  await page.locator(open).focus()
+  states['hover+fokus'] = await cardState(open)
 
-  for (const [name, stand] of Object.entries(zustaende)) {
-    expect(stand.kante, name).toBe('0px 0px 0px 0px')
-    expect(stand.umriss, name).toBe('none 0px')
+  for (const [name, state] of Object.entries(states)) {
+    expect(state.edge, name).toBe('0px 0px 0px 0px')
+    expect(state.outline, name).toBe('none 0px')
   }
 
   /* Auf der gefuellten Karte ist alles weiss - Titel, Zeile darunter, Zeichen, Haekchen. */
-  expect(zustaende['gewaehlt']!.schrift).toBe('rgb(255, 255, 255)')
-  for (const tinte of zustaende['gewaehlt']!.innen) {
-    expect(tinte).toMatch(/^rgba?\(255, 255, 255/)
+  expect(states['gewaehlt']!.font).toBe('rgb(255, 255, 255)')
+  for (const ink of states['gewaehlt']!.inner) {
+    expect(ink).toMatch(/^rgba?\(255, 255, 255/)
   }
   /* Und auf der offenen dunkel - sie ist eine ruhige graue Flaeche. */
-  expect(zustaende['offen']!.schrift).not.toMatch(/^rgba?\(255, 255, 255/)
+  expect(states['offen']!.font).not.toMatch(/^rgba?\(255, 255, 255/)
 
   /*
    * DIE PROBE AUFS GANZE: dieselbe Farbe wie eine angetippte Antwort im Spiel.
    * Gelesen wird sie nicht aus der Palette, sondern aus dem, was am Ende auf dem
    * Bildschirm steht - einmal hier, einmal dort.
    */
-  const kartenblau = zustaende['gewaehlt']!.grund
+  const cardBlue = states['gewaehlt']!.ground
   await startGame(page, 'Zu zweit')
   await page.locator('[data-buzzer][data-side="left"]').click()
-  const antwort = page.locator('[data-answer][data-state="idle"] [data-answer-button]').first()
-  await antwort.click()
+  const answer = page.locator('[data-answer][data-state="idle"] [data-answer-button]').first()
+  await answer.click()
   await expect(page.locator('[data-answer][data-state="chosen"], [data-answer][data-state="selected"]')).toHaveCount(1)
-  const antwortblau = await page
+  const answerBlue = await page
     .locator('[data-answer][data-state="chosen"] [data-answer-surface], [data-answer][data-state="selected"] [data-answer-surface]')
     .first()
     .evaluate((element) => getComputedStyle(element).backgroundColor)
-  expect(kartenblau).toBe(antwortblau)
+  expect(cardBlue).toBe(answerBlue)
 })

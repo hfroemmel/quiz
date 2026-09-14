@@ -91,7 +91,7 @@ export type QuestionMedia = z.infer<typeof questionMediaSchema>
  * ------------------------------------------------------------------ */
 
 /** Beschriftung je Sprache. Fehlt eine, gilt das `label` daneben. */
-export const uebersetzteBeschriftung = z.record(z.string().min(1), z.string().min(1))
+export const translatedLabels = z.record(z.string().min(1), z.string().min(1))
 
 /**
  * Eine Sprache, in der das Quiz gespielt werden kann.
@@ -261,7 +261,7 @@ export function isSelfServicePreset(preset: DifficultyPreset): boolean {
 export const difficultyPresetSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
   /**
    * Ein Preset ist eine dramaturgische Ablaufkonfiguration, kein globaler Filter.
    * `easy` darf daher einzelne mittelschwere Fragenplaetze enthalten.
@@ -323,11 +323,11 @@ export const audienceConfigSchema = z.object({
    * Werbetext und keine Regel - fehlen sie, steht die Tafel eben ohne sie da.
    */
   startDescription: z.string().min(1).optional(),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
   /** Startbild-Titel je Sprache. */
-  startTitles: uebersetzteBeschriftung.optional(),
+  startTitles: translatedLabels.optional(),
   /** Startbild-Beschreibung je Sprache. */
-  startDescriptions: uebersetzteBeschriftung.optional(),
+  startDescriptions: translatedLabels.optional(),
   allowedPresetIds: z.array(idSchema).min(1),
 })
 export type AudienceConfig = z.infer<typeof audienceConfigSchema>
@@ -336,7 +336,7 @@ export type AudienceConfig = z.infer<typeof audienceConfigSchema>
 export const questionPoolSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
 })
 export type QuestionPool = z.infer<typeof questionPoolSchema>
 
@@ -363,10 +363,10 @@ export type QuestionPool = z.infer<typeof questionPoolSchema>
 export const quizModeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
   /** Zweite Zeile der Angebotskarte - worum es in diesem Quiz geht. */
   subtitle: z.string().min(1).optional(),
-  subtitles: uebersetzteBeschriftung.optional(),
+  subtitles: translatedLabels.optional(),
   /** Zielgruppe, in der dieses Quiz spielt. */
   audienceId: idSchema,
   /** Gestaltungswelt dieses Quiz. Muss es in `themes` geben. */
@@ -410,12 +410,12 @@ export function defaultPresetIdOf(quiz: Pick<QuizMode, 'presetIds' | 'defaultPre
 export const categorySchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
 })
 export const difficultySchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
 })
 export type Category = z.infer<typeof categorySchema>
 export type Difficulty = z.infer<typeof difficultySchema>
@@ -527,3 +527,7 @@ export const questionPatchSchema = z.object({
   applyMode: z.enum(['next-use', 'immediate-confirmed']),
 })
 export type QuestionPatch = z.infer<typeof questionPatchSchema>
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `translatedLabels`. */
+export const uebersetzteBeschriftung = translatedLabels

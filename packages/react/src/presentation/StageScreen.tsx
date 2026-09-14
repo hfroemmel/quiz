@@ -92,7 +92,7 @@ export function StageScreen({
    * Der Bildgrund erscheint erst, wenn das Bild fertig ist - siehe
    * `useDecodedImage`. Bis dahin steht die Szene auf dem Verlauf der Buehne.
    */
-  const grundbild = useDecodedImage(view.question?.imageUrl)
+  const baseImage = useDecodedImage(view.question?.imageUrl)
   const sceneProps: SceneProps = { view, reveal, serverNow, variant, ...(answering ? { answering } : {}) }
 
   // Klaenge, die innerhalb einer Szene entstehen - siehe `useStageSounds`.
@@ -214,8 +214,8 @@ export function StageScreen({
             className={stage.backdrop}
             data-backdrop=""
             data-veiled={String(isRevealing(view))}
-            data-ready={String(grundbild === view.question.imageUrl)}
-            {...(grundbild ? { style: { backgroundImage: cssUrl(grundbild) } } : {})}
+            data-ready={String(baseImage === view.question.imageUrl)}
+            {...(baseImage ? { style: { backgroundImage: cssUrl(baseImage) } } : {})}
             aria-hidden="true"
           />
         )}

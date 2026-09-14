@@ -26,7 +26,7 @@
  */
 import { useState } from 'react'
 import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
-import { texteFuer } from '@hfroemmel/quiz-react'
+import { textsFor } from '@hfroemmel/quiz-react'
 import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon } from './icons'
 import styles from './Game.module.css'
 
@@ -72,12 +72,12 @@ export function GameStart({
   onOpenSettings,
   onSelectLocale,
 }: GameStartProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
   const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
-  const angeboten = playerCounts && playerCounts.length > 0 ? playerCounts : alleSpielerzahlen
-  const [playerCount, setPlayerCount] = useState<PlayerCount>(angeboten[0] ?? 1)
+  const offered = playerCounts && playerCounts.length > 0 ? playerCounts : alleSpielerzahlen
+  const [playerCount, setPlayerCount] = useState<PlayerCount>(offered[0] ?? 1)
   const [presetId, setPresetId] = useState(presets[0]?.id ?? '')
 
   const canStart = view.allowedCommands.includes('START_GAME') && presetId !== ''
@@ -85,7 +85,7 @@ export function GameStart({
    * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl - dort gibt
    * es nichts zu waehlen.
    */
-  const zeigeModus = angeboten.length > 1
+  const showMode = offered.length > 1
 
   return (
     <div className={styles.start} data-game-start="">
@@ -108,16 +108,16 @@ export function GameStart({
           */}
         {view.catalog.locales.length > 1 && (
           <div className={styles.languages} data-languages="">
-            {view.catalog.locales.map((sprache) => (
+            {view.catalog.locales.map((locale) => (
               <button
-                key={sprache.id}
+                key={locale.id}
                 type="button"
-                className={`${styles.language} ${sprache.id === view.locale ? styles.languageOn : ''}`}
-                data-locale={sprache.id}
-                aria-pressed={sprache.id === view.locale}
-                onClick={() => onSelectLocale(sprache.id)}
+                className={`${styles.language} ${locale.id === view.locale ? styles.languageOn : ''}`}
+                data-locale={locale.id}
+                aria-pressed={locale.id === view.locale}
+                onClick={() => onSelectLocale(locale.id)}
               >
-                {sprache.label}
+                {locale.label}
               </button>
             ))}
           </div>
@@ -159,10 +159,10 @@ export function GameStart({
           <h2 className={styles.setupTitle}>{t('kiosk.setupTitle')}</h2>
           <p className={styles.setupSubtitle}>{t('kiosk.setupSubtitle')}</p>
 
-          {zeigeModus && (
+          {showMode && (
             <section className={styles.step}>
               <div className={styles.modes}>
-                {angeboten.map((count) => (
+                {offered.map((count) => (
                   <button
                     key={count}
                     type="button"
@@ -178,7 +178,7 @@ export function GameStart({
                       <span className={styles.cardTitle}>{t(count === 1 ? 'kiosk.solo' : 'kiosk.duo')}</span>
                       <span className={styles.cardMeta}>{t(count === 1 ? 'kiosk.soloHint' : 'kiosk.duoHint')}</span>
                     </span>
-                    <Haken aktiv={playerCount === count} />
+                    <Check activeEntry={playerCount === count} />
                   </button>
                 ))}
               </div>
@@ -207,7 +207,7 @@ export function GameStart({
                     <span className={styles.cardTitle}>{preset.label}</span>
                     <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
                   </span>
-                  <Haken aktiv={presetId === preset.id} />
+                  <Check activeEntry={presetId === preset.id} />
                 </button>
               ))}
             </div>
@@ -245,10 +245,10 @@ export function GameStart({
  * gleich gross, statt beim Antippen um die Breite eines Zeichens zu springen,
  * und zwar genau unter dem Finger, der es angetippt hat.
  */
-function Haken({ aktiv }: { aktiv: boolean }) {
+function Check({ activeEntry }: { activeEntry: boolean }) {
   return (
-    <span className={styles.check} data-on={String(aktiv)} aria-hidden="true">
-      {aktiv && <CheckIcon />}
+    <span className={styles.check} data-on={String(activeEntry)} aria-hidden="true">
+      {activeEntry && <CheckIcon />}
     </span>
   )
 }

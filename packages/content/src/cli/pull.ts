@@ -49,31 +49,31 @@ if (!existsSync(lockPath)) {
 }
 
 const lock = lockSchema.parse(JSON.parse(readFileSync(lockPath, 'utf8')))
-const archiv = `content-${lock.profile}.tar.zst`
-const ziel = resolve(join(process.cwd(), lock.target))
-const ablage = mkdtempSync(join(tmpdir(), 'quiz-content-'))
+const archive = `content-${lock.profile}.tar.zst`
+const target = resolve(join(process.cwd(), lock.target))
+const storage = mkdtempSync(join(tmpdir(), 'quiz-content-'))
 
 try {
-  console.log(`Lade ${archiv} aus ${lock.repository}@${lock.tag} ...`)
-  execFileSync('gh', ['release', 'download', lock.tag, '--repo', lock.repository, '--pattern', archiv, '--dir', ablage], {
+  console.log(`Lade ${archive} aus ${lock.repository}@${lock.tag} ...`)
+  execFileSync('gh', ['release', 'download', lock.tag, '--repo', lock.repository, '--pattern', archive, '--dir', storage], {
     stdio: 'inherit',
   })
 
-  const datei = join(ablage, archiv)
-  const gefunden = `sha256:${createHash('sha256').update(readFileSync(datei)).digest('hex')}`
-  if (gefunden !== lock.checksum) {
+  const file = join(storage, archive)
+  const found = `sha256:${createHash('sha256').update(readFileSync(file)).digest('hex')}`
+  if (found !== lock.checksum) {
     console.error('Pruefsumme stimmt nicht - das Archiv wird NICHT entpackt.')
     console.error(`  erwartet: ${lock.checksum}`)
-    console.error(`  gefunden: ${gefunden}`)
+    console.error(`  gefunden: ${found}`)
     process.exit(1)
   }
 
   // Erst nach bestandener Pruefung wird das alte Paket ersetzt.
-  rmSync(ziel, { recursive: true, force: true })
-  mkdirSync(ziel, { recursive: true })
-  execFileSync('tar', ['--zstd', '-xf', datei, '-C', ziel], { stdio: 'inherit' })
+  rmSync(target, { recursive: true, force: true })
+  mkdirSync(target, { recursive: true })
+  execFileSync('tar', ['--zstd', '-xf', file, '-C', target], { stdio: 'inherit' })
 
-  console.log(`Quizpaket entpackt nach ${ziel} (Profil ${lock.profile}, ${lock.tag}).`)
+  console.log(`Quizpaket entpackt nach ${target} (Profil ${lock.profile}, ${lock.tag}).`)
 } finally {
-  rmSync(ablage, { recursive: true, force: true })
+  rmSync(storage, { recursive: true, force: true })
 }

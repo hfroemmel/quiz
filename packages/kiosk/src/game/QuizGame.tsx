@@ -17,7 +17,7 @@ import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
 import {
   QuizScene,
   releaseAudio,
-  texteFuer,
+  textsFor,
   useAudioUnlock,
   useQuizRuntime,
   useQuizSnapshot,
@@ -27,7 +27,7 @@ import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
 import { GameSettings } from './GameSettings'
 import { PlayerFoot } from './PlayerFoot'
-import { klemmeZoom } from './zoom'
+import { clampZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
 import { useHostVisible } from './useHostVisible'
 import { useIdleWatch } from './useIdleWatch'
@@ -119,9 +119,9 @@ export function QuizGame({
   runtime: hostRuntime,
   audience,
   playerCounts,
-  soundEnabled: soundVorgabe,
-  zoom: zoomVorgabe,
-  locale: spracheVorgabe,
+  soundEnabled: soundDefault,
+  zoom: zoomDefault,
+  locale: localeDefault,
   onFinished,
   onExit,
   idleTimeoutMs,
@@ -138,7 +138,7 @@ export function QuizGame({
   const clearRejection = useCallback(() => runtime?.clearRejection(), [runtime])
   const notifyAudioReady = useCallback(() => runtime?.notifyAudioReady(), [runtime])
   const hostVisible = useHostVisible()
-  const t = texteFuer(snapshot?.view ?? null)
+  const t = textsFor(snapshot?.view ?? null)
 
   useAudioUnlock(notifyAudioReady)
   /*
@@ -175,7 +175,7 @@ export function QuizGame({
    * Groesse dieser Ansicht - sie ist reine Darstellung und hat im Spielstand
    * nichts verloren. Beide beginnen bei der Vorgabe aus dem Config File.
    */
-  const [zoom, setZoom] = useState(() => klemmeZoom(zoomVorgabe))
+  const [zoom, setZoom] = useState(() => clampZoom(zoomDefault))
   const [settingsOpen, setSettingsOpen] = useState(false)
   /*
    * EINSTELLUNGEN GIBT ES NUR AM EIGENEN GERAET.
@@ -185,7 +185,7 @@ export function QuizGame({
    * Quiz dagegen an einem Server, gehoert der Ton der Vorstellung - dann duerfte
    * ein Besucher am Touchtisch im Foyer den Saal stummschalten.
    */
-  const eigenesGeraet = Boolean(hostRuntime)
+  const ownDevice = Boolean(hostRuntime)
   /** Der Beenden-Knopf hat gefragt und wartet auf die Antwort. */
   const [askExit, setAskExit] = useState(false)
 
@@ -194,29 +194,29 @@ export function QuizGame({
    * Danach gehoert der Schalter dem, der vor dem Geraet steht, bis zum
    * naechsten Start.
    */
-  const soundGesetztRef = useRef(false)
+  const soundSetRef = useRef(false)
   useEffect(() => {
-    if (soundVorgabe === undefined || soundGesetztRef.current) return
-    const stand = snapshot?.view
-    if (!stand) return
-    soundGesetztRef.current = true
-    if (stand.soundEnabled !== soundVorgabe) send({ type: 'SET_SOUND_ENABLED', enabled: soundVorgabe })
-  }, [soundVorgabe, snapshot, send])
+    if (soundDefault === undefined || soundSetRef.current) return
+    const state = snapshot?.view
+    if (!state) return
+    soundSetRef.current = true
+    if (state.soundEnabled !== soundDefault) send({ type: 'SET_SOUND_ENABLED', enabled: soundDefault })
+  }, [soundDefault, snapshot, send])
 
   // Eine geaenderte Vorgabe des Gastgebers schlaegt auf die Anzeige durch.
   useEffect(() => {
-    setZoom(klemmeZoom(zoomVorgabe))
-  }, [zoomVorgabe])
+    setZoom(clampZoom(zoomDefault))
+  }, [zoomDefault])
 
   // Dieselbe Regel fuer die Sprache: einmal je Start, dann gehoert sie dem Geraet.
-  const spracheGesetztRef = useRef(false)
+  const localeSetRef = useRef(false)
   useEffect(() => {
-    if (spracheVorgabe === undefined || spracheGesetztRef.current) return
-    const stand = snapshot?.view
-    if (!stand) return
-    spracheGesetztRef.current = true
-    if (stand.locale !== spracheVorgabe) send({ type: 'SET_LOCALE', locale: spracheVorgabe })
-  }, [spracheVorgabe, snapshot, send])
+    if (localeDefault === undefined || localeSetRef.current) return
+    const state = snapshot?.view
+    if (!state) return
+    localeSetRef.current = true
+    if (state.locale !== localeDefault) send({ type: 'SET_LOCALE', locale: localeDefault })
+  }, [localeDefault, snapshot, send])
 
   /*
    * Beim Einsetzen der Komponente kann auf dem Server noch das Ergebnis einer
@@ -325,7 +325,7 @@ export function QuizGame({
    * Komponente, damit sie beim Wechsel zwischen Auswahl und Spiel nicht
    * kurzzeitig verschwindet.
    */
-  const flaeche = { '--stage-zoom': zoom } as CSSProperties
+  const area = { '--stage-zoom': zoom } as CSSProperties
 
   /*
    * GESTALTUNGSWELT AUCH AUSSERHALB DER BUEHNE.
@@ -363,9 +363,9 @@ export function QuizGame({
    * mit und meldet sich hier als eigene Welt.
    */
   const [stageTheme] = useStageTheme()
-  const fassung = skin === 'kids' ? 'kids' : stageTheme
+  const variant = skin === 'kids' ? 'kids' : stageTheme
 
-  const settings = settingsOpen && eigenesGeraet && (
+  const settings = settingsOpen && ownDevice && (
     <GameSettings
       view={view}
       soundEnabled={view.soundEnabled}
@@ -380,10 +380,10 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.startScreen}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
+        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
         data-quiz-game=""
         data-skin={skin}
-        data-theme={fassung}
+        data-theme={variant}
       >
         <GameStart
           view={view}
@@ -392,7 +392,7 @@ export function QuizGame({
           onStart={start}
           onExit={onExit}
           onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
-          {...(eigenesGeraet ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
+          {...(ownDevice ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
         />
         {settings}
       </div>
@@ -403,10 +403,10 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.waiting}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
+        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
         data-quiz-game=""
         data-skin={skin}
-        data-theme={fassung}
+        data-theme={variant}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -449,9 +449,9 @@ export function QuizGame({
 
 
   return (
-    <div className={styles.game} style={flaeche} data-quiz-game=""
+    <div className={styles.game} style={area} data-quiz-game=""
       data-skin={skin}
-      data-theme={fassung}
+      data-theme={variant}
       onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 

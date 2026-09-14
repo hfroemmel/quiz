@@ -646,7 +646,7 @@ describe('Selbstbedienung', () => {
    * Antwort einloggen, Antwort abgeben. Es ist dieselbe Befehlsfolge wie am
    * Operatorpult - genau das ist der Punkt des Umbaus.
    */
-  const antworte = (harness: Harness, playerId: 'player-1' | 'player-2', optionId: string) => {
+  const answerWith = (harness: Harness, playerId: 'player-1' | 'player-2', optionId: string) => {
     harness.dispatch({ type: 'BUZZ', playerId })
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId })
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
@@ -666,12 +666,12 @@ describe('Selbstbedienung', () => {
      * spielbar - die muendlich zu beantwortende waere es nicht, sie wird dort
      * uebersprungen (eigener Test weiter unten).
      */
-    const tippbaresBild = makeQuestion({
+    const tappableImage = makeQuestion({
       id: 'bild-mit-optionen',
       questionType: 'image-reveal',
       media: { imageAssetId: 'img-1' },
     })
-    const harness = createHarness([tippbaresBild, ...sevenNormal().slice(1)])
+    const harness = createHarness([tappableImage, ...sevenNormal().slice(1)])
     startGame(harness, selfService)
 
     expect(harness.state!.phase).toBe('reveal-running')
@@ -733,7 +733,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    antworte(harness, 'player-1', 'b')
+    answerWith(harness, 'player-1', 'b')
     harness.advance(gameTiming.incorrectFeedbackMs)
     expect(harness.state!.phase).toBe('second-chance')
 
@@ -751,7 +751,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    antworte(harness, 'player-1', 'b')
+    answerWith(harness, 'player-1', 'b')
     harness.advance(gameTiming.incorrectFeedbackMs)
     expect(harness.state!.phase).toBe('second-chance')
 
@@ -778,7 +778,7 @@ describe('Selbstbedienung', () => {
   it('bleibt auf der Loesung stehen, bis ein Spieler weitergeht', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
-    antworte(harness, 'player-1', 'a')
+    answerWith(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     expect(harness.state!.phase).toBe('solution')
     expect(harness.state!.currentSlotIndex).toBe(0)
@@ -805,7 +805,7 @@ describe('Selbstbedienung', () => {
     startGame(harness, selfService)
 
     for (let question = 0; question < 2; question += 1) {
-      antworte(harness, 'player-1', 'a')
+      answerWith(harness, 'player-1', 'a')
       harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
       // `Weiter` kommt vom Spieler selbst, nicht vom Operator.
       harness.dispatch({ type: 'CONTINUE' })
@@ -821,24 +821,24 @@ describe('Selbstbedienung', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    const offen = availableCommands(harness.state)
-    expect(offen).toContain('BUZZ')
+    const open = availableCommands(harness.state)
+    expect(open).toContain('BUZZ')
     // Einloggen und Abgeben gibt es erst, wenn ein Versuch offen ist.
-    expect(offen).not.toContain('LOG_OPTION_ANSWER')
-    expect(offen).not.toContain('RESOLVE_ATTEMPT')
-    expect(offen).not.toContain('OPEN_BUZZER')
-    expect(offen).not.toContain('SELECT_PLAYER_MANUALLY')
-    expect(offen).not.toContain('ADJUST_SCORE')
+    expect(open).not.toContain('LOG_OPTION_ANSWER')
+    expect(open).not.toContain('RESOLVE_ATTEMPT')
+    expect(open).not.toContain('OPEN_BUZZER')
+    expect(open).not.toContain('SELECT_PLAYER_MANUALLY')
+    expect(open).not.toContain('ADJUST_SCORE')
     // `CONTINUE` gibt es hier auch nicht - es gehoert allein der Loesung.
-    expect(offen).not.toContain('CONTINUE')
+    expect(open).not.toContain('CONTINUE')
 
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
-    const gesperrt = availableCommands(harness.state)
-    expect(gesperrt).toContain('LOG_OPTION_ANSWER')
-    expect(gesperrt).toContain('RESOLVE_ATTEMPT')
-    expect(gesperrt).not.toContain('BUZZ')
-    expect(gesperrt).not.toContain('RESET_BUZZER')
-    expect(gesperrt).not.toContain('SKIP_QUESTION')
+    const blocked = availableCommands(harness.state)
+    expect(blocked).toContain('LOG_OPTION_ANSWER')
+    expect(blocked).toContain('RESOLVE_ATTEMPT')
+    expect(blocked).not.toContain('BUZZ')
+    expect(blocked).not.toContain('RESET_BUZZER')
+    expect(blocked).not.toContain('SKIP_QUESTION')
   })
 
   it('ueberspringt Fragen, die ein Mensch bewerten muesste, und protokolliert das', () => {
@@ -854,7 +854,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich'), normalQuestion('q3')])
     startGame(harness, selfService)
 
-    antworte(harness, 'player-1', 'a')
+    answerWith(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     harness.dispatch({ type: 'CONTINUE' })
     harness.advance(gameTiming.pauseScreenMs)
@@ -867,7 +867,7 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich')])
     startGame(harness, { ...selfService, playerCount: 1 })
 
-    antworte(harness, 'player-1', 'a')
+    answerWith(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     harness.dispatch({ type: 'CONTINUE' })
 
@@ -926,10 +926,10 @@ describe('Selbstbedienung', () => {
 
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
-    const auftrag = harness.state!.video!
-    expect(auftrag.questionId).toBe('video-1')
-    expect(auftrag.requestId).toBeTruthy()
-    expect(auftrag.requestedAt).toBeTruthy()
+    const task = harness.state!.video!
+    expect(task.questionId).toBe('video-1')
+    expect(task.requestId).toBeTruthy()
+    expect(task.requestedAt).toBeTruthy()
     /*
      * KEIN GEPLANTES ENDE. Der Server kennt die Laufzeit nicht und bildet sie
      * auch nicht nach - das Videoende ist kein serverseitiger Uebergang.
@@ -940,7 +940,7 @@ describe('Selbstbedienung', () => {
     // Auch nach beliebig langer Zeit bleibt alles, wie es ist.
     harness.advance(10 * 60_000)
     expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.video).toEqual(auftrag)
+    expect(harness.state!.video).toEqual(task)
   })
 
   it('erzeugt bei jedem Klick einen neuen Auftrag', () => {
@@ -948,12 +948,12 @@ describe('Selbstbedienung', () => {
     startGame(harness)
 
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-    const erster = harness.state!.video!.requestId
+    const firstOne = harness.state!.video!.requestId
     harness.advance(3_000)
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
     // Eine neue Kennung ist die ganze Nachricht: die Buehne spielt wieder von vorn.
-    expect(harness.state!.video!.requestId).not.toBe(erster)
+    expect(harness.state!.video!.requestId).not.toBe(firstOne)
     expect(harness.state!.video!.questionId).toBe('video-1')
   })
 
@@ -961,14 +961,14 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
-    const abgelehnt = harness.expectReject({ type: 'START_VIDEO', questionId: 'video-von-gestern' })
-    expect(abgelehnt.reason).toBe('video-question-mismatch')
+    const rejectedCount = harness.expectReject({ type: 'START_VIDEO', questionId: 'video-von-gestern' })
+    expect(rejectedCount.reason).toBe('video-question-mismatch')
     expect(harness.state!.video).toBeUndefined()
   })
 
   it('weist einen Klick ab, wenn zu der Frage kein Video hinterlegt ist', () => {
-    const ohneDatei = { ...videoQuestion('video-1'), media: undefined }
-    const harness = createHarness([ohneDatei, ...sevenNormal().slice(1)])
+    const withoutFile = { ...videoQuestion('video-1'), media: undefined }
+    const harness = createHarness([withoutFile, ...sevenNormal().slice(1)])
     startGame(harness)
 
     expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe(
@@ -988,16 +988,16 @@ describe('Selbstbedienung', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
-    const erlaubt = harness.operatorView().allowedCommands
-    expect(erlaubt).toEqual(expect.arrayContaining(['START_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
+    const allowed = harness.operatorView().allowedCommands
+    expect(allowed).toEqual(expect.arrayContaining(['START_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
     /*
      * Was es nicht mehr gibt: Pausieren, Neustarten und die Statusmeldung des
      * Clients. Ein Knopf dafuer waere ein Knopf fuer einen Zustand, den niemand
      * mehr fuehrt.
      */
-    expect(erlaubt).not.toContain('PAUSE_VIDEO')
-    expect(erlaubt).not.toContain('RESTART_VIDEO')
-    expect(erlaubt).not.toContain('REPORT_VIDEO_STATUS')
+    expect(allowed).not.toContain('PAUSE_VIDEO')
+    expect(allowed).not.toContain('RESTART_VIDEO')
+    expect(allowed).not.toContain('REPORT_VIDEO_STATUS')
 
     // Und der Startknopf bleibt die ganze Phase ueber da, auch nach einem Klick.
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
@@ -1024,10 +1024,10 @@ describe('Selbstbedienung', () => {
     startGame(harness)
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
-    const auftrag = harness.state!.video!
+    const task = harness.state!.video!
     for (const view of [harness.publicView(), harness.operatorView()]) {
       // Kennung und Frage - und nichts ueber die Wiedergabe.
-      expect(view.video).toEqual({ questionId: 'video-1', requestId: auftrag.requestId })
+      expect(view.video).toEqual({ questionId: 'video-1', requestId: task.requestId })
     }
   })
 })
@@ -1053,7 +1053,7 @@ describe('Rollenrechte', () => {
    * versehentliche Erweiterung der Tabelle nicht zu bemerken.
    */
   it('laesst dem Operator, was ihm gehoert', () => {
-    for (const befehl of [
+    for (const command of [
       'ADJUST_SCORE',
       'ABORT_GAME',
       'SKIP_QUESTION',
@@ -1061,7 +1061,7 @@ describe('Rollenrechte', () => {
       'RESET_BUZZER',
       'START_GAME',
     ] as const) {
-      expect(roleMayIssue('moderator', befehl), befehl).toBe(false)
+      expect(roleMayIssue('moderator', command), command).toBe(false)
     }
   })
 

@@ -13,6 +13,6 @@
  * Doppelte Anfuehrungszeichen sind die richtige Wahl: Der Bundler ersetzt sie
  * im eingebetteten SVG durch einfache, damit der Wert genau so verwendbar ist.
  */
-export function cssUrl(adresse: string): string {
-  return `url("${adresse.replace(/"/g, '%22')}")`
+export function cssUrl(address: string): string {
+  return `url("${address.replace(/"/g, '%22')}")`
 }

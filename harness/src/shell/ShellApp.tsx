@@ -21,7 +21,7 @@
  */
 import { useState, type ReactNode } from 'react'
 import { QuizGame, type QuizGameResult } from '@hfroemmel/quiz-kiosk'
-import { useLokaleLaufzeit } from '../useLokaleLaufzeit'
+import { useLocalRuntime } from '../useLocalRuntime'
 import styles from './ShellApp.module.css'
 
 /**
@@ -34,7 +34,7 @@ import styles from './ShellApp.module.css'
  * Containereinheiten und deren Zoomstufe. Ihr Knopf traegt `stage-button` und
  * sieht deshalb aus wie `Weiter` in der Fussleiste.
  */
-function Gastgeberebene({ onClose }: { onClose: () => void }) {
+function HostLayer({ onClose }: { onClose: () => void }) {
   return (
     <div className={styles.layer} data-shell-layer="">
       <div className={styles.layerPanel}>
@@ -53,7 +53,7 @@ function Gastgeberebene({ onClose }: { onClose: () => void }) {
 }
 
 /** Traegt die Laufzeit - und gibt sie beim Entfernen wieder her. */
-function Spiel({
+function Game({
   overlay,
   onFinished,
   onExit,
@@ -62,9 +62,9 @@ function Spiel({
   onFinished: (result: QuizGameResult) => void
   onExit: () => void
 }) {
-  const { runtime, fehler } = useLokaleLaufzeit()
+  const { runtime, errors } = useLocalRuntime()
 
-  if (fehler) return <p className={styles.result}>Das Quiz konnte nicht geladen werden: {fehler}</p>
+  if (errors) return <p className={styles.result}>Das Quiz konnte nicht geladen werden: {errors}</p>
   if (!runtime) return <p className={styles.result}>Das Quiz wird vorbereitet...</p>
   return (
     <QuizGame
@@ -118,8 +118,8 @@ export function ShellApp() {
             * Absicht: Er macht sichtbar, dass die Komponente sich an ihre Flaeche
             * haelt.
             */}
-          <Spiel
-            {...(layer ? { overlay: <Gastgeberebene onClose={() => setLayer(false)} /> } : {})}
+          <Game
+            {...(layer ? { overlay: <HostLayer onClose={() => setLayer(false)} /> } : {})}
             onFinished={(result) => {
               setLastResult(result)
               setRounds((value) => value + 1)

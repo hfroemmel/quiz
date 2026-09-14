@@ -13,7 +13,7 @@
 import type { Question, QuestionTranslation, QuizConfig } from './content'
 
 /** Die Grundsprache: die erste konfigurierte, sonst Deutsch. */
-export function grundsprache(config: Pick<QuizConfig, 'locales'>): string {
+export function baseLocale(config: Pick<QuizConfig, 'locales'>): string {
   return config.locales?.[0]?.id ?? 'de-DE'
 }
 
@@ -24,18 +24,18 @@ export function grundsprache(config: Pick<QuizConfig, 'locales'>): string {
  * auf die Grundsprache zurueckgeholt: Er kommt aus einem Config File oder einer
  * Adresszeile, und ein Tippfehler dort darf kein Geraet lahmlegen.
  */
-export function gueltigeSprache(config: Pick<QuizConfig, 'locales'>, gewuenscht: string | undefined): string {
-  if (!gewuenscht) return grundsprache(config)
-  const bekannt = config.locales?.some((sprache) => sprache.id === gewuenscht)
-  return bekannt ? gewuenscht : grundsprache(config)
+export function validLocale(config: Pick<QuizConfig, 'locales'>, desired: string | undefined): string {
+  if (!desired) return baseLocale(config)
+  const known = config.locales?.some((locale) => locale.id === desired)
+  return known ? desired : baseLocale(config)
 }
 
 /** Beschriftung in der gewuenschten Sprache - oder die des Originals. */
-export function beschriftung(
-  eintrag: { label: string; labels?: Record<string, string> },
+export function labelFor(
+  entry: { label: string; labels?: Record<string, string> },
   locale: string | undefined,
 ): string {
-  return (locale ? eintrag.labels?.[locale] : undefined) ?? eintrag.label
+  return (locale ? entry.labels?.[locale] : undefined) ?? entry.label
 }
 
 /**
@@ -44,11 +44,11 @@ export function beschriftung(
  * Getrennt von `beschriftung`, weil es ihn geben darf oder nicht: Eine Karte
  * ohne zweite Zeile ist kein Fehler, eine ohne Namen schon.
  */
-export function untertitel(
-  eintrag: { subtitle?: string; subtitles?: Record<string, string> },
+export function subtitleFor(
+  entry: { subtitle?: string; subtitles?: Record<string, string> },
   locale: string | undefined,
 ): string | undefined {
-  return (locale ? eintrag.subtitles?.[locale] : undefined) ?? eintrag.subtitle
+  return (locale ? entry.subtitles?.[locale] : undefined) ?? entry.subtitle
 }
 
 /**
@@ -63,22 +63,22 @@ export function untertitel(
  * Uebersetzung, die eine Option vergisst, wuerde sonst die Antwort verlieren,
  * gegen die verglichen wird.
  */
-export function fragenTextFuer(question: Question, locale: string | undefined): Question {
-  const uebersetzung: QuestionTranslation | undefined = locale ? question.translations?.[locale] : undefined
-  if (!uebersetzung) return question
+export function questionTextFor(question: Question, locale: string | undefined): Question {
+  const translation: QuestionTranslation | undefined = locale ? question.translations?.[locale] : undefined
+  if (!translation) return question
 
-  const optionen = question.options?.map((option) => {
-    const ersatz = uebersetzung.options?.find((eintrag) => eintrag.id === option.id)
-    return ersatz ? { ...option, text: ersatz.text } : option
+  const options = question.options?.map((option) => {
+    const fallback = translation.options?.find((entry) => entry.id === option.id)
+    return fallback ? { ...option, text: fallback.text } : option
   })
 
   return {
     ...question,
-    prompt: uebersetzung.prompt ?? question.prompt,
-    ...(optionen ? { options: optionen } : {}),
-    ...(uebersetzung.acceptedAnswerText ? { acceptedAnswerText: uebersetzung.acceptedAnswerText } : {}),
-    ...(uebersetzung.explanation ? { explanation: { ...question.explanation, ...uebersetzung.explanation } } : {}),
-    ...(uebersetzung.media ? { media: { ...question.media, ...uebersetzung.media } } : {}),
+    prompt: translation.prompt ?? question.prompt,
+    ...(options ? { options: options } : {}),
+    ...(translation.acceptedAnswerText ? { acceptedAnswerText: translation.acceptedAnswerText } : {}),
+    ...(translation.explanation ? { explanation: { ...question.explanation, ...translation.explanation } } : {}),
+    ...(translation.media ? { media: { ...question.media, ...translation.media } } : {}),
   }
 }
 
@@ -88,11 +88,25 @@ export function fragenTextFuer(question: Question, locale: string | undefined): 
  * Zusammengelegt aus Grundsprache und gewaehlter Sprache: Ein Eintrag, der nur
  * in der Grundsprache steht, bleibt lesbar, statt als Schluessel dazustehen.
  */
-export function oberflaechenTexte(
+export function interfaceTexts(
   config: Pick<QuizConfig, 'locales' | 'interfaceStrings'>,
   locale: string | undefined,
 ): Record<string, string> {
-  const grund = config.interfaceStrings?.[grundsprache(config)] ?? {}
-  const gewaehlt = locale ? (config.interfaceStrings?.[locale] ?? {}) : {}
-  return { ...grund, ...gewaehlt }
+  const reason = config.interfaceStrings?.[baseLocale(config)] ?? {}
+  const chosen = locale ? (config.interfaceStrings?.[locale] ?? {}) : {}
+  return { ...reason, ...chosen }
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `baseLocale`. */
+export const grundsprache = baseLocale
+/** @deprecated Renamed to `validLocale`. */
+export const gueltigeSprache = validLocale
+/** @deprecated Renamed to `labelFor`. */
+export const beschriftung = labelFor
+/** @deprecated Renamed to `subtitleFor`. */
+export const untertitel = subtitleFor
+/** @deprecated Renamed to `questionTextFor`. */
+export const fragenTextFuer = questionTextFor
+/** @deprecated Renamed to `interfaceTexts`. */
+export const oberflaechenTexte = interfaceTexts

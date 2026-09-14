@@ -1622,12 +1622,12 @@ class Draft {
     nextPhase: GamePhase,
     durationMs: number,
     transitionId: string,
-    optionen: { still?: boolean } = {},
+    options: { still?: boolean } = {},
   ): void {
     this.mutate((draft) => {
       const id = `${transitionId}:${this.ctx.newId('transition')}`
       draft.pendingTransition = { nextPhase, endsAtMs: this.ctx.nowMs + durationMs, transitionId: id }
-      if (!optionen.still) {
+      if (!options.still) {
         draft.lastTransition = { transitionId: id, startedAtServerMs: this.ctx.nowMs, durationMs }
       }
     })

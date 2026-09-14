@@ -164,47 +164,47 @@ describe('LocalQuizRuntime', () => {
      */
     const { runtime, clock } = createRuntime()
     const service = runtime.service
-    let zaehler = 0
-    const alsOperator = (command: Command) =>
+    let counter = 0
+    const asOperator = (command: Command) =>
       service.dispatch({
-        commandId: `video-${zaehler++}`,
+        commandId: `video-${counter++}`,
         command,
         actor: { clientId: 'test-operator', role: 'operator' },
         expectedRevision: service.currentRevision,
       })
 
-    expect(alsOperator({ type: 'START_GAME', audience: 'adults', presetId: 'easy', flowProfile: 'operated' }).ok).toBe(
+    expect(asOperator({ type: 'START_GAME', audience: 'adults', presetId: 'easy', flowProfile: 'operated' }).ok).toBe(
       true,
     )
 
     // Der Pausenscreen laeuft ab; danach steht die Videofrage.
-    const faellig = service.authoritativeState!.pendingTransition!
-    clock.nowMs = faellig.endsAtMs
+    const due = service.authoritativeState!.pendingTransition!
+    clock.nowMs = due.endsAtMs
     service.dispatch({
       commandId: 'video-pausenscreen',
-      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: faellig.transitionId },
+      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: due.transitionId },
       actor: { clientId: 'test-system', role: 'system' },
       expectedRevision: service.currentRevision,
     })
     expect(service.authoritativeState!.phase).toBe('video')
     expect(service.authoritativeState!.video).toBeUndefined()
 
-    const frageId = service.authoritativeState!.currentQuestion!.question.id
-    expect(alsOperator({ type: 'START_VIDEO', questionId: frageId }).ok).toBe(true)
+    const questionId = service.authoritativeState!.currentQuestion!.question.id
+    expect(asOperator({ type: 'START_VIDEO', questionId: questionId }).ok).toBe(true)
 
-    const auftrag = service.authoritativeState!.video!
-    expect(auftrag.questionId).toBe(frageId)
+    const task = service.authoritativeState!.video!
+    expect(task.questionId).toBe(questionId)
     expect(service.authoritativeState!.pendingTransition).toBeUndefined()
 
     // Der Schnappschuss traegt ihn an die Buehne - und nichts sonst ueber das Video.
     expect(service.snapshotFor('stage').video).toEqual({
-      questionId: frageId,
-      requestId: auftrag.requestId,
+      questionId: questionId,
+      requestId: task.requestId,
     })
 
     // Ein zweiter Klick ist ein neuer Auftrag, kein Sonderfall.
-    expect(alsOperator({ type: 'START_VIDEO', questionId: frageId }).ok).toBe(true)
-    expect(service.authoritativeState!.video!.requestId).not.toBe(auftrag.requestId)
+    expect(asOperator({ type: 'START_VIDEO', questionId: questionId }).ok).toBe(true)
+    expect(service.authoritativeState!.video!.requestId).not.toBe(task.requestId)
 
     // Und die Phase steht die ganze Zeit still: Der Server wartet auf niemanden.
     clock.nowMs += 10 * 60_000
@@ -222,22 +222,22 @@ describe('LocalQuizRuntime', () => {
     const { runtime, settle } = createRuntime()
 
     expect(runtime.getSnapshot().view!.locale).toBe('de-DE')
-    expect(runtime.getSnapshot().view!.catalog.locales.map((sprache) => sprache.id)).toEqual(['de-DE', 'en-GB'])
+    expect(runtime.getSnapshot().view!.catalog.locales.map((locale) => locale.id)).toEqual(['de-DE', 'en-GB'])
 
     runtime.dispatch({ type: 'SET_LOCALE', locale: 'en-GB' })
-    const vorDemSpiel = runtime.getSnapshot().view!
-    expect(vorDemSpiel.locale).toBe('en-GB')
+    const beforeGame = runtime.getSnapshot().view!
+    expect(beforeGame.locale).toBe('en-GB')
     // Auch die Beschriftungen des Katalogs und der Oberflaeche wechseln mit.
-    expect(vorDemSpiel.catalog.presets.map((preset) => preset.label)).toContain('Easy')
-    expect(vorDemSpiel.texts?.['kiosk.start']).toBe("Let's go")
+    expect(beforeGame.catalog.presets.map((preset) => preset.label)).toContain('Easy')
+    expect(beforeGame.texts?.['kiosk.start']).toBe("Let's go")
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
 
-    const imSpiel = runtime.getSnapshot().view!
-    expect(imSpiel.locale).toBe('en-GB')
-    expect(imSpiel.question!.prompt).toMatch(/^Test question /)
-    for (const option of imSpiel.visibleOptions ?? []) {
+    const inGame = runtime.getSnapshot().view!
+    expect(inGame.locale).toBe('en-GB')
+    expect(inGame.question!.prompt).toMatch(/^Test question /)
+    for (const option of inGame.visibleOptions ?? []) {
       expect(option.text).toMatch(/^(Correct|Wrong) answer /)
     }
     runtime.dispose()

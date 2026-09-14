@@ -14,12 +14,12 @@
  * Animation in der Punktekachel der Kopfzeile hoch (Designergaenzung).
  */
 import { AnimationClip } from '../../ui/AnimationClip'
-import { texteFuer } from '../texts'
+import { textsFor } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 export function FeedbackScene({ view }: SceneProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const feedback = view.feedback
   const correct = feedback?.outcome === 'correct'
 

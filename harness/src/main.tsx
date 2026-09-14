@@ -13,7 +13,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PreviewApp } from './preview/PreviewApp'
 import { ShellApp } from './shell/ShellApp'
-import { TouchGeraet } from './TouchGeraet'
+import { TouchDevice } from './TouchDevice'
 /*
  * Globale Stylesheets - bewusst KEINE Module.
  *
@@ -55,7 +55,7 @@ function App() {
       const audience = params.get('audience') ?? 'adults'
       const idleSeconds = Number(params.get('idle'))
       return (
-        <TouchGeraet
+        <TouchDevice
           audience={audience}
           {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
         />

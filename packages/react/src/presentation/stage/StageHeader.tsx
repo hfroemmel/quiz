@@ -23,7 +23,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel, PublicScore } from '@hfroemmel/quiz-core'
 import { cssUrl } from '../cssUrl'
-import { texteFuer } from '../texts'
+import { textsFor } from '../texts'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import { brandWordmarkUrl } from '../brandAssets'
@@ -60,7 +60,7 @@ export function StageHeader({
   // Die Startansicht hat weder Punktestand noch Zaehler - und keine Korrektur.
   if (view.scene === 'start') return null
 
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const showsScores = variant !== 'touch' && view.scene !== 'result' && view.playerScores.length > 0
   const showsCounter = showsScores && view.progress.total > 0
   const [playerOne, playerTwo] = view.playerScores

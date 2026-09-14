@@ -13,62 +13,62 @@
 
 export function parseCsv(text: string): string[][] {
   // Ein BOM aus Tabellenprogrammen gehoert nicht in die erste Spaltenueberschrift.
-  const roh = text.replace(/^﻿/, '')
+  const raw = text.replace(/^﻿/, '')
 
-  const zeilen: string[][] = []
-  let zelle = ''
-  let zeile: string[] = []
-  let inAnfuehrung = false
+  const rows: string[][] = []
+  let cell = ''
+  let row: string[] = []
+  let quoted = false
 
-  for (let i = 0; i < roh.length; i += 1) {
-    const zeichen = roh[i]!
+  for (let i = 0; i < raw.length; i += 1) {
+    const char = raw[i]!
 
-    if (inAnfuehrung) {
-      if (zeichen !== '"') {
-        zelle += zeichen
+    if (quoted) {
+      if (char !== '"') {
+        cell += char
         continue
       }
       // Verdoppeltes Anfuehrungszeichen steht fuer eines im Text.
-      if (roh[i + 1] === '"') {
-        zelle += '"'
+      if (raw[i + 1] === '"') {
+        cell += '"'
         i += 1
         continue
       }
-      inAnfuehrung = false
+      quoted = false
       continue
     }
 
-    if (zeichen === '"') {
-      inAnfuehrung = true
+    if (char === '"') {
+      quoted = true
       continue
     }
-    if (zeichen === ',') {
-      zeile.push(zelle)
-      zelle = ''
+    if (char === ',') {
+      row.push(cell)
+      cell = ''
       continue
     }
-    if (zeichen === '\r') continue
-    if (zeichen === '\n') {
-      zeile.push(zelle)
-      zeilen.push(zeile)
-      zelle = ''
-      zeile = []
+    if (char === '\r') continue
+    if (char === '\n') {
+      row.push(cell)
+      rows.push(row)
+      cell = ''
+      row = []
       continue
     }
-    zelle += zeichen
+    cell += char
   }
 
   // Die letzte Zeile endet oft ohne Umbruch.
-  if (zelle !== '' || zeile.length > 0) {
-    zeile.push(zelle)
-    zeilen.push(zeile)
+  if (cell !== '' || row.length > 0) {
+    row.push(cell)
+    rows.push(row)
   }
 
   /*
    * Leere Zeilen fliegen raus. Tabellen haben am Ende regelmaessig ein paar
    * davon, und aus ihnen entstuende sonst je eine Frage ohne Text.
    */
-  return zeilen.filter((eintrag) => eintrag.some((wert) => wert.trim() !== ''))
+  return rows.filter((entry) => entry.some((value) => value.trim() !== ''))
 }
 
 /**
@@ -77,17 +77,21 @@ export function parseCsv(text: string): string[][] {
  * Spaltennamen werden getrimmt; doppelte Namen gewinnt der erste - sonst
  * ueberschriebe eine zweite Spalte "Frage" still die erste.
  */
-export function csvZuZeilen(text: string): { spalten: string[]; zeilen: Record<string, string>[] } {
-  const tabelle = parseCsv(text)
-  const kopf = (tabelle[0] ?? []).map((name) => name.trim())
+export function csvToRows(text: string): { columns: string[]; rows: Record<string, string>[] } {
+  const sheet = parseCsv(text)
+  const head = (sheet[0] ?? []).map((name) => name.trim())
 
-  const zeilen = tabelle.slice(1).map((werte) => {
-    const zeile: Record<string, string> = {}
-    kopf.forEach((name, index) => {
-      if (name !== '' && !(name in zeile)) zeile[name] = (werte[index] ?? '').trim()
+  const rows = sheet.slice(1).map((values) => {
+    const row: Record<string, string> = {}
+    head.forEach((name, index) => {
+      if (name !== '' && !(name in row)) row[name] = (values[index] ?? '').trim()
     })
-    return zeile
+    return row
   })
 
-  return { spalten: kopf, zeilen }
+  return { columns: head, rows }
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `csvToRows`. */
+export const csvZuZeilen = csvToRows

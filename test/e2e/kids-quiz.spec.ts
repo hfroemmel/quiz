@@ -277,11 +277,11 @@ test.describe('Handschrift und Zeichnung', () => {
      * ein Stueck unterlaufen - der ausgestreckte Fluegel greift ueber ihr leeres
      * rechtes Ende, genau wie in der Referenz. Nur lesen muss man alles.
      */
-    const texte = await page.locator('[data-answer-text]').evaluateAll((nodes) =>
+    const texts = await page.locator('[data-answer-text]').evaluateAll((nodes) =>
       nodes.map((node) => node.getBoundingClientRect().right),
     )
-    expect(texte.length).toBeGreaterThan(0)
-    for (const rechts of texte) expect(rechts).toBeLessThanOrEqual(figure.x)
+    expect(texts.length).toBeGreaterThan(0)
+    for (const right of texts) expect(right).toBeLessThanOrEqual(figure.x)
 
     // Dekoration nimmt keine Klicks entgegen.
     for (const selector of ['[data-mascot]', '[data-peek]']) {

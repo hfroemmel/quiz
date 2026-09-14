@@ -10,7 +10,7 @@
  * Was es zum Pruefen, Bauen und Laden braucht, kommt aus diesem Paket - ein
  * einziges Werkzeug, dieselbe Verzeichniskonvention (`<cwd>/content/...`).
  */
-const befehle: Record<string, () => Promise<unknown>> = {
+const commands: Record<string, () => Promise<unknown>> = {
   validate: () => import('./validate'),
   build: () => import('./build'),
   pull: () => import('./pull'),
@@ -21,9 +21,9 @@ const befehle: Record<string, () => Promise<unknown>> = {
   'migrate-v2': () => import('./migrate-v2'),
 }
 
-const [befehl] = process.argv.slice(2)
+const [command] = process.argv.slice(2)
 
-if (!befehl || befehl === '--help' || befehl === '-h') {
+if (!command || command === '--help' || command === '-h') {
   console.log('quiz-content <befehl> [optionen]')
   console.log('')
   console.log('Befehle:')
@@ -38,17 +38,17 @@ if (!befehl || befehl === '--help' || befehl === '-h') {
   console.log('')
   console.log('Pfade folgen der Konvention <cwd>/content/{source,dist,reports};')
   console.log('--source, --out und --report weichen davon ab.')
-  process.exit(befehl ? 0 : 1)
+  process.exit(command ? 0 : 1)
 }
 
-const gewaehlt = befehle[befehl]
-if (!gewaehlt) {
-  console.error(`Unbekannter Befehl "${befehl}". "quiz-content --help" zeigt die Liste.`)
+const chosen = commands[command]
+if (!chosen) {
+  console.error(`Unbekannter Befehl "${command}". "quiz-content --help" zeigt die Liste.`)
   process.exit(1)
 }
 
 // Die Unterbefehle lesen `process.argv` selbst - ohne den Befehlsnamen davor.
 process.argv = [process.argv[0]!, process.argv[1]!, ...process.argv.slice(3)]
-await gewaehlt()
+await chosen()
 
 export {}

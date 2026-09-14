@@ -27,7 +27,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Command } from '@hfroemmel/quiz-core'
-import { texteFuer } from '../texts'
+import { textsFor } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
@@ -55,10 +55,10 @@ interface VideoSceneProps extends SceneProps {
  *
  * Ein Fenster zeigt eine Buehne, deshalb genuegt ein Wert.
  */
-let zuletztAusgefuehrt: string | null = null
+let lastExecuted: string | null = null
 
 export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: VideoSceneProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const elementRef = useRef<HTMLVideoElement | null>(null)
   const question = view.question
   const request = view.video
@@ -74,10 +74,10 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
    * (die Phase ist dann vorbei), aber ein Geraet, das dieselbe Bitte mehrfach
    * schickt, ist ein Geraet, das man nicht verstanden hat.
    */
-  const weitergegangenRef = useRef<string | null>(null)
-  const geheWeiter = useCallback(() => {
-    if (!advancesItself || !question || weitergegangenRef.current === question.id) return
-    weitergegangenRef.current = question.id
+  const advancedRef = useRef<string | null>(null)
+  const goOn = useCallback(() => {
+    if (!advancesItself || !question || advancedRef.current === question.id) return
+    advancedRef.current = question.id
     onCommand?.({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
   }, [advancesItself, question?.id, onCommand])
 
@@ -94,7 +94,7 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
   useEffect(() => setSoundRefused(false), [isAudioMaster])
   const muted = !isAudioMaster || soundRefused
 
-  const spiele = useCallback((element: HTMLVideoElement) => {
+  const games = useCallback((element: HTMLVideoElement) => {
     void element.play().catch((error: Error) => {
       if (error.name === 'NotAllowedError' && !element.muted) {
         console.warn('Video ohne Ton gestartet: Das Fenster erlaubt noch keine hörbare Wiedergabe.', error)
@@ -122,9 +122,9 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
      */
     if (!request || !question || request.questionId !== question.id) return
     // Frage UND Kennung: Zwei Fragen koennten sonst dieselbe Kennung tragen.
-    const auftrag = `${request.questionId}:${request.requestId}`
-    if (zuletztAusgefuehrt === auftrag) return
-    zuletztAusgefuehrt = auftrag
+    const task = `${request.questionId}:${request.requestId}`
+    if (lastExecuted === task) return
+    lastExecuted = task
 
     /*
      * Von vorn heisst von vorn: anhalten, zuruecksetzen, starten.
@@ -137,15 +137,15 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
      */
     element.pause()
     element.currentTime = 0
-    spiele(element)
+    games(element)
     if (element.readyState >= 2 /* HAVE_CURRENT_DATA */) return
 
-    const bereit = () => {
-      if (element.paused) spiele(element)
+    const ready = () => {
+      if (element.paused) games(element)
     }
-    element.addEventListener('canplay', bereit, { once: true })
-    return () => element.removeEventListener('canplay', bereit)
-  }, [request?.questionId, request?.requestId, question?.id, plays, spiele])
+    element.addEventListener('canplay', ready, { once: true })
+    return () => element.removeEventListener('canplay', ready)
+  }, [request?.questionId, request?.requestId, question?.id, plays, games])
 
   /*
    * FRAGENWECHSEL UND ABGANG HALTEN AN. Das Element gehoert der Szene: Bliebe es
@@ -168,8 +168,8 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
    */
   useEffect(() => {
     if (!question || question.videoUrl) return
-    geheWeiter()
-  }, [question?.id, question?.videoUrl, geheWeiter])
+    goOn()
+  }, [question?.id, question?.videoUrl, goOn])
 
   if (!question) return null
 
@@ -202,14 +202,14 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
                * weitergeht. Nur das Touchgeraet, das keinen Operator hat,
                * blendet danach selbst die Frage ein.
                */
-              onEnded={geheWeiter}
+              onEnded={goOn}
               /*
                * Und wenn die Datei gar nicht spielt, ist das am Geraet genau
                * dasselbe: weitergehen. Im Saal bleibt es folgenlos - dort
                * entscheidet der Operator, ob er es noch einmal versucht, die
                * Frage einblendet oder sie ueberspringt.
                */
-              onError={geheWeiter}
+              onError={goOn}
             />
           )}
           {!question.videoUrl && <p className={styles.videoMissing}>{t('video.missing')}</p>}

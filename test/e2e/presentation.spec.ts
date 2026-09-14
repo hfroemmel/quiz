@@ -67,31 +67,31 @@ test.describe('Visuelle Smoke-Tests aller Szenen', () => {
     await selectScene(page, 'question')
     await selectQuestionType(page, 'image-choice')
 
-    const grund = page.locator('[data-backdrop]')
-    await expect(grund).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
-    const bild = () => grund.evaluate((node) => getComputedStyle(node).backgroundImage)
-    const ersteFrage = await bild()
-    expect(ersteFrage).not.toBe('none')
+    const ground = page.locator('[data-backdrop]')
+    await expect(ground).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
+    const image = () => ground.evaluate((node) => getComputedStyle(node).backgroundImage)
+    const firstQuestion = await image()
+    expect(firstQuestion).not.toBe('none')
 
     // Aufgeblendet, nicht eingesetzt - und ohne eine Beruehrung abzufangen.
-    const stil = await grund.evaluate((node) => {
-      const gemessen = getComputedStyle(node)
-      return { eigenschaft: gemessen.transitionProperty, zeiger: gemessen.pointerEvents }
+    const style = await ground.evaluate((node) => {
+      const measured = getComputedStyle(node)
+      return { property: measured.transitionProperty, pointer: measured.pointerEvents }
     })
-    expect(stil.eigenschaft).toContain('opacity')
-    expect(stil.zeiger).toBe('none')
+    expect(style.property).toContain('opacity')
+    expect(style.pointer).toBe('none')
 
     /*
      * Anderes Bild, andere Adresse: Der Grund traegt danach entweder noch
      * nichts oder schon das neue - nie das alte.
      */
     await selectQuestionType(page, 'person')
-    await expect(grund).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
-    expect(await bild()).not.toBe(ersteFrage)
+    await expect(ground).toHaveAttribute('data-ready', 'true', { timeout: 10_000 })
+    expect(await image()).not.toBe(firstQuestion)
 
     // Eine Frage ohne Bild hat auch keinen Grund.
     await selectQuestionType(page, 'text-choice')
-    await expect(grund).toHaveCount(0)
+    await expect(ground).toHaveCount(0)
   })
 
   test('Portraetfrage stellt das Bild neben Rubrik, Frage und Antworten', async ({ page }) => {
@@ -194,42 +194,42 @@ test.describe('Enthuellung: das Raster folgt dem Fortschritt des Servers', () =>
     const slider = page.locator('[data-preview-panel] input[type="range"]')
     const tiles = page.locator('[data-reveal-tiles] [data-reveal-tile]')
 
-    const offen = () => page.locator('[data-reveal-tile][data-open="true"]').count()
+    const open = () => page.locator('[data-reveal-tile][data-open="true"]').count()
 
     // Die Rastergroesse steht in `revealGrid` - hier zaehlt nur, dass ALLE Kacheln da sind.
-    const gesamt = await tiles.count()
-    expect(gesamt).toBeGreaterThan(1)
+    const total = await tiles.count()
+    expect(total).toBeGreaterThan(1)
 
     await slider.fill('0')
     // Zu Beginn ist das Bild vollstaendig verdeckt.
-    expect(await offen()).toBe(0)
+    expect(await open()).toBe(0)
 
     // Halber Fortschritt, halbes Bild - dieselbe Variable wie im Server.
     await slider.fill('5000')
-    expect(await offen()).toBe(Math.floor(gesamt / 2))
+    expect(await open()).toBe(Math.floor(total / 2))
 
     // Bei null Sekunden ist nichts mehr verdeckt.
     await slider.fill('10000')
-    expect(await offen()).toBe(gesamt)
+    expect(await open()).toBe(total)
   })
 
   test('einmal offene Kacheln bleiben offen', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
-    const offeneIndizes = () =>
+    const openIndices = () =>
       page.locator('[data-reveal-tile]').evaluateAll((nodes) =>
         nodes.map((node, index) => (node.getAttribute('data-open') === 'true' ? index : -1)).filter((index) => index >= 0),
       )
 
     await slider.fill('3000')
-    const frueh = await offeneIndizes()
+    const early = await openIndices()
     await slider.fill('7000')
-    const spaet = await offeneIndizes()
+    const late = await openIndices()
 
-    expect(frueh.length).toBeGreaterThan(0)
-    expect(spaet.length).toBeGreaterThan(frueh.length)
+    expect(early.length).toBeGreaterThan(0)
+    expect(late.length).toBeGreaterThan(early.length)
     // Keine Kachel darf sich wieder schliessen: Der Vorrat waechst nur.
-    expect(spaet).toEqual(expect.arrayContaining(frueh))
+    expect(late).toEqual(expect.arrayContaining(early))
   })
 })
 
@@ -408,7 +408,7 @@ test.describe('Groesse', () => {
      * Vorschau setzt die Flaeche selbst, und ihr Platz darf sich ruhig
      * verschieben - nur was DARIN steht, muss gleich bleiben.
      */
-    async function masse(): Promise<Record<string, number[] | null>> {
+    async function measures(): Promise<Record<string, number[] | null>> {
       await page.goto('/preview')
       await expect(page.locator('[data-preview-stage]')).toBeVisible()
       await selectScene(page, 'question')
@@ -419,32 +419,32 @@ test.describe('Groesse', () => {
        * Millisekunden - endlose bleiben aussen vor, sonst wartete das hier ewig.
        */
       await page.evaluate(async () => {
-        const endliche = document
+        const finite = document
           .getAnimations()
           .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
-        await Promise.all(endliche.map((animation) => animation.finished.catch(() => undefined)))
+        await Promise.all(finite.map((animation) => animation.finished.catch(() => undefined)))
       })
       return page.evaluate(() => {
-        const namen = ['[data-media]', '[data-prompt]', '[data-category]', '[data-answers]', '[data-score]', '[data-counter]']
-        const grund = document.querySelector('[data-preview-stage]')!.getBoundingClientRect()
-        const zeilen: Record<string, number[] | null> = {}
-        for (const name of namen) {
+        const names = ['[data-media]', '[data-prompt]', '[data-category]', '[data-answers]', '[data-score]', '[data-counter]']
+        const ground = document.querySelector('[data-preview-stage]')!.getBoundingClientRect()
+        const rows: Record<string, number[] | null> = {}
+        for (const name of names) {
           const element = document.querySelector(name)
-          zeilen[name] = null
+          rows[name] = null
           if (!element) continue
-          const kasten = element.getBoundingClientRect()
-          zeilen[name] = [kasten.x - grund.x, kasten.y - grund.y, kasten.width, kasten.height].map((zahl) =>
-            Math.round(zahl),
+          const box = element.getBoundingClientRect()
+          rows[name] = [box.x - ground.x, box.y - ground.y, box.width, box.height].map((number) =>
+            Math.round(number),
           )
         }
-        return zeilen
+        return rows
       })
     }
 
     await page.setViewportSize({ width: 1280, height: 800 })
-    const flach = await masse()
+    const flat = await measures()
     await page.setViewportSize({ width: 1280, height: 1100 })
-    expect(await masse()).toEqual(flach)
+    expect(await measures()).toEqual(flat)
   })
 })
 

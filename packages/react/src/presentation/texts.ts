@@ -18,7 +18,7 @@
  */
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 
-export const standardTexte = {
+export const defaultTexts = {
   /* Buehne */
   'stage.player': 'Spieler',
   'stage.points': 'Punkte',
@@ -97,7 +97,7 @@ export const standardTexte = {
   'kiosk.continue': 'Weiter',
 } as const
 
-export type TextKey = keyof typeof standardTexte
+export type TextKey = keyof typeof defaultTexts
 
 /**
  * Nachschlagen: erst im Inhalt, dann in den deutschen Vorgaben.
@@ -107,19 +107,27 @@ export type TextKey = keyof typeof standardTexte
  * gehoeren, wenn sie je gebraucht werden, in `Intl` und nicht in eine
  * selbstgebaute Schablonensprache.
  */
-export function textFuer(
+export function textFor(
   view: Pick<PublicQuizViewModel, 'texts'> | null | undefined,
   key: TextKey,
-  werte?: Record<string, string | number>,
+  values?: Record<string, string | number>,
 ): string {
-  const vorlage = view?.texts?.[key] ?? standardTexte[key]
-  if (!werte) return vorlage
-  return vorlage.replace(/\{(\w+)\}/g, (treffer, name: string) =>
-    name in werte ? String(werte[name]) : treffer,
+  const template = view?.texts?.[key] ?? defaultTexts[key]
+  if (!values) return template
+  return template.replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in values ? String(values[name]) : match,
   )
 }
 
 /** Dieselbe Suche, an eine Ansicht gebunden - fuer Komponenten mit vielen Texten. */
-export function texteFuer(view: Pick<PublicQuizViewModel, 'texts'> | null | undefined) {
-  return (key: TextKey, werte?: Record<string, string | number>) => textFuer(view, key, werte)
+export function textsFor(view: Pick<PublicQuizViewModel, 'texts'> | null | undefined) {
+  return (key: TextKey, values?: Record<string, string | number>) => textFor(view, key, values)
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `defaultTexts`. */
+export const standardTexte = defaultTexts
+/** @deprecated Renamed to `textFor`. */
+export const textFuer = textFor
+/** @deprecated Renamed to `textsFor`. */
+export const texteFuer = textsFor
