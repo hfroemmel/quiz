@@ -69,9 +69,10 @@ export function GameSettings({ view, soundEnabled, onSoundEnabled, zoom, onZoom,
           <span className={styles.settingLabel}>{t('kiosk.soundTest')}</span>
           <div className={styles.settingControl}>
             {/*
-              * Der Klang kommt hier unabhaengig vom Schalter darueber: Getestet
-              * werden Lautsprecher und Lautstaerke des Geraets, und das muss
-              * auch dann gehen, wenn das Quiz danach still laufen soll.
+              * The sound here plays independently of the toggle above:
+              * speakers and volume of the device are what is being tested,
+              * and that has to work even when the quiz should run silently
+              * afterwards.
               */}
             <button
               type="button"

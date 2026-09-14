@@ -460,15 +460,15 @@ export function QuizGame({
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/*
-        * Ausstieg aus einem laufenden Spiel.
+        * Exiting a running game.
         *
-        * MIT RUECKFRAGE, und zwar nicht aus Vorsicht vor Datenverlust: Der Knopf
-        * steht am Rand einer Flaeche, auf der die ganze Zeit getippt wird, und
-        * ein versehentlicher Treffer beendete sonst mitten in der Frage das
-        * Spiel der beiden, die davorstehen.
+        * WITH A CONFIRMATION DIALOG, and not out of caution about data loss:
+        * the button sits at the edge of an area that is being tapped the
+        * whole time, and an accidental hit would otherwise end the game for
+        * both players standing in front of it in the middle of a question.
         *
-        * Ob es ihn gibt, sagt der Serverstand: In einem Spiel, das ein Operator
-        * fuehrt, darf ihn niemand am Geraet abbrechen.
+        * Whether it exists is decided by the server state: in a game run by
+        * an operator, nobody may abort it from the device.
         */}
       {!finished && view.allowedCommands.includes('ABORT_GAME') && (
         <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
