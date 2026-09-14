@@ -1,19 +1,20 @@
-# Quizpaket: Schema und Beispiel
+# Quiz package: schema and example
 
-Ein Quizpaket ist die **einzige** Quelle, aus der der Server zur Laufzeit Inhalte
-laedt. Es entsteht aus `content/source/` und liegt gebaut unter `content/dist/`.
+A quiz package is the **only** source from which the server loads content at
+runtime. It is built from `content/source/` and lands, built, under
+`content/dist/`.
 
-Die redaktionellen Inhalte leben in
+The editorial content lives in
 [`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data);
-`content/source` enthaelt hier einen erzeugten Testbestand (siehe README).
+`content/source` here contains a generated test set (see README).
 
 ```text
 content/dist/
-  manifest.json     Version, Zeitstempel, Medienliste, Pruefsumme
-  config.json       Quizarten, Zielgruppen, Pools, Presets, Themes, Kategorien, Schwierigkeiten
-  questions.json    alle Fragen, nach ID sortiert
-  assets.json       Medienverzeichnis
-  assets/           Bilder und Videos
+  manifest.json     version, timestamp, media list, checksum
+  config.json       quiz types, audiences, pools, presets, themes, categories, difficulties
+  questions.json    all questions, sorted by ID
+  assets.json       media directory
+  assets/           images and videos
 ```
 
 ## Manifest
@@ -22,27 +23,28 @@ content/dist/
 {
   "schemaVersion": "2.0.0",
   "contentVersion": "1.0.1",
-  "profile": "no-video",   // fehlt beim vollen Profil
+  "profile": "no-video",   // absent in the full profile
   "createdAt": "2026-08-18T05:36:00.000Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
   "assets": [ /* MediaAsset[] */ ],
-  "checksum": "…"          // schuetzt vor stillen Aenderungen am gebauten Paket
+  "checksum": "…"          // protects against silent changes to the built package
 }
 ```
 
-Passt die Pruefsumme nicht, verweigert der Server das Laden mit einer Klartextmeldung.
-Damit ist die verbotene Praxis „gebautes Basis-JSON waehrend der Show direkt
-bearbeiten“ technisch erkennbar. Live-Korrekturen laufen stattdessen ueber Hotfixes.
+If the checksum does not match, the server refuses to load with a plain-text
+message. This makes the forbidden practice of "editing the built base JSON
+directly during the show" technically detectable. Live corrections go through
+hotfixes instead.
 
-## Frage
+## Question
 
 ```jsonc
 {
   "id": "a-m-02",
-  "repetitionGroupId": "hauptstadt-australien",   // optional: inhaltlich gleiche Varianten
-  "poolIds": ["bundestag"],                       // Fragenpools: die Achse der Inhaltsauswahl
-  "audiences": ["adults"],                        // Zielgruppen (frueher modeIds)
+  "repetitionGroupId": "hauptstadt-australien",   // optional: content-identical variants
+  "poolIds": ["bundestag"],                       // question pools: the axis of content selection
+  "audiences": ["adults"],                        // audiences (formerly modeIds)
   "difficulty": "medium",
   "categories": ["geografie"],
   "tags": [],
@@ -58,66 +60,67 @@ bearbeiten“ technisch erkennbar. Live-Korrekturen laufen stattdessen ueber Hot
     { "id": "o3", "text": "Perth" },
     { "id": "o4", "text": "Canberra" }
   ],
-  "correctOptionId": "o4",                        // IMMER explizit, nie ueber die Position
-  "acceptedAnswerText": ["Canberra"],             // fuer muendliche Antworten
+  "correctOptionId": "o4",                        // ALWAYS explicit, never via position
+  "acceptedAnswerText": ["Canberra"],             // for spoken answers
 
   "media": { "imageAssetId": "img-…", "videoAssetId": "vid-…" },
 
   "explanation": {
-    "summary": "Kurztext - darf oeffentlich in der Loesung erscheinen",
-    "details": "Hintergrund - nur Operator und Moderator",
-    "source": "Quellenangabe - nur intern",
-    "moderatorNotes": "Regiehinweis - nur intern"
+    "summary": "Short text - may appear publicly in the solution",
+    "details": "Background - operator and moderator only",
+    "source": "Source reference - internal only",
+    "moderatorNotes": "Directorial note - internal only"
   },
   "enabled": true
 }
 ```
 
-Wichtig:
+Important:
 
-* **`correctOptionId` ist Pflicht** bei `option-comparison`. Die Legacy-Annahme
-  „`option_1` ist richtig“ gibt es nicht mehr. Die sichtbare Reihenfolge wird pro Spiel
-  gemischt, ohne die Auswertung zu beruehren.
-* Von `explanation` wird ausschliesslich `summary` oeffentlich gezeigt - und auch nur
-  in der Loesungsszene. `details`, `source` und `moderatorNotes` verlassen den Server
-  nie in Richtung Buehnenscreen.
-* Laufzeitdaten gehoeren nicht in den Inhalt. Das Legacy-Feld `playCount` wird bewusst
-  nicht uebernommen; Nutzungen leben in der `QuestionUsage`-Historie der Datenbank.
+* **`correctOptionId` is required** for `option-comparison`. The legacy
+  assumption "`option_1` is correct" no longer exists. The visible order is
+  shuffled per game, without affecting the evaluation.
+* Of `explanation`, only `summary` is ever shown publicly - and only in the
+  solution scene. `details`, `source`, and `moderatorNotes` never leave the
+  server toward the stage screen.
+* Runtime data does not belong in the content. The legacy field `playCount` is
+  deliberately not carried over; usages live in the database's `QuestionUsage`
+  history.
 
-## Medium
+## Media
 
 ```jsonc
 {
   "id": "img-bauwerk-brandenburger-tor",
   "kind": "image",                       // image | video | audio
-  "filename": "images/img-bauwerk-brandenburger-tor.svg",   // relativ, ohne ".."
+  "filename": "images/img-bauwerk-brandenburger-tor.svg",   // relative, without ".."
   "mimeType": "image/svg+xml",
-  "credit": "Bildnachweis",
+  "credit": "Image credit",
   "sourceUrl": "https://…",
-  "checksum": "…"                        // beim Build ergaenzt
+  "checksum": "…"                        // added at build time
 }
 ```
 
-Medien werden ausschliesslich ueber ihre **Asset-ID** referenziert. Der Server liefert
-sie unter `/media/<assetId>` aus und prueft dabei, dass der aufgeloeste Pfad innerhalb
-des Asset-Verzeichnisses liegt. Dateinamen aus Quizdaten koennen so niemals auf
-beliebige lokale Dateien zeigen.
+Media is referenced exclusively via its **asset ID**. The server serves it
+under `/media/<assetId>` and checks that the resolved path lies within the
+asset directory. Filenames from quiz data can thus never point to arbitrary
+local files.
 
-## Konfiguration
+## Configuration
 
 ```jsonc
 {
-  "questionsPerGame": 7,                 // genau eine Quelle der Wahrheit
+  "questionsPerGame": 7,                 // exactly one source of truth
   "difficulties": [{ "id": "easy", "label": "Leicht" }],
   "categories":   [{ "id": "geografie", "label": "Geografie" }],
   "pools": [
     { "id": "bundestag", "label": "Bundestag" },
-    { "id": "saarbruecken", "label": "Saarbrücken" }   // "Saarbruecken" ist NUR ein Pool
+    { "id": "saarbruecken", "label": "Saarbrücken" }   // "Saarbruecken" is ONLY a pool
   ],
   "themes": [{
     "id": "kids",
     "label": "Kinderquiz",
-    "skin": "kids",                      // Gestaltungswelt; Farben und Schriften liefert der Gastgeber
+    "skin": "kids",                      // design world; colors and fonts are supplied by the host
     "logoAssetId": "logo-kids"
   }],
   "presets": [{
@@ -125,7 +128,7 @@ beliebige lokale Dateien zeigen.
     "label": "Mittel",
     "slots": [
       { "id": "einstieg", "filters": { "difficultyIds": ["easy"], "questionTypes": ["text-choice"] } }
-      // … genau questionsPerGame Eintraege
+      // … exactly questionsPerGame entries
     ]
   }],
   "audiences": [{
@@ -138,26 +141,26 @@ beliebige lokale Dateien zeigen.
 }
 ```
 
-Fehlende Filter bedeuten „beliebig“. Ein Sonderwert wie der String `random` ist
-deshalb nicht noetig.
+Missing filters mean "any". A special value such as the string `random` is
+therefore not needed.
 
-## Inhaltsprofile
+## Content profiles
 
-Dieselbe Quelle ergibt zwei Pakete:
+The same source produces two packages:
 
-| Profil | Aufruf | Inhalt |
+| Profile | Invocation | Content |
 |---|---|---|
-| `full` | `quiz-content build` | alles, inklusive Videofragen |
-| `no-video` | `quiz-content build --profile no-video` | ohne Videofragen und Videodateien |
+| `full` | `quiz-content build` | everything, including video questions |
+| `no-video` | `quiz-content build --profile no-video` | without video questions and video files |
 
-`no-video` traegt die Offline-Apps: Es entfernt Videofragen und Videomedien und
-streicht den Videotyp aus den Fragenplatzfiltern. Die ANZAHL der Fragenplaetze
-je Preset bleibt gleich - ein Platz, der nur Videofragen zuliess, wird zum
-freien Platz. Beide Profile werden getrennt validiert; das gebaute Paket nennt
-sein Profil im Manifest.
+`no-video` powers the offline apps: it removes video questions and video
+media and strips the video type from the question-slot filters. The NUMBER of
+question slots per preset stays the same - a slot that only allowed video
+questions becomes a free slot. Both profiles are validated separately; the
+built package names its profile in the manifest.
 
-Welche Pools ein Spiel zieht, entscheidet `START_GAME` - entweder ueber die
-Quizart (`quizId`, die Pools stehen dann in `quizzes`) oder direkt (`audience`,
-optional `poolIds`); ohne Angabe spielen alle Pools mit. Das Quizpaket traegt seit
-Schema v2 KEINE Farben und Schriften mehr - Darstellung ist Sache des
-Gastgebers (`quiz-themes`).
+Which pools a game draws from is decided by `START_GAME` - either via the quiz
+type (`quizId`, with the pools listed in `quizzes`) or directly (`audience`,
+optionally `poolIds`); without any specification, all pools take part. Since
+schema v2, the quiz package carries NO colors or fonts anymore - presentation
+is the host's responsibility (`quiz-themes`).

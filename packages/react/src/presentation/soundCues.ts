@@ -118,7 +118,7 @@ export function playCue(cueId: SoundCueId, options: { enabled: boolean; isAudioM
       instance.currentTime = 0
       void instance.play().catch(() => undefined)
     } catch {
-      // Sound ist optional und darf nie blockieren.
+      // Sound is optional and must never block.
     }
   }
 }
@@ -143,7 +143,7 @@ export function releaseAudio(): void {
       element.removeAttribute('src')
       element.load()
     } catch {
-      // Aufraeumen darf nie blockieren.
+      // Cleanup must never block.
     }
   }
   elements.clear()
@@ -180,7 +180,7 @@ export function unlockAudio(): void {
           element.muted = false
         })
     } catch {
-      // Freigeben ist Komfort, kein Muss.
+      // Unlocking is a convenience, not a requirement.
     }
   }
 }

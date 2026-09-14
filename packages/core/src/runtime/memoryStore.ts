@@ -215,7 +215,7 @@ export class MemoryQuizStore implements QuizStorePort {
   }
 
   close(): void {
-    // Nichts zu schliessen - der Speicher gehoert dem Prozess.
+    // Nothing to close - the store belongs to the process.
   }
 
   /* ---------------- Persistence through a host adapter ---------------- */

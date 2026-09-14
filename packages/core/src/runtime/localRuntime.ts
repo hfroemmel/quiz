@@ -114,7 +114,7 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
   }
 
   notifyAudioReady(): void {
-    // Lokal ist dieser Kontext immer der einzige - nichts zu melden.
+    // Locally this context is always the only one - nothing to report.
   }
 
   clearRejection(): void {
