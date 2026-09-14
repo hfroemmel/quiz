@@ -836,7 +836,12 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
     }
   }
 
-  await page.setViewportSize({ width: 1280, height: 720 })
+  /*
+   * Both heights leave room for the full-width scene above the fixed footer;
+   * the one exception to "width decides" is tested right after: a window too
+   * flat for that never lets the scene run under the footer.
+   */
+  await page.setViewportSize({ width: 1280, height: 900 })
   await startGame(page, 'Zu zweit')
   const flach = await masse()
 
@@ -845,6 +850,15 @@ test('gleiche Breite heisst gleiche Groesse, auch auf verschieden hohen Fenstern
   const hoch = await masse()
 
   expect(hoch).toEqual(flach)
+
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await startGame(page, 'Zu zweit')
+  const clearance = await page.evaluate(() => {
+    const scene = document.querySelector('[class*="sceneArea"]')!.getBoundingClientRect()
+    const corner = document.querySelector('[data-corner="left"]')!.getBoundingClientRect()
+    return corner.top - scene.bottom
+  })
+  expect(clearance, 'scene above the footer at 1280x720').toBeGreaterThanOrEqual(0)
 
   /*
    * Und umgekehrt: Aendert sich NUR die Breite, waechst alles im gleichen

@@ -112,9 +112,20 @@
   flex: 0 0 auto;
   align-self: center;
   aspect-ratio: 16 / 9;
-  width: 100%;
-  scale: 0.8;
+  /*
+   * Full width, but never under the fixed footer: at zoom 1 the rendered
+   * height (0.8 * 9/16 of the width) must fit between the header (6cqw) and
+   * the footer (about 17cqw) with a small gap. On 4:3 screens the cap never
+   * applies; on 16:9 it keeps answers, score cards and the mascot clear of
+   * the buzzers. The zoom is applied on top of this width, so a smaller zoom
+   * always shrinks the scene instead of relaxing the cap.
+   */
+  width: min(100%, calc((100cqh - 24cqw) / 0.45));
+  /* The device shows the stage at 80 %; the host zoom scales that further. */
+  scale: calc(0.8 * var(--stage-zoom, 1));
   transform-origin: top center;
+  /* Stay right under the header; the footer is fixed and out of flow. */
+  margin-block: 0 auto;
 }
 /* Der Szenenkasten fuellt die Flaeche aus. */
 :global(.stage--touch) .sceneRoot {

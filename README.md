@@ -49,8 +49,8 @@ ist. Die echten Inhalte liegen in `quiz-content-data`.
 
 ```bash
 pnpm typecheck        # TypeScript ueber Pakete und Pruefstand
-pnpm test             # Kern, Inhalts-Pipeline, Palettenwaechter (149 Tests)
-pnpm test:e2e         # Playwright gegen den Pruefstand (58 Tests)
+pnpm test             # core, content pipeline, palette guard (279 tests)
+pnpm test:e2e         # Playwright against the harness (100 runs, screenshot baselines)
 pnpm packages:build   # dist je Paket
 pnpm packages:verify  # publint + attw auf dem gepackten Tarball
 ```
@@ -58,6 +58,11 @@ pnpm packages:verify  # publint + attw auf dem gepackten Tarball
 Der Buehnenbetrieb - Server, SQLite, WebSocket, Wiederaufnahme - wird in
 `quiz-live` geprueft, der Offline-Betrieb in `quiz-standalone` und der
 Einbettungsvertrag zusaetzlich in `app-collection`.
+
+Baseline of the refactoring (branch `refactor`, 2026-09-14): typecheck clean,
+279 unit tests and 100 end-to-end runs green. Every phase of
+`docs/refactoring/H-migration-plan.md` has to reproduce these numbers before it
+is merged.
 
 ## Veroeffentlichen
 
