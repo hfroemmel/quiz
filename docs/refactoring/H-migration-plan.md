@@ -81,6 +81,34 @@ Exported German identifiers that hosts import and therefore need a deprecation a
 
 **Packages touched.** core, content (validation of the new references). **Hosts.** quiz-live (config lines), standalone/app-collection (config lines instead of the `playerCounts` prop). **Dependencies.** Phase 1. **Risk.** low; additive. **Tests.** core unit tests for `deriveStartMenu` (empty `quizzes`, single audience, unavailable pool, locale fallback); quiz-live `quizModes.test.ts` extended. **Result.** a new quiz is one configuration entry in every host.
 
+**Status: done in the packages, pending in the hosts.** `quizzes[]` carries
+`playerCounts`, `artworkAssetId`, `emphasis` and `order`; `config.rules` carries
+scoring, the phase timings, the joker switch, the idle timeout and the details
+flag, each defaulting to the constant used until now. The engine reads scoring
+and the joker switch through its context instead of importing constants, and
+`resolveRules` is the single place that decides what "not configured" means.
+`deriveStartMenu(config, catalog, locale)` returns offers in menu order with
+their labels resolved, the player counts across all offers, the language list
+and, per offer, whether it can be started right now - a missing pool is decided
+in the configuration, an empty question set is handed in by the server
+(`quizAvailability`). A package without `quizzes` offers its audiences, so the
+model is never empty. Content validation checks the artwork reference and warns
+about a duplicated player count and two quizzes on one menu position. `QuizGame`
+reads the player counts and the idle timeout from the package where the host
+passes no property.
+
+Measured: 311 unit tests (32 new, of which 8 prove that a configured rule
+actually reaches the game), 100 E2E, package verification for all five
+packages. The `catalog.quizzes` entries and `catalog.rules` are additive, so the
+E2E screenshots are unchanged.
+
+The host config lines are NOT done: quiz-live, quiz-standalone and
+app-collection consume the published packages and cannot see the new schema
+until a release carries it. In this environment a release is impossible - the
+registry rejects the session token, and the release workflow runs on a push to
+`main`. The branch also still says 0.14.0 while `main` and the registry are at
+0.15.3, so the version has to be computed on `main` after the merge (0.16.0).
+
 ## Phase 4 – Start menu in the package
 
 **Goal.** The Bundestags-App start screen becomes `StartMenu` in quiz-react; `QuizGame` uses it; quiz-live's stage overview uses the shared `OfferOverview`.
