@@ -1,9 +1,8 @@
 /**
- * Der Import aus der Redaktionstabelle.
+ * The import from the editorial sheet.
  *
- * Geprueft wird auf einer Zeichenkette und ohne Netz - die Tabelle ist hier eine
- * Zeile CSV. Genau das ist der Grund, warum das Uebersetzen von dem Holen
- * getrennt ist.
+ * Tested on a string and without network - the sheet here is one line of
+ * CSV. That is exactly why translating is separated from fetching.
  */
 import { describe, expect, it } from 'vitest'
 import { parseCsv } from '../src/csv'
@@ -12,7 +11,7 @@ import { csvUrl, importSheet, defaultMapping } from '../src/sheetImport'
 const head = 'ID,Frage,Schwierigkeit,Kategorie,A,B,C,D,Richtig,Erklärung\n'
 
 describe('parseCsv', () => {
-  it('haelt Komma, Zeilenumbruch und Anfuehrungszeichen in einer Zelle zusammen', () => {
+  it('keeps comma, line break and quotation marks together in one cell', () => {
     const csv = 'a,b\n"eins, zwei","Zeile 1\nZeile 2"\n"Er sagte ""ja""",x\n'
     expect(parseCsv(csv)).toEqual([
       ['a', 'b'],
@@ -21,7 +20,7 @@ describe('parseCsv', () => {
     ])
   })
 
-  it('wirft leere Zeilen am Ende weg', () => {
+  it('drops empty rows at the end', () => {
     expect(parseCsv('a,b\n1,2\n\n\n')).toEqual([
       ['a', 'b'],
       ['1', '2'],
@@ -29,8 +28,8 @@ describe('parseCsv', () => {
   })
 })
 
-describe('importiereTabelle', () => {
-  it('macht aus einer Zeile eine gueltige Auswahlfrage', () => {
+describe('importSheet', () => {
+  it('turns a row into a valid choice question', () => {
     const csv = `${head}1,Wie viele Abgeordnete hat der Bundestag?,leicht,Institution,598,630,736,709,C,Stand 2021.\n`
     const { questions, skippedRows } = importSheet(csv)
 
@@ -56,7 +55,7 @@ describe('importiereTabelle', () => {
     expect(questions[0]!.explanation).toEqual({ summary: 'Stand 2021.' })
   })
 
-  it('liest die richtige Antwort als Buchstabe, als Nummer und als Text', () => {
+  it('reads the correct answer as a letter, as a number and as text', () => {
     const row = (correct: string) => `${head}1,Frage?,leicht,Recht,Alpha,Beta,Gamma,Delta,${correct},\n`
     for (const [value, expected] of [
       ['B', 'b'],
@@ -68,10 +67,10 @@ describe('importiereTabelle', () => {
     }
   })
 
-  it('meldet eine Zeile mit Zeilennummer, statt den ganzen Bestand fallen zu lassen', () => {
+  it('reports a row with its row number instead of dropping the whole pool', () => {
     /*
-     * Zweihundert Fragen wegen einer halbfertigen Zeile gar nicht zu bekommen,
-     * waere in der Redaktion die teurere Antwort.
+     * Not getting two hundred questions at all because of one half-finished
+     * row would be the more expensive answer for the editors.
      */
     const csv =
       `${head}` +
@@ -87,17 +86,17 @@ describe('importiereTabelle', () => {
     ])
   })
 
-  it('macht aus Beschriftungen gueltige Bezeichner', () => {
+  it('turns labels into valid identifiers', () => {
     const csv = `${head}Frage 7,Wer?,schwer,"Ämter & Recht, Wahl",,,,,,\n`
     const question = importSheet(csv).questions[0]!
     expect(question.id).toBe('frage-7')
     expect(question.difficulty).toBe('hard')
     expect(question.categories).toEqual(['aemter-recht', 'wahl'])
-    // Ohne Optionen ist es keine Auswahlfrage - bewertet wird von Hand.
+    // Without options it is not a choice question - it is judged by hand.
     expect(question.evaluationMode).toBe('manual-correct-incorrect')
   })
 
-  it('nimmt eine eigene Spaltenzuordnung entgegen', () => {
+  it('accepts a custom column mapping', () => {
     const csv = 'Nr,Question,Level\n7,Who?,hard\n'
     const { questions } = importSheet(csv, {
       columns: { id: 'Nr', prompt: 'Question', difficulty: 'Level' },
@@ -114,25 +113,25 @@ describe('importiereTabelle', () => {
     })
   })
 
-  it('nennt die gelesenen Spalten, damit eine falsche Zuordnung auffindbar ist', () => {
+  it('names the columns it read so that a wrong mapping can be found', () => {
     expect(importSheet('Nr,Question\n', { columns: {} }).columns).toEqual(['Nr', 'Question'])
   })
 })
 
-describe('csvAdresse', () => {
-  it('macht aus der Adresse der Browserzeile die CSV-Adresse - mit Tabellenblatt', () => {
+describe('csvUrl', () => {
+  it('turns the browser bar address into the CSV address - with the sheet tab', () => {
     expect(csvUrl('https://docs.google.com/spreadsheets/d/ABC123/edit?gid=951895018#gid=951895018')).toBe(
       'https://docs.google.com/spreadsheets/d/ABC123/export?format=csv&gid=951895018',
     )
   })
 
-  it('kommt auch mit der blossen Kennung aus', () => {
+  it('also works with the bare id', () => {
     expect(csvUrl('ABC123')).toBe('https://docs.google.com/spreadsheets/d/ABC123/export?format=csv')
   })
 })
 
 describe('standardMapping', () => {
-  it('nennt vier Antwortspalten - die Buehne zeigt vier Zeilen', () => {
+  it('names four answer columns - the stage shows four rows', () => {
     expect(defaultMapping.columns.options).toEqual(['A', 'B', 'C', 'D'])
   })
 })

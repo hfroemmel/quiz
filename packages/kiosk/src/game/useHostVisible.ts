@@ -1,14 +1,14 @@
 /**
- * Ist die Seite, in der das Quiz laeuft, gerade sichtbar?
+ * Is the page the quiz is running in currently visible?
  *
- * WOFUER: Wechselt der Gastgeber in ein anderes Fenster oder einen anderen Tab,
- * soll das Quiz nicht weiter in den Raum klingen.
+ * WHAT FOR: if the host switches to another window or another tab, the quiz
+ * should not keep sounding into the room.
  *
- * GRENZE, die ehrlich benannt sein muss: Der Browser meldet nur den Wechsel von
- * Fenster oder Tab. Blendet eine Gastgeberanwendung das Quiz lediglich aus - etwa
- * mit `display: none` -, bleibt die Seite fuer den Browser sichtbar. Das
- * verlaessliche Mittel ist und bleibt deshalb das Entfernen der Komponente; dabei
- * wird alles abgeraeumt.
+ * A LIMIT that has to be named honestly: the browser only reports switching
+ * windows or tabs. If a host application merely hides the quiz - say with
+ * `display: none` - the page stays visible to the browser. The reliable
+ * means therefore is and remains removing the component; that clears
+ * everything away.
  */
 import { useEffect, useState } from 'react'
 

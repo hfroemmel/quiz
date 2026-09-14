@@ -10,16 +10,16 @@ import { describe, expect, it } from 'vitest'
 import { cssUrl } from '../src/presentation/cssUrl'
 
 describe('cssUrl', () => {
-  it('setzt die Adresse in doppelte Anfuehrungszeichen', () => {
+  it('wraps the address in double quotes', () => {
     expect(cssUrl('/media/img-1')).toBe('url("/media/img-1")')
   })
 
-  it('haelt eine eingebettete Grafik mit Hochkommata zusammen', () => {
+  it('keeps an embedded graphic with single quotes together', () => {
     const embedded = "data:image/svg+xml,%3csvg%20width='339.417'%20height='55'%3e%3c/svg%3e"
     expect(cssUrl(embedded)).toBe(`url("${embedded}")`)
   })
 
-  it('entschaerft ein doppeltes Anfuehrungszeichen in der Adresse', () => {
+  it('escapes a double quote inside the address', () => {
     expect(cssUrl('/media/a"b')).toBe('url("/media/a%22b")')
   })
 })

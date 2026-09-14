@@ -15,7 +15,7 @@ const question = (overrides: Partial<Question> & { id: string }) =>
     { id: 'o4', text: 'D' },
   ], correctOptionId: 'o1', ...overrides })
 
-describe('Hotfix-Overlay', () => {
+describe('Hotfix overlay', () => {
   const base = [question({ id: 'q1', prompt: 'Alter Text' })]
   const patch: QuestionPatch = {
     id: 'patch-1',
@@ -28,21 +28,21 @@ describe('Hotfix-Overlay', () => {
     applyMode: 'next-use',
   }
 
-  it('veraendert das Basispaket nicht, sondern legt sich darueber', () => {
+  it('does not change the base package but lays itself over it', () => {
     const result = applyPatches(base, [patch])
     expect(result.questions[0]!.prompt).toBe('Korrigierter Text')
     // The base set stays untouched.
     expect(base[0]!.prompt).toBe('Alter Text')
   })
 
-  it('laedt eine Frage mit ungueltigem Patch gar nicht', () => {
+  it('does not load a question with an invalid patch at all', () => {
     const broken: QuestionPatch = { ...patch, id: 'patch-2', changes: { prompt: '' } }
     const result = applyPatches(base, [broken])
     expect(result.questions).toHaveLength(0)
     expect(result.rejected[0]!.questionId).toBe('q1')
   })
 
-  it('protokolliert alten und neuen Wert fuer den Export', () => {
+  it('logs old and new value for the export', () => {
     const report = buildChangeReport(base, [patch])
     expect(report[0]).toMatchObject({
       questionId: 'q1',
@@ -54,7 +54,7 @@ describe('Hotfix-Overlay', () => {
     })
   })
 
-  it('warnt, wenn ein Hotfix in der neuen Kundenquelle fehlt', () => {
+  it('warns when a hotfix is missing in the new customer source', () => {
     const newBase = [question({ id: 'q1', prompt: 'Alter Text' })]
     expect(findUnreconciledPatches([patch], newBase)).toHaveLength(1)
     const reconciled = [question({ id: 'q1', prompt: 'Korrigierter Text' })]

@@ -9,21 +9,21 @@ import { imageState, type ImageState } from '../src/presentation/useDecodedImage
 
 const empty: ImageState = { done: undefined }
 
-describe('bildstand', () => {
-  it('meldet das Bild, das gerade gefragt ist', () => {
+describe('imageState', () => {
+  it('reports the image that is currently wanted', () => {
     expect(imageState(empty, '/a.jpg', '/a.jpg')).toEqual({ done: '/a.jpg' })
   })
 
-  it('verwirft ein Bild, das niemand mehr fragt', () => {
+  it('discards an image nobody asks for anymore', () => {
     const before = { done: '/b.jpg' }
     expect(imageState(before, '/b.jpg', '/a.jpg')).toBe(before)
   })
 
-  it('verwirft jede Meldung, wenn gar kein Bild gefragt ist', () => {
+  it('discards every report when no image is wanted at all', () => {
     expect(imageState(empty, undefined, '/a.jpg')).toBe(empty)
   })
 
-  it('gibt bei einer Wiederholung denselben Stand zurueck - kein neues Rendern', () => {
+  it('returns the same state on a repeat - no new render', () => {
     const before = { done: '/a.jpg' }
     expect(imageState(before, '/a.jpg', '/a.jpg')).toBe(before)
   })

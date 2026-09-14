@@ -1,16 +1,16 @@
 /*
- * GENERATED - DO NOT EDIT BY HAND.
+ * ERZEUGT - NICHT VON HAND BEARBEITEN.
  *
- * Source of all values: packages/themes/src/palettes.ts
- * Rewrite with:         pnpm palette:build
+ * Quelle aller Werte: packages/themes/src/palettes.ts
+ * Neu schreiben:      pnpm palette:build
  *
- * Changing a colour value here only changes it on the surface: in
- * production the stage colours come from the quiz package, which is built
- * from the same source. The next run overwrites the change, and the test
- * packages/themes/test/palette.test.ts flags it beforehand.
+ * Wer hier einen Farbwert aendert, aendert ihn nur an der Oberflaeche: Im Betrieb
+ * kommen die Buehnenfarben aus dem Quizpaket, das aus derselben Quelle gebaut
+ * wird. Der naechste Lauf ueberschreibt die Aenderung, und der Test
+ * packages/themes/test/palette.test.ts meldet sie vorher.
  */
 
-/* Fallback level: the adult stage, dark - plus everything that belongs to no theme. */
+/* Rueckfallebene: Buehne der Erwachsenen, dunkel - plus alles, was keinem Theme gehoert. */
 :root {
   --color-pageTop: #12161A;
   --color-pageBottom: #171C21;
@@ -104,7 +104,7 @@
   --quiz-select-shadow: rgb(7 21 45 / 0.055);
 }
 
-/* Light variant of the adult stage - only surfaces, edges and text. */
+/* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */
 .stage--default.stage--bright {
   --color-pageTop: #fff;
   --color-pageBottom: #f6f6f6;
@@ -126,7 +126,7 @@
   --color-textMuted: rgba(25, 25, 25, 0.6);
 }
 
-/* Light variant of the start selection before it - only what differs from the dark one. */
+/* Helle Fassung der Startauswahl davor - nur, was von der dunklen abweicht. */
 [data-quiz-game][data-theme='bright'] {
   --start-bg-top: #fff;
   --start-bg-mid: #fff;

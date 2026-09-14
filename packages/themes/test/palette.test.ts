@@ -50,6 +50,17 @@ const NAMED = [
 ].join('|')
 const COLOR = new RegExp(`#[0-9a-fA-F]{3,8}\\b|\\brgba?\\(|(?<![-\\w])(${NAMED})(?![-\\w])`)
 
+/*
+ * Comments are prose, not surface colours: "a white flash" in an explanation
+ * is fine, `color: white` in a rule is not. Comment text is blanked out
+ * before the check, keeping the line numbers intact.
+ */
+function withoutComments(text: string): string {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '))
+    .replace(/^\s*\/\/.*$/gm, '')
+}
+
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry)
@@ -58,21 +69,21 @@ function sourceFiles(dir: string): string[] {
   })
 }
 
-describe('Farbpalette', () => {
-  it('erzeugt palette.css unveraendert aus der Quelle', () => {
+describe('Colour palette', () => {
+  it('generates palette.css unchanged from the source', () => {
     expect(
       readFileSync(generated, 'utf8'),
       'palette.css passt nicht mehr zu src/palettes.ts - `pnpm palette:build` ausfuehren.',
     ).toBe(paletteStyleSheet())
   })
 
-  it('haelt alle Farbwerte in der Palette', () => {
+  it('keeps all colour values in the palette', () => {
     const offenders: string[] = []
     for (const dir of sourceDirs) {
       for (const file of sourceFiles(dir)) {
         const relative = file.slice(dir.length + 1)
         if (EXEMPT.some((entry) => relative.endsWith(entry))) continue
-        for (const [index, line] of readFileSync(file, 'utf8').split('\n').entries()) {
+        for (const [index, line] of withoutComments(readFileSync(file, 'utf8')).split('\n').entries()) {
           if (COLOR.test(line)) offenders.push(`${relative}:${index + 1}: ${line.trim()}`)
         }
       }

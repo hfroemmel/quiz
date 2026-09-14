@@ -1,22 +1,23 @@
 /**
- * Einstellungen des Geraets - erreichbar ueber den Startbildschirm.
+ * Device settings - reachable from the start screen.
  *
- * WARUM NICHT WAEHREND DES SPIELS: Das hier ist die Aufstellung eines Geraets,
- * keine Spielhandlung. Wer davorsteht und spielt, soll den Ton nicht abschalten
- * koennen, waehrend die anderen zuhoeren; wer das Geraet hinstellt, kommt an den
- * Startbildschirm heran.
+ * WHY NOT DURING THE GAME: this is a device's setup, not a game action.
+ * Whoever is standing in front of it playing should not be able to turn off
+ * the sound while the others are listening; whoever sets the device up has
+ * access to the start screen.
  *
- * DREI DINGE, MEHR NICHT:
- *   Ton      - an einem Geraet im Foyer neben einer Veranstaltung stoerend
- *   Tonprobe - der einzige Weg, Lautsprecher und Lautstaerke ohne Spiel zu pruefen
- *   Zoom     - die Bildschirme reichen vom Tablet bis zum grossen Touchtisch
+ * THREE THINGS, NOTHING MORE:
+ *   Sound      - disruptive on a device in a foyer next to an event
+ *   Sound test - the only way to check speakers and volume without a game
+ *   Zoom       - screens range from a tablet to a large touch table
  *
- * Alle drei stehen auch im Config File der Anwendung (siehe `QuizGameProps`).
- * Was hier verstellt wird, gilt bis zum Neustart; dauerhaft ist die Datei.
+ * All three also exist in the application's config file (see
+ * `QuizGameProps`). What is changed here applies until restart; the file is
+ * the persistent one.
  *
- * DIE SCHALTER SIND DIESELBEN KARTEN wie in der Startauswahl (`.card`), nur
- * ohne Zeichen und kleiner: Beides ist die Bedienung dieses Geraets, und beides
- * bekommt derselbe Mensch zu sehen.
+ * THE TOGGLES ARE THE SAME CARDS as in the start selection (`.card`), just
+ * without an icon and smaller: both are this device's controls, and both are
+ * seen by the same person.
  */
 import { playCue, textsFor } from '@hfroemmel/quiz-react'
 import type { PlayerQuizViewModel } from '@hfroemmel/quiz-core'
@@ -24,7 +25,7 @@ import { maxZoom, minZoom, zoomStep } from './zoom'
 import styles from './Game.module.css'
 
 interface GameSettingsProps {
-  /** Fuer die Beschriftungen: Sie stehen in der Sprache des Quiz. */
+  /** For the labels: they are shown in the quiz's language. */
   view: PlayerQuizViewModel
   soundEnabled: boolean
   onSoundEnabled(enabled: boolean): void

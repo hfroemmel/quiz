@@ -1,19 +1,19 @@
 /**
- * Leerlauf-Aufsicht am unbeaufsichtigten Geraet.
+ * Idle watch on the unattended device.
  *
- * WARUM: Auf einer Frage liegt bewusst kein Zeitdruck - wer nachdenkt, soll
- * nachdenken duerfen. Genau deshalb bleibt ein Geraet ohne Aufsicht mit einer
- * offenen Frage stehen, wenn die Spieler einfach weggehen. Die Aufsicht bricht
- * das Spiel dann ab und gibt die Auswahl frei.
+ * WHY: a question deliberately carries no time pressure - whoever is
+ * thinking should be allowed to think. That is exactly why a device without
+ * a watch would sit with an open question if the players simply walk away.
+ * The watch then aborts the game and releases the selection.
  *
- * Sie haengt bewusst NICHT an einem globalen Listener: Als Gast in einer fremden
- * Anwendung darf die Ansicht nichts am Fenster registrieren. Beruehrungen meldet
- * die Komponente selbst ueber `notice`.
+ * It deliberately does NOT hook into a global listener: as a guest inside a
+ * foreign application, the view must not register anything on the window.
+ * The component reports touches itself via `notice`.
  */
 import { useCallback, useEffect, useRef } from 'react'
 
 export interface IdleWatch {
-  /** Eine Beruehrung melden. Setzt die Frist zurueck. */
+  /** Report a touch. Resets the deadline. */
   notice: () => void
 }
 
@@ -32,9 +32,9 @@ export function useIdleWatch(options: { timeoutMs?: number; active: boolean; onI
     lastTouchRef.current = Date.now()
 
     /*
-     * Geprueft wird in kurzen Abstaenden statt mit einem einzelnen langen Timer.
-     * Ein Timer, der bei jeder Beruehrung neu gesetzt wird, wuerde bei jedem
-     * Fingertipp eine Neuberechnung ausloesen; hier genuegt ein Zeitstempel.
+     * Checked at short intervals instead of with a single long timer. A
+     * timer reset on every touch would trigger a recalculation on every tap;
+     * here a timestamp is enough.
      */
     const interval = setInterval(() => {
       if (Date.now() - lastTouchRef.current < timeoutMs) return

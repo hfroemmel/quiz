@@ -1,30 +1,31 @@
 /**
- * Fussleiste des Touchgeraets: die beiden Spielerecken und der Fragezaehler.
+ * Footer of the touch device: the two player corners and the question
+ * counter.
  *
- * Sie ersetzt am Geraet die Kopfzeile der Buehne. Der Grund ist die Koerperhaltung
- * und nicht die Gestaltung: Im Saal schaut man zum Beamer hinauf, am Tisch steht
- * man davor. Punktestand und Buzzer gehoeren dorthin, wo die Hand ist - unten,
- * in der Ecke des Spielers, dem sie gehoert.
+ * It replaces the stage's header on the device. The reason is body posture,
+ * not styling: in the hall you look up at the projector, at the table you
+ * stand in front of it. Score and buzzer belong where the hand is - at the
+ * bottom, in the corner of the player they belong to.
  *
- * Duell:
- *   [Spieler 1 | Punkte]     [Hinweis oder "Weiter"]     [Punkte | Spieler 2]
- *   [    BUZZERN     ]           [Frage 6/7]            [     BUZZERN     ]
+ * Duel:
+ *   [Player 1 | Score]     [Notice or "Next"]     [Score | Player 2]
+ *   [      BUZZ      ]        [Question 6/7]        [      BUZZ      ]
  *
- * Einzelspiel:
- *   [Spieler 1 | Punkte]     [Hinweis oder "Weiter"]          [Frage 6/7]
+ * Single-player:
+ *   [Player 1 | Score]     [Notice or "Next"]          [Question 6/7]
  *
- * DREI PLAETZE IN BEIDEN FAELLEN, und der mittlere liegt in beiden auf der
- * Mitte des Bildschirms. Im Einzelspiel ruecken Buzzer und Gegner weg; damit
- * der Hinweis trotzdem mittig steht, nimmt der Zaehler den frei gewordenen
- * dritten Platz ein - statt sich mit dem Hinweis nach rechts zu schieben.
+ * THREE SLOTS IN BOTH CASES, and the middle one sits at the centre of the
+ * screen in both. In single-player mode the buzzer and opponent move away;
+ * so the notice still sits centred, the counter takes the freed-up third
+ * slot - instead of shifting toward the right along with the notice.
  *
- * Hinweis, "Antwort abgeben" und "Weiter" teilen sich EIN Feld mit fester
- * Hoehe, damit der Wechsel zwischen Satz und Knopf nichts darueber verschiebt -
- * Frage und Antworten duerfen nicht springen, waehrend jemand zielt.
+ * Notice, "Submit answer" and "Next" share ONE field of fixed height, so
+ * switching between sentence and button does not shift anything above it -
+ * question and answers must not jump while someone is aiming.
  *
- * Punktekarte und Zaehler sind DIESELBEN Bauteile wie auf der Buehne. Sie tragen
- * hier nur die Farbe ihres Spielers; alles andere - Aufbau, Hochzaehlen,
- * gezeichnete Karte der Kinderwelt - kommt unveraendert von dort.
+ * The score card and the counter are the SAME components as on the stage.
+ * Here they only carry their player's colour; everything else - layout,
+ * counting up, the kids' world's drawn card - comes unchanged from there.
  */
 import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { Counter, Score } from '@hfroemmel/quiz-react'
@@ -34,24 +35,24 @@ import styles from './Game.module.css'
 
 interface PlayerFootProps {
   view: PlayerQuizViewModel
-  /** Wer den Zuschlag hat - `null`, solange niemand gedrueckt hat. */
+  /** Who has the buzz - `null` as long as nobody has pressed. */
   turn: PlayerId | null
-  /** Darf dieser Spieler den Zuschlag ueberhaupt holen? */
+  /** Is this player even allowed to grab the buzz? */
   canBuzz(playerId: PlayerId): boolean
   onBuzz(playerId: PlayerId): void
-  /** Die eingeloggte Antwort abgeben und aufloesen lassen. */
+  /** Submit the logged answer and have it revealed. */
   onResolve(): void
-  /** Naechste Frage anfordern - nur nach der Loesung moeglich. */
+  /** Request the next question - only possible after the solution. */
   onContinue(): void
 }
 
 /**
- * Der Satz, der gerade im Hinweisfeld steht.
+ * The sentence currently shown in the notice field.
  *
- * Es ist die einzige Stelle, an der das Geraet die Spieler anspricht, und sie
- * bleibt bewusst karg: In der zweiten Chance wechselt der Zug auf den anderen
- * Spieler, ohne dass er gebuzzert haette - das saehe er sonst nirgends.
- * Alles andere sagt der Bildschirm von selbst.
+ * It is the only place where the device addresses the players, and it stays
+ * deliberately sparse: on the second chance, the turn switches to the other
+ * player without them having buzzed - they would otherwise see that nowhere
+ * else. Everything else the screen says for itself.
  */
 function hint(view: PlayerQuizViewModel): string | null {
   if (view.phase !== 'second-chance') return null
@@ -65,9 +66,9 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
   if (!playerOne) return null
 
   /*
-   * Im Einzelspiel gibt es niemanden, gegen den man sich melden koennte: Die
-   * Antworten sind offen, sobald der Server sie annimmt, und ein Knopf davor
-   * waere reine Zeremonie.
+   * In single-player mode there is nobody to signal against: the answers are
+   * open as soon as the server accepts them, and a button before that would
+   * be pure ceremony.
    */
   const solo = view.playerScores.length < 2
 
@@ -98,10 +99,10 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
   const text = hint(view)
   const next = view.allowedCommands.includes('CONTINUE')
   /*
-   * Abgegeben werden kann erst, wenn eine Antwort eingeloggt ist. Ob eine
-   * markiert ist, sagt das View-Modell - derselbe Stand, den auch alle anderen
-   * sehen. Erst dieser Knopf loest die Wertung aus; bis dahin darf der Spieler
-   * umentscheiden.
+   * Submitting is only possible once an answer is logged. Whether one is
+   * marked is reported by the view model - the same state everyone else
+   * sees too. Only this button triggers scoring; up until then the player
+   * may change their mind.
    */
   const submit =
     view.allowedCommands.includes('RESOLVE_ATTEMPT') &&
@@ -113,7 +114,7 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
       {corner(playerOne, 'left')}
 
       <div className={styles.middle}>
-        {/* Feste Hoehe, wechselnder Inhalt - siehe oben. */}
+        {/* Fixed height, changing content - see above. */}
         <div className={styles.notice} data-notice="">
           {next ? (
             <button type="button" className={`stage-button stage-button--primary ${styles.continue}`} data-continue="" onClick={onContinue}>

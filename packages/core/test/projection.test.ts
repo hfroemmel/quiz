@@ -9,18 +9,18 @@ import { describe, expect, it } from 'vitest'
 import { sceneForPhase } from '../src/engine/projection'
 
 describe('sceneForPhase', () => {
-  it('folgt der Phase, wenn der Fragetyp nichts anderes verlangt', () => {
+  it('follows the phase when the question type demands nothing else', () => {
     expect(sceneForPhase('buzzer-open', 'text-choice')).toBe('question')
     expect(sceneForPhase('answer-locked', 'text-choice')).toBe('question')
     expect(sceneForPhase('solution', 'text-choice')).toBe('solution')
     expect(sceneForPhase('reveal-running', 'image-reveal')).toBe('reveal')
   })
 
-  it('haelt das Bilderkennen bei der Spielerauswahl in der Enthuellungsszene', () => {
+  it('keeps image recognition in the reveal scene during player selection', () => {
     expect(sceneForPhase('answer-locked', 'image-reveal')).toBe('reveal')
   })
 
-  it('verlaesst die Enthuellung, sobald aufgeloest wird', () => {
+  it('leaves the reveal as soon as it is resolved', () => {
     expect(sceneForPhase('solution', 'image-reveal')).toBe('solution')
     expect(sceneForPhase('attempt-feedback', 'image-reveal')).toBe('feedback')
   })

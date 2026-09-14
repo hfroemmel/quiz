@@ -39,28 +39,28 @@ const question: Question = {
 
 const config = { locales: [{ id: 'de-DE', label: 'Deutsch' }, { id: 'en-GB', label: 'English' }] } as QuizConfig
 
-describe('gueltigeSprache', () => {
-  it('holt eine unbekannte Sprache auf die Grundsprache zurueck', () => {
+describe('validLocale', () => {
+  it('falls an unknown locale back to the base locale', () => {
     // The wish comes from a config file; a typo must not disable a device.
     expect(validLocale(config, 'kl-KL')).toBe('de-DE')
     expect(validLocale(config, 'en-GB')).toBe('en-GB')
     expect(validLocale(config, undefined)).toBe('de-DE')
   })
 
-  it('nimmt Deutsch, wenn gar keine Sprachen konfiguriert sind', () => {
+  it('takes German when no locales are configured at all', () => {
     expect(baseLocale({} as QuizConfig)).toBe('de-DE')
   })
 })
 
-describe('fragenTextFuer', () => {
-  it('ersetzt Text, Medium und Erklaerung', () => {
+describe('questionTextFor', () => {
+  it('replaces text, medium and explanation', () => {
     const english = questionTextFor(question, 'en-GB')
     expect(english.prompt).toBe('How many members?')
     expect(english.media?.imageAssetId).toBe('bild-en')
     expect(english.explanation).toEqual({ summary: 'As of 2021.', source: 'Bundestag' })
   })
 
-  it('ersetzt Optionen EINZELN und laesst die Wertung unberuehrt', () => {
+  it('replaces options INDIVIDUALLY and leaves the scoring untouched', () => {
     /*
      * A translation that forgets an option must not make it disappear -
      * otherwise exactly the one compared against might be missing.
@@ -74,14 +74,14 @@ describe('fragenTextFuer', () => {
     expect(english.id).toBe(question.id)
   })
 
-  it('gibt das Original zurueck, wenn es keine Uebersetzung gibt', () => {
+  it('returns the original when there is no translation', () => {
     expect(questionTextFor(question, 'fr-FR')).toBe(question)
     expect(questionTextFor(question, undefined)).toBe(question)
   })
 })
 
-describe('beschriftung', () => {
-  it('nimmt die uebersetzte Beschriftung, sonst die des Originals', () => {
+describe('label', () => {
+  it("takes the translated label, otherwise the original's", () => {
     const entry = { label: 'Leicht', labels: { 'en-GB': 'Easy' } }
     expect(labelFor(entry, 'en-GB')).toBe('Easy')
     expect(labelFor(entry, 'fr-FR')).toBe('Leicht')
@@ -89,8 +89,8 @@ describe('beschriftung', () => {
   })
 })
 
-describe('oberflaechenTexte', () => {
-  it('legt die gewaehlte Sprache ueber die Grundsprache', () => {
+describe('uiTexts', () => {
+  it('layers the chosen locale over the base locale', () => {
     /*
      * An entry known only to the base locale stays readable - instead of
      * standing on the screen as a key.
@@ -105,7 +105,7 @@ describe('oberflaechenTexte', () => {
     expect(interfaceTexts(withTexts, 'en-GB')).toEqual({ 'kiosk.start': "Let's go", 'kiosk.back': 'Zurück' })
   })
 
-  it('bleibt leer, wenn der Inhalt keine Texte mitbringt', () => {
+  it('stays empty when the content brings no texts', () => {
     expect(interfaceTexts(config, 'en-GB')).toEqual({})
   })
 })

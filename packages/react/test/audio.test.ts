@@ -30,14 +30,14 @@ const expected = [
   'wrong.mp3',
 ]
 
-describe('Klangdateien', () => {
-  it('enthaelt genau den festgeschriebenen Bestand', () => {
+describe('Sound files', () => {
+  it('contains exactly the fixed set', () => {
     expect(readdirSync(audioDir).sort()).toEqual([...expected].sort())
     // And the static registry knows exactly these files.
     expect([...registeredAudioFilesForTest].sort()).toEqual([...expected].sort())
   })
 
-  it('spielt keinen Countdown- oder Weckerton', () => {
+  it('plays no countdown or alarm sound', () => {
     const all = soundCueIds.flatMap((cueId) => cueFilesForTest[cueId])
     for (const forbidden of ['tick.mp3', 'ring.mp3']) {
       expect(all, forbidden).not.toContain(forbidden)
@@ -45,7 +45,7 @@ describe('Klangdateien', () => {
     }
   })
 
-  it('verweist auf keine Datei, die es nicht gibt', () => {
+  it('references no file that does not exist', () => {
     const present = new Set(readdirSync(audioDir))
     for (const cueId of soundCueIds) {
       for (const file of cueFilesForTest[cueId]) {

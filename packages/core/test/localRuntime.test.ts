@@ -80,7 +80,7 @@ function createRuntime(options: {
 }
 
 describe('LocalQuizRuntime', () => {
-  it('spielt eine Frage komplett ueber die Runtime-Schnittstelle - ohne SQLite', () => {
+  it('plays a question completely through the runtime interface - without SQLite', () => {
     const { runtime, settle } = createRuntime()
     const seen: QuizSnapshot<PlayerQuizViewModel>[] = []
     const unsubscribe = runtime.subscribe((snapshot) => seen.push(snapshot))
@@ -118,7 +118,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('meldet Ablehnungen im Snapshot und laesst sie loeschen', () => {
+  it('reports rejections in the snapshot and lets them be cleared', () => {
     const { runtime } = createRuntime()
 
     runtime.dispatch({ type: 'RESOLVE_ATTEMPT' })
@@ -130,7 +130,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('laesst den Ton auch dann umschalten, wenn kein Spiel laeuft', () => {
+  it('lets the sound be toggled even when no game is running', () => {
     /*
      * At the kiosk device the sound switch sits on the start screen - nothing
      * runs there the engine could record the command in. It belongs to the
@@ -151,7 +151,7 @@ describe('LocalQuizRuntime', () => {
     restored.dispose()
   })
 
-  it('veroeffentlicht den Abspielauftrag ueber den Dienst - und plant nichts darueber hinaus', () => {
+  it('publishes the playback job through the service - and plans nothing beyond it', () => {
     /*
      * THE ENGINE ALONE IS NOT PROOF ENOUGH. Between it and the hall stands the
      * service: it accepts the command, checks role and revision and writes the
@@ -211,7 +211,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('stellt Fragen, Antworten und Beschriftungen auf die gewaehlte Sprache um', () => {
+  it('switches questions, answers and labels to the chosen locale', () => {
     /*
      * THE WHOLE WAY IN ONE TEST: command -> service -> state -> projection.
      * The language is resolved in four places (question, options, catalog,
@@ -242,7 +242,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('faellt auf die Grundsprache zurueck, wenn der Inhalt die Sprache nicht kennt', () => {
+  it('falls back to the base locale when the content does not know the locale', () => {
     // The wish comes from a config file; a typo must not empty anything.
     const { runtime } = createRuntime()
     runtime.dispatch({ type: 'SET_LOCALE', locale: 'kl-KL' })
@@ -250,7 +250,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('gibt den Stand beim Aufraeumen an den persist-Adapter und stellt ihn wieder her', () => {
+  it('hands the state to the persist adapter on cleanup and restores it', () => {
     const saved: MemoryQuizStoreSnapshot[] = []
     const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })
 

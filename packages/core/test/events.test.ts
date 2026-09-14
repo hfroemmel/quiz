@@ -27,13 +27,13 @@ class Recorder {
 }
 
 describe('deriveQuizEvents', () => {
-  it('meldet beim allerersten Snapshot nichts - auch nicht ein altes Ergebnis', () => {
+  it('reports nothing on the very first snapshot - not even an old result', () => {
     const harness = createHarness([makeQuestion({ id: 'q1' })])
     startGame(harness, { ...selfService, playerCount: 1 })
     expect(deriveQuizEvents(null, harness.publicView())).toEqual([])
   })
 
-  it('leitet die volle Kette eines Spiels ab', () => {
+  it('derives the full chain of a game', () => {
     const harness = createHarness([makeQuestion({ id: 'q1' })])
     const recorder = new Recorder(harness)
     recorder.observe()
@@ -84,7 +84,7 @@ describe('deriveQuizEvents', () => {
     ])
   })
 
-  it('meldet einen Abbruch als game-aborted, nicht als Ergebnis', () => {
+  it('reports an abort as game-aborted, not as a result', () => {
     const harness = createHarness([makeQuestion({ id: 'q1' }), makeQuestion({ id: 'q2' })])
     const recorder = new Recorder(harness)
     recorder.observe()
@@ -101,7 +101,7 @@ describe('deriveQuizEvents', () => {
     ])
   })
 
-  it('erkennt jede weitere Frage am Fortschrittszaehler', () => {
+  it('recognises every further question by the progress counter', () => {
     const harness = createHarness([makeQuestion({ id: 'q1' }), makeQuestion({ id: 'q2' })])
     const recorder = new Recorder(harness)
     recorder.observe()

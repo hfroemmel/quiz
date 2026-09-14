@@ -12,14 +12,14 @@ const empty: SoundState = { optionCount: 0, chosenOptionId: undefined, phase: 'i
 
 const state = (part: Partial<SoundState>): SoundState => ({ ...empty, ...part })
 
-describe('klaengeFuer', () => {
-  it('meldet die eingeblendeten Antworten genau einmal', () => {
+describe('soundsFor', () => {
+  it('reports the revealed answers exactly once', () => {
     const open = state({ optionCount: 4, phase: 'buzzer-open' })
     expect(soundsFor(empty, open, 2)).toEqual(['options-appear'])
     expect(soundsFor(open, open, 2)).toEqual([])
   })
 
-  it('meldet jede neu eingeloggte Antwort - auch die geaenderte', () => {
+  it('reports every newly logged answer - including a changed one', () => {
     const before = state({ optionCount: 4, phase: 'answer-locked' })
     const first = state({ optionCount: 4, chosenOptionId: 'a', phase: 'answer-locked' })
     const second = state({ optionCount: 4, chosenOptionId: 'b', phase: 'answer-locked' })
@@ -28,19 +28,19 @@ describe('klaengeFuer', () => {
     expect(soundsFor(first, second, 2)).toEqual(['answer-logged'])
   })
 
-  it('meldet den Zuschlag im Duell', () => {
+  it('reports the buzz-in in a duel', () => {
     const open = state({ optionCount: 4, phase: 'buzzer-open' })
     const award = state({ optionCount: 4, phase: 'answer-locked' })
     expect(soundsFor(open, award, 2)).toEqual(['buzz'])
   })
 
-  it('meldet den Zuschlag im Einzelspiel NIE', () => {
+  it('NEVER reports the buzz-in in a solo game', () => {
     const open = state({ optionCount: 4, phase: 'buzzer-open' })
     const award = state({ optionCount: 4, phase: 'answer-locked' })
     expect(soundsFor(open, award, 1)).toEqual([])
   })
 
-  it('laesst im Einzelspiel den Auswahlton unberuehrt', () => {
+  it('leaves the selection sound untouched in a solo game', () => {
     /*
      * The tap on an answer there claims the buzz and the answer in one move:
      * phase and selection change in the same step. Exactly one sound is
