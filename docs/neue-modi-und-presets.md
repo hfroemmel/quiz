@@ -31,7 +31,12 @@ summarizing axis:
   "audienceId": "adults",
   "themeId": "default",
   "poolIds": ["bremen"],
-  "presetIds": ["medium"]
+  "presetIds": ["medium"],
+  // What the start menu shows - all four optional:
+  "playerCounts": [1, 2],
+  "artworkAssetId": "art-bremen",
+  "emphasis": "regular",
+  "order": 30
 }
 ```
 
@@ -51,6 +56,21 @@ Rules:
   audience's theme applies. So there is exactly one mapping at any given time.
 * A colorful card on stage is NOT a theme. The offering overview colors its
   cards by quiz, the quiz itself runs in the theme from this row.
+* `playerCounts` says which player counts this quiz offers. Without the entry
+  both apply. A device only one person stands at states `[1]`, and the question
+  about the number of players falls away.
+* `artworkAssetId` is the motif of the card and must exist in `assets.json`;
+  `emphasis: "wide"` gives the card two columns. Both are optional: without
+  them the card carries its name and nothing else.
+* `order` places the card in the menu, ascending, with gaps (10, 20, 30) so
+  that one more quiz can be put in between. Quizzes without an `order` follow
+  in the order of the configuration.
+
+The whole menu comes out of these fields: `deriveStartMenu(config, catalog,
+locale)` in `@hfroemmel/quiz-core` turns them into one model that the kiosk
+device, the operator form and the stage overview all read. A quiz without a
+question set is reported there as unavailable BEFORE the start, with a reason -
+the menu never reroutes silently.
 
 The server resolves the quiz type at start (`resolveQuizMode`), writes
 audience, pools, and preset into the game state, and only ever serves them

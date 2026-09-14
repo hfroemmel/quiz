@@ -270,8 +270,18 @@ export function QuizGame({
     }
   }, [view, onFinished])
 
+  /*
+   * THE CONFIGURATION DECIDES, THE PROPERTY IS THE FALLBACK.
+   *
+   * Idle time and player counts belong to the installation, and they now live
+   * in the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A
+   * host that still passes them as properties wins, so nothing changes for it
+   * from one version to the next; a host that passes nothing gets what the
+   * package says.
+   */
+  const effectiveIdleTimeoutMs = idleTimeoutMs ?? view?.catalog.rules.idleTimeoutMs
   const idle = useIdleWatch({
-    ...(idleTimeoutMs === undefined ? {} : { timeoutMs: idleTimeoutMs }),
+    ...(effectiveIdleTimeoutMs === undefined ? {} : { timeoutMs: effectiveIdleTimeoutMs }),
     active: Boolean(view && view.scene !== 'start'),
     onIdle: () => {
       send({ type: 'ABORT_GAME' })
@@ -392,7 +402,7 @@ export function QuizGame({
         <GameStart
           view={view}
           audience={audienceId}
-          playerCounts={playerCounts}
+          playerCounts={playerCounts ?? configuredPlayerCounts(view.catalog, audienceId)}
           onStart={start}
           onExit={onExit}
           onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
@@ -542,4 +552,23 @@ export function QuizGame({
       />
     </div>
   )
+}
+
+/**
+ * The player counts this device offers, out of the configuration.
+ *
+ * The quizzes of the audience say it (`quizzes[].playerCounts`); several
+ * quizzes are combined, because the menu of this phase does not yet let one be
+ * chosen. Without quizzes nothing comes back, and the start selection keeps its
+ * own default - a kiosk package without quiz types is a valid package.
+ */
+function configuredPlayerCounts(
+  catalog: PlayerQuizViewModel['catalog'],
+  audienceId: string,
+): PlayerCount[] | undefined {
+  const counts = catalog.quizzes
+    .filter((quiz) => quiz.audienceId === audienceId)
+    .flatMap((quiz) => quiz.playerCounts)
+  const unique = [...new Set(counts)].sort((left, right) => left - right)
+  return unique.length > 0 ? unique : undefined
 }

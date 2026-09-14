@@ -137,12 +137,43 @@ local files.
     "themeId": "kids",
     "startVisualAssetId": "start-kids",
     "allowedPresetIds": ["easy", "mixed"]
-  }]
+  }],
+  "quizzes": [{
+    "id": "kids",
+    "label": "Kinderquiz",
+    "audienceId": "kids",
+    "themeId": "kids",
+    "presetIds": ["easy"],
+    "playerCounts": [1, 2],              // what the start menu offers
+    "artworkAssetId": "art-kids",        // motif of the card
+    "emphasis": "regular",               // "wide" takes two columns
+    "order": 20                          // menu position, ascending
+  }],
+  "rules": {                             // optional; every value has today's constant as default
+    "scoring": { "firstAnswerPoints": 100, "secondChancePoints": 50, "manualAdjustmentStep": 50 },
+    "timing":  { "pauseScreenMs": 3000, "imageRevealDurationMs": 10000, "questionLeadInMs": 2500 },
+    "jokers":  { "enabled": true },
+    "idleTimeoutMs": 120000,             // 0 switches the idle watch off
+    "showDetailsAfterSolution": false
+  }
 }
 ```
 
 Missing filters mean "any". A special value such as the string `random` is
 therefore not needed.
+
+### Rules
+
+`rules` sets only rules the engine already has; a package without the block
+plays exactly as before, because every value defaults to the constant in
+`packages/core/src/contracts/config.ts`. The bounds are part of the schema: a
+feedback animation of ten milliseconds or a reveal of an hour would not be a
+setting but a broken evening. The reveal grid, the parameters of the selection
+algorithm and the question count stay in code and in `questionsPerGame` - they
+are fairness, not taste.
+
+The idle watch and `showDetailsAfterSolution` reach the clients through
+`catalog.rules`; everything else is read by the engine on the server.
 
 ## Content profiles
 

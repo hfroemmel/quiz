@@ -833,7 +833,13 @@
         "medium",
         "hard"
       ],
-      "defaultPresetId": "medium"
+      "defaultPresetId": "medium",
+      "playerCounts": [
+        1,
+        2
+      ],
+      "emphasis": "wide",
+      "order": 10
     },
     {
       "id": "kids",
@@ -845,7 +851,12 @@
       "themeId": "kids",
       "presetIds": [
         "easy"
-      ]
+      ],
+      "playerCounts": [
+        1,
+        2
+      ],
+      "order": 20
     },
     {
       "id": "saarbruecken",
@@ -864,7 +875,12 @@
       ],
       "presetIds": [
         "regional"
-      ]
+      ],
+      "playerCounts": [
+        1,
+        2
+      ],
+      "order": 30
     }
   ],
   "locales": [

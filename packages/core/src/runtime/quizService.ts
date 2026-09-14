@@ -16,6 +16,7 @@
 import {
   commandEnvelopeSchema,
   questionPatchSchema,
+  resolveRules,
   requiresRevisionCheck,
   roleMayIssue,
   type ActorRole,
@@ -292,9 +293,14 @@ export class QuizService {
 
   private runEngineCommand(envelope: CommandEnvelope, command: Command): DispatchResult {
     const nowMs = this.now()
+    const rules = resolveRules(this.content.config.rules)
     const result = reduce(this.state, command, {
       nowMs,
       eventDayId: this.eventDay.id,
+      timing: rules.timing,
+      selfServiceTiming: rules.selfServiceTiming,
+      scoring: rules.scoring,
+      jokersEnabled: rules.jokersEnabled,
       newId: (prefix) => `${prefix}-${createRandomId()}`,
       questionSource: this.content.createQuestionSource(
         this.store.loadUsageHistory(this.eventDay.id),

@@ -7,7 +7,7 @@
  * been transmitted.
  */
 import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content'
-import type { AttemptOutcome, GamePhase, PlayerId } from './state'
+import type { AttemptOutcome, GamePhase, PlayerCount, PlayerId } from './state'
 import type { JokerSequence, JokerType } from './joker'
 import type { ActorRole, CommandType } from './commands'
 
@@ -467,7 +467,29 @@ export interface CatalogViewModel {
     presetIds: string[]
     supportsDifficulty: boolean
     defaultPresetId: string
+    /** Player counts this quiz offers, in the order of the offer. */
+    playerCounts: PlayerCount[]
+    /** Weight of the card in the menu; `wide` takes two columns. */
+    emphasis: 'wide' | 'regular'
+    /** Artwork of the offer card, already resolved into a URL. */
+    artworkUrl?: string
+    /**
+     * Can this quiz be started right now?
+     *
+     * The menu says so BEFORE the attempt. `false` without a reason does not
+     * happen: whoever reports a quiz as unavailable also says why.
+     */
+    available: boolean
+    unavailableReason?: QuizUnavailableReason
   }[]
+  /**
+   * The rules of this package that a client needs.
+   *
+   * Only these two: the idle watch runs in the device, and whether the detail
+   * text gets its own step after the solution is a question of the interface.
+   * Everything else the engine decides, and no client asks about it.
+   */
+  rules: { idleTimeoutMs?: number; showDetailsAfterSolution: boolean }
   /** Selectable question pools - "Saarbruecken" is exactly one of them. */
   pools: { id: string; label: string }[]
   presets: { id: string; label: string; slotCount: number }[]
@@ -533,3 +555,67 @@ export type ClientMessage =
   | { type: 'audio-ready' }
 
 export const PROTOCOL_VERSION = 1
+
+/* ------------------------------------------------------------------ *
+ * Start menu
+ * ------------------------------------------------------------------ */
+
+/** Why a quiz cannot be started - the menu never stays silent about it. */
+export type QuizUnavailableReason = 'no-questions' | 'missing-pool'
+
+/**
+ * One offer of the start menu, resolved for one locale.
+ *
+ * It carries no configuration: whoever renders the menu must not be able to
+ * derive audiences, pools or presets from it. What is needed to start is the
+ * quiz id, a player count and - where there is a choice - a preset id.
+ */
+export interface StartMenuOffer {
+  /**
+   * The quiz this card starts - where the package configures quiz types.
+   *
+   * EXACTLY ONE OF THE TWO IDS IS SET. A package with `quizzes` offers its quiz
+   * types; a pure kiosk package without them offers its audiences, and the host
+   * then starts with audience and preset, exactly as it does today.
+   */
+  quizId?: string
+  /** The audience this card starts - where the package has no quiz types. */
+  audienceId?: string
+  label: string
+  subtitle?: string
+  artworkUrl?: string
+  emphasis: 'wide' | 'regular'
+  playerCounts: PlayerCount[]
+  /** Only where the quiz offers a choice (`supportsDifficulty`). */
+  difficulties?: { presetId: string; label: string; isDefault: boolean }[]
+  available: boolean
+  unavailableReason?: QuizUnavailableReason
+}
+
+/**
+ * The whole start menu as data - one model for every host.
+ *
+ * The kiosk renders it as cards, the operator desk as a form, the stage as an
+ * overview. All three read the same thing, so a new quiz is a configuration
+ * entry and not a change in three interfaces.
+ */
+export interface StartMenuModel {
+  locale: string
+  /** More than one means: the language switch appears. */
+  locales: { id: string; label: string }[]
+  offers: StartMenuOffer[]
+  /**
+   * The player counts across all offers.
+   *
+   * `textKey` names the interface text of the mode; `label` stands there only
+   * where the package configures its own wording. That way the German default
+   * stays in one place (`@hfroemmel/quiz-react`) instead of being copied here.
+   */
+  playModes: { playerCount: PlayerCount; textKey: string; label?: string }[]
+  /**
+   * What is already settled because there is nothing to choose: a single quiz,
+   * a single player count. A menu that offers one option is a hurdle, not a
+   * choice.
+   */
+  preselect?: { quizId?: string; audienceId?: string; playerCount?: PlayerCount }
+}

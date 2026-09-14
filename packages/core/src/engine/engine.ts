@@ -37,6 +37,8 @@ import {
   type PlayerId,
   type PlayerState,
   type RuntimeQuestion,
+  type GameTiming,
+  type ScoringRules,
   type SelfServiceTiming,
 } from '../contracts'
 import { eligibleOpponent, evaluateBuzz } from './buzzer'
@@ -107,8 +109,17 @@ export interface EngineContext {
   /** Creates stable ids (game, attempt, transition). */
   newId: (prefix: string) => string
   questionSource: QuestionSource
-  timing?: typeof gameTiming
+  timing?: GameTiming
   selfServiceTiming?: SelfServiceTiming
+  /** Scoring of this package (`config.rules.scoring`); without it the constants. */
+  scoring?: ScoringRules
+  /**
+   * Do operated games of this package have jokers? (`config.rules.jokers`)
+   *
+   * Without a statement they do - that is how every game played so far began.
+   * A self-service game never has them, whatever this says.
+   */
+  jokersEnabled?: boolean
   /** Global sound status a newly started game takes over. */
   initialSoundEnabled?: boolean
   /** Locale of the device a newly started game takes over. */
@@ -159,7 +170,13 @@ export type EngineResult =
 
 export function reduce(state: GameState | null, command: Command, ctx: EngineContext): EngineResult {
   const timing = ctx.timing ?? gameTiming
-  const work = new Draft(state, ctx, timing, ctx.selfServiceTiming ?? selfServiceTiming)
+  const work = new Draft(
+    state,
+    ctx,
+    timing,
+    ctx.selfServiceTiming ?? selfServiceTiming,
+    ctx.scoring ?? scoringRules,
+  )
 
   /*
    * WHILE THE CARD IS IN THE AIR, THE QUESTION WAITS.
@@ -344,10 +361,11 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       if (work.state.status === 'aborted') {
         return reject('invalid-phase', 'Ein abgebrochenes Spiel kann nicht mehr korrigiert werden.')
       }
-      const step = command.direction === 'increase' ? scoringRules.manualAdjustmentStep : -scoringRules.manualAdjustmentStep
+      const step =
+        command.direction === 'increase' ? work.scoring.manualAdjustmentStep : -work.scoring.manualAdjustmentStep
       const player = work.state.players.find((entry) => entry.id === command.playerId)
       if (!player) return reject('invalid-payload', 'Unbekannter Spieler.')
-      const { score, effectiveDelta } = applyScoreDelta(player.score, step)
+      const { score, effectiveDelta } = applyScoreDelta(player.score, step, work.scoring)
       if (effectiveDelta === 0) {
         return reject('invalid-payload', `Der Punktestand von ${player.label} liegt bereits bei 0.`)
       }
@@ -542,7 +560,7 @@ function startGame(
      * keeps the rule in ONE place instead of a configuration flag that each host
      * would have to set correctly.
      */
-    ...(flowProfile === 'operated'
+    ...(flowProfile === 'operated' && (work.ctx.jokersEnabled ?? true)
       ? {
           jokerByPlayer: createJokerStates(players.map((player) => player.id)),
           jokerSequence: { phase: 'idle' as const },
@@ -857,7 +875,7 @@ function finishAttempt(
   const question = state.currentQuestion!.question
   const imageReveal = isImageReveal(question.questionType)
   const previousFailures = countFailedAttemptsForCurrentQuestion(state)
-  const points = outcome === 'correct' ? pointsForCorrectAnswer(previousFailures) : scoringRules.noPoints
+  const points = outcome === 'correct' ? pointsForCorrectAnswer(previousFailures, work.scoring) : work.scoring.noPoints
 
   const playerLabel = attempt.playerId
     ? state.players.find((player) => player.id === attempt.playerId)!.label
@@ -871,7 +889,7 @@ function finishAttempt(
 
     if (points > 0 && attempt.playerId) {
       const player = draft.players.find((entry) => entry.id === attempt.playerId)!
-      const { score } = applyScoreDelta(player.score, points)
+      const { score } = applyScoreDelta(player.score, points, work.scoring)
       player.score = score
     }
 
@@ -1552,8 +1570,9 @@ class Draft {
   constructor(
     initial: GameState | null,
     readonly ctx: EngineContext,
-    readonly timing: typeof gameTiming,
+    readonly timing: GameTiming,
     readonly selfServiceTiming: SelfServiceTiming,
+    readonly scoring: ScoringRules,
   ) {
     this.state = initial ? structuredClone(initial) : null
   }

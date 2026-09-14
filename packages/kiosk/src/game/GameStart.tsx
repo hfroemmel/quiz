@@ -26,7 +26,7 @@
  * see the stylesheet.
  */
 import { useState } from 'react'
-import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import { playerCounts as allPlayerCounts, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { textsFor } from '@hfroemmel/quiz-react'
 import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon } from './icons'
 import styles from './Game.module.css'
@@ -76,7 +76,7 @@ export function GameStart({
   const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
   const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
-  const offered = playerCounts && playerCounts.length > 0 ? playerCounts : alleSpielerzahlen
+  const offered = playerCounts && playerCounts.length > 0 ? playerCounts : allPlayerCounts
   const [playerCount, setPlayerCount] = useState<PlayerCount>(offered[0] ?? 1)
   const [presetId, setPresetId] = useState(presets[0]?.id ?? '')
 

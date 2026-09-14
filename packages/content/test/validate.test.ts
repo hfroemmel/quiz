@@ -23,6 +23,10 @@ type TestQuiz = {
   poolIds?: string[]
   presetIds: string[]
   defaultPresetId?: string
+  playerCounts?: (1 | 2)[]
+  artworkAssetId?: string
+  emphasis?: 'wide' | 'regular'
+  order?: number
 }
 
 const baseConfig = {
@@ -310,6 +314,42 @@ describe('Quiz modes', () => {
       quizzes: [quiz({ audienceId: 'marsmenschen' })],
     })
     expect(result.errors.some((issue) => issue.code === 'audience-reference')).toBe(true)
+  })
+
+  it('accepts the fields of the start menu and keeps their references', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ playerCounts: [1], artworkAssetId: 'img-1', emphasis: 'wide', order: 10 })],
+    })
+    expect(result.ok).toBe(true)
+    // Only the pool warnings of this small fixture, nothing about the new fields.
+    /*
+     * Only the pool warnings of this small fixture - the new fields add none
+     * of their own as long as they are consistent.
+     */
+    const aboutTheMenu = result.warnings.filter((issue) => issue.code.startsWith('quiz-'))
+    expect(aboutTheMenu).toEqual([])
+  })
+
+  it('detects a card artwork that does not exist', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ artworkAssetId: 'img-does-not-exist' })],
+    })
+    expect(result.errors.some((issue) => issue.code === 'asset-reference')).toBe(true)
+  })
+
+  it('warns about a player count named twice - it would be one card too many', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ playerCounts: [1, 1] })],
+    })
+    expect(result.ok).toBe(true)
+    expect(result.warnings.some((issue) => issue.code === 'quiz-player-counts')).toBe(true)
+  })
+
+  it('warns about two quizzes on the same menu position', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ order: 10 }), quiz({ id: 'kids-quiz', order: 10 })],
+    })
+    expect(result.warnings.some((issue) => issue.code === 'quiz-order')).toBe(true)
   })
 
   it('detects an unknown theme', () => {

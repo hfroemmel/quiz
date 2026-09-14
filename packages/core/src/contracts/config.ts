@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Central, typed configuration of game rules and the timings that matter to the rules.
  *
@@ -151,9 +153,15 @@ export const contentThresholds = {
   maxChoiceOptionCount: 4,
 } as const
 
-export type ScoringRules = typeof scoringRules
-export type GameTiming = typeof gameTiming
-export type SelfServiceTiming = typeof selfServiceTiming
+/*
+ * The constants above are literal types (`as const`) so that reading them is
+ * exact. What the engine ACCEPTS has to be wider: a package may configure other
+ * numbers (see `rulesConfigSchema`). Hence one widened type per group - same
+ * keys, plain numbers.
+ */
+export type ScoringRules = { [K in keyof typeof scoringRules]: number }
+export type GameTiming = { [K in keyof typeof gameTiming]: number }
+export type SelfServiceTiming = { [K in keyof typeof selfServiceTiming]: number }
 
 /**
  * A grid that may differ from the default.
@@ -167,4 +175,117 @@ export interface RevealGrid {
   jitter: number
   focus: { x: number; y: number }
   tileFadeMs: number
+}
+
+/* ------------------------------------------------------------------ *
+ * Rules in the package configuration
+ * ------------------------------------------------------------------ */
+
+/**
+ * The rules a content package may set, with the constants above as defaults.
+ *
+ * ONLY RULES THE ENGINE ALREADY HAS. Nothing here adds a behaviour; every value
+ * replaces a constant the engine reads today. A package without `rules`
+ * therefore plays exactly as before - that is what the defaults are for, and
+ * what the tests pin down.
+ *
+ * WHY BOUNDS AND NOT FREE NUMBERS: a feedback animation of ten milliseconds or
+ * a reveal of an hour would not be a setting but a broken evening. The bounds
+ * are wide enough for a house to have a say and narrow enough that the result
+ * is still the game this engine plays.
+ */
+export const rulesConfigSchema = z
+  .object({
+    scoring: z
+      .object({
+        firstAnswerPoints: z.number().int().min(0).max(1_000).optional(),
+        secondChancePoints: z.number().int().min(0).max(1_000).optional(),
+        manualAdjustmentStep: z.number().int().min(1).max(500).optional(),
+        minimumScore: z.number().int().min(-1_000).max(0).optional(),
+      })
+      .optional(),
+    timing: z
+      .object({
+        correctFeedbackMs: z.number().int().min(500).max(10_000).optional(),
+        incorrectFeedbackMs: z.number().int().min(500).max(10_000).optional(),
+        solutionDelayMs: z.number().int().min(0).max(5_000).optional(),
+        imageRevealDurationMs: z.number().int().min(3_000).max(60_000).optional(),
+        pauseScreenMs: z.number().int().min(0).max(10_000).optional(),
+        /** Only the question stands this long before the answers appear (self-service). */
+        questionLeadInMs: z.number().int().min(0).max(15_000).optional(),
+        /** Lead-in before a video starts by itself (self-service). */
+        videoLeadInMs: z.number().int().min(0).max(5_000).optional(),
+      })
+      .optional(),
+    /**
+     * Jokers in an operated game. `false` starts games without a joker supply,
+     * and then no view offers one.
+     *
+     * A self-service game never has jokers - there is nobody at the desk to
+     * draw one, and that is a property of the flow profile, not of the content.
+     */
+    jokers: z.object({ enabled: z.boolean() }).optional(),
+    /**
+     * After this idle time the device returns to the start screen. Up to an
+     * hour; `0` switches the watch off for an attended installation.
+     */
+    idleTimeoutMs: z.number().int().min(0).max(3_600_000).optional(),
+    /**
+     * Show the detail text of the explanation after the solution.
+     *
+     * The text is in the content (`explanation.details`); whether it gets its
+     * own step is a decision of the installation.
+     */
+    showDetailsAfterSolution: z.boolean().optional(),
+  })
+  .strict()
+export type RulesConfig = z.infer<typeof rulesConfigSchema>
+
+/** Every rule value resolved - what the engine and the hosts read. */
+export interface ResolvedRules {
+  scoring: ScoringRules
+  timing: GameTiming
+  selfServiceTiming: SelfServiceTiming
+  jokersEnabled: boolean
+  idleTimeoutMs?: number
+  showDetailsAfterSolution: boolean
+}
+
+/**
+ * Configuration over constants, constant where the configuration says nothing.
+ *
+ * One place does this resolution, so that service, runtime and kiosk cannot
+ * drift apart on what "not configured" means.
+ */
+export function resolveRules(rules: RulesConfig | undefined): ResolvedRules {
+  const timing = stripUndefined(rules?.timing)
+  return {
+    scoring: { ...scoringRules, ...stripUndefined(rules?.scoring) },
+    timing: { ...gameTiming, ...pick(timing, Object.keys(gameTiming)) },
+    selfServiceTiming: { ...selfServiceTiming, ...pick(timing, Object.keys(selfServiceTiming)) },
+    jokersEnabled: rules?.jokers?.enabled ?? true,
+    ...(rules?.idleTimeoutMs === undefined ? {} : { idleTimeoutMs: rules.idleTimeoutMs }),
+    showDetailsAfterSolution: rules?.showDetailsAfterSolution ?? false,
+  }
+}
+
+/*
+ * `exactOptionalPropertyTypes` is off in this repository, so an explicit
+ * `undefined` in the configuration would overwrite a default with `undefined`
+ * in the spread above. Dropping those keys keeps "absent" and "set to
+ * undefined" the same thing.
+ */
+function stripUndefined<T extends object>(source: T | undefined): Partial<T> {
+  if (!source) return {}
+  return Object.fromEntries(Object.entries(source).filter(([, value]) => value !== undefined)) as Partial<T>
+}
+
+/*
+ * `timing` in the configuration is one block, while the engine reads two
+ * (the timings of every game and those of self-service). Splitting it by the
+ * keys of the two defaults keeps the configuration readable and the engine's
+ * two groups apart.
+ */
+function pick<T extends object>(source: T, keys: string[]): Partial<T> {
+  return Object.fromEntries(Object.entries(source).filter(([key]) => keys.includes(key))) as Partial<T>
 }

@@ -9,6 +9,7 @@
  */
 import {
   isChoiceQuestion,
+  resolveRules,
   scoringRules,
   type GameStatisticsViewModel,
   type AuditEntry,
@@ -35,6 +36,13 @@ import {
   subtitleFor,
   quizSupportsDifficulty,
   defaultPresetIdOf,
+  orderedQuizzes,
+  playerCounts,
+  playerCountsOf,
+  type QuizMode,
+  type QuizUnavailableReason,
+  type StartMenuModel,
+  type StartMenuOffer,
   questionTextFor,
   validLocale,
   interfaceTexts,
@@ -84,6 +92,14 @@ export interface ProjectionContext {
   gameCounts?: { audience: string; total: number; completed: number; aborted: number; lastAtIso?: string }[]
   /** Point in time from which the log counts. */
   statisticsSinceIso?: string
+  /**
+   * Quizzes that cannot be started right now, with the reason.
+   *
+   * Only whoever can count questions knows this - the server with the content
+   * service at hand. Without the entry a quiz counts as playable, exactly as
+   * every host assumed before.
+   */
+  quizAvailability?: Record<string, QuizUnavailableReason>
 }
 
 /**
@@ -309,6 +325,7 @@ export function projectModerator(state: GameState | null, ctx: ProjectionContext
             attemptNumber: attempt.attemptNumber,
             pointsIfCorrect: pointsForCorrectAnswer(
               attemptsForCurrentQuestion(state).filter((entry) => entry.outcome === 'incorrect').length,
+              resolveRules(ctx.config.rules).scoring,
             ),
           }
         : undefined,
@@ -655,8 +672,13 @@ function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel
 }
 
 function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
+  const rules = resolveRules(ctx.config.rules)
   return {
     questionsPerGame: ctx.config.questionsPerGame,
+    rules: {
+      ...(rules.idleTimeoutMs === undefined ? {} : { idleTimeoutMs: rules.idleTimeoutMs }),
+      showDetailsAfterSolution: rules.showDetailsAfterSolution,
+    },
     audiences: ctx.config.audiences.map((audienceConfig) => {
       const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId)
       return {
@@ -673,8 +695,10 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
      * `presetIds` and not once more in the client: there is one rule for it
      * (`quizSupportsDifficulty`), and it lives in the core.
      */
-    quizzes: (ctx.config.quizzes ?? []).map((quiz) => {
+    quizzes: orderedQuizzes(ctx.config.quizzes).map((quiz) => {
       const subtitle = subtitleFor(quiz, locale)
+      const artworkUrl = ctx.assetUrl(quiz.artworkAssetId)
+      const unavailable = quizUnavailableReason(quiz, ctx)
       return {
         id: quiz.id,
         label: labelFor(quiz, locale),
@@ -685,6 +709,11 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
         presetIds: quiz.presetIds,
         supportsDifficulty: quizSupportsDifficulty(quiz),
         defaultPresetId: defaultPresetIdOf(quiz),
+        playerCounts: playerCountsOf(quiz),
+        emphasis: quiz.emphasis ?? 'regular',
+        ...(artworkUrl === undefined ? {} : { artworkUrl }),
+        available: unavailable === undefined,
+        ...(unavailable === undefined ? {} : { unavailableReason: unavailable }),
       }
     }),
     pools: ctx.config.pools.map((pool) => ({ id: pool.id, label: labelFor(pool, locale) })),
@@ -699,6 +728,122 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
      */
     locales: ctx.config.locales ?? [],
   }
+}
+
+/**
+ * Why a quiz cannot be started - or nothing, if it can.
+ *
+ * Two reasons, and they come from different places: a pool that is not
+ * configured is visible in the configuration itself, while an empty question
+ * set is only known to whoever can count questions. The server therefore hands
+ * the second one in (`quizAvailability`); the first one is decided here.
+ */
+function quizUnavailableReason(
+  quiz: QuizMode,
+  ctx: ProjectionContext,
+): CatalogViewModel['quizzes'][number]['unavailableReason'] {
+  const missingPool = (quiz.poolIds ?? []).some((poolId) => !ctx.config.pools.some((pool) => pool.id === poolId))
+  if (missingPool) return 'missing-pool'
+  return ctx.quizAvailability?.[quiz.id]
+}
+
+/**
+ * The start menu as one model - offers, player counts, languages.
+ *
+ * PURE FUNCTION ON THE CATALOG: the catalogue already carries everything
+ * resolved for a locale, so kiosk, desk and stage read the same figures. What
+ * the menu must not be able to do is derive configuration; hence the offers
+ * name a quiz id and nothing about audiences or pools.
+ */
+export function deriveStartMenu(
+  config: Pick<QuizConfig, 'locales' | 'interfaceStrings'>,
+  catalog: CatalogViewModel,
+  locale: string,
+): StartMenuModel {
+  const texts = interfaceTexts(config, locale)
+  const offers: StartMenuOffer[] =
+    catalog.quizzes.length > 0 ? quizOffersOf(catalog) : audienceOffersOf(catalog)
+
+  /*
+   * The player counts of all offers, ascending. A device that offers only solo
+   * games therefore shows no choice at all - see `preselect`.
+   */
+  const counts = [...new Set(offers.flatMap((offer) => offer.playerCounts))].sort((left, right) => left - right)
+  const playModes = counts.map((playerCount) => {
+    const textKey = playerCount === 1 ? 'kiosk.solo' : 'kiosk.duo'
+    const label = texts[textKey]
+    return { playerCount, textKey, ...(label === undefined ? {} : { label }) }
+  })
+
+  /*
+   * What is already settled because there is only one of it. A single offer
+   * needs no choice, and neither does a single player count.
+   */
+  const single = offers.length === 1 ? offers[0] : undefined
+  const preselect = {
+    ...(single?.quizId === undefined ? {} : { quizId: single.quizId }),
+    ...(single?.audienceId === undefined ? {} : { audienceId: single.audienceId }),
+    ...(counts.length === 1 ? { playerCount: counts[0]! } : {}),
+  }
+
+  return {
+    locale,
+    locales: config.locales ?? catalog.locales,
+    offers,
+    playModes,
+    ...(Object.keys(preselect).length > 0 ? { preselect } : {}),
+  }
+}
+
+/** The offers of a package with quiz types - the normal case. */
+function quizOffersOf(catalog: CatalogViewModel): StartMenuOffer[] {
+  return catalog.quizzes.map((quiz) => ({
+    quizId: quiz.id,
+    label: quiz.label,
+    ...(quiz.subtitle === undefined ? {} : { subtitle: quiz.subtitle }),
+    ...(quiz.artworkUrl === undefined ? {} : { artworkUrl: quiz.artworkUrl }),
+    emphasis: quiz.emphasis,
+    playerCounts: quiz.playerCounts,
+    ...(quiz.supportsDifficulty
+      ? {
+          difficulties: quiz.presetIds.map((presetId) => ({
+            presetId,
+            label: catalog.presets.find((preset) => preset.id === presetId)?.label ?? presetId,
+            isDefault: presetId === quiz.defaultPresetId,
+          })),
+        }
+      : {}),
+    available: quiz.available,
+    ...(quiz.unavailableReason === undefined ? {} : { unavailableReason: quiz.unavailableReason }),
+  }))
+}
+
+/**
+ * The offers of a package without quiz types - its audiences.
+ *
+ * A kiosk device needs no quiz types: it starts with audience and preset, and
+ * that is a valid package. So that every host can render ONE menu, the
+ * audiences become offers here - and the menu is never empty for a package
+ * that plays.
+ */
+function audienceOffersOf(catalog: CatalogViewModel): StartMenuOffer[] {
+  return catalog.audiences.map((audience) => ({
+    audienceId: audience.id,
+    label: audience.label,
+    ...(audience.startVisualUrl === undefined ? {} : { artworkUrl: audience.startVisualUrl }),
+    emphasis: 'regular' as const,
+    playerCounts: [...playerCounts],
+    ...(audience.allowedPresetIds.length > 1
+      ? {
+          difficulties: audience.allowedPresetIds.map((presetId, index) => ({
+            presetId,
+            label: catalog.presets.find((preset) => preset.id === presetId)?.label ?? presetId,
+            isDefault: index === 0,
+          })),
+        }
+      : {}),
+    available: true,
+  }))
 }
 
 /** Plain-text hint of what happens next - helps moderator and operator. */
@@ -736,5 +881,15 @@ function nextStepHint(state: GameState | null): string {
   }
 }
 
-/** Display only: how many points would a correct answer earn right now? */
+/**
+ * Display only: how many points does a first correct answer earn?
+ *
+ * The constant stays for hosts that read it; `maximumPointsFor(config)` is the
+ * answer for a package that sets its own scoring.
+ */
 export const maximumPointsPerQuestion = scoringRules.firstAnswerPoints
+
+/** The same figure for a given package. */
+export function maximumPointsFor(config: QuizConfig): number {
+  return resolveRules(config.rules).scoring.firstAnswerPoints
+}

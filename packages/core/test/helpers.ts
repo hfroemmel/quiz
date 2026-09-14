@@ -7,11 +7,14 @@
  */
 import {
   gameTiming,
+  resolveRules,
+  type RulesConfig,
   selfServiceTiming,
   type Command,
   type FlowProfile,
   type GameState,
   type PlayerCount,
+  type ModeratorQuizViewModel,
   type OperatorQuizViewModel,
   type PublicQuizViewModel,
   type Question,
@@ -20,7 +23,7 @@ import {
 } from '../src'
 import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine/engine'
 import { resolveQuizMode } from '../src/engine/quizModes'
-import { projectOperator, projectPublic } from '../src/engine/projection'
+import { projectModerator, projectOperator, projectPublic } from '../src/engine/projection'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
   return {
@@ -84,6 +87,8 @@ export interface Harness {
   settle(): void
   /** The public view model of the current state - what the hall would see. */
   publicView(): PublicQuizViewModel
+  /** The moderator view - it says what the pending answer is worth. */
+  moderatorView(): ModeratorQuizViewModel
   /** The operator view - it carries the joker controls. */
   operatorView(): OperatorQuizViewModel
   events: { category: string; message: string }[]
@@ -98,6 +103,8 @@ export function createHarness(
     startNow?: number
     /** Fixed source of chance - lets a test say which wrong answer survives. */
     random?: () => number
+    /** Rules of the package under test - without them the house rules apply. */
+    rules?: RulesConfig
   } = {},
 ): Harness {
   let counter = 0
@@ -152,6 +159,10 @@ export function createHarness(
       return projectPublic(harness.state, projectionContext())
     },
 
+    moderatorView() {
+      return projectModerator(harness.state, projectionContext())
+    },
+
     operatorView() {
       return projectOperator(harness.state, projectionContext())
     },
@@ -168,12 +179,16 @@ export function createHarness(
   }
 
   function context(): EngineContext {
+    const rules = resolveRules(options.rules)
     return {
       nowMs: harness.now,
       eventDayId: 'event-day-test',
       newId: (prefix) => `${prefix}-${(counter += 1)}`,
       questionSource: source,
-      timing: gameTiming,
+      timing: rules.timing,
+      selfServiceTiming: rules.selfServiceTiming,
+      scoring: rules.scoring,
+      jokersEnabled: rules.jokersEnabled,
       ...(options.random === undefined ? {} : { random: options.random }),
     }
   }
@@ -181,7 +196,7 @@ export function createHarness(
   function projectionContext() {
     return {
       nowMs: harness.now,
-      config: testConfig,
+      config: options.rules ? { ...testConfig, rules: options.rules } : testConfig,
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',

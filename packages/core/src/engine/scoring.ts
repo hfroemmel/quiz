@@ -4,7 +4,7 @@
  * DRY rule: scoring exists exclusively here. Neither operator nor moderator
  * client nor persistence compute points themselves.
  */
-import { scoringRules, type AnswerAttempt, type GameState, type PlayerId } from '../contracts'
+import { scoringRules, type AnswerAttempt, type GameState, type PlayerId, type ScoringRules } from '../contracts'
 
 /**
  * Points for a correct answer.
@@ -16,9 +16,12 @@ import { scoringRules, type AnswerAttempt, type GameState, type PlayerId } from 
  *
  * Further failed attempts do not lower the score any further, wrong answers
  * never deduct.
+ *
+ * The rules come in as an argument so that a package can set other values
+ * (`config.rules.scoring`); without one the constants of the house apply.
  */
-export function pointsForCorrectAnswer(previousFailedAttempts: number): number {
-  return previousFailedAttempts === 0 ? scoringRules.firstAnswerPoints : scoringRules.secondChancePoints
+export function pointsForCorrectAnswer(previousFailedAttempts: number, scoring: ScoringRules = scoringRules): number {
+  return previousFailedAttempts === 0 ? scoring.firstAnswerPoints : scoring.secondChancePoints
 }
 
 /** Number of attempts of the current question already answered wrongly. */
@@ -52,9 +55,13 @@ export function pendingAttempt(state: GameState): AnswerAttempt | undefined {
  * The return value carries the delta actually booked, so that the audit log
  * does not claim 100 points were deducted when it was capped at 0.
  */
-export function applyScoreDelta(currentScore: number, delta: number): { score: number; effectiveDelta: number } {
+export function applyScoreDelta(
+  currentScore: number,
+  delta: number,
+  scoring: ScoringRules = scoringRules,
+): { score: number; effectiveDelta: number } {
   const raw = currentScore + delta
-  const score = Math.max(scoringRules.minimumScore, raw)
+  const score = Math.max(scoring.minimumScore, raw)
   return { score, effectiveDelta: score - currentScore }
 }
 

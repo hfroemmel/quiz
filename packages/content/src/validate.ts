@@ -207,6 +207,37 @@ export function validateContent(input: ValidationInput): ValidationResult {
         quiz.id,
       )
     }
+    /*
+     * The artwork of the card is a reference like every other: a card whose
+     * motif is missing stands in the menu as an empty area, and nobody sees in
+     * the evening whether that was meant to be.
+     */
+    if (quiz.artworkAssetId && !assetsById.has(quiz.artworkAssetId)) {
+      add(
+        'error',
+        'asset-reference',
+        `Kartengrafik "${quiz.artworkAssetId}" der Quizart "${quiz.id}" fehlt.`,
+        quiz.id,
+      )
+    }
+    /*
+     * A quiz that offers a player count twice would show the same card twice.
+     * The schema keeps the values, the duplicate is a content question.
+     */
+    const counts = quiz.playerCounts ?? []
+    if (counts.length !== new Set(counts).size) {
+      add('warning', 'quiz-player-counts', `Die Quizart "${quiz.id}" nennt eine Spielerzahl mehrfach.`, quiz.id)
+    }
+  }
+
+  /*
+   * TWO QUIZZES IN THE SAME PLACE are not an error - the menu keeps the order
+   * of the configuration for them - but they are a decision nobody made on
+   * purpose, so it is reported.
+   */
+  const orders = (config.quizzes ?? []).map((quiz) => quiz.order).filter((order) => order !== undefined)
+  if (orders.length !== new Set(orders).size) {
+    add('warning', 'quiz-order', 'Zwei Quizarten stehen auf derselben Menueposition.')
   }
 
   /* -------- Locales -------- */
@@ -384,6 +415,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
   }
   for (const theme of config.themes) if (theme.logoAssetId) usedAssetIds.add(theme.logoAssetId)
   for (const audienceConfig of config.audiences) if (audienceConfig.startVisualAssetId) usedAssetIds.add(audienceConfig.startVisualAssetId)
+  for (const quiz of config.quizzes ?? []) if (quiz.artworkAssetId) usedAssetIds.add(quiz.artworkAssetId)
   for (const asset of input.assets) {
     if (!usedAssetIds.has(asset.id)) {
       add('warning', 'orphan-asset', `Das Medium "${asset.id}" (${asset.filename}) wird nirgends verwendet.`, asset.id)

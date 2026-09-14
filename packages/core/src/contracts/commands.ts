@@ -9,7 +9,7 @@
  * derived from `allowedCommands` of the view model.
  */
 import { z } from 'zod'
-import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state'
+import { flowProfiles, playerCountSchema, playerCounts, playerIds, type PlayerId } from './state'
 import { patchableQuestionFieldsSchema } from './content'
 
 /**
@@ -25,9 +25,6 @@ export const actorRoles = ['operator', 'moderator', 'system', 'buzzer', 'player'
 export type ActorRole = (typeof actorRoles)[number]
 
 const playerIdSchema = z.enum(playerIds as unknown as [PlayerId, ...PlayerId[]])
-const playerCountSchema = z.union(
-  playerCounts.map((count) => z.literal(count)) as unknown as [z.ZodLiteral<PlayerCount>, z.ZodLiteral<PlayerCount>],
-)
 
 /**
  * All commands as a discriminated union. New commands are added here; the

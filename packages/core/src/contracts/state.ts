@@ -4,6 +4,7 @@
  * This state lives exclusively in the local server. Clients send commands and
  * render filtered view models; they never change this state themselves.
  */
+import { z } from 'zod'
 import type { Question, QuestionPresentationType } from './content'
 import type { JokerSequence, PlayerJokerStates } from './joker'
 
@@ -71,6 +72,10 @@ export const playerIds: readonly PlayerId[] = ['player-1', 'player-2']
  */
 export const playerCounts = [1, 2] as const
 export type PlayerCount = (typeof playerCounts)[number]
+/** One schema for the player count - commands and configuration validate against it. */
+export const playerCountSchema = z.union(
+  playerCounts.map((count) => z.literal(count)) as unknown as [z.ZodLiteral<PlayerCount>, z.ZodLiteral<PlayerCount>],
+)
 
 /**
  * Who drives the flow.

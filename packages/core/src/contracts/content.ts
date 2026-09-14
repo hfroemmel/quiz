@@ -10,7 +10,8 @@
  *  - Runtime data (such as the legacy field `playCount`) do not belong in the content.
  */
 import { z } from 'zod'
-import { contentThresholds } from './config'
+import { contentThresholds, rulesConfigSchema } from './config'
+import { playerCountSchema, playerCounts, type PlayerCount } from './state'
 
 /**
  * Presentation type of a question on the stage screen.
@@ -386,8 +387,55 @@ export const quizModeSchema = z.object({
    * usually plays.
    */
   defaultPresetId: idSchema.optional(),
+  /**
+   * Player counts this quiz can be played with, in the order they are offered.
+   *
+   * A device only one person stands at offers `[1]`, and the question about the
+   * number of players falls away. WHY IN THE CONFIGURATION: it is a property of
+   * the installation and of the quiz, not of the program - until now every host
+   * carried it as a component property or as a list of its own.
+   */
+  playerCounts: z.array(playerCountSchema).min(1).optional(),
+  /** Artwork of the offer card. Must exist in `assets`. */
+  artworkAssetId: idSchema.optional(),
+  /**
+   * Weight of the card in the menu. `wide` takes two columns - for the offer a
+   * house leads with.
+   */
+  emphasis: z.enum(['wide', 'regular']).optional(),
+  /**
+   * Position in the menu, ascending. Without it the order of this list applies.
+   *
+   * Numbers with gaps (10, 20, 30) so that one more quiz can be put in between
+   * without renumbering the others.
+   */
+  order: z.number().int().optional(),
 })
 export type QuizMode = z.infer<typeof quizModeSchema>
+
+/**
+ * The player counts a quiz offers - both when it says nothing.
+ *
+ * ONE PLACE FOR THIS FALLBACK: menu, kiosk and validation ask here, so a quiz
+ * without the entry cannot mean two different things in two hosts.
+ */
+export function playerCountsOf(quiz: Pick<QuizMode, 'playerCounts'>): PlayerCount[] {
+  const configured = quiz.playerCounts?.filter((count, index, all) => all.indexOf(count) === index)
+  return configured && configured.length > 0 ? [...configured] : [...playerCounts]
+}
+
+/**
+ * The quizzes in menu order.
+ *
+ * Whoever states an `order` is placed by it, ascending. Everything without one
+ * follows in the order of the configuration - mixing a number and a position
+ * would be a guess, and the menu does not guess.
+ */
+export function orderedQuizzes(quizzes: QuizMode[] | undefined): QuizMode[] {
+  const all = quizzes ?? []
+  const placed = all.filter((quiz) => quiz.order !== undefined).sort((left, right) => left.order! - right.order!)
+  return [...placed, ...all.filter((quiz) => quiz.order === undefined)]
+}
 
 /**
  * Does this quiz type offer a difficulty choice?
@@ -454,6 +502,15 @@ export const quizConfigSchema = z.object({
    * entry, and whoever wants a sentence changed needs no new program version.
    */
   interfaceStrings: z.record(z.string().min(2), z.record(z.string().min(1), z.string())).optional(),
+  /**
+   * Rules of the house - scoring, timings, jokers, idle watch.
+   *
+   * OPTIONAL, and every value has the constant the engine uses today as its
+   * default (`resolveRules`). A package without `rules` therefore plays exactly
+   * as before. Only rules the engine already has are settable; see
+   * `rulesConfigSchema`.
+   */
+  rules: rulesConfigSchema.optional(),
 })
 export type QuizConfig = z.infer<typeof quizConfigSchema>
 
