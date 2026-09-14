@@ -10,8 +10,8 @@ import react from '@vitejs/plugin-react'
  * It is never shipped. What ships are the five libraries; the applications
  * live in their own repositories.
  */
-const hier = dirname(fileURLToPath(import.meta.url))
-const paketVerzeichnis = join(hier, '..', 'content', 'dist')
+const here = dirname(fileURLToPath(import.meta.url))
+const packageDir = join(here, '..', 'content', 'dist')
 
 const MIME: Record<string, string> = {
   '.json': 'application/json',
@@ -31,7 +31,7 @@ const MIME: Record<string, string> = {
  * Serves the built quiz package - the job the quiz server has during a
  * live stage show.
  *
- * Two routes, no more needed: `/quizpaket/<file>` for manifest,
+ * Two routes, no more needed: `/quiz-package/<file>` for manifest,
  * configuration and questions, `/media/<id>` for the media files. The
  * second one is defined by the core itself - so it must be named exactly
  * that.
@@ -40,66 +40,66 @@ const MIME: Record<string, string> = {
  * way a request can never reach anything that isn't part of the quiz
  * package.
  */
-function quizpaketAusliefern(): Plugin {
-  const dateinamen = new Map<string, string>()
+function serveQuizPackage(): Plugin {
+  const fileNames = new Map<string, string>()
 
-  const manifestLesen = () => {
-    const datei = join(paketVerzeichnis, 'manifest.json')
-    if (!existsSync(datei)) return
-    const manifest = JSON.parse(readFileSync(datei, 'utf8')) as { assets: { id: string; filename: string }[] }
-    dateinamen.clear()
-    for (const asset of manifest.assets) dateinamen.set(asset.id, asset.filename)
+  const readManifest = () => {
+    const file = join(packageDir, 'manifest.json')
+    if (!existsSync(file)) return
+    const manifest = JSON.parse(readFileSync(file, 'utf8')) as { assets: { id: string; filename: string }[] }
+    fileNames.clear()
+    for (const asset of manifest.assets) fileNames.set(asset.id, asset.filename)
   }
 
-  const senden = (antwort: import('node:http').ServerResponse, datei: string) => {
-    if (!existsSync(datei)) {
-      antwort.statusCode = 404
-      antwort.end('Nicht gefunden')
+  const send = (response: import('node:http').ServerResponse, file: string) => {
+    if (!existsSync(file)) {
+      response.statusCode = 404
+      response.end('Not found')
       return
     }
-    antwort.setHeader('Content-Type', MIME[extname(datei).toLowerCase()] ?? 'application/octet-stream')
-    antwort.end(readFileSync(datei))
+    response.setHeader('Content-Type', MIME[extname(file).toLowerCase()] ?? 'application/octet-stream')
+    response.end(readFileSync(file))
   }
 
   return {
-    name: 'quizpaket-ausliefern',
+    name: 'serve-quiz-package',
     configureServer(server) {
-      manifestLesen()
-      server.middlewares.use((anfrage, antwort, weiter) => {
-        const pfad = (anfrage.url ?? '').split('?')[0] ?? ''
+      readManifest()
+      server.middlewares.use((request, response, next) => {
+        const path = (request.url ?? '').split('?')[0] ?? ''
 
-        if (pfad.startsWith('/quizpaket/')) {
-          const name = pfad.slice('/quizpaket/'.length)
+        if (path.startsWith('/quiz-package/')) {
+          const name = path.slice('/quiz-package/'.length)
           // Only the package's three files, no arbitrary paths.
           if (!['manifest.json', 'config.json', 'questions.json'].includes(name)) {
-            antwort.statusCode = 404
-            antwort.end('Nicht gefunden')
+            response.statusCode = 404
+            response.end('Not found')
             return
           }
-          if (name === 'manifest.json') manifestLesen()
-          senden(antwort, join(paketVerzeichnis, name))
+          if (name === 'manifest.json') readManifest()
+          send(response, join(packageDir, name))
           return
         }
 
-        if (pfad.startsWith('/media/')) {
-          const dateiname = dateinamen.get(decodeURIComponent(pfad.slice('/media/'.length)))
-          if (!dateiname) {
-            antwort.statusCode = 404
-            antwort.end('Unbekanntes Medium')
+        if (path.startsWith('/media/')) {
+          const fileName = fileNames.get(decodeURIComponent(path.slice('/media/'.length)))
+          if (!fileName) {
+            response.statusCode = 404
+            response.end('Unknown medium')
             return
           }
-          senden(antwort, join(paketVerzeichnis, 'assets', dateiname))
+          send(response, join(packageDir, 'assets', fileName))
           return
         }
 
-        weiter()
+        next()
       })
     },
   }
 }
 
 export default defineConfig({
-  plugins: [react(), quizpaketAusliefern()],
+  plugins: [react(), serveQuizPackage()],
   server: {
     port: 5180,
   },

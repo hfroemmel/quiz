@@ -504,9 +504,9 @@ export type ClientRole = 'operator' | 'moderator' | 'stage' | 'player'
 export type ServerMessage =
   | { type: 'hello'; clientId: string; role: ClientRole; serverTimeMs: number; protocolVersion: number }
   /**
-   * Nur genau ein Client ist Audio-Master, damit Sounds nicht mehrfach zeitversetzt
-   * abgespielt werden. Im Standardbetrieb ist das die lokale Desktop-Anwendung;
-   * entfernte Praesentationsclients starten stumm.
+   * Exactly one client is the audio master so that sounds are not played
+   * several times with an offset. In standard operation that is the local
+   * desktop application; remote presentation clients start muted.
    */
   | { type: 'client-info'; audioMaster: boolean }
   | {
@@ -523,12 +523,12 @@ export type ClientMessage =
   | { type: 'command'; envelope: unknown }
   | { type: 'ping'; sentAtMs: number }
   /**
-   * Dieses Fenster darf hoerbar Ton ausgeben.
+   * This window may play audible sound.
    *
-   * Browser sperren die Tonausgabe, bis in DEM Fenster einmal geklickt oder
-   * getippt wurde. Ohne diese Meldung koennte der Server die Tonhoheit einem
-   * Fenster geben, das gar nicht klingen darf - dann bleibt die ganze
-   * Veranstaltung still, ohne dass jemand einen Fehler sieht.
+   * Browsers block audio output until THAT window has been clicked or tapped
+   * once. Without this message the server could hand audio authority to a
+   * window that is not allowed to sound at all - then the whole event stays
+   * silent without anybody seeing an error.
    */
   | { type: 'audio-ready' }
 

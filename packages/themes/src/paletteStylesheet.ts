@@ -47,15 +47,15 @@ import {
 } from './palettes'
 
 const HEADER = `/*
- * ERZEUGT - NICHT VON HAND BEARBEITEN.
+ * GENERATED - DO NOT EDIT BY HAND.
  *
- * Quelle aller Werte: packages/themes/src/palettes.ts
- * Neu schreiben:      pnpm palette:build
+ * Source of all values: packages/themes/src/palettes.ts
+ * Regenerate:           pnpm palette:build
  *
- * Wer hier einen Farbwert aendert, aendert ihn nur an der Oberflaeche: Im Betrieb
- * kommen die Buehnenfarben aus dem Quizpaket, das aus derselben Quelle gebaut
- * wird. Der naechste Lauf ueberschreibt die Aenderung, und der Test
- * packages/themes/test/palette.test.ts meldet sie vorher.
+ * Whoever changes a colour value here changes it only on the surface: in
+ * operation the stage colours come from the quiz package, which is built from
+ * the same source. The next run overwrites the change, and the test
+ * packages/themes/test/palette.test.ts reports it beforehand.
  */`
 
 function block(selector: string, entries: Record<string, string>): string {
@@ -73,7 +73,7 @@ export function paletteStyleSheet(): string {
   return [
     HEADER,
     '',
-    '/* Rueckfallebene: Buehne der Erwachsenen, dunkel - plus alles, was keinem Theme gehoert. */',
+    '/* Fallback layer: the adults stage, dark - plus everything that belongs to no theme. */',
     block(':root', {
       ...prefixed(stagePalettes.default, 'color-'),
       ...prefixed(stageExtras, 'stage-'),
@@ -82,10 +82,10 @@ export function paletteStyleSheet(): string {
       ...prefixed(quizSelectPalette, 'quiz-select-'),
     }),
     '',
-    '/* Helle Fassung der Erwachsenenbuehne - nur Flaechen, Kanten und Schrift. */',
+    '/* Light version of the adults stage - only surfaces, edges and type. */',
     block('.stage--default.stage--bright', prefixed(brightPalette as Record<string, string>, 'color-')),
     '',
-    '/* Helle Fassung der Startauswahl davor - nur, was von der dunklen abweicht. */',
+    '/* Light version of the start selection in front of it - only what differs from the dark one. */',
     block("[data-quiz-game][data-theme='bright']", prefixed(brightStartPalette as Record<string, string>, 'start-')),
     '',
   ].join('\n')

@@ -69,14 +69,14 @@ export function StageHeader({
   return (
     <header className={styles.header}>
       {/*
-        * Wortmarke in der oberen linken Ecke.
+        * Wordmark in the top left corner.
         *
-        * ZWEI FASSUNGEN, EINE STELLE: Bringt der Inhalt ein eigenes Logo mit
-        * (`themes[].logoAssetId` in der Konfiguration), steht es unveraendert
-        * da - es ist die Marke des Veranstalters und darf nicht umgefaerbt
-        * werden. Ohne eigenes Logo bleibt die mitgelieferte Wortmarke; sie
-        * liegt als Maske ueber einer Farbflaeche und folgt damit der Textfarbe
-        * der Welt, statt als schwarze Grafik auf dunklem Grund zu verschwinden.
+        * TWO VERSIONS, ONE PLACE: If the content brings its own logo
+        * (`themes[].logoAssetId` in the configuration), it stands there
+        * unchanged - it is the organiser's brand and must not be recoloured.
+        * Without an own logo the bundled wordmark stays; it lies as a mask
+        * over a colour area and thus follows the text colour of the world
+        * instead of vanishing as black artwork on a dark ground.
         */}
       {view.theme.logoUrl ? (
         <img className={styles.brandImage} src={view.theme.logoUrl} data-brand="" alt="" aria-hidden="true" />

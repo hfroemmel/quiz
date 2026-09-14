@@ -3,7 +3,7 @@
  *
  * The harness runs the quiz with a `LocalQuizRuntime` - without a server.
  * The development server serves the package's three files under
- * `/quizpaket/` (see `vite.config.ts`), the media under `/media/<id>` - the
+ * `/quiz-package/` (see `vite.config.ts`), the media under `/media/<id>` - the
  * same route the core builds and that the quiz server serves during a live
  * stage show.
  *
@@ -19,7 +19,7 @@ import {
 
 export async function loadHarnessPackage(): Promise<QuizPackage> {
   const fetchValue = async (name: string): Promise<unknown> => {
-    const answer = await fetch(`/quizpaket/${name}`)
+    const answer = await fetch(`/quiz-package/${name}`)
     if (!answer.ok) throw new Error(`${name} nicht ladbar (${answer.status}) - erst "pnpm content:build" laufen lassen.`)
     return answer.json()
   }

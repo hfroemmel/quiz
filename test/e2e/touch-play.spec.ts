@@ -900,7 +900,7 @@ test('the footer sits at the bottom edge of the screen, however tall the window 
   for (const height of [720, 1000]) {
     await page.setViewportSize({ width: 1280, height: height })
     await startGame(page, 'Zu zweit')
-    expect(await spaceBelowBar(), `Duell bei 1280x${height}`).toBe(0)
+    expect(await spaceBelowBar(), `duel at 1280x${height}`).toBe(0)
   }
 
   /*
@@ -909,7 +909,7 @@ test('the footer sits at the bottom edge of the screen, however tall the window 
    */
   await page.setViewportSize({ width: 1280, height: 1000 })
   await startGame(page, 'Allein')
-  expect(await spaceBelowBar(), 'Einzelspiel bei 1280x1000').toBe(0)
+  expect(await spaceBelowBar(), 'solo game at 1280x1000').toBe(0)
 })
 
 /*
@@ -1033,7 +1033,7 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
    * that previously stacked two lines on top of each other.
    */
   const states: Record<string, Awaited<ReturnType<typeof cardState>>> = {}
-  states['gewaehlt'] = await cardState(chosen)
+  states['chosen'] = await cardState(chosen)
   states['offen'] = await cardState(open)
   await page.locator(open).hover()
   states['hover'] = await cardState(open)
@@ -1050,8 +1050,8 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
   }
 
   /* On the filled card everything is white - title, line below it, icon, checkmark. */
-  expect(states['gewaehlt']!.font).toBe('rgb(255, 255, 255)')
-  for (const ink of states['gewaehlt']!.inner) {
+  expect(states['chosen']!.font).toBe('rgb(255, 255, 255)')
+  for (const ink of states['chosen']!.inner) {
     expect(ink).toMatch(/^rgba?\(255, 255, 255/)
   }
   /* And on the open one, dark - it is a calm grey fill. */
@@ -1062,7 +1062,7 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
    * read from the palette but from what actually ends up on screen - once
    * here, once there.
    */
-  const cardBlue = states['gewaehlt']!.ground
+  const cardBlue = states['chosen']!.ground
   await startGame(page, 'Zu zweit')
   await page.locator('[data-buzzer][data-side="left"]').click()
   const answer = page.locator('[data-answer][data-state="idle"] [data-answer-button]').first()

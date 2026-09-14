@@ -100,7 +100,7 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
   const games = useCallback((element: HTMLVideoElement) => {
     void element.play().catch((error: Error) => {
       if (error.name === 'NotAllowedError' && !element.muted) {
-        console.warn('Video ohne Ton gestartet: Das Fenster erlaubt noch keine hörbare Wiedergabe.', error)
+        console.warn('Video started without sound: the window does not allow audible playback yet.', error)
         setSoundRefused(true)
         return
       }
@@ -110,7 +110,7 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
        * window, because the operator gets nothing from knowing about it.
        */
       if (error.name === 'AbortError') return
-      console.error('Video konnte nicht abgespielt werden.', error)
+      console.error('The video could not be played.', error)
     })
   }, [])
 
@@ -181,10 +181,10 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
     <div className={`${styles.scene} ${styles.video}`}>
       <div className={styles.videoBox}>
         {/*
-         * Der Platzhalter ist die Flaeche des Videos, nicht seine Beigabe: Buehne
-         * und Operatorvorschau zeigen dasselbe Rechteck an derselben Stelle, und
-         * das Medium legt sich auf der Buehne hinein. Fehlt es oder laedt es noch,
-         * bleibt die Komposition trotzdem stehen.
+         * The placeholder is the video's area, not its garnish: stage and
+         * operator preview show the same rectangle in the same place, and on
+         * the stage the medium lays itself into it. If it is missing or still
+         * loading, the composition stays in place regardless.
          */}
         <div className={styles.videoFrame} data-video-placeholder>
           {plays && question.videoUrl && (
