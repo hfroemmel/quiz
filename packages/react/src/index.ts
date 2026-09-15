@@ -10,6 +10,7 @@
  *   import '@hfroemmel/quiz-react/styles/stage.css'
  *   import '@hfroemmel/quiz-react/styles/motion.css'
  */
+export * from './presentation/QuizProvider'
 export * from './presentation/QuizScene'
 export * from './presentation/StageScreen'
 export * from './presentation/soundCues'

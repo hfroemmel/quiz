@@ -132,6 +132,69 @@ label that does not match the step. Both need an install, not a decision.
 
 **Packages touched.** react, kiosk. **Hosts.** all four. **Dependencies.** Phases 2 (artwork assets in content) and 3. **Risk.** medium: three suites assert menu markup (bundestags-app 8 start-screen tests, quiz-live 11 stage-overview tests, quiz kiosk tests); mitigated by keeping the attribute names. **Tests.** move the eight bundestags-app start-screen tests into quiz's E2E as package tests; quiz-live `stage-overview.spec.ts` unchanged. **Result.** kiosk, standalone, app-collection and the app show the same menu; the live desk keeps its form.
 
+**Status: the menu is in the package; the two host cleanups are open.**
+`StartMenu` takes the derived model and asks what the configuration offers -
+quiz, player count, level - and every step with a single option falls away. The
+offer cards carry the motif of the content, the emphasised quiz takes the whole
+row. The start command follows the offer: a quiz type travels as its id, a
+package without quiz types names audience and level as before. `GameStart`
+keeps its old interface for one release and builds the model itself. The eight
+start-screen tests of the media table now run here against the harness device
+(`test/e2e/start-menu.spec.ts`), plus one the app did not have: that the three
+steps fit on the device and the corner buttons stay hittable - the regression
+the third step actually caused.
+
+Two decisions differ from the plan above, both on purpose:
+
+- **The component lives in quiz-kiosk, not quiz-react.** The selection, the
+  settings window and the confirmation dialogs share one stylesheet and one
+  card; splitting them would have duplicated that card. Phase 8 merges the two
+  packages anyway, and no host needs the menu without the kiosk runtime.
+- **The cards are buttons with `aria-pressed`, not native radio groups.** The
+  package's existing selection is built that way and three suites assert it
+  (quiz, quiz-standalone, app-collection); the media table's radio semantics
+  would have rewritten all three for an interaction the package already solves.
+  Tab reaches every card, space and enter trigger it.
+
+Still open in the hosts, both after the next release: the bundestags-app
+deletes `QuizStart.js`, `startOffers.js`, `QuizStart.scss`, the
+`MutationObserver` latch, the `visibility: hidden` rule and its twelve locale
+keys, and states its three quizzes as `quizzes` with `artworkAssetId`; quiz-live
+gets the shared `OfferOverview` and drops `quizArtwork.ts` - that one waits for
+Phase 2, because the artwork has to live in the content package first.
+
+**Both host cleanups are done, and both are verified.** The packages of this
+branch were built and linked into the hosts' `node_modules` - the state a
+release will install - so the suites ran against the real new code rather than
+against a promise.
+
+- **bundestags-app** deletes `QuizStart.js`, `startOffers.js`,
+  `QuizStart.scss`, the `MutationObserver` latch, the `visibility: hidden` rule
+  and its fourteen `quiz-start-*` locale keys. Its three quizzes are `quizzes`
+  in the generated content, with their motifs as assets of the package; the
+  wording moves into `interfaceStrings`, word for word, so the table says what
+  it said. `Quiz.js` declares which parts of the frame the app supplies itself
+  (`chrome`) instead of hiding them, and the media resolution is the runtime's
+  parameter now (Phase 6) rather than a patched method. The eight start-screen
+  tests moved here; five stay there for what stays the host's business. 22
+  green.
+- **quiz-live** drops `quizArtwork.ts` and its five image imports: the motifs
+  are assets of the content package, and `view.quizOffers` carries motif and
+  `emphasis` beside name and subtitle. Two deviations from the plan, both
+  deliberate: the per-card COLOURS stay, keyed by the quiz id in the stage's
+  own stylesheet - in the hall the colour is what makes a card recognisable
+  from the back row, and that is presentation of this room, not a property of
+  the quiz; and the shared `OfferOverview` component is not built, because an
+  announcement on a stage and a selection at a device share a card, not a
+  component. 72 unit tests, 64 E2E green.
+
+ONE WARNING FOR THAT STEP, which is why both cleanups had to be one commit
+each: the menu carries the media table's data attributes, which its own screen
+carried too. As long as both screens exist, `[data-quiz-start]`,
+`[data-quiz-card]` and their neighbours match twice, and the app's suite fails
+on an ambiguous selector. The pin therefore rose in the SAME commit that
+deleted the old screen, not before.
+
 ## Phase 5 – Theme definition
 
 **Goal.** A host passes one theme object; no copied colour values anywhere.
@@ -140,6 +203,36 @@ label that does not match the step. Both need an install, not a decision.
 
 **Packages touched.** themes, react. **Hosts.** all. **Dependencies.** Phase 4 (menu consumes tokens). **Risk.** screenshot baselines: values do not change, only their source; a pixel diff would signal a real regression. **Tests.** quiz screenshot E2E unchanged; unit test that `themeVariables(bright)` equals today's `palette.css` values. **Result.** Step 4 of the practice test needs no package release.
 
+**Status: the object and the provider are there; the role names are not.**
+`ThemeDefinition` states a design once - base, world, overrides on the stage,
+above it and in the menu, fonts, word mark, motion - and `resolveTheme` turns it
+into the values the components read. The three built-ins are the worlds that
+exist, and sixteen tests compare every value of theirs against the rule of the
+generated stylesheet that carries it.
+
+`QuizProvider` puts a theme on the quiz's OWN element, so two quizzes on one
+page cannot recolour each other; the harness surface `/pair` shows two devices
+in two designs and `test/e2e/theme.spec.ts` measures them. Two details had to be
+got right for that:
+
+- **A host theme has to win where the package's variant rules sit.** The light
+  stage declares its colours on the stage element and the light menu on the
+  device's root element; a declaration there beats an inherited value. The
+  resolved theme is therefore written inline onto those two elements, and its
+  base decides the variant - whoever designs a dark device has designed it dark.
+- **The menu mirrors the stage AFTER the override.** `brightStartPalette` states
+  that relationship as a reference taken once, when the module is read, so a
+  host's own accent would have stayed outside the menu. `brightStartMirrors`
+  states it as data, `resolveTheme` applies it to the resolved colours, and a
+  test compares table and palette so neither can drift.
+
+What is deliberately NOT done: the role rename of the token families (G.3). It
+touches every stylesheet of the packages and belongs to that sweep; a host gets
+one object now, in the vocabulary its own stylesheets already speak. The kids
+assets and `--kids-*` also stay in the stylesheets of the world, because they
+are drawings and not a palette, and `useStageTheme` stays a hook of the package:
+a host theme already decides the variant, so nothing forces the switch yet.
+
 ## Phase 6 – Host surface
 
 **Goal.** The three concerns every host re-implements move into the packages.
@@ -147,6 +240,33 @@ label that does not match the step. Both need an install, not a decision.
 **Changes.** `loadQuizPackage(raw)` in core (replaces `bauePaket`/`buildQuizPackage` in three hosts); `media` resolver option on `LocalQuizRuntime` (replaces the `assetUrl` monkey-patch in `bundestags-app/src/components/Quiz/assets.js:82-94`); `renderAfterSolution` slot + `rules.showDetailsAfterSolution` (replaces `QuizDetails.js`, `detailsByPrompt`, `DETAILS_DELAY_MS`, `FADE_MS`); `QuizGame` props `chrome={{ brand, abort, settings }}` (replaces three `display: none` rules in `Quiz.scss`); public `surface` signal (`data-surface="light|dark"` on the quiz root) for hosts that recolour their own chrome. Optional: a `@hfroemmel/quiz-host-electron` package for the byte-identical main-process files of standalone and app-collection (`inhalt.ts`, `protokoll.ts`, `stand.ts`, `preload.ts`).
 
 **Packages touched.** core, react, (new electron host package). **Hosts.** all. **Dependencies.** Phase 3. **Risk.** low per item; the details slot changes the public view model (adds `explanation.details` under a rule flag), which is additive. **Tests.** bundestags-app details tests move to quiz as package tests; app-collection unit tests for `loadQuizPackage`. **Result.** the bundestags-app `Quiz.js` shrinks to session + mount; the two Electron hosts share one main process.
+
+**Status: three of the five items are done.**
+
+- `loadQuizPackage(raw, { rootDir })` replaces the same twenty lines in four
+  hosts; the harness reads its own package through it.
+- `LocalQuizRuntime` takes a `media` resolver, so an application with its media
+  in its own bundle no longer replaces a method of the content service from
+  outside - a rename in the package would have broken that silently.
+- `QuizProvider` takes `chrome`: which parts of the frame the host supplies
+  itself. What it takes over is not rendered, instead of being hidden by three
+  `display: none` rules that had to be kept in step with the package's markup.
+  Deliberately on the provider and not on `QuizGame`, as the plan said: a host
+  declares its frame in the same place as its design, and a `QuizScene` host
+  (the live stage) can do the same.
+- And `data-surface="light|dark"` on the quiz root and the stage element, for a
+  host that recolours its own bar: `data-theme` names a world, and the
+  children's paper is light too.
+
+Open: the details step (`renderAfterSolution` plus the rule flag from Phase 3,
+which no component reads yet). It is the one item that changes the public view
+model - the editorial background of a question must travel into the solution
+scene, where today deliberately nothing of the explanation arrives - so it
+needs its own pass rather than being appended here. The Electron host package
+is marked optional in the plan and stays open: the two devices cannot install it
+before a release, and their main processes are small.
+
+Measured: 341 unit tests, 115 E2E green.
 
 ## Phase 7 – i18n unification
 

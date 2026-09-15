@@ -147,7 +147,13 @@ describe('Theme and offer list in the stage view', () => {
   it('carries the offers without audience, pool and preset - the stage should derive nothing', () => {
     const harness = createHarness(script())
     const [offer] = harness.publicView().quizOffers
-    expect(Object.keys(offer!).sort()).toEqual(['id', 'label'])
+    /*
+     * What the hall is told: the name, the motif where there is one, and which
+     * card takes the row. Audience, pools, presets and theme are not in it -
+     * they would be configuration, and a stage that could read it could derive
+     * from it.
+     */
+    expect(Object.keys(offer!).sort()).toEqual(['emphasis', 'id', 'label'])
   })
 
   it('gives the Bundestag quiz the light default theme', () => {

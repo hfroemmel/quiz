@@ -43,6 +43,7 @@ import {
   type QuizUnavailableReason,
   type StartMenuModel,
   type StartMenuOffer,
+  type StartMenuOptions,
   questionTextFor,
   validLocale,
   interfaceTexts,
@@ -277,11 +278,22 @@ export function projectPlayer(state: GameState | null, ctx: ProjectionContext): 
 }
 
 /**
- * Catalog for the touch device: only presets that are playable there, and only
- * audiences that permit at least one of them.
+ * Catalog for the touch device: only presets that are playable there, only
+ * audiences that permit at least one of them, and only quizzes that can be
+ * played through without an operator.
  *
  * That way no difficulty level is offered at the device that would need an
  * operator halfway through - and the client has to know nothing about it.
+ *
+ * A QUIZ WITHOUT A PLAYABLE LEVEL IS NOT AN OFFER HERE. The stage quizzes draw
+ * from presets with an image-recognition slot; somebody has to judge those, and
+ * at the device nobody does. Such a quiz therefore does not appear in the menu
+ * instead of failing at the start.
+ *
+ * `supportsDifficulty` stays what the CONFIGURATION says and is deliberately
+ * not recomputed from the shortened list: it decides whether the engine expects
+ * a level with the start command. Whether there is anything to choose is a
+ * question of the list, and the menu reads it there.
  */
 function buildPlayerCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel {
   const full = buildCatalog(ctx, locale)
@@ -290,6 +302,16 @@ function buildPlayerCatalog(ctx: ProjectionContext, locale: string): CatalogView
   return {
     ...full,
     presets: full.presets.filter((preset) => playable.has(preset.id)),
+    quizzes: full.quizzes
+      .map((quiz) => {
+        const presetIds = quiz.presetIds.filter((id) => playable.has(id))
+        return {
+          ...quiz,
+          presetIds,
+          defaultPresetId: presetIds.includes(quiz.defaultPresetId) ? quiz.defaultPresetId : (presetIds[0] ?? ''),
+        }
+      })
+      .filter((quiz) => quiz.presetIds.length > 0),
     audiences: full.audiences
       .map((entry) => ({ ...entry, allowedPresetIds: entry.allowedPresetIds.filter((id) => playable.has(id)) }))
       .filter((entry) => entry.allowedPresetIds.length > 0),
@@ -658,16 +680,27 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
 }
 
 /**
- * The quiz offers for the hall - name and subtitle, nothing else.
+ * The quiz offers for the hall - name, subtitle and motif.
  *
  * DELIBERATELY NOT THE CATALOG: that one carries audiences, pools and presets,
  * i.e. configuration. The stage gets none of it because it must not be able to
- * derive anything; it is to write up the names, nothing more.
+ * derive anything; it is to write up what is on offer, nothing more.
+ *
+ * The motif travels along because it is content: the hall recognises a card by
+ * its picture before it reads the name, and a stage that kept its own table of
+ * pictures left every quiz added later without one.
  */
 function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel['quizOffers'] {
-  return (ctx.config.quizzes ?? []).map((quiz) => {
+  return orderedQuizzes(ctx.config.quizzes).map((quiz) => {
     const subtitle = subtitleFor(quiz, locale)
-    return { id: quiz.id, label: labelFor(quiz, locale), ...(subtitle === undefined ? {} : { subtitle }) }
+    const artworkUrl = ctx.assetUrl(quiz.artworkAssetId)
+    return {
+      id: quiz.id,
+      label: labelFor(quiz, locale),
+      ...(subtitle === undefined ? {} : { subtitle }),
+      ...(artworkUrl === undefined ? {} : { artworkUrl }),
+      emphasis: quiz.emphasis ?? 'regular',
+    }
   })
 }
 
@@ -759,10 +792,26 @@ export function deriveStartMenu(
   config: Pick<QuizConfig, 'locales' | 'interfaceStrings'>,
   catalog: CatalogViewModel,
   locale: string,
+  options?: StartMenuOptions,
 ): StartMenuModel {
   const texts = interfaceTexts(config, locale)
-  const offers: StartMenuOffer[] =
-    catalog.quizzes.length > 0 ? quizOffersOf(catalog) : audienceOffersOf(catalog)
+  /*
+   * A DEVICE BELONGS TO ONE AUDIENCE, and the menu of a device must not offer
+   * the other one: which audience plays here is a fact of the setup, and a
+   * foyer device where somebody taps the children's world by accident would be
+   * an operating mistake with no control for it. The desk names no audience and
+   * sees everything.
+   */
+  const audienceId = options?.audienceId
+  const quizzes =
+    audienceId === undefined ? catalog.quizzes : catalog.quizzes.filter((quiz) => quiz.audienceId === audienceId)
+  const audiences =
+    audienceId === undefined ? catalog.audiences : catalog.audiences.filter((entry) => entry.id === audienceId)
+  /*
+   * Without quizzes the audiences are the offer - a kiosk package without quiz
+   * types is a valid package, and its menu is never empty.
+   */
+  const offers: StartMenuOffer[] = quizzes.length > 0 ? quizOffersOf(catalog, quizzes) : audienceOffersOf(catalog, audiences)
 
   /*
    * The player counts of all offers, ascending. A device that offers only solo
@@ -795,9 +844,20 @@ export function deriveStartMenu(
   }
 }
 
+/**
+ * Name and length of a level, out of the catalogue.
+ *
+ * A preset the catalogue does not know keeps its id as its name: a menu that
+ * showed nothing there would hide a configuration mistake instead of naming it.
+ */
+function levelOf(catalog: CatalogViewModel, presetId: string): { label: string; slotCount?: number } {
+  const preset = catalog.presets.find((entry) => entry.id === presetId)
+  return { label: preset?.label ?? presetId, ...(preset === undefined ? {} : { slotCount: preset.slotCount }) }
+}
+
 /** The offers of a package with quiz types - the normal case. */
-function quizOffersOf(catalog: CatalogViewModel): StartMenuOffer[] {
-  return catalog.quizzes.map((quiz) => ({
+function quizOffersOf(catalog: CatalogViewModel, quizzes: CatalogViewModel['quizzes']): StartMenuOffer[] {
+  return quizzes.map((quiz) => ({
     quizId: quiz.id,
     label: quiz.label,
     ...(quiz.subtitle === undefined ? {} : { subtitle: quiz.subtitle }),
@@ -808,7 +868,7 @@ function quizOffersOf(catalog: CatalogViewModel): StartMenuOffer[] {
       ? {
           difficulties: quiz.presetIds.map((presetId) => ({
             presetId,
-            label: catalog.presets.find((preset) => preset.id === presetId)?.label ?? presetId,
+            ...levelOf(catalog, presetId),
             isDefault: presetId === quiz.defaultPresetId,
           })),
         }
@@ -826,18 +886,26 @@ function quizOffersOf(catalog: CatalogViewModel): StartMenuOffer[] {
  * audiences become offers here - and the menu is never empty for a package
  * that plays.
  */
-function audienceOffersOf(catalog: CatalogViewModel): StartMenuOffer[] {
-  return catalog.audiences.map((audience) => ({
+function audienceOffersOf(catalog: CatalogViewModel, audiences: CatalogViewModel['audiences']): StartMenuOffer[] {
+  return audiences.map((audience) => ({
     audienceId: audience.id,
     label: audience.label,
     ...(audience.startVisualUrl === undefined ? {} : { artworkUrl: audience.startVisualUrl }),
     emphasis: 'regular' as const,
     playerCounts: [...playerCounts],
-    ...(audience.allowedPresetIds.length > 1
+    /*
+     * AN AUDIENCE ALWAYS CARRIES ITS LEVELS, even the single one. Without a
+     * quiz type the engine expects a preset with every start command, so the
+     * menu has to know its id - whether there is anything to CHOOSE is decided
+     * by the length of this list, and a list of one is not a question. A quiz
+     * type is the other way round: there the level belongs to the type, and one
+     * sent along where it offers no choice is refused.
+     */
+    ...(audience.allowedPresetIds.length > 0
       ? {
           difficulties: audience.allowedPresetIds.map((presetId, index) => ({
             presetId,
-            label: catalog.presets.find((preset) => preset.id === presetId)?.label ?? presetId,
+            ...levelOf(catalog, presetId),
             isDefault: index === 0,
           })),
         }

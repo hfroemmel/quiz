@@ -245,28 +245,46 @@ supplies the display, the server the truth.
 
 ## Where the Colors Live
 
-**In exactly one file: `packages/contracts/src/theme.ts`.** That's where the
-two design worlds, the light version, the few colors that belong to
-no world, and the operator's control frame live. No color value lives anywhere
-else; `apps/web/test/palette.test.ts` checks that on every test run.
+**In exactly one file: `packages/themes/src/palettes.ts`.** That's where the
+two design worlds, the light version, the few colors that belong to no world,
+the start menu and the operator's control frame live. No color value lives
+anywhere else; `packages/themes/test/palette.test.ts` checks that on every test
+run - across the themes, the stage package, the kiosk and the harness. The one
+exception is a HOST's own design: that is what a theme object is for (see
+below), and the harness keeps its two in `harness/src/hostThemes.ts`.
 
 Two paths run from there:
 
 ```text
-theme.ts ──> pnpm content:build ──> content/dist/config.json ──> Server ──> Stage
-         └─> pnpm palette:build ──> apps/web/src/styles/palette.css
+palettes.ts ──> resolveTheme() ──> the values a host passes in (ThemeDefinition)
+            └─> pnpm palette:build ──> packages/themes/src/palette.css
 ```
 
-The quiz package is the path for operation: the server delivers the colors of
-the active mode with every snapshot, and `themeVariables` writes them as
-inline variables onto the **frame** around the stage. `palette.css` is the second
-path - the fallback level at the root element until the first snapshot arrives, and
-the light version, which must sit on the stage element itself.
+`palette.css` is the fallback layer: `:root` for a page that shows one quiz,
+plus the two rules that have to sit on an element of their own - the light
+variant of the stage (`.stage--default.stage--bright`) and the light variant of
+the start menu (`[data-quiz-game][data-theme='bright']`).
 
-**Cascade rule of thumb:** an inherited inline value beats a `:root` rule.
-Anyone who changes a stage color in the stylesheet therefore changes nothing -
-in operation, the quiz package always wins. Only a rule that hangs on the
-stage element itself (`.stage--default.stage--bright`) beats the inherited value.
+A HOST WITH ITS OWN DESIGN PASSES ONE OBJECT. `ThemeDefinition` names which
+built-in set it starts from and what it overrides - on the stage, above it, in
+the menu - plus its fonts, its word mark and whether it stands still.
+`<QuizProvider theme={...}>` puts the resolved values on the quiz's own
+element; custom properties inherit downwards only, so two quizzes on one page
+cannot recolour each other. The harness surface `/pair` shows exactly that, and
+`test/e2e/theme.spec.ts` measures it.
+
+**Cascade rule of thumb:** a declaration ON an element beats a value inherited
+from above, and an inline style beats every rule. That is why the two variant
+rules above live on their elements - and why a host theme, which has to win
+against them, is written inline onto the same elements (the stage element in
+`StageScreen`, the device's root element in `QuizGame`).
+
+THE MENU MIRRORS THE STAGE, AFTER THE OVERRIDE. In the light variant a row of
+`--start-*` tokens is the same value as a `--color-*` token: the selected card
+carries the accent of a tapped answer, the button the green of "reveal".
+`brightStartMirrors` states that relationship as data, so `resolveTheme` applies
+it to the host's colours instead of to the built-in ones - a host that gives its
+stage a green accent gets a green selection without naming it twice.
 
 A theme in `config.json` only names **deviations** from its design world:
 
@@ -294,17 +312,18 @@ Three namespaces, three areas of responsibility:
 | `--stage-*` | the location, not the theme - the same in every mode | `--stage-inkOnStrong` |
 | `--ui-*` | the control frame - stays dark no matter which mode is running | `--ui-surface` |
 
-`--stage-playerOne` and `--stage-playerTwo` also belong to `--stage-*`, the
-two player colors of the touch device: red on the left, blue on the right. They
-deliberately do NOT change with the mode - a player recognizes their corner
-by them, and if it belonged to a different color in a different mode, they'd
-tap the wrong one. From each single color, the stylesheet derives everything
-else: the buzzer's background is the same tone, mixed into the stage
-background.
+THE TWO CORNERS OF THE TOUCH DEVICE HAVE NO COLOURS OF THEIR OWN. They used to:
+`--stage-playerOne` and `--stage-playerTwo`, red on the left and blue on the
+right. Both are gone. A token that substitutes `var(--color-accent)` at the
+document root freezes the tone of the default world and keeps it in the light
+world and in the children's one - the device showed a colour its own accent did
+not have. Both buzzers now read `--color-accent` themselves and are told apart
+by their place; a corner that cannot act carries the stage's frosted tile.
 
-The three start-view modes (`Kinder`, `Erwachsene`, `Saarbruecken`) come from
-`catalog.modes`. The layout is designed for three entries; more
-entries wrap into a second row instead of squeezing the bar.
+The offers of the start menu come from the configuration (`quizzes`, see
+`docs/quizpaket.md`). The emphasised one takes the whole row of the card block,
+the others share it - how many there are is a question of the configuration, not
+of the layout.
 
 ## Two Design Worlds, Two Versions
 

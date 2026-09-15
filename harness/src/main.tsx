@@ -13,6 +13,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PreviewApp } from './preview/PreviewApp'
 import { ShellApp } from './shell/ShellApp'
+import { ThemedPair } from './ThemedPair'
 import { TouchDevice } from './TouchDevice'
 /*
  * Global stylesheets - deliberately NOT modules.
@@ -68,6 +69,13 @@ function App() {
      */
     case '/shell':
       return <ShellApp />
+    /*
+     * Two quizzes on one page, each with its own design - the case the theme
+     * provider exists for. Nothing here is a product; it is the surface on
+     * which a leaking theme becomes visible.
+     */
+    case '/pair':
+      return <ThemedPair />
     default:
       return <PreviewApp />
   }

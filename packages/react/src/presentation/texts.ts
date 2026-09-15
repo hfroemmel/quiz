@@ -54,6 +54,13 @@ export const defaultTexts = {
   /* Device: start selection */
   'kiosk.setupTitle': 'Spiel starten',
   'kiosk.setupSubtitle': 'Wähle Modus und Schwierigkeit.',
+  /*
+   * The three step labels. They are not headlines on the screen but the names
+   * of the three groups, which is what a screen reader announces before the
+   * cards in them - and what a package renames when its step offers something
+   * else (the media table calls the levels "rounds").
+   */
+  'kiosk.quizChoice': 'Welches Quiz?',
   'kiosk.playerCount': 'Wie viele spielen?',
   'kiosk.difficulty': 'Wie schwer?',
   'kiosk.solo': 'Allein',
@@ -71,6 +78,13 @@ export const defaultTexts = {
    */
   'kiosk.start': "Los geht's",
   'kiosk.back': 'Zurück',
+  /*
+   * Why an offer cannot be started right now. The reason comes from the
+   * catalogue (`unavailableReason`), so the menu says it BEFORE the attempt
+   * instead of letting somebody press a button that cannot work.
+   */
+  'start.rejected.no-questions': 'Für dieses Quiz sind noch keine Fragen hinterlegt.',
+  'start.rejected.missing-pool': 'Dieses Quiz hat noch keinen Fragenpool.',
   'kiosk.preparing': 'Das Quiz wird vorbereitet...',
   'kiosk.disconnected': 'Keine Verbindung zum Quiz.',
 

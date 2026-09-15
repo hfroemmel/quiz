@@ -175,6 +175,34 @@ are fairness, not taste.
 The idle watch and `showDetailsAfterSolution` reach the clients through
 `catalog.rules`; everything else is read by the engine on the server.
 
+### What the start menu of a device makes of it
+
+`deriveStartMenu(config, catalog, locale, { audienceId })` turns the
+configuration into the menu the device shows (`StartMenu` in
+`@hfroemmel/quiz-kiosk`). Four rules decide what appears there:
+
+- **One audience per device.** The menu shows the quizzes of the audience the
+  device is set up for, never the other one's. Where that audience has no quiz
+  of its own, the audience itself is the offer - a package without `quizzes` is
+  a valid package and plays with `audience` and `presetId` as before.
+- **Only what the device can play alone.** A quiz whose levels contain a slot
+  somebody has to judge - an image question at the stage - does not appear on a
+  device at all. A quiz that keeps only some of its levels there is shortened to
+  them, and its default moves along.
+- **Every step with one option falls away.** One quiz, one player count, one
+  level: the value is still sent, it is just not asked about. A choice of one is
+  a hurdle, not a choice.
+- **An offer that cannot be started says so.** The server counts the questions
+  of every quiz; a configured quiz without questions is named in the menu and
+  its button stays disabled, instead of failing at the start. The sentence comes
+  from the interface texts (`start.rejected.no-questions`,
+  `start.rejected.missing-pool`) and is therefore translatable like everything
+  else on that screen.
+
+`playerCounts`, `artworkAssetId`, `emphasis` and `order` are the four fields a
+menu reads beyond the quiz itself: what may play it, which motif its card
+carries, whether the card takes the whole row, and where it stands.
+
 ## Content profiles
 
 The same source produces two packages:

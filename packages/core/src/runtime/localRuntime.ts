@@ -19,7 +19,7 @@ import type {
   QuizSnapshot,
   QuizRuntimeRejection,
 } from '../contracts'
-import { ContentService } from './contentService'
+import { ContentService, type AssetResolver } from './contentService'
 import { MemoryQuizStore, type MemoryQuizStoreSnapshot } from './memoryStore'
 import { QuizService } from './quizService'
 
@@ -28,6 +28,15 @@ export interface LocalQuizRuntimeOptions {
   quizPackage: QuizPackage
   /** Additional roots for media resolution (development). */
   mediaFallbackDirs?: string[]
+  /**
+   * The host's own media resolution.
+   *
+   * Without it the package's route applies (`/media/<id>`), which a server
+   * serves. A window that carries its media in its own bundle names them here -
+   * previously it had to replace the content service's method from outside, and
+   * a rename in the package broke it silently.
+   */
+  media?: AssetResolver
   /** Previously saved state of the host - if missing, everything starts empty. */
   restoreFrom?: MemoryQuizStoreSnapshot
   /** Called debounced after every change with the latest state. */
@@ -57,7 +66,9 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
 
   constructor(options: LocalQuizRuntimeOptions) {
     this.store = options.restoreFrom ? MemoryQuizStore.fromJSON(options.restoreFrom) : new MemoryQuizStore()
-    this.content = new ContentService(options.quizPackage, [], options.mediaFallbackDirs ?? [])
+    this.content = new ContentService(options.quizPackage, [], options.mediaFallbackDirs ?? [], {
+      ...(options.media === undefined ? {} : { media: options.media }),
+    })
     this.content.applyPatchOverlay(this.store.loadPatches())
 
     this.service = new QuizService({

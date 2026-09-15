@@ -1,6 +1,6 @@
 # Build-Bericht Quizpaket
-Inhaltsversion: 1.0.9
-Ergebnis: BESTANDEN (0 Fehler, 47 Warnungen)
+Inhaltsversion: 1.0.10
+Ergebnis: BESTANDEN (0 Fehler, 48 Warnungen)
 
 ## Gesamtzahlen
 - Fragen gesamt: 29 (aktiv: 29)
@@ -11,7 +11,7 @@ Ergebnis: BESTANDEN (0 Fehler, 47 Warnungen)
 - Nach Schwierigkeit: easy=11, hard=9, medium=9
 - Nach Fragetyp: image-choice=9, image-reveal=9, text-choice=9, person=1, video-then-question=1
 - Nach Kategorie: saarbruecken=29, institution=3, person=3, gebaeude=3, geschichte=3, aemter=3, recht=2, wahl=2, begriffe=2, kurioses=2, erdkunde=2, fahnen-und-symbole=2
-- Vergleich zu Version 1.0.8: +0 Fragen
+- Vergleich zu Version 1.0.9: +0 Fragen
 
 ## Poolabdeckung pro Fragenplatz
 ### Zielgruppe "adults" / Preset "easy"
@@ -194,3 +194,4 @@ Fuer das Touchgeraet geeignet: ja
 - [small-pool] kids/touch-medium/bildauswahl: Zielgruppe "kids" / Preset "touch-medium": Fragenplatz 3 ("bildauswahl") hat nur 3 Kandidaten.
 - [small-pool] kids/touch-medium/steigerung: Zielgruppe "kids" / Preset "touch-medium": Fragenplatz 5 ("steigerung") hat nur 6 Kandidaten.
 - [small-pool] kids/touch-medium/bildwissen: Zielgruppe "kids" / Preset "touch-medium": Fragenplatz 6 ("bildwissen") hat nur 6 Kandidaten.
+- [unused-pool] europa: Der Fragenpool "europa" wird von keiner Frage verwendet.

@@ -29,18 +29,28 @@ export interface QuizSceneTheme {
 const serifStack = "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
 const handStack = "'Patrick Hand', 'Comic Sans MS', cursive"
 
+/**
+ * The voice of each world, per role.
+ *
+ * Exported because a theme names the same two stacks (`typography` in
+ * `ThemeDefinition`), and a second spelling of them would be a copy that can
+ * drift: the day one world changes its typeface, it changes it here.
+ */
+export const headingStack: Record<ThemeSkin, string> = { default: serifStack, kids: handStack }
+export const bodyStack: Record<ThemeSkin, string> = { default: serifStack, kids: handStack }
+
 export const sceneThemes: Record<ThemeSkin, QuizSceneTheme> = {
   default: {
     skin: 'default',
     colors: resolveThemeColors({ skin: 'default' }),
-    headingFont: serifStack,
-    bodyFont: serifStack,
+    headingFont: headingStack.default,
+    bodyFont: bodyStack.default,
   },
   kids: {
     skin: 'kids',
     colors: resolveThemeColors({ skin: 'kids' }),
-    headingFont: handStack,
-    bodyFont: handStack,
+    headingFont: headingStack.kids,
+    bodyFont: bodyStack.kids,
   },
 }
 

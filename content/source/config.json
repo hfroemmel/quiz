@@ -72,6 +72,10 @@
     {
       "id": "saarbruecken",
       "label": "Saarbrücken"
+    },
+    {
+      "id": "europa",
+      "label": "Europa"
     }
   ],
   "themes": [
@@ -881,6 +885,80 @@
         2
       ],
       "order": 30
+    },
+    {
+      "id": "tisch-bundestag",
+      "label": "Bundestagsquiz",
+      "subtitle": "Fragen zum Parlament",
+      "labels": {
+        "en-GB": "Bundestag Quiz"
+      },
+      "subtitles": {
+        "en-GB": "Questions about the parliament"
+      },
+      "audienceId": "adults",
+      "themeId": "default",
+      "poolIds": [
+        "bundestag"
+      ],
+      "presetIds": [
+        "touch-easy",
+        "touch-medium",
+        "touch-hard"
+      ],
+      "defaultPresetId": "touch-easy",
+      "playerCounts": [
+        1,
+        2
+      ],
+      "artworkAssetId": "start-adults",
+      "emphasis": "wide",
+      "order": 5
+    },
+    {
+      "id": "tisch-saarbruecken",
+      "label": "Saarbrücken-Quiz",
+      "subtitle": "Die Stadt an der Saar",
+      "labels": {
+        "en-GB": "Saarbrücken Quiz"
+      },
+      "subtitles": {
+        "en-GB": "The city on the Saar"
+      },
+      "audienceId": "adults",
+      "themeId": "default",
+      "poolIds": [
+        "saarbruecken"
+      ],
+      "presetIds": [
+        "touch-easy",
+        "touch-medium"
+      ],
+      "playerCounts": [
+        1,
+        2
+      ],
+      "order": 6
+    },
+    {
+      "id": "tisch-europa",
+      "label": "Europa-Quiz",
+      "labels": {
+        "en-GB": "Europe Quiz"
+      },
+      "audienceId": "adults",
+      "themeId": "default",
+      "poolIds": [
+        "europa"
+      ],
+      "presetIds": [
+        "touch-easy"
+      ],
+      "playerCounts": [
+        1,
+        2
+      ],
+      "order": 7
     }
   ],
   "locales": [

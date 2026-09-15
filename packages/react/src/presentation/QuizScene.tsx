@@ -19,11 +19,16 @@ import { deriveQuizEvents, type QuizEvent } from '@hfroemmel/quiz-core'
 import { StageScreen } from './StageScreen'
 import type { StageHeaderSlots } from './stage/StageHeader'
 import type { SceneAnswering } from './scenes/sceneProps'
-import { themeForView, themeVariables, type QuizSceneTheme } from '@hfroemmel/quiz-themes'
+import { themeVariables, type QuizSceneTheme } from '@hfroemmel/quiz-themes'
+import { themeForSkin, useQuizTheme } from './QuizProvider'
 
 export interface QuizSceneProps<TView extends PublicQuizViewModel> {
   runtime: QuizRuntime<TView>
-  /** Look. Without a value, the content's recommendation decides (`view.theme.skin`). */
+  /**
+   * Look. Without a value the theme of the surrounding `<QuizProvider>` applies
+   * where it is meant for this world, otherwise the content's recommendation
+   * (`view.theme.skin`).
+   */
   theme?: QuizSceneTheme
   /** Game events for the host, derived from the snapshots. */
   onEvent?: (event: QuizEvent) => void
@@ -70,13 +75,17 @@ export function QuizScene<TView extends PublicQuizViewModel>({
     if (onEvent) for (const event of events) onEvent(event)
   }, [view, onEvent])
 
+  const hostTheme = useQuizTheme()
   const serverNow = useCallback(() => runtime.serverNow(), [runtime])
   const command = useCallback((entry: Command) => void runtime.dispatch(entry), [runtime])
 
   if (!view) return null
 
   return (
-    <div style={{ display: 'contents', ...themeVariables(theme ?? themeForView(view)) }} data-quiz-scene="">
+    <div
+      style={{ display: 'contents', ...themeVariables(theme ?? themeForSkin(hostTheme, view.theme.skin ?? 'default')) }}
+      data-quiz-scene=""
+    >
       <StageScreen
         view={view}
         serverNow={serverNow}

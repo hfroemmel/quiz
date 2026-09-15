@@ -10,7 +10,8 @@
     "./controls.css": "./src/controls.css"
   },
   "dependencies": {
-    "@hfroemmel/quiz-core": "workspace:*"
+    "@hfroemmel/quiz-core": "workspace:*",
+    "zod": "^3.24.1"
   },
   "files": [
     "dist"

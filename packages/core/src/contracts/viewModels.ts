@@ -192,16 +192,28 @@ export interface PublicQuizViewModel {
    */
   quizId?: string
   /**
-   * The quiz offers of the house - id, name, subtitle, nothing else.
+   * The quiz offers of the house - what there is to play, as it is announced.
    *
    * WHAT FOR: before the first game the stage shows WHAT there is to play here.
    * That is an announcement to the room and not a choice: no command follows
    * from this list, and which quiz runs is decided by the desk alone.
    *
+   * THE MOTIF BELONGS IN IT. A card is recognised in the hall by its picture
+   * before its name is read, and the picture is content
+   * (`quizzes[].artworkAssetId`) like the name - the stage used to keep a table
+   * of five images in its own code, and a sixth quiz stood there without one.
+   * `emphasis` says which card takes the whole row, for the same reason.
+   *
    * Audience, pools, presets and theme are DELIBERATELY not in it. They would be
    * configuration, and the stage must not be able to derive any.
    */
-  quizOffers: { id: string; label: string; subtitle?: string }[]
+  quizOffers: {
+    id: string
+    label: string
+    subtitle?: string
+    artworkUrl?: string
+    emphasis: 'wide' | 'regular'
+  }[]
   question?: PublicQuestion
   /**
    * Category of the NEXT question - exclusively for the interstitial screen.
@@ -586,8 +598,14 @@ export interface StartMenuOffer {
   artworkUrl?: string
   emphasis: 'wide' | 'regular'
   playerCounts: PlayerCount[]
-  /** Only where the quiz offers a choice (`supportsDifficulty`). */
-  difficulties?: { presetId: string; label: string; isDefault: boolean }[]
+  /**
+   * The levels of this offer - with the length of the round they play.
+   *
+   * `slotCount` is what the card says besides the name: the rounds of a setup
+   * differ in length just as often as in difficulty, and "5 questions" is the
+   * only thing about a level that is true before the game.
+   */
+  difficulties?: { presetId: string; label: string; isDefault: boolean; slotCount?: number }[]
   available: boolean
   unavailableReason?: QuizUnavailableReason
 }
@@ -618,4 +636,14 @@ export interface StartMenuModel {
    * choice.
    */
   preselect?: { quizId?: string; audienceId?: string; playerCount?: PlayerCount }
+}
+
+/**
+ * What narrows a menu down to one installation.
+ *
+ * A device belongs to one audience, and its menu shows only that one's offers.
+ * The desk passes nothing and sees the whole package.
+ */
+export interface StartMenuOptions {
+  audienceId?: string
 }

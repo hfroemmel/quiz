@@ -32,6 +32,7 @@ import { StartScene } from './scenes/StartScene'
 import { StageHeader, type StageHeaderSlots } from './stage/StageHeader'
 import { Mascot } from './stage/Mascot'
 import { kidsPreloadImages } from './stage/kidsAssets'
+import { useQuizTheme } from './QuizProvider'
 import { useStageTheme } from './stageTheme'
 import { useDecodedImage } from './useDecodedImage'
 import stage from './stage/Stage.module.css'
@@ -148,8 +149,23 @@ export function StageScreen({
    * children's world brings its own paper and stays unaffected by it.
    */
   const [stageTheme] = useStageTheme()
+  /*
+   * A HOST THEME WINS - AND IT HAS TO SIT ON THIS ELEMENT TO DO SO.
+   *
+   * The light variant of the stage declares its colours on the stage element
+   * (`.stage--default.stage--bright` in `palette.css`), and a declaration on the
+   * element beats a value inherited from the frame. A host theme handed down
+   * from above would therefore be overwritten exactly where it matters; as an
+   * inline style on this element it wins, because nothing beats that.
+   *
+   * Its base also decides the variant then: whoever designs a dark stage has
+   * designed it dark, and the light-or-dark preference of a window applies
+   * where no host says otherwise.
+   */
+  const hostTheme = useQuizTheme()
+  const ownTheme = hostTheme && hostTheme.skin === skin ? hostTheme : null
   // The children's world brings its own paper - there is nothing to choose there.
-  const theme = kids ? null : stageTheme
+  const theme = kids ? null : (ownTheme?.base ?? stageTheme)
 
   /*
    * Preload the children's world's drawings into the browser cache once.
@@ -178,11 +194,13 @@ export function StageScreen({
         className={['stage', `stage--${skin}`, theme && `stage--${theme}`, `stage--${variant}`, `stage--scene-${view.scene}`]
           .filter(Boolean)
           .join(' ')}
-        style={transitionStyle(transition)}
+        style={{ ...transitionStyle(transition), ...ownTheme?.variables }}
         data-scene={view.scene}
         data-presentation={view.question?.presentationType}
         data-skin={skin}
         data-theme={theme ?? skin}
+        /* Paper or dark - for a host that recolours its own frame around it. */
+        data-surface={theme === 'dark' ? 'dark' : 'light'}
         data-phase={view.phase}
         /*
          * Are the answers already on stage? The children's world hangs

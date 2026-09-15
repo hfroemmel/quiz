@@ -9,3 +9,4 @@
 export * from './palettes'
 export * from './sceneTheme'
 export * from './paletteStylesheet'
+export * from './themeDefinition'

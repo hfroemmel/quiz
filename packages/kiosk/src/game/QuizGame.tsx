@@ -19,13 +19,17 @@ import {
   QuizScene,
   releaseAudio,
   textsFor,
+  themeForSkin,
   useAudioUnlock,
+  useQuizChrome,
   useQuizRuntime,
   useQuizSnapshot,
+  useQuizTheme,
   useStageTheme,
 } from '@hfroemmel/quiz-react'
-import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
-import { GameStart } from './GameStart'
+import { themeVariables } from '@hfroemmel/quiz-themes'
+import { StartMenu, type StartMenuChoice } from './StartMenu'
+import { deviceStartMenu } from './startMenuModel'
 import { GameSettings } from './GameSettings'
 import { PlayerFoot } from './PlayerFoot'
 import { clampZoom } from './zoom'
@@ -51,11 +55,14 @@ export interface QuizGameProps {
   /** Audience this device plays in. Without one, the first in the catalog. */
   audience?: string
   /**
-   * Player counts this device offers. Without one, both.
+   * Player counts this device offers - it NARROWS what the package says.
    *
    * A device only one person stands at passes `[1]`; the question about the
    * number of players then falls away. The second corner's buzzer disappears
    * by itself anyway - the footer follows the server's game state.
+   *
+   * Without it, the menu offers what the quizzes of this audience state
+   * (`quizzes[].playerCounts`).
    */
   playerCounts?: readonly PlayerCount[]
   /**
@@ -139,6 +146,10 @@ export function QuizGame({
   const clearRejection = useCallback(() => runtime?.clearRejection(), [runtime])
   const notifyAudioReady = useCallback(() => runtime?.notifyAudioReady(), [runtime])
   const hostVisible = useHostVisible()
+  /** The design of the host, where one surrounds this quiz (`QuizProvider`). */
+  const hostTheme = useQuizTheme()
+  /** Which parts of the frame this quiz supplies itself - see `QuizChrome`. */
+  const chrome = useQuizChrome()
   const t = textsFor(snapshot?.view ?? null)
 
   useAudioUnlock(notifyAudioReady)
@@ -271,13 +282,13 @@ export function QuizGame({
   }, [view, onFinished])
 
   /*
-   * THE CONFIGURATION DECIDES, THE PROPERTY IS THE FALLBACK.
+   * THE CONFIGURATION DECIDES, THE PROPERTY NARROWS.
    *
-   * Idle time and player counts belong to the installation, and they now live
-   * in the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A
-   * host that still passes them as properties wins, so nothing changes for it
-   * from one version to the next; a host that passes nothing gets what the
-   * package says.
+   * Idle time and player counts belong to the installation, and they live in
+   * the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A host
+   * that still passes them as properties wins, so nothing changes for it from
+   * one version to the next; a host that passes nothing gets what the package
+   * says.
    */
   const effectiveIdleTimeoutMs = idleTimeoutMs ?? view?.catalog.rules.idleTimeoutMs
   const idle = useIdleWatch({
@@ -302,13 +313,28 @@ export function QuizGame({
   const hasGame = view.scene !== 'start'
   const finished = view.scene === 'result'
 
-  const start = ({ playerCount, presetId }: { playerCount: PlayerCount; presetId: string }) => {
+  /*
+   * THE MENU HANDS IN WHAT IT ASKED, AND NOTHING ELSE.
+   *
+   * A quiz type brings audience and pools with it, so only its id travels -
+   * both together are a contradiction and the engine refuses it. A package
+   * without quiz types names audience and level instead, exactly as before. The
+   * level is only sent where the offer has one; where a quiz offers no choice,
+   * sending it would be refused.
+   */
+  const start = ({ quizId, audienceId: chosenAudience, playerCount, presetId }: StartMenuChoice) => {
     setShowChoice(false)
     setPendingStart(true)
     clearRejection()
     // A second tap while starting does not create a second game: the server
     // rejects it, because a game is already running by then.
-    send({ type: 'START_GAME', audience: audienceId, presetId, playerCount, flowProfile: 'self-service' })
+    send({
+      type: 'START_GAME',
+      ...(quizId === undefined ? { audience: chosenAudience ?? audienceId } : { quizId }),
+      ...(presetId === undefined ? {} : { presetId }),
+      playerCount,
+      flowProfile: 'self-service',
+    })
   }
 
   const leave = () => {
@@ -377,7 +403,27 @@ export function QuizGame({
    * reports here as its own world.
    */
   const [stageTheme] = useStageTheme()
-  const variant = skin === 'kids' ? 'kids' : stageTheme
+  /*
+   * The device's own surfaces - start selection, settings, confirmation - carry
+   * the theme of the world they stand in front of: the host's where it is meant
+   * for that world, the package's otherwise (see `themeForSkin`).
+   */
+  const worldTheme = themeForSkin(hostTheme, skin)
+  /*
+   * ON THIS ELEMENT, not inherited: the light variant of the start menu
+   * declares its tokens on the device's root element
+   * (`[data-quiz-game][data-theme='bright']`), and that beats an inherited
+   * value. A host theme meant for this world therefore lands here as an inline
+   * style - with all its families, because it is a complete set.
+   */
+  const ownTheme = hostTheme && hostTheme.skin === skin ? hostTheme : null
+  const worldVariables = ownTheme ? ownTheme.variables : themeVariables(worldTheme)
+  /*
+   * And the variant follows the host theme where there is one: whoever designs
+   * a dark device has designed it dark, and the light-or-dark preference of a
+   * window applies where no host says otherwise.
+   */
+  const variant = skin === 'kids' ? 'kids' : (ownTheme?.base ?? stageTheme)
 
   const settings = settingsOpen && ownDevice && (
     <GameSettings
@@ -394,19 +440,28 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.startScreen}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
+        style={{ ...worldVariables, ...area }}
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
+        /*
+         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
+         * control bar around the quiz needs to know whether it stands on paper
+         * or in the dark, and `data-theme` names a world instead (the
+         * children's paper is light too). One attribute, two values, readable
+         * from CSS without knowing the package's worlds.
+         */
+        data-surface={variant === 'dark' ? 'dark' : 'light'}
       >
-        <GameStart
-          view={view}
-          audience={audienceId}
-          playerCounts={playerCounts ?? configuredPlayerCounts(view.catalog, audienceId)}
+        <StartMenu
+          model={deviceStartMenu(view, audienceId, playerCounts)}
+          texts={view.texts}
+          brand={{ visualUrl: view.theme.startVisualUrl, title: view.theme.startTitle }}
+          canStart={view.allowedCommands.includes('START_GAME')}
           onStart={start}
           onExit={onExit}
           onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
-          {...(ownDevice ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
+          {...(ownDevice && chrome.settings ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
         />
         {settings}
       </div>
@@ -417,10 +472,18 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.waiting}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
+        style={{ ...worldVariables, ...area }}
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
+        /*
+         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
+         * control bar around the quiz needs to know whether it stands on paper
+         * or in the dark, and `data-theme` names a world instead (the
+         * children's paper is light too). One attribute, two values, readable
+         * from CSS without knowing the package's worlds.
+         */
+        data-surface={variant === 'dark' ? 'dark' : 'light'}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -480,7 +543,7 @@ export function QuizGame({
         * Whether it exists is decided by the server state: in a game run by
         * an operator, nobody may abort it from the device.
         */}
-      {!finished && view.allowedCommands.includes('ABORT_GAME') && (
+      {chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
         <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
           {t('kiosk.endGame')}
         </button>
@@ -552,23 +615,4 @@ export function QuizGame({
       />
     </div>
   )
-}
-
-/**
- * The player counts this device offers, out of the configuration.
- *
- * The quizzes of the audience say it (`quizzes[].playerCounts`); several
- * quizzes are combined, because the menu of this phase does not yet let one be
- * chosen. Without quizzes nothing comes back, and the start selection keeps its
- * own default - a kiosk package without quiz types is a valid package.
- */
-function configuredPlayerCounts(
-  catalog: PlayerQuizViewModel['catalog'],
-  audienceId: string,
-): PlayerCount[] | undefined {
-  const counts = catalog.quizzes
-    .filter((quiz) => quiz.audienceId === audienceId)
-    .flatMap((quiz) => quiz.playerCounts)
-  const unique = [...new Set(counts)].sort((left, right) => left - right)
-  return unique.length > 0 ? unique : undefined
 }

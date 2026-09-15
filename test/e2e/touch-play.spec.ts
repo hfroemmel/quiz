@@ -53,7 +53,7 @@ async function next(page: Page): Promise<void> {
   await page.locator('[data-continue]').click()
 }
 
-test('the start selection asks only for player count and difficulty', async ({ page }) => {
+test('the start selection asks what the package offers - and nothing else', async ({ page }) => {
   await openStartScreen(page)
 
   /*
@@ -64,9 +64,16 @@ test('the start selection asks only for player count and difficulty', async ({ p
   const presets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(presets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
-  // The quiz mode belongs to the setup, not on the players' screen.
+  // The quizzes of this audience, and the two ways to play them.
+  await expect(page.locator('[data-quiz-card]')).toHaveCount(3)
   await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Zu zweit/ })).toBeVisible()
+  /*
+   * The audience, on the other hand, belongs to the setup and not on the
+   * players' screen - a device where somebody taps the children's world by
+   * accident would be an operating mistake with no control for it. The menu of
+   * the start selection is checked in `start-menu.spec.ts`.
+   */
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
 })
 
@@ -1062,7 +1069,17 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
       return {
         ground: style.backgroundColor,
         edge: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth].join(' '),
-        outline: `${style.outlineStyle} ${style.outlineWidth}`,
+        /*
+         * WHETHER AN OUTLINE IS DRAWN, NOT HOW WIDE IT WOULD BE.
+         *
+         * With `outline-style: none` nothing is drawn, whatever the width says -
+         * and Chromium keeps the width of its own focus ring on a button in
+         * that state, so the number differs between two builds of the same
+         * browser while the screen looks identical. Reading the width there
+         * measured the build, not the design; a style that DOES draw comes back
+         * with its width and fails with it.
+         */
+        outline: style.outlineStyle === 'none' ? 'none' : `${style.outlineStyle} ${style.outlineWidth}`,
         font: style.color,
         /* Every piece of text and every fill INSIDE the card - title, line, icon, checkmark. */
         inner: [...element.querySelectorAll('span')].map((part) => getComputedStyle(part).color),
@@ -1092,7 +1109,7 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
 
   for (const [name, state] of Object.entries(states)) {
     expect(state.edge, name).toBe('0px 0px 0px 0px')
-    expect(state.outline, name).toBe('none 0px')
+    expect(state.outline, name).toBe('none')
   }
 
   /* On the filled card everything is white - title, line below it, icon, checkmark. */
