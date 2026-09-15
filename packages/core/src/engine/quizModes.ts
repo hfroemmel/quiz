@@ -1,36 +1,37 @@
 /**
- * Eine Quizart aus der Konfiguration aufloesen - an genau einer Stelle.
+ * Resolve a quiz type from the configuration - in exactly one place.
  *
- * Was eine Quizart ausmacht, steht im Inhalt (`quizModeSchema`): Zielgruppe,
- * Theme, Fragenpools und die waehlbaren Schwierigkeitsgrade. Was davon
- * tatsaechlich existiert, weiss nur, wer die ganze Konfiguration hat - und die
- * Pruefung darf es genau einmal geben. Server, Inhaltsdienst und Tests fragen
- * deshalb hier, statt die Liste jeweils selbst zu durchsuchen.
+ * What makes a quiz type is in the content (`quizModeSchema`): audience, theme,
+ * question pools and the selectable difficulty levels. Which of those actually
+ * exist is known only to whoever holds the whole configuration - and the check
+ * may exist exactly once. Server, content service and tests therefore ask here
+ * instead of searching the list themselves.
  *
- * ZURUECK KOMMT ENTWEDER DIE QUIZART ODER DER GRUND. Ein blosses `null` liesse
- * den Operator raten, ob die Quizart fehlt, ihr Pool oder ihr Theme - und
- * genau das ist am Abend die Frage, die beantwortet werden muss.
+ * WHAT COMES BACK IS EITHER THE QUIZ TYPE OR THE REASON. A bare `null` would
+ * leave the operator guessing whether the quiz type is missing, its pool or its
+ * theme - and that is exactly the question that has to be answered on the
+ * evening.
  */
 import { defaultPresetIdOf, type QuizConfig } from '../contracts'
 
 /**
- * Eine Quizart, fertig aufgeloest.
+ * A quiz type, fully resolved.
  *
- * Die Engine liest hier nur Werte und schlaegt nichts mehr nach: Zielgruppe,
- * Pools, Theme und Presets sind beim Aufloesen geprueft worden.
+ * The engine only reads values here and looks nothing up any more: audience,
+ * pools, theme and presets were checked while resolving.
  */
 export interface ResolvedQuiz {
   id: string
   audience: string
   poolIds?: string[] | undefined
   themeId: string
-  /** Waehlbare Schwierigkeitsgrade. Ein Eintrag heisst: keine Wahl. */
+  /** Selectable difficulty levels. One entry means: no choice. */
   presetIds: string[]
-  /** Voreinstellung der Wahl - und bei nur einem Eintrag genau dieser. */
+  /** Default of the choice - and with a single entry exactly that one. */
   defaultPresetId: string
 }
 
-/** Die Quizart, oder der Klartext, warum es sie nicht gibt. */
+/** The quiz type, or the plain-text reason why it does not exist. */
 export type QuizLookup = { ok: true; quiz: ResolvedQuiz } | { ok: false; message: string }
 
 export function resolveQuizMode(config: QuizConfig, quizId: string): QuizLookup {
@@ -49,9 +50,9 @@ export function resolveQuizMode(config: QuizConfig, quizId: string): QuizLookup 
     return { ok: false, message: `Der Fragenpool "${unknownPool}" des Quiz "${quiz.id}" ist nicht verfügbar.` }
   }
   /*
-   * Ein Preset muss es geben UND der Zielgruppe offenstehen. Beides an einer
-   * Stelle, weil die Auswahl des Operators sonst an einer Stufe haengenbliebe,
-   * die der Server erst beim Ziehen der ersten Frage ablehnt.
+   * A preset must exist AND be open to the audience. Both in one place,
+   * because otherwise the operator's choice would get stuck on a level the
+   * server only refuses when drawing the first question.
    */
   const unknownPreset = quiz.presetIds.find(
     (presetId) =>

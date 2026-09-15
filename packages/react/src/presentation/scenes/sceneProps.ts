@@ -1,19 +1,20 @@
-/** Gemeinsame Eigenschaften aller Buehnenszenen. */
+/** Properties shared by every stage scene. */
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 import type { RevealDisplay } from '../../client/useRevealClock'
 
 /**
- * Die Antwortzeilen sind Schaltflaechen.
+ * The answer rows are buttons.
  *
- * Nur am Touchgeraet gesetzt. Dort steht kein Operator daneben: Wer am Zug ist,
- * tippt seine Antwort in derselben Liste an, die im Saal nur anzeigt. Es gibt
- * bewusst keine zweite Liste je Spieler - vier Antworten stehen einmal auf dem
- * Tisch, und der Zuschlag entscheidet, wem sie gerade gehoeren.
+ * Set only on the touch device. There is no operator standing beside it
+ * there: whoever's turn it is taps their answer in the same list that the
+ * room only displays. There is deliberately no second list per player - four
+ * answers sit on the table once, and the assignment decides whom they
+ * currently belong to.
  */
 export interface SceneAnswering {
-  /** Niemand hat den Zuschlag oder der Server nimmt gerade nichts an. */
+  /** Nobody has the assignment, or the server is not currently accepting anything. */
   disabled: boolean
-  /** Vorlesewerkzeuge sollen wissen, wessen Antworten das gerade sind. */
+  /** Screen readers should know whose answers these currently are. */
   label: string
   onSelect(optionId: string): void
 }
@@ -21,18 +22,18 @@ export interface SceneAnswering {
 export interface SceneProps {
   view: PublicQuizViewModel
   reveal: RevealDisplay
-  /** Serverzeit fuer laufende Medien; niemals lokale Zustandsquelle. */
+  /** Server time for running media; never a local source of truth. */
   serverNow: () => number
   /**
-   * Wo die Szene laeuft.
+   * Where the scene is running.
    *
-   *   `stage`    der Beamer im Saal
-   *   `preview`  die Vorschau im Operatorfenster
-   *   `touch`    das Geraet, an dem selbst gespielt wird
+   *   `stage`    the projector in the room
+   *   `preview`  the preview in the operator's window
+   *   `touch`    the device someone plays on themselves
    *
-   * Der Saal sieht ausschliesslich Spielinhalte; die Vorschau darf zusaetzlich
-   * Regiehinweise tragen. Das Touchgeraet ist in dieser Hinsicht wie die
-   * Buehne: Wer davorsitzt, spielt.
+   * The room sees only game content; the preview may additionally carry
+   * director's notes. The touch device is like the stage in this respect:
+   * whoever sits in front of it plays.
    */
   variant: 'stage' | 'preview' | 'touch'
   answering?: SceneAnswering

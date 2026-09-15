@@ -1,17 +1,18 @@
 /**
- * Form des gebauten Quizpakets.
+ * Shape of the built quiz package.
  *
- * Das Paket traegt eine Pruefsumme ueber seinen Inhalt, und die laeuft ueber
- * `JSON.stringify` - dort zaehlt die REIHENFOLGE der Schluessel. Der Ladeweg
- * sortiert Felder ueber das Schema an ihren Platz; das Paket muss deshalb beim
- * Schreiben und Wiederlesen zeichengleich bleiben, sonst wird es beim Start
- * abgewiesen, obwohl inhaltlich nichts fehlt.
+ * The package carries a checksum over its content, and that runs through
+ * `JSON.stringify` - where the ORDER of the keys counts. The loading path
+ * sorts fields into place via the schema; the package must therefore stay
+ * byte-identical across write and re-read, otherwise it is rejected at start
+ * although nothing is missing content-wise.
  *
- * Der Fehler ist beim ersten Mal erst im End-to-End-Lauf aufgefallen, weil er
- * sich weder im Typsystem noch im Inhaltsbericht zeigt. Deshalb steht er hier.
+ * The first time, the bug only showed up in the end-to-end run because it
+ * appears neither in the type system nor in the content report. That is why
+ * it is pinned here.
  *
- * Seit Schema v2 traegt das Paket ausserdem KEINE Farben und Schriften mehr -
- * Darstellung ist Sache des Gastgebers. Auch das haelt dieser Test fest.
+ * Since schema v2 the package also carries NO colours and fonts anymore -
+ * presentation is the host's business. This test pins that down as well.
  */
 import { describe, expect, it } from 'vitest'
 import { quizConfigSchema } from '@hfroemmel/quiz-core'
@@ -32,8 +33,8 @@ const config = {
   audiences: [{ id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['standard'] }],
 }
 
-describe('Gebautes Quizpaket', () => {
-  it('streift Darstellungsfelder eines Themes ab - Farben gehoeren dem Gastgeber', () => {
+describe('Built quiz package', () => {
+  it('strips presentation fields off a theme - colours belong to the host', () => {
     const parsed = quizConfigSchema.parse({
       ...config,
       themes: [{ id: 'default', label: 'Standard', colors: { accent: '#123456' }, typography: { headingFont: 'X' } }],
@@ -41,7 +42,7 @@ describe('Gebautes Quizpaket', () => {
     expect(parsed.themes[0]).toEqual({ id: 'default', label: 'Standard' })
   })
 
-  it('bleibt beim Schreiben und Wiederlesen zeichengleich - sonst kippt die Pruefsumme', () => {
+  it('stays byte-identical across write and re-read - otherwise the checksum tips', () => {
     const built = quizConfigSchema.parse(config)
     const reloaded = quizConfigSchema.parse(JSON.parse(JSON.stringify(built)))
     expect(JSON.stringify(reloaded)).toBe(JSON.stringify(built))

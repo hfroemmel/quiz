@@ -1,16 +1,16 @@
 /**
- * Verzeichniskonvention der Inhaltspipeline.
+ * Directory convention of the content pipeline.
  *
- * Frueher rechnete `paths.ts` die Monorepo-Wurzel aus der Lage der Quelldatei
- * aus - als installiertes Paket zeigte das ins Leere. Jetzt gilt: Wer die
- * Pipeline aufruft, bestimmt die Pfade. Ohne Flag wird `content/` unter dem
- * AKTUELLEN ARBEITSVERZEICHNIS erwartet - so verhalten sich die Root-Skripte
- * des Repos wie bisher, und ein Inhalte-Repo mit derselben Struktur braucht
- * keine Konfiguration.
+ * Formerly `paths.ts` derived the monorepo root from the location of the
+ * source file - as an installed package that pointed nowhere. Now the rule
+ * is: whoever calls the pipeline determines the paths. Without a flag,
+ * `content/` is expected under the CURRENT WORKING DIRECTORY - so the repo's
+ * root scripts behave as before, and a content repo with the same structure
+ * needs no configuration.
  */
 import { join, resolve } from 'node:path'
 
-/** Wert eines `--name <wert>`- oder `--name=<wert>`-Flags. */
+/** Value of a `--name <value>` or `--name=<value>` flag. */
 export function flagValue(args: string[], name: string): string | undefined {
   const prefix = `--${name}`
   for (let index = 0; index < args.length; index += 1) {
@@ -21,7 +21,7 @@ export function flagValue(args: string[], name: string): string | undefined {
   return undefined
 }
 
-/** Flagwert oder die Konvention `<cwd>/content/<segment>`. */
+/** Flag value or the convention `<cwd>/content/<segment>`. */
 export function contentDir(args: string[], flag: string, segment: string): string {
   return resolve(flagValue(args, flag) ?? join(process.cwd(), 'content', segment))
 }

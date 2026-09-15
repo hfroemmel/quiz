@@ -1,11 +1,10 @@
 /**
- * `pnpm palette:build` - schreibt `src/palette.css` dieses Pakets.
+ * `pnpm palette:build` - writes this package's `src/palette.css`.
  *
- * Die Farben stehen in `src/palettes.ts`. Dieses Skript ist nur die Feder: Es
- * formt daraus das Stylesheet, das Gastgeber einbinden. Der Test
- * `test/palette.test.ts` schlaegt fehl, wenn die Datei nicht mehr zur Quelle
- * passt - vergessenes Nachschreiben faellt damit im Testlauf auf und nicht erst
- * auf der Buehne.
+ * The colours live in `src/palettes.ts`. This script is just the pen: it
+ * shapes the stylesheet that hosts include from them. The test
+ * `test/palette.test.ts` fails if the file no longer matches the source -
+ * so a forgotten rewrite shows up in the test run, not only on stage.
  */
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'

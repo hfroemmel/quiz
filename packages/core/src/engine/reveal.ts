@@ -1,16 +1,16 @@
 /**
- * Enthuellungsuhr des Bilderkennens (Spezifikation 10.1 - 10.3).
+ * Reveal clock of the image reveal (specification 10.1 - 10.3).
  *
- * ZENTRALE FAIRNESSREGEL: Jede Anzeige der Enthuellung - das Raster auf der
- * Buehne wie die Restsekunden beim Moderator - wird aus **derselben**
- * Fortschrittsvariable berechnet. Es darf niemals eine unabhaengige CSS-Animation
- * neben einem separaten JavaScript-Timer laufen. Der Buehnenscreen rendert zwar
- * fluessig mit `requestAnimationFrame`, leitet den Fortschritt aber immer aus
- * diesen Funktionen und dem letzten Serverwert ab.
+ * CENTRAL FAIRNESS RULE: every display of the reveal - the grid on the stage as
+ * well as the remaining seconds for the moderator - is computed from the
+ * **same** progress variable. An independent CSS animation must never run next
+ * to a separate JavaScript timer. The stage screen renders smoothly with
+ * `requestAnimationFrame`, but always derives the progress from these functions
+ * and the last server value.
  *
- * Der Server speichert nur drei Dinge: Startzeit des laufenden Abschnitts,
- * bereits verstrichene Zeit davor und den Status. Daraus ist der Fortschritt zu
- * jedem Zeitpunkt reproduzierbar - auch nach Reconnect oder Neustart.
+ * The server stores only three things: start time of the running section, time
+ * already elapsed before it and the status. From that the progress is
+ * reproducible at any time - also after a reconnect or a restart.
  */
 import type { RevealClockState, RevealGrid } from '../contracts'
 
@@ -18,7 +18,7 @@ export function createRevealClock(durationMs: number): RevealClockState {
   return { status: 'idle', durationMs, elapsedBeforeStartMs: 0 }
 }
 
-/** Verstrichene Zeit zum Zeitpunkt `nowMs`, unabhaengig vom Status korrekt. */
+/** Elapsed time at `nowMs`, correct regardless of the status. */
 export function revealElapsedMs(clock: RevealClockState, nowMs: number): number {
   if (clock.status === 'completed') return clock.durationMs
   if (clock.status !== 'running' || clock.startedAtServerMs === undefined) {
@@ -28,18 +28,18 @@ export function revealElapsedMs(clock: RevealClockState, nowMs: number): number 
   return clamp(clock.elapsedBeforeStartMs + runningFor, 0, clock.durationMs)
 }
 
-/** Normalisierter Fortschritt 0..1. Einzige Basis jeder Anzeige. */
+/** Normalised progress 0..1. The only basis of every display. */
 export function revealProgress(clock: RevealClockState, nowMs: number): number {
   if (clock.durationMs <= 0) return 1
   return clamp(revealElapsedMs(clock, nowMs) / clock.durationMs, 0, 1)
 }
 
 /**
- * Restsekunden, von `durationSeconds` bis `0`.
+ * Remaining seconds, from `durationSeconds` down to `0`.
  *
- * NUR FUER DIE REGIE: Auf der Buehne steht keine Zahl - dort sind die Kacheln
- * die Uhr. Der Moderator dagegen muss wissen, wie lange er noch hat.
- * `ceil` sorgt dafuer, dass die Zahl erst bei exakt 0 Restzeit auf 0 springt.
+ * FOR THE DIRECTION ONLY: no number stands on the stage - there the tiles are
+ * the clock. The moderator, however, needs to know how long they have left.
+ * `ceil` makes the number jump to 0 only at exactly 0 remaining time.
  */
 export function revealCountdownSeconds(clock: RevealClockState, nowMs: number): number {
   const durationSeconds = clock.durationMs / 1000
@@ -47,25 +47,24 @@ export function revealCountdownSeconds(clock: RevealClockState, nowMs: number): 
 }
 
 /**
- * Aufdeckplan des Rasters: je Kachel der Fortschritt, ab dem sie offen ist.
+ * Reveal plan of the grid: per tile the progress from which it is open.
  *
- * Das Ergebnis ist ein Feld in LESERICHTUNG - Index 0 ist die Kachel links oben.
- * Die Praesentation vergleicht nur noch `progress >= plan[index]` und braucht
- * keinen eigenen Zeitgeber; damit gilt die Fairnessregel oben auch fuer das
- * Raster.
+ * The result is an array in READING ORDER - index 0 is the top-left tile. The
+ * presentation only compares `progress >= plan[index]` and needs no timer of
+ * its own; so the fairness rule above also holds for the grid.
  *
- * DIE REIHENFOLGE, in drei Zutaten:
+ * THE ORDER, in three ingredients:
  *
- *   1. Abstand zum vermuteten Motiv. Weit aussen zuerst, Mitte zuletzt - so
- *      bleibt das Erkennbare bis zum Schluss verdeckt.
- *   2. Streuung. Ohne sie waere die Aufloesung ein wandernder Ring; mit ihr
- *      springen die Kacheln ueber die Flaeche, ohne dass die Mitte frueh faellt.
- *   3. Ein Startwert, der aus der Frage stammt. Damit sehen Buehne, Operator und
- *      Moderator DASSELBE Muster, ohne dass der Server eine Reihenfolge
- *      mitschicken muesste - und dieselbe Frage deckt sich immer gleich auf.
+ *   1. Distance to the assumed motif. Far outside first, centre last - so the
+ *      recognisable part stays covered until the end.
+ *   2. Scatter. Without it the reveal would be a wandering ring; with it the
+ *      tiles jump across the area without the centre falling early.
+ *   3. A seed that comes from the question. That way stage, operator and
+ *      moderator see THE SAME pattern without the server sending an order -
+ *      and the same question always uncovers the same way.
  *
- * Die letzte Kachel oeffnet bei genau 1: Bei null Sekunden ist das Bild
- * vollstaendig zu sehen, keine Kachel bleibt uebrig.
+ * The last tile opens at exactly 1: at zero seconds the image is completely
+ * visible, no tile remains.
  */
 export function revealTilePlan(grid: RevealGrid, seed: number): number[] {
   const count = grid.columns * grid.rows
@@ -74,7 +73,7 @@ export function revealTilePlan(grid: RevealGrid, seed: number): number[] {
   const random = pseudoRandom(seed)
   const ranked = Array.from({ length: count }, (_, index) => ({
     index,
-    /* Hoher Wert deckt frueh auf. */
+    /* A high value reveals early. */
     score: focusDistance(grid, index) * (1 - grid.jitter) + random() * grid.jitter,
   })).sort((a, b) => b.score - a.score)
 
@@ -86,12 +85,12 @@ export function revealTilePlan(grid: RevealGrid, seed: number): number[] {
 }
 
 /**
- * Abstand einer Kachel zum vermuteten Motiv, normiert auf 0..1.
+ * Distance of a tile to the assumed motif, normalised to 0..1.
  *
- * Gemessen wird von der MITTE der Kachel aus, damit das Raster keine Rolle
- * spielt: Ein feineres Raster verschiebt die Reihenfolge nicht, es verfeinert
- * sie nur. Der Teiler ist der groesste im Bild moegliche Abstand, damit die
- * Streuung oben in derselben Groessenordnung wirkt wie der Abstand.
+ * Measured from the CENTRE of the tile so that the grid plays no role: a finer
+ * grid does not shift the order, it only refines it. The divisor is the largest
+ * distance possible in the image, so that the scatter above acts in the same
+ * order of magnitude as the distance.
  */
 function focusDistance(grid: RevealGrid, index: number): number {
   const x = ((index % grid.columns) + 0.5) / grid.columns
@@ -103,10 +102,10 @@ function focusDistance(grid: RevealGrid, index: number): number {
 }
 
 /**
- * Startwert aus einer Zeichenkette - fuer alle Clients derselbe.
+ * Seed from a string - the same for all clients.
  *
- * Kein Zufall zur Laufzeit: `Math.random()` wuerde auf jedem Screen ein anderes
- * Muster erzeugen, und zwei Zuschauer saehen verschiedene Bilder.
+ * No randomness at runtime: `Math.random()` would create a different pattern on
+ * every screen, and two viewers would see different pictures.
  */
 export function revealSeed(source: string): number {
   let hash = 2_166_136_261
@@ -117,7 +116,7 @@ export function revealSeed(source: string): number {
   return hash >>> 0
 }
 
-/** Reproduzierbare Folge in 0..1 (Mulberry32). */
+/** Reproducible sequence in 0..1 (Mulberry32). */
 function pseudoRandom(seed: number): () => number {
   let state = seed >>> 0
   return () => {
@@ -134,7 +133,7 @@ export function startReveal(clock: RevealClockState, nowMs: number): RevealClock
   return { ...clock, status: 'running', startedAtServerMs: nowMs }
 }
 
-/** Friert den aktuellen Stand exakt ein. Nach `resumeReveal` geht es dort weiter. */
+/** Freezes the current state exactly. After `resumeReveal` it continues there. */
 export function pauseReveal(clock: RevealClockState, nowMs: number): RevealClockState {
   if (clock.status !== 'running') return clock
   return {
@@ -151,17 +150,17 @@ export function resumeReveal(clock: RevealClockState, nowMs: number): RevealCloc
   return { ...clock, status: 'running', startedAtServerMs: nowMs }
 }
 
-/** Vollstaendig aufdecken. Sperrt den Buzzer bewusst NICHT (Spezifikation 10.1). */
+/** Reveal completely. Deliberately does NOT lock the buzzer (specification 10.1). */
 export function completeReveal(clock: RevealClockState): RevealClockState {
   return { ...clock, status: 'completed', elapsedBeforeStartMs: clock.durationMs, startedAtServerMs: undefined }
 }
 
-/** Technische Korrektur: zurueck auf Sekunde 10. Klar getrennt von "Buzzer zuruecksetzen". */
+/** Technical correction: back to second 10. Clearly separate from "reset buzzer". */
 export function resetReveal(clock: RevealClockState): RevealClockState {
   return { status: 'idle', durationMs: clock.durationMs, elapsedBeforeStartMs: 0, startedAtServerMs: undefined }
 }
 
-/** Ist die Zeit abgelaufen? Nur Anzeigezustand - Buzzern bleibt danach erlaubt. */
+/** Has the time run out? Display state only - buzzing stays allowed afterwards. */
 export function isRevealFinished(clock: RevealClockState, nowMs: number): boolean {
   return clock.status === 'completed' || revealProgress(clock, nowMs) >= 1
 }

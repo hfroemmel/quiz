@@ -1,9 +1,9 @@
 /**
- * `pnpm content:build` - erzeugt das normalisierte, versionierte Quizpaket.
+ * `pnpm content:build` - produces the normalised, versioned quiz package.
  *
- * Ergebnis liegt unter `content/dist` und ist die einzige Quelle, aus der der Server
- * zur Laufzeit laedt. Ein Build der Veranstaltungssoftware haengt damit nie von
- * Google Sheets ab (Spezifikation 24.2).
+ * The result lives under `content/dist` and is the only source the server
+ * loads from at runtime. A build of the event software therefore never
+ * depends on Google Sheets (specification 24.2).
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -42,9 +42,9 @@ if (existsSync(previousManifestPath)) {
   }
 }
 
-/** Siehe `pnpm content:validate --placeholder-media`. */
+/** See `pnpm content:validate --placeholder-media`. */
 const placeholderMedia = args.includes('--placeholder-media')
-/** `--profile no-video` filtert Videofragen und -medien fuer die Offline-Apps. */
+/** `--profile no-video` filters video questions and media for the offline apps. */
 const profile = flagValue(args, 'profile') === 'no-video' ? ('no-video' as const) : ('full' as const)
 
 const contentVersion = nextContentVersion()

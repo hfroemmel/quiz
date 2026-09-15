@@ -1,8 +1,8 @@
 /**
- * Fragenzaehler „Frage 3/7" - EIN Bauteil fuer beide Gestaltungswelten.
+ * Question counter „Frage 3/7" - ONE component for both design worlds.
  *
- * Aufbau wie bei der Punktekarte: kleine Beschriftung, grosser Wert. Er steht in
- * beiden Welten rechts aussen in der Kopfzeile; wie er gerahmt wird, entscheidet
+ * Structured like the score card: small label, large value. It sits at the
+ * far right of the header in both worlds; how it is framed is decided by
  * `Counter.module.css`.
  */
 import styles from './Counter.module.css'
@@ -14,7 +14,7 @@ export function Counter({
 }: {
   current: number
   total: number
-  /** Beschriftung von aussen - die Buehne spricht die Sprache des Spiels. */
+  /** Label supplied from outside - the stage speaks the game's language. */
   label?: string
 }) {
   return (

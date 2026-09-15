@@ -1,18 +1,20 @@
 /**
- * Die Decke ueber dem Bild beim Bilderkennen.
+ * The cover over the image during image guessing.
  *
- * Sie liegt als Raster aus Kacheln UEBER dem Foto; aufgedeckt wird, indem eine
- * Kachel verschwindet. Das Bild selbst bleibt unangetastet - es ist von der
- * ersten Sekunde an vollstaendig und scharf da, nur eben verdeckt. Deshalb ist
- * eine einmal offene Kachel sofort scharf und bleibt es.
+ * It sits as a grid of tiles OVER the photo; revealing means a tile
+ * disappears. The image itself stays untouched - it is complete and sharp
+ * from the first second on, just covered. That is why a tile, once open, is
+ * immediately sharp and stays that way.
  *
- * WAS HIER NICHT PASSIERT: gerechnet wird nichts. Welche Kachel wann faellt,
- * steht im Aufdeckplan der Domain (`revealTilePlan`); dieses Bauteil vergleicht
- * ihn mit dem Fortschritt. Ein eigener Zeitgeber waere eine zweite Wahrheit
- * neben der Uhr des Servers - das Bild liefe fuer jeden Zuschauer anders.
+ * WHAT DOES NOT HAPPEN HERE: nothing is computed. Which tile falls when is
+ * stored in the domain's reveal plan (`revealTilePlan`); this component just
+ * compares it against the progress. A timer of its own would be a second
+ * truth alongside the server's clock - the image would then run differently
+ * for every viewer.
  *
- * Die Kacheln liegen in Leserichtung im Raster - Index 0 links oben. Ihre Lage
- * ist damit fest: Eine Kachel deckt immer denselben Bildausschnitt auf.
+ * The tiles sit in the grid in reading order - index 0 is top left. Their
+ * position is therefore fixed: a tile always reveals the same section of the
+ * image.
  */
 import { useMemo } from 'react'
 import type { RevealGrid } from '@hfroemmel/quiz-core'
@@ -21,13 +23,13 @@ import styles from './RevealTiles.module.css'
 
 interface RevealTilesProps {
   grid: RevealGrid
-  /** Fortschritt 0..1 aus der Enthuellungsuhr des Servers. */
+  /** Progress 0..1 from the server's reveal clock. */
   progress: number
   /**
-   * Woraus der Startwert der Reihenfolge stammt - in der Regel die Bildadresse.
+   * What the order's seed value is derived from - normally the image URL.
    *
-   * Sie ist auf jedem Screen dieselbe und wechselt mit der Frage; damit sehen
-   * alle Zuschauer dasselbe Muster, ohne dass der Server es mitschickt.
+   * It is the same on every screen and changes with the question; that way
+   * every viewer sees the same pattern without the server having to send it.
    */
   seedSource: string
 }

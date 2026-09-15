@@ -1,17 +1,17 @@
 /**
- * Strenge Inhaltsvalidierung (Spezifikation 24.4 und 17.5).
+ * Strict content validation (specification 24.4 and 17.5).
  *
- * Zwei Stufen:
- *  - `error`   -> der Build muss abbrechen. Diese Faelle wuerden die Show gefaehrden.
- *  - `warning` -> bewusste redaktionelle Freigabe noetig, der Build laeuft weiter.
+ * Two levels:
+ *  - `error`   -> the build must abort. These cases would endanger the show.
+ *  - `warning` -> conscious editorial approval needed, the build continues.
  *
- * Ein Auswahlalgorithmus kann einen unzureichenden Bestand nicht kaschieren.
- * Deshalb berechnet die Validierung zusaetzlich pro Zielgruppe, Preset und
- * Fragenplatz, wie viele Kandidaten es gibt und wie viele Spiele ohne
- * Wiederholung moeglich sind. Gerechnet wird ueber die UNGEFILTERTE Grundmenge
- * der Zielgruppe: Eine Pool-Einschraenkung ist eine bewusste Auswahl zur
- * Laufzeit, und einen zu duennen Zuschnitt weist die Engine beim Start
- * verstaendlich ab - das muss der Build nicht vorwegnehmen.
+ * A selection algorithm cannot hide an insufficient pool. That is why the
+ * validation additionally computes, per audience, preset and question slot,
+ * how many candidates exist and how many games without repetition are
+ * possible. The calculation runs over the UNFILTERED base set of the audience:
+ * a pool restriction is a conscious choice at runtime, and the engine rejects
+ * a too thin cut comprehensibly at start - the build does not have to
+ * anticipate that.
  */
 import {
   contentThresholds,
@@ -32,7 +32,7 @@ export interface ValidationIssue {
   severity: IssueSeverity
   code: string
   message: string
-  /** Frage-ID bzw. Zeilenbezug, damit die Redaktion die Stelle findet. */
+  /** Question id or row reference so that editors can find the spot. */
   subject?: string
 }
 
@@ -43,7 +43,7 @@ export interface SlotCoverage {
   slotId: string
   candidateCount: number
   repetitionGroupCount: number
-  /** Fragenplaetze desselben Presets, die um denselben Pool konkurrieren. */
+  /** Question slots of the same preset that compete for the same pool. */
   competingSlotIds: string[]
 }
 
@@ -51,11 +51,11 @@ export interface PresetCoverage {
   audience: string
   presetId: string
   slots: SlotCoverage[]
-  /** Wie viele Spiele sind ohne Wiederholung moeglich? Minimum ueber alle Poolgruppen. */
+  /** How many games are possible without repetition? Minimum over all pool groups. */
   gamesWithoutRepetition: number
   /**
-   * Taugt dieses Preset fuer das Touchgeraet? Nur dann, wenn jeder Fragenplatz
-   * ausschliesslich Fragen zulaesst, die ohne Operator auswertbar sind.
+   * Is this preset suitable for the touch device? Only if every question slot
+   * exclusively admits questions that can be evaluated without an operator.
    */
   selfServiceCapable: boolean
 }
@@ -85,16 +85,16 @@ export interface ValidationInput {
   config: unknown
   questions: unknown
   assets: MediaAsset[]
-  /** Existiert die Datei des Assets? Wird vom CLI mit dem Dateisystem verbunden. */
+  /** Does the asset's file exist? Wired to the file system by the CLI. */
   assetFileExists: (asset: MediaAsset) => boolean
   contentVersion?: string
   /**
-   * Waehrend der Entwicklung liegt der freigegebene Bildbestand noch nicht vor.
-   * Mit `'warning'` blockiert eine fehlende Mediendatei den Build nicht; der
-   * Server zeigt an ihrer Stelle ein erzeugtes Ersatzbild.
+   * During development the approved image set is not available yet. With
+   * `'warning'` a missing media file does not block the build; the server
+   * shows a generated placeholder image in its place.
    *
-   * Fuer den Livebetrieb bleibt der Standardwert `'error'` verbindlich: Eine
-   * Frage ohne Bild ist auf der Buehne unspielbar.
+   * For live operation the default `'error'` remains binding: a question
+   * without an image is unplayable on stage.
    */
   missingMediaSeverity?: IssueSeverity
 }
@@ -104,7 +104,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
   const add = (severity: IssueSeverity, code: string, message: string, subject?: string) =>
     issues.push({ severity, code, message, subject })
 
-  /* -------- Schemapruefung -------- */
+  /* -------- Schema check -------- */
 
   const configResult = quizConfigSchema.safeParse(input.config)
   if (!configResult.success) {
@@ -137,7 +137,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
     add('error', 'version-unparsable', `Inhaltsversion "${input.contentVersion}" ist keine gueltige Versionsangabe.`)
   }
 
-  /* -------- Referenzen und Pflichtfelder -------- */
+  /* -------- References and required fields -------- */
 
   const knownDifficulties = new Set(config.difficulties.map((entry) => entry.id))
   const knownCategories = new Set(config.categories.map((entry) => entry.id))
@@ -160,12 +160,13 @@ export function validateContent(input: ValidationInput): ValidationResult {
       add('error', 'asset-reference', `Startgrafik "${audienceConfig.startVisualAssetId}" von Zielgruppe "${audienceConfig.id}" fehlt.`, audienceConfig.id)
     }
   }
-  /* -------- Quizarten -------- */
+  /* -------- Quiz modes -------- */
 
   /*
-   * EINE QUIZART IST NUR SO GUT WIE IHRE VIER VERWEISE. Sie nennt Zielgruppe,
-   * Theme, Pools und Schwierigkeitsgrade; faellt einer davon ins Leere, weist
-   * der Server den Start am Abend ab - und das soll hier auffallen, nicht dort.
+   * A QUIZ MODE IS ONLY AS GOOD AS ITS FOUR REFERENCES. It names audience,
+   * theme, pools and difficulty levels; if one of them points nowhere, the
+   * server rejects the start in the evening - and that should be noticed
+   * here, not there.
    */
   const quizIds = new Set<string>()
   for (const quiz of config.quizzes ?? []) {
@@ -206,37 +207,68 @@ export function validateContent(input: ValidationInput): ValidationResult {
         quiz.id,
       )
     }
+    /*
+     * The artwork of the card is a reference like every other: a card whose
+     * motif is missing stands in the menu as an empty area, and nobody sees in
+     * the evening whether that was meant to be.
+     */
+    if (quiz.artworkAssetId && !assetsById.has(quiz.artworkAssetId)) {
+      add(
+        'error',
+        'asset-reference',
+        `Kartengrafik "${quiz.artworkAssetId}" der Quizart "${quiz.id}" fehlt.`,
+        quiz.id,
+      )
+    }
+    /*
+     * A quiz that offers a player count twice would show the same card twice.
+     * The schema keeps the values, the duplicate is a content question.
+     */
+    const counts = quiz.playerCounts ?? []
+    if (counts.length !== new Set(counts).size) {
+      add('warning', 'quiz-player-counts', `Die Quizart "${quiz.id}" nennt eine Spielerzahl mehrfach.`, quiz.id)
+    }
   }
 
-  /* -------- Sprachen -------- */
+  /*
+   * TWO QUIZZES IN THE SAME PLACE are not an error - the menu keeps the order
+   * of the configuration for them - but they are a decision nobody made on
+   * purpose, so it is reported.
+   */
+  const orders = (config.quizzes ?? []).map((quiz) => quiz.order).filter((order) => order !== undefined)
+  if (orders.length !== new Set(orders).size) {
+    add('warning', 'quiz-order', 'Zwei Quizarten stehen auf derselben Menueposition.')
+  }
 
-  const bekannteSprachen = new Set((config.locales ?? []).map((sprache) => sprache.id))
-  const pruefeSprachen = (
-    eintraege: Record<string, unknown> | undefined,
+  /* -------- Locales -------- */
+
+  const knownLocales = new Set((config.locales ?? []).map((locale) => locale.id))
+  const checkLocales = (
+    entries: Record<string, unknown> | undefined,
     art: string,
     subject: string,
   ): void => {
-    for (const sprache of Object.keys(eintraege ?? {})) {
-      if (bekannteSprachen.size > 0 && !bekannteSprachen.has(sprache)) {
+    for (const locale of Object.keys(entries ?? {})) {
+      if (knownLocales.size > 0 && !knownLocales.has(locale)) {
         /*
-         * WARNUNG UND KEIN FEHLER: Eine Uebersetzung fuer eine Sprache, die
-         * niemand waehlen kann, ist tote Arbeit - aber sie macht nichts kaputt.
-         * Der Bestand soll deswegen nicht unbaubar werden; gemeldet gehoert sie
-         * trotzdem, sonst uebersetzt jemand weiter ins Leere.
+         * WARNING AND NOT AN ERROR: A translation for a locale nobody can
+         * choose is dead work - but it breaks nothing. The pool should not
+         * become unbuildable because of it; it still has to be reported,
+         * otherwise someone keeps translating into the void.
          */
-        add('warning', 'locale-unknown', `${art} in nicht konfigurierter Sprache "${sprache}".`, subject)
+        add('warning', 'locale-unknown', `${art} in nicht konfigurierter Sprache "${locale}".`, subject)
       }
     }
   }
 
-  for (const eintrag of [...config.categories, ...config.difficulties, ...config.pools, ...config.presets]) {
-    pruefeSprachen(eintrag.labels, 'Beschriftung', eintrag.id)
+  for (const entry of [...config.categories, ...config.difficulties, ...config.pools, ...config.presets]) {
+    checkLocales(entry.labels, 'Beschriftung', entry.id)
   }
   for (const audienceConfig of config.audiences) {
-    pruefeSprachen(audienceConfig.labels, 'Beschriftung', audienceConfig.id)
-    pruefeSprachen(audienceConfig.startTitles, 'Startbild-Titel', audienceConfig.id)
+    checkLocales(audienceConfig.labels, 'Beschriftung', audienceConfig.id)
+    checkLocales(audienceConfig.startTitles, 'Startbild-Titel', audienceConfig.id)
   }
-  pruefeSprachen(config.interfaceStrings, 'Oberflaechentexte', 'config')
+  checkLocales(config.interfaceStrings, 'Oberflaechentexte', 'config')
 
   for (const theme of config.themes) {
     if (theme.logoAssetId && !assetsById.has(theme.logoAssetId)) {
@@ -277,30 +309,30 @@ export function validateContent(input: ValidationInput): ValidationResult {
       add('error', 'difficulty-reference', `Unbekannte Schwierigkeit "${question.difficulty}".`, question.id)
     }
 
-    pruefeSprachen(question.translations, 'Uebersetzung', question.id)
-    for (const [sprache, uebersetzung] of Object.entries(question.translations ?? {})) {
+    checkLocales(question.translations, 'Uebersetzung', question.id)
+    for (const [locale, translation] of Object.entries(question.translations ?? {})) {
       /*
-       * EINE UEBERSETZUNG DARF DIE WERTUNG NICHT VERSCHIEBEN. Optionen werden
-       * einzeln nach Bezeichner ersetzt; steht dort ein Bezeichner, den das
-       * Original nicht kennt, faellt der Text still unter den Tisch - und im
-       * schlimmsten Fall fehlt genau die Option, gegen die verglichen wird.
+       * A TRANSLATION MUST NOT SHIFT THE SCORING. Options are replaced one by
+       * one by identifier; if there is an identifier the original does not
+       * know, the text silently falls through - and in the worst case exactly
+       * the option that is compared against is missing.
        */
-      for (const option of uebersetzung.options ?? []) {
-        if (!question.options?.some((eintrag) => eintrag.id === option.id)) {
+      for (const option of translation.options ?? []) {
+        if (!question.options?.some((entry) => entry.id === option.id)) {
           add(
             'error',
             'translation-option',
-            `Uebersetzung "${sprache}" nennt die Option "${option.id}", die es im Original nicht gibt.`,
+            `Uebersetzung "${locale}" nennt die Option "${option.id}", die es im Original nicht gibt.`,
             question.id,
           )
         }
       }
-      for (const assetId of [uebersetzung.media?.imageAssetId, uebersetzung.media?.videoAssetId]) {
+      for (const assetId of [translation.media?.imageAssetId, translation.media?.videoAssetId]) {
         if (assetId && !assetsById.has(assetId)) {
           add(
             'error',
             'asset-reference',
-            `Uebersetzung "${sprache}" verweist auf fehlendes Medium "${assetId}".`,
+            `Uebersetzung "${locale}" verweist auf fehlendes Medium "${assetId}".`,
             question.id,
           )
         }
@@ -331,7 +363,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
   }
 
-  /* -------- Duplikaterkennung ohne gemeinsame Wiederholungsgruppe -------- */
+  /* -------- Duplicate detection without a shared repetition group -------- */
 
   const byNormalizedPrompt = new Map<string, Question[]>()
   for (const question of questions) {
@@ -353,7 +385,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
   }
 
-  /* -------- Erreichbarkeit, Poolabdeckung, verwaiste Medien -------- */
+  /* -------- Reachability, pool coverage, orphaned media -------- */
 
   const coverage = analyseCoverage(config, questions, add)
 
@@ -383,6 +415,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
   }
   for (const theme of config.themes) if (theme.logoAssetId) usedAssetIds.add(theme.logoAssetId)
   for (const audienceConfig of config.audiences) if (audienceConfig.startVisualAssetId) usedAssetIds.add(audienceConfig.startVisualAssetId)
+  for (const quiz of config.quizzes ?? []) if (quiz.artworkAssetId) usedAssetIds.add(quiz.artworkAssetId)
   for (const asset of input.assets) {
     if (!usedAssetIds.has(asset.id)) {
       add('warning', 'orphan-asset', `Das Medium "${asset.id}" (${asset.filename}) wird nirgends verwendet.`, asset.id)
@@ -406,7 +439,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
 }
 
 /* ------------------------------------------------------------------ *
- * Teilpruefungen
+ * Partial checks
  * ------------------------------------------------------------------ */
 
 type AddIssue = (severity: IssueSeverity, code: string, message: string, subject?: string) => void
@@ -416,10 +449,10 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
   const isChoiceType = presentationNeedsOptions(question.questionType)
 
   /*
-   * Eine deaktivierte Frage liegt in keinem Fragenpool und kann die Show nicht
-   * gefaehrden. Sie darf deshalb als unfertige Vorlage im Bestand liegen - genau
-   * wie ein vorbereitetes Medium ohne Datei. Der Mangel wird gemeldet, blockiert
-   * aber den Build nicht.
+   * A disabled question is in no question pool and cannot endanger the show.
+   * It may therefore stay in the pool as an unfinished template - just like a
+   * prepared medium without a file. The defect is reported but does not block
+   * the build.
    */
   const structural: IssueSeverity = question.enabled ? 'error' : 'warning'
   const draftHint = question.enabled ? '' : ' Die Frage ist deaktiviert und wird nicht gespielt.'
@@ -429,7 +462,7 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
       add(structural, 'missing-options', `Automatische Auswertung ohne Antwortoptionen.${draftHint}`, question.id)
     }
     if (!question.correctOptionId) {
-      // Die Legacy-Annahme "option_1 ist richtig" gilt nicht mehr.
+      // The legacy assumption "option_1 is correct" no longer applies.
       add(structural, 'missing-correct-option', `Multiple Choice ohne explizite richtige Option.${draftHint}`, question.id)
     } else if (!options.some((option) => option.id === question.correctOptionId)) {
       add(
@@ -449,9 +482,9 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
   }
 
   /*
-   * Drei Optionen statt vier sind erlaubt - die Leisten teilen sich die Breite
-   * ohnehin. Unter zwei Optionen gibt es nichts zu waehlen, ueber vier fehlt der
-   * Buchstabe im Entwurf.
+   * Three options instead of four are allowed - the bars share the width
+   * anyway. Below two options there is nothing to choose, above four the
+   * letter is missing in the design.
    */
   if (isChoiceType && options.length < contentThresholds.minChoiceOptionCount) {
     add(
@@ -512,8 +545,8 @@ function validateMedia(
       add('error', 'asset-kind', `Medium "${assetId}" ist vom Typ "${asset.kind}", erwartet wurde "${kind}".`, question.id)
     }
     if (!assetFileExists(asset)) {
-      // Eine deaktivierte Frage ist in keinem Pool und kann die Show nicht gefaehrden.
-      // Sie darf deshalb als vorbereitete Vorlage ohne Mediendatei im Bestand liegen.
+      // A disabled question is in no pool and cannot endanger the show.
+      // It may therefore stay in the pool as a prepared template without a media file.
       if (question.enabled) {
         add(
           missingMediaSeverity,
@@ -560,12 +593,12 @@ function validateEditorialWarnings(question: Question, assetsById: Map<string, M
 }
 
 /**
- * Bestandsabdeckung pro Zielgruppe, Preset und Fragenplatz.
+ * Pool coverage per audience, preset and question slot.
  *
- * "Spiele ohne Wiederholung" wird konservativ geschaetzt: Fragenplaetze mit
- * identischem Filter konkurrieren um denselben Pool. Fuer eine solche Gruppe aus
- * `k` Plaetzen und `g` eindeutigen Wiederholungsgruppen sind `floor(g / k)` Spiele
- * moeglich; massgeblich ist das Minimum ueber alle Gruppen.
+ * "Games without repetition" is estimated conservatively: question slots with
+ * an identical filter compete for the same pool. For such a group of `k`
+ * slots and `g` distinct repetition groups, `floor(g / k)` games are possible;
+ * the minimum over all groups is what counts.
  */
 function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssue): PresetCoverage[] {
   const coverage: PresetCoverage[] = []
@@ -576,7 +609,7 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
       const preset = config.presets.find((entry) => entry.id === presetId)
       if (!preset) continue
 
-      // Fragenplaetze mit identischem Filter teilen sich einen Pool.
+      // Question slots with an identical filter share one pool.
       const signatureToSlotIds = new Map<string, string[]>()
       for (const slot of preset.slots) {
         const signature = JSON.stringify(slot.filters)
@@ -590,7 +623,7 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
         const competing = (signatureToSlotIds.get(signature) ?? []).filter((id) => id !== slot.id)
 
         if (candidates.length === 0) {
-          // Nicht erfuellbarer Fragenplatz ist ein harter Fehler.
+          // An unsatisfiable question slot is a hard error.
           add(
             'error',
             'slot-unsatisfiable',
@@ -649,7 +682,7 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
 }
 
 /* ------------------------------------------------------------------ *
- * Hilfsmittel
+ * Helpers
  * ------------------------------------------------------------------ */
 
 function normalizeText(value: string): string {

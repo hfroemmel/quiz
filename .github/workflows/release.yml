@@ -1,9 +1,9 @@
-# Veroeffentlichung der @hfroemmel-Pakete nach GitHub Packages.
+# Publication of the @hfroemmel packages to GitHub Packages.
 #
-# Ablauf (Changesets, fixed-Versioning ueber alle fuenf Pakete):
-#   1. Ein Push auf main mit offenen Changesets erzeugt/aktualisiert den
-#      Versions-PR ("Version Packages").
-#   2. Das Mergen dieses PRs veroeffentlicht die Pakete mit dem GITHUB_TOKEN.
+# Flow (changesets, fixed versioning across all five packages):
+#   1. A push to main with open changesets creates or updates the version
+#      pull request ("Version Packages").
+#   2. Merging that pull request publishes the packages with the GITHUB_TOKEN.
 name: Release
 
 on:
@@ -36,10 +36,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Pakete bauen
+      - name: Build the packages
         run: pnpm packages:build
 
-      - name: Versions-PR pflegen oder veroeffentlichen
+      - name: Maintain the version pull request or publish
         uses: changesets/action@v1
         with:
           publish: pnpm changeset publish

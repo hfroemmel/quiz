@@ -1,18 +1,19 @@
 /**
- * Buzzer eines Spielers am Touchgeraet.
+ * A player's buzzer on the touch device.
  *
- * Beide Spieler stehen nebeneinander vor demselben Bildschirm; jeder hat seine
- * Ecke unten an seiner Seite, und die vier Antworten stehen genau einmal in der
- * Mitte. Wer zuerst drueckt, bekommt sie.
+ * Both players stand side by side in front of the same screen; each has
+ * their corner at the bottom on their own side, and the four answers sit
+ * exactly once in the middle. Whoever presses first gets them.
  *
- * Der Zuschlag faellt auf dem Server: Der Knopf sendet nur `BUZZ` mit dem
- * eigenen Spieler, und der Server nimmt den ersten gueltigen Buzz an - mit
- * derselben Regel wie beim Hardware-Buzzer der Buehne. Wer zu spaet drueckt,
- * wird abgewiesen; dieser Client zeigt danach einfach den neuen Stand.
+ * The buzz is decided on the server: the button only sends `BUZZ` with its
+ * own player, and the server accepts the first valid buzz - by the same rule
+ * as the stage's hardware buzzer. Whoever presses too late is rejected; this
+ * client then simply shows the new state.
  *
- * Die Flaeche traegt nur ein Wort. Am Geraet wird schnell und ungenau gedrueckt,
- * und wer buzzert, schaut dabei auf die Frage, nicht auf seine Hand; wem die
- * Ecke gehoert, sagt die Farbe und die Punktekarte darueber.
+ * The area carries only one word. On the device, presses are fast and
+ * imprecise, and whoever buzzes is looking at the question while doing so,
+ * not at their hand; the colour and the score card above it say whose corner
+ * it is.
  */
 import type { PlayerId } from '@hfroemmel/quiz-core'
 import styles from './Game.module.css'
@@ -20,12 +21,12 @@ import styles from './Game.module.css'
 interface BuzzerProps {
   playerId: PlayerId
   label: string
-  /** Aufschrift der Flaeche - sie steht in der Sprache des Spiels. */
+  /** Label on the area - shown in the game's language. */
   buzzText?: string
   side: 'left' | 'right'
-  /** Kann dieser Spieler den Zuschlag jetzt holen? */
+  /** Can this player grab the buzz right now? */
   enabled: boolean
-  /** Er hat ihn bereits - die Antworten in der Mitte gehoeren ihm. */
+  /** They already have it - the answers in the middle belong to them. */
   armed: boolean
   onBuzz(playerId: PlayerId): void
 }
@@ -42,9 +43,9 @@ export function Buzzer({ playerId, label, side, enabled, armed, onBuzz, buzzText
       data-armed={String(armed)}
       disabled={!enabled}
       /*
-       * `onPointerDown` statt `onClick`: Beim Buzzern zaehlt der Moment der
-       * Beruehrung. Ein Klick entsteht erst beim Loslassen und gaebe dem
-       * Langsameren die Chance, den Schnelleren zu ueberholen.
+       * `onPointerDown` instead of `onClick`: when buzzing, the moment of
+       * touch is what counts. A click only fires on release and would give
+       * the slower player a chance to overtake the faster one.
        */
       onPointerDown={() => onBuzz(playerId)}
       aria-label={`${label} buzzern`}

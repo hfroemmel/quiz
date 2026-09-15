@@ -1,11 +1,11 @@
 /**
- * Ergebnisansicht mit Konfetti.
+ * Result view with confetti.
  *
- * Konfetti laeuft nur, wenn es einen Gewinner gibt. Bei Unentschieden bleibt die
- * Ansicht ruhig - eine Feier waere in dem Fall irrefuehrend.
+ * Confetti only runs when there is a winner. On a draw the view stays calm -
+ * a celebration would be misleading in that case.
  *
- * Das Konfetti ist reine Darstellung: Es beeinflusst weder das Ergebnis noch die
- * weiterhin moegliche manuelle Punktkorrektur.
+ * The confetti is purely presentational: it influences neither the result
+ * nor the manual score correction that remains possible.
  */
 import { easings, presentationTiming } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'
@@ -21,5 +21,5 @@ export const resultCelebration: PresentationTransitionDefinition = {
   classNames: { active: 'result-celebration', to: 'scene-enter' },
 }
 
-/** Wie lange das Konfetti laeuft. Rein visuell. */
+/** How long the confetti runs. Purely visual. */
 export const confettiDurationMs = presentationTiming.resultConfettiMs

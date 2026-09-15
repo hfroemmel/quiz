@@ -1,21 +1,22 @@
 /**
- * Anwendungsschicht des lokalen Quizservers (Spezifikation 18.4 und 23).
+ * Application layer of the local quiz server (specification 18.4 and 23).
  *
- * Ablauf jedes Befehls - bewusst genau diese Reihenfolge:
- *   1. Schema, Rolle und Phase validieren
- *   2. bereits verarbeitete `commandId` idempotent beantworten
- *   3. `expectedRevision` pruefen
- *   4. neuen Zustand ueber die zentrale Engine berechnen
- *   5. Zustand, Punktebuchung, Nutzung und Auditlog in EINER Transaktion speichern
- *   6. Revision ist damit erhoeht
- *   7. erst danach den neuen Zustand verteilen
+ * Flow of every command - deliberately in exactly this order:
+ *   1. validate schema, role and phase
+ *   2. answer an already processed `commandId` idempotently
+ *   3. check `expectedRevision`
+ *   4. compute the new state through the central engine
+ *   5. store state, score booking, usage and audit log in ONE transaction
+ *   6. the revision is thereby incremented
+ *   7. only then distribute the new state
  *
- * Diese Klasse enthaelt bewusst keine Spielregeln. Sie verbindet Engine, Inhalt,
- * Persistenz und Zeit.
+ * This class deliberately contains no game rules. It connects engine, content,
+ * persistence and time.
  */
 import {
   commandEnvelopeSchema,
   questionPatchSchema,
+  resolveRules,
   requiresRevisionCheck,
   roleMayIssue,
   type ActorRole,
@@ -58,7 +59,7 @@ export interface DispatchResult {
 export interface QuizServiceOptions {
   store: QuizStorePort
   content: ContentService
-  /** Injizierbar fuer Tests. */
+  /** Injectable for tests. */
   now?: () => number
   random?: () => number
   sessionCode?: string
@@ -66,9 +67,9 @@ export interface QuizServiceOptions {
 }
 
 /**
- * Spielbefehle, die ein Spieler nur in der Selbstbedienung ausloesen darf.
- * `roleMayIssue` kennt nur Rolle und Befehlstyp; das Ablaufprofil des laufenden
- * Spiels prueft `dispatch`.
+ * Game commands a player may trigger in self-service only.
+ * `roleMayIssue` knows only role and command type; the flow profile of the
+ * running game is checked by `dispatch`.
  */
 const playerFlowCommands: readonly CommandType[] = [
   'BUZZ',
@@ -79,18 +80,18 @@ const playerFlowCommands: readonly CommandType[] = [
 
 const SETTING_SOUND = 'sound-enabled'
 const SETTING_LOCALE = 'locale'
-/** Ab wann das Spielprotokoll zaehlt. Fehlt der Wert, zaehlt es seit jeher. */
+/** From when the game log counts. If the value is missing, it counts since ever. */
 const SETTING_STATISTICS_SINCE = 'statistics-since'
 const SETTING_CONTENT_VERSION = 'active-content-version'
 
 export class QuizService {
   private state: GameState | null = null
-  /** Nach einem Neustart gefundenes unvollstaendiges Spiel - erst nach Operatorentscheidung aktiv. */
+  /** Incomplete game found after a restart - active only after the operator's decision. */
   private resumable: GameState | null = null
   private eventDay: { id: string; calendarDate: string }
   private transitionTimer: ReturnType<typeof setTimeout> | null = null
   private soundEnabled: boolean
-  /** Sprache des Geraets - wie der Ton eine Einstellung, kein Spielzustand. */
+  /** Locale of the device - like the sound a setting, not game state. */
   private locale: string | undefined
   private selectionRationale: string | undefined
   private readonly listeners = new Set<() => void>()
@@ -122,45 +123,44 @@ export class QuizService {
   }
 
   /* ------------------------------------------------------------------ *
-   * Wiederherstellung nach Neustart (Spezifikation 23.3)
+   * Recovery after a restart (specification 23.3)
    * ------------------------------------------------------------------ */
 
   /**
-   * Sucht ein unvollstaendiges Spiel und bereitet es vor, macht es aber NICHT
-   * automatisch aktiv: Der Operator entscheidet bewusst zwischen Fortsetzen und Abbruch.
+   * Looks for an incomplete game and prepares it, but does NOT make it active
+   * automatically: the operator deliberately decides between resuming and
+   * aborting.
    *
-   * Deterministische Strategie fuer laufende Uhren (fuer Live-Sicherheit bewusst so
-   * gewaehlt): Eine beim Absturz laufende Enthuellung wird als PAUSIERT
-   * wiederhergestellt - eingefroren auf dem zuletzt persistierten Stand. Ein laufendes
-   * Video ist nach dem Neustart nicht mehr beauftragt. Ein zeitgesteuerter Uebergang (Feedback,
-   * Pausenscreen) wird beim Fortsetzen sofort abgeschlossen, statt eine bereits
-   * abgelaufene Frist erneut abzuwarten.
+   * Deterministic strategy for running clocks (chosen this way for live
+   * safety): a reveal running at the crash is restored as PAUSED - frozen at
+   * the last persisted state. A running video is no longer requested after the
+   * restart. A timed transition (feedback, pause screen) is completed at once
+   * on resume instead of waiting out an already expired deadline again.
    */
   private restore(): void {
     const found = this.store.loadResumableGame(this.eventDay.id)
     if (!found) return
 
     const prepared: GameState = structuredClone(found)
-    // Spielstaende aus einer Version vor der Mehrkontext-Ausbaustufe tragen kein
-    // Steuerprofil. Sie stammen zwangslaeufig aus dem Buehnenbetrieb.
+    // Game states from a version before the multi-context stage carry no
+    // flow profile. They necessarily come from the stage operation.
     prepared.flowProfile ??= 'operated'
     if (prepared.reveal?.status === 'running') {
       prepared.reveal = pauseReveal(prepared.reveal, prepared.updatedAtMs)
-      // Phase und Uhr muessen zusammenpassen: eine eingefrorene Enthuellung ist
-      // fachlich `reveal-paused`. Der Buzzer bleibt dabei bewusst offen.
+      // Phase and clock have to match: a frozen reveal is, in terms of the rules,
+      // `reveal-paused`. The buzzer deliberately stays open.
       if (prepared.phase === 'reveal-running') prepared.phase = 'reveal-paused'
     }
     /*
-     * EIN ABSPIELAUFTRAG UEBERLEBT DEN NEUSTART NICHT.
+     * A PLAYBACK REQUEST DOES NOT SURVIVE THE RESTART.
      *
-     * Eine Buehne fuehrt jeden Auftrag aus, den sie noch nicht kennt - nach
-     * einem Neustart also auch diesen, und das Video liefe im Saal von vorn los,
-     * ohne dass jemand darum gebeten hat. Nach einem Absturz entscheidet der
-     * Operator: Der Knopf steht bereit, die Phase stimmt, und ein Klick erzeugt
-     * einen neuen Auftrag.
+     * A stage executes every request it does not know yet - after a restart
+     * this one too, and the video would start over in the hall without anyone
+     * asking for it. After a crash the operator decides: the button is ready,
+     * the phase is right, and a click creates a new request.
      *
-     * Ein WIEDERVERBINDEN der Buehne ist etwas anderes - dort bleibt der Auftrag
-     * stehen und wird genau einmal nachgeholt.
+     * A RECONNECT of the stage is something else - there the request stays and
+     * is caught up exactly once.
      */
     prepared.video = undefined
     if (prepared.pendingTransition) {
@@ -178,7 +178,7 @@ export class QuizService {
   }
 
   /* ------------------------------------------------------------------ *
-   * Befehlsverarbeitung
+   * Command processing
    * ------------------------------------------------------------------ */
 
   get currentRevision(): number {
@@ -193,7 +193,7 @@ export class QuizService {
     }
     const envelope = parsed.data
 
-    // 2. Idempotenz - eine wiederholte `commandId` bucht niemals doppelt.
+    // 2. Idempotency - a repeated `commandId` never books twice.
     const processed = this.store.findProcessedCommand(envelope.commandId)
     if (processed) {
       return processed.accepted
@@ -205,15 +205,15 @@ export class QuizService {
           }
     }
 
-    // 3. Rolle
+    // 3. Role
     if (!roleMayIssue(envelope.actor.role, envelope.command.type)) {
       return this.rejectAndRecord(envelope, 'forbidden-role', `Die Rolle "${envelope.actor.role}" darf "${envelope.command.type}" nicht auslösen.`)
     }
 
-    // 4. Revision - ein Befehl auf veraltetem Stand wird verstaendlich abgewiesen.
-    //    Ausgenommen sind physische Ereignisse wie der Buzzer (siehe
-    //    `revisionExemptCommands`); dort entscheidet allein die atomare Pruefung
-    //    in der Engine.
+    // 4. Revision - a command on a stale state is refused understandably.
+    //    Physical events such as the buzzer are exempt (see
+    //    `revisionExemptCommands`); there the atomic check in the engine
+    //    decides alone.
     if (requiresRevisionCheck(envelope.command.type) && envelope.expectedRevision !== this.currentRevision) {
       return this.rejectAndRecord(
         envelope,
@@ -222,9 +222,9 @@ export class QuizService {
       )
     }
 
-    // 5. Rollenpolitik, die keine Spielregel ist: Ein Spieler am Touchgeraet darf
-    //    ein Spiel beginnen, aber nur ein selbstbedientes. Sonst koennte er ein
-    //    Spiel starten, das auf einen Operator wartet, den es dort nicht gibt.
+    // 5. Role policy that is not a game rule: a player at the touch device may
+    //    begin a game, but only a self-service one. Otherwise they could start a
+    //    game that waits for an operator who is not there.
     if (
       envelope.command.type === 'START_GAME' &&
       envelope.actor.role === 'player' &&
@@ -237,11 +237,11 @@ export class QuizService {
       )
     }
 
-    //    Dieselbe Politik fuer das laufende Spiel: Die Befehlssequenz Zuschlag ->
-    //    Einloggen -> Bestaetigen -> Weiter ist fuer Spieler nur in der
-    //    Selbstbedienung gedacht. In einem operatorgefuehrten Spiel wuerde ein
-    //    Spielerbefehl dem Operator in die Auswertung greifen. Die Engine kennt
-    //    den Absender nicht, deshalb steht die Wache hier.
+    //    The same policy for the running game: the command sequence buzz ->
+    //    log -> confirm -> continue is meant for players in self-service only.
+    //    In an operated game a player command would reach into the operator's
+    //    evaluation. The engine does not know the sender, so the guard stands
+    //    here.
     if (
       envelope.actor.role === 'player' &&
       playerFlowCommands.includes(envelope.command.type) &&
@@ -256,13 +256,13 @@ export class QuizService {
     }
 
     /*
-     * 6. Der Ton gehoert dem GERAET und nicht dem Spiel.
+     * 6. The sound belongs to the DEVICE and not to the game.
      *
-     * Laeuft ein Spiel, geht der Befehl durch die Engine und steht danach im
-     * Spielprotokoll. Laeuft keines, gibt es nichts, worin er stehen koennte -
-     * und die Engine wiese ihn ab. Genau dort wird er aber gebraucht: Am
-     * Kioskgeraet sitzt der Tonschalter im Startbildschirm, weil ihn dort der
-     * bedient, der das Geraet aufstellt, und nicht der, der gerade spielt.
+     * While a game runs, the command goes through the engine and ends up in the
+     * game log. While none runs, there is nothing it could be recorded in - and
+     * the engine would refuse it. But that is exactly where it is needed: at the
+     * kiosk device the sound switch sits on the start screen, because there it
+     * is operated by whoever sets up the device, not by whoever is playing.
      */
     if (envelope.command.type === 'SET_SOUND_ENABLED' && this.state === null) {
       this.soundEnabled = envelope.command.enabled
@@ -272,9 +272,9 @@ export class QuizService {
     }
 
     /*
-     * Dasselbe fuer die Sprache, und aus demselben Grund: Am Kioskgeraet steht
-     * der Umschalter im Startbildschirm, wo kein Spiel laeuft. Laeuft eines,
-     * geht der Befehl durch die Engine und steht im Spielprotokoll.
+     * The same for the locale, and for the same reason: at the kiosk device the
+     * switch sits on the start screen, where no game runs. If one runs, the
+     * command goes through the engine and ends up in the game log.
      */
     if (envelope.command.type === 'SET_LOCALE' && this.state === null) {
       this.locale = envelope.command.locale
@@ -283,7 +283,7 @@ export class QuizService {
       return { ok: true, revision: this.currentRevision }
     }
 
-    // 7. Betriebsbefehle laufen nicht durch die Spiel-Engine.
+    // 7. Operating commands do not go through the game engine.
     if (isServiceCommand(envelope.command.type)) {
       return this.handleServiceCommand(envelope)
     }
@@ -293,9 +293,14 @@ export class QuizService {
 
   private runEngineCommand(envelope: CommandEnvelope, command: Command): DispatchResult {
     const nowMs = this.now()
+    const rules = resolveRules(this.content.config.rules)
     const result = reduce(this.state, command, {
       nowMs,
       eventDayId: this.eventDay.id,
+      timing: rules.timing,
+      selfServiceTiming: rules.selfServiceTiming,
+      scoring: rules.scoring,
+      jokersEnabled: rules.jokersEnabled,
       newId: (prefix) => `${prefix}-${createRandomId()}`,
       questionSource: this.content.createQuestionSource(
         this.store.loadUsageHistory(this.eventDay.id),
@@ -310,8 +315,8 @@ export class QuizService {
       return this.rejectAndRecord(envelope, result.rejection.reason, result.rejection.message)
     }
 
-    // 6. Erst persistieren, dann verteilen. Faellt die Transaktion aus, bleibt der
-    //    letzte konsistente Zustand erhalten und es wird nichts gesendet.
+    // 6. Persist first, then distribute. If the transaction fails, the last
+    //    consistent state is kept and nothing is sent.
     try {
       this.store.commitCommand({
         commandId: envelope.commandId,
@@ -345,7 +350,7 @@ export class QuizService {
     return { ok: true, revision: this.state.revision }
   }
 
-  /** Wiederherstellung, Veranstaltungstag und Hotfixes - bewusst ausserhalb der Engine. */
+  /** Recovery, event day and hotfixes - deliberately outside the engine. */
   private handleServiceCommand(envelope: CommandEnvelope): DispatchResult {
     const command = envelope.command
     const nowMs = this.now()
@@ -391,9 +396,8 @@ export class QuizService {
 
       case 'RESET_GAME_STATISTICS': {
         /*
-         * Zurueckgesetzt wird die ZAEHLUNG, nicht der Bestand: Spielstaende,
-         * Versuche und Auditlog haengen an denselben Zeilen. Ab jetzt zaehlt das
-         * Protokoll neu.
+         * The COUNT is reset, not the data: game states, attempts and the audit
+         * log hang on the same rows. From now on the log counts afresh.
          */
         const sinceIso = new Date(nowMs).toISOString()
         this.store.setSetting(SETTING_STATISTICS_SINCE, sinceIso)
@@ -446,7 +450,7 @@ export class QuizService {
           applyMode: command.applyMode,
         })
 
-        // Der Patch wird gegen dasselbe Schema geprueft wie der Basisinhalt.
+        // The patch is checked against the same schema as the base content.
         const previousValues: Record<string, unknown> = {}
         for (const field of Object.keys(patch.changes)) {
           previousValues[field] = (original as unknown as Record<string, unknown>)[field]
@@ -454,8 +458,8 @@ export class QuizService {
         this.store.savePatch(patch, previousValues)
         this.content.applyPatchOverlay(this.store.loadPatches())
 
-        // Nur bei ausdruecklichem "Jetzt uebernehmen" geht die Aenderung sofort auf
-        // den Buehnenscreen. Sonst wirkt sie erst beim naechsten Einsatz der Frage.
+        // Only on an explicit "apply now" does the change go to the stage screen at
+        // once. Otherwise it takes effect on the next use of the question.
         if (
           command.applyMode === 'immediate-confirmed' &&
           this.state?.currentQuestion?.question.id === command.questionId
@@ -489,14 +493,14 @@ export class QuizService {
   }
 
   /* ------------------------------------------------------------------ *
-   * Zeitgesteuerte Uebergaenge
+   * Timed transitions
    * ------------------------------------------------------------------ */
 
   /**
-   * Setzt den Fallback-Timer fuer die aktuelle zeitgesteuerte Phase.
+   * Sets the fallback timer for the current timed phase.
    *
-   * Der fachliche Zustandswechsel haengt damit niemals davon ab, ob ein Browser ein
-   * `animationend`-Event liefert (Spezifikation 22.1).
+   * The state transition of the rules thus never depends on a browser delivering
+   * an `animationend` event (specification 22.1).
    */
   private scheduleTransition(): void {
     if (this.transitionTimer) {
@@ -518,20 +522,20 @@ export class QuizService {
         expectedRevision: this.currentRevision,
       })
     }, delay)
-    // In Node haelt ein aktiver Timer den Prozess am Leben - `unref` gibt ihn
-    // frei. Im Browser gibt es die Methode nicht; der Zugriff bleibt strukturell.
+    // In Node an active timer keeps the process alive - `unref` releases it.
+    // In the browser the method does not exist; the access stays structural.
     const timer = this.transitionTimer as { unref?: () => void }
     if (typeof timer.unref === 'function') timer.unref()
   }
 
-  /** Fuer Tests und geordnetes Herunterfahren. */
+  /** For tests and an orderly shutdown. */
   stopTimers(): void {
     if (this.transitionTimer) clearTimeout(this.transitionTimer)
     this.transitionTimer = null
   }
 
   /* ------------------------------------------------------------------ *
-   * Verteilung
+   * Distribution
    * ------------------------------------------------------------------ */
 
   onChange(listener: () => void): () => void {
@@ -556,7 +560,7 @@ export class QuizService {
     this.lanUrls = urls
   }
 
-  /** Rollenabhaengiger vollstaendiger Snapshot - auch nach jedem Reconnect. */
+  /** Role-specific complete snapshot - also after every reconnect. */
   snapshotFor(role: 'operator'): OperatorQuizViewModel
   snapshotFor(role: 'moderator'): ModeratorQuizViewModel
   snapshotFor(role: 'player'): PlayerQuizViewModel
@@ -604,10 +608,10 @@ export class QuizService {
   }
 
   /* ------------------------------------------------------------------ *
-   * Export und Diagnose
+   * Export and diagnostics
    * ------------------------------------------------------------------ */
 
-  /** Aenderungsbericht der lokalen Hotfixes (Spezifikation 25.4). */
+  /** Change report of the local hotfixes (specification 25.4). */
   changeReport() {
     return buildChangeReport(this.content.baseQuestions, this.store.loadPatches())
   }
@@ -627,7 +631,7 @@ export class QuizService {
     return this.eventDay.id
   }
 
-  /** Nur fuer Tests: der autoritative Zustand. */
+  /** For tests only: the authoritative state. */
   get authoritativeState(): GameState | null {
     return this.state
   }
@@ -649,8 +653,8 @@ export class QuizService {
     reason: CommandRejection['reason'],
     message: string,
   ): DispatchResult {
-    // Auch Ablehnungen werden vermerkt, damit ein wiederholter Befehl dieselbe
-    // Antwort bekommt und nicht plotzlich doch ausgefuehrt wird.
+    // Refusals are recorded too, so that a repeated command gets the same
+    // answer and is not suddenly executed after all.
     this.store.recordRejectedCommand(
       envelope.commandId,
       this.currentRevision,
@@ -658,7 +662,7 @@ export class QuizService {
       new Date(this.now()).toISOString(),
     )
     if (reason === 'buzzer-already-taken' || reason === 'player-locked' || reason === 'buzzer-closed') {
-      // Abgewiesene Doppelereignisse sind fuer die Fairnessdiagnose relevant.
+      // Refused duplicate events matter for the fairness diagnostics.
       this.store.appendAudit({
         gameId: this.state?.gameId ?? null,
         atMs: this.now(),
@@ -684,7 +688,7 @@ function isServiceCommand(type: CommandType): boolean {
   return serviceCommands.has(type)
 }
 
-/** Browser- wie Node-tauglich: `crypto` ist in beiden Welten global. */
+/** Fit for browser and Node alike: `crypto` is global in both worlds. */
 function createRandomId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`

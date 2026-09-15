@@ -1,26 +1,26 @@
 /**
- * Gibt die Tonausgabe dieses Fensters frei und meldet die Freigabe dem Server.
+ * Releases this window's audio output and reports the unlock to the server.
  *
- * ZWEI DINGE, DIE ZUSAMMENGEHOEREN. Browser sperren jede hoerbare Wiedergabe,
- * bis in DEM Fenster einmal geklickt oder getippt wurde. Das betrifft die
- * Soundmarken und den Videoton gleichermassen - und es betrifft ausgerechnet das
- * Buehnenfenster, das im Betrieb nie angefasst wird. Deshalb wird hier nicht nur
- * freigegeben, sondern auch gemeldet: Der Server gibt die Tonhoheit einem
- * Fenster, das wirklich klingen darf (siehe `assignAudioMaster`).
+ * TWO THINGS THAT BELONG TOGETHER. Browsers block every audible playback
+ * until a click or tap has happened once in THAT window. This affects the
+ * sound cues and the video audio equally - and it affects, of all windows,
+ * the stage window, which is never touched during operation. That is why
+ * this not only unlocks but also reports: the server assigns audio authority
+ * to a window that is really allowed to sound (see `assignAudioMaster`).
  *
- * In der Desktop-Anwendung ist die Wiedergabe von vornherein erlaubt (siehe
- * den Electron-Huellen). Chromium sagt das auf Nachfrage, und dann steht
- * der Ton sofort bereit, ohne dass jemand geklickt haben muss.
+ * In the desktop application, playback is allowed from the outset (see the
+ * Electron wrappers). Chromium confirms that on request, and then the sound
+ * is ready immediately, without anyone having had to click.
  */
 import { useEffect } from 'react'
 import { unlockAudio } from './soundCues'
 
 /**
- * Autoplay-Regel des Fensters, soweit der Browser sie preisgibt.
+ * The window's autoplay policy, as far as the browser discloses it.
  *
- * `getAutoplayPolicy` kennt heute nur Chromium - genau die Umgebung, in der die
- * Anwendung ausgeliefert wird. Wo es die Auskunft nicht gibt, wird nichts
- * angenommen und auf die Nutzerinteraktion gewartet.
+ * `getAutoplayPolicy` today only knows Chromium - precisely the environment
+ * the application is shipped in. Where it does not give an answer, nothing
+ * is assumed and the interaction is awaited.
  */
 function audioAllowedWithoutGesture(): boolean {
   const query = (navigator as { getAutoplayPolicy?: (type: string) => string }).getAutoplayPolicy

@@ -1,18 +1,18 @@
 /*
- * Jokerzeichen als Maske ueber einer Farbflaeche.
+ * Joker icon as a mask over a colour area.
  *
- * Dasselbe Verfahren wie bei der Wortmarke in der Kopfzeile: Die Datei liefert
- * die Form, die Farbe kommt aus dem Umfeld. Damit traegt dasselbe Zeichen auf
- * heller und dunkler Buehne die richtige Farbe, ohne zwei Dateien. Die
- * Zeichnung selbst zeigt nur, wer sie ausdruecklich anfordert
- * (`data-joker-tone="art"`) - ihre Tinte ist auf der dunklen Buehne fast nicht
- * zu sehen.
+ * The same technique as the wordmark in the header: the file supplies the
+ * shape, the colour comes from its surroundings. This way the same icon
+ * carries the right colour on a light and a dark stage, without two files.
+ * The artwork itself is shown only to whoever explicitly asks for it
+ * (`data-joker-tone="art"`) - its ink is almost invisible on the dark
+ * stage.
  *
- * Groesse kommt von aussen (`width`/`height` oder `font-size` der Umgebung) -
- * hier steht nur ein Rueckfallwert, damit das Zeichen nie unsichtbar ist. Die
- * Breite kommt dabei aus der Datei: Keines der beiden Zeichen ist quadratisch,
- * und in einem quadratischen Feld stuenden sie kleiner da als die Ziffer
- * daneben.
+ * Size comes from outside (`width`/`height` or the surrounding
+ * `font-size`) - only a fallback value sits here, so the icon is never
+ * invisible. The width comes from the file in the process: neither icon is
+ * square, and in a square field they would sit smaller than the digit
+ * beside them.
  */
 
 .icon {
@@ -22,17 +22,17 @@
   background-color: currentColor;
   -webkit-mask: var(--joker-icon) no-repeat center / contain;
   mask: var(--joker-icon) no-repeat center / contain;
-  /* Ein Zeichen faengt nichts ab - es steht nur da. */
+  /* An icon catches nothing - it just sits there. */
   pointer-events: none;
 }
 
 /*
- * Die Zeichnung mit ihren eigenen Farben - fuer eine Kartenflaeche, deren
- * Grund hell ist. `contain` bleibt: Auch ein Feld mit fremden Massen zeigt das
- * Zeichen kleiner, nie verzerrt.
+ * The artwork with its own colours - for a card area with a light
+ * background. `contain` stays: even a field with foreign measures shows the
+ * icon smaller, never distorted.
  */
 .icon[data-joker-tone='art'] {
-  /* Die Kurzform setzt die Farbflaeche der Maske zugleich zurueck. */
+  /* The short form resets the mask's colour area at the same time. */
   background: var(--joker-icon) no-repeat center / contain;
   -webkit-mask: none;
   mask: none;

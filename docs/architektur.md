@@ -1,85 +1,89 @@
-# Architektur
+# Architecture
 
-## Schichten und Abhaengigkeitsrichtung
+## Layers and dependency direction
 
 ```text
 UI (React) / Electron
         ↓
-Transportadapter      (packages/server: HTTP, WebSocket)
+Transport adapters    (packages/server: HTTP, WebSocket)
         ↓
-Application Services  (packages/runtime)
+Application services  (packages/runtime)
         ↓
-Domain und Contracts  (packages/domain, packages/contracts)
+Domain and contracts  (packages/domain, packages/contracts)
 
 Persistence / WebSocket / Hardware
-        ↓ implementieren Ports der Application-Schicht
+        ↓ implement ports of the application layer
 ```
 
-`@quiz/domain` kennt weder React noch Electron, WebSocket oder SQLite. Deshalb laufen
-alle Regeltests mit Fake-Clock und ohne UI.
+`@quiz/domain` knows neither React nor Electron, WebSocket nor SQLite.
+That's why all rule tests run with a fake clock and without a UI.
 
-## Wer ist wofuer zustaendig?
+## Who is responsible for what?
 
-| Paket | Verantwortung | Kennt NICHT |
+| Package | Responsibility | Does NOT know |
 |---|---|---|
-| `@quiz/contracts` | Typen, Zod-Schemas, Befehle, Rollenrechte, View-Modelle, `scoringRules`/`gameTiming` | alles andere |
-| `@quiz/domain` | Zustandsmaschine, Scoring, Buzzerregeln, Fragenauswahl, Projektion | Dateisystem, Netzwerk, Zeitquelle |
-| `@quiz/content` | Legacy-Import, Validierung, Paketbau, Hotfix-Overlay | Spielregeln, Netzwerk |
-| `@quiz/persistence` | SQLite-Schema, Migrationen, transaktionale Uebernahme | Spielregeln |
-| `@quiz/runtime` | Befehlsverarbeitung, Idempotenz, Timer, Wiederherstellung, Inhaltszugriff, Snapshots | Transport, Oberflaeche, Spielregeln (delegiert an Domain) |
-| `@quiz/server` | HTTP-Auslieferung, WebSocket-Verteilung, Sitzungen und Zugriffsregeln | Befehlsverarbeitung (delegiert an Runtime) |
-| `apps/web` | Rendern von View-Modellen, Senden von Befehlen, Praesentation | Spielregeln |
-| `apps/desktop` | Fenster, Displays, Preload-Bruecke, Prozessstart | Spielregeln |
+| `@quiz/contracts` | Types, Zod schemas, commands, role permissions, view models, `scoringRules`/`gameTiming` | anything else |
+| `@quiz/domain` | State machine, scoring, buzzer rules, question selection, projection | filesystem, network, time source |
+| `@quiz/content` | Legacy import, validation, package build, hotfix overlay | game rules, network |
+| `@quiz/persistence` | SQLite schema, migrations, transactional commit | game rules |
+| `@quiz/runtime` | Command processing, idempotency, timers, recovery, content access, snapshots | transport, UI, game rules (delegated to domain) |
+| `@quiz/server` | HTTP delivery, WebSocket distribution, sessions and access rules | command processing (delegated to runtime) |
+| `apps/web` | Rendering view models, sending commands, presentation | game rules |
+| `apps/desktop` | Windows, displays, preload bridge, process startup | game rules |
 
-## Wo aendere ich was?
+## Where do I change what?
 
-| Aenderung | Ort |
+| Change | Location |
 |---|---|
-| Punkteregel | `packages/domain/src/scoring.ts` und `scoringRules` in `@quiz/contracts` |
-| Buzzer-Berechtigung | `packages/domain/src/buzzer.ts` |
-| Phasenwechsel | `packages/domain/src/engine.ts` |
-| Fragenauswahl, Wiederholungsvermeidung | `packages/domain/src/selection.ts` |
-| Was der Buehnenscreen sehen darf | `packages/domain/src/projection.ts` |
-| Verfuegbare Buttons je Phase | `packages/domain/src/allowedCommands.ts` |
-| Datenbankschema | `packages/persistence/src/migrations.ts` |
-| Animationsdauer, Easing, Soundmarke | `apps/web/src/presentation/transitions/` |
-| Fachlich relevante Timings | `gameTiming` in `packages/contracts/src/config.ts` |
+| Scoring rule | `packages/domain/src/scoring.ts` and `scoringRules` in `@quiz/contracts` |
+| Buzzer authorization | `packages/domain/src/buzzer.ts` |
+| Phase transitions | `packages/domain/src/engine.ts` |
+| Question selection, repeat avoidance | `packages/domain/src/selection.ts` |
+| What the stage screen is allowed to see | `packages/domain/src/projection.ts` |
+| Available buttons per phase | `packages/domain/src/allowedCommands.ts` |
+| Database schema | `packages/persistence/src/migrations.ts` |
+| Animation duration, easing, sound cue | `apps/web/src/presentation/transitions/` |
+| Business-relevant timings | `gameTiming` in `packages/contracts/src/config.ts` |
 
-## Zwei bewusste Abweichungen von der Spezifikation
+## Two deliberate deviations from the specification
 
-Beide sind nach Abschnitt 20.3 der Spezifikation ausdruecklich zulaessig
-(„Separate Pakete sind nur sinnvoll, wenn sie eine echte fachliche Grenze abbilden“).
+Both are expressly permitted under section 20.3 of the specification
+("Separate packages only make sense if they represent a genuine functional
+boundary").
 
-1. **Kein eigenes Paket `packages/presentation`.**
-   Die Praesentationsschicht liegt unter `apps/web/src/presentation/` und behaelt exakt
-   die in Abschnitt 22.2 vorgeschlagene innere Struktur (`scenes/`, `transitions/`,
-   `animationPresets.ts`, `soundCues.ts`, `README.md`). Einziger Nutzer sind die
-   React-Einstiegspunkte im selben Paket; eine Paketgrenze haette hier keine fachliche
-   Grenze abgebildet, aber den Build verkompliziert.
+1. **No dedicated `packages/presentation` package.**
+   The presentation layer lives under `apps/web/src/presentation/` and keeps
+   exactly the internal structure proposed in section 22.2 (`scenes/`,
+   `transitions/`, `animationPresets.ts`, `soundCues.ts`, `README.md`). The
+   only consumer is the React entry point in the same package; a package
+   boundary here would not have represented a functional boundary, but would
+   have complicated the build.
 
-2. **Kein eigenes Paket `packages/ui`.**
-   Es gibt bisher nur vier gemeinsam genutzte Bausteine (`ScoreBoard`, `PlayerBadge`,
-   `Confetti`, `ConnectionBanner`). Sie liegen unter `apps/web/src/components/`.
-   Abstrahiert wird erst, wenn ein zweiter echter Nutzer existiert.
+2. **No dedicated `packages/ui` package.**
+   There are so far only four shared building blocks (`ScoreBoard`,
+   `PlayerBadge`, `Confetti`, `ConnectionBanner`). They live under
+   `apps/web/src/components/`. Abstraction happens only once a second real
+   consumer exists.
 
-## Fluss eines Befehls
+## Flow of a command
 
 ```text
-Client (Operator / Moderator / Buzzer)
-  → WebSocket-Nachricht mit CommandEnvelope
-  → QuizService: Schema, Idempotenz, Rolle, Revision
-  → Domain-Engine: reduce(state, command, ctx)
-  → QuizStore: EINE Transaktion (Zustand + Punkte + Nutzung + Audit + Revision)
-  → Broadcast rollenabhaengiger Snapshots an alle Clients
+Client (operator / host / buzzer)
+  → WebSocket message with CommandEnvelope
+  → QuizService: schema, idempotency, role, revision
+  → Domain engine: reduce(state, command, ctx)
+  → QuizStore: ONE transaction (state + score + usage + audit + revision)
+  → Broadcast role-dependent snapshots to all clients
 ```
 
-Erst nach erfolgreichem Commit wird verteilt. Faellt die Transaktion aus, bleibt der
-letzte konsistente Zustand erhalten und der Operator bekommt eine Klartextmeldung.
+Distribution only happens after a successful commit. If the transaction
+fails, the last consistent state is preserved and the operator gets a
+plain-text error.
 
 ## Ports
 
-| Port | Definiert in | Implementiert von |
+| Port | Defined in | Implemented by |
 |---|---|---|
 | `QuestionSource` | `packages/domain/src/engine.ts` | `packages/runtime/src/contentService.ts` |
-| Zeit (`nowMs`) | `EngineContext` | Server bzw. Fake-Clock in Tests |
-| Zufall (`Rng`) | `packages/domain/src/selection.ts` | Server bzw. `createSeededRng` in Tests |
+| Time (`nowMs`) | `EngineContext` | Server, or fake clock in tests |
+| Randomness (`Rng`) | `packages/domain/src/selection.ts` | Server, or `createSeededRng` in tests |

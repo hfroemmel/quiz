@@ -1,15 +1,15 @@
 /**
- * Bildrahmen der Buehne - EIN Bauteil fuer beide Gestaltungswelten.
+ * Image frame of the stage - ONE component for both design worlds.
  *
- * Zwei Aufgaben: das Bild im richtigen Verhaeltnis zeigen und - beim
- * Bilderkennen - die Kacheldecke darueber halten, die es Stueck fuer Stueck
- * freigibt.
+ * Two jobs: show the image at the right aspect ratio, and - for image
+ * guessing - hold the tile cover above it that releases it piece by piece.
  *
- * Der Fortschritt kommt als fertiger Wert herein. Dieses Bauteil rechnet nichts
- * aus; die Ableitung steht in der Domain und gilt fuer Ring und Bild gemeinsam.
+ * The progress arrives as a finished value. This component computes nothing
+ * itself; the derivation lives in the domain layer and applies to both the
+ * ring and the image alike.
  *
- * Das Foto liegt INNERHALB des Rahmens, nie in einer Rahmengrafik: Es wechselt
- * mit jeder Frage, der Rahmen nie.
+ * The photo sits INSIDE the frame, never as part of a frame graphic: it
+ * changes with every question, the frame never does.
  */
 import type { RevealGrid } from '@hfroemmel/quiz-core'
 import { RevealTiles } from './RevealTiles'
@@ -18,10 +18,10 @@ import styles from './Media.module.css'
 interface MediaProps {
   src?: string
   /**
-   * Nur beim Bilderkennen: Raster und Fortschritt der Aufloesung.
+   * Image guessing only: grid and progress of the reveal.
    *
-   * Fehlt der Wert, liegt keine Decke ueber dem Bild - jede andere Szene zeigt
-   * ihr Foto offen.
+   * If this value is missing, no cover lies over the image - every other
+   * scene shows its photo openly.
    */
   reveal?: { grid: RevealGrid; progress: number }
   variant?: 'inline' | 'reveal' | 'solution' | 'portrait'
@@ -32,19 +32,19 @@ export function Media({ src, reveal, variant = 'inline' }: MediaProps) {
   return (
     <div className={`${styles.media} ${styles[variant]}`} data-media="" data-variant={variant}>
       {/*
-        * Die Bildflaeche als eigene Ebene: Sie ist genau so gross wie das Foto,
-        * also OHNE den Innenabstand, den die Kinderwelt fuer ihre gezeichnete
-        * Rahmung braucht. Nur so liegt die Kacheldecke auf dem Bild und nicht
-        * ueber der Zeichnung.
+        * The image area as its own layer: it is exactly as large as the
+        * photo, i.e. WITHOUT the inner padding the kids' world needs for its
+        * drawn framing. Only that way does the tile cover sit on the image
+        * and not over the artwork.
         */}
       <div className={styles.canvas}>
         <img className={styles.image} data-media-image="" src={src} alt="" />
         {reveal && <RevealTiles grid={reveal.grid} progress={reveal.progress} seedSource={src} />}
       </div>
       {/*
-        * Platz fuer eine Figur, die ueber die obere Bildkante schaut. Reine
-        * Dekoration: Ob dort etwas zu sehen ist, entscheidet die Gestaltungswelt
-        * im Stylesheet - im Markup steht kein Modusname.
+        * Space for a mascot peeking over the top edge of the image. Purely
+        * decorative: whether anything is visible there is decided by the
+        * design world in the stylesheet - the markup carries no mode name.
         */}
       <span className={styles.peek} data-peek="" aria-hidden="true" />
     </div>

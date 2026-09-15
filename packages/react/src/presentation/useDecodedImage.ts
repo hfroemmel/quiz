@@ -1,73 +1,79 @@
 /**
- * Ist dieses Bild fertig geladen?
+ * Has this image finished loading?
  *
- * WOFUER: Der unscharfe Bildgrund der Buehne soll erscheinen, wenn er fertig
- * ist - nicht davor und nicht als Rest der vorigen Frage. Ein
- * `background-image`, das direkt gesetzt wird, laesst den alten Grund stehen,
- * bis der neue dekodiert ist: Auf der neuen Frage stuende dann fuer einen
- * Moment das Bild der alten.
+ * WHAT FOR: the stage's blurred image background should appear once it is
+ * ready - not before and not as a leftover from the previous question. A
+ * `background-image` that is set directly leaves the old background standing
+ * until the new one has decoded: for a moment the new question would then show
+ * the old one's image.
  *
- * Deshalb wird die Adresse hier ZUERST geladen und erst danach gemeldet. Der
- * Spielablauf wartet nicht darauf - die Frage steht sofort; nur ihr Grund kommt
- * einen Wimpernschlag spaeter dazu.
+ * That is why the address is loaded here FIRST and only reported afterwards.
+ * Play does not wait for it - the question stands immediately; only its
+ * background arrives a blink of an eye later.
  *
- * Die Entscheidung selbst ist eine reine Funktion (`bildstand`), damit sie ohne
- * Browser pruefbar ist.
+ * The decision itself is a pure function (`imageStatus`), so that it is
+ * testable without a browser.
  */
 import { useEffect, useState } from 'react'
 
-/** Was der Aufrufer wissen muss: welche Adresse fertig ist. */
-export interface Bildstand {
-  /** Die Adresse, die geladen wurde - `undefined`, solange keine fertig ist. */
-  fertig: string | undefined
+/** What the caller needs to know: which address is ready. */
+export interface ImageState {
+  /** The address that was loaded - `undefined` as long as none is ready. */
+  done: string | undefined
 }
 
 /**
- * Der neue Stand, nachdem `geladen` fertig geworden ist.
+ * The new state once `loaded` has finished.
  *
- * Eine Meldung, die nicht mehr zur aktuellen Adresse gehoert, wird verworfen:
- * Bei schnellem Weiterklicken kommen die Bilder in beliebiger Reihenfolge
- * zurueck, und das zuletzt eingetroffene ist nicht das zuletzt gefragte.
+ * A report that no longer belongs to the current address is discarded: on
+ * fast clicking through, the images come back in any order, and the one that
+ * arrives last is not the one asked for last.
  */
-export function bildstand(vorher: Bildstand, gefragt: string | undefined, geladen: string): Bildstand {
-  if (geladen !== gefragt) return vorher
-  if (vorher.fertig === geladen) return vorher
-  return { fertig: geladen }
+export function imageState(before: ImageState, asked: string | undefined, loaded: string): ImageState {
+  if (loaded !== asked) return before
+  if (before.done === loaded) return before
+  return { done: loaded }
 }
 
 export function useDecodedImage(url: string | undefined): string | undefined {
-  const [stand, setStand] = useState<Bildstand>({ fertig: undefined })
+  const [state, setState] = useState<ImageState>({ done: undefined })
 
   useEffect(() => {
     if (!url) {
-      setStand({ fertig: undefined })
+      setState({ done: undefined })
       return undefined
     }
 
-    let aufgegeben = false
-    const melden = () => {
-      if (!aufgegeben) setStand((vorher) => bildstand(vorher, url, url))
+    let givenUp = false
+    const report = () => {
+      if (!givenUp) setState((before) => imageState(before, url, url))
     }
 
-    const bild = new Image()
-    bild.src = url
+    const image = new Image()
+    image.src = url
     /*
-     * `decode()` wartet nicht nur auf die Bytes, sondern auch auf das
-     * Auspacken - ein `onload` allein kann noch einen Ruckler beim ersten
-     * Zeichnen bedeuten. Wo es fehlt oder scheitert (Firefox meldet fuer
-     * manche Bilder einen Fehler, obwohl sie brauchbar sind), gilt `onload`.
+     * `decode()` waits not only for the bytes but also for the unpacking - an
+     * `onload` alone can still mean a stutter on the first paint. Where it is
+     * missing or fails (Firefox reports an error for some images even though
+     * they are usable), `onload` applies.
      */
-    if (bild.decode) {
-      void bild.decode().then(melden, melden)
+    if (image.decode) {
+      void image.decode().then(report, report)
     } else {
-      bild.onload = melden
-      bild.onerror = melden
+      image.onload = report
+      image.onerror = report
     }
 
     return () => {
-      aufgegeben = true
+      givenUp = true
     }
   }, [url])
 
-  return stand.fertig === url ? stand.fertig : undefined
+  return state.done === url ? state.done : undefined
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `ImageState`. */
+export type Bildstand = ImageState
+/** @deprecated Renamed to `imageState`. */
+export const bildstand = imageState

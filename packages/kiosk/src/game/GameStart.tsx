@@ -1,65 +1,65 @@
 /**
- * Startauswahl am Geraet.
+ * Start selection on the device.
  *
- * Zwei Entscheidungen, mehr nicht: Wie viele spielen, und wie schwer soll es sein.
- * Die Zielgruppe wird NICHT am Geraet gewaehlt - sie gehoert zur Aufstellung und
- * kommt als Vorgabe herein. Ein Foyergeraet, an dem jemand versehentlich die
- * Kinderwelt einstellt, waere ein Betriebsfehler ohne Bedienung davor.
+ * Two decisions, nothing more: how many are playing, and how hard it should
+ * be. The audience is NOT chosen on the device - it belongs to the setup and
+ * comes in as a default. A foyer device where someone accidentally sets the
+ * kids' world would be an operating mistake with no control for it.
  *
- * Die Schwierigkeitsstufen stammen aus `view.catalog` und damit aus validierter
- * Konfiguration. Es gibt hier bewusst keine Liste im Code, die beim naechsten
- * neuen Preset vergessen wuerde.
+ * The difficulty tiers come from `view.catalog` and thus from validated
+ * configuration. There is deliberately no list in the code here that would be
+ * forgotten with the next new preset.
  *
- * ZWEI SPALTEN, UND WARUM:
+ * TWO COLUMNS, AND WHY:
  *
- *   Links steht, WAS das hier ist - Marke, Titel, ein Satz dazu. Sie aendert
- *   sich nie und wird nicht angefasst; sie ist das Plakat, das aus fuenf Metern
- *   wirkt und jemanden herholt.
+ *   On the left is WHAT this is - brand mark, title, a sentence about it. It
+ *   never changes and is not touched; it is the poster that works from five
+ *   metres away and draws someone in.
  *
- *   Rechts steht, WAS ZU TUN IST - zwei nummerierte Schritte und darunter der
- *   Start. Sie wird angefasst und liegt deshalb beisammen, in Griffhoehe und in
- *   der Reihenfolge, in der entschieden wird.
+ *   On the right is WHAT TO DO - two numbered steps and the start button
+ *   below them. It is touched and therefore sits together, within reach and
+ *   in the order in which decisions are made.
  *
- * Der Entwurf dazu ist `Quiz_Standalone_Startmenu_SVG_Assets`; Masse und Farben
- * stammen von dort (Farben ueber die `--start-*`-Token der Palette). In der
- * Hochkantaufstellung faellt die Spaltenteilung weg - siehe Stylesheet.
+ * The design behind this is `Quiz_Standalone_Startmenu_SVG_Assets`;
+ * measurements and colours come from there (colours via the palette's
+ * `--start-*` tokens). In the portrait setup, the column split falls away -
+ * see the stylesheet.
  */
 import { useState } from 'react'
-import { playerCounts as alleSpielerzahlen, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
-import { texteFuer } from '@hfroemmel/quiz-react'
+import { playerCounts as allPlayerCounts, type PlayerCount, type PlayerQuizViewModel } from '@hfroemmel/quiz-core'
+import { textsFor } from '@hfroemmel/quiz-react'
 import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon } from './icons'
 import styles from './Game.module.css'
 
 /**
- * Das Quizmotiv, das die Tafel traegt, wenn der Inhalt kein eigenes Startbild
- * mitbringt. Bundlerneutral adressiert - dieselbe Schreibweise wie im
- * Buehnenpaket, damit die Datei mit ausgeliefert wird und offline daliegt.
+ * The quiz motif the board carries when the content brings no start image of
+ * its own. Addressed in a bundler-neutral way - the same spelling as in the
+ * stage package, so the file ships along and is available offline.
  */
 const quizMarke = new URL('../assets/quiz-mark.svg', import.meta.url).href
 
 interface GameStartProps {
   view: PlayerQuizViewModel
-  /** Zielgruppe, in der dieses Geraet spielt. */
+  /** Audience this device plays in. */
   audience: string
   /**
-   * Spielerzahlen, die dieses Geraet anbietet. Ohne Angabe beide.
+   * Player counts this device offers. Without one, both.
    *
-   * Bleibt nur eine uebrig, entfaellt die Frage danach ganz: Eine Auswahl mit
-   * genau einer Moeglichkeit ist keine Auswahl, sondern eine Huerde vor dem
-   * Start.
+   * If only one remains, the question about it falls away entirely: a choice
+   * with exactly one option is not a choice but a hurdle before the start.
    */
   playerCounts?: readonly PlayerCount[] | undefined
   onStart(input: { playerCount: PlayerCount; presetId: string }): void
-  /** Nur gesetzt, wenn das Quiz Gast einer anderen Anwendung ist. */
+  /** Only set when the quiz is a guest inside another application. */
   onExit?: (() => void) | undefined
   /**
-   * Einstellungen des Geraets oeffnen - nur gesetzt, wo es sie gibt.
+   * Open the device's settings - only set where they exist.
    *
-   * Sie haengen bewusst HIER und nicht im Spiel: Ton und Groesse gehoeren zur
-   * Aufstellung eines Geraets, nicht in die Hand dessen, der gerade spielt.
+   * They deliberately live HERE and not in the game: sound and size belong
+   * to a device's setup, not in the hands of whoever is currently playing.
    */
   onOpenSettings?: (() => void) | undefined
-  /** Sprache umstellen. Der Umschalter erscheint nur, wenn es mehr als eine gibt. */
+  /** Change the language. The switcher only appears when there is more than one. */
   onSelectLocale(locale: string): void
 }
 
@@ -72,60 +72,60 @@ export function GameStart({
   onOpenSettings,
   onSelectLocale,
 }: GameStartProps) {
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const audienceEntry = view.catalog.audiences.find((entry) => entry.id === audience)
   const presets = view.catalog.presets.filter((preset) => audienceEntry?.allowedPresetIds.includes(preset.id))
 
-  const angeboten = playerCounts && playerCounts.length > 0 ? playerCounts : alleSpielerzahlen
-  const [playerCount, setPlayerCount] = useState<PlayerCount>(angeboten[0] ?? 1)
+  const offered = playerCounts && playerCounts.length > 0 ? playerCounts : allPlayerCounts
+  const [playerCount, setPlayerCount] = useState<PlayerCount>(offered[0] ?? 1)
   const [presetId, setPresetId] = useState(presets[0]?.id ?? '')
 
   const canStart = view.allowedCommands.includes('START_GAME') && presetId !== ''
   /*
-   * Die Modusfrage entfaellt an Geraeten mit nur einer Spielerzahl - dort gibt
-   * es nichts zu waehlen.
+   * The mode question falls away on devices with only one player count -
+   * there is nothing to choose there.
    */
-  const zeigeModus = angeboten.length > 1
+  const showMode = offered.length > 1
 
   return (
     <div className={styles.start} data-game-start="">
       {/*
-        * DIE BEIDEN ECKKNOEPFE STEHEN IN EINER EIGENEN ZEILE und nicht frei
-        * ueber der Flaeche: Als absolut gesetzte Ecken kamen sie der Tafel
-        * darunter in die Quere, sobald das Quiz in einem kleineren Kasten lief
-        * als dem ganzen Fenster - genau der Fall in der Spielesammlung.
+        * THE TWO CORNER BUTTONS SIT IN THEIR OWN ROW and not freely floating
+        * over the area: positioned absolutely as corners, they got in the way
+        * of the board beneath them as soon as the quiz ran in a box smaller
+        * than the whole window - exactly the case in a game collection.
         */}
       <div className={styles.corners}>
         {/*
-          * DER SPRACHUMSCHALTER STEHT IN DER ECKE, nicht als dritter Schritt:
-          * Die Auswahl daneben stellt bewusst zwei Fragen - wie viele spielen
-          * und wie schwer. Die Sprache ist keine Spielentscheidung, sondern die
-          * Voraussetzung dafuer, die beiden Fragen ueberhaupt lesen zu koennen;
-          * sie gehoert deshalb dorthin, wo man sie sucht, bevor man liest.
+          * THE LANGUAGE SWITCHER SITS IN THE CORNER, not as a third step: the
+          * selection next to it deliberately asks two questions - how many are
+          * playing and how hard. The language is not a game decision but the
+          * precondition for being able to read the two questions at all; it
+          * therefore belongs where one looks for it before reading.
           *
-          * Die Namen stehen in ihrer EIGENEN Sprache ("Deutsch", "English") -
-          * eine Beschriftung daneben braucht es damit nicht.
+          * The names are shown in their OWN language ("Deutsch", "English") -
+          * that means no label next to it is needed.
           */}
         {view.catalog.locales.length > 1 && (
           <div className={styles.languages} data-languages="">
-            {view.catalog.locales.map((sprache) => (
+            {view.catalog.locales.map((locale) => (
               <button
-                key={sprache.id}
+                key={locale.id}
                 type="button"
-                className={`${styles.language} ${sprache.id === view.locale ? styles.languageOn : ''}`}
-                data-locale={sprache.id}
-                aria-pressed={sprache.id === view.locale}
-                onClick={() => onSelectLocale(sprache.id)}
+                className={`${styles.language} ${locale.id === view.locale ? styles.languageOn : ''}`}
+                data-locale={locale.id}
+                aria-pressed={locale.id === view.locale}
+                onClick={() => onSelectLocale(locale.id)}
               >
-                {sprache.label}
+                {locale.label}
               </button>
             ))}
           </div>
         )}
 
         {/*
-          * Einstellungen in der Ecke: sichtbar fuer den, der sie sucht,
-          * unauffaellig fuer alle anderen.
+          * Settings in the corner: visible to whoever is looking for them,
+          * inconspicuous to everyone else.
           */}
         {onOpenSettings && (
           <button
@@ -143,10 +143,9 @@ export function GameStart({
       <div className={styles.layout}>
         <aside className={styles.brand}>
           {/*
-            * Das Bild der Tafel kommt aus dem Inhalt, wenn er eines mitbringt -
-            * eine Aufstellung mit eigenem Motiv soll ihres sehen und nicht
-            * unseres. Erst wenn keines hinterlegt ist, traegt die Tafel das
-            * mitgelieferte Quizmotiv.
+            * The board's image comes from the content when it brings one - a
+            * setup with its own motif should see its own, not ours. Only when
+            * none is provided does the board carry the bundled quiz motif.
             */}
           <img className={styles.brandVisual} src={view.theme.startVisualUrl ?? quizMarke} alt="" />
 
@@ -159,10 +158,10 @@ export function GameStart({
           <h2 className={styles.setupTitle}>{t('kiosk.setupTitle')}</h2>
           <p className={styles.setupSubtitle}>{t('kiosk.setupSubtitle')}</p>
 
-          {zeigeModus && (
+          {showMode && (
             <section className={styles.step}>
               <div className={styles.modes}>
-                {angeboten.map((count) => (
+                {offered.map((count) => (
                   <button
                     key={count}
                     type="button"
@@ -178,7 +177,7 @@ export function GameStart({
                       <span className={styles.cardTitle}>{t(count === 1 ? 'kiosk.solo' : 'kiosk.duo')}</span>
                       <span className={styles.cardMeta}>{t(count === 1 ? 'kiosk.soloHint' : 'kiosk.duoHint')}</span>
                     </span>
-                    <Haken aktiv={playerCount === count} />
+                    <Check activeEntry={playerCount === count} />
                   </button>
                 ))}
               </div>
@@ -197,17 +196,18 @@ export function GameStart({
                   onClick={() => setPresetId(preset.id)}
                 >
                   {/*
-                    * DERSELBE AUFBAU WIE DIE MODUSKARTE, nur ohne Zeichen: Text
-                    * links, Haekchen rechts. Die Steigerung der Stufen stand
-                    * frueher zusaetzlich als Punktereihe darueber - sie sagte
-                    * nichts, was nicht schon in "5 Fragen" steht, und machte aus
-                    * zwei gleichrangigen Reihen zwei verschieden hohe.
+                    * THE SAME STRUCTURE AS THE MODE CARD, just without an
+                    * icon: text on the left, checkmark on the right. The
+                    * progression of the tiers used to additionally sit above
+                    * it as a row of dots - it said nothing that "5 questions"
+                    * did not already say, and turned two equally-ranked rows
+                    * into two of different heights.
                     */}
                   <span className={styles.cardBody}>
                     <span className={styles.cardTitle}>{preset.label}</span>
                     <span className={styles.cardMeta}>{t('kiosk.questionCount', { count: preset.slotCount })}</span>
                   </span>
-                  <Haken aktiv={presetId === preset.id} />
+                  <Check activeEntry={presetId === preset.id} />
                 </button>
               ))}
             </div>
@@ -239,16 +239,16 @@ export function GameStart({
 }
 
 /**
- * Das Haekchen einer gewaehlten Karte.
+ * The checkmark of a selected card.
  *
- * Es steht IMMER im Markup, auch ungewaehlt - dann leer. So bleibt die Karte
- * gleich gross, statt beim Antippen um die Breite eines Zeichens zu springen,
- * und zwar genau unter dem Finger, der es angetippt hat.
+ * It is ALWAYS in the markup, even unselected - then empty. That way the
+ * card stays the same size, instead of jumping by the width of a character
+ * when tapped, exactly under the finger that tapped it.
  */
-function Haken({ aktiv }: { aktiv: boolean }) {
+function Check({ activeEntry }: { activeEntry: boolean }) {
   return (
-    <span className={styles.check} data-on={String(aktiv)} aria-hidden="true">
-      {aktiv && <CheckIcon />}
+    <span className={styles.check} data-on={String(activeEntry)} aria-hidden="true">
+      {activeEntry && <CheckIcon />}
     </span>
   )
 }

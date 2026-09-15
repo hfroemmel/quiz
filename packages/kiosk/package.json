@@ -2,7 +2,7 @@
   "name": "@hfroemmel/quiz-kiosk",
   "version": "0.15.3",
   "type": "module",
-  "description": "Das spielbare Quiz als eine Komponente: Startauswahl, Spiel und Ergebnis fuer Kiosk und Einbettung",
+  "description": "The playable quiz as one component: start selection, game and result for kiosk and embedding",
   "exports": {
     ".": "./src/index.ts"
   },

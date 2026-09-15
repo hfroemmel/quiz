@@ -1,11 +1,11 @@
 /**
- * Startbild des Buehnenscreens, solange kein Spiel laeuft.
+ * Start screen of the stage as long as no game is running.
  *
- * Zeigt ausschliesslich Branding. Modus- und Presetauswahl finden im Operatorfenster
- * statt und gehen den Saal nichts an.
+ * Shows branding only. Mode and preset selection happen in the operator's
+ * window and are none of the room's business.
  *
- * Der Titel kommt aus dem Modus (`startTitle`). Er entfaellt, wenn die
- * Startgrafik ihn bereits enthaelt - so wie beim Kinderquiz.
+ * The title comes from the mode (`startTitle`). It is omitted when the start
+ * artwork already contains it - as with the kids' quiz.
  */
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'

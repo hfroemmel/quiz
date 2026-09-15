@@ -1,5 +1,5 @@
 /**
- * Inhaltsvalidierung (Spezifikation 24.4 und 17.5) und Hotfix-Overlay (25).
+ * Content validation (specification 24.4 and 17.5) and hotfix overlay (25).
  */
 import { describe, expect, it } from 'vitest'
 import type { MediaAsset, Question } from '@hfroemmel/quiz-core'
@@ -9,12 +9,12 @@ import { applyContentProfile } from '../src/package'
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
 
 /**
- * Fragenplatz der Testkonfiguration - vor der Schemapruefung, deshalb bewusst
- * offen: Jeder Test kombiniert die Filter, die er braucht.
+ * Question slot of the test configuration - before the schema check, hence
+ * deliberately open: every test combines the filters it needs.
  */
 type TestSlot = { id: string; label?: string; filters: Record<string, unknown> }
 
-/** Quizart der Testkonfiguration - ebenfalls vor der Schemapruefung. */
+/** Quiz mode of the test configuration - also before the schema check. */
 type TestQuiz = {
   id: string
   label: string
@@ -23,6 +23,10 @@ type TestQuiz = {
   poolIds?: string[]
   presetIds: string[]
   defaultPresetId?: string
+  playerCounts?: (1 | 2)[]
+  artworkAssetId?: string
+  emphasis?: 'wide' | 'regular'
+  order?: number
 }
 
 const baseConfig = {
@@ -42,7 +46,7 @@ const baseConfig = {
     },
   ],
   audiences: [{ id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['standard'] }],
-  /* Ohne Quizarten laeuft der Bestand weiterhin - das Pult hat dann nichts anzubieten. */
+  /* Without quiz modes the pool still works - the desk then has nothing to offer. */
   quizzes: [] as TestQuiz[],
 }
 
@@ -89,24 +93,24 @@ function validate(questions: Question[], overrides: Partial<typeof baseConfig> =
   })
 }
 
-describe('Schemafehler brechen den Build ab', () => {
-  it('erkennt doppelte Frage-IDs', () => {
+describe('Schema errors abort the build', () => {
+  it('detects duplicate question ids', () => {
     const result = validate([question({ id: 'q1' }), question({ id: 'q1' }), revealQuestion])
     expect(result.errors.some((issue) => issue.code === 'duplicate-question-id')).toBe(true)
     expect(result.ok).toBe(false)
   })
 
-  it('erkennt Multiple Choice ohne korrekte Option', () => {
+  it('detects multiple choice without a correct option', () => {
     const result = validate([question({ id: 'q1', correctOptionId: undefined }), revealQuestion])
     expect(result.errors.some((issue) => issue.code === 'missing-correct-option')).toBe(true)
   })
 
-  it('erkennt correctOptionId, die auf keine Option zeigt', () => {
+  it('detects a correctOptionId that points to no option', () => {
     const result = validate([question({ id: 'q1', correctOptionId: 'gibt-es-nicht' }), revealQuestion])
     expect(result.errors.some((issue) => issue.code === 'correct-option-unknown')).toBe(true)
   })
 
-  it('laesst drei und zwei Antwortoptionen zu', () => {
+  it('allows three and two answer options', () => {
     const three = validate([
       question({
         id: 'q1',
@@ -127,8 +131,8 @@ describe('Schemafehler brechen den Build ab', () => {
     expect(two.errors.some((issue) => issue.code === 'option-count')).toBe(false)
   })
 
-  it('meldet eine Auswahlfrage mit nur einer Option', () => {
-    // Mit einer einzigen Option gibt es nichts zu waehlen - das ist keine Auswahl.
+  it('reports a choice question with only one option', () => {
+    // With a single option there is nothing to choose - that is not a choice.
     const result = validate([
       question({ id: 'q1', options: [{ id: 'o1', text: 'A' }], correctOptionId: 'o1' }),
       revealQuestion,
@@ -136,7 +140,7 @@ describe('Schemafehler brechen den Build ab', () => {
     expect(result.errors.some((issue) => issue.code === 'option-count')).toBe(true)
   })
 
-  it('meldet mehr Antwortoptionen als der Entwurf traegt', () => {
+  it('reports more answer options than the design carries', () => {
     const result = validate([
       question({
         id: 'q1',
@@ -153,19 +157,19 @@ describe('Schemafehler brechen den Build ab', () => {
     expect(result.errors.some((issue) => issue.code === 'option-count')).toBe(true)
   })
 
-  it('erkennt ein fehlendes Pflichtmedium', () => {
+  it('detects a missing mandatory medium', () => {
     const result = validate([question({ id: 'q1' }), { ...revealQuestion, media: undefined }])
     expect(result.errors.some((issue) => issue.code === 'missing-media')).toBe(true)
   })
 
-  it('erkennt eine fehlende Mediendatei', () => {
+  it('detects a missing media file', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {}, false)
     expect(result.errors.some((issue) => issue.code === 'asset-file-missing')).toBe(true)
   })
 
-  it('meldet eine fehlende Mediendatei bei deaktivierter Frage nur als Warnung', () => {
-    // Eine deaktivierte Frage ist in keinem Pool und kann die Show nicht gefaehrden;
-    // sie darf als vorbereitete Vorlage ohne Datei im Bestand liegen.
+  it('reports a missing media file of a disabled question only as a warning', () => {
+    // A disabled question is in no pool and cannot endanger the show;
+    // it may stay in the pool as a prepared template without a file.
     const result = validate([question({ id: 'q1' }), revealQuestion], {}, false)
     expect(result.errors.some((issue) => issue.code === 'asset-file-missing')).toBe(true)
 
@@ -174,23 +178,23 @@ describe('Schemafehler brechen den Build ab', () => {
     expect(withDisabled.warnings.some((issue) => issue.code === 'asset-file-missing-disabled')).toBe(true)
   })
 
-  it('erkennt unbekannte Referenzen', () => {
+  it('detects unknown references', () => {
     const result = validate([question({ id: 'q1', categories: ['gibt-es-nicht'], difficulty: 'unbekannt' }), revealQuestion])
     expect(result.errors.some((issue) => issue.code === 'category-reference')).toBe(true)
     expect(result.errors.some((issue) => issue.code === 'difficulty-reference')).toBe(true)
   })
 
-  it('erkennt einen nicht erfuellbaren Fragenplatz als harten Fehler', () => {
+  it('detects an unsatisfiable question slot as a hard error', () => {
     const result = validate([question({ id: 'q1' })])
     expect(result.errors.some((issue) => issue.code === 'slot-unsatisfiable')).toBe(true)
   })
 
-  it('erkennt eine abweichende Fragenplatzzahl im Preset', () => {
+  it('detects a deviating question slot count in the preset', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], { questionsPerGame: 7 })
     expect(result.errors.some((issue) => issue.code === 'preset-slot-count')).toBe(true)
   })
 
-  it('erkennt eine nicht parsebare Versionsangabe', () => {
+  it('detects an unparsable version string', () => {
     const result = validateContent({
       config: baseConfig,
       questions: [question({ id: 'q1' }), revealQuestion],
@@ -202,15 +206,15 @@ describe('Schemafehler brechen den Build ab', () => {
   })
 })
 
-describe('Inhaltswarnungen', () => {
-  it('warnt bei fehlender Erklaerung und kleinem Pool', () => {
+describe('Content warnings', () => {
+  it('warns on a missing explanation and a small pool', () => {
     const result = validate([question({ id: 'q1', explanation: undefined }), revealQuestion])
     expect(result.warnings.some((issue) => issue.code === 'missing-explanation')).toBe(true)
     expect(result.warnings.some((issue) => issue.code === 'small-pool')).toBe(true)
     expect(result.ok).toBe(true)
   })
 
-  it('warnt bei fast identischen Fragen ohne gemeinsame Wiederholungsgruppe', () => {
+  it('warns on nearly identical questions without a shared repetition group', () => {
     const result = validate([
       question({ id: 'q1', prompt: 'Wie heisst die Hauptstadt?' }),
       question({ id: 'q2', prompt: 'Wie heisst die Hauptstadt' }),
@@ -219,7 +223,7 @@ describe('Inhaltswarnungen', () => {
     expect(result.warnings.some((issue) => issue.code === 'similar-without-group')).toBe(true)
   })
 
-  it('warnt nicht, wenn die Varianten eine gemeinsame Wiederholungsgruppe haben', () => {
+  it('does not warn when the variants share a repetition group', () => {
     const result = validate([
       question({ id: 'q1', prompt: 'Gleiche Frage', repetitionGroupId: 'g1' }),
       question({ id: 'q2', prompt: 'Gleiche Frage', repetitionGroupId: 'g1' }),
@@ -228,7 +232,7 @@ describe('Inhaltswarnungen', () => {
     expect(result.warnings.some((issue) => issue.code === 'similar-without-group')).toBe(false)
   })
 
-  it('meldet, ob ein Preset am Touchgeraet spielbar ist', () => {
+  it('reports whether a preset is playable on the touch device', () => {
     const touchSlot = (id: string): TestSlot => ({ id, filters: { evaluationModes: ['option-comparison'] } })
     const touchPreset = { id: 'touch', label: 'Touch', slots: [touchSlot('a'), touchSlot('b')] }
     const result = validate([question({ id: 'q1' }), question({ id: 'q2' }), revealQuestion], {
@@ -238,12 +242,12 @@ describe('Inhaltswarnungen', () => {
 
     const standard = result.coverage.find((entry) => entry.presetId === 'standard')!
     const touch = result.coverage.find((entry) => entry.presetId === 'touch')!
-    // Das Buehnenpreset enthaelt einen Bilderkennen-Platz mit muendlicher Antwort.
+    // The stage preset contains an image recognition slot with a spoken answer.
     expect(standard.selfServiceCapable).toBe(false)
     expect(touch.selfServiceCapable).toBe(true)
   })
 
-  it('berechnet Poolabdeckung und moegliche Spiele ohne Wiederholung', () => {
+  it('computes pool coverage and possible games without repetition', () => {
     const result = validate([question({ id: 'q1' }), question({ id: 'q2' }), revealQuestion])
     const coverage = result.coverage[0]!
     expect(coverage.slots[0]!.candidateCount).toBe(2)
@@ -252,16 +256,16 @@ describe('Inhaltswarnungen', () => {
   })
 })
 
-describe('Fehlende Mediendateien', () => {
+describe('Missing media files', () => {
   const questions = [question({ id: 'q1' }), revealQuestion]
 
-  it('ist ohne Angabe ein Fehler', () => {
+  it('are an error by default', () => {
     const result = validate(questions, {}, false)
     expect(result.ok).toBe(false)
     expect(result.errors.some((issue) => issue.code === 'asset-file-missing')).toBe(true)
   })
 
-  it('wird mit "warning" zur Warnung, ohne die Frage zu deaktivieren', () => {
+  it('become a warning with "warning", without disabling the question', () => {
     const result = validateContent({
       config: baseConfig,
       questions,
@@ -273,7 +277,7 @@ describe('Fehlende Mediendateien', () => {
     expect(result.warnings.find((issue) => issue.code === 'asset-file-missing')?.message).toContain('Ersatzbild')
   })
 
-  it('meldet eine unvollstaendige, deaktivierte Frage als Warnung statt als Fehler', () => {
+  it('reports an incomplete, disabled question as a warning instead of an error', () => {
     const draft = question({ id: 'entwurf', enabled: false, options: [{ id: 'o1', text: 'A' }] })
     const result = validate([question({ id: 'q1' }), revealQuestion, draft])
     expect(result.ok).toBe(true)
@@ -281,8 +285,8 @@ describe('Fehlende Mediendateien', () => {
   })
 })
 
-describe('Themes ohne Darstellung', () => {
-  it('nimmt ein Theme ohne Farben und Schriften an - Darstellung gehoert dem Gastgeber', () => {
+describe('Themes without presentation', () => {
+  it('accepts a theme without colours and fonts - presentation belongs to the host', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
       themes: [{ id: 'default', label: 'Standard' }],
     })
@@ -290,7 +294,7 @@ describe('Themes ohne Darstellung', () => {
   })
 })
 
-describe('Quizarten', () => {
+describe('Quiz modes', () => {
   const quiz = (overrides: Partial<TestQuiz> = {}): TestQuiz => ({
     id: 'bundestag',
     label: 'Bundestagsquiz',
@@ -300,51 +304,87 @@ describe('Quizarten', () => {
     ...overrides,
   })
 
-  it('nimmt eine vollstaendig verdrahtete Quizart an', () => {
+  it('accepts a fully wired quiz mode', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], { quizzes: [quiz()] })
     expect(result.ok).toBe(true)
   })
 
-  it('erkennt eine unbekannte Zielgruppe', () => {
+  it('detects an unknown audience', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
       quizzes: [quiz({ audienceId: 'marsmenschen' })],
     })
     expect(result.errors.some((issue) => issue.code === 'audience-reference')).toBe(true)
   })
 
-  it('erkennt ein unbekanntes Theme', () => {
+  it('accepts the fields of the start menu and keeps their references', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ playerCounts: [1], artworkAssetId: 'img-1', emphasis: 'wide', order: 10 })],
+    })
+    expect(result.ok).toBe(true)
+    // Only the pool warnings of this small fixture, nothing about the new fields.
+    /*
+     * Only the pool warnings of this small fixture - the new fields add none
+     * of their own as long as they are consistent.
+     */
+    const aboutTheMenu = result.warnings.filter((issue) => issue.code.startsWith('quiz-'))
+    expect(aboutTheMenu).toEqual([])
+  })
+
+  it('detects a card artwork that does not exist', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ artworkAssetId: 'img-does-not-exist' })],
+    })
+    expect(result.errors.some((issue) => issue.code === 'asset-reference')).toBe(true)
+  })
+
+  it('warns about a player count named twice - it would be one card too many', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ playerCounts: [1, 1] })],
+    })
+    expect(result.ok).toBe(true)
+    expect(result.warnings.some((issue) => issue.code === 'quiz-player-counts')).toBe(true)
+  })
+
+  it('warns about two quizzes on the same menu position', () => {
+    const result = validate([question({ id: 'q1' }), revealQuestion], {
+      quizzes: [quiz({ order: 10 }), quiz({ id: 'kids-quiz', order: 10 })],
+    })
+    expect(result.warnings.some((issue) => issue.code === 'quiz-order')).toBe(true)
+  })
+
+  it('detects an unknown theme', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], { quizzes: [quiz({ themeId: 'neon' })] })
     expect(result.errors.some((issue) => issue.code === 'theme-reference')).toBe(true)
   })
 
-  it('erkennt einen unbekannten Fragenpool', () => {
+  it('detects an unknown question pool', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
       quizzes: [quiz({ poolIds: ['atlantis'] })],
     })
     expect(result.errors.some((issue) => issue.code === 'pool-reference')).toBe(true)
   })
 
-  it('erkennt ein Preset, das der Zielgruppe nicht offensteht', () => {
+  it('detects a preset that is not open to the audience', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
       quizzes: [quiz({ presetIds: ['gibt-es-nicht'] })],
     })
     expect(result.errors.some((issue) => issue.code === 'preset-reference')).toBe(true)
   })
 
-  it('erkennt eine Voreinstellung, die nicht unter den Stufen steht', () => {
+  it('detects a default that is not among the levels', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], {
       quizzes: [quiz({ defaultPresetId: 'schwer' })],
     })
     expect(result.errors.some((issue) => issue.code === 'preset-reference')).toBe(true)
   })
 
-  it('erkennt eine doppelt konfigurierte Quizart', () => {
+  it('detects a quiz mode configured twice', () => {
     const result = validate([question({ id: 'q1' }), revealQuestion], { quizzes: [quiz(), quiz()] })
     expect(result.errors.some((issue) => issue.code === 'quiz-duplicate')).toBe(true)
   })
 })
 
-describe('Inhaltsprofile', () => {
+describe('Content profiles', () => {
   const videoQuestion = question({
     id: 'v1',
     questionType: 'video-then-question',
@@ -376,20 +416,21 @@ describe('Inhaltsprofile', () => {
     rootDir: '/tmp',
   }
 
-  it('laesst das Profil "full" unveraendert', () => {
+  it('leaves the "full" profile unchanged', () => {
     expect(applyContentProfile(source, 'full')).toBe(source)
   })
 
-  it('nimmt fuer "no-video" Fragen, Medien und Fragenplatzfilter heraus', () => {
+  it('removes questions, media and slot filters for "no-video"', () => {
     const reduced = applyContentProfile(source, 'no-video')
 
     expect((reduced.questions as Question[]).map((entry) => entry.id)).toEqual(['q1'])
     expect(reduced.assets.map((entry) => entry.id)).toEqual(['img-1'])
 
     /*
-     * Die ANZAHL der Fragenplaetze bleibt - sonst passte das Preset nicht mehr
-     * zu `questionsPerGame`. Ein Platz, der NUR Videofragen zuliess, wird zum
-     * freien Platz; bei einem gemischten Filter faellt nur der Videotyp weg.
+     * The NUMBER of question slots stays - otherwise the preset would no
+     * longer match `questionsPerGame`. A slot that admitted ONLY video
+     * questions becomes a free slot; with a mixed filter only the video type
+     * is dropped.
      */
     const slots = (reduced.config as typeof source.config).presets[0]!.slots
     expect(slots).toHaveLength(2)
@@ -397,7 +438,7 @@ describe('Inhaltsprofile', () => {
     expect(slots[1]!.filters).toEqual({})
   })
 
-  it('laesst die Quelle des vollen Profils unberuehrt', () => {
+  it('leaves the source of the full profile untouched', () => {
     applyContentProfile(source, 'no-video')
     expect((source.questions as Question[]).map((entry) => entry.id)).toEqual(['q1', 'v1'])
     expect(source.config.presets[0]!.slots[1]!.filters.questionTypes).toEqual(['video-then-question'])

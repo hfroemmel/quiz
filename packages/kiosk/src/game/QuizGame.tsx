@@ -1,15 +1,16 @@
 /**
- * Das spielbare Quiz als EINE Komponente.
+ * The playable quiz as ONE component.
  *
- * Sie ist der einzige Baustein, den ein Gastgeber kennt - der Kiosk genauso wie
- * eine Multigame-Anwendung. Was sie zeigt, entscheidet ausschliesslich der
- * Serverstand: Startauswahl, laufendes Spiel, Ergebnis.
+ * It is the only building block a host needs to know - the kiosk just as much
+ * as a multi-game application. What it shows is decided exclusively by the
+ * server state: start selection, running game, result.
  *
- * Die Flaeche in der Mitte ist DIESELBE Komposition wie auf dem Beamer
- * (`StageScreen`). Diese Ansicht ergaenzt nur, was es dort nicht gibt: die
- * Fussleiste mit den beiden Spielerecken und die Auswahl davor.
+ * The area in the middle is the SAME composition as on the projector
+ * (`StageScreen`). This view only adds what is not there: the footer with the
+ * two player corners and the selection in front of it.
  *
- * Spielregeln stehen hier keine. Ob ein Fingertipp zaehlt, entscheidet der Server.
+ * There are no game rules here. Whether a tap counts is decided by the
+ * server.
  */
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
@@ -17,7 +18,7 @@ import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
 import {
   QuizScene,
   releaseAudio,
-  texteFuer,
+  textsFor,
   useAudioUnlock,
   useQuizRuntime,
   useQuizSnapshot,
@@ -27,90 +28,90 @@ import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
 import { GameStart } from './GameStart'
 import { GameSettings } from './GameSettings'
 import { PlayerFoot } from './PlayerFoot'
-import { klemmeZoom } from './zoom'
+import { clampZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
 import { useHostVisible } from './useHostVisible'
 import { useIdleWatch } from './useIdleWatch'
 import styles from './Game.module.css'
 
-// Die Ergebnisform kommt aus der Ereignisableitung der Domain - hier nur
-// weitergereicht, damit Gastgeber sie beim Einbetten importieren koennen.
+// The result shape comes from the domain's event derivation - it is only
+// re-exported here so hosts can import it when embedding.
 export type { QuizGameResult }
 
 export interface QuizGameProps {
   /**
-   * Die Laufzeit, gegen die gespielt wird.
+   * The runtime to play against.
    *
-   * Ohne Angabe verbindet sich das Quiz als Spieler mit dem Server, der es
-   * ausgeliefert hat - der Touchbetrieb am Buehnenabend. Gastgeber ohne Server
-   * (Kiosk, Spielesammlung) geben hier ihre eigene `LocalQuizRuntime` und
-   * bleiben damit vollstaendig offline. Wer sie stellt, raeumt sie auch auf.
+   * Without one, the quiz connects as a player to the server that delivered
+   * it - touch operation on a stage night. Hosts without a server (kiosk,
+   * game collection) pass their own `LocalQuizRuntime` here and stay fully
+   * offline that way. Whoever provides it also cleans it up.
    */
   runtime?: QuizRuntime<PlayerQuizViewModel>
-  /** Zielgruppe, in der dieses Geraet spielt. Ohne Angabe die erste des Katalogs. */
+  /** Audience this device plays in. Without one, the first in the catalog. */
   audience?: string
   /**
-   * Spielerzahlen, die dieses Geraet anbietet. Ohne Angabe beide.
+   * Player counts this device offers. Without one, both.
    *
-   * Ein Geraet, an dem nur eine Person steht, gibt `[1]` an; die Frage nach der
-   * Spielerzahl entfaellt dann. Der Buzzer der zweiten Ecke verschwindet
-   * ohnehin von selbst - die Fussleiste folgt dem Spielstand des Servers.
+   * A device only one person stands at passes `[1]`; the question about the
+   * number of players then falls away. The second corner's buzzer disappears
+   * by itself anyway - the footer follows the server's game state.
    */
   playerCounts?: readonly PlayerCount[]
   /**
-   * Ton beim Start dieses Geraets - die Vorgabe aus dem Config File des
-   * Gastgebers.
+   * Sound at this device's startup - the default from the host's config
+   * file.
    *
-   * Ohne Angabe gilt, was zuletzt am Geraet eingestellt war (die Engine merkt
-   * es sich). MIT Angabe gewinnt sie bei jedem Start: Eine Spielesammlung, die
-   * still laufen soll, soll das nicht davon abhaengig machen, was jemand
-   * gestern am Geraet gedrueckt hat. Waehrend des Betriebs bleibt der Schalter
-   * in den Einstellungen trotzdem bedienbar.
+   * Without one, whatever was last set on the device applies (the engine
+   * remembers it). WITH one, it wins on every start: a game collection meant
+   * to run silently should not have to depend on what someone pressed on the
+   * device yesterday. The toggle in settings stays operable during use
+   * regardless.
    */
   soundEnabled?: boolean
   /**
-   * Zoomstufe der Buehne zwischen 0,6 und 1 - ebenfalls Vorgabe aus dem Config
-   * File.
+   * Stage zoom level between 0.6 and 1 - likewise a default from the config
+   * file.
    *
-   * 1 ist die volle, entworfene Groesse und damit das Maximum. Kleinere Werte
-   * verkleinern die Szene zur Mitte hin; Punkte, Zaehler und Logo bleiben am
-   * Bildrand und schrumpfen mit. Fuer sehr grosse Touchtische, an denen die
-   * volle Groesse aus dem Stand nicht mehr zu ueberblicken ist.
+   * 1 is the full, designed size and thus the maximum. Smaller values shrink
+   * the scene toward the centre; score, counter and logo stay at the screen
+   * edge and shrink along with it. For very large touch tables where the full
+   * size can no longer be taken in at a glance.
    */
   zoom?: number
   /**
-   * Sprache beim Start dieses Geraets - Vorgabe aus dem Config File.
+   * Language at this device's startup - default from the config file.
    *
-   * Ohne Angabe gilt, was zuletzt am Geraet gewaehlt war; mit Angabe gewinnt sie
-   * bei jedem Start. Kennt der Inhalt die Sprache nicht, faellt sie auf die
-   * Grundsprache zurueck - ein Tippfehler darf kein Geraet lahmlegen.
+   * Without one, whatever was last chosen on the device applies; with one, it
+   * wins on every start. If the content does not know the language, it falls
+   * back to the base language - a typo must not be able to disable a device.
    */
   locale?: string
-  /** Ergebnis eines beendeten Spiels - fuer die Bestenliste des Gastgebers. */
+  /** Result of a finished game - for the host's leaderboard. */
   onFinished?: (result: QuizGameResult) => void
   /**
-   * Ruecksprung in die Gastgeberanwendung. Ist er gesetzt, erscheint der
-   * entsprechende Knopf; fehlt er, gibt es kein Zurueck - so wie im Kiosk.
+   * Jump back into the host application. If it is set, the corresponding
+   * button appears; if it is missing, there is no way back - as in the kiosk.
    */
   onExit?: () => void
   /**
-   * Leerlauf-Aufsicht: Wird waehrend eines laufenden Spiels so lange nichts
-   * beruehrt, wird es abgebrochen und die Auswahl kehrt zurueck.
+   * Idle watch: if nothing is touched for long enough during a running game,
+   * it is aborted and the selection returns.
    *
-   * Ohne diesen Wert gibt es keine Aufsicht. Am unbeaufsichtigten Geraet ist sie
-   * noetig, weil bewusst kein Zeitdruck auf einer Frage liegt: Ohne sie bliebe
-   * ein Geraet mit einer offenen Frage stehen, bis jemand kommt.
+   * Without this value there is no watch. On an unattended device it is
+   * needed because there is deliberately no time pressure on a question:
+   * without it, a device would sit with an open question until someone comes
+   * along.
    */
   idleTimeoutMs?: number
   /**
-   * Eine eigene Ebene des Gastgebers UEBER der Buehne - etwa ein
-   * Zusatzinformationsschritt zwischen Loesung und naechster Frage.
+   * A host's own layer ON TOP OF the stage - for example an extra
+   * information step between the solution and the next question.
    *
-   * Sie wird IN die Buehne gesetzt und nicht daneben: Nur dort gelten die
-   * Farben, die Containereinheiten und die Zoomstufe der Buehne. Ausserhalb
-   * behielte sie ihre volle Groesse, waehrend alles darunter kleiner wird.
-   * Was sie zeichnet, ist Sache des Gastgebers; die gemeinsame Schaltflaeche
-   * steht ihm als `stage-button` zur Verfuegung.
+   * It is placed INSIDE the stage, not next to it: only there do the stage's
+   * colours, container units and zoom level apply. Outside it, it would keep
+   * its full size while everything beneath it gets smaller. What it draws is
+   * up to the host; the shared button is available to it as `stage-button`.
    */
   overlay?: ReactNode
 }
@@ -119,15 +120,15 @@ export function QuizGame({
   runtime: hostRuntime,
   audience,
   playerCounts,
-  soundEnabled: soundVorgabe,
-  zoom: zoomVorgabe,
-  locale: spracheVorgabe,
+  soundEnabled: soundDefault,
+  zoom: zoomDefault,
+  locale: localeDefault,
   onFinished,
   onExit,
   idleTimeoutMs,
   overlay,
 }: QuizGameProps) {
-  // Ohne Gastgeber-Laufzeit die eigene Verbindung; mit ihr keine.
+  // Without a host runtime, its own connection; with one, none.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
   const runtime = hostRuntime ?? own.runtime
   const snapshot = useQuizSnapshot(runtime)
@@ -138,105 +139,107 @@ export function QuizGame({
   const clearRejection = useCallback(() => runtime?.clearRejection(), [runtime])
   const notifyAudioReady = useCallback(() => runtime?.notifyAudioReady(), [runtime])
   const hostVisible = useHostVisible()
-  const t = texteFuer(snapshot?.view ?? null)
+  const t = textsFor(snapshot?.view ?? null)
 
   useAudioUnlock(notifyAudioReady)
   /*
-   * Die Klangdateien liegen ausserhalb des Komponentenbaums und ueberleben das
-   * Entfernen sonst. In einer Gastgeberanwendung bliebe sonst von jedem Besuch
-   * des Quiz ein weiterer Rest zurueck.
+   * The sound files live outside the component tree, otherwise they would
+   * survive removal. In a host application, every visit to the quiz would
+   * otherwise leave another leftover behind.
    */
   useEffect(() => () => releaseAudio(), [])
 
   /**
-   * Der Nutzer hat nach dem Ergebnis "Nochmal" gewaehlt: Die Auswahl erscheint,
-   * obwohl auf dem Server noch das beendete Spiel steht. Das ist die einzige
-   * Ansichtsentscheidung, die dieser Client selbst trifft - alles andere folgt
-   * dem Serverstand.
+   * The user chose "Play again" after the result: the selection appears even
+   * though the server still holds the finished game. This is the only view
+   * decision this client makes on its own - everything else follows the
+   * server state.
    */
   const [showChoice, setShowChoice] = useState(false)
   const greetedRef = useRef(false)
   /**
-   * "Los geht's" ist gedrueckt, der Server hat aber noch nicht geantwortet.
+   * "Let's go" has been pressed, but the server has not answered yet.
    *
-   * Ohne diesen Zwischenzustand zeigte der Client so lange den alten Stand - und
-   * das waere ausgerechnet das Ergebnis der Vorgaenger, das beim Start kurz
-   * aufblitzt.
+   * Without this intermediate state, the client would keep showing the old
+   * state in the meantime - and of all things that would be the previous
+   * game's result briefly flashing up at start.
    *
-   * Die Revision taugt dafuer uebrigens nicht: Sie zaehlt je Spiel und beginnt
-   * bei einem neuen wieder klein.
+   * The revision, incidentally, is not suited for this: it counts per game
+   * and starts small again with a new one.
    */
   const [pendingStart, setPendingStart] = useState(false)
 
   /**
-   * Einstellungen des Geraets.
+   * Device settings.
    *
-   * Der Ton gehoert der Engine (sie merkt ihn sich ueber Neustarts hinweg), die
-   * Groesse dieser Ansicht - sie ist reine Darstellung und hat im Spielstand
-   * nichts verloren. Beide beginnen bei der Vorgabe aus dem Config File.
+   * Sound belongs to the engine (it remembers it across restarts), the size
+   * to this view - it is pure presentation and has no place in the game
+   * state. Both start at the default from the config file.
    */
-  const [zoom, setZoom] = useState(() => klemmeZoom(zoomVorgabe))
+  const [zoom, setZoom] = useState(() => clampZoom(zoomDefault))
   const [settingsOpen, setSettingsOpen] = useState(false)
   /*
-   * EINSTELLUNGEN GIBT ES NUR AM EIGENEN GERAET.
+   * SETTINGS ONLY EXIST ON THE DEVICE ITSELF.
    *
-   * Bringt der Gastgeber seine eigene Laufzeit mit, gehoert ihm auch der
-   * Zustand: Was hier am Ton gedreht wird, hoert nur, wer davorsteht. Haengt das
-   * Quiz dagegen an einem Server, gehoert der Ton der Vorstellung - dann duerfte
-   * ein Besucher am Touchtisch im Foyer den Saal stummschalten.
+   * If the host brings its own runtime, the state belongs to it too:
+   * whatever is turned here on sound is only heard by whoever stands in
+   * front of it. If the quiz, on the other hand, is attached to a server, the
+   * sound belongs to the show - in that case a visitor at the touch table in
+   * the foyer must not be able to mute the hall.
    */
-  const eigenesGeraet = Boolean(hostRuntime)
-  /** Der Beenden-Knopf hat gefragt und wartet auf die Antwort. */
+  const ownDevice = Boolean(hostRuntime)
+  /** The end-game button has asked and is waiting for the answer. */
   const [askExit, setAskExit] = useState(false)
 
   /*
-   * Die Vorgabe aus dem Config File gilt bei jedem Start - aber nur einmal:
-   * Danach gehoert der Schalter dem, der vor dem Geraet steht, bis zum
-   * naechsten Start.
+   * The default from the config file applies on every start - but only once:
+   * after that, the toggle belongs to whoever stands in front of the device,
+   * until the next start.
    */
-  const soundGesetztRef = useRef(false)
+  const soundSetRef = useRef(false)
   useEffect(() => {
-    if (soundVorgabe === undefined || soundGesetztRef.current) return
-    const stand = snapshot?.view
-    if (!stand) return
-    soundGesetztRef.current = true
-    if (stand.soundEnabled !== soundVorgabe) send({ type: 'SET_SOUND_ENABLED', enabled: soundVorgabe })
-  }, [soundVorgabe, snapshot, send])
+    if (soundDefault === undefined || soundSetRef.current) return
+    const state = snapshot?.view
+    if (!state) return
+    soundSetRef.current = true
+    if (state.soundEnabled !== soundDefault) send({ type: 'SET_SOUND_ENABLED', enabled: soundDefault })
+  }, [soundDefault, snapshot, send])
 
-  // Eine geaenderte Vorgabe des Gastgebers schlaegt auf die Anzeige durch.
+  // A changed host default takes effect on the display.
   useEffect(() => {
-    setZoom(klemmeZoom(zoomVorgabe))
-  }, [zoomVorgabe])
+    setZoom(clampZoom(zoomDefault))
+  }, [zoomDefault])
 
-  // Dieselbe Regel fuer die Sprache: einmal je Start, dann gehoert sie dem Geraet.
-  const spracheGesetztRef = useRef(false)
+  // Same rule for the language: once per start, then it belongs to the device.
+  const localeSetRef = useRef(false)
   useEffect(() => {
-    if (spracheVorgabe === undefined || spracheGesetztRef.current) return
-    const stand = snapshot?.view
-    if (!stand) return
-    spracheGesetztRef.current = true
-    if (stand.locale !== spracheVorgabe) send({ type: 'SET_LOCALE', locale: spracheVorgabe })
-  }, [spracheVorgabe, snapshot, send])
+    if (localeDefault === undefined || localeSetRef.current) return
+    const state = snapshot?.view
+    if (!state) return
+    localeSetRef.current = true
+    if (state.locale !== localeDefault) send({ type: 'SET_LOCALE', locale: localeDefault })
+  }, [localeDefault, snapshot, send])
 
   /*
-   * Beim Einsetzen der Komponente kann auf dem Server noch das Ergebnis einer
-   * frueheren Partie stehen - etwa nach einem Neustart des Geraets. Es gehoert
-   * Spielern, die laengst weg sind; wer jetzt davorsteht, soll die Auswahl sehen.
-   * Ein Ergebnis, das WAEHREND dieser Sitzung entsteht, bleibt dagegen stehen.
+   * When the component mounts, the server may still hold the result of an
+   * earlier match - for example after a device restart. It belongs to
+   * players long gone; whoever stands in front of it now should see the
+   * selection. A result that arises DURING this session, by contrast, stays
+   * visible.
    */
   useEffect(() => {
     if (!view || greetedRef.current) return
     greetedRef.current = true
-    // Melden muss hier nichts unterdrueckt werden: Die Ereignisableitung unten
-    // meldet ohnehin nur Ergebnisse, die WAEHREND dieser Sitzung entstehen.
+    // Nothing needs to be suppressed from reporting here: the event derivation
+    // below only ever reports results that arise DURING this session anyway.
     if (view.scene === 'result') setShowChoice(true)
   }, [view])
 
   /*
-   * Das angeforderte Spiel steht, sobald eine Szene erscheint, die es nur
-   * waehrend eines laufenden Spiels gibt. Weist der Server den Start ab - etwa
-   * weil kein passender Fragenplatz uebrig ist -, kehrt die Auswahl zurueck,
-   * damit niemand vor einem wartenden Bildschirm steht.
+   * The requested game is considered started as soon as a scene appears that
+   * only exists during a running game. If the server rejects the start -
+   * say, because no matching question slot is left - the selection returns,
+   * so nobody is left standing in front of a waiting screen.
    */
   useEffect(() => {
     if (!pendingStart) return
@@ -251,11 +254,11 @@ export function QuizGame({
   }, [pendingStart, lastRejection, clearRejection])
 
   /*
-   * Ereignisableitung ueber die GANZE Sitzung - bewusst hier und nicht in der
-   * eingebetteten Buehne: Die Buehne wird beim Startbildschirm ausgesetzt, ein
-   * genau dann eintreffendes Ergebnis ginge ihr verloren. Gemeldet wird je
-   * beendetem Spiel genau einmal, weil das Ergebnis-Ereignis am Szeneneintritt
-   * haengt und nicht an der Revision.
+   * Event derivation across the WHOLE session - deliberately here and not in
+   * the embedded stage: the stage is suspended at the start screen, and a
+   * result arriving exactly then would be lost to it. Reporting happens
+   * exactly once per finished game, because the result event is tied to
+   * scene entry, not to the revision.
    */
   const previousViewRef = useRef<PlayerQuizViewModel | null>(null)
   useEffect(() => {
@@ -267,8 +270,18 @@ export function QuizGame({
     }
   }, [view, onFinished])
 
+  /*
+   * THE CONFIGURATION DECIDES, THE PROPERTY IS THE FALLBACK.
+   *
+   * Idle time and player counts belong to the installation, and they now live
+   * in the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A
+   * host that still passes them as properties wins, so nothing changes for it
+   * from one version to the next; a host that passes nothing gets what the
+   * package says.
+   */
+  const effectiveIdleTimeoutMs = idleTimeoutMs ?? view?.catalog.rules.idleTimeoutMs
   const idle = useIdleWatch({
-    ...(idleTimeoutMs === undefined ? {} : { timeoutMs: idleTimeoutMs }),
+    ...(effectiveIdleTimeoutMs === undefined ? {} : { timeoutMs: effectiveIdleTimeoutMs }),
     active: Boolean(view && view.scene !== 'start'),
     onIdle: () => {
       send({ type: 'ABORT_GAME' })
@@ -285,7 +298,7 @@ export function QuizGame({
   }
 
   const audienceId = audience ?? view.catalog.audiences[0]?.id ?? ''
-  // Ohne laufendes oder beendetes Spiel zeigt der Server die Startszene.
+  // Without a running or finished game, the server shows the start scene.
   const hasGame = view.scene !== 'start'
   const finished = view.scene === 'result'
 
@@ -293,8 +306,8 @@ export function QuizGame({
     setShowChoice(false)
     setPendingStart(true)
     clearRejection()
-    // Ein zweiter Tipp waehrend des Startens legt kein zweites Spiel an: Der
-    // Server weist ihn ab, weil dann bereits ein Spiel laeuft.
+    // A second tap while starting does not create a second game: the server
+    // rejects it, because a game is already running by then.
     send({ type: 'START_GAME', audience: audienceId, presetId, playerCount, flowProfile: 'self-service' })
   }
 
@@ -306,10 +319,10 @@ export function QuizGame({
   }
 
   /**
-   * Das laufende Spiel abbrechen und zurueck ins Startmenue.
+   * Abort the running game and return to the start menu.
    *
-   * Nicht dasselbe wie `leave`: Dort verlaesst man das Quiz und kehrt in die
-   * Gastgeberanwendung zurueck, hier bleibt man im Quiz und faengt neu an.
+   * Not the same as `leave`: there you leave the quiz and return to the host
+   * application; here you stay in the quiz and start over.
    */
   const abort = () => {
     setAskExit(false)
@@ -319,53 +332,54 @@ export function QuizGame({
   }
 
   /*
-   * Die Zoomstufe steht als Variable UEBER der Buehne: Szene, Kopfzeile und
-   * Fussleiste lesen sie dort und verkleinern sich jede fuer sich - die Szene
-   * zur Mitte, die Ecken zu ihrem Bildrand. Sie steht an JEDER Ansicht dieser
-   * Komponente, damit sie beim Wechsel zwischen Auswahl und Spiel nicht
-   * kurzzeitig verschwindet.
+   * The zoom level exists as a variable ABOVE the stage: scene, header and
+   * footer read it there and each shrink on their own - the scene toward the
+   * centre, the corners toward their screen edge. It is set on EVERY view of
+   * this component, so it does not briefly disappear when switching between
+   * selection and game.
    */
-  const flaeche = { '--stage-zoom': zoom } as CSSProperties
+  const area = { '--stage-zoom': zoom } as CSSProperties
 
   /*
-   * GESTALTUNGSWELT AUCH AUSSERHALB DER BUEHNE.
+   * VISUAL WORLD OUTSIDE THE STAGE TOO.
    *
-   * `.stage--kids` steht an der Buehne, und die entsteht erst mit dem Spiel -
-   * Startauswahl, Einstellungen und Rueckfragen liegen DARUEBER und haetten
-   * damit nie erfahren, in welcher Welt sie stehen. Deshalb traegt das
-   * Wurzelelement dieser Komponente die Welt als Datenattribut; die Regeln
-   * dieses Moduls lesen sie dort (`[data-skin='kids'] .start`).
+   * `.stage--kids` sits on the stage, and that only comes into being with the
+   * game - start selection, settings and confirmation dialogs sit ABOVE it
+   * and would therefore never learn which world they are in. That is why
+   * this component's root element carries the world as a data attribute;
+   * this module's rules read it there (`[data-skin='kids'] .start`).
    *
-   * Ein Attribut und keine `.stage--*`-Klasse: Sonst erbte jedes Bauteil
-   * ausserhalb der Buehne die Buehnenregeln der Welt - Antwortkarten, Buzzer,
-   * Kopfzeile -, und die sind fuer die Flaeche darin entworfen.
+   * An attribute and not a `.stage--*` class: otherwise every component
+   * outside the stage would inherit the world's stage rules - answer cards,
+   * buzzer, header - and those are designed for the area inside it.
    *
-   * WOHER SIE KOMMT, HAENGT DAVON AB, OB GESPIELT WIRD: `view.theme` gehoert
-   * zum laufenden Spiel und meldet davor die Grundwelt. Vor dem Start gilt
-   * deshalb die Welt der Zielgruppe, in der dieses Geraet steht - sonst stuende
-   * vor dem Kinderquiz die Auswahl der Erwachsenen und wechselte erst mit der
-   * ersten Frage.
+   * WHERE IT COMES FROM DEPENDS ON WHETHER A GAME IS RUNNING: `view.theme`
+   * belongs to the running game and reports the base world before that.
+   * Before the start, therefore, the world of the audience this device
+   * belongs to applies - otherwise the adults' selection would stand in
+   * front of the kids' quiz and only switch with the first question.
    */
   const skin =
     (hasGame && !showChoice ? view.theme.skin : view.catalog.audiences.find((entry) => entry.id === audienceId)?.skin) ??
     'default'
 
   /*
-   * HELLE ODER DUNKLE FASSUNG - AUCH AUSSERHALB DER BUEHNE.
+   * LIGHT OR DARK VARIANT - OUTSIDE THE STAGE TOO.
    *
-   * `.stage--bright` steht an der Buehne, und die entsteht erst mit dem Spiel.
-   * Startauswahl, Einstellungen und Rueckfragen liegen darueber und trugen
-   * deshalb immer die dunkle Fassung, auch wenn das Spiel danach auf Papier
-   * lief. Die Fassung steht jetzt als Attribut am Wurzelelement; die
-   * `--start-*`-Farben der hellen Fassung haengen daran (siehe `palette.css`).
+   * `.stage--bright` sits on the stage, and that only comes into being with
+   * the game. Start selection, settings and confirmation dialogs sit above it
+   * and therefore always carried the dark variant, even when the game
+   * afterwards ran on paper. The variant now exists as an attribute on the
+   * root element; the `--start-*` colours of the light variant depend on it
+   * (see `palette.css`).
    *
-   * Die Kinderwelt kennt den Umschalter nicht - sie bringt ihr eigenes Papier
-   * mit und meldet sich hier als eigene Welt.
+   * The kids' world does not know this switch - it brings its own paper and
+   * reports here as its own world.
    */
   const [stageTheme] = useStageTheme()
-  const fassung = skin === 'kids' ? 'kids' : stageTheme
+  const variant = skin === 'kids' ? 'kids' : stageTheme
 
-  const settings = settingsOpen && eigenesGeraet && (
+  const settings = settingsOpen && ownDevice && (
     <GameSettings
       view={view}
       soundEnabled={view.soundEnabled}
@@ -380,19 +394,19 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.startScreen}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
+        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
         data-quiz-game=""
         data-skin={skin}
-        data-theme={fassung}
+        data-theme={variant}
       >
         <GameStart
           view={view}
           audience={audienceId}
-          playerCounts={playerCounts}
+          playerCounts={playerCounts ?? configuredPlayerCounts(view.catalog, audienceId)}
           onStart={start}
           onExit={onExit}
           onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
-          {...(eigenesGeraet ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
+          {...(ownDevice ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
         />
         {settings}
       </div>
@@ -403,10 +417,10 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.waiting}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...flaeche }}
+        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
         data-quiz-game=""
         data-skin={skin}
-        data-theme={fassung}
+        data-theme={variant}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -415,16 +429,16 @@ export function QuizGame({
 
   const players = view.playerScores
   /*
-   * Am Zug ist, wem der offene Versuch gehoert - das sagt der Server. Diesen
-   * Client interessiert es nur dafuer, welche Flaeche stumpf aussieht.
+   * Whoever the open attempt belongs to is on turn - the server says so.
+   * This client only cares about that to decide which area looks dimmed.
    */
   const turn = assignedPlayer(view)
   const solo = players.length === 1
   /*
-   * Die Zeilen sind waehrend des ganzen Spiels Schaltflaechen, auch bevor jemand
-   * gebuzzert hat - dann eben gesperrte. Erschienen die Knoepfe erst mit dem
-   * Zuschlag, baute sich die Liste mitten in der Frage neu auf, und ein Finger,
-   * der schon unterwegs ist, traefe ins Leere.
+   * The rows are buttons throughout the whole game, even before anyone has
+   * buzzed - just locked ones then. If the buttons only appeared with the
+   * successful buzz, the list would rebuild itself in the middle of the
+   * question, and a finger already on its way would hit nothing.
    */
   const answering = finished
     ? undefined
@@ -432,12 +446,12 @@ export function QuizGame({
         disabled: !turn || !canAnswer(view, turn),
         label: turn ? `Antworten ${players.find((entry) => entry.playerId === turn)?.label ?? ''}`.trim() : 'Antworten',
         onSelect: (optionId: string) => {
-          // Ohne Zuschlag ist die Zeile gesperrt; der Server wiese sie ohnehin ab.
+          // Without a successful buzz the row is locked; the server would reject it anyway.
           if (!turn || !canAnswer(view, turn)) return
           /*
-           * Im Einzelspiel gibt es keinen Buzzerknopf: Der erste Fingertipp holt
-           * den Zuschlag und loggt die Antwort in einem Zug. Das Einloggen ist
-           * revisionsbefreit, deshalb darf es dem eigenen Buzz vorauseilen.
+           * In single-player mode there is no buzzer button: the first tap
+           * grabs the buzz and logs the answer in one move. Logging is exempt
+           * from the revision check, so it may run ahead of its own buzz.
            */
           if (solo && !view.allowedCommands.includes('LOG_OPTION_ANSWER')) {
             send({ type: 'BUZZ', playerId: turn })
@@ -449,22 +463,22 @@ export function QuizGame({
 
 
   return (
-    <div className={styles.game} style={flaeche} data-quiz-game=""
+    <div className={styles.game} style={area} data-quiz-game=""
       data-skin={skin}
-      data-theme={fassung}
+      data-theme={variant}
       onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/*
-        * Ausstieg aus einem laufenden Spiel.
+        * Exiting a running game.
         *
-        * MIT RUECKFRAGE, und zwar nicht aus Vorsicht vor Datenverlust: Der Knopf
-        * steht am Rand einer Flaeche, auf der die ganze Zeit getippt wird, und
-        * ein versehentlicher Treffer beendete sonst mitten in der Frage das
-        * Spiel der beiden, die davorstehen.
+        * WITH A CONFIRMATION DIALOG, and not out of caution about data loss:
+        * the button sits at the edge of an area that is being tapped the
+        * whole time, and an accidental hit would otherwise end the game for
+        * both players standing in front of it in the middle of a question.
         *
-        * Ob es ihn gibt, sagt der Serverstand: In einem Spiel, das ein Operator
-        * fuehrt, darf ihn niemand am Geraet abbrechen.
+        * Whether it exists is decided by the server state: in a game run by
+        * an operator, nobody may abort it from the device.
         */}
       {!finished && view.allowedCommands.includes('ABORT_GAME') && (
         <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
@@ -501,8 +515,8 @@ export function QuizGame({
       <QuizScene
         runtime={runtime}
         /*
-         * Im Hintergrund bleibt es still: Ein verdecktes Quiz darf nicht in die
-         * Anwendung hineinklingen, die der Gastgeber gerade zeigt.
+         * It stays silent in the background: a hidden quiz must not sound
+         * into the application the host is currently showing.
          */
         audible={hostVisible}
         variant="touch"
@@ -538,4 +552,23 @@ export function QuizGame({
       />
     </div>
   )
+}
+
+/**
+ * The player counts this device offers, out of the configuration.
+ *
+ * The quizzes of the audience say it (`quizzes[].playerCounts`); several
+ * quizzes are combined, because the menu of this phase does not yet let one be
+ * chosen. Without quizzes nothing comes back, and the start selection keeps its
+ * own default - a kiosk package without quiz types is a valid package.
+ */
+function configuredPlayerCounts(
+  catalog: PlayerQuizViewModel['catalog'],
+  audienceId: string,
+): PlayerCount[] | undefined {
+  const counts = catalog.quizzes
+    .filter((quiz) => quiz.audienceId === audienceId)
+    .flatMap((quiz) => quiz.playerCounts)
+  const unique = [...new Set(counts)].sort((left, right) => left - right)
+  return unique.length > 0 ? unique : undefined
 }

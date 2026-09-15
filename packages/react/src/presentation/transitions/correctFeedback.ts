@@ -1,14 +1,15 @@
 /**
- * Richtig-Animation.
+ * Correct animation.
  *
- * ZUSAMMENSPIEL MIT DER LOESUNGSANZEIGE:
- * Der Server wechselt nach `gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs`
- * automatisch in die Loesungsszene. Diese Animation ist deshalb genau so lang wie
- * `correctFeedbackMs` - laenger wuerde bedeuten, dass die Loesung erscheint, waehrend
- * die Animation noch laeuft.
+ * INTERPLAY WITH THE SOLUTION DISPLAY:
+ * The server automatically switches to the solution scene after
+ * `gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs`. This animation
+ * is therefore exactly as long as `correctFeedbackMs` - longer would mean the
+ * solution appears while the animation is still running.
  *
- * Wer die Dauer aendern will, aendert `gameTiming.correctFeedbackMs` in
- * `@quiz/contracts/config.ts`. Dann bleiben Anzeige und Zustandswechsel synchron.
+ * Anyone who wants to change the duration changes
+ * `gameTiming.correctFeedbackMs` in `@quiz/contracts/config.ts`. That keeps
+ * the display and the state change in sync.
  */
 import { easings, presentationTiming } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'

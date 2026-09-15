@@ -1,15 +1,16 @@
 /**
- * Quiz-Laufzeit gegen einen Server im Netz - die WebSocket-Seite des
- * gemeinsamen `QuizRuntime`-Vertrags.
+ * Quiz runtime against a server on the network - the WebSocket side of the
+ * shared `QuizRuntime` contract.
  *
- * Verantwortung - und nur diese:
- *  - Verbindung aufbauen, ueberwachen (Backoff-Reconnect) und sauber abbauen;
- *  - eingehende Snapshots und Meldungen in EINEN Snapshot zusammenfuehren;
- *  - Befehle mit `commandId` und `expectedRevision` als Envelope senden.
+ * Responsibilities - and only these:
+ *  - establish, watch (backoff reconnect) and cleanly close the connection;
+ *  - merge incoming snapshots and messages into ONE snapshot;
+ *  - send commands with `commandId` and `expectedRevision` as an envelope.
  *
- * Sie implementiert KEINE Spielregeln. Welche Aktionen moeglich sind, steht in
- * `view.allowedCommands`; ob eine Aktion zulaessig ist, entscheidet der Server.
- * React kommt hier nicht vor - `useQuizConnection` ist der duenne Hook darueber.
+ * It implements NO game rules. Which actions are possible is in
+ * `view.allowedCommands`; whether an action is permitted is decided by the
+ * server. React does not appear here - `useQuizConnection` is the thin hook
+ * above it.
  */
 import type {
   ClientRole,
@@ -21,7 +22,7 @@ import type {
 } from '../contracts'
 
 export interface RemoteQuizRuntimeOptions {
-  /** WS-Endpunkt ohne Query, z. B. `ws://192.168.0.10:4319/ws`. */
+  /** WS endpoint without query, e.g. `ws://192.168.0.10:4319/ws`. */
   url: string
   role: ClientRole
   sessionCode?: string
@@ -40,9 +41,9 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
 
   private clientId = 'unbekannt'
   private revision = 0
-  /** Abweichung zwischen Server- und lokaler Uhr, aus dem letzten Snapshot. */
+  /** Offset between server and local clock, from the last snapshot. */
   private clockOffset = 0
-  /** Einmal freigegebener Ton bleibt frei - die Meldung ueberlebt jeden Reconnect. */
+  /** Sound once unlocked stays unlocked - the report survives every reconnect. */
   private audioReady = false
 
   private snapshot: QuizSnapshot<TView> = {
@@ -71,11 +72,11 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
     const socket = this.socket
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       /*
-       * Ein verschluckter Befehl ist im Live-Betrieb das Schlimmste: Der Operator
-       * klickt, nichts passiert, und niemand weiss warum. Statt still zu
-       * verwerfen wird die fehlende Verbindung gemeldet - der Befehl selbst wird
-       * NICHT nachgereicht, weil er sich auf einen inzwischen veralteten Stand
-       * beziehen wuerde.
+       * A swallowed command is the worst thing in live operation: the operator
+       * clicks, nothing happens, and nobody knows why. Instead of discarding
+       * silently, the missing connection is reported - the command itself is
+       * NOT delivered later, because it would refer to a state that has become
+       * stale in the meantime.
        */
       this.update({
         lastRejection: {
@@ -105,9 +106,9 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
   }
 
   /**
-   * Meldet dem Server, dass dieser Kontext hoerbar Ton ausgeben darf. Der Server
-   * waehlt danach die Tonhoheit; nach einem Reconnect wird die Meldung
-   * selbsttaetig wiederholt.
+   * Reports to the server that this context may play audible sound. The server
+   * then chooses the audio lead; after a reconnect the report is repeated
+   * automatically.
    */
   notifyAudioReady(): void {
     this.audioReady = true
@@ -134,12 +135,12 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
     this.socket = socket
 
     socket.addEventListener('open', () => {
-      // Nur der aktuell gefuehrte Socket darf den Zustand veraendern.
+      // Only the socket currently in charge may change the state.
       if (this.socket !== socket) return socket.close()
       this.attempt = 0
       this.update({ connection: { ...this.snapshot.connection, connected: true } })
-      // Der Server fuehrt die Freigabe je Verbindung - nach einem Reconnect
-      // weiss er nichts mehr davon und wuerde sonst wieder stumm schalten.
+      // The server tracks the unlock per connection - after a reconnect
+      // it knows nothing of it and would otherwise mute again.
       if (this.audioReady) socket.send(JSON.stringify({ type: 'audio-ready' }))
     })
 
@@ -155,12 +156,11 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
 
     socket.addEventListener('close', () => {
       /*
-       * NUR DER AKTUELLE SOCKET ZAEHLT. Ein spaet eintreffendes `close` einer
-       * bereits ersetzten Verbindung darf weder die laufende Verbindung
-       * verwerfen noch einen zweiten Wiederverbindungsversuch starten. Sonst
-       * zeigt der Client zwar Snapshots an, sendet aber ins Leere - im
-       * Entwicklungsmodus reproduzierbar, weil React jeden Effekt doppelt
-       * ausfuehrt, und im Betrieb bei jedem Reconnect moeglich.
+       * ONLY THE CURRENT SOCKET COUNTS. A late `close` of a connection already
+       * replaced must neither discard the running connection nor start a second
+       * reconnect attempt. Otherwise the client shows snapshots but sends into
+       * the void - reproducible in development mode, because React runs every
+       * effect twice, and possible in operation on every reconnect.
        */
       if (this.socket !== socket) return
       this.socket = null
@@ -188,8 +188,8 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
         break
       case 'snapshot': {
         const view = message.view as TView
-        // Vollstaendiger Snapshot: Clients muessen niemals verpasste
-        // Einzelereignisse rekonstruieren.
+        // Complete snapshot: clients never have to reconstruct
+        // missed individual events.
         this.revision = view.revision
         this.clockOffset = view.serverTimeMs - Date.now()
         this.update({ view, revision: view.revision, serverTimeMs: view.serverTimeMs })
@@ -208,7 +208,7 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
     }
   }
 
-  /** Ein neues Snapshot-Objekt je Aenderung - Abonnenten vergleichen per Identitaet. */
+  /** A new snapshot object per change - subscribers compare by identity. */
   private update(patch: Partial<QuizSnapshot<TView>>): void {
     this.snapshot = { ...this.snapshot, ...patch }
     for (const listener of this.listeners) listener(this.snapshot)

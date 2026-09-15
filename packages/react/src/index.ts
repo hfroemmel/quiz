@@ -1,12 +1,12 @@
 /**
- * @hfroemmel/quiz-react - die Buehne als React-Bausteine.
+ * @hfroemmel/quiz-react - the stage as React building blocks.
  *
- * Oeffentliche Oberflaeche ist `<QuizScene>` (Runtime hinein, Buehne heraus).
- * Daneben stehen die Bausteine, die Gastgeber mit eigener Komposition brauchen:
- * der rohe `StageScreen`, die Verbindungs-Hooks und die Bauteile der Fussleiste
- * des Touchgeraets.
+ * The public interface is `<QuizScene>` (runtime in, stage out). Alongside it
+ * are the building blocks hosts with their own composition need: the raw
+ * `StageScreen`, the connection hooks and the touch device's footer bar
+ * components.
  *
- * Die globalen Stylesheets der Buehne kommen als Side-Effect-CSS:
+ * The stage's global stylesheets come as side-effect CSS:
  *   import '@hfroemmel/quiz-react/styles/stage.css'
  *   import '@hfroemmel/quiz-react/styles/motion.css'
  */
@@ -24,7 +24,7 @@ export * from './presentation/stage/Score'
  */
 export * from './presentation/stage/jokerIcons'
 export * from './presentation/stage/StageHeader'
-/* Die Wortmarke als Datei - fuer Gastgeber, die sie ausserhalb der Buehne zeigen. */
+/* The wordmark as a file - for hosts that show it outside the stage. */
 export * from './presentation/brandAssets'
 export * from './client/useQuizConnection'
 export * from './client/useQuizRuntime'
@@ -32,7 +32,7 @@ export * from './client/useQuizSnapshot'
 export * from './client/useRevealClock'
 export * from './ui/AnimationClip'
 export * from './components/Confetti'
-/* Fuer Gastgeber mit eigener Komposition: Operatorpult und Vorschau-Harnass. */
+/* For hosts with their own composition: operator desk and preview harness. */
 export * from './presentation/stage/answerState'
 export * from './presentation/transitions/registry'
 export * from './presentation/animationPresets'

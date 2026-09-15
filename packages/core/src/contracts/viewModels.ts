@@ -1,17 +1,17 @@
 /**
- * Oeffentliche und private View-Modelle (Spezifikation 19).
+ * Public and private view models (specification 19).
  *
- * Der vollstaendige `GameState` wird niemals ungefiltert verteilt. Die Filterung
- * geschieht serverseitig in `packages/domain/src/projection.ts`. Ein Ausblenden per
- * CSS auf dem Buehnenscreen waere nicht ausreichend, weil die Loesung dann bereits
- * uebertragen waere.
+ * The complete `GameState` is never distributed unfiltered. The filtering
+ * happens on the server in `packages/domain/src/projection.ts`. Hiding by CSS on
+ * the stage screen would not be enough, because the solution would already have
+ * been transmitted.
  */
 import type { QuestionExplanation, QuestionPresentationType, ThemeSkin } from './content'
-import type { AttemptOutcome, GamePhase, PlayerId } from './state'
+import type { AttemptOutcome, GamePhase, PlayerCount, PlayerId } from './state'
 import type { JokerSequence, JokerType } from './joker'
 import type { ActorRole, CommandType } from './commands'
 
-/** Szenen des Buehnenscreens. Sie werden aus der Phase abgeleitet, nicht frei gesetzt. */
+/** Scenes of the stage screen. Derived from the phase, never set freely. */
 export const publicScenes = [
   'start',
   'pause',
@@ -25,25 +25,25 @@ export const publicScenes = [
 export type PublicScene = (typeof publicScenes)[number]
 
 /**
- * Inhaltsgetriebene Gestaltungsangaben des aktiven Quizmodus.
+ * Content-driven presentation hints of the active quiz mode.
  *
- * BEWUSST OHNE FARBEN UND SCHRIFTEN: Darstellung ist Sache des Gastgebers. Das
- * View-Modell nennt nur, was aus dem Inhalt kommt - die Gestaltungswelt als
- * Empfehlung und die Branding-Assets. Farben und Schriften liefert die
- * Theme-Schicht der Oberflaeche (kuenftig `@hfroemmel/quiz-themes`).
+ * DELIBERATELY WITHOUT COLOURS AND FONTS: presentation is the host's concern.
+ * The view model names only what comes from the content - the design world as a
+ * recommendation and the branding assets. Colours and fonts come from the theme
+ * layer of the interface (`@hfroemmel/quiz-themes`).
  */
 export interface PublicTheme {
   id: string
-  /** Gestaltungswelt der Buehne. Fehlt sie, gilt die dunkle Buehne. */
+  /** Design world of the stage. If missing, the dark stage applies. */
   skin?: ThemeSkin
   logoUrl?: string
   startVisualUrl?: string
   /**
-   * Titel auf dem Startbild. Faellt weg, wenn die Startgrafik den Titel bereits
-   * enthaelt - so wie beim Kinderquiz.
+   * Title on the start visual. Dropped when the start graphic already contains
+   * the title - as in the kids quiz.
    */
   startTitle?: string
-  /** Beschreibung unter dem Titel der Starttafel. Wie der Titel: darf fehlen. */
+  /** Description below the title of the start board. Like the title: may be missing. */
   startDescription?: string
   presentationAnimationSetId?: string
 }
@@ -51,11 +51,11 @@ export interface PublicTheme {
 export interface PublicOption {
   id: string
   text: string
-  /** Nur in der Loesungsansicht gesetzt; vorher niemals uebertragen. */
+  /** Set only in the solution view; never transmitted before. */
   /**
-   * `chosen` markiert die eingeloggte Antwort, solange noch nicht aufgeloest ist -
-   * der Saal sieht, worauf sich der Spieler festgelegt hat, aber nicht, ob es
-   * stimmt. `correct` und `chosen-incorrect` kommen erst in der Loesungsszene.
+   * `chosen` marks the logged answer while nothing is resolved yet - the room
+   * sees what the player committed to, but not whether it is right. `correct`
+   * and `chosen-incorrect` only arrive in the solution scene.
    */
   state?: 'chosen' | 'correct' | 'chosen-incorrect'
   /**
@@ -71,12 +71,11 @@ export interface PublicOption {
 
 export interface PublicQuestion {
   /**
-   * Kennung der Frage, die gerade auf dem Schirm steht.
+   * Id of the question currently on screen.
    *
-   * SIE IST KEINE ANZEIGE, sondern eine Identitaet: Ein Client, der einen
-   * Auftrag ausfuehren soll (heute der Abspielauftrag des Videos), muss pruefen
-   * koennen, ob der Auftrag zu dem gehoert, was er zeigt. Ohne sie bliebe nur
-   * Vertrauen.
+   * IT IS NOT A DISPLAY VALUE but an identity: a client that is to execute a
+   * request (today the video playback request) must be able to check whether
+   * the request belongs to what it shows. Without it only trust would remain.
    */
   id: string
   prompt: string
@@ -84,15 +83,16 @@ export interface PublicQuestion {
   imageUrl?: string
   videoUrl?: string
   /**
-   * Rubrik ueber dem Fragetext: das Label der ERSTEN Kategorie der Frage
-   * (Designergaenzung). Reiner Anzeigewert - der Client leitet daraus nichts ab.
+   * Category line above the prompt: the label of the FIRST category of the
+   * question (design addition). Pure display value - the client derives nothing
+   * from it.
    */
   categoryLabel?: string
 }
 
-/** Enthaelt bewusst nur das, was oeffentlich sichtbar sein darf. */
+/** Deliberately contains only what may be publicly visible. */
 export interface PublicSolution {
-  /** Text der richtigen Antwort. */
+  /** Text of the correct answer. */
   answerText: string
   imageUrl?: string
 }
@@ -114,9 +114,9 @@ export interface PublicScore {
   playerId: PlayerId
   label: string
   score: number
-  /** Ist dieser Spieler gerade am Zug? */
+  /** Is it this player's turn? */
   active: boolean
-  /** Fuer diese Frage gesperrt (zweite Chance liegt beim anderen Spieler). */
+  /** Locked for this question (the second chance lies with the other player). */
   locked: boolean
   /**
    * The joker of this player - ONLY in a game that has jokers.
@@ -129,28 +129,28 @@ export interface PublicScore {
   joker?: PublicJokerStatus
 }
 
-/** Alles, was der Buehnenscreen zum synchronen Rendern der Enthuellung braucht. */
+/** Everything the stage screen needs to render the reveal in sync. */
 export interface PublicRevealState {
   status: 'idle' | 'running' | 'paused' | 'completed'
   durationMs: number
   /**
-   * Bereits verstrichene Zeit zum Zeitpunkt `serverTimeMs` des Snapshots.
-   * Der Client rechnet bei `running` mit der lokalen Uhr weiter und uebernimmt
-   * bei jedem Snapshot wieder den Serverwert (Driftkorrektur).
+   * Time already elapsed at `serverTimeMs` of the snapshot.
+   * While `running` the client continues with its local clock and takes the
+   * server value again with every snapshot (drift correction).
    */
   elapsedMs: number
 }
 
 /**
- * Der stehende Auftrag, das Video abzuspielen - kein Wiedergabestatus.
+ * The standing request to play the video - not a playback status.
  *
- * ER SAGT NUR: "Spiele das Video dieser Frage, von vorn." Wie weit die Buehne
- * damit ist, steht hier nicht und kommt auch nirgends zurueck; der Ablauf geht
- * in eine Richtung. Fehlt das Feld, ist noch nichts gestartet worden.
+ * IT ONLY SAYS: "play the video of this question, from the start." How far the
+ * stage has got is not in here and never comes back; the flow goes one way. If
+ * the field is missing, nothing has been started yet.
  *
- * Die Buehne merkt sich die zuletzt ausgefuehrte `requestId` LOKAL und startet
- * bei jeder anderen von Sekunde null. Deshalb reicht derselbe Schnappschuss
- * beliebig oft: Gleiche Kennung heisst "schon erledigt".
+ * The stage remembers the last executed `requestId` LOCALLY and starts from
+ * second zero on every other one. So the same snapshot may arrive any number of
+ * times: the same id means "already done".
  */
 export interface PublicVideoRequest {
   questionId: string
@@ -165,17 +165,17 @@ export interface PublicFeedback {
 
 export interface PublicResult {
   /**
-   * Im Einzelspiel gibt es weder Gewinner noch Unentschieden, sondern nur das
-   * eigene Ergebnis. Die Ergebnisszene entscheidet daran, was sie zeigt - sie
-   * leitet es nicht aus der Anzahl der Punktestaende ab.
+   * In a solo game there is neither a winner nor a draw, only the player's own
+   * result. The result scene decides on this what it shows - it does not derive
+   * it from the number of scores.
    */
   mode: 'duel' | 'solo'
-  /** `null` bedeutet Unentschieden - und im Einzelspiel immer. */
+  /** `null` means a draw - and always in a solo game. */
   winnerPlayerId: PlayerId | null
-  /** Im Einzelspiel immer `false`. */
+  /** Always `false` in a solo game. */
   isDraw: boolean
   scores: PublicScore[]
-  /** Nur im Einzelspiel: wie viele Fragen richtig beantwortet wurden. */
+  /** Solo game only: how many questions were answered correctly. */
   solo?: { correctAnswers: number; questionCount: number }
 }
 
@@ -184,32 +184,31 @@ export interface PublicQuizViewModel {
   phase: GamePhase
   theme: PublicTheme
   /**
-   * Die Quizart des laufenden Spiels, so wie der Server sie bestaetigt hat.
+   * The quiz type of the running game, as the server confirmed it.
    *
-   * Sie fehlt, solange keines laeuft - und bei Spielen, die ohne Quizauswahl
-   * beginnen. Die Buehne LIEST sie und leitet nichts daraus ab: Theme und
-   * Fragenpool stehen bereits aufgeloest im Rest dieser Ansicht.
+   * Missing while none runs - and for games that begin without a quiz choice.
+   * The stage READS it and derives nothing from it: theme and question pool
+   * already stand resolved in the rest of this view.
    */
   quizId?: string
   /**
-   * Die Quizangebote des Hauses - Kennung, Name, Untertitel, sonst nichts.
+   * The quiz offers of the house - id, name, subtitle, nothing else.
    *
-   * WOFUER: Die Buehne zeigt vor dem ersten Spiel, WAS es hier zu spielen gibt.
-   * Das ist eine Ankuendigung an den Saal und keine Auswahl: Es gibt keinen
-   * Befehl, der aus dieser Liste folgt, und welches Quiz laeuft, entscheidet
-   * ausschliesslich das Pult.
+   * WHAT FOR: before the first game the stage shows WHAT there is to play here.
+   * That is an announcement to the room and not a choice: no command follows
+   * from this list, and which quiz runs is decided by the desk alone.
    *
-   * Zielgruppe, Pools, Presets und Theme stehen ABSICHTLICH nicht darin. Sie
-   * waeren Konfiguration, und die Buehne soll keine ableiten koennen.
+   * Audience, pools, presets and theme are DELIBERATELY not in it. They would be
+   * configuration, and the stage must not be able to derive any.
    */
   quizOffers: { id: string; label: string; subtitle?: string }[]
   question?: PublicQuestion
   /**
-   * Rubrik der NAECHSTEN Frage - ausschliesslich fuer den Zwischenscreen.
+   * Category of the NEXT question - exclusively for the interstitial screen.
    *
-   * Der Pausenscreen bleibt frei von Frageninhalten. Die Rubrik ist eine
-   * Ueberschrift, keine Information zur Antwort; sie kuendigt an, worum es gleich
-   * geht. Fragetext, Optionen und Medien werden weiterhin nicht uebertragen.
+   * The pause screen stays free of question content. The category is a heading,
+   * not information about the answer; it announces what is coming up. Prompt,
+   * options and media are still not transmitted.
    */
   upcomingCategoryLabel?: string
   visibleOptions?: PublicOption[]
@@ -233,41 +232,41 @@ export interface PublicQuizViewModel {
   video?: PublicVideoRequest
   result?: PublicResult
   soundEnabled: boolean
-  /** Sprache, in der diese Ansicht steht. */
+  /** Locale this view is in. */
   locale: string
   /**
-   * Beschriftungen der Oberflaeche, soweit der Inhalt welche mitbringt.
+   * Interface labels, as far as the content brings any.
    *
-   * Der Client haelt seine deutschen Fassungen selbst vor und schlaegt hier nur
-   * nach: So laeuft ein Quiz ohne einen einzigen Eintrag, und eine neue Sprache
-   * braucht keine neue Programmfassung.
+   * The client keeps its German versions itself and only looks up here: this
+   * way a quiz runs without a single entry, and a new language needs no new
+   * program version.
    */
   texts?: Record<string, string>
-  /** Laufender Praesentationsuebergang, damit Szenen synchron animieren. */
+  /** Running presentation transition, so that scenes animate in sync. */
   transition?: { id: string; startedAtServerMs: number; durationMs: number }
-  /** Serverzeit des Snapshots. Basis jeder clientseitigen Interpolation. */
+  /** Server time of the snapshot. Basis of every client-side interpolation. */
   serverTimeMs: number
   revision: number
 }
 
 /**
- * Ansicht der Spieler am Touchgeraet.
+ * View of the players at the touch device.
  *
- * Sie ist die oeffentliche Ansicht - die Loesung wird also auch hier erst in der
- * Loesungsszene uebertragen - plus der Liste der gerade moeglichen Befehle. Damit
- * leitet auch der Touchclient seine Bedienbarkeit aus dem Server ab und baut die
- * Regeln nicht nach.
+ * It is the public view - so here too the solution is only transmitted in the
+ * solution scene - plus the list of the commands currently possible. That way
+ * the touch client, too, derives its controls from the server and does not
+ * rebuild the rules.
  */
 export interface PlayerQuizViewModel extends PublicQuizViewModel {
   allowedCommands: CommandType[]
   /**
-   * Nur fuer die Startansicht am Geraet: was dort gewaehlt werden kann. Wie beim
-   * Operator kommt die Liste aus validierter Konfiguration.
+   * Only for the start view at the device: what can be chosen there. As for the
+   * operator, the list comes from validated configuration.
    */
   catalog: CatalogViewModel
 }
 
-/** Nur fuer Operator und Moderator. Niemals an Buehnenclients. */
+/** Only for operator and moderator. Never to stage clients. */
 export interface PrivateSolution {
   answerText: string
   correctOptionId?: string
@@ -278,7 +277,7 @@ export interface AuditEntry {
   id: number
   atMs: number
   actorRole: ActorRole
-  /** Vorformatierter Klartext, z. B. "21:14:08 - Spieler 2 - +100 - richtige Antwort". */
+  /** Preformatted plain text, e.g. "21:14:08 - Spieler 2 - +100 - richtige Antwort". */
   message: string
   category: 'game' | 'buzzer' | 'answer' | 'score' | 'phase' | 'content' | 'system'
 }
@@ -286,33 +285,33 @@ export interface AuditEntry {
 export interface OperatorDiagnostics {
   contentVersion: string
   eventDayId: string
-  /** Auswahlbegruendung der aktuellen Frage. */
+  /** Selection rationale of the current question. */
   selectionRationale?: string
   connectedClients: { role: ActorRole; clientId: string }[]
-  /** Session-Code fuer Moderator und weitere Praesentationsclients im LAN. */
+  /** Session code for the moderator and further presentation clients in the LAN. */
   sessionCode?: string
   lanUrls?: string[]
-  /** Fehler, die den Operator betreffen, in klarer Sprache. */
+  /** Errors that concern the operator, in plain language. */
   warnings: string[]
 }
 
 export interface AnsweringContext {
-  /** Erwartet der Server jetzt eine eingeloggte Option oder eine manuelle Bewertung? */
+  /** Does the server now expect a logged option or a manual verdict? */
   evaluationMode: 'option-comparison' | 'manual-correct-incorrect'
   loggedOptionId?: string
   loggedManualVerdict?: 'correct' | 'incorrect'
   attemptNumber: number
-  /** Wie viele Punkte gaebe es, wenn dieser Versuch richtig ist? */
+  /** How many points would this attempt earn if correct? */
   pointsIfCorrect: number
 }
 
 export interface ModeratorQuizViewModel extends PublicQuizViewModel {
-  /** ID der laufenden Frage - fuer Regiehinweise und lokale Hotfixes. Nie oeffentlich. */
+  /** Id of the running question - for directing notes and local hotfixes. Never public. */
   questionId?: string
   privateSolution?: PrivateSolution
   explanation?: QuestionExplanation
   allowedCommands: CommandType[]
-  /** Was als naechstes passiert - hilft dem Moderator bei der Anmoderation. */
+  /** What happens next - helps the moderator with the lead-in. */
   nextStepHint: string
   answering?: AnsweringContext
 }
@@ -377,18 +376,18 @@ export interface OperatorJokerControl {
 
 export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
   /**
-   * Die laufende Frage in bearbeitbarer Form - Grundlage der Live-Korrektur.
-   * Sie steht unabhaengig davon zur Verfuegung, ob die Antworten schon
-   * eingeblendet sind: Der Operator sieht ohnehin die vollstaendige Frage.
+   * The running question in editable form - basis of the live correction.
+   * It is available regardless of whether the answers are shown yet: the
+   * operator sees the complete question anyway.
    */
   editableQuestion?: {
     prompt: string
     options: { id: string; text: string }[]
     correctOptionId?: string
     /**
-     * Erwartete Formulierungen der freien Antwort. Bei Fragen ohne Auswahl - etwa
-     * beim Bilderkennen - ist das die einzige Stelle, an der die richtige Antwort
-     * steht; ohne sie liesse sich genau dort nichts korrigieren.
+     * Expected wordings of the free answer. For questions without a choice -
+     * such as the image reveal - this is the only place where the correct answer
+     * stands; without it nothing could be corrected right there.
      */
     acceptedAnswerText: string[]
   }
@@ -399,32 +398,32 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
   joker?: OperatorJokerControl
   auditSummary: AuditEntry[]
   diagnostics: OperatorDiagnostics
-  /** Wiederherstellbares Spiel nach Neustart, nur auf der Startansicht relevant. */
+  /** Resumable game after a restart, relevant on the start view only. */
   resumable?: { gameId: string; audience: string; presetId: string; progress: string }
-  /** Verfuegbare Zielgruppen, Pools und Presets aus validierter Konfiguration. */
+  /** Available audiences, pools and presets from validated configuration. */
   catalog: CatalogViewModel
-  /** Gespielte Spiele je Zielgruppe. Liegt in der Datenbank, nicht im Browser. */
+  /** Games played per audience. Lives in the database, not in the browser. */
   statistics: GameStatisticsViewModel
 }
 
 /**
- * Spielprotokoll: wie viele Spiele je Zielgruppe bereits gelaufen sind.
+ * Game log: how many games per audience have run already.
  *
- * Gezaehlt wird ueber Veranstaltungstage hinweg - das Protokoll beantwortet
- * "was haben wir mit diesem Aufbau schon gespielt", nicht "was lief heute".
+ * Counted across event days - the log answers "what have we played with this
+ * setup so far", not "what ran today".
  */
 export interface GameStatisticsViewModel {
   /**
-   * Zeitpunkt, ab dem gezaehlt wird. Fehlt er, laeuft die Zaehlung seit der
-   * ersten Inbetriebnahme.
+   * Point in time from which counting starts. If missing, the count runs since
+   * the first commissioning.
    */
   countingSinceIso?: string
   audiences: {
     audience: string
     label: string
-    /** Alle begonnenen Spiele, einschliesslich abgebrochener und laufender. */
+    /** All games begun, including aborted and running ones. */
     total: number
-    /** Bis zum Ergebnis gespielt. */
+    /** Played through to the result. */
     completed: number
     aborted: number
     lastPlayedIso?: string
@@ -438,24 +437,24 @@ export interface CatalogViewModel {
     label: string
     themeId: string
     /**
-     * Gestaltungswelt dieser Zielgruppe - dieselbe Empfehlung, die spaeter
-     * `theme.skin` traegt.
+     * Design world of this audience - the same recommendation `theme.skin`
+     * carries later.
      *
-     * SIE STEHT HIER, WEIL DIE AUSWAHL VOR DEM SPIEL LIEGT: `theme` gehoert zum
-     * laufenden Spiel und meldet vorher die Grundwelt. Ein Geraet, das die
-     * Kinderauswahl anbietet, soll aber schon die Kinderauswahl zeigen und
-     * nicht erst mit der ersten Frage die Welt wechseln.
+     * IT IS HERE BECAUSE THE CHOICE COMES BEFORE THE GAME: `theme` belongs to
+     * the running game and reports the base world before that. A device that
+     * offers the kids choice should show the kids choice already, and not
+     * switch worlds only with the first question.
      */
     skin?: ThemeSkin
     startVisualUrl?: string
     allowedPresetIds: string[]
   }[]
   /**
-   * Die Quizarten, die am Pult zur Wahl stehen - fertig aufgeloest.
+   * The quiz types offered at the desk - fully resolved.
    *
-   * `supportsDifficulty` ist HIER schon entschieden (`quizSupportsDifficulty`),
-   * damit kein Client die Regel nachbaut. Ein Formular zeigt die
-   * Schwierigkeitswahl genau dann, wenn hier `true` steht.
+   * `supportsDifficulty` is decided HERE already (`quizSupportsDifficulty`), so
+   * that no client rebuilds the rule. A form shows the difficulty choice exactly
+   * when `true` stands here.
    */
   quizzes: {
     id: string
@@ -464,21 +463,43 @@ export interface CatalogViewModel {
     audienceId: string
     themeId: string
     poolIds?: string[]
-    /** Waehlbare Schwierigkeitsgrade in der Reihenfolge des Angebots. */
+    /** Selectable difficulty levels in the order of the offer. */
     presetIds: string[]
     supportsDifficulty: boolean
     defaultPresetId: string
+    /** Player counts this quiz offers, in the order of the offer. */
+    playerCounts: PlayerCount[]
+    /** Weight of the card in the menu; `wide` takes two columns. */
+    emphasis: 'wide' | 'regular'
+    /** Artwork of the offer card, already resolved into a URL. */
+    artworkUrl?: string
+    /**
+     * Can this quiz be started right now?
+     *
+     * The menu says so BEFORE the attempt. `false` without a reason does not
+     * happen: whoever reports a quiz as unavailable also says why.
+     */
+    available: boolean
+    unavailableReason?: QuizUnavailableReason
   }[]
-  /** Waehlbare Fragenpools - "Saarbruecken" ist genau so einer. */
+  /**
+   * The rules of this package that a client needs.
+   *
+   * Only these two: the idle watch runs in the device, and whether the detail
+   * text gets its own step after the solution is a question of the interface.
+   * Everything else the engine decides, and no client asks about it.
+   */
+  rules: { idleTimeoutMs?: number; showDetailsAfterSolution: boolean }
+  /** Selectable question pools - "Saarbruecken" is exactly one of them. */
   pools: { id: string; label: string }[]
   presets: { id: string; label: string; slotCount: number }[]
   /**
-   * Waehlbare Sprachen. Leer oder einelementig heisst: Es gibt nichts zu
-   * waehlen, und der Umschalter erscheint nicht.
+   * Selectable locales. Empty or a single entry means: there is nothing to
+   * choose, and the switch does not appear.
    *
-   * DIE BESCHRIFTUNGEN IM KATALOG SIND BEREITS UEBERSETZT - der Client bekommt
-   * fertige Texte und keine Wortlisten. Er soll nicht entscheiden muessen,
-   * welche Fassung gilt.
+   * THE LABELS IN THE CATALOG ARE ALREADY TRANSLATED - the client receives
+   * finished texts and no word lists. It should not have to decide which version
+   * applies.
    */
   locales: { id: string; label: string }[]
 }
@@ -496,18 +517,18 @@ export type ViewModelForRole<R extends ActorRole> = R extends 'operator'
     : PublicQuizViewModel
 
 /* ------------------------------------------------------------------ *
- * WebSocket-Protokoll
+ * WebSocket protocol
  * ------------------------------------------------------------------ */
 
 export type ClientRole = 'operator' | 'moderator' | 'stage' | 'player'
 
-/** Nachrichten Server -> Client. */
+/** Messages server -> client. */
 export type ServerMessage =
   | { type: 'hello'; clientId: string; role: ClientRole; serverTimeMs: number; protocolVersion: number }
   /**
-   * Nur genau ein Client ist Audio-Master, damit Sounds nicht mehrfach zeitversetzt
-   * abgespielt werden. Im Standardbetrieb ist das die lokale Desktop-Anwendung;
-   * entfernte Praesentationsclients starten stumm.
+   * Exactly one client is the audio master so that sounds are not played
+   * several times with an offset. In standard operation that is the local
+   * desktop application; remote presentation clients start muted.
    */
   | { type: 'client-info'; audioMaster: boolean }
   | {
@@ -519,18 +540,82 @@ export type ServerMessage =
   | { type: 'command-rejected'; commandId: string; reason: string; message: string; currentRevision: number }
   | { type: 'error'; message: string }
 
-/** Nachrichten Client -> Server. */
+/** Messages client -> server. */
 export type ClientMessage =
   | { type: 'command'; envelope: unknown }
   | { type: 'ping'; sentAtMs: number }
   /**
-   * Dieses Fenster darf hoerbar Ton ausgeben.
+   * This window may play audible sound.
    *
-   * Browser sperren die Tonausgabe, bis in DEM Fenster einmal geklickt oder
-   * getippt wurde. Ohne diese Meldung koennte der Server die Tonhoheit einem
-   * Fenster geben, das gar nicht klingen darf - dann bleibt die ganze
-   * Veranstaltung still, ohne dass jemand einen Fehler sieht.
+   * Browsers block audio output until THAT window has been clicked or tapped
+   * once. Without this message the server could hand audio authority to a
+   * window that is not allowed to sound at all - then the whole event stays
+   * silent without anybody seeing an error.
    */
   | { type: 'audio-ready' }
 
 export const PROTOCOL_VERSION = 1
+
+/* ------------------------------------------------------------------ *
+ * Start menu
+ * ------------------------------------------------------------------ */
+
+/** Why a quiz cannot be started - the menu never stays silent about it. */
+export type QuizUnavailableReason = 'no-questions' | 'missing-pool'
+
+/**
+ * One offer of the start menu, resolved for one locale.
+ *
+ * It carries no configuration: whoever renders the menu must not be able to
+ * derive audiences, pools or presets from it. What is needed to start is the
+ * quiz id, a player count and - where there is a choice - a preset id.
+ */
+export interface StartMenuOffer {
+  /**
+   * The quiz this card starts - where the package configures quiz types.
+   *
+   * EXACTLY ONE OF THE TWO IDS IS SET. A package with `quizzes` offers its quiz
+   * types; a pure kiosk package without them offers its audiences, and the host
+   * then starts with audience and preset, exactly as it does today.
+   */
+  quizId?: string
+  /** The audience this card starts - where the package has no quiz types. */
+  audienceId?: string
+  label: string
+  subtitle?: string
+  artworkUrl?: string
+  emphasis: 'wide' | 'regular'
+  playerCounts: PlayerCount[]
+  /** Only where the quiz offers a choice (`supportsDifficulty`). */
+  difficulties?: { presetId: string; label: string; isDefault: boolean }[]
+  available: boolean
+  unavailableReason?: QuizUnavailableReason
+}
+
+/**
+ * The whole start menu as data - one model for every host.
+ *
+ * The kiosk renders it as cards, the operator desk as a form, the stage as an
+ * overview. All three read the same thing, so a new quiz is a configuration
+ * entry and not a change in three interfaces.
+ */
+export interface StartMenuModel {
+  locale: string
+  /** More than one means: the language switch appears. */
+  locales: { id: string; label: string }[]
+  offers: StartMenuOffer[]
+  /**
+   * The player counts across all offers.
+   *
+   * `textKey` names the interface text of the mode; `label` stands there only
+   * where the package configures its own wording. That way the German default
+   * stays in one place (`@hfroemmel/quiz-react`) instead of being copied here.
+   */
+  playModes: { playerCount: PlayerCount; textKey: string; label?: string }[]
+  /**
+   * What is already settled because there is nothing to choose: a single quiz,
+   * a single player count. A menu that offers one option is a hurdle, not a
+   * choice.
+   */
+  preselect?: { quizId?: string; audienceId?: string; playerCount?: PlayerCount }
+}

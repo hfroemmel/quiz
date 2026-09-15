@@ -1,10 +1,10 @@
 /**
- * Den Stand EINER Laufzeit abonnieren - gleich welcher.
+ * Subscribe to the state of ONE runtime - whichever it is.
  *
- * Der `QuizRuntime`-Vertrag ist die einzige Voraussetzung: Dieselbe Ansicht
- * laeuft damit gegen den Buehnenserver (`RemoteQuizRuntime`) wie im eigenen
- * Prozess (`LocalQuizRuntime`). Wer welche Laufzeit stellt, entscheidet der
- * Gastgeber - nicht die Ansicht.
+ * The `QuizRuntime` contract is the only requirement: the same view thereby
+ * runs against the stage server (`RemoteQuizRuntime`) as in its own process
+ * (`LocalQuizRuntime`). Which runtime is provided is decided by the host -
+ * not the view.
  */
 import { useEffect, useState } from 'react'
 import type { PublicQuizViewModel, QuizRuntime, QuizSnapshot } from '@hfroemmel/quiz-core'
@@ -20,9 +20,9 @@ export function useQuizSnapshot<TView extends PublicQuizViewModel>(
       return
     }
     /*
-     * Erst den aktuellen Stand uebernehmen, dann abonnieren: Zwischen dem Bau
-     * der Laufzeit und diesem Effekt kann bereits eine Aenderung liegen, und
-     * eine lokale Laufzeit hat ihren ersten Stand ohnehin sofort.
+     * Take over the current state first, then subscribe: between building
+     * the runtime and this effect a change can already have happened, and a
+     * local runtime has its first state right away anyway.
      */
     setSnapshot(runtime.getSnapshot())
     return runtime.subscribe(setSnapshot)

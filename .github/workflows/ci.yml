@@ -1,15 +1,15 @@
-# Regressionsnetz der Bibliotheken.
+# Regression net of the libraries.
 #
-# Zwei Jobs, bewusst getrennt:
+# Two jobs, deliberately separated:
 #
-#   checks  Typecheck, Unit-Tests, Paketverifikation - schnell, auf dem Runner.
-#   e2e     Playwright gegen den Pruefstand - im offiziellen
-#           Playwright-Container, damit die Screenshot-Baselines auf einem
-#           reproduzierbaren Renderer verglichen werden statt auf dem, den der
-#           Runner gerade mitbringt.
+#   checks  typecheck, unit tests, package verification - fast, on the runner.
+#   e2e     Playwright against the test bench - in the official Playwright
+#           container, so that the screenshot baselines are compared on a
+#           reproducible renderer instead of the one the runner happens to
+#           bring along.
 #
-# Die Container-Version MUSS zur @playwright/test-Version im Lockfile passen,
-# sonst weichen Browser und Vergleichsbilder voneinander ab.
+# The container version MUST match the @playwright/test version in the
+# lockfile, otherwise browser and reference images drift apart.
 name: CI
 
 on:
@@ -33,16 +33,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
-      # Das Quizpaket ist nicht versioniert - es entsteht aus dem Testbestand
-      # unter content/source. Tests und Pruefstand laden ausschliesslich daraus.
+      # The quiz package is not versioned - it is built from the test set
+      # under content/source. Tests and test bench load from there only.
       - run: pnpm content:build
       - run: pnpm test
-      # Paket-Dists bauen und als gepackte Tarballs pruefen (publint + attw) -
-      # so, wie die Pakete spaeter beim Veroeffentlichen ankommen.
+      # Build the package dists and check them as packed tarballs
+      # (publint + attw) - the way the packages arrive when published later.
       - run: pnpm packages:build
       - run: pnpm packages:verify
-      # Die Palette wird ERZEUGT; ihr Waechter prueft nur, dass die abgelegte
-      # Fassung zur Quelle passt. Hier laeuft der Generator selbst.
+      # The palette is GENERATED; its guard only checks that the stored
+      # version matches the source. Here the generator itself runs.
       - run: pnpm palette:build
       - run: pnpm content:validate
 
@@ -61,9 +61,9 @@ jobs:
       - run: pnpm content:build
       - run: pnpm test:e2e
         env:
-          # Der Container bringt seine Browser selbst mit; kein CHROMIUM_PATH.
+          # The container brings its own browsers; no CHROMIUM_PATH.
           HOME: /root
-      - name: Testartefakte bei Fehlschlag sichern
+      - name: Keep test artifacts on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:

@@ -1,13 +1,14 @@
 /**
- * Zugang zu den Soundmarken fuer die Szenen.
+ * Access to the sound cues for the scenes.
  *
- * Warum ein Kontext: Ob ueberhaupt geklungen wird, haengt an zwei Angaben, die
- * nur der Rahmen kennt - dem Soundschalter des Spiels und der Frage, ob dieser
- * Client der Audio-Master ist. Ohne Kontext muesste beides durch jede Szene
- * durchgereicht werden, nur damit am Ende eine Kachel einen Ton abspielen kann.
+ * Why a context: whether anything sounds at all depends on two pieces of
+ * information that only the frame knows - the game's sound switch and
+ * whether this client is the audio master. Without a context both would have
+ * to be passed through every scene, just so that a tile can play a sound in
+ * the end.
  *
- * Bauteile rufen `useSound()('score')` und wissen nichts ueber Master oder
- * Schalterstellung.
+ * Components call `useSound()('score')` and know nothing about the master or
+ * the switch state.
  */
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import { playCue, type SoundCueId } from './soundCues'

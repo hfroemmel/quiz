@@ -1,10 +1,11 @@
 /**
- * Quizarten: was der Server annimmt, was er abweist und was danach feststeht.
+ * Quiz types: what the server accepts, what it refuses and what is fixed
+ * afterwards.
  *
- * Die Quizart ist die EINE Entscheidung des Pults vor dem Abend. Alles, was ein
- * Quiz ausmacht - Zielgruppe, Fragenpool, Theme und ob es eine
- * Schwierigkeitswahl gibt -, steht in der Konfiguration; hier wird geprueft,
- * dass der Server genau daraus ableitet und nichts vom Client uebernimmt.
+ * The quiz type is the ONE decision of the desk before the evening. Everything
+ * that makes a quiz - audience, question pool, theme and whether there is a
+ * difficulty choice - is in the configuration; here it is checked that the
+ * server derives exactly from that and takes nothing from the client.
  */
 import { describe, expect, it } from 'vitest'
 import { defaultPresetIdOf, quizSupportsDifficulty } from '../src'
@@ -13,18 +14,18 @@ import { createHarness, makeQuestion, testConfig } from './helpers'
 
 const script = () => Array.from({ length: 7 }, (_, index) => makeQuestion({ id: `q${index + 1}` }))
 
-describe('Quizkonfiguration', () => {
-  it('bietet eine Schwierigkeitswahl nur an, wo es mehr als ein Preset gibt', () => {
+describe('Quiz configuration', () => {
+  it('offers a difficulty choice only where there is more than one preset', () => {
     expect(quizSupportsDifficulty({ presetIds: ['easy', 'medium', 'hard'] })).toBe(true)
     expect(quizSupportsDifficulty({ presetIds: ['medium'] })).toBe(false)
   })
 
-  it('nimmt als Voreinstellung die benannte Stufe, sonst die erste', () => {
+  it('takes the named level as default, otherwise the first', () => {
     expect(defaultPresetIdOf({ presetIds: ['easy', 'medium', 'hard'], defaultPresetId: 'medium' })).toBe('medium')
     expect(defaultPresetIdOf({ presetIds: ['easy', 'medium'] })).toBe('easy')
   })
 
-  it('loest Zielgruppe, Pool, Theme und Stufen aus der Konfiguration auf', () => {
+  it('resolves audience, pool, theme and levels from the configuration', () => {
     const lookup = resolveQuizMode(testConfig, 'bremen')
     expect(lookup.ok).toBe(true)
     if (!lookup.ok) return
@@ -38,14 +39,14 @@ describe('Quizkonfiguration', () => {
     })
   })
 
-  it('nennt beim Aufloesen den Grund, wenn es die Quizart nicht gibt', () => {
+  it('names the reason when resolving a quiz mode that does not exist', () => {
     const lookup = resolveQuizMode(testConfig, 'atlantis')
     expect(lookup.ok).toBe(false)
     if (lookup.ok) return
     expect(lookup.message).toContain('atlantis')
   })
 
-  it('weist eine Quizart zurueck, deren Fragenpool nicht konfiguriert ist', () => {
+  it('rejects a quiz mode whose question pool is not configured', () => {
     const broken = {
       ...testConfig,
       quizzes: [
@@ -58,7 +59,7 @@ describe('Quizkonfiguration', () => {
     expect(lookup.message).toContain('europa')
   })
 
-  it('weist eine Quizart zurueck, deren Theme es nicht gibt', () => {
+  it('rejects a quiz mode whose theme does not exist', () => {
     const broken = {
       ...testConfig,
       quizzes: [{ id: 'bunt', label: 'Buntquiz', audienceId: 'adults', themeId: 'neon', presetIds: ['medium'] }],
@@ -70,8 +71,8 @@ describe('Quizkonfiguration', () => {
   })
 })
 
-describe('Spielstart ueber eine Quizart', () => {
-  it('schreibt Quizart, Zielgruppe, Pool und Stufe in den Spielstand', () => {
+describe('Game start via a quiz mode', () => {
+  it('writes quiz mode, audience, pool and level into the game state', () => {
     const harness = createHarness(script())
     const state = harness.dispatch({ type: 'START_GAME', quizId: 'bremen' })
     expect(state.quizId).toBe('bremen')
@@ -80,37 +81,37 @@ describe('Spielstart ueber eine Quizart', () => {
     expect(state.presetId).toBe('medium')
   })
 
-  it('uebernimmt die gewaehlte Schwierigkeit, wo die Quizart eine Wahl anbietet', () => {
+  it('takes the chosen difficulty where the quiz mode offers a choice', () => {
     const harness = createHarness(script())
     const state = harness.dispatch({ type: 'START_GAME', quizId: 'bundestag', presetId: 'hard' })
     expect(state.presetId).toBe('hard')
   })
 
-  it('weist eine unbekannte Quizart ab', () => {
+  it('rejects an unknown quiz mode', () => {
     const harness = createHarness(script())
     const rejection = harness.expectReject({ type: 'START_GAME', quizId: 'atlantis' })
     expect(rejection.reason).toBe('unknown-quiz')
   })
 
-  it('weist eine Schwierigkeit ab, wo die Quizart keine anbietet', () => {
+  it('rejects a difficulty where the quiz mode offers none', () => {
     const harness = createHarness(script())
     const rejection = harness.expectReject({ type: 'START_GAME', quizId: 'kids', presetId: 'easy' })
     expect(rejection.reason).toBe('invalid-difficulty')
   })
 
-  it('verlangt eine Schwierigkeit, wo die Quizart eine anbietet', () => {
+  it('requires a difficulty where the quiz mode offers one', () => {
     const harness = createHarness(script())
     const rejection = harness.expectReject({ type: 'START_GAME', quizId: 'bundestag' })
     expect(rejection.reason).toBe('invalid-difficulty')
   })
 
-  it('weist eine Stufe ab, die es in dieser Quizart nicht gibt', () => {
+  it('rejects a level that does not exist in this quiz mode', () => {
     const harness = createHarness(script())
     const rejection = harness.expectReject({ type: 'START_GAME', quizId: 'bundestag', presetId: 'regional' })
     expect(rejection.reason).toBe('invalid-difficulty')
   })
 
-  it('weist eine Zielgruppe neben der Quizart ab - das waere eine zweite Angabe', () => {
+  it('rejects an audience next to the quiz mode - that would be a second setting', () => {
     const harness = createHarness(script())
     const rejection = harness.expectReject({
       type: 'START_GAME',
@@ -121,21 +122,21 @@ describe('Spielstart ueber eine Quizart', () => {
     expect(rejection.reason).toBe('invalid-payload')
   })
 
-  it('startet weiterhin ohne Quizart, wenn Zielgruppe und Preset genannt sind', () => {
+  it('still starts without a quiz mode when audience and preset are given', () => {
     const harness = createHarness(script())
     const state = harness.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium' })
     expect(state.quizId).toBeUndefined()
     expect(state.audience).toBe('adults')
   })
 
-  it('weist einen Start ohne jede Angabe ab', () => {
+  it('rejects a start without any setting', () => {
     const harness = createHarness(script())
     expect(harness.expectReject({ type: 'START_GAME' }).reason).toBe('invalid-payload')
   })
 })
 
-describe('Theme und Angebotsliste in der Buehnenansicht', () => {
-  it('zeigt vor dem Spiel alle Angebote und kein laufendes Quiz', () => {
+describe('Theme and offer list in the stage view', () => {
+  it('shows all offers and no running quiz before the game', () => {
     const harness = createHarness(script())
     const view = harness.publicView()
     expect(view.scene).toBe('start')
@@ -143,13 +144,13 @@ describe('Theme und Angebotsliste in der Buehnenansicht', () => {
     expect(view.quizOffers.map((offer) => offer.id)).toEqual(['bundestag', 'kids', 'bremen'])
   })
 
-  it('traegt die Angebote ohne Zielgruppe, Pool und Preset - die Buehne soll nichts ableiten', () => {
+  it('carries the offers without audience, pool and preset - the stage should derive nothing', () => {
     const harness = createHarness(script())
     const [offer] = harness.publicView().quizOffers
     expect(Object.keys(offer!).sort()).toEqual(['id', 'label'])
   })
 
-  it('gibt dem Bundestagsquiz das helle Standard-Theme', () => {
+  it('gives the Bundestag quiz the light default theme', () => {
     const harness = createHarness(script())
     harness.dispatch({ type: 'START_GAME', quizId: 'bundestag', presetId: 'medium' })
     const view = harness.publicView()
@@ -158,13 +159,13 @@ describe('Theme und Angebotsliste in der Buehnenansicht', () => {
     expect(view.theme.skin).toBeUndefined()
   })
 
-  it('gibt dem Kinderquiz die Kinderwelt', () => {
+  it('gives the kids quiz the kids world', () => {
     const harness = createHarness(script())
     harness.dispatch({ type: 'START_GAME', quizId: 'kids' })
     expect(harness.publicView().theme.skin).toBe('kids')
   })
 
-  it('laesst das Bremen-Quiz im Standard-Theme - eine bunte Karte ist kein Theme', () => {
+  it('leaves the Bremen quiz in the default theme - a colourful card is not a theme', () => {
     const harness = createHarness(script())
     harness.dispatch({ type: 'START_GAME', quizId: 'bremen' })
     const view = harness.publicView()
@@ -172,20 +173,20 @@ describe('Theme und Angebotsliste in der Buehnenansicht', () => {
     expect(view.theme.skin).toBeUndefined()
   })
 
-  it('behaelt die bestaetigte Konfiguration ueber eine neue Projektion hinweg', () => {
+  it('keeps the confirmed configuration across a new projection', () => {
     const harness = createHarness(script())
     harness.dispatch({ type: 'START_GAME', quizId: 'bundestag', presetId: 'hard' })
-    // Ein neu verbundener Client bekommt denselben Stand neu projiziert.
-    const erste = harness.publicView()
-    const zweite = harness.publicView()
-    expect(zweite.quizId).toBe(erste.quizId)
-    expect(zweite.theme.id).toBe(erste.theme.id)
+    // A newly connected client gets the same state projected afresh.
+    const first = harness.publicView()
+    const second = harness.publicView()
+    expect(second.quizId).toBe(first.quizId)
+    expect(second.theme.id).toBe(first.theme.id)
     expect(harness.state?.presetId).toBe('hard')
   })
 })
 
-describe('Katalog des Operators', () => {
-  it('nennt zu jeder Quizart, ob sie eine Schwierigkeitswahl hat', () => {
+describe('Operator catalogue', () => {
+  it('says for every quiz mode whether it has a difficulty choice', () => {
     const harness = createHarness(script())
     const quizzes = harness.operatorView().catalog.quizzes
     expect(quizzes.map((quiz) => [quiz.id, quiz.supportsDifficulty])).toEqual([
@@ -195,7 +196,7 @@ describe('Katalog des Operators', () => {
     ])
   })
 
-  it('nennt die Stufen des Bundestagsquiz in der Reihenfolge des Angebots', () => {
+  it('names the levels of the Bundestag quiz in the order of the offer', () => {
     const harness = createHarness(script())
     const bundestag = harness.operatorView().catalog.quizzes.find((quiz) => quiz.id === 'bundestag')
     expect(bundestag?.presetIds).toEqual(['easy', 'medium', 'hard'])

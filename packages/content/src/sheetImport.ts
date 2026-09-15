@@ -1,34 +1,35 @@
 /**
- * Aus einer Redaktionstabelle werden Fragen.
+ * An editorial sheet becomes questions.
  *
- * WARUM UEBERHAUPT: Fragen entstehen nicht in JSON. Sie entstehen in einer
- * Tabelle, an der mehrere Leute gleichzeitig sitzen, mit Kommentaren und
- * Faerbungen daneben. Dieser Schritt ist die Bruecke - und er ist bewusst eine
- * EINBAHNSTRASSE: Die Tabelle ist die Quelle, `questions.json` das Erzeugnis.
- * Wer im Erzeugnis korrigiert, verliert es beim naechsten Import.
+ * WHY AT ALL: Questions are not born in JSON. They are born in a sheet that
+ * several people work on at the same time, with comments and colouring next
+ * to it. This step is the bridge - and it is deliberately a ONE-WAY STREET:
+ * the sheet is the source, `questions.json` the product. Whoever corrects the
+ * product loses it on the next import.
  *
- * WAS HIER NICHT STEHT: das Netz. Diese Datei rechnet auf einer Zeichenkette,
- * damit sie ohne Google und ohne Zugangsdaten pruefbar ist; das Holen macht das
+ * WHAT IS NOT HERE: the network. This file computes on a string so that it can
+ * be tested without Google and without credentials; fetching is done by the
  * CLI.
  *
- * DIE ZUORDNUNG DER SPALTEN IST KONFIGURATION, kein Code. Jede Redaktion nennt
- * ihre Spalten anders, und eine Tabelle umzubenennen ist die schlechtere
- * Loesung als eine Zuordnungsdatei danebenzulegen.
+ * THE COLUMN MAPPING IS CONFIGURATION, not code. Every editorial team names
+ * its columns differently, and renaming a sheet is the worse solution
+ * compared to placing a mapping file next to it.
  */
 import { questionSchema, type Question } from '@hfroemmel/quiz-core'
-import { csvZuZeilen } from './csv'
+import { csvToRows } from './csv'
 
-/** Buchstaben der Antwortoptionen - dieselbe Ordnung wie auf der Buehne. */
-const OPTIONSBUCHSTABEN = ['a', 'b', 'c', 'd', 'e', 'f'] as const
+/** Letters of the answer options - the same order as on stage. */
+const OPTION_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'] as const
 
 export interface SheetMapping {
   /**
-   * Welche Spalte traegt welches Feld. Fehlt ein Eintrag, greift die Vorgabe.
+   * Which column carries which field. If an entry is missing, the default
+   * applies.
    *
-   * `options` ist eine Liste: eine Spalte je Antwortmoeglichkeit, in der
-   * Reihenfolge A, B, C, D.
+   * `options` is a list: one column per answer option, in the order
+   * A, B, C, D.
    */
-  spalten: {
+  columns: {
     id?: string
     prompt?: string
     difficulty?: string
@@ -38,7 +39,7 @@ export interface SheetMapping {
     locale?: string
     questionType?: string
     options?: string[]
-    /** Die richtige Antwort - als Buchstabe (`B`), als Nummer (`2`) oder als Text. */
+    /** The correct answer - as a letter (`B`), as a number (`2`) or as text. */
     correct?: string
     acceptedAnswerText?: string
     imageAssetId?: string
@@ -48,8 +49,8 @@ export interface SheetMapping {
     tags?: string
     enabled?: string
   }
-  /** Was gilt, wo die Tabelle nichts sagt. */
-  vorgaben?: {
+  /** What applies where the sheet says nothing. */
+  defaults?: {
     poolIds?: string[]
     audiences?: string[]
     locale?: string
@@ -58,26 +59,26 @@ export interface SheetMapping {
     tags?: string[]
   }
   /**
-   * Uebersetzung von Zellwerten auf Bezeichner - je Feld eine Tabelle.
+   * Translation of cell values to identifiers - one table per field.
    *
-   * In der Tabelle steht "leicht", im Schema steht `easy`. Ohne diese Ebene
-   * muesste die Redaktion Bezeichner tippen, und genau das erzeugt Tippfehler,
-   * die erst beim Bauen auffallen.
+   * The sheet says "leicht", the schema says `easy`. Without this layer the
+   * editors would have to type identifiers, and exactly that produces typos
+   * that are only noticed when building.
    */
-  werte?: Partial<Record<'difficulty' | 'questionType' | 'categories' | 'pools' | 'audiences', Record<string, string>>>
+  values?: Partial<Record<'difficulty' | 'questionType' | 'categories' | 'pools' | 'audiences', Record<string, string>>>
 }
 
-export interface ImportBefund {
-  fragen: Question[]
-  /** Zeilen, die nicht uebernommen wurden - mit Zeilennummer und Grund. */
-  uebersprungen: { zeile: number; grund: string }[]
-  /** Gelesene Spaltenueberschriften, fuer die Fehlersuche an der Zuordnung. */
-  spalten: string[]
+export interface ImportFinding {
+  questions: Question[]
+  /** Rows that were not adopted - with row number and reason. */
+  skippedRows: { row: number; reason: string }[]
+  /** Column headers that were read, for debugging the mapping. */
+  columns: string[]
 }
 
-/** Die Zuordnung, mit der ein Bestand ohne eigene Datei durchlaeuft. */
-export const standardMapping: SheetMapping = {
-  spalten: {
+/** The mapping a pool passes through without a file of its own. */
+export const defaultMapping: SheetMapping = {
+  columns: {
     id: 'ID',
     prompt: 'Frage',
     difficulty: 'Schwierigkeit',
@@ -92,8 +93,8 @@ export const standardMapping: SheetMapping = {
     explanation: 'Erklärung',
     source: 'Quelle',
   },
-  vorgaben: { poolIds: ['bundestag'], audiences: ['adults'], locale: 'de-DE', difficulty: 'medium' },
-  werte: {
+  defaults: { poolIds: ['bundestag'], audiences: ['adults'], locale: 'de-DE', difficulty: 'medium' },
+  values: {
     difficulty: { leicht: 'easy', mittel: 'medium', schwer: 'hard' },
     questionType: {
       text: 'text-choice',
@@ -105,13 +106,13 @@ export const standardMapping: SheetMapping = {
   },
 }
 
-function bezeichner(wert: string): string {
+function identifier(value: string): string {
   /*
-   * Aus "Ämter & Recht" wird "aemter-recht": Bezeichner duerfen nur a-z, 0-9
-   * und die drei Trennzeichen tragen (siehe `idSchema`). Umlaute werden
-   * ausgeschrieben statt entfernt - "Amter" waere ein anderer Begriff.
+   * "Ämter & Recht" becomes "aemter-recht": identifiers may only carry a-z,
+   * 0-9 and the three separators (see `idSchema`). Umlauts are spelled out
+   * instead of removed - "Amter" would be a different term.
    */
-  return wert
+  return value
     .toLowerCase()
     .replace(/ä/g, 'ae')
     .replace(/ö/g, 'oe')
@@ -121,154 +122,161 @@ function bezeichner(wert: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-function liste(wert: string | undefined, uebersetzung?: Record<string, string>): string[] {
-  if (!wert) return []
-  return wert
+function list(value: string | undefined, translation?: Record<string, string>): string[] {
+  if (!value) return []
+  return value
     .split(/[,;/]/)
-    .map((eintrag) => eintrag.trim())
-    .filter((eintrag) => eintrag !== '')
-    .map((eintrag) => uebersetzung?.[eintrag.toLowerCase()] ?? bezeichner(eintrag))
+    .map((entry) => entry.trim())
+    .filter((entry) => entry !== '')
+    .map((entry) => translation?.[entry.toLowerCase()] ?? identifier(entry))
 }
 
-function jaNein(wert: string | undefined): boolean | undefined {
-  if (wert === undefined || wert.trim() === '') return undefined
-  return !['nein', 'no', 'false', '0', 'inaktiv'].includes(wert.trim().toLowerCase())
+function yesNo(value: string | undefined): boolean | undefined {
+  if (value === undefined || value.trim() === '') return undefined
+  return !['nein', 'no', 'false', '0', 'inaktiv'].includes(value.trim().toLowerCase())
 }
 
 /**
- * Welche Option ist die richtige?
+ * Which option is the correct one?
  *
- * Redaktionen schreiben das auf drei Arten auf: als Buchstabe, als Nummer oder
- * indem sie die Antwort noch einmal hinschreiben. Alle drei werden gelesen -
- * eine Tabelle umzuschreiben, weil das Werkzeug nur eine Schreibweise kennt,
- * waere die falsche Richtung.
+ * Editorial teams write that down in three ways: as a letter, as a number or
+ * by writing the answer once more. All three are read - rewriting a sheet
+ * because the tool only knows one notation would be the wrong direction.
  */
-function findeRichtige(wert: string, optionen: { id: string; text: string }[]): string | undefined {
-  const gesucht = wert.trim()
-  if (gesucht === '') return undefined
+function findCorrect(value: string, options: { id: string; text: string }[]): string | undefined {
+  const wanted = value.trim()
+  if (wanted === '') return undefined
 
-  const alsBuchstabe = gesucht.toLowerCase().replace(/[^a-z]/g, '')
-  if (alsBuchstabe.length === 1 && optionen.some((option) => option.id === alsBuchstabe)) return alsBuchstabe
+  const asLetter = wanted.toLowerCase().replace(/[^a-z]/g, '')
+  if (asLetter.length === 1 && options.some((option) => option.id === asLetter)) return asLetter
 
-  const alsNummer = Number(gesucht)
-  if (Number.isInteger(alsNummer) && alsNummer >= 1 && alsNummer <= optionen.length) {
-    return optionen[alsNummer - 1]!.id
+  const asNumber = Number(wanted)
+  if (Number.isInteger(asNumber) && asNumber >= 1 && asNumber <= options.length) {
+    return options[asNumber - 1]!.id
   }
 
-  const alsText = optionen.find((option) => option.text.trim().toLowerCase() === gesucht.toLowerCase())
-  return alsText?.id
+  const asText = options.find((option) => option.text.trim().toLowerCase() === wanted.toLowerCase())
+  return asText?.id
 }
 
 /**
- * Tabelle in Fragen uebersetzen.
+ * Translate a sheet into questions.
  *
- * Eine Zeile, die nicht durchgeht, hält den Import NICHT an: Sie wird mit
- * Zeilennummer und Grund gemeldet, und der Rest laeuft durch. Ein Bestand von
- * zweihundert Fragen wegen einer halbfertigen Zeile gar nicht zu bekommen, ist
- * in der Redaktion die teurere Antwort - der Bericht sagt, was fehlt.
+ * A row that does not pass does NOT stop the import: it is reported with row
+ * number and reason, and the rest passes through. Not getting a pool of two
+ * hundred questions at all because of one half-finished row is the more
+ * expensive answer for the editors - the report says what is missing.
  */
-export function importiereTabelle(csv: string, mapping: SheetMapping = standardMapping): ImportBefund {
-  const { spalten, zeilen } = csvZuZeilen(csv)
-  const zu = mapping.spalten
-  const vorgabe = mapping.vorgaben ?? {}
-  const werte = mapping.werte ?? {}
+export function importSheet(csv: string, mapping: SheetMapping = defaultMapping): ImportFinding {
+  const { columns, rows } = csvToRows(csv)
+  const to = mapping.columns
+  const preset = mapping.defaults ?? {}
+  const values = mapping.values ?? {}
 
-  const fragen: Question[] = []
-  const uebersprungen: { zeile: number; grund: string }[] = []
+  const questions: Question[] = []
+  const skippedRows: { row: number; reason: string }[] = []
 
-  zeilen.forEach((zeile, index) => {
-    // Zeile 1 ist die Kopfzeile; die erste Datenzeile ist Zeile 2.
-    const zeilennummer = index + 2
-    const zelle = (name: string | undefined): string | undefined => (name ? zeile[name] : undefined)
+  rows.forEach((row, index) => {
+    // Row 1 is the header row; the first data row is row 2.
+    const rowNumber = index + 2
+    const cell = (name: string | undefined): string | undefined => (name ? row[name] : undefined)
 
-    const prompt = zelle(zu.prompt)?.trim()
+    const prompt = cell(to.prompt)?.trim()
     if (!prompt) {
-      uebersprungen.push({ zeile: zeilennummer, grund: 'Keine Frage in der Fragespalte.' })
+      skippedRows.push({ row: rowNumber, reason: 'Keine Frage in der Fragespalte.' })
       return
     }
 
-    const optionen = (zu.options ?? [])
-      .map((name, stelle) => ({ id: OPTIONSBUCHSTABEN[stelle] ?? `o${stelle + 1}`, text: (zeile[name] ?? '').trim() }))
+    const options = (to.options ?? [])
+      .map((name, position) => ({ id: OPTION_LETTERS[position] ?? `o${position + 1}`, text: (row[name] ?? '').trim() }))
       .filter((option) => option.text !== '')
 
     const questionType =
-      (werte.questionType?.[(zelle(zu.questionType) ?? '').toLowerCase()] as Question['questionType'] | undefined) ??
-      (zelle(zu.questionType)?.trim() as Question['questionType'] | undefined) ??
-      vorgabe.questionType ??
-      (optionen.length >= 2 ? 'text-choice' : 'image-reveal')
+      (values.questionType?.[(cell(to.questionType) ?? '').toLowerCase()] as Question['questionType'] | undefined) ??
+      (cell(to.questionType)?.trim() as Question['questionType'] | undefined) ??
+      preset.questionType ??
+      (options.length >= 2 ? 'text-choice' : 'image-reveal')
 
-    const correctOptionId = optionen.length >= 2 ? findeRichtige(zelle(zu.correct) ?? '', optionen) : undefined
-    if (optionen.length >= 2 && !correctOptionId) {
-      uebersprungen.push({ zeile: zeilennummer, grund: 'Die richtige Antwort ist nicht zuzuordnen.' })
+    const correctOptionId = options.length >= 2 ? findCorrect(cell(to.correct) ?? '', options) : undefined
+    if (options.length >= 2 && !correctOptionId) {
+      skippedRows.push({ row: rowNumber, reason: 'Die richtige Antwort ist nicht zuzuordnen.' })
       return
     }
 
-    const kategorien = liste(zelle(zu.categories), werte.categories)
-    const pools = liste(zelle(zu.pools), werte.pools)
-    const zielgruppen = liste(zelle(zu.audiences), werte.audiences)
-    const erwartet = (zelle(zu.acceptedAnswerText) ?? '')
+    const categories = list(cell(to.categories), values.categories)
+    const pools = list(cell(to.pools), values.pools)
+    const audiences = list(cell(to.audiences), values.audiences)
+    const expected = (cell(to.acceptedAnswerText) ?? '')
       .split(/\r?\n|;/)
-      .map((eintrag) => eintrag.trim())
-      .filter((eintrag) => eintrag !== '')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry !== '')
 
-    const bild = zelle(zu.imageAssetId)?.trim()
-    const film = zelle(zu.videoAssetId)?.trim()
-    const erklaerung = zelle(zu.explanation)?.trim()
-    const quelle = zelle(zu.source)?.trim()
+    const image = cell(to.imageAssetId)?.trim()
+    const film = cell(to.videoAssetId)?.trim()
+    const explanation = cell(to.explanation)?.trim()
+    const source = cell(to.source)?.trim()
 
-    const roh = {
-      id: bezeichner(zelle(zu.id)?.trim() || `frage-${zeilennummer}`),
-      poolIds: pools.length > 0 ? pools : (vorgabe.poolIds ?? ['default']),
-      audiences: zielgruppen.length > 0 ? zielgruppen : (vorgabe.audiences ?? ['adults']),
+    const raw = {
+      id: identifier(cell(to.id)?.trim() || `frage-${rowNumber}`),
+      poolIds: pools.length > 0 ? pools : (preset.poolIds ?? ['default']),
+      audiences: audiences.length > 0 ? audiences : (preset.audiences ?? ['adults']),
       difficulty:
-        werte.difficulty?.[(zelle(zu.difficulty) ?? '').toLowerCase()] ??
-        (zelle(zu.difficulty) ? bezeichner(zelle(zu.difficulty)!) : undefined) ??
-        vorgabe.difficulty ??
+        values.difficulty?.[(cell(to.difficulty) ?? '').toLowerCase()] ??
+        (cell(to.difficulty) ? identifier(cell(to.difficulty)!) : undefined) ??
+        preset.difficulty ??
         'medium',
-      categories: kategorien,
-      tags: liste(zelle(zu.tags)).concat(vorgabe.tags ?? []),
-      locale: zelle(zu.locale)?.trim() || vorgabe.locale || 'de-DE',
+      categories: categories,
+      tags: list(cell(to.tags)).concat(preset.tags ?? []),
+      locale: cell(to.locale)?.trim() || preset.locale || 'de-DE',
       prompt,
       questionType,
       evaluationMode: correctOptionId ? ('option-comparison' as const) : ('manual-correct-incorrect' as const),
-      ...(optionen.length >= 2 ? { options: optionen, correctOptionId } : {}),
-      ...(erwartet.length > 0 ? { acceptedAnswerText: erwartet } : {}),
-      ...(bild || film
-        ? { media: { ...(bild ? { imageAssetId: bild } : {}), ...(film ? { videoAssetId: film } : {}) } }
+      ...(options.length >= 2 ? { options: options, correctOptionId } : {}),
+      ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
+      ...(image || film
+        ? { media: { ...(image ? { imageAssetId: image } : {}), ...(film ? { videoAssetId: film } : {}) } }
         : {}),
-      ...(erklaerung || quelle
-        ? { explanation: { ...(erklaerung ? { summary: erklaerung } : {}), ...(quelle ? { source: quelle } : {}) } }
+      ...(explanation || source
+        ? { explanation: { ...(explanation ? { summary: explanation } : {}), ...(source ? { source: source } : {}) } }
         : {}),
-      enabled: jaNein(zelle(zu.enabled)) ?? true,
+      enabled: yesNo(cell(to.enabled)) ?? true,
     }
 
     /*
-     * GEPRUEFT WIRD HIER, nicht erst beim Bauen: Eine Frage, die das Schema
-     * nicht haelt, ist ein Fehler der Tabelle - und die Zeilennummer ist das
-     * Einzige, womit die Redaktion ihn findet.
+     * VALIDATION HAPPENS HERE, not only when building: a question that does
+     * not hold the schema is an error of the sheet - and the row number is
+     * the only thing the editors can find it with.
      */
-    const geprueft = questionSchema.safeParse(roh)
-    if (!geprueft.success) {
-      const gruende = geprueft.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ')
-      uebersprungen.push({ zeile: zeilennummer, grund: gruende })
+    const checked = questionSchema.safeParse(raw)
+    if (!checked.success) {
+      const reasons = checked.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ')
+      skippedRows.push({ row: rowNumber, reason: reasons })
       return
     }
-    fragen.push(geprueft.data)
+    questions.push(checked.data)
   })
 
-  return { fragen, uebersprungen, spalten }
+  return { questions, skippedRows, columns }
 }
 
 /**
- * Die CSV-Adresse einer Google-Tabelle.
+ * The CSV address of a Google sheet.
  *
- * Google liefert jede Tabelle als CSV aus, ohne API und ohne Schluessel - eine
- * Freigabe "Jeder mit dem Link" genuegt. Das ist der Grund, warum dieser Import
- * ohne Zugangsdaten auskommt.
+ * Google serves every sheet as CSV, without API and without a key - sharing
+ * as "anyone with the link" is enough. That is why this import works without
+ * credentials.
  */
-export function csvAdresse(tabelle: string): string {
-  const id = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/.exec(tabelle)?.[1] ?? tabelle
-  const gid = /[#&?]gid=([0-9]+)/.exec(tabelle)?.[1]
-  const adresse = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`
-  return gid ? `${adresse}&gid=${gid}` : adresse
+export function csvUrl(sheet: string): string {
+  const id = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/.exec(sheet)?.[1] ?? sheet
+  const gid = /[#&?]gid=([0-9]+)/.exec(sheet)?.[1]
+  const address = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`
+  return gid ? `${address}&gid=${gid}` : address
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `ImportFinding`. */
+export type ImportBefund = ImportFinding
+/** @deprecated Renamed to `defaultMapping`. */
+export const standardMapping = defaultMapping
+/** @deprecated Renamed to `importSheet`. */
+export const importiereTabelle = importSheet

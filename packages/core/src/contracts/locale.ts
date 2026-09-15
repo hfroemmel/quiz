@@ -1,98 +1,110 @@
 /**
- * Welcher Text gilt in welcher Sprache?
+ * Which text applies in which language?
  *
- * DIE EINZIGE STELLE, DIE DAS ENTSCHEIDET. Projektion, Validierung und Import
- * fragen hier - stuende die Regel an drei Stellen, faellt eine davon irgendwann
- * anders aus, und der Saal saehe eine Frage auf Deutsch mit englischen
- * Antworten.
+ * THE ONLY PLACE THAT DECIDES THIS. Projection, validation and import ask here -
+ * if the rule stood in three places, one of them would eventually differ, and the
+ * room would see a German question with English answers.
  *
- * DIE REGEL IST EINFACH: Gibt es die Uebersetzung, gilt sie. Gibt es sie nicht,
- * gilt das Original. Eine halb uebersetzte Tabelle zeigt gemischte Sprachen -
- * das ist unschoen, aber spielbar; ein leerer Bildschirm ist es nicht.
+ * THE RULE IS SIMPLE: if the translation exists, it applies. If it does not, the
+ * original applies. A half-translated table shows mixed languages - unlovely but
+ * playable; an empty screen is not.
  */
 import type { Question, QuestionTranslation, QuizConfig } from './content'
 
-/** Die Grundsprache: die erste konfigurierte, sonst Deutsch. */
-export function grundsprache(config: Pick<QuizConfig, 'locales'>): string {
+/** The base locale: the first configured one, otherwise German. */
+export function baseLocale(config: Pick<QuizConfig, 'locales'>): string {
   return config.locales?.[0]?.id ?? 'de-DE'
 }
 
 /**
- * Ist diese Sprache konfiguriert?
+ * Is this locale configured?
  *
- * Ein Sprachwunsch, den der Inhalt nicht kennt, wird nicht abgewiesen, sondern
- * auf die Grundsprache zurueckgeholt: Er kommt aus einem Config File oder einer
- * Adresszeile, und ein Tippfehler dort darf kein Geraet lahmlegen.
+ * A locale the content does not know is not rejected but brought back to the
+ * base locale: it comes from a config file or an address bar, and a typo there
+ * must not disable a device.
  */
-export function gueltigeSprache(config: Pick<QuizConfig, 'locales'>, gewuenscht: string | undefined): string {
-  if (!gewuenscht) return grundsprache(config)
-  const bekannt = config.locales?.some((sprache) => sprache.id === gewuenscht)
-  return bekannt ? gewuenscht : grundsprache(config)
+export function validLocale(config: Pick<QuizConfig, 'locales'>, desired: string | undefined): string {
+  if (!desired) return baseLocale(config)
+  const known = config.locales?.some((locale) => locale.id === desired)
+  return known ? desired : baseLocale(config)
 }
 
-/** Beschriftung in der gewuenschten Sprache - oder die des Originals. */
-export function beschriftung(
-  eintrag: { label: string; labels?: Record<string, string> },
+/** Label in the requested locale - or the original one. */
+export function labelFor(
+  entry: { label: string; labels?: Record<string, string> },
   locale: string | undefined,
 ): string {
-  return (locale ? eintrag.labels?.[locale] : undefined) ?? eintrag.label
+  return (locale ? entry.labels?.[locale] : undefined) ?? entry.label
 }
 
 /**
- * Untertitel in der gewuenschten Sprache - oder der des Originals.
+ * Subtitle in the requested locale - or the original one.
  *
- * Getrennt von `beschriftung`, weil es ihn geben darf oder nicht: Eine Karte
- * ohne zweite Zeile ist kein Fehler, eine ohne Namen schon.
+ * Separate from `labelFor` because it may or may not exist: a card without a
+ * second line is not an error, a card without a name is.
  */
-export function untertitel(
-  eintrag: { subtitle?: string; subtitles?: Record<string, string> },
+export function subtitleFor(
+  entry: { subtitle?: string; subtitles?: Record<string, string> },
   locale: string | undefined,
 ): string | undefined {
-  return (locale ? eintrag.subtitles?.[locale] : undefined) ?? eintrag.subtitle
+  return (locale ? entry.subtitles?.[locale] : undefined) ?? entry.subtitle
 }
 
 /**
- * Die Frage in der gewuenschten Sprache.
+ * The question in the requested locale.
  *
- * Zurueck kommt eine Frage, keine Textsammlung: Wer sie weiterreicht, muss
- * nicht wissen, ob sie uebersetzt ist. `id`, `correctOptionId` und alles, was
- * die Auswertung betrifft, bleiben unberuehrt - eine Uebersetzung darf die
- * Wertung nicht verschieben.
+ * What comes back is a question, not a collection of texts: whoever passes it on
+ * need not know whether it is translated. `id`, `correctOptionId` and everything
+ * that concerns the evaluation stay untouched - a translation must not shift the
+ * scoring.
  *
- * DIE OPTIONEN WERDEN EINZELN ERSETZT, nicht als Liste ausgetauscht: Eine
- * Uebersetzung, die eine Option vergisst, wuerde sonst die Antwort verlieren,
- * gegen die verglichen wird.
+ * THE OPTIONS ARE REPLACED ONE BY ONE, not swapped as a list: a translation that
+ * forgets an option would otherwise lose the answer that is compared against.
  */
-export function fragenTextFuer(question: Question, locale: string | undefined): Question {
-  const uebersetzung: QuestionTranslation | undefined = locale ? question.translations?.[locale] : undefined
-  if (!uebersetzung) return question
+export function questionTextFor(question: Question, locale: string | undefined): Question {
+  const translation: QuestionTranslation | undefined = locale ? question.translations?.[locale] : undefined
+  if (!translation) return question
 
-  const optionen = question.options?.map((option) => {
-    const ersatz = uebersetzung.options?.find((eintrag) => eintrag.id === option.id)
-    return ersatz ? { ...option, text: ersatz.text } : option
+  const options = question.options?.map((option) => {
+    const fallback = translation.options?.find((entry) => entry.id === option.id)
+    return fallback ? { ...option, text: fallback.text } : option
   })
 
   return {
     ...question,
-    prompt: uebersetzung.prompt ?? question.prompt,
-    ...(optionen ? { options: optionen } : {}),
-    ...(uebersetzung.acceptedAnswerText ? { acceptedAnswerText: uebersetzung.acceptedAnswerText } : {}),
-    ...(uebersetzung.explanation ? { explanation: { ...question.explanation, ...uebersetzung.explanation } } : {}),
-    ...(uebersetzung.media ? { media: { ...question.media, ...uebersetzung.media } } : {}),
+    prompt: translation.prompt ?? question.prompt,
+    ...(options ? { options: options } : {}),
+    ...(translation.acceptedAnswerText ? { acceptedAnswerText: translation.acceptedAnswerText } : {}),
+    ...(translation.explanation ? { explanation: { ...question.explanation, ...translation.explanation } } : {}),
+    ...(translation.media ? { media: { ...question.media, ...translation.media } } : {}),
   }
 }
 
 /**
- * Beschriftungen der Oberflaeche fuer eine Sprache.
+ * Interface labels for one locale.
  *
- * Zusammengelegt aus Grundsprache und gewaehlter Sprache: Ein Eintrag, der nur
- * in der Grundsprache steht, bleibt lesbar, statt als Schluessel dazustehen.
+ * Merged from the base locale and the chosen locale: an entry that exists only in
+ * the base locale stays readable instead of showing up as a key.
  */
-export function oberflaechenTexte(
+export function interfaceTexts(
   config: Pick<QuizConfig, 'locales' | 'interfaceStrings'>,
   locale: string | undefined,
 ): Record<string, string> {
-  const grund = config.interfaceStrings?.[grundsprache(config)] ?? {}
-  const gewaehlt = locale ? (config.interfaceStrings?.[locale] ?? {}) : {}
-  return { ...grund, ...gewaehlt }
+  const reason = config.interfaceStrings?.[baseLocale(config)] ?? {}
+  const chosen = locale ? (config.interfaceStrings?.[locale] ?? {}) : {}
+  return { ...reason, ...chosen }
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `baseLocale`. */
+export const grundsprache = baseLocale
+/** @deprecated Renamed to `validLocale`. */
+export const gueltigeSprache = validLocale
+/** @deprecated Renamed to `labelFor`. */
+export const beschriftung = labelFor
+/** @deprecated Renamed to `subtitleFor`. */
+export const untertitel = subtitleFor
+/** @deprecated Renamed to `questionTextFor`. */
+export const fragenTextFuer = questionTextFor
+/** @deprecated Renamed to `interfaceTexts`. */
+export const oberflaechenTexte = interfaceTexts

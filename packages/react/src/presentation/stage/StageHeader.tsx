@@ -1,49 +1,50 @@
 /**
- * Kopfzeile der Buehnenflaeche - EINE Kopfzeile fuer beide Gestaltungswelten.
+ * Header of the stage area - ONE header for both design worlds.
  *
- *   [Wortmarke]      [Spieler|1][Punkte|100]  [Punkte|100][Spieler|2]      [Frage|3/7]
+ *   [Wordmark]      [Player|1][Score|100]  [Score|100][Player|2]      [Question|3/7]
  *
- * Die Kopfzeile ist oeffentlich: Der Beamer zeigt Punktestand und Fragezaehler.
- * Die Bedienelemente des Operators (Plus/Minus) gehoeren NICHT zum oeffentlichen
- * Renderpfad; sie kommen als Slots von aussen herein und bleiben im
- * Buehnenfenster leer.
+ * The header is public: the projector shows the score and question counter.
+ * The operator's controls (plus/minus) do NOT belong to the public render
+ * path; they arrive as slots from outside and stay empty in the stage
+ * window.
  *
- * In der Ergebnisansicht entfallen Karten und Zaehler - die Werte stehen dort
- * gross in der Szene. Die Slots bleiben an ihrer Stelle, damit die
- * Korrekturtasten des Operators nicht wandern.
+ * In the result view, cards and counter disappear - the values then appear
+ * large in the scene itself. The slots stay in their place so the operator's
+ * correction buttons do not move around.
  *
- * DAS LOGO IST KONFIGURIERBAR: Steht in der Konfiguration ein `logoAssetId`
- * am Theme, zeigt die Kopfzeile dieses Bild. Ohne Angabe bleibt die
- * mitgelieferte Wortmarke des Bundestages.
+ * THE LOGO IS CONFIGURABLE: if the theme's configuration has a `logoAssetId`,
+ * the header shows that image. Without one, it keeps the Bundestag's
+ * supplied wordmark.
  *
- * AM TOUCHGERAET BLEIBT NUR DIE WORTMARKE. Dort stehen Punkte und Zaehler unten
- * bei den Buzzern, weil sie zu der Ecke gehoeren, in der der Spieler steht -
- * dieselben Bauteile, nur an einem anderen Platz (`game/PlayerFoot.tsx`).
+ * ON THE TOUCH DEVICE ONLY THE WORDMARK REMAINS. There, score and counter sit
+ * at the bottom by the buzzers, because they belong to the corner the player
+ * stands in - the same components, just in a different spot
+ * (`game/PlayerFoot.tsx`).
  */
 import type { CSSProperties, ReactNode } from 'react'
 import type { PublicQuizViewModel, PublicScore } from '@hfroemmel/quiz-core'
 import { cssUrl } from '../cssUrl'
-import { texteFuer } from '../texts'
+import { textsFor } from '../texts'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import { brandWordmarkUrl } from '../brandAssets'
 import styles from './StageHeader.module.css'
 
 export interface StageHeaderSlots {
-  /** Vor der Karte von Spieler 1 - im Entwurf die Punktekorrektur. */
+  /** Before player 1's card - the score correction, in the design. */
   beforePlayerOne?: ReactNode
-  /** Nach der Karte von Spieler 2. */
+  /** After player 2's card. */
   afterPlayerTwo?: ReactNode
   /**
-   * AN der Karte eines Spielers - je Spieler einmal aufgerufen.
+   * ON a player's card - called once per player.
    *
-   * Der Inhalt liegt in einem eigenen, relativ positionierten Rahmen um die
-   * Punktekarte und HINTER ihr. Wer hier etwas absolut positioniert, haengt es
-   * an die Karte, ohne die Kopfzeile zu verbreitern oder die Karten zu
-   * verschieben - genau das braucht die Jokerkarte des Live-Quiz.
+   * The content sits in its own relatively positioned frame around the score
+   * card, and BEHIND it. Anything positioned absolutely here attaches to the
+   * card without widening the header or shifting the cards - exactly what
+   * the live quiz's joker card needs.
    *
-   * Die Kopfzeile selbst weiss nicht, was dort haengt: Sie gibt den Punktestand
-   * dieses Spielers weiter und stellt nur den Platz.
+   * The header itself does not know what is attached there: it just passes
+   * on this player's score and provides the space.
    */
   besidePlayer?: (score: PublicScore) => ReactNode
 }
@@ -57,10 +58,10 @@ export function StageHeader({
   slots?: StageHeaderSlots
   variant?: 'stage' | 'preview' | 'touch'
 }) {
-  // Die Startansicht hat weder Punktestand noch Zaehler - und keine Korrektur.
+  // The start view has neither a score nor a counter - and no correction.
   if (view.scene === 'start') return null
 
-  const t = texteFuer(view)
+  const t = textsFor(view)
   const showsScores = variant !== 'touch' && view.scene !== 'result' && view.playerScores.length > 0
   const showsCounter = showsScores && view.progress.total > 0
   const [playerOne, playerTwo] = view.playerScores
@@ -68,14 +69,14 @@ export function StageHeader({
   return (
     <header className={styles.header}>
       {/*
-        * Wortmarke in der oberen linken Ecke.
+        * Wordmark in the top left corner.
         *
-        * ZWEI FASSUNGEN, EINE STELLE: Bringt der Inhalt ein eigenes Logo mit
-        * (`themes[].logoAssetId` in der Konfiguration), steht es unveraendert
-        * da - es ist die Marke des Veranstalters und darf nicht umgefaerbt
-        * werden. Ohne eigenes Logo bleibt die mitgelieferte Wortmarke; sie
-        * liegt als Maske ueber einer Farbflaeche und folgt damit der Textfarbe
-        * der Welt, statt als schwarze Grafik auf dunklem Grund zu verschwinden.
+        * TWO VERSIONS, ONE PLACE: If the content brings its own logo
+        * (`themes[].logoAssetId` in the configuration), it stands there
+        * unchanged - it is the organiser's brand and must not be recoloured.
+        * Without an own logo the bundled wordmark stays; it lies as a mask
+        * over a colour area and thus follows the text colour of the world
+        * instead of vanishing as black artwork on a dark ground.
         */}
       {view.theme.logoUrl ? (
         <img className={styles.brandImage} src={view.theme.logoUrl} data-brand="" alt="" aria-hidden="true" />

@@ -1,18 +1,20 @@
 /**
- * Eine Adresse als CSS-`url()` schreiben - IN ANFUEHRUNGSZEICHEN.
+ * Write an address as a CSS `url()` - IN QUOTES.
  *
- * Ohne sie bricht der Wert an einem einzigen Hochkomma. Genau das passiert im
- * gebauten Paket: Der Bundler bettet kleine SVG als `data:`-Adresse ein und
- * schreibt deren Attribute mit Hochkommata (`width='339.417'`) - fuer ein
- * unquotiertes `url()` ist das ein ungueltiges Zeichen. Die Regel faellt
- * stillschweigend aus, und wo eine Maske stehen sollte, bleibt die nackte
- * Farbflaeche darunter stehen: ein weisser Balken statt der Wortmarke.
+ * Without them, the value breaks on a single quote. That is exactly what
+ * happens in the built package: the bundler embeds small SVG as a `data:`
+ * address and writes their attributes with single quotes
+ * (`width='339.417'`) - for an unquoted `url()` that is an invalid
+ * character. The rule then silently fails, and where a mask should sit, the
+ * bare colour area beneath it remains: a white bar instead of the wordmark.
  *
- * In der Entwicklung faellt das nicht auf, weil dort eine Dateiadresse steht.
+ * In development this goes unnoticed, because a file address sits there
+ * instead.
  *
- * Doppelte Anfuehrungszeichen sind die richtige Wahl: Der Bundler ersetzt sie
- * im eingebetteten SVG durch einfache, damit der Wert genau so verwendbar ist.
+ * Double quotes are the right choice: the bundler replaces them in the
+ * embedded SVG with single ones, so that the value stays usable exactly as
+ * it is.
  */
-export function cssUrl(adresse: string): string {
-  return `url("${adresse.replace(/"/g, '%22')}")`
+export function cssUrl(address: string): string {
+  return `url("${address.replace(/"/g, '%22')}")`
 }

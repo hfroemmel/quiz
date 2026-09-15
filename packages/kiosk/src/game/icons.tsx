@@ -1,26 +1,26 @@
 /**
- * Die Zeichen der Startauswahl.
+ * The icons of the start selection.
  *
- * WARUM GEZEICHNET UND NICHT GESCHRIEBEN: Ein Geraet im Kiosk hat nur die
- * Schriften, die die Anwendung mitbringt. Ein Symbolzeichen aus einer Schrift,
- * die dort fehlt, waere ein leeres Kaestchen mitten im Startbildschirm - und
- * niemand steht davor, der es melden koennte.
+ * WHY DRAWN AND NOT TYPED: a device in a kiosk only has the fonts the
+ * application brings along. A symbol glyph from a font that is missing there
+ * would be an empty box in the middle of the start screen - and nobody is
+ * standing in front of it to report it.
  *
- * WARUM IM QUELLTEXT UND NICHT ALS DATEI: Es sind vier bis sechs Linien je
- * Zeichen. Als eigene Datei kaeme zu jeder ein Netzabruf und ein Bundlereintrag,
- * und `currentColor` ginge verloren - genau davon leben sie aber: Ein Zeichen
- * auf einer gewaehlten Karte ist gruen, auf einer nicht gewaehlten grau, und
- * beides entscheidet das Stylesheet.
+ * WHY IN SOURCE CODE AND NOT AS A FILE: each icon is four to six lines. As a
+ * separate file, each would come with a network request and a bundler entry,
+ * and `currentColor` would be lost - which is exactly what they live on: an
+ * icon on a selected card is green, on an unselected one grey, and the
+ * stylesheet decides both.
  *
- * Die Pfade stammen aus der Entwurfsdatei des Startmenues
- * (`Quiz_Standalone_Startmenu_SVG_Assets`, Symbolgruppe der Masterdatei) und
- * sind unveraendert uebernommen.
+ * The paths come from the start menu's design file
+ * (`Quiz_Standalone_Startmenu_SVG_Assets`, icon group of the master file) and
+ * are carried over unchanged.
  */
 import type { SVGProps } from 'react'
 
 type IconProps = Omit<SVGProps<SVGSVGElement>, 'viewBox' | 'children'>
 
-/** Gemeinsamer Rahmen: 24er Raster, keine Fuellung, Farbe vom Elternteil. */
+/** Shared frame: 24-unit grid, no fill, colour from the parent. */
 function Icon({ children, ...props }: IconProps & { children: React.ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>

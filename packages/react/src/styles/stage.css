@@ -1,38 +1,40 @@
 /*
- * Wurzelklassen der Buehne - der EINZIGE Unterschied zwischen den Welten.
+ * Root classes of the stage - the ONLY difference between the worlds.
  *
- * Diese Datei ist bewusst kein CSS-Modul: `.stage--default` und `.stage--kids`
- * sind der Schalter, auf den jedes Bauteilmodul ueber `:global(...)` zugreift.
- * Ein gehashter Name waere von dort aus nicht ansprechbar.
+ * This file is deliberately not a CSS module: `.stage--default` and
+ * `.stage--kids` are the switch that every component module reads via
+ * `:global(...)`. A hashed name would not be reachable from there.
  *
- * Was hier steht, ist deshalb auf das Noetigste beschraenkt: die Flaeche selbst,
- * ihre Masseinheiten und die Farb- und Schriftentscheidungen, die fuer die ganze
- * Welt gelten. Alles Bauteilhafte steht im Modul des jeweiligen Bauteils.
+ * What is here is therefore reduced to the essentials: the area itself, its
+ * units of measure, and the colour and typography decisions that apply to
+ * the whole world. Everything component-specific lives in that component's
+ * own module.
  *
- * DIE BUEHNENFLAECHE IST EIN CONTAINER: Alle Groessen darin stehen in `cqw`
- * (Prozent der FLAECHENBREITE). Dadurch ist die kleine Vorschau im
- * Operatorfenster dieselbe Komposition wie das Vollbild auf dem Beamer - eine
- * Zeile Layout, eine Groesse, keine Geraeteabfragen.
+ * THE STAGE AREA IS A CONTAINER: every size inside it is in `cqw` (percent
+ * of the AREA WIDTH). That makes the small preview in the operator window
+ * the same composition as the full screen on the projector - one line of
+ * layout, one size, no device queries.
  *
- * DIE BREITE IST DAS EINZIGE MASS. Keine Groesse hier rechnet gegen eine Hoehe -
- * kein `cqh`, kein `vh`, kein `vmin`, und auch keine Grenze, die eine Hoehe
- * einschmuggelt. Zwei Flaechen gleicher Breite zeigen dieselbe Komposition in
- * derselben Groesse, gleich wie hoch sie sind; ist eine hoeher als 16:9,
- * entsteht Luft, ist sie flacher, schneidet die Flaeche ab. Das ist gewollt:
- * Wer eine Zahl aendert, aendert sie fuer alle Bildschirme auf einmal.
+ * WIDTH IS THE ONLY MEASURE. No size here is computed against a height - no
+ * `cqh`, no `vh`, no `vmin`, and no limit that smuggles in a height either.
+ * Two areas of the same width show the same composition at the same size,
+ * however tall they are; if one is taller than 16:9, space appears, if it
+ * is flatter, the area gets cropped. That is intentional: whoever changes a
+ * number changes it for every screen at once.
  *
- * BEZUGSBREITE 1440 px - die Zeichenflaeche der Entwuerfe (1440x810 = 16:9).
- * Eine Zahl von dort geteilt durch 14,4 ergibt ihren cqw-Wert.
+ * REFERENCE WIDTH 1440 px - the canvas of the designs (1440x810 = 16:9). A
+ * number from there divided by 14.4 gives its cqw value.
  *
- * ZWEI EINHEITEN BLEIBEN: `em` fuer Laufweite und Zeilenabstand, weil die sich
- * auf die SCHRIFT beziehen und nicht auf die Flaeche - und die Schriftgroesse
- * steht ihrerseits in `cqw`, die Laufweite waechst also mit. Und der eine Pixel
- * des unsichtbaren Etiketts in `scenes.module.css`, der gar keine Groesse ist.
+ * TWO UNITS REMAIN: `em` for letter spacing and line height, because those
+ * relate to the TYPE and not to the area - and the font size itself is in
+ * `cqw`, so the letter spacing scales with it. And the one pixel of the
+ * invisible label in `scenes.module.css`, which is not really a size at
+ * all.
  *
- * NICHT GEMEINT sind die Bedienelemente des Gastgebers
- * (`@hfroemmel/quiz-themes/controls.css`): Operatorpult und Menues liegen
- * AUSSERHALB der Buehne, dort ist ein Knopf ein Knopf und kein Anteil einer
- * Flaeche.
+ * NOT MEANT are the host's controls
+ * (`@hfroemmel/quiz-themes/controls.css`): operator console and menus sit
+ * OUTSIDE the stage, where a button is just a button and not a share of an
+ * area.
  */
 
 .stage {
@@ -48,68 +50,68 @@
   font-family: var(--font-body);
 
   /*
-   * Rundungen und Schatten der Buehne stehen in Containereinheiten, nicht in px:
-   * Dieselbe Komposition laeuft in der kleinen Operatorvorschau und im
-   * Beamer-Vollbild und soll in beiden gleich aussehen. 0,7 cqw ergibt auf einem
-   * 1920 Pixel breiten Beamer rund 13 Pixel.
+   * Stage corner radii and shadows are in container units, not px: the same
+   * composition runs in the small operator preview and in the projector's
+   * full screen and should look the same in both. 0.7 cqw comes out to
+   * roughly 13 pixels on a 1920 pixel wide projector.
    */
   --stage-radius: 0.7cqw;
 
   /*
-   * ZOOMSTUFE DER FLAECHE (nur am Touchgeraet wirksam).
+   * STAGE ZOOM LEVEL (only effective on a touch device).
    *
-   * Die Bildschirme, auf denen das Quiz in Selbstbedienung steht, reichen vom
-   * kleinen Tablet bis zum grossen Touchtisch. Auf sehr grossen Flaechen ist
-   * die Komposition zwar richtig proportioniert, aber schlicht zu weit
-   * auseinandergezogen, um sie im Stehen zu ueberblicken.
+   * The screens where the quiz runs in self-service range from a small
+   * tablet to a large touch table. On very large areas the composition is
+   * proportioned correctly, but simply stretched too far apart to take in
+   * while standing.
    *
-   * 1 ist die volle, entworfene Groesse und damit das Maximum; kleinere Werte
-   * ruecken Szene, Kopfzeile und Fussleiste zusammen. Wer den Wert setzt, sitzt
-   * ueber der Buehne - hier steht KEINE Vorgabe: Die Variable wird bewusst
-   * nicht an der Buehne gesetzt, sonst verdeckte sie den Wert, den der
-   * Gastgeber weiter aussen setzt. Jede Regel nennt ihren Rueckfall selbst
+   * 1 is the full, designed size and thus the maximum; smaller values pull
+   * scene, header and footer closer together. Whoever sets the value sits
+   * above the stage - NO default is given here: the variable is
+   * deliberately not set on the stage, or it would shadow the value the
+   * host sets further out. Every rule names its own fallback
    * (`var(--stage-zoom, 1)`).
    */
 
   /*
-   * EIN MASS FUER DIE KLEINEN UEBERGAENGE.
+   * ONE MEASURE FOR THE SMALL TRANSITIONS.
    *
-   * Nicht die Szenenwechsel - die bringen Dauer und Easing aus dem
-   * Uebergangsregistry mit (`transitions/`). Gemeint ist alles, was innerhalb
-   * einer Szene erscheint und wieder geht: der unscharfe Bildgrund, eine Ebene,
-   * die der Gastgeber einsetzt. Kurz genug, dass niemand darauf wartet, und
-   * lang genug, dass nichts aufblitzt.
+   * Not the scene changes - those bring their duration and easing from the
+   * transition registry (`transitions/`). This is about everything that
+   * appears and disappears within a scene: the blurred image backdrop, a
+   * layer the host inserts. Short enough that nobody waits for it, and long
+   * enough that nothing just flashes.
    *
-   * Sie stehen an der Buehne und nicht in einem Modul, damit auch ein
-   * Gastgeber sie lesen kann - seine Ebene soll nicht in einer anderen Zeit
-   * laufen als die Buehne darunter.
+   * These live on the stage and not in a module, so that even a host can
+   * read them - their layer should not run on a different clock than the
+   * stage underneath it.
    */
   --stage-fade-duration: 220ms;
   --stage-fade-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
 
-  /* Abstaende und Ausrichtung der Szenen - die Szenen lesen sie als Token. */
+  /* Spacing and alignment of the scenes - the scenes read them as tokens. */
   --scene-gap: 2cqw;
   --scene-pad: 3cqw;
   --scene-align: center;
   --scene-text-align: center;
 
   /*
-   * SCHALTFLAECHEN DER BUEHNE - EIN MASS FUER ALLE.
+   * STAGE BUTTONS - ONE MEASURE FOR ALL.
    *
-   * Auf der Buehne stehen Knoepfe in drei verschiedenen Ansichten: der Buzzer in
-   * der Frage, "Weiter" und "Antwort abgeben und aufloesen" in der Aufloesung
-   * und, wenn der Gastgeber eine eigene Flaeche einsetzt (`pads.overlay`), auch
-   * dort. Sie kamen aus drei verschiedenen Dateien und hatten drei verschiedene
-   * Groessen; nebeneinander sah das aus wie drei Systeme.
+   * The stage has buttons in three different views: the buzzer in the
+   * question, "Next" and "Submit answer and reveal" in the solution, and,
+   * when the host inserts their own area (`pads.overlay`), there too. They
+   * came from three different files and had three different sizes; side by
+   * side that looked like three systems.
    *
-   * Die Masse stehen deshalb hier - an derselben Stelle wie `--stage-radius` und
-   * die Szenentoken - und in Containereinheiten: Dieselbe Schaltflaeche traegt
-   * von der Operatorvorschau bis zum grossen Touchtisch.
+   * The measures therefore live here - in the same place as `--stage-radius`
+   * and the scene tokens - and in container units: the same button holds up
+   * from the operator preview to the large touch table.
    *
-   * Die Schriftgroesse ist bewusst kleiner als die Ueberschriften der Szene: Auf
-   * ihr steht der laengste Satz der Buehne ("Antwort abgeben und aufloesen"),
-   * und der soll in eine Zeile passen, ohne dass der Knopf die Mitte der
-   * Fussleiste sprengt.
+   * The font size is deliberately smaller than the scene headings: it
+   * carries the longest sentence on the stage ("Submit answer and reveal"),
+   * and that has to fit on one line without the button blowing out the
+   * middle of the footer.
    */
   --stage-button-height: 5.0625cqw;
   --stage-button-pad: 4cqw;
@@ -121,19 +123,20 @@
 }
 
 /*
- * Die Schaltflaeche selbst - GLOBAL und ungehasht, wie `.stage--*` und die
- * Bewegungsklassen: Auch ein Gastgeber, der eine eigene Flaeche in die Buehne
- * einsetzt, muss sie ansprechen koennen, ohne ein CSS-Modul zu importieren.
+ * The button itself - GLOBAL and unhashed, like `.stage--*` and the motion
+ * classes: even a host inserting their own area into the stage must be able
+ * to address it without importing a CSS module.
  *
- * Sie bringt Kasten, Masse, Typografie und die Zustaende mit; welche Farbe ein
- * Knopf traegt, sagt der Modifikator oder das Bauteil, das ihn benutzt. Der
- * Rangunterschied bleibt damit sichtbar, die Bauweise ist eine.
+ * It brings box, measures, typography and the states; which colour a button
+ * carries is said by the modifier or the component that uses it. The
+ * difference in rank stays visible this way, while the construction stays
+ * one and the same.
  *
- * `:where(...)` NIMMT DIESEN REGELN IHR GEWICHT (Spezifikitaet 0). Ein Bauteil,
- * das die Klasse benutzt, verfeinert sie in seinem eigenen Modul - und das darf
- * nicht davon abhaengen, in welcher Reihenfolge ein Gastgeber die Stylesheets
- * einbindet. Was ein Bauteil selbst sagt, gilt; was es nicht sagt, kommt von
- * hier.
+ * `:where(...)` STRIPS THESE RULES OF THEIR WEIGHT (specificity 0). A
+ * component that uses the class refines it in its own module - and that
+ * must not depend on the order in which a host includes the stylesheets.
+ * What a component says itself holds; what it does not say comes from
+ * here.
  */
 :where(.stage-button) {
   display: inline-flex;
@@ -150,33 +153,33 @@
   font-size: var(--stage-button-size);
   font-weight: var(--stage-button-weight);
   /*
-   * Die Schrift steht damit auf der Mitte der Flaeche und nicht auf ihrer
-   * Grundlinie - sonst sitzt derselbe Text in einem hohen und einem flachen
-   * Knopf verschieden hoch.
+   * This puts the type on the centre of the box rather than on its
+   * baseline - otherwise the same text would sit at a different height in a
+   * tall button versus a flat one.
    */
   line-height: 1;
   text-align: center;
   cursor: pointer;
-  /* Kein Warten auf den Doppeltipp und kein blauer Schleier am Touchgeraet. */
+  /* No waiting for the double-tap and no blue veil on a touch device. */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Handlungsfarbe: der eine Knopf, der die Ansicht weiterbringt. */
+/* Action colour: the one button that moves the view forward. */
 :where(.stage-button--primary) {
   background: var(--color-primary);
   color: var(--stage-inkOnStrong);
 }
 
-/* Sofortige Rueckmeldung auf den Druck - vor jeder Serverantwort. */
+/* Immediate feedback on the press - ahead of any server response. */
 :where(.stage-button):active:not(:disabled) {
   filter: brightness(1.2);
 }
 
 /*
- * Tastaturbedienung. Am Touchgeraet sieht das niemand; an einem Geraet mit
- * Tastatur muss sichtbar sein, worauf die Eingabetaste wirkt - und zwar an
- * jedem Knopf der Buehne gleich.
+ * Keyboard operation. Nobody sees this on a touch device; on a device with
+ * a keyboard it must be visible what the Enter key acts on - and the same
+ * on every button on the stage.
  */
 :where(.stage-button):focus-visible {
   outline: 0.1406cqw solid var(--color-accent);
@@ -184,8 +187,8 @@
 }
 
 /*
- * Gesperrt heisst sichtbar, aber zurueckgetreten: Der Knopf bleibt an seinem
- * Platz, damit die Flaeche darum nicht springt, sobald er wieder gilt.
+ * Locked means visible, but stepped back: the button stays in its place, so
+ * the area around it does not jump the moment it becomes active again.
  */
 :where(.stage-button):disabled {
   opacity: 0.35;
@@ -193,72 +196,73 @@
 }
 
 /*
- * Die helle Fassung der Buehne steht NICHT hier, sondern in `palette.css`:
- * Sie ist eine reine Farbtafel und gehoert damit zur Palette, die aus
- * `packages/contracts/src/theme.ts` erzeugt wird. Schriften, Bauteile,
- * Positionen und Abstaende sind in beiden Fassungen dieselben.
+ * The light version of the stage does NOT live here but in `palette.css`:
+ * it is a pure colour table and thus belongs to the palette generated from
+ * `packages/contracts/src/theme.ts`. Type, components, positions and
+ * spacing are the same in both versions.
  */
 
-/* Die Operatorvorschau ist dieselbe Komposition in kleiner Flaeche. */
+/* The operator preview is the same composition on a small area. */
 .stage--preview {
   aspect-ratio: 16 / 9;
   height: auto;
 }
 
 /*
- * AM TOUCHGERAET LIEGT DIE FUSSLEISTE AM UNTEREN BILDRAND.
+ * ON A TOUCH DEVICE THE FOOTER SITS AT THE BOTTOM EDGE OF THE SCREEN.
  *
- * Kopfzeile, Szene und Fussleiste nehmen sich dort ihre Hoehe aus der BREITE
- * (siehe `Stage.module.css`); die Summe ist selten genau die Hoehe des
- * Fensters. Im Einzelspiel fehlen die Buzzer, auf einem hoeheren Geraet fehlt
- * nichts - es bleibt Platz uebrig, und der gehoert in die MITTE.
+ * Header, scene and footer there each take their height from the WIDTH (see
+ * `Stage.module.css`); the sum is rarely exactly the height of the window.
+ * In single-player the buzzers are missing, on a taller device nothing is
+ * missing - space is left over, and it belongs in the MIDDLE.
  *
- * Denn unten liegen die Haende. Punktestand, Zaehler und die beiden Buzzer sind
- * das Einzige auf dieser Flaeche, das angefasst wird: Sie stehen an der Kante,
- * an der jemand vor dem Geraet steht, und nicht irgendwo darueber. Dieselbe
- * Ueberlegung steht schon in der Fussleiste selbst (`Game.module.css`) - deren
- * Spalten skalieren zu ihren eigenen Ecken, damit sie bei kleiner Anzeige nicht
- * von der Kante abruecken. Waere die Leiste mittig im uebrigen Platz
- * aufgehaengt, waere genau das wieder verloren.
+ * Because the hands are at the bottom. Score, counter and the two buzzers
+ * are the only things on this area that get touched: they sit at the edge
+ * where someone stands in front of the device, not somewhere above it. The
+ * same reasoning already lives in the footer itself (`Game.module.css`) -
+ * its columns scale toward their own corners so they do not pull away from
+ * the edge on a small display. If the bar were hung centred in the
+ * remaining space, exactly that would be lost again.
  *
- * `space-between` heisst deshalb: Kopfzeile oben, Fussleiste unten, die Luft
- * dazwischen. Auf 16:9 gibt es keine, dort geht die Rechnung genau auf.
+ * `space-between` therefore means: header on top, footer at the bottom, the
+ * space between them. On 16:9 there is none, the numbers work out exactly.
  *
- * Auf der Buehne im Saal braucht es das nicht: Dort gibt es keine Fussleiste,
- * die Szene nimmt den uebrigen Platz selbst (`flex: 1`).
+ * On the stage in the room this is not needed: there is no footer there,
+ * the scene takes the remaining space itself (`flex: 1`).
  */
 .stage--touch {
   justify-content: space-between;
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt
+ * Kids' world
  *
- * Farben, Masse und Schriften der illustrierten Karlchen-Welt. Sie stehen hier
- * als Token an der Buehne; die Bauteilmodule lesen sie und wissen sonst nichts
- * von der Welt, in der sie gerade stehen.
+ * Colours, measures and type of the illustrated Karlchen world. They live
+ * here as tokens on the stage; the component modules read them and
+ * otherwise know nothing of the world they currently sit in.
  * ------------------------------------------------------------------ */
 
 /*
- * DIE WELT ALS NAMEN - unabhaengig von der Buehnenflaeche.
+ * THE WORLD AS A NAME - independent of the stage area.
  *
- * `data-skin` steht an ZWEI Stellen: an der Buehne (siehe `StageScreen`) und am
- * Wurzelelement des Touchgeraets (siehe `QuizGame` in `@hfroemmel/quiz-kiosk`).
- * Startauswahl, Einstellungen und Rueckfragen liegen UEBER der Buehne - sie
- * tragen dieselbe Handschrift und dieselbe Tinte, obwohl `.stage--kids` dort
- * nicht steht. Wer sie an die Buehnenklasse haengte, haette sie dort nicht.
+ * `data-skin` lives in TWO places: on the stage (see `StageScreen`) and on
+ * the root element of the touch device (see `QuizGame` in
+ * `@hfroemmel/quiz-kiosk`). Start selection, settings and follow-up
+ * questions sit ABOVE the stage - they carry the same hand and the same ink
+ * even though `.stage--kids` is not present there. Whoever had hung them off
+ * the stage class would not have had them there.
  *
- * Hier stehen deshalb nur Namen: Farben, Schriften, Zeiten. Alles, was die
- * Flaeche selbst betrifft - Grund, Aussenabstaende, Szenentoken -, steht
- * darunter an `.stage--kids`.
+ * So only names live here: colours, fonts, timings. Everything concerning
+ * the area itself - background, outer spacing, scene tokens - lives below,
+ * on `.stage--kids`.
  */
 [data-skin='kids'] {
   /*
-   * Namen der Zeichnung fuer Farben, die das Theme schon traegt. Die gezeichneten
-   * Rahmen des Boxen-Assetpakets sind in genau diesen Toenen gemalt; sie stehen
-   * deshalb in der Palette und nicht hier. Der zweite Name macht die Regeln der
-   * Bauteile lesbar: `--kids-paper` sagt, was gemeint ist, `--color-tile` sagt,
-   * woher es kommt.
+   * Names of the artwork for colours the theme already carries. The drawn
+   * frames of the box asset pack are painted in exactly these tones; they
+   * therefore live in the palette and not here. The second name makes the
+   * components' rules readable: `--kids-paper` says what is meant,
+   * `--color-tile` says where it comes from.
    */
   --kids-ink: var(--color-text);
   --kids-paper: var(--color-tile);
@@ -266,10 +270,10 @@
   --kids-yellow: var(--color-solutionChip);
 
   /*
-   * Zwei Familien, mehr nicht. Der Rueckfall der Handschrift ist bewusst eine
-   * Schreibschrift und keine System-Sans: Faellt die Datei aus, sieht die
-   * Ansicht immer noch handgeschrieben aus statt wie ein Formular. Melior ist
-   * dieselbe Serife wie auf der Buehne der Erwachsenen.
+   * Two families, no more. The handwriting's fallback is deliberately a
+   * script font and not a system sans: if the file fails to load, the view
+   * still looks handwritten instead of like a form. Melior is the same
+   * serif as on the adult stage.
    */
   --kids-hand: 'Patrick Hand', 'Comic Sans MS', cursive;
   --kids-numeric: 'Melior', 'Palatino Linotype', Palatino, Georgia, serif;
@@ -279,16 +283,16 @@
 }
 
 .stage--kids {
-  /* Layout: Aussenabstand, Fuge, Anteil der Inhaltsbreite. */
+  /* Layout: outer spacing, gap, share of the content width. */
   --kids-pad: 1.8cqw;
   --kids-gap: 1cqw;
-  /* Sichtbare Fuge zwischen Foto und Fragetafel - sie duerfen sich nie beruehren. */
+  /* Visible gap between photo and question board - they must never touch. */
   --kids-stage-gap: 2.5cqw;
-  /* Luecke zwischen Buchstabenchip und Antwortkarte. */
+  /* Gap between letter chip and answer card. */
   --kids-chip-gap: 0.9cqw;
   --kids-content-width: 75%;
 
-  /* Schriftgroessen des Assetpakets, in Containereinheiten. */
+  /* Font sizes of the asset pack, in container units. */
   --kids-size-question: 2.8cqw;
   --kids-size-answer: 2.1cqw;
   --kids-size-category: 1.75cqw;
@@ -299,9 +303,9 @@
   --scene-pad: var(--kids-pad);
 
   /*
-   * In der Kinderwelt ist auch eine Schaltflaeche handgeschrieben - Masse und
-   * Zustaende bleiben dieselben, nur die Schrift wechselt. Die Handschrift
-   * laeuft kleiner als die Serife und bekommt deshalb etwas mehr Groesse.
+   * In the kids' world a button is also handwritten - measures and states
+   * stay the same, only the font changes. The handwriting runs smaller than
+   * the serif and therefore gets a bit more size.
    */
   --stage-button-font: var(--kids-hand);
   --stage-button-size: var(--kids-size-category);
@@ -310,20 +314,20 @@
   color: var(--kids-ink);
   font-family: var(--kids-hand);
   font-weight: 400;
-  /* Illustrierte Szene, rechts zentriert, formatfuellend. */
+  /* Illustrated scene, right-aligned, fills the format. */
   background:
     url('../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
     linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
 /*
- * Schriften der Kinderwelt.
+ * Fonts of the kids' world.
  *
- * Patrick Hand traegt alles Gelesene, Melior die Zahlen und die Buchstaben A
- * bis D. Die Handschrift liegt im Assetpaket unter `public/` und wird NICHT
- * gebuendelt: So hat ihre Adresse eine feste Form, die `index.html` vorladen
- * kann. `font-display: block` verhindert, dass auf der Buehne fuer einen
- * Wimpernschlag eine Systemschrift zu sehen ist.
+ * Patrick Hand carries everything that is read, Melior the numbers and the
+ * letters A to D. The handwriting font lives in the asset pack under
+ * `public/` and is NOT bundled: this way its address has a fixed form that
+ * `index.html` can preload. `font-display: block` prevents a system font
+ * from flashing on the stage for a blink of an eye.
  */
 @font-face {
   font-family: 'Patrick Hand';
@@ -334,21 +338,21 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Schmalere Ansichten
+ * Narrower views
  *
- * Die Reihenfolge Bild -> Frage -> Antworten bleibt in jeder Breite gleich.
- * Veraendert werden nur Groessen, Abstaende und die Figurenflaeche.
+ * The order image -> question -> answers stays the same at every width.
+ * Only sizes, spacing and the mascot area change.
  * ------------------------------------------------------------------ */
 
 /*
- * DIE EINE SCHWELLE, DIE BLEIBT - UND SIE AENDERT KEINE GROESSE.
+ * THE ONE BREAKPOINT THAT REMAINS - AND IT CHANGES NO SIZE.
  *
- * Der Grund der Kinderwelt ist eine gezeichnete Szene, kein Verlauf: Auf einer
- * schmalen Flaeche steht die Zeichnung anders im Bild, und Frage und Antworten
- * bekommen deshalb einen anderen ANTEIL der Breite. Verschoben wird die
- * Anordnung gegenueber einem Motiv, nicht die Groesse der Schrift oder der
- * Karten - die stehen in `cqw` und gelten auf jeder Breite gleich. Und gefragt
- * wird allein die Breite: Wie hoch die Flaeche ist, aendert hier nichts.
+ * The background of the kids' world is a drawn scene, not a gradient: on a
+ * narrow area the artwork sits differently in the frame, so question and
+ * answers get a different SHARE of the width. What shifts is the layout
+ * relative to a motif, not the size of the type or the cards - those are in
+ * `cqw` and apply the same at every width. And only the width is queried:
+ * how tall the area is changes nothing here.
  */
 @container stage (max-width: 1099px) {
   .stage--kids {
@@ -358,8 +362,8 @@
 }
 
 /*
- * Wer keine Bewegung will, bekommt keine: Die kleinen Uebergaenge sind Zierde,
- * nicht Information - der Inhalt steht danach genauso da.
+ * Whoever wants no motion gets none: the small transitions are decoration,
+ * not information - the content stands there exactly the same afterwards.
  */
 @media (prefers-reduced-motion: reduce) {
   .stage {

@@ -1,14 +1,14 @@
 /**
- * Inhaltszugriff des Servers.
+ * Content access of the server.
  *
- * Verantwortung:
- *  - das versionierte Basispaket laden;
- *  - lokale Hotfixes als Overlay anwenden (das Basispaket bleibt unveraendert);
- *  - der Engine ueber den Port `QuestionSource` Fragen fuer Fragenplaetze liefern;
- *  - Asset-IDs in ausspielbare URLs uebersetzen.
+ * Responsibilities:
+ *  - load the versioned base package;
+ *  - apply local hotfixes as an overlay (the base package stays unchanged);
+ *  - supply questions for slots to the engine through the `QuestionSource` port;
+ *  - translate asset ids into servable URLs.
  *
- * Die Fragenauswahl selbst steht in `@quiz/domain/selection` - hier wird sie nur mit
- * Paket, Hotfixes und Nutzungshistorie verbunden.
+ * The question selection itself lives in `@quiz/domain/selection` - here it is
+ * only connected with package, hotfixes and usage history.
  */
 import { applyPatches } from './hotfix'
 import type { Question, QuestionPatch, QuizPackage, RuntimeQuestion } from '../contracts'
@@ -28,15 +28,15 @@ import type { UsageRow } from '../engine/storePort'
 
 export class ContentService {
   private quizPackage: QuizPackage
-  /** Basisbestand plus gueltige Hotfixes - das ist der tatsaechlich gespielte Inhalt. */
+  /** Base set plus valid hotfixes - the content actually played. */
   private effectiveQuestions: Question[]
   private rejectedPatches: { questionId: string; reason: string }[] = []
 
   /**
-   * Das Paket kommt GELADEN herein - dieses Modul liest keine Dateien. Den
-   * Ladeweg (Verzeichnis, Pruefsumme) stellt `@hfroemmel/quiz-content` bereit;
-   * `extraMediaRoots` sind zusaetzliche Wurzeln fuer die Medienaufloesung des
-   * Servers und kommen ebenfalls vom Aufrufer.
+   * The package comes in LOADED - this module reads no files. The loading path
+   * (directory, checksum) is provided by `@hfroemmel/quiz-content`;
+   * `extraMediaRoots` are additional roots for the server's media resolution
+   * and likewise come from the caller.
    */
   constructor(quizPackage: QuizPackage, patches: QuestionPatch[] = [], extraMediaRoots: string[] = []) {
     this.quizPackage = quizPackage
@@ -63,7 +63,7 @@ export class ContentService {
     return this.effectiveQuestions
   }
 
-  /** Basisbestand ohne Overlay - Grundlage des Aenderungsberichts. */
+  /** Base set without the overlay - basis of the change report. */
   get baseQuestions(): Question[] {
     return this.quizPackage.questions
   }
@@ -89,32 +89,31 @@ export class ContentService {
   }
 
   /**
-   * Verzeichnisse, in denen eine Mediendatei gesucht wird - in dieser Reihenfolge.
+   * Directories in which a media file is looked for - in this order.
    *
-   * Erste Wahl ist das gebaute Paket; es ist die verbindliche, versionierte Quelle
-   * und das Einzige, was in einer ausgelieferten Anwendung existiert.
+   * First choice is the built package; it is the binding, versioned source and
+   * the only thing that exists in a shipped application.
    *
-   * Danach kommen die injizierten Rueckfallwurzeln. Der Anwendungsfall ist die
-   * Entwicklung: Die Bilddateien liegen im Repository unter
-   * `content/source/assets`, ihre Kopien im Paket entstehen erst beim Build.
-   * Ob eine Wurzel existiert, prueft der Ausliefernde je Datei - dieses Modul
-   * fasst kein Dateisystem an.
+   * Then come the injected fallback roots. The use case is development: the
+   * image files lie in the repository under `content/source/assets`, their
+   * copies in the package only appear at build time. Whether a root exists is
+   * checked per file by whoever serves it - this module touches no file system.
    */
   get mediaRoots(): string[] {
     return [this.quizPackage.rootDir, ...this.extraMediaRoots]
   }
 
-  /** URL, unter der ein Medium ausgeliefert wird. Der Pfad kommt nie aus den Quizdaten. */
+  /** URL under which a medium is served. The path never comes from the quiz data. */
   assetUrl(assetId: string | undefined): string | undefined {
     if (!assetId || !this.quizPackage.assetsById.has(assetId)) return undefined
     return `/media/${encodeURIComponent(assetId)}`
   }
 
   /**
-   * Baut den Port fuer die Engine.
+   * Builds the port for the engine.
    *
-   * Die Nutzungshistorie wird pro Befehl frisch uebergeben, damit eine gerade
-   * gebuchte Nutzung sofort in die naechste Auswahl einfliesst.
+   * The usage history is handed in fresh per command, so that a usage just
+   * booked flows into the next selection immediately.
    */
   createQuestionSource(usageRows: UsageRow[], rng: Rng): QuestionSource {
     const usage = buildUsageMap(usageRows)
@@ -130,9 +129,9 @@ export class ContentService {
       },
 
       /*
-       * DIE PRUEFUNG STEHT IN `resolveQuizMode` und nicht hier: Sie gilt auch
-       * fuer die Inhaltsvalidierung, und zwei Fassungen davon liefen
-       * auseinander. Dieser Port reicht nur die Konfiguration hinein.
+       * THE CHECK LIVES IN `resolveQuizMode` and not here: it also applies to
+       * the content validation, and two versions of it drifted apart. This port
+       * only passes the configuration in.
        */
       quizFor: (quizId) => resolveQuizMode(config, quizId),
 
@@ -159,8 +158,8 @@ export class ContentService {
           question: result.question,
           slotId: slot.id,
           slotIndex: request.slotIndex,
-          // Die sichtbare Reihenfolge wird pro Spiel gemischt; ausgewertet wird
-          // immer gegen `correctOptionId`.
+          // The visible order is shuffled per game; the evaluation always
+          // compares against `correctOptionId`.
           optionOrder: shuffleOptionOrder(result.question, rng),
         }
         return { ok: true, runtimeQuestion, rationale: result.rationale.text }
@@ -170,8 +169,8 @@ export class ContentService {
 }
 
 /**
- * Historie nach Wiederholungsschluessel. Fragen derselben Wiederholungsgruppe teilen
- * sich einen Eintrag, damit Varianten wie dieselbe Frage behandelt werden.
+ * History by repetition key. Questions of the same repetition group share one
+ * entry, so that variants are treated as the same question.
  */
 export function buildUsageMap(rows: UsageRow[]): Map<string, UsageSummary> {
   const usage = new Map<string, UsageSummary>()

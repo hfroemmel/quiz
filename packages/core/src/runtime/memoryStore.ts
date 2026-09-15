@@ -1,14 +1,14 @@
 /**
- * In-Memory-Implementierung des `QuizStorePort` (Spezifikation 23, Kioskbetrieb).
+ * In-memory implementation of the `QuizStorePort` (specification 23, kiosk operation).
  *
- * Sie traegt Kiosk und Einbettung: keine nativen Module, lauffaehig in jedem
- * Renderer- oder Browserprozess. Wer Dauerhaftigkeit braucht, haengt sie ueber
- * `toJSON()`/`fromJSON()` an einen Host-Adapter (Electron-IPC, IndexedDB, ...);
- * `LocalQuizRuntime` ruft dafuer nach jeder Aenderung entprellt `persist` auf.
+ * It serves kiosk and embedding: no native modules, runnable in any renderer or
+ * browser process. Whoever needs persistence attaches it via `toJSON()`/
+ * `fromJSON()` to a host adapter (Electron IPC, IndexedDB, ...);
+ * `LocalQuizRuntime` calls `persist` debounced after every change for that.
  *
- * Akzeptierte Grenze gegenueber SQLite: Ein Absturz kann die letzten Befehle
- * verlieren. Fuer die Selbstbedienung ist das in Ordnung - der Buehnenbetrieb
- * behaelt seinen ACID-Adapter auf SQLite.
+ * Accepted limit compared with SQLite: a crash can lose the last commands. For
+ * self-service that is fine - the stage operation keeps its ACID adapter on
+ * SQLite.
  */
 import type { AuditEntry, GameState, QuestionPatch } from '../contracts'
 import type {
@@ -43,7 +43,7 @@ interface UsageRecord extends UsageRow {
   eventDayId: string
 }
 
-/** Serialisierte Form fuer Host-Adapter. Nur ueber `toJSON`/`fromJSON` anfassen. */
+/** Serialised form for host adapters. Touch only through `toJSON`/`fromJSON`. */
 export interface MemoryQuizStoreSnapshot {
   version: 1
   eventDays: EventDayEntry[]
@@ -66,7 +66,7 @@ export class MemoryQuizStore implements QuizStorePort {
   private patches: QuestionPatch[] = []
   private settings = new Map<string, string>()
 
-  /* ---------------- Veranstaltungstag ---------------- */
+  /* ---------------- Event day ---------------- */
 
   ensureEventDay(calendarDate: string, nowIso: string, allowRollover: boolean): { id: string; calendarDate: string } {
     const active = this.eventDays.find((entry) => entry.active)
@@ -83,7 +83,7 @@ export class MemoryQuizStore implements QuizStorePort {
     return this.ensureEventDay(calendarDate, nowIso, true)
   }
 
-  /* ---------------- Befehlsidempotenz ---------------- */
+  /* ---------------- Command idempotency ---------------- */
 
   findProcessedCommand(commandId: string): RecordedCommandResponse | null {
     return this.processedCommands.get(commandId) ?? null
@@ -94,7 +94,7 @@ export class MemoryQuizStore implements QuizStorePort {
     this.processedCommands.set(commandId, { accepted: false, revisionAfter: revision, response })
   }
 
-  /* ---------------- Transaktionale Befehlsuebernahme ---------------- */
+  /* ---------------- Transactional command commit ---------------- */
 
   commitCommand(input: CommitInput): void {
     const { state } = input
@@ -107,7 +107,7 @@ export class MemoryQuizStore implements QuizStorePort {
       status: state.status,
       createdAtIso: existing?.createdAtIso ?? nowIso,
       updatedAtIso: nowIso,
-      // Eigene Kopie, damit spaetere Engine-Draefte den abgelegten Stand nicht anfassen.
+      // Own copy, so that later engine drafts do not touch the stored state.
       state: structuredClone(state),
     })
 
@@ -140,7 +140,7 @@ export class MemoryQuizStore implements QuizStorePort {
     }
   }
 
-  /* ---------------- Lesen ---------------- */
+  /* ---------------- Reading ---------------- */
 
   loadResumableGame(eventDayId: string): GameState | null {
     const candidates = [...this.games.values()]
@@ -183,7 +183,7 @@ export class MemoryQuizStore implements QuizStorePort {
     return [...this.patches].sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1))
   }
 
-  /* ---------------- Spielprotokoll ---------------- */
+  /* ---------------- Game log ---------------- */
 
   gameCountsByAudience(sinceIso: string | null): GameCountRow[] {
     const byMode = new Map<string, GameCountRow>()
@@ -204,7 +204,7 @@ export class MemoryQuizStore implements QuizStorePort {
     return [...byMode.values()]
   }
 
-  /* ---------------- Einstellungen ---------------- */
+  /* ---------------- Settings ---------------- */
 
   getSetting(key: string): string | null {
     return this.settings.get(key) ?? null
@@ -215,10 +215,10 @@ export class MemoryQuizStore implements QuizStorePort {
   }
 
   close(): void {
-    // Nichts zu schliessen - der Speicher gehoert dem Prozess.
+    // Nothing to close - the store belongs to the process.
   }
 
-  /* ---------------- Dauerhaftigkeit ueber Host-Adapter ---------------- */
+  /* ---------------- Persistence through a host adapter ---------------- */
 
   toJSON(): MemoryQuizStoreSnapshot {
     return structuredClone({

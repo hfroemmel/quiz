@@ -1,9 +1,9 @@
 /**
- * @hfroemmel/quiz-themes - die Darstellung der Buehne.
+ * @hfroemmel/quiz-themes - the stage's presentation.
  *
- * Farbpaletten, Schriftstapel und die Theme-Objekte fuer `<QuizScene>`. Das
- * Quizpaket traegt keine Darstellung; wer die Buehne zeigt, importiert sie von
- * hier - als Werte (`sceneThemes`) und als Stylesheets (`palette.css`,
+ * Colour palettes, font stacks and the theme objects for `<QuizScene>`. The
+ * quiz package carries no presentation; whoever shows the stage imports it
+ * from here - as values (`sceneThemes`) and as stylesheets (`palette.css`,
  * `fonts.css`).
  */
 export * from './palettes'

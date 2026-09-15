@@ -1,18 +1,20 @@
 /**
- * Komposition einer Frageansicht: Medium, Fragetafel, Antwortzeilen.
+ * Composition of a question view: media, question board, answer rows.
  *
- * Frage- und Loesungsszene zeigen dieselben Teile in derselben Anordnung; sie
- * unterscheiden sich nur darin, was zwischen Frage und Antworten steht (der
- * Hinweis auf die zweite Chance bzw. das Etikett "Richtige Antwort:"). Diese
- * Stelle ist deshalb ein Kind-Slot.
+ * The question and solution scenes show the same parts in the same
+ * arrangement; they differ only in what sits between question and answers
+ * (the second-chance hint, or the "Richtige Antwort:" label). This spot is
+ * therefore a child slot.
  *
- * ZWEI ANORDNUNGEN, EINE ENTSCHEIDUNG:
+ * TWO LAYOUTS, ONE DECISION:
  *
- *   Regelfall     Bild links, Rubrik und Frage daneben, Antworten darunter
- *   `person`      das Portraet IST die Frage: gross links, alles andere rechts
+ *   default    image on the left, category and question beside it, answers
+ *              below
+ *   `person`   the portrait IS the question: large on the left, everything
+ *              else on the right
  *
- * Welche gilt, steht im Fragetyp des Servers - hier wird sie an genau einer
- * Stelle gelesen, damit Frage und Loesung nie auseinanderlaufen.
+ * Which one applies is stored in the server's question type - read here in
+ * exactly one place, so the question and the solution never drift apart.
  */
 import type { ReactNode } from 'react'
 import type { PublicQuestion } from '@hfroemmel/quiz-core'
@@ -24,13 +26,13 @@ import type { SceneAnswering } from '../scenes/sceneProps'
 
 interface QuestionCompositionProps {
   question: PublicQuestion
-  /** Bildadresse; in der Loesung kann sie von der der Frage abweichen. */
+  /** Image URL; in the solution it can differ from the question's. */
   imageUrl?: string
   mediaVariant?: 'inline' | 'solution'
   rows: AnswerRow[]
-  /** Nur am Touchgeraet: macht die Zeilen zu Schaltflaechen. */
+  /** Touch device only: turns the rows into buttons. */
   answering?: SceneAnswering
-  /** Steht zwischen Frage und Antworten. */
+  /** Sits between question and answers. */
   children?: ReactNode
 }
 
@@ -43,17 +45,17 @@ export function QuestionComposition({
   children,
 }: QuestionCompositionProps) {
   /*
-   * Die Liste bekommt entweder beides oder nichts: Ein `onSelect` ohne die
-   * Angabe, wer tippen darf, machte auf dem Beamer aus Anzeigezeilen Knoepfe.
+   * The list gets either both or neither: an `onSelect` without stating who
+   * is allowed to tap would turn display rows into buttons on the projector.
    */
   const list = answering
     ? { onSelect: answering.onSelect, disabled: answering.disabled, label: answering.label }
     : {}
   /*
-   * Ohne Bild gibt es nichts, wonach sich die Portraetanordnung richten koennte -
-   * die Bildspalte bliebe leer und die Frage stuende zusammengedraengt daneben.
-   * Die Validierung verlangt zwar ein Bild, aber ein fehlendes Medium darf die
-   * Buehne im Betrieb nicht entstellen.
+   * Without an image there is nothing for the portrait layout to key off of -
+   * the image column would stay empty and the question would be cramped
+   * beside it. Validation does require an image, but a missing asset must not
+   * disfigure the stage in live operation.
    */
   if (question.presentationType === 'person' && imageUrl) {
     return (

@@ -1,18 +1,18 @@
 /**
- * `pnpm content:fetch` - optionaler Abruf der redaktionellen Quelle.
+ * `pnpm content:fetch` - optional retrieval of the editorial source.
  *
- * Der Abruf ist ausdruecklich OPTIONAL (Spezifikation 24.2). Der Build der
- * Veranstaltungssoftware darf zur Laufzeit nicht von Google Sheets abhaengen;
- * verbindlich ist immer das gebaute, gepruefte Paket unter `content/dist`.
+ * The retrieval is explicitly OPTIONAL (specification 24.2). The build of the
+ * event software must not depend on Google Sheets at runtime; the built,
+ * validated package under `content/dist` is always what counts.
  *
- * Ablauf laut Spezifikation 24.1:
- *   Google Sheet -> finale redaktionelle Uebergabe -> KI-gestuetzte Rechtschreibpruefung
- *   -> MENSCHLICHE FREIGABE -> Import -> strenge Validierung -> versioniertes Paket
+ * Flow per specification 24.1:
+ *   Google Sheet -> final editorial handover -> AI-assisted spell check
+ *   -> HUMAN APPROVAL -> import -> strict validation -> versioned package
  *
- * KI-Vorschlaege duerfen nicht ungeprueft uebernommen werden: Eigennamen, politische
- * Begriffe, historische Schreibweisen und absichtlich falsche Antwortoptionen wuerden
- * sonst stillschweigend veraendert. Dieses Skript schreibt deshalb ausschliesslich
- * nach `content/incoming` und niemals direkt nach `content/source`.
+ * AI suggestions must not be adopted unchecked: proper names, political terms,
+ * historical spellings and deliberately wrong answer options would otherwise
+ * be changed silently. This script therefore writes exclusively to
+ * `content/incoming` and never directly to `content/source`.
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'

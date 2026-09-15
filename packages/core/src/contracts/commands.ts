@@ -1,127 +1,124 @@
 /**
- * Typisierte Befehle (Spezifikation 18.3).
+ * Typed commands (specification 18.3).
  *
- * Jede Zustandsaenderung laeuft ueber genau einen Befehl. Manuelle Spielerauswahl und
- * Hardware-Buzzer durchlaufen denselben serverseitigen Pfad und dieselbe Validierung.
+ * Every state change goes through exactly one command. Manual player selection
+ * and hardware buzzers pass the same server-side path and the same validation.
  *
- * Rollenrechte stehen ausschliesslich in `commandRoles` weiter unten. Weder Operator-
- * noch Moderatorclient darf diese Tabelle nachbauen; sichtbare Buttons werden aus
- * `allowedCommands` des View-Modells abgeleitet.
+ * Role permissions live exclusively in `commandRoles` below. Neither the
+ * operator nor the moderator client may rebuild that table; visible buttons are
+ * derived from `allowedCommands` of the view model.
  */
 import { z } from 'zod'
-import { flowProfiles, playerCounts, playerIds, type PlayerCount, type PlayerId } from './state'
+import { flowProfiles, playerCountSchema, playerCounts, playerIds, type PlayerId } from './state'
 import { patchableQuestionFieldsSchema } from './content'
 
 /**
- * `player` ist die Rolle der Spieler am Touchgeraet. Sie darf genau zwei Dinge:
- * ein Selbstbedienungsspiel beginnen oder beenden und eine Antwort antippen.
- * Kein Aufloesen fremder Versuche, keine Punktekorrektur, keine Inhalte.
+ * `player` is the role of the players at the touch device. It may do exactly
+ * two things: begin or end a self-service game and tap an answer. No resolving
+ * of other attempts, no score correction, no content.
  *
- * `moderator` fuehrt durch den Abend: freigeben, den Zuschlag setzen, die
- * Antwort einloggen, aufloesen, weiterschalten. Punkte, Spielabbruch, Technik
- * und Inhalte bleiben beim Operator.
+ * `moderator` leads through the evening: opening the buzzer, awarding the buzz,
+ * logging the answer, resolving, advancing. Points, aborting the game, technical
+ * matters and content stay with the operator.
  */
 export const actorRoles = ['operator', 'moderator', 'system', 'buzzer', 'player'] as const
 export type ActorRole = (typeof actorRoles)[number]
 
 const playerIdSchema = z.enum(playerIds as unknown as [PlayerId, ...PlayerId[]])
-const playerCountSchema = z.union(
-  playerCounts.map((count) => z.literal(count)) as unknown as [z.ZodLiteral<PlayerCount>, z.ZodLiteral<PlayerCount>],
-)
 
 /**
- * Alle Befehle als diskriminierte Union. Neue Befehle werden hier ergaenzt; der
- * Compiler erzwingt dann die Behandlung in der Engine und die Rollenzuordnung.
+ * All commands as a discriminated union. New commands are added here; the
+ * compiler then enforces their handling in the engine and their role mapping.
  */
 export const commandSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('START_GAME'),
     /**
-     * Die gewaehlte QUIZART (siehe `quizModeSchema`).
+     * The chosen QUIZ TYPE (see `quizModeSchema`).
      *
-     * ENTWEDER SIE ODER `audience` - niemals beides. Die Quizart nennt
-     * Zielgruppe, Pools und Theme bereits; kaeme daneben noch eine Zielgruppe
-     * herein, gaebe es zwei Angaben, die sich widersprechen koennen. Der Server
-     * weist eine solche Mischung ab.
+     * EITHER THIS OR `audience` - never both. The quiz type already names
+     * audience, pools and theme; if an audience came in beside it, there would
+     * be two statements that can contradict each other. The server refuses such
+     * a mixture.
      *
-     * Das Pult startet ueber die Quizart. Geraete ohne Quizauswahl - Kiosk,
-     * Touchgeraet, eingebettetes Quiz - nennen weiterhin Zielgruppe und Preset.
+     * The desk starts through the quiz type. Devices without a quiz choice -
+     * kiosk, touch device, embedded quiz - keep naming audience and preset.
      */
     quizId: z.string().min(1).optional(),
-    /** Zielgruppe des Spiels (frueher `quizModeId`). */
+    /** Audience of the game (formerly `quizModeId`). */
     audience: z.string().min(1).optional(),
     /**
-     * Fragenpools, aus denen gezogen wird. Ohne Angabe wird nicht nach Pool
-     * gefiltert - alle Pools der Zielgruppe spielen mit. Zu einer Quizart
-     * gehoeren die Pools der Konfiguration; hier waeren sie eine zweite Quelle.
+     * Question pools to draw from. Without them there is no pool filter - all
+     * pools of the audience take part. A quiz type brings the pools of the
+     * configuration; here they would be a second source.
      */
     poolIds: z.array(z.string().min(1)).min(1).optional(),
     /**
-     * Der Schwierigkeitsgrad als Preset.
+     * The difficulty as a preset.
      *
-     * Zu einer Quizart gehoert er nur, wenn sie eine Wahl anbietet
-     * (`quizSupportsDifficulty`); sonst weist der Server ihn ab. Ohne Quizart
-     * ist er Pflicht.
+     * It belongs to a quiz type only if that type offers a choice
+     * (`quizSupportsDifficulty`); otherwise the server refuses it. Without a
+     * quiz type it is mandatory.
      */
     presetId: z.string().min(1).optional(),
     /**
-     * Ohne Angabe wird ein Duell gestartet. Der Buehnenbetrieb laesst das Feld
-     * deshalb weg; das Einzelspiel gibt es ausdruecklich an.
+     * Without it a duel is started. The stage operation therefore omits the
+     * field; a solo game states it explicitly.
      */
     playerCount: playerCountSchema.optional(),
-    /** Beschriftungen in Spielerreihenfolge. Fehlende Eintraege werden ergaenzt. */
+    /** Labels in player order. Missing entries are filled in. */
     playerLabels: z.array(z.string().min(1)).min(1).max(playerCounts.length).optional(),
-    /** Ohne Angabe wird ein vom Operator gesteuertes Spiel gestartet. */
+    /** Without it an operated game is started. */
     flowProfile: z.enum(flowProfiles).optional(),
   }),
-  /** Buzzer fuer die aktuelle Frage freigeben. */
+  /** Open the buzzer for the current question. */
   z.object({ type: z.literal('OPEN_BUZZER') }),
-  /** Hardware-Buzzer. Taste `A` = Spieler 1, Taste `B` = Spieler 2. */
+  /** Hardware buzzer. Key `A` = player 1, key `B` = player 2. */
   z.object({ type: z.literal('BUZZ'), playerId: playerIdSchema }),
-  /** Fallback, wenn die Hardware ausfaellt. Gleiche Validierung wie `BUZZ`. */
+  /** Fallback when the hardware fails. Same validation as `BUZZ`. */
   z.object({ type: z.literal('SELECT_PLAYER_MANUALLY'), playerId: playerIdSchema }),
-  /** Genannte Multiple-Choice-Option einloggen (Bewertung `option-comparison`). */
+  /** Log the named multiple-choice option (evaluation `option-comparison`). */
   z.object({ type: z.literal('LOG_OPTION_ANSWER'), optionId: z.string().min(1) }),
-  /** Muendliche Antwort manuell bewerten (Bewertung `manual-correct-incorrect`). */
+  /** Evaluate an oral answer by hand (evaluation `manual-correct-incorrect`). */
   z.object({ type: z.literal('MARK_MANUAL_ANSWER'), verdict: z.enum(['correct', 'incorrect']) }),
-  /** Den eingeloggten Versuch verbindlich auswerten und Punkte buchen. */
+  /** Evaluate the logged attempt for good and book the points. */
   z.object({ type: z.literal('RESOLVE_ATTEMPT') }),
-  /** Ohne Spielerantwort aufloesen: keine Punkte. */
+  /** Resolve without a player answer: no points. */
   z.object({ type: z.literal('RESOLVE_WITHOUT_ANSWER') }),
-  /** Zweite Chance verstreichen lassen: keine Punkte, kein Abzug. */
+  /** Let the second chance pass: no points, no deduction. */
   z.object({ type: z.literal('PASS_SECOND_CHANCE') }),
-  /** Aktuelle Spielerzuordnung verwerfen und erneut freigeben. */
+  /** Discard the current player assignment and open the buzzer again. */
   z.object({ type: z.literal('RESET_BUZZER') }),
 
   z.object({ type: z.literal('START_IMAGE_REVEAL') }),
   z.object({ type: z.literal('PAUSE_IMAGE_REVEAL') }),
   z.object({ type: z.literal('RESUME_IMAGE_REVEAL') }),
   z.object({ type: z.literal('REVEAL_IMAGE_COMPLETELY') }),
-  /** Technische Korrektur: Enthuellung zurueck auf Sekunde 10. Nicht mit RESET_BUZZER mischen. */
+  /** Technical correction: reveal back to second 10. Do not mix with RESET_BUZZER. */
   z.object({ type: z.literal('RESET_IMAGE_REVEAL') }),
 
   /*
-   * Das Video dieser Frage von vorn abspielen lassen.
+   * Play the video of this question from the start.
    *
-   * DIE FRAGE STEHT IM BEFEHL, weil er sonst nicht zu pruefen waere: Ein Klick,
-   * der auf dem Weg war, als der Operator die Frage uebersprungen hat, wuerde
-   * sonst das Video der naechsten Frage starten. Mit der Kennung weist der
-   * Server ihn ab.
+   * THE QUESTION IS PART OF THE COMMAND because it could not be checked
+   * otherwise: a click that was on its way when the operator skipped the
+   * question would start the video of the next question. With the id the
+   * server refuses it.
    *
-   * Ein zweiter Klick ist kein Sonderfall - er erzeugt einfach einen neuen
-   * Auftrag, und die Buehne spielt wieder von vorn. Es gibt deshalb weder
-   * "pausieren" noch "neu starten".
+   * A second click is no special case - it simply creates a new request, and
+   * the stage plays from the start again. So there is neither "pause" nor
+   * "restart".
    */
   z.object({ type: z.literal('START_VIDEO'), questionId: z.string().min(1) }),
-  /** Nach der Videophase die eigentliche Frage einblenden. Gleiche Frage, zweite Phase. */
+  /** After the video phase, show the actual question. Same question, second phase. */
   z.object({ type: z.literal('SHOW_QUESTION_AFTER_VIDEO') }),
   /**
-   * Sprache des Quiz umstellen.
+   * Switch the language of the quiz.
    *
-   * Wie der Ton gehoert sie dem GERAET und nicht dem Spiel: Am Kioskgeraet
-   * steht der Umschalter im Startbildschirm, wo noch kein Spiel laeuft. Ein
-   * laufendes Spiel wechselt trotzdem mit - die Fragen sind dieselben, nur die
-   * Sprache ist eine andere.
+   * Like the sound it belongs to the DEVICE and not to the game: at the kiosk
+   * device the switch sits on the start screen, where no game runs yet. A
+   * running game switches along anyway - the questions are the same, only the
+   * language differs.
    */
   z.object({ type: z.literal('SET_LOCALE'), locale: z.string().min(2) }),
 
@@ -142,38 +139,38 @@ export const commandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('DRAW_JOKER') }),
   z.object({ type: z.literal('CONTINUE_JOKER'), sequenceId: z.string().min(1) }),
 
-  /** Manuelle Punktkorrektur in 100er-Schritten. */
+  /** Manual score correction in steps of 100. */
   z.object({
     type: z.literal('ADJUST_SCORE'),
     playerId: playerIdSchema,
     direction: z.enum(['increase', 'decrease']),
     reason: z.string().optional(),
   }),
-  /** Naechste Frage bzw. nach der letzten Frage die Ergebnisansicht. */
+  /** Next question, or after the last question the result view. */
   z.object({ type: z.literal('CONTINUE') }),
   z.object({ type: z.literal('ABORT_GAME') }),
-  /** Aktuelle Frage verwerfen und einen Ersatz aus demselben Fragenplatz ziehen. */
+  /** Discard the current question and draw a replacement from the same slot. */
   z.object({ type: z.literal('SKIP_QUESTION'), reason: z.string().optional() }),
-  /** Globaler Soundstatus. */
+  /** Global sound status. */
   z.object({ type: z.literal('SET_SOUND_ENABLED'), enabled: z.boolean() }),
   /**
-   * Systembefehl: beendet eine zeitgesteuerte Phase (Feedback, Pausenscreen).
-   * Wird vom Server-Timer ausgeloest; die Praesentation darf ihn frueher melden,
-   * der fachliche Wechsel haengt aber nicht davon ab.
+   * System command: ends a timed phase (feedback, pause screen).
+   * Triggered by the server timer; the presentation may report it earlier, but
+   * the transition of the rules does not depend on that.
    */
   z.object({ type: z.literal('ADVANCE_TIMED_PHASE'), transitionId: z.string().min(1) }),
 
-  /* ---- Wiederherstellung und Betrieb: von der Anwendungsschicht behandelt ---- */
+  /* ---- Recovery and operation: handled by the application layer ---- */
 
-  /** Nach einem Neustart das gefundene unvollstaendige Spiel fortsetzen. */
+  /** After a restart, resume the incomplete game that was found. */
   z.object({ type: z.literal('RESUME_GAME') }),
-  /** Das gefundene unvollstaendige Spiel bewusst verwerfen. */
+  /** Deliberately discard the incomplete game that was found. */
   z.object({ type: z.literal('DISCARD_RESUMABLE_GAME') }),
-  /** Neuen Veranstaltungstag beginnen (setzt die Wiederholungshistorie zurueck). */
+  /** Begin a new event day (resets the repetition history). */
   z.object({ type: z.literal('START_NEW_EVENT_DAY') }),
-  /** Setzt die Zaehlung des Spielprotokolls zurueck. Spiele werden nicht geloescht. */
+  /** Resets the counting of the game log. Games are not deleted. */
   z.object({ type: z.literal('RESET_GAME_STATISTICS') }),
-  /** Lokaler Live-Hotfix an einer Frage. Das Basispaket bleibt unveraendert. */
+  /** Local live hotfix of a question. The base package stays unchanged. */
   z.object({
     type: z.literal('APPLY_QUESTION_PATCH'),
     questionId: z.string().min(1),
@@ -185,50 +182,50 @@ export const commandSchema = z.discriminatedUnion('type', [
 export type Command = z.infer<typeof commandSchema>
 export type CommandType = Command['type']
 
-/** Ein konkreter Befehlstyp aus der Union herausgegriffen. */
+/** One concrete command type picked from the union. */
 export type CommandOf<T extends CommandType> = Extract<Command, { type: T }>
 
 export const commandEnvelopeSchema = z.object({
-  /** Eindeutige ID des Befehls. Wiederholungen werden idempotent beantwortet. */
+  /** Unique id of the command. Repetitions are answered idempotently. */
   commandId: z.string().min(1).max(120),
   command: commandSchema,
   actor: z.object({
     clientId: z.string().min(1).max(120),
     role: z.enum(actorRoles),
   }),
-  /** Revision, auf der der Client seine Entscheidung getroffen hat. */
+  /** Revision on which the client made its decision. */
   expectedRevision: z.number().int().min(0),
   issuedAtClient: z.string().optional(),
 })
 export type CommandEnvelope = z.infer<typeof commandEnvelopeSchema>
 
 /**
- * Rollenrechte: einzige Quelle der Wahrheit.
+ * Role permissions: the single source of truth.
  *
- * Der Moderator darf laut Spezifikation 5.2 in der initialen Ausbaustufe nur
- * aufloesen, weiterschalten, die Enthuellung pausieren/fortsetzen und die naechste
- * Antwortphase freigeben. Punkte, Abbruch, technische Resets und Inhalte bleiben
- * ausschliesslich beim Operator.
+ * According to specification 5.2 the moderator may, in the initial stage, only
+ * resolve, advance, pause/resume the reveal and open the next answer phase.
+ * Points, aborting, technical resets and content stay exclusively with the
+ * operator.
  */
 export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   START_GAME: ['operator', 'player'],
   OPEN_BUZZER: ['operator', 'moderator'],
   /*
-   * `player` ist die Selbstbedienung: Dort ersetzt der Bildschirm-Buzzer die
-   * Hardware, und der Zuschlag faellt serverseitig - nicht im Client. Fuer die
-   * drei Folgeschritte gilt dasselbe: Der Spieler markiert seine Antwort
-   * (LOG_OPTION_ANSWER), bestaetigt sie (RESOLVE_ATTEMPT), und erst dann wird
-   * gewertet. Es ist dieselbe Befehlssequenz wie beim Operator - absichtlich:
-   * eine zweite Antwortmechanik hiesse zwei Fairnessregeln.
-   * Ob ein Spiel Spielerbefehle annimmt, entscheidet das Ablaufprofil im
-   * Server (`QuizService`), nicht diese Tabelle.
+   * `player` is self-service: there the on-screen buzzer replaces the hardware,
+   * and the buzz is awarded on the server - not in the client. The same holds
+   * for the three following steps: the player marks their answer
+   * (LOG_OPTION_ANSWER), confirms it (RESOLVE_ATTEMPT), and only then it is
+   * scored. It is the same command sequence as the operator's - on purpose: a
+   * second answer mechanism would mean two fairness rules.
+   * Whether a game accepts player commands is decided by the flow profile in
+   * the server (`QuizService`), not by this table.
    */
   BUZZ: ['operator', 'buzzer', 'player'],
   /*
-   * Den Zuschlag von Hand setzen und die Antwort einloggen darf auch der
-   * Moderator. Am Buehnenabend steht er neben den Spielern und sieht als
-   * Erster, wer sich gemeldet hat - der Operator sitzt am Pult. Gewertet wird
-   * weiterhin gemeinsam: RESOLVE_ATTEMPT stand dem Moderator schon offen.
+   * The moderator may also award the buzz by hand and log the answer. On the
+   * stage evening they stand next to the players and are the first to see who
+   * raised a hand - the operator sits at the desk. Scoring stays shared:
+   * RESOLVE_ATTEMPT was open to the moderator already.
    */
   SELECT_PLAYER_MANUALLY: ['operator', 'moderator'],
   LOG_OPTION_ANSWER: ['operator', 'moderator', 'player'],
@@ -244,16 +241,16 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   RESET_IMAGE_REVEAL: ['operator'],
   START_VIDEO: ['operator'],
   /*
-   * Auch der Spieler - denn am Touchgeraet gibt es keinen Operator, der
-   * einblenden koennte. Dort ist das Geraet sein eigenes Pult: Es zeigt das
-   * Video, es sieht dessen Ende, und es blendet danach die Frage ein. Im Saal
-   * aendert das nichts; dort kommt der Befehl weiterhin vom Pult.
+   * The player too - because at the touch device there is no operator who
+   * could show the question. There the device is its own desk: it shows the
+   * video, it sees the video end, and it shows the question afterwards. In the
+   * hall nothing changes; there the command keeps coming from the desk.
    */
   SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator', 'player'],
   /*
-   * Die Sprache darf jeder umstellen, der vor dem Quiz steht - am Geraet ist das
-   * der Spieler selbst, am Buehnenabend der Operator. Sie aendert keine Wertung
-   * und keinen Punktestand.
+   * Anyone standing in front of the quiz may switch the language - at the
+   * device the player, on the stage evening the operator. It changes no scoring
+   * and no score.
    */
   SET_LOCALE: ['operator', 'moderator', 'player'],
   /*
@@ -269,8 +266,8 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   CONTINUE_JOKER: ['operator'],
   ADJUST_SCORE: ['operator'],
   /*
-   * `player` ist die Selbstbedienung: Dort haelt die Loesung an, bis jemand
-   * `Weiter` tippt. Ohne diese Rolle bliebe das Geraet nach jeder Frage stehen.
+   * `player` is self-service: there the solution stays until somebody taps
+   * `Weiter`. Without this role the device would stop after every question.
    */
   CONTINUE: ['operator', 'moderator', 'player'],
   ABORT_GAME: ['operator', 'player'],
@@ -289,37 +286,36 @@ export function roleMayIssue(role: ActorRole, type: CommandType): boolean {
 }
 
 /**
- * Befehle OHNE Revisionspruefung - ebenfalls einzige Quelle der Wahrheit.
+ * Commands WITHOUT a revision check - likewise the single source of truth.
  *
- * Hintergrund: `expectedRevision` schuetzt vor widerspruechlichen ENTSCHEIDUNGEN, die
- * zwei Clients auf demselben Stand treffen (Spezifikation 18.5). Ein Buzzer ist aber
- * keine Entscheidung auf Basis eines gesehenen Zustands, sondern ein physisches
- * Ereignis: Gibt der Operator den Buzzer frei und ein Spieler drueckt 50 Millisekunden
- * spaeter, kennt der Client die neue Revision noch nicht. Eine Ablehnung waere im
- * Live-Betrieb inakzeptabel und wuerde die Fairness beschaedigen.
+ * Background: `expectedRevision` protects against contradictory DECISIONS that
+ * two clients make on the same state (specification 18.5). A buzzer, however, is
+ * not a decision based on a state that was seen but a physical event: if the
+ * operator opens the buzzer and a player presses 50 milliseconds later, the
+ * client does not know the new revision yet. A refusal would be unacceptable in
+ * live operation and would damage fairness.
  *
- * Die Fairness bleibt trotzdem gewahrt, weil der Server weiterhin atomar entscheidet:
- * Phase, Buzzerfreigabe und Spielersperre werden bei jedem Ereignis frisch geprueft
- * (siehe `evaluateBuzz`), und nach dem ersten angenommenen Buzzer wird jeder weitere
- * abgewiesen.
+ * Fairness is still preserved because the server keeps deciding atomically:
+ * phase, buzzer state and player lock are checked afresh on every event (see
+ * `evaluateBuzz`), and after the first accepted buzz every further one is
+ * refused.
  *
- * Fuer alle anderen Befehle - insbesondere Aufloesen, Weiter und Punktekorrektur -
- * gilt die Revisionspruefung unveraendert.
+ * For all other commands - in particular resolving, advancing and score
+ * corrections - the revision check applies unchanged.
  */
 export const revisionExemptCommands: ReadonlySet<CommandType> = new Set<CommandType>([
-  // Physisches Buzzerereignis bzw. dessen manueller Fallback.
+  // Physical buzzer event or its manual fallback.
   'BUZZ',
   'SELECT_PLAYER_MANUALLY',
   /*
-   * Das Einloggen folgt am Touchgeraet unmittelbar auf den eigenen Buzz, bevor
-   * dessen neue Revision den Client erreicht hat. Es ist ausserdem keine
-   * endgueltige Entscheidung: Die Markierung bleibt bis zum Aufloesen
-   * umentscheidbar, und der bindende Schritt RESOLVE_ATTEMPT behaelt die
-   * Revisionspruefung. Phase, offener Versuch und verbrauchte Optionen werden
-   * beim Einloggen ohnehin frisch geprueft.
+   * At the touch device the logging follows the player's own buzz immediately,
+   * before its new revision has reached the client. It is also no final
+   * decision: the mark stays changeable until the resolve, and the binding step
+   * RESOLVE_ATTEMPT keeps the revision check. Phase, open attempt and used
+   * options are checked afresh on logging anyway.
    */
   'LOG_OPTION_ANSWER',
-  // Serverinterner Timer; gegen Doppelausloesung schuetzt die `transitionId`.
+  // Server-internal timer; the `transitionId` guards against double firing.
   'ADVANCE_TIMED_PHASE',
 ])
 
@@ -327,7 +323,7 @@ export function requiresRevisionCheck(type: CommandType): boolean {
   return !revisionExemptCommands.has(type)
 }
 
-/** Gruende, aus denen der Server einen Befehl ablehnt. */
+/** Reasons for which the server refuses a command. */
 export const commandRejectionReasons = [
   'invalid-payload',
   'forbidden-role',
@@ -339,17 +335,17 @@ export const commandRejectionReasons = [
   'buzzer-already-taken',
   'wrong-flow-profile',
   'no-pending-attempt',
-  /* ---- Der Start ueber eine Quizart ---- */
-  /** Die genannte Quizart steht nicht in der Konfiguration - oder unvollstaendig. */
+  /* ---- Starting through a quiz type ---- */
+  /** The named quiz type is not in the configuration - or incomplete. */
   'unknown-quiz',
   /**
-   * Der Schwierigkeitsgrad passt nicht zur Quizart: Er fehlt, gehoert nicht zu
-   * ihr, oder sie bietet gar keine Wahl an und bekommt trotzdem einen.
+   * The difficulty does not fit the quiz type: it is missing, does not belong
+   * to it, or the type offers no choice at all and still receives one.
    */
   'invalid-difficulty',
   'attempt-already-resolved',
   'answer-not-logged',
-  /** Diese Option wurde in einem frueheren Versuch schon als falsch bewertet. */
+  /** This option was already evaluated as wrong in an earlier attempt. */
   'option-already-answered',
   /* ---- The joker: one reason per way a draw can be refused ---- */
   /** This player has already spent their joker in this game. */
@@ -369,10 +365,10 @@ export const commandRejectionReasons = [
   'joker-no-answering-player',
   /** No such player in this game. */
   'unknown-player',
-  /* ---- Die Videofrage ---- */
-  /** Der Befehl nennt eine andere Frage als die, die gerade laeuft. */
+  /* ---- The video question ---- */
+  /** The command names a question other than the one running. */
   'video-question-mismatch',
-  /** Zu dieser Frage ist kein Video hinterlegt - es gibt nichts abzuspielen. */
+  /** This question has no video - there is nothing to play. */
   'video-source-missing',
   'no-candidate-question',
   'nothing-to-resume',
@@ -384,7 +380,7 @@ export type CommandRejectionReason = (typeof commandRejectionReasons)[number]
 
 export interface CommandRejection {
   reason: CommandRejectionReason
-  /** Klartext fuer den Operator, inklusive sicherer naechster Aktion. */
+  /** Plain text for the operator, including a safe next action. */
   message: string
   currentRevision?: number
 }

@@ -1,9 +1,9 @@
 /**
- * Figurenebene der Buehne.
+ * The stage's mascot layer.
  *
- * Reine Dekoration: ohne Alternativtext, ohne Klickflaeche. Ob dort eine Figur
- * steht, entscheidet allein die Gestaltungswelt im Stylesheet - im Markup steht
- * kein Modusname. In der Buehne der Erwachsenen bleibt die Ebene leer.
+ * Purely decorative: no alt text, no click target. Whether a mascot appears
+ * there is decided solely by the design world in the stylesheet - the markup
+ * carries no mode name. On the adults' stage the layer stays empty.
  */
 import styles from './Mascot.module.css'
 

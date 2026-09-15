@@ -1,12 +1,13 @@
 /**
- * Konfetti der Ergebnisansicht.
+ * Confetti for the result view.
  *
- * Es kommt als gelieferte Datei `confetti.svg` (freigegeben). Die Bewegung steckt
- * als CSS-Animation in der Grafik selbst; sie laeuft auch, wenn die Datei als Bild
- * eingebunden ist. Damit gibt es keine zweite, im Code nachgebaute Fassung.
+ * It comes as a delivered file `confetti.svg` (cleared). The motion sits as
+ * a CSS animation in the graphic itself; it still runs when the file is
+ * embedded as an image. That means there is no second version rebuilt in
+ * code.
  *
- * Der Effekt beeinflusst keinerlei Spiellogik. Bei reduzierter Bewegung wird er
- * im Stylesheet vollstaendig ausgeblendet.
+ * The effect has no influence whatsoever on game logic. Under reduced
+ * motion it is hidden completely in the stylesheet.
  */
 import { confettiOverlayUrl } from '../presentation/animationAssets'
 import styles from './Confetti.module.css'

@@ -1,29 +1,30 @@
 /**
- * DIE FARBEN. Alle. An einer Stelle.
+ * THE COLOURS. All of them. In one place.
  *
- * Jeder Farbwert des Quiz-Systems steht in dieser Datei - die beiden
- * Gestaltungswelten, die helle Fassung der Erwachsenenbuehne, die wenigen
- * Farben, die keiner Welt gehoeren, und der Bedienrahmen des Operators.
- * Anderswo steht kein Farbwert mehr; `test/palette.test.ts` haelt das fest.
+ * Every colour value of the quiz system lives in this file - the two
+ * design worlds, the light variant of the adult stage, the few colours
+ * that belong to no world, and the operator's control frame. No colour
+ * value lives anywhere else; `test/palette.test.ts` enforces that.
  *
- * Das Token-Vokabular (`designColorTokens`) definiert der Kern - hier stehen
- * die WERTE. So bleibt das Quizpaket frei von Darstellung, und trotzdem gibt
- * es genau eine Quelle je Farbe.
+ * The token vocabulary (`designColorTokens`) is defined by the core - here
+ * are the VALUES. That keeps the quiz package free of presentation, while
+ * still leaving exactly one source per colour.
  */
 import type { DesignColors, ThemeSkin } from '@hfroemmel/quiz-core'
 
 /**
- * Kuehles, leicht blaeuliches System der Buehne der Erwachsenen.
+ * Cool, slightly bluish system for the adult stage.
  *
- * Die Flaechenfarben sind halbtransparent: Hinter der Szene liegt das unscharfe
- * Fragebild, und Kacheln, Buchstaben und Antwortleisten sollen es als Milchglas
- * durchscheinen lassen, statt es zuzudecken. Sie sind neutral und stammen aus
- * dem Buehnenentwurf; die Bedeutungsfarben dagegen aus dem Farbspektrum des
- * Bundes (Styleguide der Bundesregierung, dieselbe Farbwelt wie bundestag.de).
+ * The surface colours are semi-transparent: behind the scene sits the blurred
+ * question image, and tiles, letters and answer bars are meant to let it
+ * shine through like frosted glass rather than cover it. They are neutral
+ * and come from the stage design; the meaning colours, on the other hand,
+ * come from the federal colour spectrum (the Federal Government's style
+ * guide, the same colour world as bundestag.de).
  *
- * Farbwelt des Kinderquiz: Papier, Tinte und die Signalfarben der Illustration.
- * Ihre Werte stammen aus `boxes.css` des Boxen-Assetpakets - die gezeichneten
- * Rahmen tragen dieselben Toene, deshalb duerfen sie nicht frei gewaehlt werden.
+ * Colour world of the kids quiz: paper, ink and the illustration's signal
+ * colours. Their values come from `boxes.css` in the boxes asset package -
+ * the drawn frames carry the same tones, so they must not be chosen freely.
  */
 export const stagePalettes: Record<ThemeSkin, DesignColors> = {
   default: {
@@ -37,25 +38,26 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
     tileQuiet: 'rgba(255, 255, 255, 0.06)',
     option: 'rgba(255, 255, 255, 0.05)',
     /*
-     * Bedeutungsfarben aus dem Farbspektrum des Bundes.
+     * Meaning colours from the federal colour spectrum.
      *
-     * Ausgewaehlt wurde je Token der Ton mit dem kleinsten Abstand zur zuvor
-     * gesetzten Farbe (CIELAB) - die Buehne behaelt ihr Bild, traegt aber
-     * amtliche Werte. Die Prozentzahl ist die Abstufung des Styleguides; sie
-     * entsteht durch proportionales Aufhellen mit Weiss bzw. Abdunkeln mit
-     * Schwarz und ist selbst Teil der Vorgabe.
+     * For each token, the tone with the smallest distance (CIELAB) to the
+     * previously set colour was chosen - the stage keeps its picture but
+     * carries official values. The percentage is the style guide's step;
+     * it results from proportional lightening with white or darkening with
+     * black, and is itself part of the specification.
      *
-     * Auf dunklem Grund tragen die Aufhellungen: Der reine Ton saeuft im
-     * Hintergrund ab. Die helle Fassung nimmt dieselben Farben bei 100 Prozent.
+     * Against a dark background the lightened tones are used: the pure tone
+     * would drown in the background. The light variant takes the same
+     * colours at 100 percent.
      */
     accent: '#3392C5', // Blau 80 %
     accentQuiet: '#005A76', // Petrol, 80 % abgedunkelt
     primary: '#339D6E', // Gruen 80 %
     solution: '#339D6E', // Gruen 80 %
     /*
-     * Derselbe Ton wie die Leiste: Buchstabe und Antwort sind EINE Flaeche, die
-     * nur eine Fuge teilt. Zwei Gruens nebeneinander lasen sich wie zwei
-     * Aussagen - der dunklere Chip wirkte wie ein zweiter Zustand.
+     * Same tone as the bar: the letter and the answer are ONE surface, split
+     * only by a seam. Two greens side by side read like two separate
+     * statements - the darker chip looked like a second state.
      */
     solutionChip: '#339D6E', // Gruen 80 %
     correct: '#339AA2', // Tuerkis 80 %
@@ -86,17 +88,17 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
 }
 
 /**
- * Helle Fassung der Erwachsenenbuehne - der Umschalter im Kopf der Buehne.
+ * Light variant of the adult stage - the toggle in the stage's header.
  *
- * Der Bauplan spiegelt die dunkle Fassung: Wo dort weisse Schleier auf Dunkel
- * liegen, liegen hier dunkle Schleier auf Papier.
+ * The layout mirrors the dark variant: where white veils sit on dark there,
+ * dark veils sit on paper here.
  *
- * Sie nennt auch die Bedeutungsfarben, und zwar dieselben CI-Farben wie oben,
- * nur bei voller Saettigung: Eine Aufhellung, die auf Dunkel leuchtet,
- * verschwindet auf Papier. Das ist zugleich eine Festlegung - ein Modus mit
- * eigenem Akzent zeigt ihn in der hellen Fassung nicht mehr. Beide Modi der
- * Buehne benutzen heute dasselbe Theme; sollte je ein Modus eine eigene
- * Farbwelt bekommen, gehoert die helle Fassung in sein Theme.
+ * It also names the meaning colours, using the same CI colours as above,
+ * just at full saturation: a lightened tone that glows against dark
+ * disappears on paper. That is also a deliberate decision - a mode with its
+ * own accent no longer shows it in the light variant. Both modes of the
+ * stage currently use the same theme; should a mode ever get its own colour
+ * world, its light variant belongs in that theme.
  */
 export const brightPalette: Partial<DesignColors> = {
   pageTop: '#fff',
@@ -104,9 +106,9 @@ export const brightPalette: Partial<DesignColors> = {
   stageTop: '#fff',
   stageBottom: '#ebebeb',
   controls: '#eeeeee',
-  /* Keine Bedeutung, sondern Zuruecknahme: der gesperrte Spieler auf Papier. */
+  /* Not a meaning but a withdrawal: the locked-out player on paper. */
   accentQuiet: '#dcdcdc',
-  /* Milchglas bleibt Milchglas - nur aus Tinte statt aus Licht. */
+  /* Frosted glass stays frosted glass - just made of ink instead of light. */
   tile: 'rgba(25, 25, 25, 0.06)',
   tileDisabled: 'rgba(25, 25, 25, 0.04)',
   tileQuiet: 'rgba(25, 25, 25, 0.05)',
@@ -122,113 +124,112 @@ export const brightPalette: Partial<DesignColors> = {
 }
 
 /**
- * Farben der Buehne, die keinem Theme gehoeren.
+ * Stage colours that belong to no theme.
  *
- * Sie beschreiben kein Thema, sondern eine physikalische Lage: Schrift, die auf
- * einer kraeftigen Flaeche steht, und eine Kante, die ein Bild vom Grund
- * abtrennt. Sie bleiben in jedem Modus gleich und stehen deshalb nicht im
- * Tokensatz des Quizpakets.
+ * They don't describe a theme but a physical situation: text sitting on a
+ * strong-coloured surface, and an edge separating an image from the
+ * background. They stay the same in every mode and therefore are not part
+ * of the quiz package's token set.
  */
 export const stageExtras = {
-  /** Schrift auf Akzent-, Loesungs- oder Spielerfarbe - dort immer hell. */
+  /** Text on accent, solution or player colour - always light there. */
   inkOnStrong: '#ffffff',
-  /** Haarfeine Kante am Portraet, damit es sich vom Grund abhebt. */
+  /** Hairline edge on the portrait, so it stands out from the background. */
   edge: 'rgb(255 255 255 / 0.22)',
   /**
-   * Kontur um helle Schrift, die auf unruhigem Grund steht.
+   * Outline around light text sitting on a busy background.
    *
-   * In der Kinderwelt liegen Punktestand und Countdown ueber einer Zeichnung
-   * mit hellen und dunklen Stellen. Eine Schrift ohne Kontur wuerde dort
-   * stellenweise verschwinden - im Saal aus zwanzig Metern zuerst.
+   * In the kids world, the score and countdown sit over an illustration with
+   * light and dark areas. Text without an outline would disappear in places
+   * there - first of all in the hall, seen from twenty metres away.
    */
   inkOutline: '#000000',
   /**
-   * Die beiden Spielerfarben des Touchgeraets.
+   * The two player colours of the touch device.
    *
-   * Sie gehoeren KEINEM Modus: Rot links, Blau rechts ist die aelteste Art,
-   * zwei Seiten auseinanderzuhalten, und muss in jeder Farbwelt dieselbe
-   * bleiben. Wechselte sie mit dem Modus, gehoerte die eigene Ecke am Geraet
-   * ploetzlich einer anderen Farbe - und genau daran orientiert sich, wer
-   * gleich auf seinen Buzzer schlaegt.
+   * BOTH ARE THE ACCENT OF THE WORLD. The two corners are told apart by
+   * their place - left and right - not by two colours of their own, which in
+   * the kids world stood next to its accent without belonging to it.
    *
-   * Aus diesen beiden Werten leitet sich alles Weitere im Stylesheet ab: Der
-   * dunkle Grund des Buzzers ist derselbe Ton, in den Buehnengrund gemischt.
-   * Deshalb steht hier je Spieler genau EINE Farbe.
+   * They therefore point at `--color-accent` instead of carrying a tone:
+   * whoever changes the accent of a world changes the buzzers with it, and
+   * the stylesheet keeps deriving everything else from these two values (the
+   * buzzer's dark ground is the same tone, mixed into the stage background).
    */
-  playerOne: '#b03a3a',
-  playerTwo: '#3742a8',
+  playerOne: 'var(--color-accent)',
+  playerTwo: 'var(--color-accent)',
 } as const
 
 /* ------------------------------------------------------------------ *
- * Bedienrahmen von Operator und Moderator
+ * Control frame of operator and moderator
  * ------------------------------------------------------------------ */
 
 /**
- * BEWUSST GETRENNT vom Farbsystem der Buehne. Die achtzehn Themetoken gehoeren
- * dem Quizmodus: Wechselt der Modus, wechselt der Saal die Farbe. Die
- * Bedienoberflaeche tut das NICHT - sie bleibt in jedem Modus dieselbe dunkle
- * Flaeche, damit der Operator seine Tasten blind findet und die Buehnenvorschau
- * als einziges helles Feld heraussticht.
+ * DELIBERATELY SEPARATED from the stage's colour system. The eighteen theme
+ * tokens belong to the quiz mode: when the mode changes, the hall's colour
+ * changes. The control UI does NOT do that - it stays the same dark surface
+ * in every mode, so the operator can find their buttons blindly and the
+ * stage preview stands out as the only bright field.
  */
 /* ------------------------------------------------------------------ *
- * Quizauswahl vor dem Buehnenabend
+ * Quiz selection before the stage show
  * ------------------------------------------------------------------ */
 
 /**
- * Die Farben der Quizauswahl am Pult - ein eigener Satz, und mit Absicht.
+ * The colours of the quiz selection at the console - a set of its own, and
+ * deliberately so.
  *
- * WARUM NICHT DER BEDIENRAHMEN: Der ist dunkel und will nichts. Diese Ansicht
- * ist das Erste, was vor einem Abend auf dem Schirm steht; sie ist hell, ruhig
- * und traegt fuenf Karten, die man auseinanderhalten koennen muss.
+ * WHY NOT THE CONTROL FRAME: It is dark and wants nothing. This view is the
+ * first thing on screen before an evening; it is bright, calm, and carries
+ * five cards that must be told apart.
  *
- * WARUM NICHT DIE BUEHNE: Die gehoert dem gewaehlten Quiz - und die Auswahl
- * steht genau davor. Sie kann keine Farbe tragen, die erst danach feststeht.
+ * WHY NOT THE STAGE: That belongs to the chosen quiz - and the selection sits
+ * right before it. It cannot carry a colour that isn't decided until later.
  *
- * WARUM NICHT `startPalette`: Das ist der Startbildschirm des GERAETS, dunkel
- * und aus einem anderen Entwurf. Zwei Bildschirme, zwei Entwuerfe, zwei Saetze.
+ * WHY NOT `startPalette`: That is the DEVICE's start screen, dark and from a
+ * different design. Two screens, two designs, two sets.
  *
- * JEDE KARTE HAT IHRE EIGENE FLAECHE, weil sie fuer ihr Quiz steht: das Blau
- * der Union, das Rot des Bremer Wappens, das Papier der Einheit. Deshalb sind es
- * benannte Flaechen und keine Abstufungen einer Grundfarbe.
+ * EVERY CARD HAS ITS OWN SURFACE, because it stands for its quiz: the blue of
+ * the Union, the red of the Bremen coat of arms, the paper of Unity. That's
+ * why these are named surfaces and not shades of one base colour.
  *
- * KEIN FOKUSRING UND KEIN ANGEHOBENER SCHATTEN: Die Uebersicht steht auf der
- * BUEHNE und ist ein Plakat - sie hat keine Zustaende, weil man sie nicht
- * bedienen kann. Ein Ton fuer einen Zustand, den es nicht gibt, waere eine
- * Einladung, ihn doch einzubauen.
+ * NO FOCUS RING AND NO RAISED SHADOW: The overview lives on the STAGE and is
+ * a poster - it has no states, because it cannot be operated. A tone for a
+ * state that doesn't exist would be an invitation to add one anyway.
  */
 export const quizSelectPalette = {
   page: '#fbfbfa',
   ink: '#07152d',
   'ink-quiet': '#284d73',
-  /* Die fuenf Kartenflaechen. Verlaeufe, weil eine flache Flaeche hier leer wirkt. */
+  /* The five card surfaces. Gradients, because a flat surface looks empty here. */
   'card-bundestag': 'linear-gradient(135deg, #eef2f6 0%, #d5dee8 100%)',
   'card-kids': 'linear-gradient(180deg, #aed5f0 0%, #c1d6f1 50%, #d5d7f1 100%)',
   'card-europe': '#003399',
   'card-unity': 'linear-gradient(135deg, #f7f7f5 0%, #ececea 100%)',
   'card-bremen': 'linear-gradient(135deg, #fbe5e2 0%, #efbfc2 100%)',
-  /* Auf dem Unionsblau traegt nur Weiss. */
+  /* On the Union blue, only white works. */
   'ink-on-europe': '#ffffff',
-  /* Der Schatten ist ein Hauch - die Karten liegen, sie schweben nicht. */
+  /* The shadow is a hint - the cards rest, they don't float. */
   shadow: 'rgb(7 21 45 / 0.055)',
 } as const
 
 export const uiPalette = {
   page: '#0d0f13',
-  /* Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel. */
+  /* Cards and bars: control bar, private area, popups, start panel. */
   surface: '#171b21',
-  /* Kopf- und Fusszeile - eine Spur unter den Karten, damit sie zurueckstehen. */
+  /* Header and footer - a shade below the cards, so they recede. */
   'surface-quiet': '#12151a',
-  /* Aufgehellte Flaeche INNERHALB einer Karte - etwa die Notizspalte. */
+  /* Lightened surface INSIDE a card - such as the notes column. */
   'surface-raised': 'rgba(255, 255, 255, 0.06)',
   control: '#242a33',
   'control-disabled': '#1a1e24',
   input: 'rgb(0 0 0 / 0.35)',
   border: 'rgb(255 255 255 / 0.1)',
-  /* Trennlinie innerhalb einer Karte - schwaecher als die Aussenkante. */
+  /* Divider line inside a card - fainter than the outer edge. */
   'border-quiet': 'rgb(255 255 255 / 0.12)',
-  /* Kante eines Feldes, das sich absetzen soll - die Buehnenvorschau. */
+  /* Edge of a field that should stand out - the stage preview. */
   'border-strong': 'rgba(255, 255, 255, 0.24)',
-  /* Flaeche hinter einem Popup und Grund der Vorschaukachel. */
+  /* Surface behind a popup and background of the preview tile. */
   scrim: 'rgb(0 0 0 / 0.55)',
   'scrim-quiet': 'rgb(0 0 0 / 0.3)',
   text: '#ffffff',
@@ -236,40 +237,41 @@ export const uiPalette = {
   accent: '#36b35e',
   correct: '#36b35e',
   incorrect: '#a62749',
-  /* Hinterlegte Meldungen: nur ein Hauch Farbe, die Schrift traegt die Aussage. */
+  /* Highlighted messages: just a hint of colour, the text carries the message. */
   'warning-soft': 'rgba(255, 195, 43, 0.16)',
   'error-soft': 'rgba(255, 92, 92, 0.16)',
 } as const
 
 /* ------------------------------------------------------------------ *
- * Startbildschirm des Geraets
+ * Device start screen
  * ------------------------------------------------------------------ */
 
 /**
- * Die Farbwelt der Startauswahl - eine eigene, und mit Absicht.
+ * The colour world of the start selection - its own, and deliberately so.
  *
- * WARUM NICHT DER BEDIENRAHMEN darueber: Der ist ein Werkzeug. Er steht am Pult
- * des Operators, wird stundenlang angesehen und soll nichts wollen. Der
- * Startbildschirm ist das Gegenteil - er ist das Erste, was jemand im Foyer
- * sieht, und muss einladen. Er kommt aus einem eigenen Entwurf
- * (`Quiz_Standalone_Startmenu_SVG_Assets`), und seine Werte stehen deshalb hier
- * als eigener Satz, statt die Bedientoken umzufaerben.
+ * WHY NOT THE CONTROL FRAME above it: That is a tool. It sits at the
+ * operator's console, gets looked at for hours, and is meant to want
+ * nothing. The start screen is the opposite - it's the first thing someone
+ * sees in the foyer, and it must invite them in. It comes from its own
+ * design (`Quiz_Standalone_Startmenu_SVG_Assets`), so its values live here
+ * as a set of their own, instead of recolouring the control tokens.
  *
- * WARUM NICHT DIE BUEHNE: Die gehoert dem Quizmodus und wechselt mit ihm - die
- * Kinderwelt ist Papier, die Erwachsenenwelt kuehles Blau. Der Startbildschirm
- * steht VOR dieser Wahl und kann keine Farbe tragen, die erst danach feststeht.
+ * WHY NOT THE STAGE: That belongs to the quiz mode and changes with it - the
+ * kids world is paper, the adult world is cool blue. The start screen sits
+ * BEFORE that choice and cannot carry a colour that isn't decided until
+ * later.
  *
- * DIE DREI SIGNALFARBEN - Gruen, Limone, Violett - stufen die Schwierigkeit ab.
- * Sie sind Reihenfolge und nicht Bedeutung: kein "richtig", kein "falsch".
+ * THE THREE SIGNAL COLOURS - green, lime, violet - grade the difficulty.
+ * They are order, not meaning: no "right", no "wrong".
  */
 export const startPalette = {
   /*
-   * Grund: ein Verlauf ueber die Diagonale, dazu zwei farbige Lichter.
+   * Background: a gradient across the diagonal, plus two coloured lights.
    *
-   * Die Lichter heissen nach ihrem PLATZ und nicht nach ihrer Farbe: links das
-   * eine, rechts das andere. In der dunklen Fassung sind sie gruen und violett,
-   * in der hellen rosa und lavendel - ein Name, der die Farbe nennt, waere in
-   * der jeweils anderen Fassung falsch.
+   * The lights are named after their PLACE, not their colour: one on the
+   * left, the other on the right. In the dark variant they are green and
+   * violet, in the light variant pink and lavender - a name that states the
+   * colour would be wrong in the other variant.
    */
   'bg-top': '#111b25',
   'bg-mid': '#0a1118',
@@ -277,49 +279,49 @@ export const startPalette = {
   'ambient-left': '#2bbe65',
   'ambient-right': '#726bea',
 
-  /* Karten und Kanten der rechten Spalte. */
+  /* Cards and edges of the right-hand column. */
   surface: '#17212d',
   'surface-quiet': '#111a24',
-  /* Eine gewaehlte Karte: derselbe Kasten, nur ins Gruene gekippt. */
+  /* A selected card: the same box, just tinted green. */
   'surface-selected': '#1a2b29',
   line: '#263442',
   'line-strong': '#2b3948',
 
   /*
-   * DIE AUSWAHLKARTEN UND DER SEKUNDAERE KNOPF HABEN IHREN EIGENEN NAMEN.
+   * THE SELECTION CARDS AND THE SECONDARY BUTTON HAVE THEIR OWN NAME.
    *
-   * Sie sahen aus wie `surface` und hiessen auch so - zusammen mit dem
-   * Einstellungsfenster, dem Zahnrad und der Rueckfrage. In der hellen Fassung
-   * gehen sie aber getrennte Wege: Die Karten werden dort zu ruhigen grauen
-   * Flaechen wie eine nicht gewaehlte Antwort im Spiel, das Fenster bleibt sein
-   * Milchglas. Hier stehen dieselben Werte wie vorher, damit sich im Dunkeln
-   * nichts aendert.
+   * They used to look like `surface` and were named that too - together with
+   * the settings window, the gear icon and the confirmation prompt. In the
+   * light variant, though, they go separate ways: there the cards become
+   * calm grey surfaces like an unselected answer in the game, while the
+   * window keeps its frosted glass. Here the same values as before are kept,
+   * so nothing changes in the dark variant.
    */
   option: '#17212d',
-  /* Unter dem Zeiger eine Spur heller - die Karte hebt sich, statt zu blinken. */
+  /* A shade lighter under the pointer - the card lifts instead of flashing. */
   'option-hover': '#1b2735',
-  /* Die runde Flaeche unter dem Zeichen einer nicht gewaehlten Karte. */
+  /* The round surface under the icon of an unselected card. */
   'option-icon': 'rgba(255, 255, 255, 0.045)',
 
   text: '#f5f7f9',
   'text-muted': '#98a7b7',
-  /* Die Fussnote unter der Startschaltflaeche - leiser als alles andere. */
+  /* The footnote under the start button - quieter than everything else. */
   'text-quiet': '#6f7f8e',
 
   /*
-   * DIE AUSWAHL IST NICHT DIE HANDLUNG.
+   * SELECTION IS NOT THE ACTION.
    *
-   * Beide waren hier dasselbe Gruen, und in der dunklen Fassung faellt das
-   * nicht auf. In der hellen schon: Dort traegt die Auswahl das Blau der
-   * markierten Antwort, und Gruen gehoert allein dem einen Knopf, der das
-   * Spiel startet. Ein Satz Namen fuer die Auswahl macht das trennbar - und
-   * hier stehen dieselben Werte wie vorher, damit sich im Dunkeln nichts
-   * aendert.
+   * Both used to be the same green here, and in the dark variant that isn't
+   * noticeable. In the light variant it is: there, the selection carries the
+   * blue of the marked answer, and green belongs solely to the one button
+   * that starts the game. A set of names for the selection makes that
+   * separable - and here the same values as before are kept, so nothing
+   * changes in the dark variant.
    */
   selected: '#42d176',
-  /* Kante, Zeichen und Tastaturmarke einer gewaehlten Karte. */
+  /* Edge, icon and keyboard mark of a selected card. */
   'selected-bright': '#63df8e',
-  /* Schrift AUF einer gewaehlten Karte - und die leisere Zeile darunter. */
+  /* Text ON a selected card - and the quieter line below it. */
   'ink-on-selected': '#f5f7f9',
   'meta-on-selected': '#98a7b7',
 
@@ -327,60 +329,61 @@ export const startPalette = {
   'green-bright': '#63df8e',
   'green-light': '#46d77a',
   'green-deep': '#28b962',
-  /* Kante auf der Startschaltflaeche, damit ihr Verlauf nicht ausfranst. */
+  /* Edge on the start button, so its gradient doesn't fray. */
   'green-edge': '#9cf0b8',
   /*
-   * Die Aufschrift AUF dem Gruen. Sie ist hell: Der Balken ist die einzige
-   * volle Farbe der Flaeche, und alles darauf gehoert zur Schrift daneben.
+   * The label ON the green. It is light: the bar is the surface's only full
+   * colour, and everything on it belongs to the text next to it.
    */
   'ink-on-green': '#f5f7f9',
   /*
-   * Das Zeichen auf der gefuellten Auswahlmarke. Sie ist klein und traegt die
-   * Auswahlfarbe voll - darauf gilt die umgekehrte Regel als auf dem Balken.
+   * The icon on the filled selection marker. It is small and carries the
+   * selection colour at full strength - the opposite rule applies here than
+   * on the bar.
    */
   'ink-on-badge': '#06140c',
   lime: '#d9e93e',
   violet: '#8d86ff',
 
-  /* Die Markentafel links: waermeres Gruen als die Bedienspalte rechts. */
+  /* The brand panel on the left: a warmer green than the control column on the right. */
   'brand-top': '#1d2b27',
   'brand-mid': '#173828',
   'brand-bottom': '#205d34',
   'brand-line': '#34483e',
   'brand-text': '#bed0c7',
-  /* Schatten und Chipgrund INNERHALB der Tafel - dunkler als ihr Verlauf. */
+  /* Shadow and chip background INSIDE the panel - darker than its gradient. */
   'brand-shade': '#07100d',
 
-  /* Zeichen einer nicht gewaehlten Karte und der Eckknoepfe. */
+  /* Icon of an unselected card and of the corner buttons. */
   icon: '#a9b6c4',
-  /* Aufhellung als Milchglas - der Ton, aus dem alle Schleier gemischt werden. */
+  /* Lightening as frosted glass - the tone all veils are mixed from. */
   glass: '#ffffff',
-  /* Abdunklung - Schatten unter den Tafeln. */
+  /* Darkening - shadow under the panels. */
   shade: '#000000',
 } as const
 
 /**
- * Die helle Fassung des Startbildschirms.
+ * The light variant of the start screen.
  *
- * SIE NENNT KEINEN EIGENEN FARBWERT, WO ES SCHON EINEN GIBT: Was die helle
- * Buehne traegt, traegt auch die Auswahl davor - Papier, Tinte, das Blau der
- * markierten Antwort, das Gruen des Knopfes, der aufloest. Deshalb stehen hier
- * Verweise auf `brightPalette` und nicht Abschriften davon: Wer dort eine Farbe
- * aendert, aendert sie hier mit.
+ * IT NAMES NO COLOUR VALUE OF ITS OWN WHERE ONE ALREADY EXISTS: whatever the
+ * light stage carries, the selection before it carries too - paper, ink, the
+ * blue of the marked answer, the green of the button that reveals the
+ * solution. That's why references to `brightPalette` are used here instead
+ * of copies of it: whoever changes a colour there changes it here too.
  *
- * Eigene Werte hat nur, was die Buehne nicht kennt - die beiden weichen Lichter
- * im Grund und die Haarlinien der Karten. Und nur was ABWEICHT steht hier: Der
- * Rest kommt weiter aus `startPalette`.
+ * Only what the stage doesn't know has its own values - the two soft lights
+ * in the background and the cards' hairlines. And only what DIFFERS is
+ * listed here: the rest still comes from `startPalette`.
  */
 export const brightStartPalette = {
   /*
-   * WEISS, UND ZWAR GANZ.
+   * WHITE, AND FULLY SO.
    *
-   * Der Grund der dunklen Fassung ist ein Verlauf mit zwei farbigen Lichtern -
-   * das gibt einer fast schwarzen Flaeche Tiefe. Auf Papier braucht es das
-   * nicht: Die Karten setzen sich ueber ihre Kante ab, nicht ueber den Grund.
-   * Beide Lichter werden deshalb hier abgeschaltet, statt die Regel im
-   * Stylesheet um eine zweite Fassung zu erweitern.
+   * The dark variant's background is a gradient with two coloured lights -
+   * that gives an almost black surface depth. On paper this isn't needed:
+   * the cards stand out through their edge, not through the background.
+   * Both lights are therefore switched off here, instead of extending the
+   * stylesheet rule with a second variant.
    */
   'bg-top': brightPalette.pageTop!,
   'bg-mid': brightPalette.pageTop!,
@@ -389,9 +392,9 @@ export const brightStartPalette = {
   'ambient-right': 'transparent',
 
   /*
-   * Milchglas aus Licht, nicht aus Tinte: Auf Weiss ist ein Schleier aus Tinte
-   * ein grauer Kasten. Das gilt fuer das Einstellungsfenster und die Rueckfrage
-   * darueber - die Karten daneben gehen ihren eigenen Weg, siehe `option`.
+   * Frosted glass made of light, not of ink: on white, a veil of ink is just
+   * a grey box. That applies to the settings window and the confirmation
+   * prompt above it - the cards next to it go their own way, see `option`.
    */
   surface: 'rgba(255, 255, 255, 0.62)',
   'surface-quiet': 'rgba(255, 255, 255, 0.45)',
@@ -399,24 +402,24 @@ export const brightStartPalette = {
   'line-strong': 'rgba(25, 25, 25, 0.16)',
 
   /*
-   * DIE AUSWAHLKARTE IST EINE FLAECHE - DIESELBE WIE EINE ANTWORT IM SPIEL.
+   * THE SELECTION CARD IS A SURFACE - THE SAME AS AN ANSWER IN THE GAME.
    *
-   * Sie war fast so weiss wie der Grund, und was sie abgrenzte, war eine feine
-   * Kante. Auf Papier ist das zu wenig: Aus zwei Metern und schraeg von der
-   * Seite - so steht man an einem Geraet im Foyer - verschwindet ein Strich von
-   * einem Pixel, und die Karte auch. Deshalb dasselbe ruhige Grau, das im Spiel
-   * eine nicht angetippte Antwort traegt, und derselbe Wert
-   * (`brightPalette.option`) statt einer zweiten Zahl daneben.
+   * It used to be almost as white as the background, with only a thin edge
+   * marking it off. On paper that's not enough: seen from two metres away
+   * and at an angle - the way someone stands at a device in the foyer - a
+   * one-pixel line disappears, and so does the card. That's why it uses the
+   * same calm grey that an untapped answer carries in the game, and the
+   * same value (`brightPalette.option`) instead of a second number beside it.
    */
   option: brightPalette.option!,
   'option-hover': brightPalette.controls!,
-  /* Auf dem Grau hebt sich das Zeichen ueber Weiss ab, nicht ueber Tinte. */
+  /* On the grey, the icon stands out via white, not via ink. */
   'option-icon': stageExtras.inkOnStrong,
   /*
-   * UND DIE GEWAEHLTE KARTE IST VOLL DAMIT GEFUELLT - nicht ins Blau gekippt,
-   * sondern dasselbe Blau, das eine angetippte Antwort im Spiel traegt. Es ist
-   * derselbe Wert wie `selected` darunter; dass hier zwei Namen auf eine Farbe
-   * zeigen, ist der Punkt: Im Dunkeln sind es zwei verschiedene.
+   * AND THE SELECTED CARD IS FULLY FILLED WITH IT - not tinted blue, but the
+   * same blue that a tapped answer carries in the game. It is the same value
+   * as `selected` below; that two names point to one colour here is exactly
+   * the point: in the dark variant they are two different colours.
    */
   'surface-selected': brightPalette.accent!,
 
@@ -424,22 +427,22 @@ export const brightStartPalette = {
   'text-muted': brightPalette.textMuted!,
   'text-quiet': 'rgba(25, 25, 25, 0.45)',
 
-  /* Die Auswahl traegt das Blau der markierten Antwort. */
+  /* The selection carries the blue of the marked answer. */
   selected: brightPalette.accent!,
   'selected-bright': brightPalette.accent!,
   /*
-   * Auf der vollen blauen Flaeche traegt nur Weiss - Titel, Zeile darunter,
-   * Zeichen und Haekchen. Vorher stand hier die Tinte der uebrigen Karten; die
-   * war richtig, solange die gewaehlte Karte nur ins Blau gekippt war.
+   * On the full blue surface, only white works - title, line below it, icon
+   * and checkmark. Previously the ink of the other cards was used here; that
+   * was correct as long as the selected card was only tinted blue.
    */
   'ink-on-selected': stageExtras.inkOnStrong,
   'meta-on-selected': 'rgba(255, 255, 255, 0.78)',
 
   /*
-   * Der Startknopf ist derselbe Knopf wie "Antwort abgeben und aufloesen":
-   * eine Flaeche, ein Gruen, weisse Schrift. Der Verlauf der dunklen Fassung
-   * laeuft deshalb hier zwischen zwei gleichen Toenen - er verschwindet, ohne
-   * dass die Regel im Stylesheet davon wissen muss.
+   * The start button is the same button as "Submit answer and reveal": one
+   * surface, one green, white text. The dark variant's gradient therefore
+   * runs here between two identical tones - it disappears without the
+   * stylesheet rule needing to know about it.
    */
   green: brightPalette.primary!,
   'green-bright': brightPalette.primary!,
@@ -449,7 +452,7 @@ export const brightStartPalette = {
   'ink-on-green': stageExtras.inkOnStrong,
   'ink-on-badge': stageExtras.inkOnStrong,
 
-  /* Die Markentafel steht auf demselben Papier wie alles andere. */
+  /* The brand panel sits on the same paper as everything else. */
   'brand-top': brightPalette.pageTop!,
   'brand-mid': brightPalette.pageTop!,
   'brand-bottom': brightPalette.pageTop!,
@@ -458,15 +461,15 @@ export const brightStartPalette = {
   'brand-shade': 'rgba(25, 25, 25, 0.08)',
 
   icon: brightPalette.textMuted!,
-  /* Die Schleier werden aus Tinte gemischt, nicht aus Licht. */
+  /* The veils are mixed from ink, not from light. */
   glass: brightPalette.text!,
 } as const
 
 /**
- * Farben eines Themes vervollstaendigen.
+ * Complete the colours of a theme.
  *
- * Ein Gastgeber-Theme nennt nur, was von seiner Gestaltungswelt abweicht; erst
- * hier entsteht der vollstaendige Satz fuer die Buehne.
+ * A host theme only names what differs from its design world; the complete
+ * set for the stage is only assembled here.
  */
 export function resolveThemeColors(theme: {
   skin?: ThemeSkin | undefined

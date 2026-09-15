@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Quizmotiv der Starttafel - der Rueckfall, wenn der Inhalt kein eigenes
-  Startbild mitbringt.
+  Quiz motif of the start board - the fallback when the content brings no
+  start image of its own.
 
-  Uebernommen aus der Entwurfsdatei des Startmenues
+  Carried over from the start menu's design file
   (Quiz_Standalone_Startmenu_SVG_Assets, master/quiz-standalone-startmenu-v1.svg,
-  Gruppe "asset--quiz-mark"). Die Koordinaten sind die des Entwurfs geblieben,
-  damit sich beide Dateien vergleichen lassen; die viewBox schneidet den
-  Ausschnitt heraus. Die Farbwerte sind hier Zeichnung und keine Oberflaeche -
-  deshalb steht diese Datei ausserhalb der Palette.
+  group "asset--quiz-mark"). The coordinates have been kept as in the design,
+  so both files can be compared; the viewBox crops out the section. The
+  colour values here are drawing, not surface - that is why this file sits
+  outside the palette.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="185 202 356 284" width="356" height="284" role="img" aria-label="Quiz">
   <defs>

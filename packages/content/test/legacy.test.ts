@@ -1,15 +1,15 @@
 /**
- * Legacy-Migration (Spezifikation 26).
+ * Legacy migration (specification 26).
  *
- * Der Parser fuehrt die Legacy-Datei nicht aus. Die Tests belegen das, indem eine
- * Datei mit Funktionsaufruf zu einem klaren Fehler statt zu einem Seiteneffekt fuehrt.
+ * The parser does not execute the legacy file. The tests prove that by making
+ * a file with a function call lead to a clear error instead of a side effect.
  */
 import { describe, expect, it } from 'vitest'
 import { extractDeclarations, parseLiteral } from '../src/legacy/parseLiteral'
 import { formatMigrationReport, migrateLegacy, normalizeId } from '../src/legacy/migrate'
 
-describe('Sicherer Literal-Parser', () => {
-  it('liest Objekte, Arrays, Kommentare und nachgestellte Kommata', () => {
+describe('Safe literal parser', () => {
+  it('reads objects, arrays, comments and trailing commas', () => {
     const source = `
       // Kommentar
       const questions = [
@@ -29,18 +29,18 @@ describe('Sicherer Literal-Parser', () => {
     expect(questions[0]!['nested']).toEqual({ a: [1, 2, 3], b: true, c: null })
   })
 
-  it('fuehrt keinen Code aus, sondern lehnt Ausdruecke klar ab', () => {
+  it('executes no code but rejects expressions clearly', () => {
     expect(() => parseLiteral('{ id: doSomethingDangerous() }')).toThrow(/Nicht unterstuetzter Ausdruck/)
     expect(() => parseLiteral('{ id: `${process.env.SECRET}` }')).toThrow(/Template-Literale/)
   })
 
-  it('erkennt window- und module.exports-Deklarationen', () => {
+  it('recognises window and module.exports declarations', () => {
     expect(extractDeclarations('window.questions = [{ id: "1" }]').get('questions')).toEqual([{ id: '1' }])
     expect(extractDeclarations('module.exports = [{ id: "2" }]').get('exports')).toEqual([{ id: '2' }])
   })
 })
 
-describe('Migration ins neue Fragenmodell', () => {
+describe('Migration to the new question model', () => {
   const legacy = `
     const questions = [
       {
@@ -67,17 +67,17 @@ describe('Migration ins neue Fragenmodell', () => {
     ];
   `
 
-  it('normalisiert Enumwerte und dokumentiert jede Korrektur', () => {
+  it('normalises enum values and documents every correction', () => {
     const result = migrateLegacy({ questionsSource: legacy })
     const normalized = result.notes.filter((note) => note.severity === 'normalized')
 
     expect(normalized.some((note) => note.message.includes('"Kids" zu "kids"'))).toBe(true)
     expect(normalized.some((note) => note.message.includes('"mittel" zu "medium"'))).toBe(true)
-    // Keine stille Korrektur: alles steht im Bericht.
+    // No silent correction: everything is in the report.
     expect(formatMigrationReport(result)).toContain('Automatisch normalisiert')
   })
 
-  it('macht die richtige Antwort explizit statt sie aus option_1 abzuleiten', () => {
+  it('makes the correct answer explicit instead of deriving it from option_1', () => {
     const result = migrateLegacy({ questionsSource: legacy })
     const first = result.questions.find((question) => question.id === '1')!
     expect(first.correctOptionId).toBe('option-1')
@@ -85,13 +85,13 @@ describe('Migration ins neue Fragenmodell', () => {
     expect(result.notes.some((note) => note.code === 'implicit-correct-answer')).toBe(true)
   })
 
-  it('unterscheidet Bilderkennen von bildgestuetztem Multiple Choice', () => {
+  it('distinguishes image recognition from image-based multiple choice', () => {
     const result = migrateLegacy({ questionsSource: legacy })
     expect(result.questions.find((question) => question.id === '48')!.questionType).toBe('image-reveal')
     expect(result.questions.find((question) => question.id === '1')!.questionType).toBe('text-choice')
   })
 
-  it('erkennt gleiche Fragetexte als Wiederholungsgruppe', () => {
+  it('recognises identical question texts as a repetition group', () => {
     const result = migrateLegacy({ questionsSource: legacy })
     const q48 = result.questions.find((question) => question.id === '48')!
     const q49 = result.questions.find((question) => question.id === '49')!
@@ -100,7 +100,7 @@ describe('Migration ins neue Fragenmodell', () => {
     expect(result.notes.some((note) => note.code === 'repetition-group-detected')).toBe(true)
   })
 
-  it('uebernimmt playCount nicht in den Inhalt', () => {
+  it('does not carry playCount into the content', () => {
     const result = migrateLegacy({ questionsSource: legacy })
     for (const question of result.questions) {
       expect(question).not.toHaveProperty('playCount')
@@ -108,13 +108,13 @@ describe('Migration ins neue Fragenmodell', () => {
     expect(result.notes.some((note) => note.code === 'playcount-dropped')).toBe(true)
   })
 
-  it('meldet eine falsche Optionsanzahl zur Pruefung, statt sie zu erfinden', () => {
+  it('reports a wrong option count for review instead of inventing one', () => {
     const result = migrateLegacy({ questionsSource: legacy })
     const note = result.notes.find((entry) => entry.questionId === '151' && entry.code === 'option-count')
     expect(note?.severity).toBe('needs-review')
   })
 
-  it('meldet abweichende Fragenplatzzahlen der Legacy-Konfiguration', () => {
+  it('reports deviating question slot counts of the legacy configuration', () => {
     const result = migrateLegacy({
       questionsSource: legacy,
       configSource: 'const presets = { medium: { rounds: [1,2,3,4,5,6,7,8] }, easy: { rounds: [1,2,3,4,5,6,7] } };',
@@ -124,20 +124,20 @@ describe('Migration ins neue Fragenmodell', () => {
     expect(note?.message).toContain('8 Fragenplaetze')
   })
 
-  it('normalisiert IDs mit Umlauten', () => {
+  it('normalises ids with umlauts', () => {
     expect(normalizeId('Saarbrücken')).toBe('saarbruecken')
     expect(normalizeId('Groß/Klein')).toBe('gross-klein')
   })
 })
 
 /**
- * Feldnamen des tatsaechlich gelieferten Katalogs.
+ * Field names of the catalogue that was actually delivered.
  *
- * Die Altdaten benennen Schwierigkeit, Bilddatei und Bildnachweis anders als die
- * frueher angenommenen Namen. Diese Tests halten die Zuordnung fest - sie ist der
- * Unterschied zwischen "199 Fragen uebernommen" und "alle Fragen mittelschwer".
+ * The legacy data names difficulty, image file and image credit differently
+ * from the names assumed earlier. These tests pin the mapping down - it is
+ * the difference between "199 questions adopted" and "all questions medium".
  */
-describe('Feldnamen des gelieferten Katalogs', () => {
+describe('Field names of the delivered catalogue', () => {
   const delivered = `
     export const questions = [
       {
@@ -157,16 +157,16 @@ describe('Feldnamen des gelieferten Katalogs', () => {
     ];
   `
 
-  it('liest auch eine mit "export" deklarierte Fragenliste', () => {
+  it('also reads a question list declared with "export"', () => {
     expect(extractDeclarations(delivered).has('questions')).toBe(true)
   })
 
-  it('uebernimmt die Schwierigkeit aus dem Feld "level"', () => {
+  it('takes the difficulty from the "level" field', () => {
     const result = migrateLegacy({ questionsSource: delivered })
     expect(result.questions.map((question) => question.difficulty)).toEqual(['easy', 'hard'])
   })
 
-  it('erkennt die Bilddatei im Feld "img_filename" und den Nachweis in "img_credit"', () => {
+  it('recognises the image file in "img_filename" and the credit in "img_credit"', () => {
     const result = migrateLegacy({ questionsSource: delivered })
     expect(result.skipped).toHaveLength(0)
     const asset = result.assets.find((entry) => entry.id === 'img-0')
@@ -175,7 +175,7 @@ describe('Feldnamen des gelieferten Katalogs', () => {
     expect(result.notes.some((note) => note.code === 'missing-image-credit' && note.questionId === '13')).toBe(true)
   })
 
-  it('macht aus der einzigen Legacy-Option des Bilderkennens keine sichtbare Antwortleiste', () => {
+  it('does not turn the single legacy option of image recognition into a visible answer bar', () => {
     const result = migrateLegacy({ questionsSource: delivered })
     const reveal = result.questions.find((question) => question.id === '0')
     expect(reveal?.questionType).toBe('image-reveal')

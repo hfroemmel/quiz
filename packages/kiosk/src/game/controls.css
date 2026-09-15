@@ -1,15 +1,15 @@
 /*
- * Die gemeinsamen Bedienelemente gehoeren MIT ins Paket.
+ * The shared controls belong IN the package too.
  *
- * SIE SIND NICHT MEHR FUER DIESES PAKET SELBST: Startauswahl, Einstellungen und
- * Dialoge tragen seit dem Startmenue-Entwurf ihre eigene Formensprache
- * (`Game.module.css`, `--start-*`). Geliefert werden die Klassen `button`,
- * `button--primary`, `button--large` und `button--selected` trotzdem - fuer die
- * GASTGEBER: Kiosk und Spielesammlung bauen ihre eigene Umgebung damit, und sie
- * beziehen sie ueber `@hfroemmel/quiz-kiosk/styles.css`. Nimmt man den Import
- * hier heraus, stehen dort Knoepfe ohne Aussehen.
+ * THEY ARE NO LONGER FOR THIS PACKAGE ITSELF: since the start-menu design,
+ * start selection, settings and dialogs carry their own visual language
+ * (`Game.module.css`, `--start-*`). The classes `button`, `button--primary`,
+ * `button--large` and `button--selected` are still shipped regardless - for
+ * HOSTS: the kiosk and the game collection build their own surroundings with
+ * them, importing them via `@hfroemmel/quiz-kiosk/styles.css`. Remove the
+ * import here and buttons there are left without an appearance.
  *
- * Die Quelle bleibt eine einzige: `@hfroemmel/quiz-themes/controls.css`, aus
- * dem auch das Operatorpult liest.
+ * The source stays a single one: `@hfroemmel/quiz-themes/controls.css`,
+ * which the operator console also reads from.
  */
 @import '@hfroemmel/quiz-themes/controls.css';

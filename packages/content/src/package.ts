@@ -1,9 +1,9 @@
 /**
- * Laden und Bauen versionierter Quizpakete (Spezifikation 24.2 und 24.3).
+ * Loading and building versioned quiz packages (specification 24.2 and 24.3).
  *
- * Ein Build der Veranstaltungssoftware darf zur Laufzeit niemals von Google Sheets
- * abhaengen. Deshalb liegt das Ergebnis immer als geprueftes, versioniertes Paket im
- * Projekt beziehungsweise Build-Artefakt.
+ * A build of the event software must never depend on Google Sheets at
+ * runtime. That is why the result always lives as a validated, versioned
+ * package in the project or in the build artifact.
  */
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync, copyFileSync } from 'node:fs'
@@ -36,19 +36,19 @@ export interface RawSource {
   rootDir: string
 }
 
-/** Liest ein Quellverzeichnis (`content/source`) ohne zu validieren. */
+/** Reads a source directory (`content/source`) without validating. */
 /**
- * Wendet ein Inhaltsprofil auf die Quelle an.
+ * Applies a content profile to the source.
  *
- * `no-video` filtert fuer die Offline-Apps alles Videohafte heraus:
- *   - Videofragen entfallen,
- *   - Videodateien verlassen das Medienverzeichnis,
- *   - Fragenplaetze, die auf Videofragen filtern, verlieren genau diesen
- *     Filter und werden freie Plaetze - die Zahl der Plaetze je Preset bleibt,
- *     nur die Dramaturgie des Videoplatzes entfaellt.
+ * `no-video` filters out everything video-related for the offline apps:
+ *   - video questions are dropped,
+ *   - video files leave the media directory,
+ *   - question slots that filter for video questions lose exactly that
+ *     filter and become free slots - the number of slots per preset stays,
+ *     only the dramaturgy of the video slot is gone.
  *
- * Die Transformation laeuft VOR der Validierung: Beide Profile werden als
- * eigene, vollstaendige Quelle geprueft.
+ * The transformation runs BEFORE validation: both profiles are checked as
+ * their own, complete source.
  */
 export function applyContentProfile(source: RawSource, profile: ContentProfile): RawSource {
   if (profile === 'full') return source
@@ -86,11 +86,11 @@ export function readSource(sourceDir: string): RawSource {
 }
 
 /**
- * Aufloesung eines Asset-Dateipfads.
+ * Resolution of an asset file path.
  *
- * SICHERHEIT: Dateipfade aus Quizdaten duerfen niemals zu beliebigen lokalen Dateien
- * aufgeloest werden (Spezifikation 30). Der aufgeloeste Pfad muss innerhalb des
- * Asset-Verzeichnisses liegen, sonst gibt es `null`.
+ * SECURITY: File paths from quiz data must never resolve to arbitrary local
+ * files (specification 30). The resolved path must lie inside the asset
+ * directory, otherwise the result is `null`.
  */
 export function resolveAssetPath(rootDir: string, filename: string): string | null {
   const assetRoot = resolve(rootDir, ASSET_DIRECTORY)
@@ -106,7 +106,7 @@ export function assetFileExists(rootDir: string, asset: MediaAsset): boolean {
 
 export interface SourceValidationOptions {
   contentVersion?: string
-  /** Siehe `ValidationInput.missingMediaSeverity`. Standard ist `'error'`. */
+  /** See `ValidationInput.missingMediaSeverity`. Default is `'error'`. */
   missingMediaSeverity?: IssueSeverity
 }
 
@@ -127,9 +127,9 @@ export interface BuildOptions {
   contentVersion: string
   sourceRevision?: string
   createdAt: string
-  /** Siehe `ValidationInput.missingMediaSeverity`. Standard ist `'error'`. */
+  /** See `ValidationInput.missingMediaSeverity`. Default is `'error'`. */
   missingMediaSeverity?: IssueSeverity
-  /** Inhaltsprofil. Standard ist `full`. */
+  /** Content profile. Default is `full`. */
   profile?: ContentProfile
 }
 
@@ -137,13 +137,13 @@ export interface BuildResult {
   manifest: QuizPackageManifest
   validation: ValidationResult
   outDir: string
-  /** Medien ohne Datei - nur bei deaktivierten Fragen moeglich. */
+  /** Media without a file - only possible for disabled questions. */
   missingAssetFiles: string[]
 }
 
 /**
- * Baut ein normalisiertes, versioniertes Paket. Bricht bei Schemafehlern ab -
- * Warnungen laufen durch, muessen aber im Bericht bewusst freigegeben werden.
+ * Builds a normalised, versioned package. Aborts on schema errors - warnings
+ * pass through but have to be consciously approved in the report.
  */
 export function buildPackage(options: BuildOptions): BuildResult {
   const profile: ContentProfile = options.profile ?? 'full'
@@ -157,14 +157,14 @@ export function buildPackage(options: BuildOptions): BuildResult {
   }
 
   /*
-   * Seit Schema v2 traegt das Paket KEINE Farben und Schriften mehr - Darstellung
-   * ist Sache des Gastgebers (`quiz-themes`). Das Paket nennt nur die
-   * Gestaltungswelt (`skin`) und die Branding-Assets.
+   * Since schema v2 the package carries NO colours and fonts anymore -
+   * presentation is the host's business (`quiz-themes`). The package only
+   * names the visual world (`skin`) and the branding assets.
    */
   const config: QuizConfig = quizConfigSchema.parse(source.config)
   const questions = questionSchema.array().parse(source.questions)
 
-  // Normalisierung: stabile Sortierung, damit Builds reproduzierbar sind.
+  // Normalisation: stable sorting so that builds are reproducible.
   const normalizedQuestions = [...questions].sort((a, b) => a.id.localeCompare(b.id))
   const assets = [...source.assets]
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -174,9 +174,9 @@ export function buildPackage(options: BuildOptions): BuildResult {
     }))
 
   mkdirSync(options.outDir, { recursive: true })
-  // Das alte Manifest zuerst entfernen: Bricht der Build danach ab, liegt kein
-  // Paket mehr da, das zu neuen Inhaltsdateien nicht passt. Ein halb geschriebenes
-  // Paket wuerde sonst erst beim Laden ueber die Pruefsumme auffallen.
+  // Remove the old manifest first: if the build aborts afterwards, no package
+  // is left that does not match the new content files. A half-written
+  // package would otherwise only show up through the checksum when loading.
   rmSync(join(options.outDir, MANIFEST_FILE), { force: true })
   writeJson(join(options.outDir, CONFIG_FILE), config)
   writeJson(join(options.outDir, QUESTIONS_FILE), normalizedQuestions)
@@ -188,9 +188,9 @@ export function buildPackage(options: BuildOptions): BuildResult {
     const to = resolveAssetPath(options.outDir, asset.filename)
     if (!from || !to) continue
     if (!existsSync(from)) {
-      // Die Validierung hat diesen Fall bereits geprueft: Fehlt die Datei einer
-      // AKTIVEN Frage, waere der Build oben abgebrochen. Hier bleiben nur Medien
-      // deaktivierter Fragen uebrig - die duerfen als Vorlage im Bestand liegen.
+      // Validation has already checked this case: if the file of an ENABLED
+      // question were missing, the build would have aborted above. Only media of
+      // disabled questions remain here - those may stay in the pool as templates.
       missingAssetFiles.push(asset.filename)
       continue
     }
@@ -215,7 +215,7 @@ export function buildPackage(options: BuildOptions): BuildResult {
   return { manifest, validation, outDir: options.outDir, missingAssetFiles }
 }
 
-/** Laedt ein gebautes Paket zur Laufzeit. Ungueltige Pakete werden nicht geladen. */
+/** Loads a built package at runtime. Invalid packages are not loaded. */
 export function loadQuizPackage(packageDir: string): QuizPackage {
   const manifest = quizPackageManifestSchema.parse(readJson(join(packageDir, MANIFEST_FILE)))
   if (manifest.schemaVersion !== QUIZ_PACKAGE_SCHEMA_VERSION) {
@@ -240,7 +240,7 @@ export function loadQuizPackage(packageDir: string): QuizPackage {
   }
 }
 
-/** Liste aller Dateien unterhalb von `assets/` - fuer Preflight und Diagnose. */
+/** List of all files below `assets/` - for preflight and diagnostics. */
 export function listAssetFiles(rootDir: string): string[] {
   const assetRoot = join(rootDir, ASSET_DIRECTORY)
   if (!existsSync(assetRoot)) return []
@@ -257,7 +257,7 @@ export function listAssetFiles(rootDir: string): string[] {
 }
 
 /* ------------------------------------------------------------------ *
- * Hilfsmittel
+ * Helpers
  * ------------------------------------------------------------------ */
 
 export function readJson(path: string): unknown {
@@ -276,9 +276,9 @@ function checksumOfFile(path: string | null): string | undefined {
 }
 
 /**
- * Pruefsumme ueber den Inhalt. Sie schuetzt vor der verbotenen Praxis, das gebaute
- * Basis-JSON waehrend der Show direkt zu bearbeiten - solche Aenderungen fallen
- * beim Laden sofort auf.
+ * Checksum over the content. It guards against the forbidden practice of
+ * editing the built base JSON directly during the show - such changes are
+ * noticed immediately when loading.
  */
 function checksumOfContent(config: unknown, questions: unknown, assets: unknown): string {
   return createHash('sha256')

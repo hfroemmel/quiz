@@ -1,11 +1,12 @@
 /**
- * Neutrale Ueberblendung ueber den Pausen-/Logoscreen.
+ * Neutral cross-fade over the pause/logo screen.
  *
- * Betrifft: jeden Wechsel in die Pausenszene und von dort in die naechste Frage.
- * Animiert wird der gesamte Szenencontainer (`scene-root`).
+ * Affects: every switch into the pause scene and from there into the next
+ * question. The whole scene container (`scene-root`) is animated.
  *
- * Der Pausenscreen ist zwar eine eigene Praesentationsphase, aber KEINE zweite
- * Spielzustandslogik: Der Wechsel danach kommt vom Server, nicht von dieser Animation.
+ * The pause screen is indeed its own presentation phase, but NOT a second
+ * game-state logic: the switch afterwards comes from the server, not from
+ * this animation.
  */
 import { easings, presentationTiming } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'

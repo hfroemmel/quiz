@@ -1,8 +1,8 @@
 /**
- * Beweis der Speicher-Schnittstelle: Derselbe `QuizService`, der auf der Buehne
- * gegen SQLite laeuft, spielt hier ein komplettes Selbstbedienungsspiel gegen
- * den `MemoryQuizStore` - ueber die gemeinsame `QuizRuntime`-Oberflaeche, wie
- * sie Kiosk und Einbettung benutzen.
+ * Proof of the storage interface: the same `QuizService` that runs against
+ * SQLite on the stage plays a complete self-service game here against the
+ * `MemoryQuizStore` - through the shared `QuizRuntime` surface as kiosk and
+ * embedding use it.
  */
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -21,10 +21,10 @@ import { LocalQuizRuntime } from '../src/runtime/localRuntime'
 import type { MemoryQuizStoreSnapshot } from '../src/runtime/memoryStore'
 
 /*
- * Der Kern liest keine Dateien - das ist hier Absicht und Testgegenstand
- * zugleich. Das echte gebaute Paket wird deshalb VOM TEST geladen (nicht ueber
- * den Ladeweg aus `@hfroemmel/quiz-content` - das waere eine Zirkelabhaengigkeit
- * der Pakete) und der Runtime fertig uebergeben.
+ * The core reads no files - here that is intention and subject of the test at
+ * once. The real built package is therefore loaded BY THE TEST (not through
+ * the loading path of `@hfroemmel/quiz-content` - that would be a circular
+ * dependency of the packages) and handed to the runtime ready-made.
  */
 function loadTestPackage(): QuizPackage {
   const dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'content', 'dist')
@@ -55,9 +55,9 @@ function createRuntime(options: {
   })
 
   /*
-   * Zeitgesteuerte Uebergaenge laufen im Betrieb ueber echte Timer des Dienstes.
-   * Tests stellen stattdessen die Fake-Uhr und schliessen faellige Uebergaenge
-   * selbst ab - wie die Server-Testumgebung auch.
+   * In operation timed transitions run through the service's real timers.
+   * Tests set the fake clock instead and complete due transitions themselves
+   * - as the server test environment does.
    */
   const settle = () => {
     let guard = 0
@@ -80,20 +80,20 @@ function createRuntime(options: {
 }
 
 describe('LocalQuizRuntime', () => {
-  it('spielt eine Frage komplett ueber die Runtime-Schnittstelle - ohne SQLite', () => {
+  it('plays a question completely through the runtime interface - without SQLite', () => {
     const { runtime, settle } = createRuntime()
     const seen: QuizSnapshot<PlayerQuizViewModel>[] = []
     const unsubscribe = runtime.subscribe((snapshot) => seen.push(snapshot))
 
-    // Lokal gibt es keine Verbindungsfrage und keine Konkurrenz um den Ton.
+    // Locally there is no connection question and no competition for the sound.
     expect(runtime.getSnapshot().connection).toEqual({ connected: true, audioMaster: true })
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
     /*
-     * Am Geraet startet das Video von selbst und blendet nach seinem Ende die
-     * Frage ein - hier gibt es kein Element, das enden koennte, also macht der
-     * Test den Schritt, den dort die Szene macht.
+     * At the device the video starts by itself and shows the question after
+     * its end - here there is no element that could end, so the test takes the
+     * step the scene takes there.
      */
     if (runtime.service.authoritativeState?.phase === 'video') {
       runtime.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
@@ -110,7 +110,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispatch({ type: 'RESOLVE_ATTEMPT' })
 
     expect(runtime.getSnapshot().view!.playerScores[0]!.score).toBe(100)
-    // Jede Aenderung hat die Abonnenten erreicht.
+    // Every change has reached the subscribers.
     expect(seen.length).toBeGreaterThan(3)
     expect(seen.at(-1)!.revision).toBe(runtime.service.currentRevision)
 
@@ -118,7 +118,7 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('meldet Ablehnungen im Snapshot und laesst sie loeschen', () => {
+  it('reports rejections in the snapshot and lets them be cleared', () => {
     const { runtime } = createRuntime()
 
     runtime.dispatch({ type: 'RESOLVE_ATTEMPT' })
@@ -130,11 +130,11 @@ describe('LocalQuizRuntime', () => {
     runtime.dispose()
   })
 
-  it('laesst den Ton auch dann umschalten, wenn kein Spiel laeuft', () => {
+  it('lets the sound be toggled even when no game is running', () => {
     /*
-     * Am Kioskgeraet sitzt der Tonschalter im Startbildschirm - dort laeuft
-     * nichts, worin die Engine den Befehl ablegen koennte. Er gehoert dem
-     * Geraet, nicht dem Spiel, und muss deshalb auch ohne Spiel greifen.
+     * At the kiosk device the sound switch sits on the start screen - nothing
+     * runs there the engine could record the command in. It belongs to the
+     * device, not to the game, and therefore has to work without a game too.
      */
     const saved: MemoryQuizStoreSnapshot[] = []
     const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })
@@ -144,121 +144,120 @@ describe('LocalQuizRuntime', () => {
     expect(runtime.getSnapshot().lastRejection).toBeNull()
     expect(runtime.getSnapshot().view!.soundEnabled).toBe(false)
 
-    // Und er ueberlebt den Neustart des Geraets.
+    // And it survives the restart of the device.
     runtime.dispose()
     const restored = createRuntime({ restoreFrom: saved.at(-1)! }).runtime
     expect(restored.getSnapshot().view!.soundEnabled).toBe(false)
     restored.dispose()
   })
 
-  it('veroeffentlicht den Abspielauftrag ueber den Dienst - und plant nichts darueber hinaus', () => {
+  it('publishes the playback job through the service - and plans nothing beyond it', () => {
     /*
-     * DIE ENGINE ALLEIN GENUEGT ALS NACHWEIS NICHT. Zwischen ihr und dem Saal
-     * steht der Dienst: Er nimmt den Befehl an, prueft Rolle und Revision und
-     * schreibt den Auftrag in den Zustand, aus dem alle Clients ihren
-     * Schnappschuss bekommen.
+     * THE ENGINE ALONE IS NOT PROOF ENOUGH. Between it and the hall stands the
+     * service: it accepts the command, checks role and revision and writes the
+     * request into the state from which all clients get their snapshot.
      *
-     * Und er stellt KEINEN Timer: Das Videoende ist kein serverseitiger
-     * Uebergang mehr. Bliebe hier einer stehen, wechselte im Saal die Frage,
-     * waehrend das Video noch laeuft.
+     * And it sets NO timer: the end of the video is no server-side transition
+     * any more. If one remained here, the question in the hall would change
+     * while the video is still running.
      */
     const { runtime, clock } = createRuntime()
     const service = runtime.service
-    let zaehler = 0
-    const alsOperator = (command: Command) =>
+    let counter = 0
+    const asOperator = (command: Command) =>
       service.dispatch({
-        commandId: `video-${zaehler++}`,
+        commandId: `video-${counter++}`,
         command,
         actor: { clientId: 'test-operator', role: 'operator' },
         expectedRevision: service.currentRevision,
       })
 
-    expect(alsOperator({ type: 'START_GAME', audience: 'adults', presetId: 'easy', flowProfile: 'operated' }).ok).toBe(
+    expect(asOperator({ type: 'START_GAME', audience: 'adults', presetId: 'easy', flowProfile: 'operated' }).ok).toBe(
       true,
     )
 
-    // Der Pausenscreen laeuft ab; danach steht die Videofrage.
-    const faellig = service.authoritativeState!.pendingTransition!
-    clock.nowMs = faellig.endsAtMs
+    // The pause screen runs out; then the video question stands.
+    const due = service.authoritativeState!.pendingTransition!
+    clock.nowMs = due.endsAtMs
     service.dispatch({
       commandId: 'video-pausenscreen',
-      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: faellig.transitionId },
+      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: due.transitionId },
       actor: { clientId: 'test-system', role: 'system' },
       expectedRevision: service.currentRevision,
     })
     expect(service.authoritativeState!.phase).toBe('video')
     expect(service.authoritativeState!.video).toBeUndefined()
 
-    const frageId = service.authoritativeState!.currentQuestion!.question.id
-    expect(alsOperator({ type: 'START_VIDEO', questionId: frageId }).ok).toBe(true)
+    const questionId = service.authoritativeState!.currentQuestion!.question.id
+    expect(asOperator({ type: 'START_VIDEO', questionId: questionId }).ok).toBe(true)
 
-    const auftrag = service.authoritativeState!.video!
-    expect(auftrag.questionId).toBe(frageId)
+    const task = service.authoritativeState!.video!
+    expect(task.questionId).toBe(questionId)
     expect(service.authoritativeState!.pendingTransition).toBeUndefined()
 
-    // Der Schnappschuss traegt ihn an die Buehne - und nichts sonst ueber das Video.
+    // The snapshot carries it to the stage - and nothing else about the video.
     expect(service.snapshotFor('stage').video).toEqual({
-      questionId: frageId,
-      requestId: auftrag.requestId,
+      questionId: questionId,
+      requestId: task.requestId,
     })
 
-    // Ein zweiter Klick ist ein neuer Auftrag, kein Sonderfall.
-    expect(alsOperator({ type: 'START_VIDEO', questionId: frageId }).ok).toBe(true)
-    expect(service.authoritativeState!.video!.requestId).not.toBe(auftrag.requestId)
+    // A second click is a new request, no special case.
+    expect(asOperator({ type: 'START_VIDEO', questionId: questionId }).ok).toBe(true)
+    expect(service.authoritativeState!.video!.requestId).not.toBe(task.requestId)
 
-    // Und die Phase steht die ganze Zeit still: Der Server wartet auf niemanden.
+    // And the phase stands still the whole time: the server waits for nobody.
     clock.nowMs += 10 * 60_000
     expect(service.authoritativeState!.phase).toBe('video')
     runtime.dispose()
   })
 
-  it('stellt Fragen, Antworten und Beschriftungen auf die gewaehlte Sprache um', () => {
+  it('switches questions, answers and labels to the chosen locale', () => {
     /*
-     * DER GANZE WEG IN EINEM TEST: Befehl -> Dienst -> Zustand -> Projektion.
-     * Die Sprache wird an vier Stellen aufgeloest (Frage, Optionen, Katalog,
-     * Oberflaeche); faellt eine davon aus, stuende im Saal eine Frage auf
-     * Deutsch mit englischen Antworten.
+     * THE WHOLE WAY IN ONE TEST: command -> service -> state -> projection.
+     * The language is resolved in four places (question, options, catalog,
+     * interface); if one of them fails, the hall would see a German question
+     * with English answers.
      */
     const { runtime, settle } = createRuntime()
 
     expect(runtime.getSnapshot().view!.locale).toBe('de-DE')
-    expect(runtime.getSnapshot().view!.catalog.locales.map((sprache) => sprache.id)).toEqual(['de-DE', 'en-GB'])
+    expect(runtime.getSnapshot().view!.catalog.locales.map((locale) => locale.id)).toEqual(['de-DE', 'en-GB'])
 
     runtime.dispatch({ type: 'SET_LOCALE', locale: 'en-GB' })
-    const vorDemSpiel = runtime.getSnapshot().view!
-    expect(vorDemSpiel.locale).toBe('en-GB')
-    // Auch die Beschriftungen des Katalogs und der Oberflaeche wechseln mit.
-    expect(vorDemSpiel.catalog.presets.map((preset) => preset.label)).toContain('Easy')
-    expect(vorDemSpiel.texts?.['kiosk.start']).toBe("Let's go")
+    const beforeGame = runtime.getSnapshot().view!
+    expect(beforeGame.locale).toBe('en-GB')
+    // The labels of the catalog and the interface switch along, too.
+    expect(beforeGame.catalog.presets.map((preset) => preset.label)).toContain('Easy')
+    expect(beforeGame.texts?.['kiosk.start']).toBe("Let's go")
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
 
-    const imSpiel = runtime.getSnapshot().view!
-    expect(imSpiel.locale).toBe('en-GB')
-    expect(imSpiel.question!.prompt).toMatch(/^Test question /)
-    for (const option of imSpiel.visibleOptions ?? []) {
+    const inGame = runtime.getSnapshot().view!
+    expect(inGame.locale).toBe('en-GB')
+    expect(inGame.question!.prompt).toMatch(/^Test question /)
+    for (const option of inGame.visibleOptions ?? []) {
       expect(option.text).toMatch(/^(Correct|Wrong) answer /)
     }
     runtime.dispose()
   })
 
-  it('faellt auf die Grundsprache zurueck, wenn der Inhalt die Sprache nicht kennt', () => {
-    // Der Wunsch kommt aus einem Config File; ein Tippfehler darf nichts leeren.
+  it('falls back to the base locale when the content does not know the locale', () => {
+    // The wish comes from a config file; a typo must not empty anything.
     const { runtime } = createRuntime()
     runtime.dispatch({ type: 'SET_LOCALE', locale: 'kl-KL' })
     expect(runtime.getSnapshot().view!.locale).toBe('de-DE')
     runtime.dispose()
   })
 
-  it('gibt den Stand beim Aufraeumen an den persist-Adapter und stellt ihn wieder her', () => {
+  it('hands the state to the persist adapter on cleanup and restores it', () => {
     const saved: MemoryQuizStoreSnapshot[] = []
     const { runtime } = createRuntime({ persist: (snapshot) => saved.push(snapshot) })
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     runtime.dispatch({ type: 'SET_SOUND_ENABLED', enabled: false })
     runtime.dispatch({ type: 'ABORT_GAME' })
-    // `dispose` schreibt einen noch ausstehenden Stand, bevor er verloren ginge.
+    // `dispose` writes a state still pending before it would be lost.
     runtime.dispose()
     expect(saved.length).toBeGreaterThan(0)
 

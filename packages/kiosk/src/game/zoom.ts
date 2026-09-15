@@ -1,24 +1,28 @@
 /**
- * Grenzen der Zoomstufe - an einer Stelle, weil sie an dreien gelten: im
- * Schieberegler der Einstellungen, beim Uebernehmen der Vorgabe aus dem Config
- * File und in der Buehne selbst.
+ * Bounds of the zoom level - defined in one place because they apply in
+ * three: the settings slider, applying the default from the config file, and
+ * the stage itself.
  *
- * DAS MAXIMUM IST 1 UND NICHT MEHR. Die Komposition der Buehne ist auf diese
- * Groesse entworfen; darueber hinaus vergroessert liefe sie aus dem Bild. Nach
- * unten ist bei 60 Prozent Schluss - kleiner ist die Schrift auf einem
- * Touchtisch aus dem Stand nicht mehr zu lesen.
+ * THE MAXIMUM IS 1 AND NO MORE. The stage composition is designed for this
+ * size; enlarged beyond it, it would run off the picture. At the lower end
+ * it stops at 60 percent - smaller than that, the type on a touch table can
+ * no longer be read at a glance.
  */
-export const minimalerZoom = 0.6
-export const maximalerZoom = 1
-export const zoomSchritt = 0.05
+export const minZoom = 0.6
+export const maxZoom = 1
+export const zoomStep = 0.05
 
 /**
- * Einen Wert aus Konfiguration oder Bedienung auf den erlaubten Bereich holen.
+ * Bring a value from configuration or user input into the allowed range.
  *
- * Ein unbrauchbarer Wert im Config File - Text, negativ, fehlend - darf das
- * Geraet nicht dunkel lassen; er faellt auf die volle Groesse zurueck.
+ * An unusable value in the config file - text, negative, missing - must not
+ * leave the device dark; it falls back to full size.
  */
-export function klemmeZoom(wert: number | undefined): number {
-  if (typeof wert !== 'number' || !Number.isFinite(wert)) return maximalerZoom
-  return Math.min(maximalerZoom, Math.max(minimalerZoom, wert))
+export function clampZoom(value: number | undefined): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return maxZoom
+  return Math.min(maxZoom, Math.max(minZoom, value))
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `clampZoom`. */
+export const klemmeZoom = clampZoom

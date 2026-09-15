@@ -1,21 +1,21 @@
 /**
- * Die Darstellungs-Themes der Buehne.
+ * The stage's presentation themes.
  *
- * Seit die View-Modelle keine Farben und Schriften mehr tragen (Darstellung ist
- * Sache des Gastgebers), entsteht das Theme HIER: aus der Gestaltungswelt, die
- * der Inhalt empfiehlt (`view.theme.skin`), und den Paletten dieses Pakets.
- * Ein Gastgeber kann `<QuizScene>` auch ein eigenes Theme
- * geben; die Tabelle unten ist der Standard.
+ * Since the view models no longer carry colours and fonts (presentation is
+ * the host's business), the theme is assembled HERE: from the design world
+ * the content recommends (`view.theme.skin`) and this package's palettes.
+ * A host can also give `<QuizScene>` its own theme; the table below is the
+ * default.
  *
- * HIER STEHT KEIN FARBWERT - alle Werte kommen aus `palettes.ts`.
- * Die Schriftstapel sind Darstellung und stehen deshalb genau hier, nicht mehr
- * im Quizpaket.
+ * NO COLOUR VALUE LIVES HERE - all values come from `palettes.ts`.
+ * The font stacks are presentation and therefore live exactly here, no
+ * longer in the quiz package.
  */
 import type { DesignColors, PublicQuizViewModel, ThemeSkin } from '@hfroemmel/quiz-core'
 import { resolveThemeColors } from './palettes'
 
 export interface QuizSceneTheme {
-  /** Gestaltungswelt der Buehne - traegt Klassen, Assets und Palette. */
+  /** Design world of the stage - carries classes, assets and palette. */
   skin: ThemeSkin
   colors: DesignColors
   headingFont: string
@@ -23,8 +23,8 @@ export interface QuizSceneTheme {
 }
 
 /*
- * Dieselben Stapel wie zuvor im Quizpaket (`typography` je Theme) und in
- * `tokens.css` - die Umstellung darf kein Schriftbild aendern.
+ * The same stacks as previously in the quiz package (`typography` per
+ * theme) and in `tokens.css` - the switch must not change the typeface.
  */
 const serifStack = "'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif"
 const handStack = "'Patrick Hand', 'Comic Sans MS', cursive"
@@ -44,19 +44,19 @@ export const sceneThemes: Record<ThemeSkin, QuizSceneTheme> = {
   },
 }
 
-/** Standard-Theme zur Empfehlung des Inhalts. */
+/** Default theme for the content's recommendation. */
 export function themeForView(view: PublicQuizViewModel): QuizSceneTheme {
   return sceneThemes[view.theme.skin ?? 'default']
 }
 
 /**
- * Theme als CSS-Custom-Properties.
+ * Theme as CSS custom properties.
  *
- * WICHTIG - GEHOERT AUF DEN RAHMEN, NICHT AUF DIE BUEHNE: Die Werte kommen als
- * Inline-Stil, und ein Inline-Stil schlaegt jede Klassenregel. Stuenden sie an
- * der Buehne selbst, koennte `.stage--bright` seine Farben nicht mehr setzen.
- * Vom umgebenden Rahmen aus werden sie geerbt - und eine Angabe am Element
- * sticht jeden geerbten Wert. `<QuizScene>` uebernimmt genau das.
+ * IMPORTANT - BELONGS ON THE FRAME, NOT ON THE STAGE: the values arrive as
+ * an inline style, and an inline style beats every class rule. If they sat
+ * on the stage itself, `.stage--bright` could no longer set its colours.
+ * They are inherited from the surrounding frame - and a value on the
+ * element itself beats any inherited value. `<QuizScene>` does exactly that.
  */
 export function themeVariables(theme: QuizSceneTheme): Record<string, string> {
   const variables: Record<string, string> = {}

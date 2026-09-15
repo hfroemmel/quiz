@@ -1,17 +1,20 @@
 /**
- * Testhilfen fuer die Domain.
+ * Test helpers for the domain.
  *
- * Alle Regeltests laufen mit Fake-Clock und einer festen Fragenreihenfolge, damit
- * das Verhalten der Zustandsmaschine unabhaengig vom Auswahlalgorithmus geprueft
- * werden kann. Die Auswahl selbst hat eigene Tests (`selection.test.ts`).
+ * All rule tests run with a fake clock and a fixed question order, so that the
+ * behaviour of the state machine can be checked independently of the selection
+ * algorithm. The selection has tests of its own (`selection.test.ts`).
  */
 import {
   gameTiming,
+  resolveRules,
+  type RulesConfig,
   selfServiceTiming,
   type Command,
   type FlowProfile,
   type GameState,
   type PlayerCount,
+  type ModeratorQuizViewModel,
   type OperatorQuizViewModel,
   type PublicQuizViewModel,
   type Question,
@@ -20,7 +23,7 @@ import {
 } from '../src'
 import { reduce, type EngineContext, type QuestionSource, type SlotRequest } from '../src/engine/engine'
 import { resolveQuizMode } from '../src/engine/quizModes'
-import { projectOperator, projectPublic } from '../src/engine/projection'
+import { projectModerator, projectOperator, projectPublic } from '../src/engine/projection'
 
 export function makeQuestion(overrides: Partial<Question> & { id: string }): Question {
   return {
@@ -45,14 +48,14 @@ export function makeQuestion(overrides: Partial<Question> & { id: string }): Que
   }
 }
 
-/** Liefert die Fragen in fest vorgegebener Reihenfolge - ein Fragenplatz je Eintrag. */
+/** Supplies the questions in a fixed order - one slot per entry. */
 function scriptedSource(script: Question[], spare: Question[]): QuestionSource {
   return {
     slotCountFor: () => script.length,
     /*
-     * Die Quizarten kommen aus derselben Konfiguration, die auch die Projektion
-     * benutzt, und werden mit derselben Funktion aufgeloest wie im Server. Ein
-     * nachgebautes Nachschlagen haette hier andere Regeln als dort.
+     * The quiz types come from the same configuration the projection uses and
+     * are resolved with the same function as in the server. A rebuilt lookup
+     * would have different rules here than there.
      */
     quizFor: (quizId) => resolveQuizMode(testConfig, quizId),
     selectForSlot: (request: SlotRequest) => {
@@ -74,17 +77,19 @@ function scriptedSource(script: Question[], spare: Question[]): QuestionSource {
 export interface Harness {
   state: GameState | null
   now: number
-  /** Befehl ausfuehren; wirft, wenn er abgelehnt wird. */
+  /** Execute a command; throws if it is refused. */
   dispatch(command: Command): GameState
-  /** Befehl ausfuehren und die Ablehnung zurueckgeben; wirft, wenn er akzeptiert wird. */
+  /** Execute a command and return the refusal; throws if it is accepted. */
   expectReject(command: Command): { reason: string; message: string }
-  /** Uhr vorstellen und faellige zeitgesteuerte Uebergaenge ausloesen (wie der Server-Timer). */
+  /** Advance the clock and fire due timed transitions (like the server timer). */
   advance(ms: number): void
-  /** Alle offenen zeitgesteuerten Uebergaenge sofort abschliessen. */
+  /** Complete all open timed transitions at once. */
   settle(): void
-  /** Das oeffentliche View-Modell zum aktuellen Stand - das, was der Saal saehe. */
+  /** The public view model of the current state - what the hall would see. */
   publicView(): PublicQuizViewModel
-  /** Die Operatoransicht - sie traegt die Joker-Schaltflaechen. */
+  /** The moderator view - it says what the pending answer is worth. */
+  moderatorView(): ModeratorQuizViewModel
+  /** The operator view - it carries the joker controls. */
   operatorView(): OperatorQuizViewModel
   events: { category: string; message: string }[]
   scoreTransactions: { playerId: string; delta: number; reason: string }[]
@@ -98,6 +103,8 @@ export function createHarness(
     startNow?: number
     /** Fixed source of chance - lets a test say which wrong answer survives. */
     random?: () => number
+    /** Rules of the package under test - without them the house rules apply. */
+    rules?: RulesConfig
   } = {},
 ): Harness {
   let counter = 0
@@ -144,12 +151,16 @@ export function createHarness(
     },
 
     /**
-     * Schliesst offene Uebergaenge ab, ohne die Uhr darueber hinaus zu bewegen.
-     * Wichtig fuer Bildfragen: sonst wuerde die Enthuellungsuhr unbeabsichtigt
-     * bis zum Ende weiterlaufen.
+     * Completes open transitions without moving the clock beyond them.
+     * Important for picture questions: otherwise the reveal clock would
+     * unintentionally run on to the end.
      */
     publicView() {
       return projectPublic(harness.state, projectionContext())
+    },
+
+    moderatorView() {
+      return projectModerator(harness.state, projectionContext())
     },
 
     operatorView() {
@@ -168,12 +179,16 @@ export function createHarness(
   }
 
   function context(): EngineContext {
+    const rules = resolveRules(options.rules)
     return {
       nowMs: harness.now,
       eventDayId: 'event-day-test',
       newId: (prefix) => `${prefix}-${(counter += 1)}`,
       questionSource: source,
-      timing: gameTiming,
+      timing: rules.timing,
+      selfServiceTiming: rules.selfServiceTiming,
+      scoring: rules.scoring,
+      jokersEnabled: rules.jokersEnabled,
       ...(options.random === undefined ? {} : { random: options.random }),
     }
   }
@@ -181,7 +196,7 @@ export function createHarness(
   function projectionContext() {
     return {
       nowMs: harness.now,
-      config: testConfig,
+      config: options.rules ? { ...testConfig, rules: options.rules } : testConfig,
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',
@@ -192,11 +207,12 @@ export function createHarness(
 }
 
 /**
- * Minimalkonfiguration fuer die Projektion - die Farbwerte selbst sind hier egal.
+ * Minimal configuration for the projection - the colour values themselves do not
+ * matter here.
  *
- * Die Quizarten bilden die drei Faelle ab, die es zu unterscheiden gibt: eine
- * mit Schwierigkeitswahl, eine mit eigener Gestaltungswelt und eine, die ihr
- * Fragenpool IST.
+ * The quiz types cover the three cases there are to distinguish: one with a
+ * difficulty choice, one with its own design world and one that IS its
+ * question pool.
  */
 export const testConfig: QuizConfig = {
   questionsPerGame: 7,
@@ -240,7 +256,7 @@ export const testConfig: QuizConfig = {
   ],
 }
 
-/** Startet ein Spiel und laesst den Pausenscreen ablaufen, bis die erste Frage steht. */
+/** Starts a game and lets the pause screen run until the first question stands. */
 export function startGame(
   harness: Harness,
   options: { playerCount?: PlayerCount; playerLabels?: string[]; flowProfile?: FlowProfile } = {},
@@ -253,24 +269,24 @@ export function startGame(
     ...(options.playerLabels === undefined ? {} : { playerLabels: options.playerLabels }),
     ...(options.flowProfile === undefined ? {} : { flowProfile: options.flowProfile }),
   })
-  // Nur den Pausenscreen ablaufen lassen. Bei Selbstbedienung wuerde `settle()`
-  // das ganze Spiel durchspielen, weil dort jeder Uebergang eingeplant ist.
+  // Only let the pause screen run. In self-service `settle()` would play
+  // through the whole game, because every transition is scheduled there.
   harness.advance(gameTiming.pauseScreenMs)
   /*
-   * Bei Selbstbedienung steht danach zuerst nur die Frage. Die Tests unten
-   * beginnen fast alle bei der offenen Antwort; wer die Frist selbst pruefen
-   * will, startet ohne diesen Helfer. Eine Videofrage bleibt unberuehrt - dort
-   * kommt die Frist erst nach dem Video.
+   * In self-service only the question stands at first afterwards. The tests
+   * below almost all begin at the open answer; whoever wants to check the
+   * deadline itself starts without this helper. A video question stays
+   * untouched - there the deadline only comes after the video.
    */
   if (harness.state?.phase === 'question-presented') harness.advance(selfServiceTiming.questionLeadInMs)
   return harness.state!
 }
 
 /**
- * Bringt eine Frage bis zur Phase `answer-locked` mit dem angegebenen Spieler.
+ * Brings a question to the phase `answer-locked` with the given player.
  *
- * Jede Frage steht zuerst still da, damit der Moderator sie vorlesen kann; erst
- * die Freigabe oeffnet den Buzzer.
+ * Every question first stands still so that the moderator can read it aloud;
+ * only opening the buzzer makes it buzzable.
  */
 export function releaseRound(harness: Harness): void {
   if (harness.state?.phase === 'question-presented') harness.dispatch({ type: 'OPEN_BUZZER' })

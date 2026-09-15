@@ -1,21 +1,21 @@
 /**
- * Buzzer- und Berechtigungsregeln (Spezifikation 8 und 10.3).
+ * Buzzer and eligibility rules (specification 8 and 10.3).
  *
- * DRY-Regel: Ob ein Spieler buzzern darf, wird ausschliesslich hier entschieden.
- * Hardware-Buzzer (Tasten `A`/`B`) und die manuelle Spielerauswahl des Operators
- * laufen durch dieselbe Pruefung, damit der Fallback nicht andere Regeln hat.
+ * DRY rule: whether a player may buzz is decided exclusively here. Hardware
+ * buzzers (keys `A`/`B`) and the operator's manual player selection pass the
+ * same check, so that the fallback has no different rules.
  */
 import type { CommandRejectionReason, GamePhase, GameState, PlayerId, PlayerState } from '../contracts'
 
 /**
- * Phasen, in denen der Server ueberhaupt Buzzer-Ereignisse annimmt.
+ * Phases in which the server accepts buzzer events at all.
  *
- * `video-playing` fehlt hier bewusst: waehrend des Videos darf nicht gebuzzert
- * werden. Weil die Berechtigung allein an der Phase haengt, kann es die verbotene
- * Kombination "Video laeuft und Buzzer offen" strukturell nicht geben.
+ * `video-playing` is deliberately missing: no buzzing during the video. Because
+ * eligibility depends on the phase alone, the forbidden combination "video
+ * playing and buzzer open" structurally cannot exist.
  *
- * `reveal-paused` ist enthalten: Wenn der Operator die Enthuellung anhaelt, bleibt
- * die Antwortmoeglichkeit bestehen - eingefroren ist nur das Bild.
+ * `reveal-paused` is included: when the operator pauses the reveal, answering
+ * stays possible - only the picture is frozen.
  */
 const buzzablePhases: readonly GamePhase[] = ['buzzer-open', 'reveal-running', 'reveal-paused']
 
@@ -24,10 +24,9 @@ export function isBuzzablePhase(phase: GamePhase): boolean {
 }
 
 /**
- * Phasen, in denen bei Selbstbedienung eine Antwort angetippt und bestaetigt
- * werden kann: Ein Versuch ist offen und gehoert bereits einem Spieler. In der
- * zweiten Chance gibt es keinen Zuschlag mehr, deshalb steht sie hier neben
- * `answer-locked`.
+ * Phases in which, in self-service, an answer can be tapped and confirmed: an
+ * attempt is open and already belongs to a player. In the second chance there
+ * is no buzz any more, which is why it stands here next to `answer-locked`.
  */
 const answerablePhases: readonly GamePhase[] = ['answer-locked', 'second-chance']
 
@@ -42,20 +41,20 @@ export interface BuzzDecision {
 }
 
 /**
- * Darf `playerId` jetzt den Zuschlag bekommen?
+ * May `playerId` get the buzz now?
  *
- * Der Server entscheidet atomar: Nach dem ersten akzeptierten Buzzer ist
- * `buzzer.open` false, jedes weitere Ereignis wird abgewiesen, bis die Spielregel
- * erneut freigibt. Ein kuenstlicher Gleichstand zweier Buzzer muss nicht behandelt
- * werden - massgeblich ist die Reihenfolge der Befehlsannahme.
+ * The server decides atomically: after the first accepted buzz `buzzer.open` is
+ * false, every further event is refused until the game rule opens it again. An
+ * artificial tie between two buzzers need not be handled - the order of command
+ * acceptance is what counts.
  */
 export function evaluateBuzz(state: GameState, playerId: PlayerId): BuzzDecision {
   if (state.status !== 'active') {
     return { allowed: false, reason: 'no-active-game', message: 'Es läuft gerade kein Spiel.' }
   }
   if (state.phase === 'answer-locked' && state.buzzer.acceptedPlayerId) {
-    // Haeufigster Fall: Ein Spieler hat den Zuschlag und der andere haemmert weiter
-    // auf den Buzzer. Das verdient eine eigene, verstaendliche Begruendung.
+    // Most common case: one player holds the buzz and the other keeps hammering
+    // the buzzer. That deserves its own, understandable reason.
     return {
       allowed: false,
       reason: 'buzzer-already-taken',
@@ -94,17 +93,17 @@ export function evaluateBuzz(state: GameState, playerId: PlayerId): BuzzDecision
 }
 
 /**
- * Ein anderer Spieler, der bei dieser Frage noch antworten darf.
+ * Another player who may still answer this question.
  *
- * Das ist die einzige Stelle, an der entschieden wird, ob es eine zweite Chance
- * gibt. Im Einzelspiel gibt es niemanden - deshalb faellt die zweite Chance dort
- * weg, ohne dass die Zustandsmaschine einen Sonderfall braucht.
+ * This is the only place that decides whether there is a second chance. In a
+ * solo game there is nobody - so the second chance disappears there without the
+ * state machine needing a special case.
  */
 export function eligibleOpponent(state: GameState, playerId: PlayerId | null): PlayerState | undefined {
   return state.players.find((player) => player.id !== playerId && !player.lockedForCurrentQuestion)
 }
 
-/** Der Spieler, der aktuell antworten darf - unabhaengig davon, wie er bestimmt wurde. */
+/** The player who may answer right now - regardless of how they were determined. */
 export function activePlayerId(state: GameState): PlayerId | undefined {
   if (state.phase === 'second-chance') {
     return state.players.find((player) => !player.lockedForCurrentQuestion)?.id

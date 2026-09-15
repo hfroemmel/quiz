@@ -1,535 +1,544 @@
-# Designsystem
+# Design System
 
-Verbindliche visuelle Grundlage fuer Operator-, Buehnen- und Moderatoransicht.
-Die Werte stammen aus den siebzehn gelieferten Screendesigns und wurden am
-Bildmaterial gemessen, nicht geschaetzt.
+Binding visual foundation for the operator, stage, and moderator views.
+The values come from the seventeen delivered screen designs and were
+measured on the artwork, not estimated.
 
-## Geltung und Rangfolge
+## Scope and Precedence
 
-1. **Die Entwicklungsspezifikation gewinnt.** Bei einem Widerspruch zwischen
-   Screendesign und Spezifikation gilt die Spezifikation; das Design bestimmt
-   dann nur noch das Aussehen, nicht die Funktion.
-2. Das Design ergaenzt die Spezifikation um Farben, Raster, Typografie und
-   Zustandsdarstellung. Es aendert weder Phasen, Befehle noch Rollenrechte.
-3. Was in keinem Screen vorkommt, wird im gezeigten Stil entworfen und in
-   [`docs/screens.md`](screens.md) festgeschrieben, bevor es gebaut wird.
+1. **The development specification wins.** In case of a conflict between
+   the screen design and the specification, the specification applies; the design
+   then only determines appearance, not function.
+2. The design supplements the specification with colors, grid, typography, and
+   state representation. It changes neither phases, commands, nor role permissions.
+3. Whatever doesn't appear in any screen is designed in the shown style and
+   recorded in [`docs/screens.md`](screens.md) before it is built.
 
-## Die zentrale Strukturaussage
+## The Central Structural Statement
 
-Die Operatoransicht ist **kein eigener Bildschirmentwurf**, sondern die
-Buehnenausgabe plus Bedienrahmen:
+The operator view is **not its own screen design**, but the
+stage output plus a control frame:
 
 ```text
-+--------------------------------------------------------------+
-| Fensterrahmen des Betriebssystems                            |
-+--------------------------------------------------------------+
-| [Beenden]        +--------------------------+     [Vollbild] |
-|                  |                          |     [Ton]      |
-|                  |   BUEHNENFLAECHE 16:9    |                |
-|                  |   = exakt das, was der   |                |
-|                  |     Beamer zeigt         |                |
-|                  +--------------------------+                |
-|                                                              |
-+--------------------------------------------------------------+
-| Private Antwortzeile + [Zuruecksetzen]                       |
-| 1. Runde | 2. Spieler ermitteln | 3. Antwort | [Weiter]      |
-+--------------------------------------------------------------+
++------------------------------------------------------------------+
+| OS window frame                                                  |
++------------------------------------------------------------------+
+| [Quit]            +--------------------------+   [Fullscreen]    |
+|                   |                          |   [Sound]         |
+|                   |     STAGE AREA 16:9      |                   |
+|                   |    = exactly what the    |                   |
+|                   |     projector shows      |                   |
+|                   +--------------------------+                   |
+|                                                                  |
++------------------------------------------------------------------+
+| Private answer row + [Reset]                                     |
+| 1. Round | 2. Determine player | 3. Answer | [Continue]          |
++------------------------------------------------------------------+
 ```
 
-Daraus folgen zwei harte Regeln:
+Two hard rules follow from this:
 
-- **In der Buehnenflaeche wird ausschliesslich das oeffentliche View-Modell
-  gerendert.** Dieselbe Komponente laeuft im Buehnenfenster im Vollbild. Es gibt
-  keinen zweiten Renderpfad und damit keine Moeglichkeit, dass die Vorschau
-  etwas anderes zeigt als der Beamer.
-- **Alles Private liegt ausserhalb der Buehnenflaeche**, also in der unteren
-  Bedienleiste. Die Loesung erscheint in der Buehnenflaeche erst in der
-  Loesungsszene - unveraendert gegenueber Spezifikation 12.
+- **Only the public view model is rendered in the stage area.** The
+  same component runs in the stage window in fullscreen. There is
+  no second render path and therefore no way for the preview to
+  show anything different from the projector.
+- **Everything private lies outside the stage area**, i.e. in the
+  lower control bar. The solution appears in the stage area only in the
+  solution scene - unchanged from specification 12.
 
-Die Bedienelemente des Operators, die im Design **innerhalb** der Flaeche liegen
-(die `+`/`-`-Tasten neben den Punktekacheln), sind eine Overlay-Schicht ueber der
-Vorschau. Sie werden vom Buehnenfenster nicht gerendert.
+The operator's controls that lie **inside** the area in the design
+(the `+`/`-` buttons next to the score tiles) are an overlay layer over the
+preview. They are not rendered by the stage window.
 
-## Geometrie
+## Geometry
 
-Gemessen an den Screens (1728 x 1152 Bildpunkte Vorlage):
+Measured from the screens (1728 x 1152 pixel reference):
 
-| Groesse | Wert | Anteil |
+| Size | Value | Share |
 |---|---|---|
-| Buehnenflaeche Breite | 1234 px | 71,4 % der Fensterbreite |
-| Seitliche Einzuege | je 247 px | 14,3 % - symmetrisch |
-| Buehnenflaeche Seitenverhaeltnis | 1234 x 694 | exakt 16:9 |
-| Oberkante Buehnenflaeche | 72 px unter dem Fensterrand | 6,4 % der Fensterhoehe |
-| Bedienleiste (Spielansicht) | 259 px hoch | 23,2 % der Fensterhoehe |
-| Bedienleiste (Startansicht) | 138 px hoch | ohne private Antwortzeile |
-| Kopfzeile innerhalb der Flaeche | 70 px hohe Kacheln | 10 % der Flaechenhoehe |
+| Stage area width | 1234 px | 71.4% of window width |
+| Side margins | 247 px each | 14.3% - symmetric |
+| Stage area aspect ratio | 1234 x 694 | exactly 16:9 |
+| Top edge of stage area | 72 px below window edge | 6.4% of window height |
+| Control bar (game view) | 259 px tall | 23.2% of window height |
+| Control bar (start view) | 138 px tall | without the private answer row |
+| Header inside the area | 70 px tall tiles | 10% of area height |
 
-Die Kopfzeile mit Punktekacheln und `Frage x/y` liegt **innerhalb** der
-Buehnenflaeche und ist damit oeffentlich - so bestaetigt: der Beamer zeigt
-Punktestand und Fragezaehler, aber keine Bedienelemente.
+The header with score tiles and `Frage x/y` ("Question x/y") lies **inside** the
+stage area and is thus public - confirming that the projector shows
+the score and question counter, but no controls.
 
-## Skalierung
+## Scaling
 
-| Ziel | Seitenverhaeltnis | Verhalten |
+| Target | Aspect ratio | Behavior |
 |---|---|---|
-| Operatorlaptop | 16:10 | Rahmen fuellt das Fenster, Buehnenflaeche bleibt 16:9 und zentriert |
-| Beamer | 16:9 | Buehnenflaeche fuellt den Bildschirm vollstaendig |
-| Moderator-iPad | frei | eigene, textorientierte Anordnung (siehe `docs/screens.md`) |
+| Operator laptop | 16:10 | frame fills the window, stage area stays 16:9 and centered |
+| Projector | 16:9 | stage area fills the screen completely |
+| Moderator iPad | free | own, text-oriented layout (see `docs/screens.md`) |
 
-Regel: **Die Flaeche wird gefuellt, die Typografie skaliert mit.** Umgesetzt wird
-das ueber Container-Queries statt ueber Geraeteabfragen:
+Rule: **The area is filled, the typography scales along with it.** This is
+implemented via container queries rather than device queries:
 
 ```css
 .stage { container-type: size; container-name: stage; }
 .stage__prompt { font-size: 2.8cqw; }
 ```
 
-Damit ist die 1234 px breite Vorschau im Operatorfenster pixelgenau dieselbe
-Komposition wie die 1920 px breite Beamerausgabe. Es gibt keine zweite
-Typografieskala und keine Breakpoints im Buehnenlayout.
+This makes the 1234 px wide preview in the operator window pixel-for-pixel the
+same composition as the 1920 px wide projector output. There is no second
+typography scale and no breakpoints in the stage layout.
 
-Der Bedienrahmen des Operators skaliert **nicht** mit: Beschriftungen und
-Schaltflaechen stehen in `rem`, damit sie auf jedem Laptop gleich gross und
-sicher treffbar bleiben.
+The operator's control frame does **not** scale along: labels and
+buttons are set in `rem`, so they stay the same size and
+reliably tappable on every laptop.
 
-## Farbtokens
+## Color Tokens
 
-Alle Farben sind CSS-Variablen. Kein Bauteil schreibt einen Farbwert direkt.
+All colors are CSS variables. No component writes a color value directly.
 
-### Basis (Grundton der Anwendung)
+### Base (application's base tone)
 
-| Token | Wert | Verwendung |
+| Token | Value | Use |
 |---|---|---|
-| `pageTop` | `#12161A` | Seitenhintergrund oben |
-| `pageBottom` | `#171C21` | Seitenhintergrund unten (linearer Verlauf) |
-| `stageTop` | `#171C21` | Buehnenflaeche oben |
-| `stageBottom` | `#293139` | Buehnenflaeche unten |
-| `controls` | `#12161A` | Bedienleiste |
-| `tile` | `rgb(255 255 255 / 0.09)` | Kacheln, Buchstabenchips |
-| `tileDisabled` | `rgb(255 255 255 / 0.05)` | gesperrte Flaeche |
-| `tileQuiet` | `rgb(255 255 255 / 0.06)` | zurueckgenommene Kachel |
-| `option` | `rgb(255 255 255 / 0.05)` | Antwortleiste, neutral |
+| `pageTop` | `#12161A` | page background, top |
+| `pageBottom` | `#171C21` | page background, bottom (linear gradient) |
+| `stageTop` | `#171C21` | stage area, top |
+| `stageBottom` | `#293139` | stage area, bottom |
+| `controls` | `#12161A` | control bar |
+| `tile` | `rgb(255 255 255 / 0.09)` | tiles, letter chips |
+| `tileDisabled` | `rgb(255 255 255 / 0.05)` | locked area |
+| `tileQuiet` | `rgb(255 255 255 / 0.06)` | stepped-back tile |
+| `option` | `rgb(255 255 255 / 0.05)` | answer bar, neutral |
 
-Die Buehnenflaeche laeuft von oben nach unten heller und leicht ins Blaue - ein
-kuehler Grund, vor dem das warme Licht der Fragenbilder wirkt.
+The stage area runs lighter from top to bottom and slightly toward blue - a
+cool background against which the warm light of the question images works.
 
-**Die Flaechenfarben sind halbtransparent.** Das ist kein Detail, sondern der
-Kern des Entwurfs: Hinter der Szene liegt das unscharfe Fragebild, und Kacheln,
-Buchstaben und Antwortleisten lassen es als Milchglas durchscheinen, statt es
-zuzudecken. Ein Token mit deckender Farbe wuerde die Tiefe sofort zerstoeren.
+**The area colors are semi-transparent.** This isn't a detail, it's the
+core of the design: behind the scene lies the blurred question image, and
+tiles, letters, and answer bars let it shimmer through like frosted glass,
+instead of covering it up. A token with an opaque color would immediately
+destroy the depth.
 
-### Unscharfes Fragebild als Hintergrund
+### Blurred Question Image as Background
 
-Hinter jeder Szene mit Bild liegt dasselbe Bild formatfuellend, stark
-weichgezeichnet (`blur(3cqw)`), abgedunkelt (`brightness(0.72)`) und mit einem
-Farbschleier aus `stageTop`/`stageBottom` bei 66 % Deckkraft ueberzogen. Jede
-Frage bekommt damit ihre eigene Atmosphaere, ohne dass Text an Ruhe verliert.
+Behind every scene with an image lies the same image filling the frame,
+strongly blurred (`blur(3cqw)`), darkened (`brightness(0.72)`) and overlaid
+with a color veil made of `stageTop`/`stageBottom` at 66% opacity. Every
+question thus gets its own atmosphere without text losing calm.
 
-Doppelt abgedunkelt wird bewusst am Bild UND am Schleier: Die Fragenbilder
-reichen von der Nachtaufnahme bis zum wolkenlosen Sommerhimmel, und ein heller
-Himmel wuerde die Buehne sonst ins Milchige kippen.
+Darkening happens deliberately twice, both on the image AND on the veil: the
+question images range from night shots to a cloudless summer sky, and a
+bright sky would otherwise tip the stage into a milky look.
 
-**Waehrend der Bildenthuellung** ist derselbe Hintergrund viel staerker
-weichgezeichnet (`blur(9cqw)`, `brightness(0.5)`, Schleier 84 %). Die Aufgabe
-ist dort, das Motiv zu erkennen; der Hintergrund darf keine Silhouette verraten -
-9 cqw sind auf einem 1920er Beamer rund 170 Pixel Weichzeichnung.
+**During the image reveal**, the same background is much more strongly
+blurred (`blur(9cqw)`, `brightness(0.5)`, veil 84%). The task there is
+to recognize the subject; the background must not give away a silhouette -
+9 cqw is roughly 170 pixels of blur on a 1920-wide projector.
 
-### Radien und Schatten
+### Radii and Shadows
 
-`--stage-radius` steht bei `0.7cqw` - auf einem 1920 Pixel breiten Beamer rund
-13 Pixel. Der Wert steht wie alle Groessen der Buehne in Containereinheiten,
-damit die kleine Operatorvorschau und das Vollbild identisch aussehen.
+`--stage-radius` is set to `0.7cqw` - roughly 13 pixels on a 1920 pixel wide
+projector. Like all stage sizes, the value is in container units,
+so the small operator preview and fullscreen look identical.
 
-`--stage-shadow` (`0 0.5cqw 1.6cqw rgb(0 0 0 / 0.35)`) liegt unter Bild,
-Kacheln und Antwortleisten. Er dient ausschliesslich der raeumlichen Tiefe -
-sichtbare Konturen oder Rahmen gibt es auf der Buehne nicht.
+`--stage-shadow` (`0 0.5cqw 1.6cqw rgb(0 0 0 / 0.35)`) sits under the image,
+tiles, and answer bars. It serves purely for spatial depth -
+there are no visible outlines or borders on the stage.
 
-Das Cyan ist eine **Bedeutungsfarbe, keine Flaechenfarbe**: Es markiert den
-aktiven Spieler, die gewaehlte Antwort, die Rubrik und Statuswechsel wie die
-zweite Chance. Grosse Flaechen bleiben im kuehlen Grund.
+The cyan is a **meaning color, not an area color**: it marks the
+active player, the selected answer, the category, and state changes like the
+second chance. Large areas stay in the cool background.
 
-### Schriftmischung auf der Buehne
+### Font Mix on Stage
 
-Die Serifenschrift traegt Inhalt, die Groteske traegt Beschriftungen:
+The serif typeface carries content, the sans-serif carries labels:
 
-| Element | Schrift |
+| Element | Typeface |
 |---|---|
-| Fragetext, Antworttexte, Kachelwerte, Sekunden, Ergebnis | Melior |
-| `Spieler`, `Punkte`, `Frage`, Rubrik | Noto Sans Display |
+| Question text, answer texts, tile values, seconds, result | Melior |
+| `Spieler`, `Punkte`, `Frage` ("Player", "Points", "Question"), category | Noto Sans Display |
 
-Die Rubrik steht klein (1,15 cqw), halbfett und in `accent`: ein
-Orientierungselement ueber der Frage, keine zweite Ueberschrift.
+The category is set small (1.15 cqw), semi-bold, and in `accent`: an
+orientation element above the question, not a second heading.
 
-### Farben der Regieflaeche
+### Colors of the Control Surface
 
-Die achtzehn Token oben gehoeren der **Buehne**. Die Bedienoberflaeche des
-Operators - und ebenso die Moderatoransicht - hat ein eigenes, festes
-Farbsystem, das ein Moduswechsel NICHT umtaucht:
+The eighteen tokens above belong to the **stage**. The operator's control
+surface - as well as the moderator view - has its own, fixed
+color system, which a mode change does NOT retint:
 
-Auch diese Werte stehen in `packages/contracts/src/theme.ts` (`uiPalette`) und
-nicht hier:
+These values, too, are in `packages/contracts/src/theme.ts` (`uiPalette`), and
+not here:
 
-| Variable | Verwendung |
+| Variable | Use |
 |---|---|
-| `--ui-page` | Seitenhintergrund der Bedienoberflaeche |
-| `--ui-surface` | Karten und Leisten: Bedienleiste, privater Bereich, Popups, Startpanel |
-| `--ui-surface-quiet` | Kopf- und Fusszeile |
-| `--ui-surface-raised` | aufgehellte Flaeche innerhalb einer Karte |
-| `--ui-control` | Schaltflaechen, Icontasten |
-| `--ui-control-disabled` | gesperrte Icontaste |
-| `--ui-input` | Eingabefelder |
-| `--ui-border` | Raender und Trennlinien |
-| `--ui-border-quiet` | Trennlinie innerhalb einer Karte |
-| `--ui-border-strong` | Kante eines Feldes, das sich absetzen soll |
-| `--ui-scrim`, `--ui-scrim-quiet` | Flaeche hinter einem Popup, Grund einer Vorschaukachel |
-| `--ui-text` | Text |
-| `--ui-text-muted` | Beschriftungen, Nebeninformation |
-| `--ui-accent` | primaere Handlung, richtige Antwort im privaten Bereich, Auswahlring |
-| `--ui-correct` | `Antwort war richtig`, Markierung der richtigen Option |
-| `--ui-incorrect` | `Antwort war falsch`, Warnungen |
-| `--ui-warning-soft`, `--ui-error-soft` | hinterlegte Meldungen im Verbindungsband |
+| `--ui-page` | control surface page background |
+| `--ui-surface` | cards and bars: control bar, private section, popups, start panel |
+| `--ui-surface-quiet` | header and footer |
+| `--ui-surface-raised` | lightened area inside a card |
+| `--ui-control` | buttons, icon buttons |
+| `--ui-control-disabled` | locked icon button |
+| `--ui-input` | input fields |
+| `--ui-border` | borders and dividers |
+| `--ui-border-quiet` | divider inside a card |
+| `--ui-border-strong` | edge of a field that should stand out |
+| `--ui-scrim`, `--ui-scrim-quiet` | area behind a popup, background of a preview tile |
+| `--ui-text` | text |
+| `--ui-text-muted` | labels, secondary information |
+| `--ui-accent` | primary action, correct answer in the private section, selection ring |
+| `--ui-correct` | `Antwort war richtig` ("Answer was correct"), marking of the correct option |
+| `--ui-incorrect` | `Antwort war falsch` ("Answer was wrong"), warnings |
+| `--ui-warning-soft`, `--ui-error-soft` | highlighted messages in the connection banner |
 
-Der Grund fuer die Trennung ist praktisch, nicht gestalterisch: Der Saal soll die
-Farbe des Quizmodus sehen, der Operator dagegen immer dieselbe Flaeche - er
-findet seine Tasten sonst bei jedem Moduswechsel neu. Die dunkle Regieflaeche
-laesst ausserdem die Buehnenvorschau als einziges helles Feld heraussstechen.
+The reason for the separation is practical, not aesthetic: the room should see
+the color of the quiz mode, while the operator always sees the same
+surface - otherwise they'd have to relocate their buttons on every mode
+change. The dark control surface also makes the stage
+preview stand out as the only bright field.
 
-Die Variablen stehen am Wurzelelement und werden von `themeVariables` nicht
-beruehrt; das setzt ausschliesslich `--color-*`. Ein Bauteil der Buehne greift nie
-auf `--ui-*` zu und umgekehrt.
+The variables sit on the root element and are untouched by
+`themeVariables`; that only sets `--color-*`. A stage component never
+accesses `--ui-*` and vice versa.
 
-### Rollenfarben
+### Role Colors
 
-Die Bedeutungsfarben stammen aus dem **Farbspektrum des Bundes**. Ausgewaehlt
-wurde je Token der Ton mit dem kleinsten Abstand zur zuvor gesetzten Farbe
-(CIELAB), damit die Buehne ihr Bild behaelt und trotzdem amtliche Werte traegt.
-Die dunkle Fassung nimmt die Aufhellungen der Abstufungsreihe - der reine Ton
-saeuft auf dunklem Grund ab -, die helle Fassung dieselben Farben bei 100 Prozent.
+The meaning colors come from the **federal government's color
+spectrum**. For each token, the shade with the smallest distance to the
+previously set color (CIELAB) was chosen, so the stage keeps its
+image while still carrying official values. The dark version takes
+the lightened shades of the tint scale - the pure tone would drown
+on a dark background - the light version uses the same colors at 100 percent.
 
-Die Werte stehen **nicht hier**, sondern in `packages/contracts/src/theme.ts`.
-Eine Abschrift in dieser Datei wuerde beim naechsten Farbwechsel veralten, ohne
-dass es jemandem auffiel.
+The values are **not here**, but in `packages/contracts/src/theme.ts`.
+A copy in this file would go stale at the next color change, without
+anyone noticing.
 
-| Token | CI-Farbe | Bedeutung |
+| Token | Brand color | Meaning |
 |---|---|---|
-| `accent` | Blau | aktiver Spieler, gewaehlte Antwort, Rubrik, Statuswechsel |
-| `accentQuiet` | Petrol, abgedunkelt | dieselbe Bedeutung, aber abgeschlossen bzw. nicht mehr bedienbar |
-| `primary` | Gruen | genau eine primaere Handlung je Bildschirm |
-| `solution` | Gruen | Loesungsbalken in der Loesungsszene |
-| `solutionChip` | Dunkelgruen | Buchstabenchip im Loesungsbalken |
-| `correct` | Tuerkis | Kreis der Richtig-Rueckmeldung |
-| `incorrect` | Rot, abgedunkelt | Kreis der Falsch-Rueckmeldung |
-| `text` | - | Text auf allen dunklen Flaechen |
-| `textMuted` | - | Kachelbeschriftungen, gesperrte Schaltflaechen |
+| `accent` | Blue | active player, selected answer, category, state change |
+| `accentQuiet` | Petrol, darkened | the same meaning, but closed or no longer operable |
+| `primary` | Green | exactly one primary action per screen |
+| `solution` | Green | solution bar in the solution scene |
+| `solutionChip` | Dark green | letter chip in the solution bar |
+| `correct` | Turquoise | circle of the correct feedback |
+| `incorrect` | Red, darkened | circle of the incorrect feedback |
+| `text` | - | text on all dark areas |
+| `textMuted` | - | tile labels, locked buttons |
 
-`--accent-quiet` ist die wichtigste Erfindung des Designs: Sie zeigt
-"das war die Auswahl" an, ohne noch zur Bedienung einzuladen. Sie erscheint an
-der Spielertaste nach dem Buzzern und an der Antworttaste nach dem Aufloesen.
+`--accent-quiet` is the design's most important invention: it shows
+"this was the selection" without still inviting interaction. It appears on
+the player button after buzzing and on the answer button after resolving.
 
-### Zustandsmatrix der Schaltflaechen
+### Button State Matrix
 
-| Zustand | Flaeche | Text | Auftritt |
+| State | Area | Text | Occurrence |
 |---|---|---|---|
-| bedienbar | `--surface-tile` | `--text` | Standard |
-| gesperrt | `--surface-tile-disabled` | `--text-muted` | Befehl nicht in `allowedCommands` |
-| gewaehlt, aktiv | `--accent` | `--text` | eingeloggte Antwort vor dem Aufloesen |
-| gewaehlt, abgeschlossen | `--accent-quiet` | `--text` | nach dem Aufloesen, Buzzerzuordnung |
-| primaer | `--primary` | `--text` | genau eine Taste je Zustand |
+| operable | `--surface-tile` | `--text` | default |
+| locked | `--surface-tile-disabled` | `--text-muted` | command not in `allowedCommands` |
+| selected, active | `--accent` | `--text` | logged-in answer before resolving |
+| selected, closed | `--accent-quiet` | `--text` | after resolving, buzzer assignment |
+| primary | `--primary` | `--text` | exactly one button per state |
 
-Die Zustaende werden **nicht** im Bauteil entschieden, sondern aus
-`allowedCommands` und dem View-Modell abgeleitet (Spezifikation 10.4). Das Design
-liefert die Darstellung, der Server die Wahrheit.
+States are **not** decided in the component, but derived from
+`allowedCommands` and the view model (specification 10.4). The design
+supplies the display, the server the truth.
 
-## Wo die Farben stehen
+## Where the Colors Live
 
-**In genau einer Datei: `packages/contracts/src/theme.ts`.** Dort stehen die
-beiden Gestaltungswelten, die helle Fassung, die wenigen Farben, die keiner Welt
-gehoeren, und der Bedienrahmen des Operators. Anderswo steht kein Farbwert;
-`apps/web/test/palette.test.ts` prueft das bei jedem Testlauf.
+**In exactly one file: `packages/contracts/src/theme.ts`.** That's where the
+two design worlds, the light version, the few colors that belong to
+no world, and the operator's control frame live. No color value lives anywhere
+else; `apps/web/test/palette.test.ts` checks that on every test run.
 
-Von dort aus laufen zwei Wege:
+Two paths run from there:
 
 ```text
-theme.ts ──> pnpm content:build ──> content/dist/config.json ──> Server ──> Buehne
+theme.ts ──> pnpm content:build ──> content/dist/config.json ──> Server ──> Stage
          └─> pnpm palette:build ──> apps/web/src/styles/palette.css
 ```
 
-Das Quizpaket ist der Weg fuer den Betrieb: Der Server liefert die Farben des
-aktiven Modus mit jedem Snapshot, und `themeVariables` schreibt sie als
-Inline-Variablen auf den **Rahmen** um die Buehne. `palette.css` ist der zweite
-Weg - die Rueckfallebene am Wurzelelement, bis der erste Snapshot da ist, und die
-helle Fassung, die am Buehnenelement selbst stehen muss.
+The quiz package is the path for operation: the server delivers the colors of
+the active mode with every snapshot, and `themeVariables` writes them as
+inline variables onto the **frame** around the stage. `palette.css` is the second
+path - the fallback level at the root element until the first snapshot arrives, and
+the light version, which must sit on the stage element itself.
 
-**Merksatz zur Kaskade:** Ein geerbter Inline-Wert schlaegt eine `:root`-Regel.
-Wer eine Buehnenfarbe im Stylesheet aendert, aendert deshalb nichts - im Betrieb
-gewinnt immer das Quizpaket. Nur eine Regel, die am Buehnenelement selbst haengt
-(`.stage--default.stage--bright`), sticht den geerbten Wert.
+**Cascade rule of thumb:** an inherited inline value beats a `:root` rule.
+Anyone who changes a stage color in the stylesheet therefore changes nothing -
+in operation, the quiz package always wins. Only a rule that hangs on the
+stage element itself (`.stage--default.stage--bright`) beats the inherited value.
 
-Ein Theme in `config.json` nennt nur **Abweichungen** von seiner Gestaltungswelt:
+A theme in `config.json` only names **deviations** from its design world:
 
 ```jsonc
 { "id": "senioren", "label": "Senioren", "colors": { "accent": "#e8b84b" } }
 ```
 
-Beim Bauen wird daraus der vollstaendige Satz; das Paket bleibt allein lesbar.
-Ein neuer Modus braucht damit **keine Codeaenderung** - genau wie in
-`docs/neue-modi-und-presets.md` beschrieben.
+The complete set is built from this at build time; the package remains readable
+on its own. A new mode therefore needs **no code change** - exactly as
+described in `docs/neue-modi-und-presets.md`.
 
-Die Tokenliste steht neben den Werten und gilt an drei Stellen zugleich: Das
-Quizpaket liefert die Werte, die Inhaltsvalidierung prueft die Vollstaendigkeit
-(eine leer gelassene Farbe ist ein **Fehler**), und die Oberflaeche macht daraus
-CSS-Variablen. Zusammengesetzte Werte wie der Flaechenverlauf werden bewusst erst
-an der Verwendungsstelle gebildet - eine Variable, die ihre Farben schon am
-Wurzelelement aufloest, wuerde spaetere Theme-Werte ignorieren.
+The token list sits next to the values and applies in three places at
+once: the quiz package supplies the values, content validation
+checks completeness (a color left blank is an **error**), and the
+UI turns them into CSS variables. Composite values like the area
+gradient are deliberately only assembled at the point of use - a variable
+that already resolved its colors at the root element would ignore
+later theme values.
 
-Drei Namensraeume, drei Zustaendigkeiten:
+Three namespaces, three areas of responsibility:
 
-| Praefix | Wem gehoert die Farbe | Beispiel |
+| Prefix | Who owns the color | Example |
 |---|---|---|
-| `--color-*` | dem Quizmodus - wechselt mit dem Theme | `--color-accent` |
-| `--stage-*` | der Lage, nicht dem Thema - in jedem Modus gleich | `--stage-inkOnStrong` |
-| `--ui-*` | dem Bedienrahmen - bleibt dunkel, egal welcher Modus laeuft | `--ui-surface` |
+| `--color-*` | the quiz mode - changes with the theme | `--color-accent` |
+| `--stage-*` | the location, not the theme - the same in every mode | `--stage-inkOnStrong` |
+| `--ui-*` | the control frame - stays dark no matter which mode is running | `--ui-surface` |
 
-Zu `--stage-*` gehoeren auch `--stage-playerOne` und `--stage-playerTwo`, die
-beiden Spielerfarben des Touchgeraets: Rot links, Blau rechts. Sie wechseln
-bewusst NICHT mit dem Modus - an ihnen erkennt ein Spieler seine Ecke, und
-gehoerte sie in einem anderen Modus einer anderen Farbe, schluege er daneben.
-Aus je einer Farbe leitet das Stylesheet alles Weitere ab: Der Grund des Buzzers
-ist derselbe Ton, in den Buehnengrund gemischt.
+`--stage-playerOne` and `--stage-playerTwo` also belong to `--stage-*`, the
+two player colors of the touch device: red on the left, blue on the right. They
+deliberately do NOT change with the mode - a player recognizes their corner
+by them, and if it belonged to a different color in a different mode, they'd
+tap the wrong one. From each single color, the stylesheet derives everything
+else: the buzzer's background is the same tone, mixed into the stage
+background.
 
-Die drei Modi der Startansicht (`Kinder`, `Erwachsene`, `Saarbruecken`) kommen aus
-`catalog.modes`. Das Layout ist auf drei Eintraege ausgelegt; mehr Eintraege
-laufen in eine zweite Zeile, statt die Leiste zu stauchen.
+The three start-view modes (`Kinder`, `Erwachsene`, `Saarbruecken`) come from
+`catalog.modes`. The layout is designed for three entries; more
+entries wrap into a second row instead of squeezing the bar.
 
-## Zwei Gestaltungswelten, zwei Fassungen
+## Two Design Worlds, Two Versions
 
-Es gibt genau **zwei Gestaltungswelten** (`theme.skin`):
+There are exactly **two design worlds** (`theme.skin`):
 
-| Welt | Klasse an der Buehne | Wer sie nutzt |
+| World | Class on the stage | Who uses it |
 |---|---|---|
-| `default` | `.stage--default` | Erwachsene und Saarbruecken |
-| `kids` | `.stage--kids` | Kinder |
+| `default` | `.stage--default` | Adults and Saarbruecken |
+| `kids` | `.stage--kids` | Kids |
 
-Beide teilen sich **dasselbe Markup**. Der einzige Unterschied ist die Klasse an
-der Buehnenflaeche; jedes Bauteil bringt beide Welten in seinem eigenen CSS-Modul
-mit (`:global(.stage--default)` / `:global(.stage--kids)`). Modusabhaengige
-Komponenten oder Klassennamen gibt es nicht - `Score`, nicht `KidsScore`.
+Both share **the same markup**. The only difference is the class on
+the stage area; every component brings both worlds along in its own CSS
+module (`:global(.stage--default)` / `:global(.stage--kids)`). There are no
+mode-dependent components or class names - `Score`, not `KidsScore`.
 
-Die Welt `default` hat zusaetzlich **zwei Fassungen**:
+The `default` world additionally has **two versions**:
 
-| Fassung | Klasse | Wirkung |
+| Version | Class | Effect |
 |---|---|---|
-| dunkel | `.stage--dark` | die Werte des Quizmodus, unveraendert |
-| hell | `.stage--bright` | dieselben achtzehn Token in einer hellen Tafel |
+| dark | `.stage--dark` | the quiz mode's values, unchanged |
+| light | `.stage--bright` | the same eighteen tokens on a light panel |
 
-Die Fassung aendert **ausschliesslich Farben, Transparenzen, Konturen und
-Schatten**. Schriften, Bauteile, Positionen und Abstaende sind in beiden
-identisch. Sie ist eine Ansichtssache des Bedienenden - sie steht im
-`localStorage`, nicht im Snapshot, und der Server weiss nichts davon. Umgeschaltet
-wird im Kopf der Operatoransicht, links neben dem Vollbildschalter; im
-Kindermodus entfaellt der Schalter, weil diese Welt ihr eigenes Papier mitbringt.
+The version changes **only colors, transparencies, outlines, and
+shadows**. Fonts, components, positions, and spacing are identical in both.
+It is a matter of the operator's own preference - it lives in
+`localStorage`, not in the snapshot, and the server knows nothing about it.
+It is toggled in the header of the operator view, to the left of the
+fullscreen switch; in kids mode the switch is dropped, because that world
+brings its own paper along.
 
-**Warum die Themewerte am Rahmen stehen und nicht an der Buehne:** `themeVariables`
-liefert die achtzehn Token als Inline-Stil, und ein Inline-Stil schlaegt jede
-Klassenregel. Stuenden sie an der Buehne selbst, koennte `.stage--bright` seine
-Farben nicht mehr setzen. Vom umgebenden Rahmen aus werden sie geerbt - und eine
-Angabe am Element sticht jeden geerbten Wert.
+**Why the theme values sit on the frame and not on the stage:** `themeVariables`
+delivers the eighteen tokens as an inline style, and an inline style beats every
+class rule. If they sat on the stage itself, `.stage--bright` could
+no longer set its colors. They are inherited from the surrounding frame - and
+a value on the element itself beats any inherited value.
 
-## Typografie
+## Typography
 
-Das Design verwendet durchgehend eine **Serifenschrift** - fuer Fragen,
-Antworten, Kachelwerte und Schaltflaechen gleichermassen. Es gibt keine zweite
-Schriftfamilie; Hierarchie entsteht ausschliesslich ueber Groesse, Gewicht und
-Farbe.
+The design uses a **serif typeface** throughout - for questions,
+answers, tile values, and buttons alike. There is no second
+font family; hierarchy arises solely through size, weight, and
+color.
 
-| Rolle | Groesse | Einheit | Beispiel |
+| Role | Size | Unit | Example |
 |---|---|---|---|
-| Startbildtitel | 3,8 | cqw | `Bundestags-Quiz` |
-| Rueckmeldung | 3,8 | cqw | `Richtig!` |
-| Ergebnistitel | 2,8 | cqw | `Spieler 1 hat gewonnen!` |
-| Fragetext | 2,8 | cqw | Fragestellung |
-| Punktwert in der Kachel | 2,6 | cqw | `100` |
-| Antworttext | 1,9 | cqw | Optionsleiste |
-| Rubrik ueber der Frage | 1,7 | cqw, fett | `Saarbruecken` |
-| Kachelbeschriftung | 1,0 | cqw | `Spieler`, `Punkte`, `Frage` |
-| Bedienleiste | 1,0 | rem | Schaltflaechen und Gruppentitel |
+| Start screen title | 3.8 | cqw | `Bundestags-Quiz` |
+| Feedback | 3.8 | cqw | `Richtig!` (Correct!) |
+| Result title | 2.8 | cqw | `Spieler 1 hat gewonnen!` (Player 1 has won!) |
+| Question text | 2.8 | cqw | question prompt |
+| Point value in the tile | 2.6 | cqw | `100` |
+| Answer text | 1.9 | cqw | option bar |
+| Category above the question | 1.7 | cqw, bold | `Saarbruecken` |
+| Tile label | 1.0 | cqw | `Spieler`, `Punkte`, `Frage` (Player, Points, Question) |
+| Control bar | 1.0 | rem | buttons and group titles |
 
-### Gelieferte Schriften
+### Delivered Fonts
 
-| Familie | Dateien | Einsatz |
+| Family | Files | Use |
 |---|---|---|
-| **Melior** | `MeliorCom.ttf`, `-Bold`, `-Italic`, `-BoldItalic` | die Buehne: Rubrik, Frage, Antworten, Kachelwerte, Ueberschriften |
-| **Noto Sans Display** | `-Regular`, `-SemiBold`, `-Bold` (+ weitere Schnitte im Bestand) | der Bedienrahmen des Operators und die Moderatoransicht |
+| **Melior** | `MeliorCom.ttf`, `-Bold`, `-Italic`, `-BoldItalic` | the stage: category, question, answers, tile values, headings |
+| **Noto Sans Display** | `-Regular`, `-SemiBold`, `-Bold` (+ additional cuts in stock) | the operator's control frame and the moderator view |
 
-Melior ist die Serifenschrift des Entwurfs. Noto Sans Display traegt die kleinen
-Beschriftungen im Bedienrahmen, wo auf kurze Distanz gelesen wird - auf dem
-Beamer erscheint sie nie. Wer eine einzige Familie ueberall moechte, aendert dafuer
-genau eine Zeile: `--font-ui` in `apps/web/src/styles.css`.
+Melior is the design's serif typeface. Noto Sans Display carries the small
+labels in the control frame, where reading happens at short distance -
+it never appears on the projector. Anyone wanting a single family
+everywhere changes exactly one line for that: `--font-ui` in
+`apps/web/src/styles.css`.
 
-Eingebunden wird lokal ueber `@font-face` mit `font-display: block` - niemals ueber
-ein Netzwerk-CDN, weil die Anwendung offline lauffaehig bleiben muss
-(Spezifikation 2). `block` statt `swap`, weil ein Schriftwechsel mitten in der
-Show sichtbarer waere als ein kurzer Moment ohne Text.
+Embedded locally via `@font-face` with `font-display: block` - never via
+a network CDN, because the application must remain usable offline
+(specification 2). `block` instead of `swap`, because a font swap in
+the middle of the show would be more noticeable than a brief moment without text.
 
-Die Buehnenschrift steht zusaetzlich im Quizpaket (`theme.typography`): Ein Modus
-kann damit eine eigene Schrift bekommen, ohne Codeaenderung.
+The stage font also sits in the quiz package (`theme.typography`): a
+mode can thus get its own font without a code change.
 
-Beschriftungen in der Oberflaeche verwenden **echte Umlaute** - und zwar
-ueberall, wo Text den Nutzer erreicht: Tastenbeschriftungen, Ueberschriften,
-Hinweise, Ablehnungsgruende des Servers und Protokolleintraege. Die Quelltexte
-sind UTF-8; die ASCII-Schreibweise bleibt ausschliesslich in Kommentaren und in
-dieser Dokumentation erhalten.
+Labels in the UI use **real umlauts** - everywhere
+text reaches the user: button labels, headings,
+hints, the server's rejection reasons, and log entries. The source texts
+are UTF-8; the ASCII transliteration is retained only in comments and in
+this documentation.
 
-## Formen und Abstaende
+## Shapes and Spacing
 
-| Token | Wert |
+| Token | Value |
 |---|---|
-| `--radius-tile` | 6 px bei 1728 px Referenzbreite (0,35 % der Breite) |
+| `--radius-tile` | 6 px at 1728 px reference width (0.35% of width) |
 | `--radius-option` | 6 px |
-| `--radius-circle` | 50 % |
-| `--gap-tight` | 4 px - zwischen `+` und `-` |
-| `--gap-group` | 12 px - zwischen Schaltflaechen einer Gruppe |
-| `--gap-section` | 28 px - zwischen den nummerierten Gruppen |
+| `--radius-circle` | 50% |
+| `--gap-tight` | 4 px - between `+` and `-` |
+| `--gap-group` | 12 px - between buttons in a group |
+| `--gap-section` | 28 px - between the numbered groups |
 
-Es gibt im gesamten Entwurf **keine Schatten, keine Rahmen und keine
-Transparenzflaechen**. Abgrenzung entsteht allein ueber Helligkeit.
+There are **no shadows, no borders, and no transparent overlays** anywhere
+in the design. Separation arises solely through brightness.
 
-## Symbole
+## Symbols
 
-| Symbol | Ort | Form |
+| Symbol | Location | Form |
 |---|---|---|
-| Vollbild | oben rechts | vier Eckwinkel, Strichstaerke 2 px, weiss |
-| Ton aus | oben rechts darunter | Lautsprecher mit Schraegstrich |
-| Haken | Richtig-Rueckmeldung | gelieferte Bewegtgrafik `correct.webm` |
-| Kreuz | Falsch-Rueckmeldung | gelieferte Bewegtgrafik `wrong.webm` |
+| Fullscreen | top right | four corner angles, 2 px stroke, white |
+| Sound off | top right, below | speaker with a diagonal slash |
+| Checkmark | correct feedback | delivered motion graphic `correct.webm` |
+| Cross | incorrect feedback | delivered motion graphic `wrong.webm` |
 
-Das in den Vorlagen fehlende Kreuz ist damit geklaert: Es ist Bestandteil der
-gelieferten Falsch-Grafik.
+This clarifies the cross missing from the templates: it is part of the
+delivered incorrect graphic.
 
-Vollbild und Ton werden als Inline-SVG mit `currentColor` gezeichnet. Es gibt
-keine Icon-Schriftart und keine externen Symboldateien.
+Fullscreen and sound are drawn as inline SVG with `currentColor`. There is
+no icon font and no external symbol files.
 
-## Gelieferte Grafiken
+## Delivered Graphics
 
-| Datei | Ort im Projekt | Verwendung |
+| File | Location in the project | Use |
 |---|---|---|
-| `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | Startbild Erwachsene: Adler bei 8 % Deckkraft, darueber das `?`. Der Titel ist Text der Anwendung, nicht Teil der Grafik |
-| `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | Startbild Kinder, 1024 x 828, randfuellend |
-| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | Bewegtgrafiken, VP9 mit Alphakanal, 500 x 500, 30 fps, ohne Ton |
-| `confetti.svg` | `apps/web/src/assets/animations/` | animiertes SVG fuer die Ergebnisansicht |
+| `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | adult start screen: eagle at 8% opacity, with the `?` on top. The title is application text, not part of the graphic |
+| `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | kids start screen, 1024 x 828, edge-to-edge |
+| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
+| `confetti.svg` | `apps/web/src/assets/animations/` | animated SVG for the results view |
 
-Die Startbilder sind Inhalt des Quizpakets und werden ueber
-`mode.startVisualAssetId` zugeordnet - ein neuer Modus braucht dafuer keine
-Codeaenderung. Die Bewegtgrafiken gehoeren zur Praesentationsschicht und sind in
-`apps/web/src/presentation/animationAssets.ts` mit Laenge und Zeitpunkt der
-vollstaendigen Aussage registriert.
+The start screens are content of the quiz package and are assigned via
+`mode.startVisualAssetId` - a new mode needs no code change for this. The
+motion graphics belong to the presentation layer and are registered in
+`apps/web/src/presentation/animationAssets.ts` with the length and timing of the
+complete statement.
 
-**Offene Zulieferung:** Startbild fuer den Modus `Saarbruecken`; bis dahin bleibt
-die Platzhaltergrafik im Bestand.
+**Outstanding delivery:** start screen for the `Saarbruecken` mode; until then
+the placeholder graphic remains in stock.
 
-## Barrierefreiheit und Buehnentauglichkeit
+## Accessibility and Stage Suitability
 
-- Kontrast: weisser Text auf `#444444` erreicht 8,9:1, auf `--primary` 2,4:1.
-  Deshalb steht auf gruenen Flaechen ausschliesslich kurzer, fetter Text.
-- Die Rueckmeldung `Richtig`/`Falsch` ist nie allein farbcodiert: Kreisfarbe,
-  Symbol und Wort tragen dieselbe Aussage.
-- `prefers-reduced-motion` schaltet jede Animation auf den im Katalog
-  hinterlegten Kurzwert; die fachlichen Zeiten aendern sich dadurch nicht.
+- Contrast: white text on `#444444` reaches 8.9:1, on `--primary` 2.4:1.
+  That's why only short, bold text appears on green areas.
+- The `Richtig`/`Falsch` ("Correct"/"Incorrect") feedback is never color-coded
+  alone: circle color, symbol, and word all carry the same statement.
+- `prefers-reduced-motion` switches every animation to the short value
+  stored in the catalog; this doesn't change the functional timings.
 
-## Bauteilinventar
+## Component Inventory
 
-Die Umsetzung folgt drei Ebenen. Eine Ebene darf nur die darunterliegende
-benutzen - das haelt die Oberflaeche frei von Sonderfaellen.
+The implementation follows three layers. A layer may only use the
+one below it - that keeps the UI free of special cases.
 
 ```text
-Ebene 1  Global          styles/palette.css, tokens.css, base.css, controls.css,
-                         motion.css, stage.css - bewusst keine Module
-Ebene 2  Bauteile        presentation/stage/* und ui/*, je ein *.module.css
-Ebene 3  Bereiche        StageScreen (+ Szenen), OperatorApp, ModeratorApp,
-                         PreviewApp, je ein *.module.css
+Layer 1  Global          styles/palette.css, tokens.css, base.css, controls.css,
+                         motion.css, stage.css - deliberately not modules
+Layer 2  Components      presentation/stage/* and ui/*, one *.module.css each
+Layer 3  Areas           StageScreen (+ scenes), OperatorApp, ModeratorApp,
+                         PreviewApp, one *.module.css each
 ```
 
-Nur sechs Stylesheets sind global, und jedes aus einem Grund:
+Only six stylesheets are global, and each for a reason:
 
-| Datei | Warum global |
+| File | Why global |
 |---|---|
-| `palette.css` | ERZEUGT aus `packages/contracts/src/theme.ts` - alle Farbwerte |
-| `tokens.css` | Masse, Schriften und Dauern am Wurzelelement |
-| `base.css` | Schriften, Reset, Grundtypografie |
-| `controls.css` | `.button` und `.field` - jede Ansicht darf sie benutzen |
-| `motion.css` | das Uebergangsregistry setzt Klassennamen als Zeichenkette |
-| `stage.css` | `.stage--default` / `.stage--kids` / `.stage--bright` - der Schalter, auf den alle Bauteilmodule ueber `:global(...)` zugreifen |
+| `palette.css` | GENERATED from `packages/contracts/src/theme.ts` - all color values |
+| `tokens.css` | dimensions, fonts, and durations on the root element |
+| `base.css` | fonts, reset, base typography |
+| `controls.css` | `.button` and `.field` - any view may use them |
+| `motion.css` | the transition registry sets class names as strings |
+| `stage.css` | `.stage--default` / `.stage--kids` / `.stage--bright` - the switch all component modules access via `:global(...)` |
 
-| Bauteil | Aufgabe | Varianten |
+| Component | Task | Variants |
 |---|---|---|
-| `Score` | Punktekarte eines Spielers | `header`, `result`, gespiegelt |
-| `Counter` | Fragenzaehler | - |
-| `QuestionComposition` | Anordnung von Bild, Frage und Antworten | untereinander, Portraet nebeneinander |
-| `QuestionHead` | Medium und Fragetafel | mit und ohne Bild |
-| `Media` | Bildrahmen, beim Bilderkennen mit Kacheldecke | `inline`, `reveal`, `solution`, `portrait` |
-| `RevealTiles` | Kacheldecke des Bilderkennens | - |
-| `AnswerList` | Antwortzeilen mit Buchstabenchip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
-| `Mascot` | Figurenebene | nur in der Kinderwelt sichtbar |
-| `Buzzer` | Meldeflaeche eines Spielers am Touchgeraet | links, rechts; frei, am Zug, zurueckgenommen |
-| `PlayerFoot` | Fussleiste des Touchgeraets: beide Spielerecken und der Zaehler | - |
+| `Score` | a player's score card | `header`, `result`, mirrored |
+| `Counter` | question counter | - |
+| `QuestionComposition` | arrangement of image, question, and answers | stacked, portrait side by side |
+| `QuestionHead` | media and question board | with and without image |
+| `Media` | image frame, with a tile cover for image recognition | `inline`, `reveal`, `solution`, `portrait` |
+| `RevealTiles` | tile cover for image recognition | - |
+| `AnswerList` | answer rows with letter chip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
+| `Mascot` | character layer | visible only in the kids world |
+| `Buzzer` | a player's buzz area on the touch device | left, right; free, on turn, withdrawn |
+| `PlayerFoot` | touch device footer: both player corners and the counter | - |
 
-Am Touchgeraet sind die Zeilen der `AnswerList` Schaltflaechen - dieselbe Liste,
-nur mit `onSelect`. Es gibt bewusst keine zweite Zeilenkomponente fuer das
-Geraet: Zustaende, Buchstabenchip und die gezeichneten Karten der Kinderwelt
-sollen sich nie auseinanderentwickeln.
+On the touch device, the rows of `AnswerList` are buttons - the same list,
+just with `onSelect`. There is deliberately no second row component for the
+device: states, letter chip, and the drawn cards of the kids world
+must never diverge.
 
-Was sich dort aendert, ist die Groesse: Im Saal ist eine Zeile etwas zum Lesen,
-am Geraet etwas zum Treffen. Sie bekommt deshalb deutlich mehr Polsterung nach
-oben und unten - ueber `padding` und nicht ueber eine feste Zeilenhoehe, damit
-eine zweizeilige Antwort mitwaechst statt aus ihrer Kachel zu laufen. Der
-Buchstabe wird entsprechend breiter, sonst stuende er als schmaler Streifen
-neben einer breiten Kachel. In der Kinderwelt entfaellt das: Die gezeichnete
-Karte ist ohnehin daumengross und bringt ihre Hoehe selbst mit.
+What changes there is the size: in the room a row is something to
+read, on the device something to hit. It therefore gets noticeably more
+padding top and bottom - via `padding` and not via a fixed line
+height, so a two-line answer grows with it instead of overflowing its tile. The
+letter is widened accordingly, otherwise it would stand as a narrow strip
+next to a wide tile. In the kids world this doesn't apply: the drawn
+card is thumb-sized anyway and brings its own height.
 
-### Die Szene am Touchgeraet
+### The Scene on the Touch Device
 
-Unter der Szene liegt dort die Fussleiste, es bleibt also eine Flaeche, die viel
-breiter als hoch ist. Alle Buehnenmasse stehen aber in Containereinheiten und
-sind fuer 16:9 entworfen - in einem flachen Kasten waechst jedes `cqw`-Mass
-gegenueber der verfuegbaren Hoehe, bis Bild und Frage die Antworten
-hinausdruecken.
+There, the footer sits below the scene, so it remains an area that is
+much wider than tall. But all stage dimensions are in container units and
+are designed for 16:9 - in a flat box, every `cqw` value grows
+relative to the available height, until the image and question push out
+the answers.
 
-Die Szene behaelt deshalb ihr Seitenverhaeltnis, nimmt sich davon die Hoehe und
-ist zugleich ihr eigener Container (`container-type: size`). Im Zentrum gilt
-damit GENAU dieselbe Komposition wie im Saal, nur kleiner; was rechts und links
-uebrig bleibt, ist ihr Rand. Kein Bauteil braucht ein zweites Mass fuer das
-Geraet.
+The scene therefore keeps its aspect ratio, takes its height from
+that, and is its own container at the same time (`container-type: size`). At
+its center, this yields EXACTLY the same composition as in the room, only
+smaller; what remains left and right is its margin. No component needs a
+second dimension for the device.
 
-Jedes Bauteil kennt nur Tokens und seine eigenen Varianten. Kein Bauteil liest
-das View-Modell, keines sendet Befehle, und keines kennt den Namen eines Modus.
-Damit ist jede visuelle Aenderung eine Aenderung an genau einer Datei.
+Every component knows only tokens and its own variants. No component reads
+the view model, none sends commands, and none knows the name of a mode.
+Every visual change is thus a change to exactly one file.
 
-**Testhaken:** Klassennamen sind gehasht und taugen nicht als Selektor. Die
-Bauteile tragen dafuer stabile Datenattribute (`data-answer`, `data-panel`,
-`data-score`, `data-counter`, `data-media`, `data-prompt` ...); der Zustand einer
-Antwortzeile steht in `data-state`.
+**Test hooks:** class names are hashed and are not suitable as selectors. The
+components instead carry stable data attributes (`data-answer`, `data-panel`,
+`data-score`, `data-counter`, `data-media`, `data-prompt` ...); the state of an
+answer row is in `data-state`.
 
-## Anordnung nach Fragetyp
+## Layout by Question Type
 
-Frage- und Loesungsszene bauen ihre Inhalte nicht selbst zusammen, sondern
-uebergeben sie an `QuestionComposition`. Nur dieses Bauteil kennt den Unterschied
-zwischen den Anordnungen; beide Szenen bleiben dadurch gleich aufgebaut.
+The question and solution scenes don't assemble their content
+themselves, but hand it to `QuestionComposition`. Only this component knows
+the difference between the layouts; both scenes therefore stay
+structured the same way.
 
-| Typ | Anordnung |
+| Type | Layout |
 |---|---|
-| `text-choice` | Rubrik und Frage ueber die volle Breite, Antworten darunter |
-| `image-choice` | Bild links, Rubrik und Frage daneben, Antworten darunter |
-| `person` | Portraet gross links, Rubrik, Frage und Antworten rechts daneben |
+| `text-choice` | category and question span the full width, answers below |
+| `image-choice` | image on the left, category and question beside it, answers below |
+| `person` | large portrait on the left, category, question, and answers to the right |
 
-Nur der **Praesentationstyp** entscheidet ueber die Anordnung. Die gleichnamige
-Kategorie `person` tut es nicht: Sie sagt, worum es in der Frage geht, und ihre
-Fragen liegen als `image-choice` vor - Bild links, Antworten darunter.
+Only the **presentation type** decides the layout. The identically named
+category `person` does not: it says what the question is about, and its
+questions exist as `image-choice` - image left, answers below.
 
-Die Buehne traegt den Typ als `data-presentation`. Bauteile, die sich in einer
-Anordnung anders verhalten muessen - der linksbuendige Antworttext der
-Portraetfrage etwa - haengen ihre Regel an dieses Attribut, statt eine eigene
-Variante zu bekommen.
+The stage carries the type as `data-presentation`. Components that need to
+behave differently in one layout - the left-aligned answer text of the
+portrait question, for example - hang their rule on this attribute instead of
+getting their own variant.
 
-Beim Portraet haengen die Masse an der **Hoehe** der Buehne (`cqh`), nicht wie
-sonst an ihrer Breite: Bild und Antwortspalte sollen gleich weit nach unten
-reichen, und das Bild darf auf einer flachen Buehne nicht unten herausragen.
+For the portrait, the dimensions are tied to the stage's **height** (`cqh`),
+not to its width as usual: the image and answer column should reach
+equally far down, and on a flat stage the image must not stick out at the
+bottom.

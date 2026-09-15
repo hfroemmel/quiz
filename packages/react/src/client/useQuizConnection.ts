@@ -1,14 +1,14 @@
 /**
- * React-Anbindung der Quiz-Laufzeit.
+ * React binding of the quiz runtime.
  *
- * Die gesamte Verbindungslogik (Reconnect, Envelope, Uhrenabgleich) lebt in
- * `RemoteQuizRuntime` - dieser Hook erzeugt sie fuer die Lebensdauer der
- * Komponente, uebersetzt ihre Snapshots in React-State und reicht die vertraute
- * `QuizConnection`-Oberflaeche an die bestehenden Clients weiter.
+ * The whole connection logic (reconnect, envelope, clock sync) lives in
+ * `RemoteQuizRuntime` - this hook creates it for the component's lifetime,
+ * translates its snapshots into React state and passes the familiar
+ * `QuizConnection` interface on to the existing clients.
  *
- * Der WS-Endpunkt kommt hier aus `window.location`, weil die Clients vom
- * Quizserver selbst ausgeliefert werden. Eingebettete Gastgeber mit fremdem
- * Endpunkt bauen die `RemoteQuizRuntime` direkt.
+ * The WS endpoint here comes from `window.location`, because the clients are
+ * served by the quiz server itself. Embedded hosts with a foreign endpoint
+ * build the `RemoteQuizRuntime` directly.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
@@ -30,19 +30,20 @@ export interface Rejection {
 export interface QuizConnection<TView extends PublicQuizViewModel> {
   view: TView | null
   connected: boolean
-  /** Nur ein Client spielt Sounds ab. */
+  /** Only one client plays sounds. */
   audioMaster: boolean
   /**
-   * Meldet dem Server, dass dieses Fenster hoerbar Ton ausgeben darf.
+   * Reports to the server that this window is allowed to output audible sound.
    *
-   * Der Server waehlt danach die Tonhoheit aus. Der Aufruf ist beliebig oft
-   * moeglich; nach einem Reconnect wird die Meldung selbsttaetig wiederholt.
+   * The server then chooses the audio authority accordingly. The call can be
+   * made any number of times; after a reconnect the report is repeated
+   * automatically.
    */
   notifyAudioReady(): void
   lastRejection: Rejection | null
   clearRejection(): void
   send(command: Command): void
-  /** Serverzeit, auf die lokale Interpolationen bezogen werden. */
+  /** Server time that local interpolations are related to. */
   serverNow(): number
 }
 
@@ -64,7 +65,7 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
     setSnapshot(runtime.getSnapshot())
     const unsubscribe = runtime.subscribe(setSnapshot)
 
-    // Zuverlaessige Bereinigung: kein Socket und kein Timer ueberlebt das Unmount.
+    // Reliable cleanup: no socket and no timer survives the unmount.
     return () => {
       unsubscribe()
       runtime.dispose()

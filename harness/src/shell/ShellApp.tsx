@@ -1,40 +1,41 @@
 /**
- * Beispielhafte Gastgeberanwendung.
+ * Example host application.
  *
- * Sie ist kein Produkt, sondern der erste fremde Nutzer von `<QuizGame/>`: eine
- * winzige Spielesammlung, die das Quiz startet, wieder verlaesst und erneut
- * startet. Genau daran laesst sich pruefen, was der Einbettungsvertrag zusagt:
+ * It is not a product but the first external user of `<QuizGame/>`: a tiny
+ * game collection that starts the quiz, leaves it again, and starts it
+ * again. This is exactly what lets the embedding contract's promises be
+ * checked:
  *
- *   - das Quiz bleibt in seinem Kasten und faerbt die Sammlung nicht um;
- *   - Ergebnis und Ruecksprung kommen ueber `onFinished` und `onExit` heraus,
- *     je beendetem Spiel genau einmal;
- *   - wer die Laufzeit stellt, raeumt sie auch auf;
- *   - eine eigene Ebene des Gastgebers (`overlay`) steht IN der Buehne und
- *     traegt deren Masse, Farben und Zoomstufe.
+ *   - the quiz stays in its box and doesn't recolour the collection;
+ *   - result and return come out via `onFinished` and `onExit`, exactly
+ *     once per finished game;
+ *   - whoever provides the runtime also tears it down;
+ *   - a host layer of its own (`overlay`) sits IN the stage and carries its
+ *     dimensions, colours and zoom level.
  *
- * Die Laufzeit gehoert deshalb DIESER Komponente und nicht dem Quiz: Sie
- * entsteht beim Betreten und wird beim Verlassen abgebaut. Die ausgelieferte
- * Spielesammlung (`hfroemmel/app-collection`) macht es genauso.
+ * The runtime therefore belongs to THIS component, not to the quiz: it is
+ * created on entry and torn down on exit. The shipped game collection
+ * (`hfroemmel/app-collection`) does the same.
  *
- * Die Sammlung hat bewusst ein eigenes Aussehen. Bliebe es beim Spielen nicht
- * erhalten, waere der Vertrag gebrochen.
+ * The collection deliberately has a look of its own. If that didn't survive
+ * while playing, the contract would be broken.
  */
 import { useState, type ReactNode } from 'react'
 import { QuizGame, type QuizGameResult } from '@hfroemmel/quiz-kiosk'
-import { useLokaleLaufzeit } from '../useLokaleLaufzeit'
+import { useLocalRuntime } from '../useLocalRuntime'
 import styles from './ShellApp.module.css'
 
 /**
- * Eine eigene Ebene des Gastgebers.
+ * A host layer of its own.
  *
- * Sie steht hier fuer den Schritt, den eine echte Anwendung zwischen zwei Fragen
- * einschiebt - `hfroemmel/bundestags-app` zeigt dort die Hintergruende zur
- * Frage. Wichtig ist nicht, was sie sagt, sondern WO sie steht: Das Quiz setzt
- * sie in die Buehne, und damit gelten fuer sie deren Farben, deren
- * Containereinheiten und deren Zoomstufe. Ihr Knopf traegt `stage-button` und
- * sieht deshalb aus wie `Weiter` in der Fussleiste.
+ * It stands in here for the step a real application inserts between two
+ * questions - `hfroemmel/bundestags-app` shows the background there for the
+ * question. What matters is not what it says but WHERE it sits: the quiz
+ * places it in the stage, so its colours, its container units and its zoom
+ * level apply to it. Its button carries `stage-button` and therefore looks
+ * like `Weiter` (Continue) in the footer bar.
  */
-function Gastgeberebene({ onClose }: { onClose: () => void }) {
+function HostLayer({ onClose }: { onClose: () => void }) {
   return (
     <div className={styles.layer} data-shell-layer="">
       <div className={styles.layerPanel}>
@@ -52,8 +53,8 @@ function Gastgeberebene({ onClose }: { onClose: () => void }) {
   )
 }
 
-/** Traegt die Laufzeit - und gibt sie beim Entfernen wieder her. */
-function Spiel({
+/** Holds the runtime - and releases it again on removal. */
+function Game({
   overlay,
   onFinished,
   onExit,
@@ -62,18 +63,19 @@ function Spiel({
   onFinished: (result: QuizGameResult) => void
   onExit: () => void
 }) {
-  const { runtime, fehler } = useLokaleLaufzeit()
+  const { runtime, errors } = useLocalRuntime()
 
-  if (fehler) return <p className={styles.result}>Das Quiz konnte nicht geladen werden: {fehler}</p>
+  if (errors) return <p className={styles.result}>Das Quiz konnte nicht geladen werden: {errors}</p>
   if (!runtime) return <p className={styles.result}>Das Quiz wird vorbereitet...</p>
   return (
     <QuizGame
       runtime={runtime}
       /*
-       * Die Zielgruppe kommt wie am Geraet aus der Adresse (`?audience=kids`).
-       * Ein Gastgeber stellt sie fest ein; der Pruefstand muss aber BEIDE Welten
-       * zeigen koennen - die Kinderwelt sieht eingebettet genauso aus wie sonst,
-       * und genau das wird hier geprueft.
+       * The audience comes from the URL, just as on the device
+       * (`?audience=kids`). A host sets it once and for all; but the harness
+       * must be able to show BOTH worlds - the kids world looks the same
+       * embedded as it does otherwise, and that's exactly what's being
+       * checked here.
        */
       audience={audienceFromLocation()}
       idleTimeoutMs={120_000}
@@ -84,7 +86,7 @@ function Spiel({
   )
 }
 
-/** Zielgruppe aus der Adresse - ohne Angabe die der Erwachsenen. */
+/** Audience from the URL - the adult one if none is given. */
 function audienceFromLocation(): string {
   return new URLSearchParams(window.location.search).get('audience') ?? 'adults'
 }
@@ -114,12 +116,12 @@ export function ShellApp() {
       {running ? (
         <main className={styles.frame} data-shell-frame="">
           {/*
-            * Das Quiz laeuft in einem Kasten, nicht im Vollbild. Der Rahmen ist
-            * Absicht: Er macht sichtbar, dass die Komponente sich an ihre Flaeche
-            * haelt.
+            * The quiz runs in a box, not fullscreen. The border is
+            * deliberate: it makes visible that the component stays within
+            * its area.
             */}
-          <Spiel
-            {...(layer ? { overlay: <Gastgeberebene onClose={() => setLayer(false)} /> } : {})}
+          <Game
+            {...(layer ? { overlay: <HostLayer onClose={() => setLayer(false)} /> } : {})}
             onFinished={(result) => {
               setLastResult(result)
               setRounds((value) => value + 1)

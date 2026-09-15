@@ -2,7 +2,7 @@
   "name": "@hfroemmel/quiz-content",
   "version": "0.15.3",
   "type": "module",
-  "description": "Quizdaten-Pipeline: Legacy-Import, Normalisierung, Validierung, versionierte Pakete, Hotfix-Overlay",
+  "description": "Quiz data pipeline: legacy import, normalisation, validation, versioned packages, hotfix overlay",
   "exports": {
     ".": "./src/index.ts"
   },

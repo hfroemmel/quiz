@@ -1,59 +1,57 @@
 /*
- * Das spielbare Quiz am Touchgeraet.
+ * The playable quiz on the touch device.
  *
- * DREI SPALTEN, EINE FLAECHE: links und rechts der Buzzer je eines Spielers, in
- * der Mitte dieselbe Buehnenkomposition wie auf dem Beamer. Im Einzelspiel
- * entfallen beide Buzzer - es gibt niemanden, gegen den man sich melden koennte,
- * und die Antworten sind sofort offen.
+ * THREE COLUMNS, ONE AREA: the buzzer of each player to the left and right, in
+ * the middle the same stage composition as on the projector. In single-player
+ * mode both buzzers disappear - there is nobody to signal against, and the
+ * answers are open immediately.
  *
- * ALLE GROESSEN STEHEN IN `vw`, GERECHNET GEGEN 1440 px - die Breite der
- * Zeichenflaeche des Entwurfs (1440x810). Eine Zahl von dort geteilt durch 14,4
- * ergibt ihren vw-Wert. Damit ist die Fensterbreite das einzige Mass: Dasselbe
- * Bild traegt vom 10-Zoll-Tablet bis zum grossen Touchtisch, und zwei Fenster
- * gleicher Breite zeigen es gleich gross, auch wenn eines flacher ist. Die
- * Buehne in der Mitte rechnet dagegen weiter in `cqw` gegen sich selbst - sie
- * ist ein eigener Container, dessen Breite ihrerseits aus der Fensterbreite
- * folgt.
+ * ALL SIZES ARE IN `vw`, COMPUTED AGAINST 1440 px - the width of the design's
+ * artboard (1440x810). A number from there divided by 14.4 gives its vw value.
+ * That makes the window width the only measure: the same image works from a
+ * 10-inch tablet up to a large touch table, and two windows of equal width show
+ * it at the same size, even if one is shorter. The stage in the middle,
+ * however, keeps computing in `cqw` against itself - it is its own container,
+ * whose width in turn follows from the window width.
  *
- * Farben kommen als Custom Properties aus dem Theme des Quizmodus; sie setzt die
- * Komponente am eigenen Wurzelelement (`themeVariables`). Hier steht deshalb -
- * wie ueberall - kein einziger Farbwert.
+ * Colours arrive as custom properties from the quiz mode's theme; the
+ * component sets them on its own root element (`themeVariables`). That is why
+ * there is not a single colour value here - as everywhere else.
  */
 
 /*
- * Aussenkasten des Quiz.
+ * Outer box of the quiz.
  *
- * Er traegt nur die Flaeche und den Verbindungspunkt; die Gestaltung kommt aus
- * der Buehne darin. Das ist zugleich die Zusage an den Gastgeber: Das Quiz
- * bleibt in dem Kasten, den es bekommt.
+ * It only carries the area and the connection indicator; the styling comes
+ * from the stage inside it. That is also the promise to the host: the quiz
+ * stays within the box it is given.
  */
 .game {
   position: relative;
   height: 100%;
   color: var(--color-text);
   font-family: var(--font-body);
-  /* Ein Doppeltipp darf nicht zoomen und die Flaeche verschieben. */
+  /* A double tap must not zoom or shift the area. */
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
 
   /*
-   * EINE SCHRIFTGROESSE FUER ALLE SCHALTFLAECHEN AUSSERHALB DER BUEHNE.
+   * ONE FONT SIZE FOR ALL BUTTONS OUTSIDE THE STAGE.
    *
-   * In der Startauswahl, in den Einstellungen und in den Rueckfragen stehen
-   * Knoepfe nebeneinander, zwischen denen gewaehlt wird: "Quiz starten" neben
-   * "Zurueck", "Fertig" neben "An". Dass der hervorgehobene von ihnen auch
-   * groesser gesetzt war, machte aus einer Reihe gleichrangiger Ziele eine
-   * Treppe - hervorgehoben ist er durch Farbe und Flaeche, nicht durch seine
-   * Schrift.
+   * In the start selection, in settings and in confirmation dialogs, buttons
+   * sit side by side and one is chosen between them: "Start quiz" next to
+   * "Back", "Done" next to "On". Setting the highlighted one of them larger
+   * too turned a row of equally-ranked targets into a staircase - it is
+   * highlighted through colour and area, not through its typeface.
    *
-   * NICHT DAZU GEHOEREN die beiden Eckknoepfe, Sprache und Zahnrad: Sie stehen
-   * nicht in der Reihe, sondern am Rand, und sind bewusst kleiner.
+   * NOT PART OF THIS are the two corner buttons, language and gear: they do
+   * not stand in the row but at the edge, and are deliberately smaller.
    */
   --kiosk-button-font-size: 1.3219vw;
 }
 
-/* Start- und Wartebild stehen ohne Buehne da und bringen ihren Grund mit. */
+/* The start and waiting screens stand without a stage and bring their own background. */
 .startScreen,
 .waiting {
   display: flex;
@@ -69,7 +67,7 @@
   justify-content: center;
 }
 
-/* Verbindungsverlust: derselbe dezente Punkt wie auf der Buehne. */
+/* Connection lost: the same subtle dot as on the stage. */
 .offline {
   position: absolute;
   top: 0.6944vw;
@@ -83,8 +81,8 @@
 }
 
 /*
- * Die Buehnenflaeche in der Mitte bekommt den Platz, der nach den Antwortleisten
- * uebrig bleibt - und gibt ihn wieder her, wenn eine zweite Leiste dazukommt.
+ * The stage area in the middle gets the space left over after the answer
+ * bars - and gives it back when a second bar is added.
  */
 .footer {
   position: fixed;
@@ -101,16 +99,16 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Fussleiste: die beiden Spielerecken und der Zaehler
+ * Footer: the two player corners and the counter
  * ------------------------------------------------------------------ */
 
 /*
- * Die Leiste steht INNERHALB der Buehnenflaeche (siehe `StageScreen.pads`) und
- * rechnet deshalb wie alles dort in Containereinheiten: Dieselbe Aufteilung
- * traegt vom Tablet bis zum grossen Touchtisch.
+ * The bar sits INSIDE the stage area (see `StageScreen.pads`) and therefore,
+ * like everything there, computes in container units: the same layout works
+ * from the tablet up to the large touch table.
  *
- * SIE GIBT NICHTS HER. Die Szene darueber ist nachgiebig - eine lange Frage
- * verkleinert sich, bevor die Hand des Spielers weniger Platz bekommt.
+ * IT GIVES NOTHING UP. The scene above it is the one that yields - a long
+ * question shrinks before the player's hand gets less room.
  */
 .foot {
   flex: 0 0 auto;
@@ -123,22 +121,22 @@
   justify-content: space-between;
   gap: 2cqw;
   /*
-   * Der Abstand zum Bildrand schrumpft mit der Zoomstufe: Sonst rueckten die
-   * Ecken bei kleiner Anzeige von der Kante ab und die Leiste saehe aus, als
-   * haette sie sich verlaufen.
+   * The distance to the screen edge shrinks with the zoom level: otherwise the
+   * corners would move away from the edge at a small display size, and the
+   * bar would look as if it had drifted out of place.
    */
   padding: 0 calc(4cqw * var(--stage-zoom, 1)) calc(1.6875cqw * var(--stage-zoom, 1));
 }
 
 /*
- * ZOOM IN DER FUSSLEISTE: JEDE SPALTE ZU IHRER EIGENEN KANTE.
+ * ZOOM IN THE FOOTER: EACH COLUMN TOWARD ITS OWN EDGE.
  *
- * Die Szene darueber schrumpft zur Mitte; hier waere das falsch - Punktestand
- * und Zaehler gehoeren an den Bildrand, weil dort die Haende der Spieler sind.
- * Jede Spalte skaliert deshalb um ihren eigenen Bezugspunkt: die linke zur
- * unteren linken Ecke, die rechte zur unteren rechten, die Mitte nach unten.
- * Der Platz, den sie im Layout einnehmen, bleibt dabei unveraendert - dadurch
- * bleibt die Aufteilung dieselbe wie bei voller Groesse.
+ * The scene above it shrinks toward the centre; here that would be wrong -
+ * score and counter belong at the screen edge, because that is where the
+ * players' hands are. Each column therefore scales around its own reference
+ * point: the left one toward the bottom-left corner, the right one toward the
+ * bottom-right, the middle one downward. The space it occupies in the layout
+ * stays unchanged - so the layout stays the same as at full size.
  */
 .foot > * {
   scale: var(--stage-zoom, 1);
@@ -154,12 +152,12 @@
 }
 
 /*
- * Mittelspalte: Hinweisfeld ueber dem Zaehler.
+ * Middle column: notice field above the counter.
  *
- * Das Feld hat eine FESTE Hoehe. Sein Inhalt wechselt zwischen einem Satz und
- * einem Knopf, und beides ist verschieden hoch - ohne feste Hoehe rutschten
- * Frage, Antworten und Zaehler bei jedem Wechsel ein Stueck, und zwar genau in
- * dem Moment, in dem jemand mit dem Finger zielt.
+ * The field has a FIXED height. Its content switches between a sentence and a
+ * button, and the two are different heights - without a fixed height, the
+ * question, answers and counter would shift a little on every switch, exactly
+ * at the moment someone is aiming with their finger.
  */
 .middle {
   flex: 0 1 auto;
@@ -170,7 +168,7 @@
   min-width: 0;
 }
 .notice {
-  /* Genau so hoch wie eine Schaltflaeche der Buehne - siehe `styles/stage.css`. */
+  /* Exactly as tall as a stage button - see `styles/stage.css`. */
   height: var(--stage-button-height);
   display: flex;
   align-items: center;
@@ -184,15 +182,15 @@
 }
 
 /*
- * `Weiter` und `Antwort abgeben und aufloesen` teilen sich diesen Platz. Es ist
- * der einzige Knopf, der beiden Spielern gehoert: Er steht in der Mitte und
- * traegt deshalb keine Spielerfarbe, sondern die Handlungsfarbe der Buehne
+ * `Next` and `Submit answer and reveal` share this spot. It is the only
+ * button that belongs to both players: it sits in the middle and therefore
+ * carries no player colour, but the stage's action colour
  * (`stage-button--primary`).
  *
- * Kasten, Masse, Typografie und Zustaende kommen aus `.stage-button` in
- * `styles/stage.css` - hier steht nur, was diesen Platz ausmacht: Er fuellt das
- * Hinweisfeld ganz aus, damit die Trefferflaeche beim Wechsel von Satz zu Knopf
- * dieselbe bleibt.
+ * Box, dimensions, typography and states come from `.stage-button` in
+ * `styles/stage.css` - here only what makes up this spot: it fills the notice
+ * field completely, so the hit area stays the same when switching from
+ * sentence to button.
  */
 .continue {
   height: 100%;
@@ -203,9 +201,9 @@
   --kiosk-button-font-size: 1.5469vw;
 }
 /*
- * In der Kinderwelt ist auch dieser Knopf eine gezeichnete Karte - dieselbe wie
- * "Los geht's" in der Startauswahl. Die Zeichnung steht weiter unten bei den
- * uebrigen Regeln der Welt, damit sie an EINER Stelle steht.
+ * In the kids' world this button is also a drawn card - the same one as "Let's
+ * go" in the start selection. The drawing is defined further below with the
+ * rest of the world's rules, so it lives in ONE place.
  */
 [data-skin='kids'] .noticeText {
   font-family: var(--kids-hand);
@@ -219,10 +217,10 @@
   width: 17cqw;
 }
 /*
- * Die rechte Spalte steht aussen: im Duell die Karte des zweiten Spielers, im
- * Einzelspiel der Fragezaehler. Sie behaelt ihre Breite auch dann, wenn nur der
- * schmale Zaehler darin steht - sonst rutschte der Hinweis in der Mitte aus der
- * Mitte des Bildschirms.
+ * The right column sits on the outside: in a duel, the second player's card;
+ * in single-player mode, the question counter. It keeps its width even when
+ * only the narrow counter sits inside it - otherwise the notice in the middle
+ * would drift out of the centre of the screen.
  */
 .corner[data-corner='right'] {
   align-items: flex-end;
@@ -230,33 +228,33 @@
 }
 
 /*
- * Der Buzzer - DIE EINZIGE FLAECHE, DIE EINE SPIELERFARBE TRAEGT.
+ * The buzzer - THE ONLY AREA THAT CARRIES A PLAYER COLOUR.
  *
- * Grosse Flaeche, ein Wort, voll in der Farbe des Spielers: Wer buzzert, schaut
- * dabei auf die Frage und nicht auf seine Hand, und die Ecke muss sich blind
- * treffen lassen. Eine Farbe, die man blind trifft, muss die ganze Flaeche
- * sein - nicht eine Kante darum und innen ein Hauch davon.
+ * Large area, one word, fully in the player's colour: whoever buzzes is
+ * looking at the question while doing so, not at their hand, and the corner
+ * has to be hit blind. A colour you hit blind has to be the whole area - not
+ * an edge around it with a hint of it inside.
  *
- * So war es: Grund war der Spielerton zu 30 Prozent in den Buehnengrund
- * gemischt, die Kante der reine Ton. Auf der hellen Buehne wurde daraus ein
- * blasses Rosa mit weisser Schrift darauf - schlecht zu lesen und weit weg von
- * der Farbe, die es sein wollte. Und die Punktekarte darueber trug denselben
- * Ton noch einmal, sodass die Ecke ein Block war, in dem nichts hervorstach.
+ * That is how it used to be: the background was the player tone mixed 30
+ * percent into the stage background, the edge the pure tone. On the bright
+ * stage that turned into a pale pink with white type on top - hard to read and
+ * far from the colour it was meant to be. And the score card above it carried
+ * the same tone again, so the corner was one block in which nothing stood out.
  *
- * JETZT: reiner Ton, vollflaechig, ohne Kante. Die Karte darueber ist neutral
- * (siehe `Score.module.css` in `@hfroemmel/quiz-react`) - in der Ecke ist
- * genau EIN Ding farbig, und das ist das, was angefasst wird.
+ * NOW: pure tone, full area, no edge. The card above it is neutral (see
+ * `Score.module.css` in `@hfroemmel/quiz-react`) - exactly ONE thing in the
+ * corner is coloured, and that is what gets touched.
  */
 .buzzer {
   /*
-   * Auch der Buzzer ist eine Schaltflaeche der Buehne (`.stage-button`) und
-   * bekommt Kasten, Rundung, Schriftgroesse und Zustaende von dort. Was ihn
-   * unterscheidet, steht als TOKEN und nicht als ueberschriebene Regel: So
-   * bleibt eine Bauweise, und der Rang ist trotzdem sichtbar.
+   * The buzzer, too, is a stage button (`.stage-button`) and gets its box,
+   * rounding, font size and states from there. What sets it apart is defined
+   * as a TOKEN and not as an overridden rule: that way there stays one
+   * construction, and rank is still visible.
    *
-   * Er ist die groesste Flaeche der Leiste - hier wird im Stehen und ohne
-   * hinzusehen draufgeschlagen - und bringt seinen Platz selbst mit; ein
-   * Innenabstand engte den Text nur ein.
+   * It is the largest area of the bar - this is hit standing up and without
+   * looking - and brings its own size with it; inner padding would only
+   * cramp the text.
    */
   --stage-button-height: 7.875cqw;
   --stage-button-pad: 0;
@@ -265,17 +263,17 @@
   flex: 1 1 auto;
   width: 100%;
   /*
-   * KEINE KANTE, UND ZWAR KEINE. `.stage-button` bringt schon `border: 0` mit;
-   * es steht hier trotzdem, weil an dieser Stelle einmal eine stand und die
-   * Absicht deutlicher ist als die Erbschaft.
+   * NO EDGE, AND NONE AT ALL. `.stage-button` already brings `border: 0`; it
+   * is stated here anyway because one used to stand at this spot and the
+   * intent is clearer than the inheritance.
    */
   border: 0;
   background: var(--player-color);
   /*
-   * Weiss auf beiden Spielertoenen: 5,9:1 auf dem Rot, 8,4:1 auf dem Blau. Es
-   * ist derselbe Wert wie auf jeder anderen kraeftigen Flaeche der Buehne, und
-   * er gilt in JEDEM Zustand - kein Zustand hellt den Grund auf und kein
-   * Zustand nimmt der Schrift ihre Deckkraft.
+   * White on both player tones: 5.9:1 on the red, 8.4:1 on the blue. It is the
+   * same value as on every other bold area of the stage, and it holds in
+   * EVERY state - no state lightens the background and no state takes opacity
+   * away from the type.
    */
   color: var(--stage-inkOnStrong);
   letter-spacing: 0.22em;
@@ -289,20 +287,22 @@
 }
 
 /*
- * DIE FARBE STEHT - AUCH WENN NICHT GEBUZZERT WERDEN KANN.
+ * THE COLOUR STAYS - EVEN WHEN BUZZING IS NOT POSSIBLE.
  *
- * Gesperrt ist der Buzzer die meiste Zeit: vor der Freigabe, nach dem Zuschlag,
- * in der Loesung. Die Daempfung, die `.stage-button:disabled` jeder Schaltflaeche
- * gibt, ist hier deshalb falsch - sie traefe nicht einen Knopf, der gerade nicht
- * gilt, sondern die Farbe, die dauerhaft sagt, wem diese Ecke gehoert. Und sie
- * nahm der weissen Aufschrift den Kontrast, den sie braucht.
+ * The buzzer is locked most of the time: before it opens, after a successful
+ * buzz, during the solution. The dimming that `.stage-button:disabled` gives
+ * every button is therefore wrong here - it would not hit a button that
+ * currently does not apply, but the colour that permanently says who this
+ * corner belongs to. And it would take away the contrast the white lettering
+ * needs.
  *
- * Was gesperrt ist, sagt `cursor: default` und das `disabled` des Knopfes - und
- * am Geraet die Antwortzeilen, die dann nur einem gehoeren. Nicht die Farbe.
+ * What is locked is said by `cursor: default` and the button's `disabled` -
+ * and, on the device, by the answer rows, which then belong to only one
+ * player. Not the colour.
  *
- * `:disabled` waehlt hier genauso stark wie `:where(.stage-button):disabled` es
- * tut, plus die Klasse: Damit gilt die Regel, gleich in welcher Reihenfolge ein
- * Gastgeber die Stylesheets einbindet.
+ * `:disabled` here has the same specificity as `:where(.stage-button):disabled`
+ * plus the class: that way the rule applies regardless of the order in which
+ * a host includes the stylesheets.
  */
 [data-skin='default'] .buzzer:disabled {
   color: var(--color-textMuted);
@@ -312,12 +312,12 @@
 }
 
 /*
- * Kinderwelt: dieselbe gezeichnete Karte wie eine Antwort.
+ * Kids' world: the same drawn card as an answer.
  *
- * Eine glatte Flaeche verschwaende dort fast - der Grund ist helles Papier. Die
- * Zeichnung kommt aus demselben Boxenpaket wie die Antwortkarten; die rote
- * Variante markiert den Zuschlag, so wie sie in den Antworten die Auswahl
- * markiert.
+ * A plain area would nearly disappear there - the background is bright paper.
+ * The drawing comes from the same asset package as the answer cards; the red
+ * variant marks the successful buzz, the same way it marks the selection in
+ * the answers.
  */
 [data-skin='kids'] .buzzer {
   --stage-button-font: var(--kids-hand);
@@ -350,39 +350,39 @@
   color: var(--stage-inkOnStrong);
 }
 /*
- * UND DIE KINDERWELT DAEMPFT WEITER. Die Ausnahme oben (`.buzzer:disabled`)
- * gilt fuer die Flaeche in der Spielerfarbe: Dort ist die Farbe die Auskunft
- * und darf nicht verblassen. Hier traegt der Buzzer keine Spielerfarbe, sondern
- * dieselbe gezeichnete Karte wie eine Antwort - und die verblasst in dieser
- * Welt ueberall, wo sie gerade nicht gilt, auch beim "Weiter" darunter. Der
- * Wert ist deshalb derselbe wie in `:where(.stage-button):disabled`; er steht
- * hier nur, um die Ausnahme zurueckzunehmen.
+ * AND THE KIDS' WORLD KEEPS DIMMING. The exception above (`.buzzer:disabled`)
+ * applies to the area in the player colour: there the colour is the
+ * information and must not fade. Here the buzzer carries no player colour but
+ * the same drawn card as an answer - and that fades in this world everywhere
+ * it currently does not apply, including on the "Next" below it. The value is
+ * therefore the same as in `:where(.stage-button):disabled`; it is only stated
+ * here to take the exception back.
  */
 [data-skin='kids'] .buzzer:disabled {
   opacity: 0.35;
 }
 
 /* ------------------------------------------------------------------ *
- * Startauswahl
+ * Start selection
  *
- * Nach dem Entwurf `Quiz_Standalone_Startmenu_SVG_Assets` (Zeichenflaeche
- * 1440x810). Die Masse dort stehen in Pixeln; hier stehen sie als Anteil der
- * FENSTERBREITE - siehe oben: geteilt durch 14,4.
+ * Based on the design `Quiz_Standalone_Startmenu_SVG_Assets` (artboard
+ * 1440x810). The measurements there are in pixels; here they are expressed as
+ * a fraction of the WINDOW WIDTH - see above: divided by 14.4.
  *
- * DIE FARBEN KOMMEN AUS `--start-*` (siehe `packages/themes/src/palettes.ts`).
- * Sie sind ein eigener Satz und nicht der Bedienrahmen des Operators: Der ist
- * ein Werkzeug, das nichts wollen soll - dieser Bildschirm ist das Erste, was
- * jemand im Foyer sieht, und soll herholen.
+ * THE COLOURS COME FROM `--start-*` (see `packages/themes/src/palettes.ts`).
+ * They are their own set, not the operator's control chrome: that is a tool
+ * that should not want to be noticed - this screen is the first thing someone
+ * sees in the foyer, and it is meant to draw them in.
  * ------------------------------------------------------------------ */
 
 /*
- * DIE ZOOMSTUFE GILT AUCH HIER. Sie ist eine Einstellung des Geraets und nicht
- * eine des Spiels: Wer die Anzeige kleiner stellt, weil er sonst nicht
- * hinuebersieht, meint die Auswahl davor genauso wie die Frage danach.
+ * THE ZOOM LEVEL APPLIES HERE TOO. It is a setting of the device, not of the
+ * game: whoever makes the display smaller because they otherwise cannot see
+ * across means the selection before it just as much as the question after it.
  *
- * SKALIERT WIRD DER INHALT, NICHT DER GRUND: Der Verlauf liegt auf dem
- * Aussenkasten (`.startScreen`) und fuellt die Flaeche auch bei kleinem Zoom
- * bis in die Ecken.
+ * WHAT SCALES IS THE CONTENT, NOT THE BACKGROUND: the gradient sits on the
+ * outer box (`.startScreen`) and fills the area right into the corners even
+ * at a small zoom level.
  */
 .start {
   scale: var(--stage-zoom, 1);
@@ -395,40 +395,41 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Die Startauswahl in der Kinderwelt
+ * The start selection in the kids' world
  *
- * GEZEICHNET STATT GEZOGEN: Wo die Auswahl der Erwachsenen Kanten und Flaechen
- * hat, hat sie hier dieselben gemalten Kartons wie das Spiel dahinter. Die
- * Zeichnungen sind KEINE eigenen - es sind die Dateien aus dem Assetpaket des
- * Kinderquiz, dieselben, die die Antwortzeilen und die Fragetafel tragen.
+ * DRAWN INSTEAD OF DRAFTED: where the adults' selection has edges and flat
+ * areas, this one has the same painted cardboard as the game behind it. The
+ * drawings are NOT their own - they are the files from the kids' quiz asset
+ * package, the same ones that carry the answer rows and the question board.
  *
- * WARUM `[data-skin='kids']` UND NICHT `.stage--kids`: Die Buehnenklasse steht
- * an der Buehne, und die entsteht erst mit dem Spiel. Startauswahl,
- * Einstellungen und Rueckfragen liegen darueber. Die Welt steht deshalb als
- * Datenattribut am Wurzelelement dieser Komponente (siehe `QuizGame`).
+ * WHY `[data-skin='kids']` AND NOT `.stage--kids`: the stage class sits on the
+ * stage, and that only comes into being with the game. Start selection,
+ * settings and confirmation dialogs sit above it. The world is therefore
+ * expressed as a data attribute on this component's root element (see
+ * `QuizGame`).
  * ------------------------------------------------------------------ */
 
 /*
- * Auf Papier traegt keine helle Schrift. Der Startsatz `--start-*` ist fuer den
- * dunklen Grund der Erwachsenen entworfen; hier werden die drei Farbnamen, die
- * Text tragen, auf die Tinte der Welt umgehaengt. Alles andere - Flaechen,
- * Linien, Gruen - verschwindet ohnehin unter den Zeichnungen.
+ * On paper, no light-coloured type is used. The `--start-*` token set is
+ * designed for the adults' dark background; here the three colour names that
+ * carry text are remapped to this world's ink. Everything else - areas,
+ * lines, green - disappears under the drawings anyway.
  */
 [data-skin='kids'] {
   --start-text: var(--kids-ink);
   --start-text-muted: var(--color-textMuted);
   --start-brand-text: var(--kids-ink);
-  /* Auf der roten Karte traegt nur Weiss - siehe `.cardOn`. */
+  /* Only white is used on the red card - see `.cardOn`. */
   --start-ink-on-selected: var(--stage-inkOnStrong);
   --start-meta-on-selected: color-mix(in srgb, var(--stage-inkOnStrong) 78%, transparent);
 }
 
 /*
- * Der Grund ist dasselbe Papier, auf dem das Spiel danach steht.
+ * The background is the same paper the game stands on afterwards.
  *
- * Der dunkle Verlauf mit den beiden farbigen Lichtern gehoert zur Auswahl der
- * Erwachsenen; darauf verschwaende die helle Papierwelt, und die Tinte darauf
- * waere nicht zu lesen.
+ * The dark gradient with the two coloured lights belongs to the adults'
+ * selection; the bright paper world would nearly disappear on it, and the ink
+ * on it would be unreadable.
  */
 [data-skin='kids'].startScreen {
   background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
@@ -439,17 +440,18 @@
 }
 
 /*
- * EINE ZEICHNUNG, EIN AUFBAU.
+ * ONE DRAWING, ONE STRUCTURE.
  *
- * Jede gemalte Flaeche legt ihre Kontur als Pseudoelement HINTER den Inhalt -
- * so bleibt das Innenmass vom Strich unberuehrt, genauso wie bei den
- * Antwortzeilen. Welche Zeichnung es ist, sagt die Flaeche selbst ueber
- * `--kids-frame`; wie breit der Strich stehen darf, ueber `--kids-frame-width`
- * und `--kids-frame-slice`. Der Aufbau steht genau einmal.
+ * Every painted area places its outline as a pseudo-element BEHIND the
+ * content - that way the inner measurements stay untouched by the stroke,
+ * just as with the answer rows. Which drawing it is is stated by the area
+ * itself via `--kids-frame`; how wide the stroke may stand via
+ * `--kids-frame-width` and `--kids-frame-slice`. The structure is defined
+ * exactly once.
  *
- * `border-image` und nicht `background`: Die Ecken behalten damit bei jeder
- * Knopfbreite ihre Groesse, waehrend nur die Kanten gedehnt werden. Ein
- * gedehnter Hintergrund zoege den gemalten Strich in die Laenge.
+ * `border-image` and not `background`: this way the corners keep their size
+ * at every button width, while only the edges get stretched. A stretched
+ * background would drag the painted stroke out of shape.
  */
 [data-skin='kids'] .card,
 [data-skin='kids'] .action,
@@ -465,11 +467,11 @@
 }
 
 /*
- * DIE KARTEN SIND HIER AUSGENOMMEN: Ihre Schrift haengt daran, ob sie gewaehlt
- * sind, und das entscheiden `.card` und `.cardOn` ueber die Token
- * `--start-text` und `--start-ink-on-selected` - beide setzt diese Welt oben.
- * Stuende die Tinte auch hier, gewaenne sie ueber die Spezifikitaet, und auf der
- * roten Karte waere die Schrift wieder dunkel.
+ * THE CARDS ARE EXCLUDED HERE: their type depends on whether they are
+ * selected, and that is decided by `.card` and `.cardOn` via the tokens
+ * `--start-text` and `--start-ink-on-selected` - both set by this world
+ * above. If the ink were set here too, it would win on specificity, and the
+ * type on the red card would be dark again.
  */
 [data-skin='kids'] .action,
 [data-skin='kids'] .actionSecondary,
@@ -505,11 +507,11 @@
 }
 
 /*
- * Die Auswahlkarten der beiden Schritte - dieselbe Karte wie eine Antwortzeile.
+ * The selection cards of the two steps - the same card as an answer row.
  *
- * Die Strichbreite steht hier in `vw` und nicht in Containereinheiten: Die
- * Startauswahl ist kein Buehnencontainer, sie rechnet wie alles auf diesem
- * Bildschirm gegen die Fensterbreite.
+ * The stroke width is expressed here in `vw`, not in container units: the
+ * start selection is not a stage container, it computes, like everything else
+ * on this screen, against the window width.
  */
 [data-skin='kids'] .card {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-a.svg');
@@ -518,26 +520,26 @@
 }
 
 /*
- * GEWAEHLT IST GEWAEHLT - und sieht aus wie eine gewaehlte Antwort.
+ * SELECTED IS SELECTED - and it looks like a selected answer.
  *
- * Rote Karte, weisse Schrift; kein gruener Ring und keine gruene Kante. Das
- * Gruen ist die Auswahlfarbe der Erwachsenenauswahl; in dieser Welt markiert
- * die rote Karte, wofuer man sich entschieden hat - im Spiel genauso wie hier.
- * Es ist dieselbe Zeichnung, die eine angetippte Antwort traegt.
+ * Red card, white type; no green ring and no green edge. Green is the
+ * selection colour of the adults' selection; in this world the red card marks
+ * what has been chosen - in the game just as here. It is the same drawing
+ * that a tapped answer carries.
  */
 [data-skin='kids'] .cardOn {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-b.svg');
 }
 
-/* Das Zeichen der Karte sitzt auf der roten Flaeche - ohne eigene Scheibe. */
+/* The card's icon sits on the red area - without its own disc. */
 [data-skin='kids'] .cardIcon,
 [data-skin='kids'] .cardOn .cardIcon {
   background: none;
   color: inherit;
 }
 /*
- * Das Haekchen behaelt seinen Platz und seine Bedeutung, verliert aber die
- * gruene Scheibe: Auf der roten Karte steht es als weisses Zeichen.
+ * The checkmark keeps its place and its meaning, but loses the green disc: on
+ * the red card it stands as a white icon.
  */
 [data-skin='kids'] .check,
 [data-skin='kids'] .check[data-on='true'] {
@@ -573,15 +575,15 @@
 }
 
 /*
- * DER PRIMAERE KNOPF DER KINDERWELT - eine Zeichnung fuer alle drei Orte.
+ * THE PRIMARY BUTTON OF THE KIDS' WORLD - one drawing for all three places.
  *
- * "Los geht's" in der Startauswahl, "Weiter" und "Antwort abgeben und
- * aufloesen" in der Fussleiste des Spiels tragen dieselbe Kontur. Sie steht als
- * EIN Satz Token; ein Ort, der dazukommt, nennt nur noch die drei Namen.
+ * "Let's go" in the start selection, "Next" and "Submit answer and reveal" in
+ * the game's footer carry the same outline. It exists as ONE set of tokens; a
+ * place that gets added just names the three tokens.
  *
- * Die Strichbreite ist am jeweiligen Ort verschieden - die Fussleiste rechnet
- * in Containereinheiten der Buehne, die Startauswahl gegen die Fensterhoehe -,
- * die Zeichnung und ihr Schnitt sind dieselben.
+ * The stroke width differs per place - the footer computes in the stage's
+ * container units, the start selection against the window height - the
+ * drawing and its slicing are the same.
  */
 [data-skin='kids'] .action,
 [data-skin='kids'] .continue {
@@ -594,12 +596,12 @@
 [data-skin='kids'] .continue {
   --kids-frame-width: 1.25cqw;
 }
-/* Der Pfeil traegt die Tinte der Karte, auf der er sitzt. */
+/* The arrow carries the ink of the card it sits on. */
 [data-skin='kids'] .actionArrow {
   color: inherit;
 }
 
-/* Der zweite Knopf einer Reihe traegt die ruhigere Karte. */
+/* The second button of a row carries the quieter card. */
 [data-skin='kids'] .actionSecondary {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-d.svg');
   --kids-frame-slice: 24;
@@ -607,9 +609,9 @@
 }
 
 /*
- * Die Bedienspalte und die Fenster daueber stehen auf derselben grossen Tafel
- * wie die Frage im Spiel. Ihr Schnitt ist ein anderer: Die Zeichnung ist hoch,
- * nicht flach, und traegt ihre Ecken entsprechend breiter.
+ * The control column and the panes above it sit on the same large board as
+ * the question in the game. Its slicing is different: the drawing is tall,
+ * not flat, and carries its corners correspondingly wider.
  */
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
@@ -619,8 +621,8 @@
 }
 
 /*
- * Die Tastaturmarke bleibt, wechselt aber die Farbe: Ein gruener Ring gehoert
- * zur Auswahl der Erwachsenen und saehe hier aus wie ein zweiter Zustand.
+ * The keyboard focus mark stays, but changes colour: a green ring belongs to
+ * the adults' selection and would look here like a second state.
  */
 [data-skin='kids'] .card:focus-visible,
 [data-skin='kids'] .action:focus-visible,
@@ -631,12 +633,13 @@
 }
 
 /*
- * Die Zeile der beiden Eckknoepfe.
+ * The row of the two corner buttons.
  *
- * Sie steht IM FLUSS und nicht absolut in den Ecken: Absolut gesetzt bezogen
- * sich beide auf das Fenster, die Tafel darunter aber auf ihren Kasten - und
- * sobald das Quiz Gast einer anderen Anwendung mit kleinerem Kasten war,
- * schoben sie sich uebereinander.
+ * It sits IN THE FLOW and not absolutely in the corners: positioned
+ * absolutely, both would be relative to the window, while the board beneath
+ * them is relative to its own box - and as soon as the quiz was a guest inside
+ * another application with a smaller box, they would slide on top of each
+ * other.
  */
 .corners {
   flex: 0 0 auto;
@@ -646,10 +649,10 @@
 }
 
 /*
- * Der Grund: ein Verlauf ueber die Diagonale und zwei farbige Lichter - links
- * gruen hinter der Marke, rechts violett hinter der Auswahl. Sie sind der
- * einzige Farbanteil einer sonst fast schwarzen Flaeche und geben ihr Tiefe,
- * ohne dass irgendwo eine Kante entsteht.
+ * The background: a gradient across the diagonal and two coloured lights -
+ * green behind the brand mark on the left, violet behind the selection on the
+ * right. They are the only touch of colour in an otherwise nearly black area
+ * and give it depth without creating an edge anywhere.
  */
 .startScreen {
   background:
@@ -668,9 +671,9 @@
 }
 
 /*
- * Zwei Spalten im Verhaeltnis des Entwurfs (535 zu 646), dazwischen dessen
- * Fuge. `minmax(0, ...)` statt blosser Anteile: Ohne das wuerde eine lange
- * Ueberschrift die Spalte aufziehen, statt umzubrechen.
+ * Two columns in the design's ratio (535 to 646), with its gutter between
+ * them. `minmax(0, ...)` instead of plain fractions: without it, a long
+ * heading would stretch the column instead of wrapping.
  */
 .layout {
   flex: 1 1 auto;
@@ -685,7 +688,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Linke Spalte: die Markentafel
+ * Left column: the brand board
  * ------------------------------------------------------------------ */
 
 .brand {
@@ -694,37 +697,40 @@
   flex-direction: column;
   gap: 1.125vw;
   /*
-   * DIE TAFEL IST SO HOCH WIE DIE AUSWAHL DANEBEN - das ist der Entwurf, und es
-   * ist eine BEZIEHUNG, keine Zahl. Vorher stand hier `min(70.1vh, 100%)`, und
-   * damit entschied die Fensterhoehe mit, wie gross das Motiv darin ist. Die
-   * Zahl aus dem Entwurf (567,8 px, also 39,43vw) waere ihrerseits falsch: Sie
-   * ist hoeher als die Spalte rechts, und die Tafel ragte darueber hinaus.
+   * THE BOARD IS AS TALL AS THE SELECTION NEXT TO IT - that is the design, and
+   * it is a RELATIONSHIP, not a number. This used to say `min(70.1vh, 100%)`,
+   * which let the window height decide how large the motif inside it is. The
+   * number from the design (567.8 px, i.e. 39.43vw) would in turn be wrong: it
+   * is taller than the column on the right, and the board would stick out
+   * beyond it.
    *
-   * `stretch` nimmt die Hoehe der Zeile, und die gibt die Auswahl vor. Deren
-   * Hoehe steht in `vw` wie alles hier - die Fensterhoehe kommt nicht vor.
+   * `stretch` takes the row's height, and that is dictated by the selection.
+   * Its height is in `vw` like everything here - the window height never
+   * comes into it.
    */
   align-self: stretch;
   padding: 2.1938vw;
 }
 
 /*
- * Das Motiv nimmt den Platz, der zwischen Marke und Text uebrig bleibt - es ist
- * das Nachgiebige der Tafel. Auf einem flachen Fenster schrumpft es, Titel und
- * Text bleiben stehen: Ein halber Satz waere schlimmer als ein kleineres Bild.
+ * The motif takes the space left over between the brand mark and the text -
+ * it is the board's yielding element. On a short window it shrinks, while
+ * title and text stay put: half a sentence would be worse than a smaller
+ * image.
  */
 /*
- * DIE MARKE KIPPT MIT DER FASSUNG.
+ * THE BRAND MARK FLIPS WITH THE THEME VARIANT.
  *
- * Das Motiv der Tafel kommt aus dem Inhalt und ist dort eine helle Zeichnung -
- * fuer den dunklen Grund, fuer den die Auswahl entworfen wurde. Auf Papier
- * verschwindet sie. Umgekehrt gilt fuer eine Aufstellung, deren Startbild ein
- * FOTO ist: Die soll in der hellen Fassung ein eigenes Motiv hinterlegen,
- * statt sich invertieren zu lassen.
+ * The board's motif comes from the content and is a light-coloured drawing
+ * there - made for the dark background the selection was designed for. On
+ * paper it disappears. Conversely, for a setup whose start image is a PHOTO:
+ * it should supply its own motif for the bright variant, rather than being
+ * inverted.
  */
 [data-theme='bright'] .brandVisual {
   /*
-   * Die Deckkraft nimmt dem umgekehrten Weiss die Haerte: Aus Schwarz wird auf
-   * Papier das dunkle Anthrazit, in dem auch die Schrift daneben steht.
+   * The opacity takes the harshness out of the inverted white: on paper,
+   * black turns into the dark anthracite the text next to it is also set in.
    */
   filter: invert(1) opacity(0.82);
 }
@@ -733,7 +739,7 @@
   flex: 1 1 auto;
   align-self: center;
   min-height: 0;
-  /* Dieselbe Breite wie im Entwurf: das Motiv fuellt die Tafel nicht aus. */
+  /* The same width as in the design: the motif does not fill the board. */
   width: 82%;
   border-radius: 0.8438vw;
   object-fit: contain;
@@ -754,7 +760,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Rechte Spalte: die Auswahl
+ * Right column: the selection
  * ------------------------------------------------------------------ */
 
 .setup {
@@ -783,9 +789,9 @@
 }
 
 /*
- * Die Schrittnummer steht VOR der Frage und nicht darueber: Sie sagt nur, in
- * welcher Reihenfolge entschieden wird, und soll dafuer keine eigene Zeile
- * bekommen.
+ * The step number sits BEFORE the question, not above it: it only states the
+ * order in which decisions are made, and should not get its own line for
+ * that.
  */
 .modes,
 .levels {
@@ -796,35 +802,36 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.4167vw), 1fr));
 }
 /*
- * Drei Stufen sind der Entwurf, mehr sind moeglich: Welche Presets ein Geraet
- * anbietet, steht in der Konfiguration. Die Spalten fuellen sich deshalb selbst
- * auf, statt auf drei festgenagelt zu sein.
+ * Three tiers are the design, but more are possible: which presets a device
+ * offers is defined in configuration. The columns therefore fill themselves
+ * in, instead of being nailed to three.
  */
 .levels {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.3333vw), 1fr));
 }
 
 /*
- * DIE KARTE - das Bauteil, aus dem beide Schritte bestehen.
+ * THE CARD - the component both steps are made of.
  *
- * SIE IST EINE FLAECHE, KEIN RAHMEN. Gewaehlt ist sie daran zu erkennen, dass
- * sie voll in der Auswahlfarbe steht - und an nichts sonst. Vorher lagen drei
- * Zeichen uebereinander: eine dickere Kante, eine leicht eingefaerbte Flaeche
- * und das Haekchen. Auf Papier war die Kante ein Strich von einem Pixel, die
- * Einfaerbung ein Hauch, und zusammen mit der Tastaturmarke standen im
- * Fokuszustand zwei Linien um dieselbe Karte.
+ * IT IS AN AREA, NOT A FRAME. It is recognised as selected by standing fully
+ * in the selection colour - and by nothing else. Previously three signals lay
+ * on top of each other: a thicker edge, a lightly tinted area and the
+ * checkmark. On paper the edge was a one-pixel stroke, the tint a hint, and
+ * together with the keyboard focus mark, the focus state had two lines around
+ * the same card.
  *
- * WELCHE FARBEN ES SIND, SAGT DIE PALETTE: `--start-option` die ruhige Flaeche,
- * `--start-surface-selected` die gewaehlte. In der hellen Fassung ist Letztere
- * dasselbe Blau, das im Spiel eine angetippte Antwort traegt; in der dunklen
- * derselbe Kasten wie vorher, dort behaelt die Karte ihre Kante (siehe unten).
+ * WHICH COLOURS THESE ARE IS STATED BY THE PALETTE: `--start-option` the quiet
+ * area, `--start-surface-selected` the selected one. In the light variant the
+ * latter is the same blue that a tapped answer carries in the game; in the
+ * dark variant, the same box as before, where the card keeps its edge (see
+ * below).
  */
 .card {
   position: relative;
   display: flex;
   /*
-   * AUSDRUECKLICH KEINE: Damit kann kein Zustand eine dazustellen, und zwei
-   * Zustaende zusammen erst recht nicht.
+   * DELIBERATELY NONE: this way no state can add one, and two states
+   * combined certainly cannot either.
    */
   border: 0;
   border-radius: 1.125vw;
@@ -842,18 +849,18 @@
   transform: translateY(0.0694vw);
 }
 /*
- * Gewaehlt bleibt gewaehlt, auch unter dem Zeiger: Ohne die zweite Regel
- * gewaenne der Zeiger ueber die Reihenfolge und die Karte fiele fuer den Moment
- * der Beruehrung auf die ruhige Flaeche zurueck.
+ * Selected stays selected, even under the pointer: without the second rule,
+ * the pointer would win on ordering and the card would fall back to the quiet
+ * area for the moment of touch.
  */
 .cardOn,
 .cardOn:hover {
   background: var(--start-surface-selected);
   /*
-   * DIE SCHRIFT GEHOERT ZUR FLAECHE, AUF DER SIE STEHT. In der dunklen Fassung
-   * ist die gewaehlte Karte derselbe dunkle Kasten und die Schrift bleibt, wie
-   * sie war; in der hellen ist sie eine volle blaue Flaeche, und darauf traegt
-   * nur Weiss. Ein Token statt zweier Regeln.
+   * THE TYPE BELONGS TO THE AREA IT STANDS ON. In the dark variant, the
+   * selected card is the same dark box and the type stays as it was; in the
+   * light variant it is a full blue area, and only white is used on it. One
+   * token instead of two rules.
    */
   color: var(--start-ink-on-selected);
 }
@@ -862,20 +869,20 @@
 }
 
 /*
- * DIE TASTATURMARKE IST KEINE LINIE.
+ * THE KEYBOARD FOCUS MARK IS NOT A LINE.
  *
- * Sie war ein Ring aussen um die Karte, und auf einer GEWAEHLTEN Karte standen
- * damit zwei Striche uebereinander - der der Auswahl und der des Fokus -, die
- * aus zwei Metern zu einem verschmolzen. Jetzt hebt sich die Flaeche selbst:
- * ein Hauch groesser und ein weicher Schein in der Auswahlfarbe darunter.
+ * It used to be a ring around the outside of the card, and on a SELECTED
+ * card that put two strokes on top of each other - the selection's and the
+ * focus's - which merged into one from two metres away. Now the area itself
+ * lifts: a touch larger, with a soft glow in the selection colour underneath.
  *
- * Der Schein ist BEWUSST unscharf. Ein harter Schatten waere wieder eine Linie,
- * nur mit anderem Namen; ein weicher ist in beiden Fassungen zu sehen - auf dem
- * Papier als blauer Hof, im Dunkeln als gruener - und auf keiner Kante.
+ * The glow is DELIBERATELY soft. A hard shadow would again be a line, just
+ * under a different name; a soft one is visible in both variants - on paper as
+ * a blue halo, in the dark as a green one - and on no edge.
  *
- * `scale` und nicht `transform: scale()`: Auf derselben Karte liegt beim Druck
- * ein `translateY`, und als Transformation geschrieben wuerde eines das andere
- * ueberschreiben. Die eigene Eigenschaft wird damit verrechnet.
+ * `scale` and not `transform: scale()`: the same card has a `translateY` on
+ * press, and written as a transform, one would overwrite the other. Using the
+ * dedicated property, they are combined instead.
  */
 .card:focus-visible,
 .action:focus-visible,
@@ -888,20 +895,19 @@
 }
 
 /*
- * IM DUNKELN BLEIBT DIE KANTE - und sie ist dort kein Zierrat.
+ * IN THE DARK, THE EDGE STAYS - and there it is not decoration.
  *
- * Auf Papier setzt sich die graue Karte ueber ihre Flaeche vom weissen Grund
- * ab; im Dunkeln liegt ein fast schwarzer Kasten auf einem fast schwarzen
- * Grund, der Unterschied ist also klein. Nimmt man dort die Kante weg, schwimmen
- * die Karten,
- * und die gewaehlte - ein in das Gruene gekippter Kasten, kein volles Gruen -
- * ist von den anderen kaum zu unterscheiden.
+ * On paper, the grey card's area sets it apart from the white background; in
+ * the dark, an almost-black box sits on an almost-black background, so the
+ * difference is small. Take the edge away there and the cards start to swim,
+ * and the selected one - a box tipped toward green, not full green - is
+ * barely distinguishable from the others.
  *
- * Zwei Linien um dieselbe Karte gibt es trotzdem nicht mehr: Die Tastaturmarke
- * ist jetzt ein Schein, keine zweite Kontur.
+ * Even so, there are no longer two lines around the same card: the keyboard
+ * focus mark is now a glow, not a second outline.
  *
- * Die Kinderwelt ist von beidem unberuehrt - sie setzt `border: 0` selbst und
- * legt ihre gemalte Kontur hinter den Inhalt (siehe oben).
+ * The kids' world is untouched by either - it sets `border: 0` itself and
+ * places its painted outline behind the content (see above).
  */
 [data-theme='dark'] .card {
   border: 0.0694vw solid var(--start-line-strong);
@@ -918,10 +924,9 @@
   border: 0.0694vw solid var(--start-line-strong);
 }
 /*
- * Und das Zeichen der gewaehlten Karte behaelt dort seine Scheibe. Auf Papier
- * waere sie eine zweite Flaeche auf einer Flaeche; im Dunkeln ist die gewaehlte
- * Karte nur ins Gruene gekippt, und die Scheibe ist das, was das Zeichen
- * ueberhaupt vom Kasten abhebt.
+ * And the selected card's icon keeps its disc there. On paper it would be a
+ * second area on an area; in the dark, the selected card is only tipped
+ * toward green, and the disc is what sets the icon apart from the box at all.
  */
 [data-theme='dark'] .cardOn .cardIcon {
   background: color-mix(in srgb, var(--start-selected) 12%, transparent);
@@ -935,7 +940,7 @@
   padding: 0.8438vw 1.2375vw;
 }
 
-/* Das Zeichen sitzt in einer eigenen runden Flaeche - der Anker der Karte. */
+/* The icon sits in its own round area - the card's anchor. */
 .cardIcon {
   display: grid;
   place-items: center;
@@ -951,9 +956,9 @@
   height: 55%;
 }
 /*
- * Auf der gewaehlten Karte hat das Zeichen keine eigene Flaeche mehr: Die Karte
- * IST die Flaeche, und eine zweite darauf waere ein weiteres Zeichen fuer
- * denselben Zustand. Es steht in derselben Tinte wie der Titel daneben.
+ * On the selected card, the icon no longer has its own area: the card IS the
+ * area, and a second one on it would be another signal for the same state.
+ * It is set in the same ink as the title next to it.
  */
 .cardOn .cardIcon {
   background: none;
@@ -982,9 +987,9 @@
 }
 
 /*
- * Das Haekchen sitzt in der Ecke und ist auch ungewaehlt vorhanden - dann leer
- * und ohne Flaeche. So springt die Karte beim Antippen nicht um seine Breite,
- * und zwar genau unter dem Finger, der sie angetippt hat.
+ * The checkmark sits in the corner and is present even when unselected -
+ * then empty and without an area. That way the card does not jump by its
+ * width when tapped, exactly under the finger that tapped it.
  */
 .check {
   display: grid;
@@ -1009,10 +1014,10 @@
 }
 
 /*
- * Die Stufenkarte ist dieselbe Zeile wie die Moduskarte, nur ohne Zeichen:
- * Text links, Haekchen rechts. Sie ist etwas flacher als jene - dort steht ein
- * Zeichen mit eigener Flaeche, hier nicht, und eine gleich hohe Karte haette
- * ihren Platz nur als Luft.
+ * The tier card is the same row as the mode card, just without an icon: text
+ * on the left, checkmark on the right. It is somewhat shorter than that one -
+ * there an icon with its own area sits, here it does not, and a card of the
+ * same height would only leave that space as empty air.
  */
 .level {
   align-items: center;
@@ -1022,7 +1027,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Die Startaktion
+ * The start action
  * ------------------------------------------------------------------ */
 
 .actions {
@@ -1032,13 +1037,13 @@
 }
 
 /*
- * Der breite gruene Balken. Er ist das einzige Element der Flaeche mit einer
- * vollen Farbe - alles andere ist Grund, Kante oder Schrift. Deshalb braucht er
- * keine zweite Auszeichnung, um als das Ziel gelesen zu werden.
+ * The wide green bar. It is the only element on the screen with a full
+ * colour - everything else is background, edge or type. That is why it needs
+ * no second visual cue to be read as the target.
  */
 .action {
   display: flex;
-  /* Nur in der Startauswahl spannt er ueber die ganze Spalte - siehe unten. */
+  /* Only in the start selection does it span the whole column - see below. */
   flex: 0 1 auto;
   align-items: center;
   justify-content: space-between;
@@ -1049,10 +1054,10 @@
   border-radius: 1.1813vw;
   background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
   /*
-   * DIE AUFSCHRIFT GEHOERT AUF DAS GRUEN, nicht auf die Flaeche daneben: Der
-   * Balken ist die einzige volle Farbe, und ein Token, das seine Schrift nennt,
-   * traegt sie in jeder Fassung richtig - hell auf beiden Gruens, statt in der
-   * hellen Fassung die Tinte der Karten daneben zu erben.
+   * THE LABEL BELONGS ON THE GREEN, not on the area next to it: the bar is the
+   * only full colour, and a token that names its type carries it correctly in
+   * every variant - light on both greens, instead of inheriting the ink of the
+   * cards next to it in the light variant.
    */
   color: var(--start-ink-on-green);
   font-family: var(--font-ui);
@@ -1074,12 +1079,12 @@
   font-size: 1.8731vw;
 }
 /*
- * Der Pfeil steht frei auf dem Balken - ohne eigene Scheibe. Er wiederholt nur,
- * was die Aufschrift schon sagt; eine Flaeche darum machte daraus ein zweites
- * Element in einem Knopf, der genau eine Sache ist.
+ * The arrow sits freely on the bar - without its own disc. It only repeats
+ * what the label already says; an area around it would turn it into a second
+ * element in a button that is exactly one thing.
  *
- * Seine Flaeche behaelt er trotzdem: Sie haelt den Pfeil an seinem Platz,
- * gleich wie lang die Aufschrift daneben ist.
+ * It keeps its own footprint regardless: that holds the arrow in place,
+ * whatever length the label next to it is.
  */
 .actionArrow {
   display: grid;
@@ -1093,14 +1098,14 @@
   height: 60%;
 }
 
-/* Der Rueckweg - nur dort, wo das Quiz Gast einer anderen Anwendung ist. */
+/* The way back - only where the quiz is a guest inside another application. */
 .actionSecondary {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 5.2875vw;
   padding: 0 1.9688vw;
-  /* Dieselbe ruhige Flaeche wie eine nicht gewaehlte Karte, und ohne Kante. */
+  /* The same quiet area as an unselected card, and without an edge. */
   border: 0;
   border-radius: 1.1813vw;
   background: var(--start-option);
@@ -1115,16 +1120,16 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Die beiden Eckknoepfe
+ * The two corner buttons
  * ------------------------------------------------------------------ */
 
 /*
- * Sprachumschalter in der oberen linken Ecke - dem Zahnrad gegenueber.
+ * Language switcher in the upper-left corner - opposite the gear.
  *
- * Er steht ausserhalb der Auswahl aus Modus und Schwierigkeit: Die Sprache ist
- * keine Spielentscheidung, sondern die Voraussetzung dafuer, die Auswahl zu
- * lesen. Beide Namen liegen in EINER Leiste, damit sichtbar ist, dass es eine
- * Wahl zwischen ihnen ist und nicht zwei Schalter.
+ * It sits outside the mode-and-difficulty selection: the language is not a
+ * game decision but the precondition for reading the selection at all. Both
+ * names sit in ONE bar, so it is visible that it is a choice between them and
+ * not two separate toggles.
  */
 .languages {
   display: flex;
@@ -1153,14 +1158,14 @@
 }
 
 /*
- * Zahnrad in der Ecke des Startbildschirms.
+ * Gear icon in the corner of the start screen.
  *
- * Es steht INNERHALB der Auswahl und braucht deshalb keine eigene Zoomstufe -
- * es schrumpft mit ihr. Rund und ohne Beschriftung: Es traegt ein Zeichen,
- * keinen Namen.
+ * It sits INSIDE the selection and therefore needs no zoom level of its own -
+ * it shrinks along with it. Round and without a label: it carries an icon,
+ * not a name.
  */
 .settingsButton {
-  /* Immer rechts aussen - auch dort, wo es links keinen Umschalter gibt. */
+  /* Always at the far right - even where there is no switcher on the left. */
   margin-left: auto;
   display: grid;
   place-items: center;
@@ -1182,16 +1187,17 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Schmale und hochkante Aufstellungen
+ * Narrow and portrait setups
  *
- * Zwei Spalten brauchen Breite. Faellt sie weg - Tablet im Hochformat, kleines
- * Fenster in der Spielesammlung -, stehen Tafel und Auswahl untereinander.
+ * Two columns need width. When it is not available - a tablet in portrait
+ * orientation, a small window in a game collection - board and selection
+ * stack on top of each other.
  *
- * DIE SCHWELLE FRAGT NUR DIE BREITE. Sie hiess einmal auch
- * `(max-aspect-ratio: 5 / 4)`, und damit entschied die HOEHE mit: Zwei Fenster
- * gleicher Breite zeigten die Auswahl verschieden angeordnet, sobald eines
- * hoeher war. Was hier umschaltet, ist ausserdem allein die Anordnung - keine
- * Groesse. Die stehen alle in `vw` und gelten auf jeder Breite gleich.
+ * THE THRESHOLD ASKS ONLY ABOUT WIDTH. It used to also read
+ * `(max-aspect-ratio: 5 / 4)`, which let the HEIGHT weigh in too: two windows
+ * of equal width showed the selection arranged differently as soon as one was
+ * taller. What switches here is, moreover, only the arrangement - not any
+ * size. Those are all in `vw` and apply the same at every width.
  * ------------------------------------------------------------------ */
 
 @media (max-width: 780px) {
@@ -1201,9 +1207,10 @@
   .layout {
     grid-template-columns: minmax(0, 1fr);
     /*
-     * Untereinander wird die Spalte laenger als das Fenster. Sie beginnt
-     * deshalb oben statt mittig - sonst waechst sie nach BEIDEN Seiten und
-     * schiebt sich ueber die Eckknoepfe, die dann nicht mehr zu treffen sind.
+     * Stacked, the column becomes taller than the window. It therefore starts
+     * at the top instead of the middle - otherwise it would grow in BOTH
+     * directions and slide over the corner buttons, which would then no
+     * longer be hittable.
      */
     align-content: start;
     width: 100%;
@@ -1211,18 +1218,18 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Einstellungen und Rueckfragen
+ * Settings and confirmation dialogs
  *
- * Beide sind dasselbe Bauteil: eine Flaeche ueber allem, darin eine Karte. Der
- * Grund liegt am Geraet - eine Rueckfrage, die man ueberklicken kann, ist am
- * Touchscreen keine Rueckfrage.
+ * Both are the same component: an overlay over everything, with a card
+ * inside it. The reason lies in the device - a confirmation dialog you can
+ * click past is no confirmation dialog on a touchscreen.
  *
- * SIE SEHEN AUS WIE DIE STARTAUSWAHL und tragen deren `--start-*`-Token: Beides
- * ist die Bedienung DIESES Geraets, und beides bekommt derselbe Mensch zu
- * sehen - der eine Bildschirm, bevor er spielt, der andere waehrend er
- * aufstellt. Zwei Formensprachen dafuer waeren zwei Erklaerungen fuer dieselbe
- * Sache. Die Schalter sind deshalb wortwoertlich dieselben Karten wie dort
- * (`.card`), nur ohne Zeichen und kleiner.
+ * THEY LOOK LIKE THE START SELECTION and carry its `--start-*` tokens: both
+ * are the controls for THIS device, and both are seen by the same person -
+ * one screen before they play, the other while they set the device up. Two
+ * visual languages for that would be two explanations for the same thing. The
+ * toggles are therefore literally the same cards as there (`.card`), just
+ * without an icon and smaller.
  * ------------------------------------------------------------------ */
 
 .overlay {
@@ -1261,7 +1268,7 @@
   font-weight: 400;
 }
 
-/* Eine Zeile je Einstellung: links, wofuer sie gilt, rechts die Bedienung. */
+/* One row per setting: on the left what it applies to, on the right the control. */
 .setting {
   display: flex;
   align-items: center;
@@ -1281,11 +1288,11 @@
 }
 
 /*
- * Ein Schalter in der Einstellungszeile ist dieselbe Karte wie in der
- * Startauswahl - nur ohne Zeichen und ohne zweite Zeile, und deshalb schmaler.
- * Die Schrift bleibt die der uebrigen Knoepfe: Sie steht neben "Fertig", und
- * zwei Schriftgroessen in einem Kasten von der Groesse einer Handflaeche sind
- * kein Unterschied, den jemand liest, sondern einer, der unruhig aussieht.
+ * A toggle in the settings row is the same card as in the start selection -
+ * just without an icon and without a second line, and therefore narrower.
+ * The type stays that of the other buttons: it sits next to "Done", and two
+ * font sizes in a box the size of a palm are not a difference anyone reads,
+ * but one that just looks restless.
  */
 .toggle {
   align-items: center;
@@ -1307,9 +1314,9 @@
 }
 
 /*
- * Der Schieberegler ist bewusst hoch: Er wird mit dem Finger bedient, nicht mit
- * einer Maus. Farbe und Griff kommen vom Browser - `accent-color` genuegt, und
- * eine nachgebaute Bahn waere an jedem Geraet ein anderes Bauteil.
+ * The slider is deliberately tall: it is operated with a finger, not a
+ * mouse. Colour and thumb come from the browser - `accent-color` is enough,
+ * and a rebuilt track would be a different component on every device.
  */
 .slider {
   width: 19.4444vw;
@@ -1320,18 +1327,18 @@
 }
 
 /*
- * Die Knopfreihe eines Dialogs steht mittig und dicht unter dem, was sie
- * beantwortet - anders als in der Startauswahl, wo der Start das Ende einer
- * langen Spalte ist und Luft davor braucht.
+ * A dialog's button row sits centred and close beneath what it is answering -
+ * unlike in the start selection, where the start button is the end of a long
+ * column and needs space in front of it.
  */
 .panel .actions {
   justify-content: center;
   margin-top: 0.5625vw;
 }
 /*
- * Ausserhalb der Startauswahl traegt der Knopf keinen Pfeil - dort ist er der
- * Weg nach vorn in einer Spalte, hier eine Antwort unter einer Frage. Ohne
- * Pfeil steht die Beschriftung mittig und mit gleichem Rand auf beiden Seiten.
+ * Outside the start selection, the button carries no arrow - there it is the
+ * way forward in a column, here it is an answer to a question. Without an
+ * arrow, the label sits centred with an equal margin on both sides.
  */
 .panel .action,
 .footer .action {
@@ -1340,12 +1347,11 @@
 }
 
 /*
- * "Spiel beenden" im laufenden Spiel.
+ * "End game" during a running game.
  *
- * Er sitzt aussen an der oberen Kante der Geraeteflaeche und nicht in der
- * Buehne: Er gehoert nicht zum Spiel, das dort gezeigt wird, sondern zu dem
- * Kasten, in dem es laeuft - und sieht deshalb aus wie die uebrigen
- * Bedienelemente und nicht wie ein Buzzer.
+ * It sits on the outside of the device area's top edge, not on the stage: it
+ * does not belong to the game shown there, but to the box it is running in -
+ * and therefore looks like the other controls, not like a buzzer.
  */
 .abort {
   position: absolute;
@@ -1370,8 +1376,8 @@
 }
 
 /*
- * Reduzierte Bewegung: Die Buehne regelt ihre Uebergaenge selbst; hier entfaellt
- * nur die Tipp-Rueckmeldung, die sonst kurz aufblitzt.
+ * Reduced motion: the stage handles its own transitions; here only the tap
+ * feedback that would otherwise briefly flash is removed.
  */
 @media (prefers-reduced-motion: reduce) {
   .buzzer:active:not(:disabled) {

@@ -1,12 +1,12 @@
 /*
- * Aussehen der Beispielsammlung.
+ * Look of the example collection.
  *
- * Es ist bewusst NICHT das Aussehen des Quiz: Andere Farben, andere Schrift,
- * andere Kacheln. Wuerde das Quiz die Sammlung umfaerben, faellt es genau hier
- * auf - und das ist der Zweck dieser Datei.
+ * It is deliberately NOT the look of the quiz: different colours, different
+ * font, different tiles. If the quiz were to recolour the collection, it
+ * would show up right here - and that is this file's purpose.
  *
- * Farbwerte stehen auch hier nicht: Die Sammlung leiht sich die Bedienfarben des
- * Operatorrahmens, die aus der Palette kommen.
+ * No colour values live here either: the collection borrows the control
+ * colours of the operator frame, which come from the palette.
  */
 
 .shell {
@@ -47,8 +47,8 @@
 }
 
 /*
- * Der Kasten, den der Gastgeber dem Quiz gibt. Er ist absichtlich kleiner als
- * das Fenster: Ein Gast, der sich nicht daran haelt, faellt sofort auf.
+ * The box the host gives the quiz. It is deliberately smaller than the
+ * window: a host that doesn't respect it is immediately obvious.
  */
 .frame {
   flex: 1;
@@ -113,15 +113,16 @@
 }
 
 /*
- * Die eigene Ebene des Gastgebers - IN der Buehne.
+ * The host's own layer - IN the stage.
  *
- * Deshalb steht hier alles in Containereinheiten der Buehnenflaeche und in
- * ihren Farben, und die Tafel skaliert mit `--stage-zoom`. Genau das ist der
- * Vertrag, den `pads.overlay` zusagt; `embedding.spec.ts` misst ihn nach.
+ * That's why everything here is sized in container units of the stage
+ * surface and uses its colours, and the panel scales with `--stage-zoom`.
+ * That is exactly the contract `pads.overlay` promises; `embedding.spec.ts`
+ * measures it.
  */
 .layer {
-  /* Wo die Ebene liegt, hat die Buehne schon entschieden - hier steht nur, wie
-   * ihr Inhalt darin steht. */
+  /* Where the layer sits, the stage has already decided - this only states how
+   * its content is positioned within it. */
   flex: 1;
   display: flex;
   align-items: center;

@@ -1,31 +1,30 @@
 /**
- * Welche Bildadresse gilt als fertig - ohne Browser.
+ * Which image address counts as ready - without a browser.
  *
- * Der interessante Fall ist das schnelle Weiterklicken: Die Bilder kommen in
- * beliebiger Reihenfolge zurueck, und das zuletzt eingetroffene ist nicht das
- * zuletzt gefragte.
+ * The interesting case is clicking through fast: the images come back in any
+ * order, and the one that arrives last is not the one asked for last.
  */
 import { describe, expect, it } from 'vitest'
-import { bildstand, type Bildstand } from '../src/presentation/useDecodedImage'
+import { imageState, type ImageState } from '../src/presentation/useDecodedImage'
 
-const leer: Bildstand = { fertig: undefined }
+const empty: ImageState = { done: undefined }
 
-describe('bildstand', () => {
-  it('meldet das Bild, das gerade gefragt ist', () => {
-    expect(bildstand(leer, '/a.jpg', '/a.jpg')).toEqual({ fertig: '/a.jpg' })
+describe('imageState', () => {
+  it('reports the image that is currently wanted', () => {
+    expect(imageState(empty, '/a.jpg', '/a.jpg')).toEqual({ done: '/a.jpg' })
   })
 
-  it('verwirft ein Bild, das niemand mehr fragt', () => {
-    const vorher = { fertig: '/b.jpg' }
-    expect(bildstand(vorher, '/b.jpg', '/a.jpg')).toBe(vorher)
+  it('discards an image nobody asks for anymore', () => {
+    const before = { done: '/b.jpg' }
+    expect(imageState(before, '/b.jpg', '/a.jpg')).toBe(before)
   })
 
-  it('verwirft jede Meldung, wenn gar kein Bild gefragt ist', () => {
-    expect(bildstand(leer, undefined, '/a.jpg')).toBe(leer)
+  it('discards every report when no image is wanted at all', () => {
+    expect(imageState(empty, undefined, '/a.jpg')).toBe(empty)
   })
 
-  it('gibt bei einer Wiederholung denselben Stand zurueck - kein neues Rendern', () => {
-    const vorher = { fertig: '/a.jpg' }
-    expect(bildstand(vorher, '/a.jpg', '/a.jpg')).toBe(vorher)
+  it('returns the same state on a repeat - no new render', () => {
+    const before = { done: '/a.jpg' }
+    expect(imageState(before, '/a.jpg', '/a.jpg')).toBe(before)
   })
 })

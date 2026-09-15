@@ -51,7 +51,7 @@
   outline-offset: 2px;
 }
 .button--option {
-  /* Traegt nur den Buchstaben - der Antworttext steht auf der Buehne. */
+  /* Carries only the letter - the answer text lives on the stage. */
   justify-content: space-between;
   align-items: center;
 }
@@ -67,7 +67,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Formularfelder
+ * Form fields
  * ------------------------------------------------------------------ */
 
 .field {
@@ -82,8 +82,8 @@
 }
 select {
   /*
-   * Eigener Chevron statt des Systempfeils: Nur so laesst sich der Abstand zum
-   * Rand steuern - der Systempfeil klebt sonst am Rahmen.
+   * Custom chevron instead of the system arrow: only this way can the gap to
+   * the edge be controlled - the system arrow otherwise sticks to the border.
    */
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
@@ -102,8 +102,8 @@ select {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--ui-border);
-  /* `background-color`, nicht `background`: Die Kurzform wuerde das Chevron
-     der Auswahlfelder wieder entfernen. */
+  /* `background-color`, not `background`: the shorthand would remove the
+     select fields' chevron again. */
   background-color: var(--ui-input);
 }
 .field select {

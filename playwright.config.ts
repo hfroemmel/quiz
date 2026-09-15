@@ -2,15 +2,16 @@ import { defineConfig, devices } from '@playwright/test'
 import { existsSync } from 'node:fs'
 
 /**
- * End-to-End gegen den Pruefstand der Pakete.
+ * End-to-end tests against the test rig of the packages.
  *
- * Es gibt hier keinen Server mehr: Das Quiz laeuft ueber eine
- * `LocalQuizRuntime` im Browser, und der Entwicklungsserver liefert nur die
- * Dateien und das gebaute Quizpaket aus. Der Buehnenbetrieb mit Server und
- * SQLite wird in `hfroemmel/quiz-live` geprueft.
+ * There is no longer a server here: the quiz runs via a `LocalQuizRuntime` in
+ * the browser, and the development server only serves the files and the
+ * built quiz package. Stage operation with a server and SQLite is checked in
+ * `hfroemmel/quiz-live`.
  *
- * Die Vorschau ist bewusst nur im Entwicklungsmodus erreichbar (Spezifikation
- * 22.6); die Referenzbilder entstehen deshalb gegen den Entwicklungsserver.
+ * The preview is deliberately only reachable in development mode
+ * (specification 22.6); the reference images are therefore generated against
+ * the development server.
  */
 const containerChromium = '/opt/pw-browsers/chromium'
 const chromiumPath = process.env['CHROMIUM_PATH'] ?? (existsSync(containerChromium) ? containerChromium : undefined)
@@ -31,10 +32,11 @@ export default defineConfig({
     launchOptions: chromiumPath ? { executablePath: chromiumPath } : {},
   },
   /*
-   * EIN Projekt, und es heisst weiterhin `preview`: Playwright fuehrt den
-   * Projektnamen im Dateinamen jedes Referenzbildes. Ein anderer Name hiesse,
-   * saemtliche Baselines neu abzulegen - und damit genau den Waechter
-   * auszutauschen, der die Extraktion der Oberflaeche absichert.
+   * ONE project, and it is still called `preview`: Playwright carries the
+   * project name in the file name of every reference image. A different name
+   * would mean re-recording every single baseline - and thereby replacing
+   * exactly the guard that protects against regressions in the interface
+   * extraction.
    */
   projects: [{ name: 'preview' }],
   webServer: {

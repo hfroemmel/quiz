@@ -1,9 +1,9 @@
 /*
- * Punktekarte eines Spielers.
+ * A player's score card.
  *
- * Aufbau und Markup sind in beiden Welten gleich; unterschieden wird
- * ausschliesslich ueber die Klasse an der Buehne. Die Grundregeln stehen oben,
- * darunter je Welt nur das, was sie wirklich anders macht.
+ * Structure and markup are the same in both worlds; the only distinction is
+ * made via the class on the stage. The base rules live above, below that
+ * only what each world genuinely does differently.
  */
 
 .score {
@@ -25,16 +25,15 @@
 }
 
 /*
- * Spielernummer und Gruppenzeichen an derselben Stelle.
+ * Player number and group icon in the same place.
  *
- * EIN Feld, zwei Inhalte uebereinander: Beim Publikumsjoker wechselt die
- * Anzeige des aktiven Antwortenden vom Nummernzeichen auf das Gruppenzeichen,
- * ohne dass die Karte ihre Groesse aendert. Beides liegt in derselben
- * Rasterzelle, damit nichts springt und die Ueberblendung an einem Ort
- * stattfindet.
+ * ONE cell, two contents stacked: with the audience joker, the display of
+ * the active answerer switches from the number badge to the group icon,
+ * without the card changing size. Both live in the same grid cell, so
+ * nothing jumps and the cross-fade happens in one place.
  *
- * Am Punktestand und an der Zuordnung der Antwort aendert das nichts - es ist
- * eine Markierung, keine Umbuchung.
+ * This changes nothing about the score or the answer's assignment - it is a
+ * marker, not a re-booking.
  */
 .playerMark {
   display: grid;
@@ -50,12 +49,12 @@
 }
 
 /*
- * Das Gruppenzeichen steht so hoch wie die Ziffer daneben und traegt deren
- * Farbe - es ersetzt sie, es kommt nicht dazu.
+ * The group icon stands as tall as the digit beside it and carries its
+ * colour - it replaces it, it does not add to it.
  *
- * Nur die Hoehe wird gesetzt: Die Breite holt sich das Zeichen aus seiner
- * eigenen Zeichnung (`jokerIcons.module.css`). Ein quadratisches Feld haette
- * die drei Figuren auf 62 Prozent der Ziffernhoehe gestaucht.
+ * Only the height is set: the width comes from the icon's own artwork
+ * (`jokerIcons.module.css`). A square field would have squashed the three
+ * figures down to 62 percent of the digit's height.
  */
 .groupMark {
   height: 1em;
@@ -68,7 +67,7 @@
     transition-duration: 1ms;
   }
 }
-/* Die Sterne liegen ueber der Punktezelle, ohne Platz zu nehmen. */
+/* The stars sit over the score cell without taking up space. */
 .cellPoints {
   position: relative;
 }
@@ -83,13 +82,13 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen: zwei aneinanderstossende Milchglaskacheln
+ * Adult stage: two frosted-glass tiles butted together
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .cell {
   width: 7cqw;
   padding: 1cqw 1.2cqw 0.6cqw;
-  /* Milchglas: halbtransparent mit Weichzeichnung, ohne Rahmen. */
+  /* Frosted glass: semi-transparent with blur, no border. */
   background: var(--color-tile);
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
@@ -99,7 +98,7 @@
   min-width: 7cqw;
 }
 :global(.stage--default) .label {
-  /* Beschriftungen in der Groteske, Werte in der Serifenschrift. */
+  /* Labels in the sans-serif, values in the serif font. */
   font-family: var(--font-ui);
   font-size: 1cqw;
   color: var(--color-textMuted);
@@ -109,7 +108,7 @@
   font-size: 3cqw;
   font-family: var(--font-heading);
 }
-/* Der Spieler am Zug traegt die Akzentfarbe, ein gesperrter die ruhige. */
+/* The player whose turn it is carries the accent colour, a locked one the calm one. */
 :global(.stage--default) .score[data-active='true'] .cellPlayer,
 :global(.stage--default) .score[data-active='true'] .cellPoints {
   background: var(--color-accent);
@@ -118,7 +117,7 @@
 :global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPoints {
   background: var(--color-accentQuiet);
 }
-/* Innen aneinanderstossend, aussen abgerundet - die Karte wirkt als ein Block. */
+/* Butted together on the inside, rounded on the outside - the card reads as one block. */
 :global(.stage--default) .cell:first-child {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -127,7 +126,7 @@
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-/* Ergebnisansicht: dieselbe Karte, groesser. */
+/* Results view: the same card, bigger. */
 :global(.stage--default) .result .cell {
   min-width: 9cqw;
   padding: 1cqw 2cqw 1.4cqw;
@@ -140,45 +139,48 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Touchgeraet: dieselbe Karte, nur breiter
+ * Touch device: the same card, just wider
  * ------------------------------------------------------------------ */
 
 /*
- * DIE PUNKTEKARTE IST NEUTRAL - in beiden Spielweisen und auf beiden Seiten.
+ * THE SCORE CARD IS NEUTRAL - in both play modes and on both sides.
  *
- * Sie trug einmal die Farbe ihres Spielers, damit die Zuordnung aus zwei Metern
- * ohne Lesen stimmt. Zwei kraeftige Flaechen uebereinander - Karte und Buzzer
- * darunter - waren aber eine Farbe zu viel: Die Ecke war ein Block, in dem
- * nichts mehr hervorstach, und der Punktestand schrie so laut wie die Taste.
+ * It once carried its player's colour, so the assignment would read from
+ * two metres away without reading text. But two strong areas stacked - card
+ * and buzzer below it - were one colour too many: the corner became a block
+ * in which nothing stood out anymore, and the score shouted as loud as the
+ * key.
  *
- * DIE SPIELERFARBE TRAEGT JETZT ALLEIN DER BUZZER (siehe `Game.module.css` in
- * `@hfroemmel/quiz-kiosk`). Die Karte bleibt die Milchglaskachel der Buehne und
- * liegt darueber wie eine Aufschrift, nicht wie ein zweites Schild.
+ * THE PLAYER COLOUR IS NOW CARRIED BY THE BUZZER ALONE (see
+ * `Game.module.css` in `@hfroemmel/quiz-kiosk`). The card stays the stage's
+ * frosted-glass tile and sits on top like a label, not like a second sign.
  *
- * NEUTRAL HEISST AUCH: OHNE DIE AKZENTFARBE. Im Saal traegt die Kachel mit der
- * Spielernummer sie, solange der Spieler am Zug ist (siehe oben) - am Geraet
- * nicht. Erstens stehen die Karten hier neben den Buzzern, und der Akzent sieht
- * dort aus wie eine dritte Spielerfarbe. Zweitens ist im Einzelspiel immer
- * genau einer am Zug: Die Kachel waere dauerhaft blau und sagte nichts.
+ * NEUTRAL ALSO MEANS: WITHOUT THE ACCENT COLOUR. In the room, the tile with
+ * the player number carries it as long as that player is on turn (see
+ * above) - not on the device. First, here the cards sit next to the
+ * buzzers, and the accent would look like a third player colour there.
+ * Second, in single-player exactly one player is always on turn: the tile
+ * would be permanently blue and say nothing.
  *
- * Wer den Zuschlag hat, sagt damit die Mitte der Leiste - dort steht "Antwort
- * abgeben und aufloesen" - und die Antwortzeilen, die dann nur einem gehoeren.
+ * Whoever has the turn thereby determines the middle of the bar - where
+ * "Submit answer and reveal" sits - and the answer rows, which then belong
+ * to only that one player.
  */
 :global(.stage--default.stage--touch) .score[data-active='true'],
 :global(.stage--default.stage--touch) .score[data-locked='true'] {
   background: var(--color-tile);
 }
 /*
- * Und mit der Flaeche kommt die Schrift zurueck, die auf sie gehoert: Die helle
- * Fassung setzt auf der kraeftigen Akzentkachel weisse Schrift (siehe unten) -
- * auf der neutralen Kachel waere sie unsichtbar.
+ * And with the area comes back the type that belongs on it: the light
+ * version puts white text on the strong accent tile (see below) - on the
+ * neutral tile it would be invisible.
  */
 :global(.stage--default.stage--touch) .score[data-active='true'],
 :global(.stage--default.stage--touch) .score[data-locked='true'] {
   color: var(--color-text);
 }
 
-/* Die Karte fuellt die Breite ihrer Ecke, damit sie mit dem Buzzer buendig steht. */
+/* The card fills the width of its corner, so it lines up flush with the buzzer. */
 :global(.stage--touch) .score {
   width: 100%;
 }
@@ -188,15 +190,15 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt: eine gezeichnete Papierkarte mit farbigem Feld
+ * Kids' world: a drawn paper card with a coloured field
  * ------------------------------------------------------------------ */
 
 /*
- * Die Zeichnung wird per 9-Slice gestreckt: Ecken bleiben unverzerrt, Kanten
- * und Mitte strecken sich. Das farbige Feld endet in beiden Kartenzeichnungen
- * bei rund 47 Prozent der Breite - daher das feste Spaltenverhaeltnis. Nahe am
- * Seitenverhaeltnis der Zeichnung (215 x 104) bleiben: Wird die Karte deutlich
- * flacher gestreckt, schiebt sich das Feld ueber die linke Kontur hinaus.
+ * The artwork is stretched via 9-slice: corners stay undistorted, edges and
+ * middle stretch. The coloured field ends at around 47 percent of the width
+ * in both card drawings - hence the fixed column ratio. Stay close to the
+ * artwork's aspect ratio (215 x 104): if the card is stretched noticeably
+ * flatter, the field shifts past the left contour.
  */
 :global(.stage--kids) .score {
   display: grid;
@@ -210,9 +212,9 @@
 }
 
 /*
- * Die Nummer des Spielers am Zug steht auf dem farbigen Feld der Zeichnung:
- * hell, mit Kontur. Ohne sie liefe die Ziffer an den hellen Stellen des
- * gezeichneten Feldes aus.
+ * The number of the player on turn sits on the artwork's coloured field:
+ * light, with an outline. Without it, the digit would run into the light
+ * spots of the drawn field.
  */
 :global(.stage--kids) .score[data-active='true'] .cellPlayer .value {
   color: var(--stage-inkOnStrong);
@@ -224,8 +226,8 @@
     0.2cqw 0.2cqw var(--stage-inkOutline);
 }
 
-/* Die Zeichnung liegt als Pseudoelement HINTER dem Inhalt: So bleibt das
-   Innenmass der Karte vom Strich der Kontur unberuehrt. */
+/* The artwork sits as a pseudo-element BEHIND the content: this way the
+   card's inner measure stays untouched by the outline's stroke. */
 :global(.stage--kids) .score::before {
   content: '';
   position: absolute;
@@ -241,16 +243,17 @@
   border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player2.svg');
 }
 /*
- * Spieler am Zug: eigene Zeichnung mit farbigem Feld und gelber Ecke.
+ * Player on turn: its own artwork with a coloured field and a yellow
+ * corner.
  *
- * Die Auswahl steckt damit in der Zeichnung selbst - so, wie in dieser Welt
- * jeder Zustand gezeichnet ist und nicht gerechnet. Vorher musste eine
- * Deckkraft von 72 Prozent auf dem ANDEREN Spieler den Unterschied tragen; das
- * nahm dem Punktestand die Lesbarkeit, obwohl er im Saal von hinten gelesen
- * werden muss.
+ * The selection thus lives in the artwork itself - the way every state in
+ * this world is drawn rather than computed. Previously, an opacity of 72
+ * percent on the OTHER player had to carry the difference; that took away
+ * the score's legibility, even though it has to be read from the back of
+ * the room.
  *
- * Die gespiegelte Karte steht zuletzt: Sie hat dieselbe Spezifitaet wie die
- * Regel darueber und wuerde sonst die Zeichnung von Spieler 1 tragen.
+ * The mirrored card comes last: it has the same specificity as the rule
+ * above it and would otherwise carry player 1's artwork.
  */
 :global(.stage--kids) .score[data-active='true']::before {
   border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player1-selected.svg');
@@ -264,14 +267,14 @@
   font-size: var(--kids-size-label);
   padding: 0.2812cqw 0;
 }
-/* Nur die Ziffern tragen Melior - sie muessen beim Hochzaehlen ruhig stehen. */
+/* Only the digits carry Melior - they must sit still while counting up. */
 :global(.stage--kids) .value {
   font-family: var(--kids-numeric);
   font-weight: 700;
   font-size: var(--kids-size-score);
 }
 
-/* Helle Fassung: Der Spieler am Zug traegt seine Farbe kraeftig - Text hell. */
+/* Light version: the player on turn carries their colour strongly - text light. */
 :global(.stage--dark) .score[data-active='true'] .value,
 :global(.stage--dark) .score[data-active='true'] .label,
 :global(.stage--bright) .score[data-active='true'] .value,

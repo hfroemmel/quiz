@@ -1,78 +1,82 @@
-# Live-Quiz - die Bibliotheken
+# Live Quiz - the libraries
 
-Dieses Repository liefert die fuenf Bibliotheken des Live-Quiz aus. Die
-Anwendungen leben in eigenen Repositories und binden sie als Pakete ein.
+This repository ships the five libraries of the Live Quiz. The applications
+live in their own repositories and pull them in as packages.
 
-| Paket | Inhalt |
+| Package | Contents |
 |---|---|
-| `@hfroemmel/quiz-core` | Vertraege, Engine, Laufzeit (`QuizService`, `LocalQuizRuntime`, `RemoteQuizRuntime`) |
-| `@hfroemmel/quiz-content` | Inhalts-Pipeline: Validierung, Paketbau, Legacy-Import, CLI |
-| `@hfroemmel/quiz-themes` | Farbpaletten, Schriften, Theme-Objekte, `palette.css` / `fonts.css` |
-| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, Szenen, Klaenge, Verbindungs-Hooks |
-| `@hfroemmel/quiz-kiosk` | Das spielbare Quiz als eine Komponente (`QuizGame`) |
+| `@hfroemmel/quiz-core` | Contracts, engine, runtime (`QuizService`, `LocalQuizRuntime`, `RemoteQuizRuntime`) |
+| `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
+| `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, `palette.css` / `fonts.css` |
+| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks |
+| `@hfroemmel/quiz-kiosk` | The playable quiz as a single component (`QuizGame`) |
 
-| Anwendung | Repository | Was sie ist |
+| Application | Repository | What it is |
 |---|---|---|
-| Buehnenbetrieb | `hfroemmel/quiz-live` | Server, Operatorpult, Buehnenscreen, Moderator, Touchgeraet |
-| Kiosk | `hfroemmel/quiz-standalone` | Ein Fenster im Foyer, ohne Server, ohne Netz |
-| Spielesammlung | `hfroemmel/app-collection` | Menue mit eingebettetem Quiz |
-| Inhalte | `hfroemmel/quiz-content-data` | Die redaktionellen Fragen und Medien |
+| Stage operation | `hfroemmel/quiz-live` | Server, operator desk, stage screen, host, buzzer device |
+| Kiosk | `hfroemmel/quiz-standalone` | A single window in the foyer, no server, no network |
+| Game collection | `hfroemmel/app-collection` | Menu with an embedded quiz |
+| Content | `hfroemmel/quiz-content-data` | The editorial questions and media |
 
-## Der Pruefstand
+## The test harness
 
-`harness/` ist die einzige lauffaehige Anwendung hier - und sie wird nie
-ausgeliefert. Sie traegt die Screenshot-Referenzen und den Einbettungsvertrag:
+`harness/` is the only runnable application here - and it is never shipped.
+It carries the screenshot references and the embedding contract:
 
-| Adresse | Was |
+| Route | What |
 |---|---|
-| `/preview` | Szenen und Uebergaenge einzeln aufrufen, mit beiden Themes |
-| `/play` | Die Spieleransicht wie am Touchgeraet |
-| `/shell` | Eine beispielhafte Gastgeberanwendung, die das Quiz einbindet |
+| `/preview` | Call up scenes and transitions individually, with both themes |
+| `/play` | The player view as seen on the buzzer device |
+| `/shell` | An example host application that embeds the quiz |
 
-Alle drei kommen ohne Server aus: Das Quiz laeuft ueber eine
-`LocalQuizRuntime` im Browser, und der Entwicklungsserver liefert nur die
-Dateien und das gebaute Quizpaket aus.
+All three run without a server: the quiz runs through a `LocalQuizRuntime` in
+the browser, and the development server only serves the files and the built
+quiz package.
 
-## Schnellstart
+## Quick start
 
 ```bash
 pnpm install
-pnpm content:build   # Quizpaket aus dem Testbestand unter content/source
-pnpm harness         # Pruefstand auf http://localhost:5180
+pnpm content:build   # build the quiz package from the test fixtures under content/source
+pnpm harness         # test harness at http://localhost:5180
 ```
 
-Der Testbestand ist ERZEUGT (`pnpm content:fixtures`): 29 synthetische Fragen und
-Platzhaltermedien, gerade genug, damit jeder Fragenplatz jedes Presets besetzt
-ist. Die echten Inhalte liegen in `quiz-content-data`.
+The test fixtures are GENERATED (`pnpm content:fixtures`): 29 synthetic
+questions and placeholder media, just enough to fill every question slot of
+every preset. The real content lives in `quiz-content-data`.
 
-## Pruefen
+## Checks
 
 ```bash
-pnpm typecheck        # TypeScript ueber Pakete und Pruefstand
-pnpm test             # Kern, Inhalts-Pipeline, Palettenwaechter (149 Tests)
-pnpm test:e2e         # Playwright gegen den Pruefstand (58 Tests)
-pnpm packages:build   # dist je Paket
-pnpm packages:verify  # publint + attw auf dem gepackten Tarball
+pnpm typecheck        # TypeScript across packages and the test harness
+pnpm test             # core, content pipeline, palette guard (279 tests)
+pnpm test:e2e         # Playwright against the harness (100 runs, screenshot baselines)
+pnpm packages:build   # dist per package
+pnpm packages:verify  # publint + attw on the packed tarball
 ```
 
-Der Buehnenbetrieb - Server, SQLite, WebSocket, Wiederaufnahme - wird in
-`quiz-live` geprueft, der Offline-Betrieb in `quiz-standalone` und der
-Einbettungsvertrag zusaetzlich in `app-collection`.
+Stage operation - server, SQLite, WebSocket, resumption - is verified in
+`quiz-live`, offline operation in `quiz-standalone`, and the embedding
+contract additionally in `app-collection`.
 
-## Veroeffentlichen
+Baseline of the refactoring (branch `refactor`, 2026-09-14): typecheck clean,
+279 unit tests and 100 end-to-end runs green. Every phase of
+`docs/refactoring/H-migration-plan.md` has to reproduce these numbers before
+it is merged.
 
-Changesets mit fixed-Versioning ueber alle fuenf Pakete; ein Push auf `main`
-mit offenen Changesets erzeugt den PR „Version Packages", sein Merge
-veroeffentlicht nach GitHub Packages. Einzelheiten in
+## Publishing
+
+Changesets with fixed versioning across all five packages; a push to `main`
+with open changesets creates the "Version Packages" PR, and merging it
+publishes to GitHub Packages. Details in
 [docs/veroeffentlichung.md](docs/veroeffentlichung.md).
 
-## Dokumentation
+## Documentation
 
-`docs/` beschreibt das System als Ganzes - Spezifikation, Zustandsmaschine,
-Designsystem, Inhaltsformat. Einige Dokumente gehoeren fachlich zum
-Buehnenbetrieb (Operator-Kurzanleitung, Datenbank und Wiederherstellung); sie
-liegen bis auf Weiteres hier, weil sie auf dieselbe Spezifikation verweisen wie
-die Pakete.
+`docs/` describes the system as a whole - specification, state machine,
+design system, content format. Some documents belong topically to stage
+operation (operator quick reference, database and recovery); they remain
+here for now because they refer to the same specification as the packages.
 
-[docs/migration-status.md](docs/migration-status.md) haelt fest, wie die
-Aufteilung verlaufen ist und was noch aussteht.
+[docs/migration-status.md](docs/migration-status.md) records how the split
+has gone and what is still outstanding.

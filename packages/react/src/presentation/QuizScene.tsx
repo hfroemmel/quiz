@@ -1,17 +1,17 @@
 /**
- * Die Quiz-Buehne als EINE einbettbare Komponente - die kuenftige oeffentliche
- * Oberflaeche von `@hfroemmel/quiz-react`.
+ * The quiz stage as ONE embeddable component - the future public interface of
+ * `@hfroemmel/quiz-react`.
  *
- * Ein Gastgeber gibt eine `QuizRuntime` (lokal oder entfernt) und bekommt die
- * vollstaendige Buehne: Szenenwahl, Uebergaenge, Klaenge, Scoreboard - alles
- * abgeleitet aus den Snapshots der Runtime. Gerendert wird in den Container des
- * Gastgebers; ein globales Wurzelelement gibt es nicht.
+ * A host provides a `QuizRuntime` (local or remote) and gets the complete
+ * stage: scene selection, transitions, sounds, scoreboard - all derived from
+ * the runtime's snapshots. It renders into the host's container; there is no
+ * global root element.
  *
- * DER WRAPPER IST TEIL DES VERTRAGS: Die Theme-Variablen muessen auf einem
- * Rahmen UEBER der Buehne stehen (Inline-Stil schlaegt Klassenregeln, siehe
- * `themeVariables`). Frueher musste jeder Gastgeber das wissen; jetzt bringt die
- * Komponente ihren Rahmen selbst mit. `display: contents` haelt ihn aus dem
- * Layout heraus - Variablen vererben sich trotzdem.
+ * THE WRAPPER IS PART OF THE CONTRACT: the theme variables have to sit on a
+ * frame ABOVE the stage (inline style beats class rules, see
+ * `themeVariables`). Previously every host had to know that; now the
+ * component brings its own frame. `display: contents` keeps it out of the
+ * layout - variables still inherit through it.
  */
 import { useCallback, useEffect, useRef, useSyncExternalStore, type ReactNode } from 'react'
 import type { Command, PublicQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
@@ -23,21 +23,21 @@ import { themeForView, themeVariables, type QuizSceneTheme } from '@hfroemmel/qu
 
 export interface QuizSceneProps<TView extends PublicQuizViewModel> {
   runtime: QuizRuntime<TView>
-  /** Darstellung. Ohne Angabe entscheidet die Empfehlung des Inhalts (`view.theme.skin`). */
+  /** Look. Without a value, the content's recommendation decides (`view.theme.skin`). */
   theme?: QuizSceneTheme
-  /** Spielereignisse fuer den Gastgeber, abgeleitet aus den Snapshots. */
+  /** Game events for the host, derived from the snapshots. */
   onEvent?: (event: QuizEvent) => void
-  /** Dieselbe Komposition in einer anderen Flaeche - Buehne, Vorschau, Touchgeraet. */
+  /** The same composition in a different area - stage, preview, touch device. */
   variant?: 'stage' | 'preview' | 'touch'
   /**
-   * Ton erlauben, obwohl die Tonhoheit bei der Runtime liegt. Ein verdeckter
-   * Gastgeber (Quiz im Hintergrund-Tab) schaltet hierueber stumm.
+   * Allow sound, even though sound authority lies with the runtime. A hidden
+   * host (quiz in a background tab) switches to muted through this.
    */
   audible?: boolean
   headerSlots?: StageHeaderSlots
-  /** Flaechen des Gastgebers innerhalb der Buehne - siehe `StageScreen.pads`. */
+  /** Host areas inside the stage - see `StageScreen.pads`. */
   pads?: { bottom?: ReactNode; overlay?: ReactNode }
-  /** Nur am Touchgeraet: macht die Antwortzeilen der Szene zu Schaltflaechen. */
+  /** Only on the touch device: turns the scene's answer rows into buttons. */
   answering?: SceneAnswering
 }
 
@@ -57,10 +57,10 @@ export function QuizScene<TView extends PublicQuizViewModel>({
   const view = snapshot.view
 
   /*
-   * Ereignisableitung auf der Snapshot-Folge. Der Vergleichszustand haengt an
-   * DIESER Komponente: Nach einem Neueinsetzen beginnt die Folge neu, und der
-   * erste Snapshot meldet nichts - ein altes Ergebnis gehoert nicht dem neuen
-   * Gastgeber.
+   * Event derivation over the snapshot sequence. The comparison state hangs
+   * off THIS component: after a remount the sequence starts over, and the
+   * first snapshot reports nothing - an old result does not belong to the new
+   * host.
    */
   const previousViewRef = useRef<TView | null>(null)
   useEffect(() => {

@@ -1,15 +1,16 @@
 /**
- * Kopfzone einer Frage: Medium und Fragetafel - EIN Bauteil fuer beide Welten.
+ * Head zone of a question: media and question board - ONE component for both
+ * worlds.
  *
- * Sie sieht in Frage-, Enthuellungs- und Loesungsszene gleich aus. Deshalb steht
- * sie einmal hier, statt in drei Szenen wiederholt zu werden.
+ * It looks the same in the question, reveal and solution scenes. That is why
+ * it lives here once, instead of being repeated across three scenes.
  *
- * Die Rubrik ist das Label der ersten Kategorie und kommt fertig aus dem
- * View-Modell; der Client schlaegt nichts nach.
+ * The category is the label of the first category and arrives ready-made
+ * from the view model; the client looks nothing up.
  *
- * OB EIN BILD DA IST, entscheidet die Adresse - nicht die Frage, ob eine
- * Bildkomponente uebergeben wurde. Sonst gilt eine Frage ohne Foto als
- * bebildert, und die Fragetafel bekaeme eine Spalte fuer nichts.
+ * WHETHER AN IMAGE IS PRESENT is decided by the URL - not by whether an image
+ * component was passed in. Otherwise a question with no photo would count as
+ * illustrated, and the question board would get a column for nothing.
  */
 import type { PublicQuestion } from '@hfroemmel/quiz-core'
 import { Media } from './Media'
@@ -18,13 +19,13 @@ import styles from './QuestionHead.module.css'
 
 interface QuestionHeadProps {
   question: PublicQuestion
-  /** Bildadresse; fehlt sie, laeuft die Fragetafel ueber die volle Breite. */
+  /** Image URL; if missing, the question board runs the full width. */
   imageUrl?: string
   variant?: 'inline' | 'solution'
 }
 
 export function QuestionHead({ question, imageUrl, variant = 'inline' }: QuestionHeadProps) {
-  // Lange Fragen werden verkleinert, bis nichts mehr aus der Szene ragt.
+  // Long questions are shrunk until nothing sticks out of the scene any more.
   const promptRef = useFittedPrompt(question.prompt)
 
   return (

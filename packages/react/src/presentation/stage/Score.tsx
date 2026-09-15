@@ -1,21 +1,21 @@
 /**
- * Punktekarte eines Spielers - EIN Bauteil fuer beide Gestaltungswelten.
+ * A player's score card - ONE component for both design worlds.
  *
- * Aufbau in beiden Welten gleich: zwei Zellen, jede mit kleiner Beschriftung und
- * grossem Wert. Gespiegelt wird der INHALT, nicht die Zeichnung - bei Spieler 1
- * steht die Nummer links, bei Spieler 2 der Punktestand.
+ * Structure is the same in both worlds: two cells, each with a small label
+ * and a large value. The CONTENT is mirrored, not the artwork - for player 1
+ * the number sits on the left, for player 2 the score does.
  *
- *   Spieler 1   [Spieler|1][Punkte|100]
- *   Spieler 2   [Punkte|100][Spieler|2]
+ *   Player 1   [Player|1][Score|100]
+ *   Player 2   [Score|100][Player|2]
  *
- * Ob daraus zwei aneinanderstossende Milchglaskacheln werden oder eine
- * gezeichnete Papierkarte, entscheidet allein `Score.module.css` anhand der
- * Klasse an der Buehne.
+ * Whether this becomes two adjoining frosted-glass tiles or a drawn paper
+ * card is decided solely by `Score.module.css`, based on the class on the
+ * stage.
  *
- * ZAEHLEN STATT SPRINGEN (Animationskatalog B): Die Ziffern zaehlen vom alten
- * zum neuen Wert und enden immer exakt auf dem Serverwert. Die Animation
- * erzeugt keinen eigenen Wert; trifft waehrend des Zaehlens ein neuer Snapshot
- * ein, beginnt sie von der aktuellen Anzeige aus neu.
+ * COUNTING INSTEAD OF JUMPING (animation catalogue B): the digits count from
+ * the old to the new value and always end exactly on the server value. The
+ * animation never produces its own value; if a new snapshot arrives mid-count,
+ * it restarts from the currently displayed value.
  */
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { animationClips } from '../animationAssets'
@@ -28,21 +28,21 @@ import styles from './Score.module.css'
 export type ScoreSize = 'header' | 'result'
 
 interface ScoreProps {
-  /** Beschriftung des Spielers; die Nummer darin traegt die Karte. */
+  /** The player's label; the number within it is what the card carries. */
   label: string
   score: number
-  /** Spieler am Zug. */
+  /** Player whose turn it is. */
   active?: boolean
-  /** Gesperrt: sichtbar, aber zurueckgenommen. */
+  /** Locked: visible, but dimmed back. */
   locked?: boolean
   /*
-   * Die beiden Woerter der Karte kommen von aussen, damit die Buehne in jeder
-   * Sprache dieselbe Karte zeigt. Ohne Angabe bleibt es beim Deutschen - eine
-   * Karte ohne Beschriftung waere schlechter als eine in der falschen Sprache.
+   * The card's two words come from outside, so the stage shows the same card
+   * in every language. Without one, it defaults to German - a card with no
+   * label would be worse than one in the wrong language.
    */
   playerText?: string
   pointsText?: string
-  /** Punkte links, Spielernummer rechts - so steht Spieler 2 im Entwurf. */
+  /** Score on the left, player number on the right - that is how player 2 stands in the design. */
   mirrored?: boolean
   size?: ScoreSize
   /**
@@ -72,7 +72,7 @@ export function Score({
   pointsText = 'Punkte',
   audienceMarker,
 }: ScoreProps) {
-  // Die Buehne zeigt keine Eigennamen, nur die Nummer aus der Beschriftung.
+  // The stage shows no proper names, only the number from the label.
   const number = label.replace(/\D+/g, '') || '1'
 
   const numberValue = (
@@ -114,9 +114,9 @@ export function Score({
 
   return (
     /*
-     * `data-score` traegt den SERVERWERT, waehrend die Anzeige noch hochzaehlt.
-     * Tests und Diagnose lesen ihn und sind damit unabhaengig davon, wo die
-     * Animation gerade steht.
+     * `data-score` carries the SERVER VALUE while the display is still
+     * counting up. Tests and diagnostics read it and are thereby independent
+     * of wherever the animation currently stands.
      */
     <div
       className={[styles.score, styles[size], mirrored ? styles.mirrored : ''].filter(Boolean).join(' ')}
@@ -131,7 +131,7 @@ export function Score({
   )
 }
 
-/** Hochzaehlende Ziffern mit Sternen beim Anstieg. */
+/** Digits that count up, with stars on the rise. */
 function ScoreValue({ score }: { score: number }) {
   const [displayed, setDisplayed] = useState(score)
   const [celebrationKey, setCelebrationKey] = useState<number | null>(null)

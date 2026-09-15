@@ -1,15 +1,15 @@
 /**
- * Lokale Quiz-Laufzeit: dieselbe Engine und derselbe Dienst wie auf dem Server,
- * aber im eigenen Prozess und ohne Transport.
+ * Local quiz runtime: the same engine and the same service as on the server,
+ * but in the own process and without transport.
  *
- * Sie traegt Kiosk und Einbettung. Anstelle von SQLite haelt ein
- * `MemoryQuizStore` den Zustand; Dauerhaftigkeit uebernimmt - wenn gewuenscht -
- * ein injizierter `persist`-Adapter des Gastgebers (Electron-IPC, IndexedDB).
- * Der Aufruf ist entprellt: Waehrend eines Spiels aendert sich der Zustand im
- * Sekundentakt, gespeichert werden muss nur der juengste Stand.
+ * It serves kiosk and embedding. Instead of SQLite a `MemoryQuizStore` holds
+ * the state; persistence is - if wanted - provided by an injected `persist`
+ * adapter of the host (Electron IPC, IndexedDB). The call is debounced: during
+ * a game the state changes every second, and only the latest state needs
+ * saving.
  *
- * Der Envelope (commandId, actor, expectedRevision) entsteht hier - Komponenten
- * geben nackte Befehle, genau wie gegenueber dem Server.
+ * The envelope (commandId, actor, expectedRevision) is created here -
+ * components issue bare commands, exactly as towards the server.
  */
 import type {
   Command,
@@ -24,16 +24,16 @@ import { MemoryQuizStore, type MemoryQuizStoreSnapshot } from './memoryStore'
 import { QuizService } from './quizService'
 
 export interface LocalQuizRuntimeOptions {
-  /** Geladenes Quizpaket. Den Ladeweg stellt `@hfroemmel/quiz-content` bereit. */
+  /** Loaded quiz package. The loading path is provided by `@hfroemmel/quiz-content`. */
   quizPackage: QuizPackage
-  /** Zusaetzliche Wurzeln fuer die Medienaufloesung (Entwicklung). */
+  /** Additional roots for media resolution (development). */
   mediaFallbackDirs?: string[]
-  /** Zuvor gespeicherter Stand des Gastgebers - fehlt er, beginnt alles leer. */
+  /** Previously saved state of the host - if missing, everything starts empty. */
   restoreFrom?: MemoryQuizStoreSnapshot
-  /** Wird entprellt nach jeder Aenderung mit dem juengsten Stand aufgerufen. */
+  /** Called debounced after every change with the latest state. */
   persist?: (snapshot: MemoryQuizStoreSnapshot) => void
   persistDelayMs?: number
-  /** Injizierbar fuer Tests. */
+  /** Injectable for tests. */
   now?: () => number
   random?: () => number
 }
@@ -52,7 +52,7 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
   private persistTimer: ReturnType<typeof setTimeout> | null = null
   private lastRejection: QuizRuntimeRejection | null = null
   private disposed = false
-  /** Gecacht, damit `getSnapshot` zwischen Aenderungen dieselbe Identitaet liefert. */
+  /** Cached, so that `getSnapshot` returns the same identity between changes. */
   private snapshot: QuizSnapshot<PlayerQuizViewModel> | null = null
 
   constructor(options: LocalQuizRuntimeOptions) {
@@ -80,7 +80,7 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
       view: this.service.snapshotFor('player'),
       revision: this.service.currentRevision,
       serverTimeMs: this.serverNow(),
-      // Lokal gibt es weder Netz noch Konkurrenz um die Tonhoheit.
+      // Locally there is neither a network nor competition for the audio lead.
       connection: { connected: true, audioMaster: true },
       lastRejection: this.lastRejection,
     }
@@ -98,8 +98,8 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
       commandId: createCommandId(),
       command,
       actor: { clientId: 'local-runtime', role: 'player' },
-      // Lokal gibt es keine konkurrierenden Clients: Der Dienst laeuft synchron
-      // im selben Prozess, die aktuelle Revision ist immer die gesehene.
+      // Locally there are no competing clients: the service runs synchronously
+      // in the same process, the current revision is always the one seen.
       expectedRevision: this.service.currentRevision,
       issuedAtClient: new Date(this.service.now()).toISOString(),
     })
@@ -114,7 +114,7 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
   }
 
   notifyAudioReady(): void {
-    // Lokal ist dieser Kontext immer der einzige - nichts zu melden.
+    // Locally this context is always the only one - nothing to report.
   }
 
   clearRejection(): void {
@@ -131,7 +131,7 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
     if (this.persistTimer) {
       clearTimeout(this.persistTimer)
       this.persistTimer = null
-      // Ein noch ausstehender Stand geht beim Aufraeumen nicht verloren.
+      // A state still pending is not lost on cleanup.
       this.persist?.(this.store.toJSON())
     }
     this.service.stopTimers()

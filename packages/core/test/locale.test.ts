@@ -1,14 +1,14 @@
 /**
- * Die Sprachauflösung - die eine Stelle, die entscheidet, welcher Text gilt.
+ * The locale resolution - the one place that decides which text applies.
  *
- * Stuende diese Regel an drei Stellen, faellt eine davon irgendwann anders aus,
- * und im Saal stuende eine Frage auf Deutsch mit englischen Antworten.
+ * If this rule stood in three places, one of them would eventually differ, and
+ * the hall would see a German question with English answers.
  */
 import { describe, expect, it } from 'vitest'
-import { beschriftung, fragenTextFuer, grundsprache, gueltigeSprache, oberflaechenTexte } from '../src/contracts/locale'
+import { labelFor, questionTextFor, baseLocale, validLocale, interfaceTexts } from '../src/contracts/locale'
 import type { Question, QuizConfig } from '../src/contracts/content'
 
-const frage: Question = {
+const question: Question = {
   id: 'q1',
   poolIds: ['bundestag'],
   audiences: ['adults'],
@@ -39,73 +39,73 @@ const frage: Question = {
 
 const config = { locales: [{ id: 'de-DE', label: 'Deutsch' }, { id: 'en-GB', label: 'English' }] } as QuizConfig
 
-describe('gueltigeSprache', () => {
-  it('holt eine unbekannte Sprache auf die Grundsprache zurueck', () => {
-    // Der Wunsch kommt aus einem Config File; ein Tippfehler darf kein Geraet lahmlegen.
-    expect(gueltigeSprache(config, 'kl-KL')).toBe('de-DE')
-    expect(gueltigeSprache(config, 'en-GB')).toBe('en-GB')
-    expect(gueltigeSprache(config, undefined)).toBe('de-DE')
+describe('validLocale', () => {
+  it('falls an unknown locale back to the base locale', () => {
+    // The wish comes from a config file; a typo must not disable a device.
+    expect(validLocale(config, 'kl-KL')).toBe('de-DE')
+    expect(validLocale(config, 'en-GB')).toBe('en-GB')
+    expect(validLocale(config, undefined)).toBe('de-DE')
   })
 
-  it('nimmt Deutsch, wenn gar keine Sprachen konfiguriert sind', () => {
-    expect(grundsprache({} as QuizConfig)).toBe('de-DE')
+  it('takes German when no locales are configured at all', () => {
+    expect(baseLocale({} as QuizConfig)).toBe('de-DE')
   })
 })
 
-describe('fragenTextFuer', () => {
-  it('ersetzt Text, Medium und Erklaerung', () => {
-    const englisch = fragenTextFuer(frage, 'en-GB')
-    expect(englisch.prompt).toBe('How many members?')
-    expect(englisch.media?.imageAssetId).toBe('bild-en')
-    expect(englisch.explanation).toEqual({ summary: 'As of 2021.', source: 'Bundestag' })
+describe('questionTextFor', () => {
+  it('replaces text, medium and explanation', () => {
+    const english = questionTextFor(question, 'en-GB')
+    expect(english.prompt).toBe('How many members?')
+    expect(english.media?.imageAssetId).toBe('bild-en')
+    expect(english.explanation).toEqual({ summary: 'As of 2021.', source: 'Bundestag' })
   })
 
-  it('ersetzt Optionen EINZELN und laesst die Wertung unberuehrt', () => {
+  it('replaces options INDIVIDUALLY and leaves the scoring untouched', () => {
     /*
-     * Eine Uebersetzung, die eine Option vergisst, darf sie nicht verschwinden
-     * lassen - sonst fehlte womoeglich genau die, gegen die verglichen wird.
+     * A translation that forgets an option must not make it disappear -
+     * otherwise exactly the one compared against might be missing.
      */
-    const englisch = fragenTextFuer(frage, 'en-GB')
-    expect(englisch.options).toEqual([
+    const english = questionTextFor(question, 'en-GB')
+    expect(english.options).toEqual([
       { id: 'a', text: 'Fünfhundert' },
       { id: 'b', text: 'Six hundred' },
     ])
-    expect(englisch.correctOptionId).toBe('b')
-    expect(englisch.id).toBe(frage.id)
+    expect(english.correctOptionId).toBe('b')
+    expect(english.id).toBe(question.id)
   })
 
-  it('gibt das Original zurueck, wenn es keine Uebersetzung gibt', () => {
-    expect(fragenTextFuer(frage, 'fr-FR')).toBe(frage)
-    expect(fragenTextFuer(frage, undefined)).toBe(frage)
-  })
-})
-
-describe('beschriftung', () => {
-  it('nimmt die uebersetzte Beschriftung, sonst die des Originals', () => {
-    const eintrag = { label: 'Leicht', labels: { 'en-GB': 'Easy' } }
-    expect(beschriftung(eintrag, 'en-GB')).toBe('Easy')
-    expect(beschriftung(eintrag, 'fr-FR')).toBe('Leicht')
-    expect(beschriftung({ label: 'Leicht' }, 'en-GB')).toBe('Leicht')
+  it('returns the original when there is no translation', () => {
+    expect(questionTextFor(question, 'fr-FR')).toBe(question)
+    expect(questionTextFor(question, undefined)).toBe(question)
   })
 })
 
-describe('oberflaechenTexte', () => {
-  it('legt die gewaehlte Sprache ueber die Grundsprache', () => {
+describe('label', () => {
+  it("takes the translated label, otherwise the original's", () => {
+    const entry = { label: 'Leicht', labels: { 'en-GB': 'Easy' } }
+    expect(labelFor(entry, 'en-GB')).toBe('Easy')
+    expect(labelFor(entry, 'fr-FR')).toBe('Leicht')
+    expect(labelFor({ label: 'Leicht' }, 'en-GB')).toBe('Leicht')
+  })
+})
+
+describe('uiTexts', () => {
+  it('layers the chosen locale over the base locale', () => {
     /*
-     * Ein Eintrag, den nur die Grundsprache kennt, bleibt lesbar - statt als
-     * Schluessel auf dem Bildschirm zu stehen.
+     * An entry known only to the base locale stays readable - instead of
+     * standing on the screen as a key.
      */
-    const mitTexten = {
+    const withTexts = {
       ...config,
       interfaceStrings: {
         'de-DE': { 'kiosk.start': "Los geht's", 'kiosk.back': 'Zurück' },
         'en-GB': { 'kiosk.start': "Let's go" },
       },
     } as QuizConfig
-    expect(oberflaechenTexte(mitTexten, 'en-GB')).toEqual({ 'kiosk.start': "Let's go", 'kiosk.back': 'Zurück' })
+    expect(interfaceTexts(withTexts, 'en-GB')).toEqual({ 'kiosk.start': "Let's go", 'kiosk.back': 'Zurück' })
   })
 
-  it('bleibt leer, wenn der Inhalt keine Texte mitbringt', () => {
-    expect(oberflaechenTexte(config, 'en-GB')).toEqual({})
+  it('stays empty when the content brings no texts', () => {
+    expect(interfaceTexts(config, 'en-GB')).toEqual({})
   })
 })

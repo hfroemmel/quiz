@@ -1,7 +1,7 @@
 /**
- * Pflichtfaelle der Domain-Unit-Tests (Spezifikation 31.1).
+ * Mandatory cases of the domain unit tests (specification 31.1).
  *
- * Alle Tests laufen ohne Electron, React oder echte Systemzeit.
+ * All tests run without Electron, React or real system time.
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, roleMayIssue, scoringRules, selfServiceTiming } from '../src'
@@ -25,8 +25,8 @@ const videoQuestion = (id: string) =>
 
 const sevenNormal = () => Array.from({ length: 7 }, (_, index) => normalQuestion(`q${index + 1}`))
 
-describe('Spielstart und Ablauf', () => {
-  it('startet mit Pausenscreen und blendet danach die erste Frage ein', () => {
+describe('Game start and flow', () => {
+  it('starts with the pause screen and then fades in the first question', () => {
     const harness = createHarness(sevenNormal())
     harness.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium' })
 
@@ -38,7 +38,7 @@ describe('Spielstart und Ablauf', () => {
     expect(harness.state!.phase).toBe('question-presented')
   })
 
-  it('meldet den Fortschritt als Frage x/y', () => {
+  it('reports the progress as question x/y', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     expect(harness.state!.currentSlotIndex).toBe(0)
@@ -46,8 +46,8 @@ describe('Spielstart und Ablauf', () => {
   })
 })
 
-describe('Buzzerregeln', () => {
-  it('der erste Buzzer gewinnt, der zweite wird abgewiesen', () => {
+describe('Buzzer rules', () => {
+  it('the first buzz wins, the second is rejected', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     harness.dispatch({ type: 'OPEN_BUZZER' })
@@ -61,21 +61,21 @@ describe('Buzzerregeln', () => {
     expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-2')
   })
 
-  it('Key-Repeat erzeugt keinen zweiten Buzz', () => {
+  it('key repeat does not produce a second buzz', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     harness.dispatch({ type: 'OPEN_BUZZER' })
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
     const revisionAfterFirst = harness.state!.revision
 
-    // Auto-Repeat sendet denselben Buzzer erneut - der Zustand darf sich nicht aendern.
+    // Auto-repeat sends the same buzz again - the state must not change.
     harness.expectReject({ type: 'BUZZ', playerId: 'player-1' })
     harness.expectReject({ type: 'BUZZ', playerId: 'player-1' })
     expect(harness.state!.revision).toBe(revisionAfterFirst)
     expect(harness.state!.attempts).toHaveLength(1)
   })
 
-  it('der Buzzer ist waehrend des Videos gesperrt', () => {
+  it('the buzzer is locked during the video', () => {
     const harness = createHarness([videoQuestion('v1'), ...sevenNormal().slice(1)])
     startGame(harness)
     expect(harness.state!.phase).toBe('video')
@@ -92,10 +92,10 @@ describe('Buzzerregeln', () => {
     expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-2')
   })
 
-  it('manuelle Spielerauswahl durchlaeuft dieselbe Validierung wie der Buzzer', () => {
+  it('manual player selection passes the same validation as the buzzer', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
-    // Ohne Freigabe ist auch die manuelle Auswahl nicht moeglich.
+    // Without the buzzer being opened, the manual selection is not possible either.
     expect(harness.expectReject({ type: 'SELECT_PLAYER_MANUALLY', playerId: 'player-1' }).reason).toBe('invalid-phase')
 
     harness.dispatch({ type: 'OPEN_BUZZER' })
@@ -105,8 +105,8 @@ describe('Buzzerregeln', () => {
   })
 })
 
-describe('Normale Multiple-Choice-Frage', () => {
-  it('erste richtige Antwort gibt exakt 100 Punkte und zeigt danach die Loesung', () => {
+describe('Normal multiple-choice question', () => {
+  it('first correct answer gives exactly 100 points and then shows the solution', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -123,7 +123,7 @@ describe('Normale Multiple-Choice-Frage', () => {
     ])
   })
 
-  it('haelt die Loesung nach falscher erster Antwort verborgen und gibt die zweite Chance', () => {
+  it('keeps the solution hidden after a wrong first answer and gives the second chance', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -133,14 +133,14 @@ describe('Normale Multiple-Choice-Frage', () => {
     expect(harness.state!.phase).toBe('attempt-feedback')
 
     harness.settle()
-    // Die Loesung erscheint bewusst noch nicht.
+    // The solution deliberately does not appear yet.
     expect(harness.state!.phase).toBe('second-chance')
     expect(harness.state!.players[0]!.lockedForCurrentQuestion).toBe(true)
     expect(harness.state!.players[1]!.lockedForCurrentQuestion).toBe(false)
     expect(harness.state!.players[0]!.score).toBe(0)
   })
 
-  it('nur der zweite Spieler ist in der zweiten Chance berechtigt', () => {
+  it('only the second player is eligible in the second chance', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -151,11 +151,11 @@ describe('Normale Multiple-Choice-Frage', () => {
     const attempt = harness.state!.attempts.at(-1)!
     expect(attempt.playerId).toBe('player-2')
     expect(attempt.outcome).toBeUndefined()
-    // Erneutes Buzzern ist fuer die zweite Chance nicht erforderlich und nicht moeglich.
+    // Buzzing again is neither required nor possible for the second chance.
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-2' }).reason).toBe('invalid-phase')
   })
 
-  it('sperrt eine bereits als falsch bewertete Option fuer die zweite Chance', () => {
+  it('locks an option already judged wrong for the second chance', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -163,14 +163,14 @@ describe('Normale Multiple-Choice-Frage', () => {
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
     harness.settle()
 
-    // Dieselbe Option noch einmal koennte nur zu einem zweiten "falsch" fuehren.
+    // The same option again could only lead to a second "wrong".
     expect(harness.expectReject({ type: 'LOG_OPTION_ANSWER', optionId: 'c' }).reason).toBe('option-already-answered')
-    // Jede andere Option bleibt selbstverstaendlich waehlbar.
+    // Every other option of course stays selectable.
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
     expect(harness.state!.attempts.at(-1)!.loggedOptionId).toBe('b')
   })
 
-  it('meldet die verbrauchte Option auch im oeffentlichen View-Modell', () => {
+  it('reports the used option in the public view model too', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -180,11 +180,11 @@ describe('Normale Multiple-Choice-Frage', () => {
 
     const options = harness.publicView().visibleOptions ?? []
     expect(options.find((option) => option.id === 'c')?.state).toBe('chosen-incorrect')
-    // Die richtige Antwort bleibt bis zur Loesungsszene verborgen.
+    // The correct answer stays hidden until the solution scene.
     expect(options.some((option) => option.state === 'correct')).toBe(false)
   })
 
-  it('richtige zweite Chance gibt exakt 50 Punkte', () => {
+  it('correct second chance gives exactly 50 points', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -200,7 +200,7 @@ describe('Normale Multiple-Choice-Frage', () => {
     expect(harness.state!.phase).toBe('solution')
   })
 
-  it('falsche Antworten geben keine Minuspunkte', () => {
+  it('wrong answers give no minus points', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -217,7 +217,7 @@ describe('Normale Multiple-Choice-Frage', () => {
     expect(harness.state!.phase).toBe('solution')
   })
 
-  it('Passen gibt keine Punkte und fuehrt direkt zur Loesung', () => {
+  it('passing gives no points and leads straight to the solution', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -230,10 +230,10 @@ describe('Normale Multiple-Choice-Frage', () => {
     expect(harness.state!.players[1]!.score).toBe(0)
   })
 
-  it('erlaubt jederzeit das Aufloesen ohne Buzzer und ohne Antwort', () => {
+  it('allows resolving at any time without buzz and without answer', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
-    // Es gibt keine verbindliche Wartezeit vor dem Aufloesen.
+    // There is no mandatory wait before resolving.
     harness.dispatch({ type: 'RESOLVE_WITHOUT_ANSWER' })
     expect(harness.state!.phase).toBe('solution')
     expect(harness.state!.players[0]!.score).toBe(0)
@@ -241,14 +241,14 @@ describe('Normale Multiple-Choice-Frage', () => {
     expect(harness.state!.attempts.at(-1)!.outcome).toBe('no-answer')
   })
 
-  it('verlangt vor dem Aufloesen eine eingeloggte Antwort', () => {
+  it('requires a logged answer before resolving', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
     expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('answer-not-logged')
   })
 
-  it('setzt den Buzzer zurueck, ohne die Sperre eines Fehlversuchs aufzuheben', () => {
+  it('resets the buzzer without lifting the lock of a failed attempt', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -263,18 +263,18 @@ describe('Normale Multiple-Choice-Frage', () => {
   })
 })
 
-describe('Bilderkennen mit Enthuellung', () => {
-  it('wartet auf die Freigabe, bevor die Enthuellung laeuft und der Buzzer oeffnet', () => {
+describe('Image recognition with reveal', () => {
+  it('waits for the release before the reveal runs and the buzzer opens', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
-    // Das Bild steht unscharf, damit der Moderator die Frage vorlesen kann.
+    // The picture stands blurred so that the moderator can read the question aloud.
     expect(harness.state!.phase).toBe('reveal-ready')
     expect(harness.state!.reveal?.status).toBe('idle')
     expect(harness.state!.reveal?.durationMs).toBe(gameTiming.imageRevealDurationMs)
     expect(harness.state!.buzzer.open).toBe(false)
 
-    // Vor der Freigabe ist Buzzern wirkungslos.
+    // Before the buzzer is opened, buzzing has no effect.
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
 
     harness.dispatch({ type: 'START_IMAGE_REVEAL' })
@@ -283,7 +283,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(harness.state!.buzzer.open).toBe(true)
   })
 
-  it('zaehlt erst ab der Freigabe - die Vorlesezeit kostet keine Sekunde', () => {
+  it('counts only from the release - the read-aloud time costs no second', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
@@ -296,7 +296,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(harness.state!.reveal!.elapsedBeforeStartMs).toBe(2_000)
   })
 
-  it('pausiert bei gueltigem Buzzer und setzt an derselben Position fort', () => {
+  it('pauses on a valid buzz and resumes at the same position', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
     releaseRound(harness)
@@ -307,7 +307,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(frozen.status).toBe('paused')
     expect(frozen.elapsedBeforeStartMs).toBe(4_000)
 
-    // Waehrend der Antwortbearbeitung veraendert sich der Stand nicht.
+    // While the answer is being processed, the state does not change.
     harness.advance(3_000)
     expect(harness.state!.reveal!.elapsedBeforeStartMs).toBe(4_000)
 
@@ -320,7 +320,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(harness.state!.reveal!.elapsedBeforeStartMs).toBe(4_000)
   })
 
-  it('erlaubt unbegrenzt viele Fehlversuche und beide Spieler duerfen erneut buzzern', () => {
+  it('allows unlimited failed attempts and both players may buzz again', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
     releaseRound(harness)
@@ -331,7 +331,7 @@ describe('Bilderkennen mit Enthuellung', () => {
       harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'incorrect' })
       harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
       harness.settle()
-      // Beim Bilderkennen wird niemand gesperrt.
+      // On the image reveal nobody is locked.
       expect(harness.state!.players.every((player) => !player.lockedForCurrentQuestion)).toBe(true)
       expect(harness.state!.phase).toBe('reveal-running')
     }
@@ -340,7 +340,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(harness.state!.players[1]!.score).toBe(0)
   })
 
-  it('gibt 100 Punkte ohne Fehlversuch und 50 Punkte nach einem Fehlversuch', () => {
+  it('gives 100 points without a failed attempt and 50 points after one', () => {
     const clean = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(clean)
     releaseRound(clean)
@@ -362,7 +362,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(afterMiss.state!.players[1]!.score).toBe(50)
   })
 
-  it('vollstaendige Enthuellung sperrt den Buzzer nicht', () => {
+  it('a complete reveal does not lock the buzzer', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
     releaseRound(harness)
@@ -380,7 +380,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(explicit.state!.buzzer.open).toBe(true)
   })
 
-  it('trennt "Buzzer zuruecksetzen" klar vom technischen Reset der Enthuellung', () => {
+  it('separates "reset buzzer" clearly from the technical reset of the reveal', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
     releaseRound(harness)
@@ -388,7 +388,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
 
     harness.dispatch({ type: 'RESET_BUZZER' })
-    // Buzzer zuruecksetzen laesst den Enthuellungsstand unveraendert.
+    // Resetting the buzzer leaves the reveal state unchanged.
     expect(harness.state!.reveal!.elapsedBeforeStartMs).toBe(6_000)
     expect(harness.state!.phase).toBe('reveal-paused')
 
@@ -397,7 +397,7 @@ describe('Bilderkennen mit Enthuellung', () => {
     expect(harness.state!.reveal!.status).toBe('running')
   })
 
-  it('zeigt nach richtiger Antwort das vollstaendig scharfe Bild', () => {
+  it('shows the fully sharp image after a correct answer', () => {
     const harness = createHarness([revealQuestion('r1'), ...sevenNormal().slice(1)])
     startGame(harness)
     releaseRound(harness)
@@ -412,8 +412,8 @@ describe('Bilderkennen mit Enthuellung', () => {
   })
 })
 
-describe('Weiter, Ergebnis und Abbruch', () => {
-  it('"Weiter" bedeutet immer naechste Frage bzw. Ergebnis', () => {
+describe('Next, result and abort', () => {
+  it('"next" always means next question or result', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
 
@@ -428,16 +428,16 @@ describe('Weiter, Ergebnis und Abbruch', () => {
     expect(harness.state!.status).toBe('completed')
   })
 
-  it('lehnt "Weiter" ausserhalb der Loesungsansicht ab', () => {
+  it('rejects "next" outside the solution view', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     expect(harness.expectReject({ type: 'CONTINUE' }).reason).toBe('invalid-phase')
   })
 
-  it('Gleichstand ergibt Unentschieden', () => {
+  it('a tie yields a draw', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
-    // Beide Spieler bekommen je 100 Punkte.
+    // Both players get 100 points each.
     playCorrect(harness, 'player-1')
     harness.dispatch({ type: 'CONTINUE' })
     harness.settle()
@@ -448,7 +448,7 @@ describe('Weiter, Ergebnis und Abbruch', () => {
     expect(determineResult(harness.state!)).toEqual({ mode: 'duel', winnerPlayerId: null, isDraw: true })
   })
 
-  it('ein abgebrochenes Spiel zeigt kein Ergebnis', () => {
+  it('an aborted game shows no result', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     playCorrect(harness, 'player-1')
@@ -461,8 +461,8 @@ describe('Weiter, Ergebnis und Abbruch', () => {
   })
 })
 
-describe('Manuelle Punktkorrektur', () => {
-  it('korrigiert in der konfigurierten Schrittweite, faellt nicht unter null und wird protokolliert', () => {
+describe('Manual score correction', () => {
+  it('corrects in the configured step, does not drop below zero and is logged', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     const step = scoringRules.manualAdjustmentStep
@@ -473,7 +473,7 @@ describe('Manuelle Punktkorrektur', () => {
     harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'decrease' })
     expect(harness.state!.players[1]!.score).toBe(0)
 
-    // Unter null wird nicht korrigiert; der Befehl wird verstaendlich abgewiesen.
+    // No correction below zero; the command is refused understandably.
     expect(harness.expectReject({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'decrease' }).reason).toBe(
       'invalid-payload',
     )
@@ -486,7 +486,7 @@ describe('Manuelle Punktkorrektur', () => {
     expect(scoreLog.at(-1)!.message).toContain(`-${step}`)
   })
 
-  it('bleibt auf der Ergebnisansicht verfuegbar und berechnet das Ergebnis neu', () => {
+  it('stays available on the result view and recomputes the result', () => {
     const harness = createHarness([normalQuestion('q1')])
     startGame(harness)
     playCorrect(harness, 'player-1')
@@ -494,7 +494,7 @@ describe('Manuelle Punktkorrektur', () => {
     expect(harness.state!.phase).toBe('result')
     expect(determineResult(harness.state!).winnerPlayerId).toBe('player-1')
 
-    // So viele Korrekturschritte, wie die erste richtige Antwort wert war.
+    // As many correction steps as the first correct answer was worth.
     const steps = scoringRules.firstAnswerPoints / scoringRules.manualAdjustmentStep
     for (let index = 0; index < steps; index += 1) {
       harness.dispatch({ type: 'ADJUST_SCORE', playerId: 'player-2', direction: 'increase' })
@@ -504,20 +504,20 @@ describe('Manuelle Punktkorrektur', () => {
   })
 })
 
-describe('Doppelte Ereignisse und veraltete Uebergaenge', () => {
-  it('ein bereits ausgewerteter Versuch kann nicht erneut Punkte buchen', () => {
+describe('Duplicate events and stale transitions', () => {
+  it('an attempt already judged cannot book points again', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
 
-    // Zweiter Klick auf "Aufloesen" waehrend der Feedbackanimation.
+    // Second click on "resolve" during the feedback animation.
     expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('invalid-phase')
     expect(harness.state!.players[0]!.score).toBe(100)
   })
 
-  it('ein doppelt gemeldeter Uebergang loest nicht zweimal aus', () => {
+  it('a transition reported twice does not fire twice', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -534,8 +534,8 @@ describe('Doppelte Ereignisse und veraltete Uebergaenge', () => {
   })
 })
 
-describe('Frage ueberspringen', () => {
-  it('zieht einen Ersatz und sperrt die uebersprungene Frage fuer dieses Spiel', () => {
+describe('Skipping a question', () => {
+  it('draws a replacement and locks the skipped question for this game', () => {
     const harness = createHarness(sevenNormal(), { spare: [normalQuestion('ersatz-1')] })
     startGame(harness)
     expect(harness.state!.currentQuestion!.question.id).toBe('q1')
@@ -549,14 +549,14 @@ describe('Frage ueberspringen', () => {
   })
 })
 
-describe('Einzelspiel', () => {
-  it('ohne Angabe entsteht weiterhin ein Duell', () => {
+describe('Solo game', () => {
+  it('without the setting a duel is still created', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     expect(harness.state!.players).toHaveLength(2)
   })
 
-  it('startet mit genau einem Spieler und uebernimmt dessen Beschriftung', () => {
+  it('starts with exactly one player and takes over its label', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, { playerCount: 1, playerLabels: ['Mia'] })
 
@@ -565,7 +565,7 @@ describe('Einzelspiel', () => {
     expect(harness.state!.players[0]!.label).toBe('Mia')
   })
 
-  it('kennt keinen zweiten Spieler - dessen Buzzer wird abgewiesen', () => {
+  it('knows no second player - its buzz is rejected', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, { playerCount: 1 })
     releaseRound(harness)
@@ -573,7 +573,7 @@ describe('Einzelspiel', () => {
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-2' }).reason).toBe('invalid-payload')
   })
 
-  it('hat keine zweite Chance: nach der falschen Antwort folgt sofort die Loesung', () => {
+  it('has no second chance: after the wrong answer the solution follows at once', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, { playerCount: 1 })
     buzzIn(harness, 'player-1')
@@ -585,7 +585,7 @@ describe('Einzelspiel', () => {
     expect(harness.state!.players[0]!.score).toBe(scoringRules.noPoints)
   })
 
-  it('im Duell bleibt die zweite Chance unveraendert erhalten', () => {
+  it('in the duel the second chance stays unchanged', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)
     buzzIn(harness, 'player-1')
@@ -596,7 +596,7 @@ describe('Einzelspiel', () => {
     expect(harness.state!.phase).toBe('second-chance')
   })
 
-  it('liefert ein Solo-Ergebnis: kein Gewinner, kein Unentschieden, Trefferzahl', () => {
+  it('delivers a solo result: no winner, no draw, hit count', () => {
     const harness = createHarness([normalQuestion('q1'), normalQuestion('q2')])
     startGame(harness, { playerCount: 1 })
 
@@ -619,7 +619,7 @@ describe('Einzelspiel', () => {
     })
   })
 
-  it('zaehlt je Frage hoechstens einen Treffer, auch bei mehreren Versuchen', () => {
+  it('counts at most one hit per question, even with several attempts', () => {
     const harness = createHarness([revealQuestion('r1')])
     startGame(harness, { playerCount: 1 })
 
@@ -638,21 +638,21 @@ describe('Einzelspiel', () => {
   })
 })
 
-describe('Selbstbedienung', () => {
+describe('Self-service', () => {
   const selfService = { flowProfile: 'self-service' } as const
 
   /**
-   * Die volle Sequenz eines beantworteten Fingertipps am Geraet: Zuschlag holen,
-   * Antwort einloggen, Antwort abgeben. Es ist dieselbe Befehlsfolge wie am
-   * Operatorpult - genau das ist der Punkt des Umbaus.
+   * The full sequence of an answered tap at the device: take the buzz, log
+   * the answer, submit the answer. It is the same command sequence as at the
+   * operator's desk - that is exactly the point of the rebuild.
    */
-  const antworte = (harness: Harness, playerId: 'player-1' | 'player-2', optionId: string) => {
+  const answerWith = (harness: Harness, playerId: 'player-1' | 'player-2', optionId: string) => {
     harness.dispatch({ type: 'BUZZ', playerId })
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId })
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
   }
 
-  it('oeffnet die Antwortflaechen ohne Freigabe durch einen Operator', () => {
+  it('opens the answer areas without release by an operator', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
@@ -660,25 +660,25 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.buzzer.open).toBe(true)
   })
 
-  it('startet die Enthuellung ohne Freigabe, weil niemand vorliest', () => {
+  it('starts the reveal without release because nobody reads aloud', () => {
     /*
-     * Bilderkennen mit Antwortoptionen: Am Geraet ist genau diese Fassung
-     * spielbar - die muendlich zu beantwortende waere es nicht, sie wird dort
-     * uebersprungen (eigener Test weiter unten).
+     * Image reveal with answer options: at the device exactly this version is
+     * playable - the orally answered one would not be, it is skipped there
+     * (separate test below).
      */
-    const tippbaresBild = makeQuestion({
+    const tappableImage = makeQuestion({
       id: 'bild-mit-optionen',
       questionType: 'image-reveal',
       media: { imageAssetId: 'img-1' },
     })
-    const harness = createHarness([tippbaresBild, ...sevenNormal().slice(1)])
+    const harness = createHarness([tappableImage, ...sevenNormal().slice(1)])
     startGame(harness, selfService)
 
     expect(harness.state!.phase).toBe('reveal-running')
     expect(harness.state!.buzzer.open).toBe(true)
   })
 
-  it('wertet erst, wenn die eingeloggte Antwort abgegeben wird', () => {
+  it('judges only when the logged answer is submitted', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
@@ -687,7 +687,7 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-1')
 
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
-    // Eingeloggt ist nur markiert - gewertet wird erst beim Abgeben.
+    // Logged is only marked - scoring happens only on submit.
     expect(harness.state!.phase).toBe('answer-locked')
     expect(harness.state!.players[0]!.score).toBe(0)
 
@@ -696,7 +696,7 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.players[0]!.score).toBe(scoringRules.firstAnswerPoints)
   })
 
-  it('laesst den Spieler bis zum Abgeben umentscheiden', () => {
+  it('lets the player change their mind until submitting', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
@@ -705,11 +705,11 @@ describe('Selbstbedienung', () => {
     harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'a' })
     harness.dispatch({ type: 'RESOLVE_ATTEMPT' })
 
-    // Gewertet wird die zuletzt eingeloggte Antwort, nicht die erste.
+    // The answer logged last is scored, not the first.
     expect(harness.state!.players[0]!.score).toBe(scoringRules.firstAnswerPoints)
   })
 
-  it('weist das Abgeben ohne eingeloggte Antwort ab', () => {
+  it('rejects submitting without a logged answer', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
@@ -717,7 +717,7 @@ describe('Selbstbedienung', () => {
     expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('answer-not-logged')
   })
 
-  it('der erste gueltige Buzz sperrt den anderen Spieler', () => {
+  it('the first valid buzz locks the other player', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
@@ -729,16 +729,16 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.players[1]!.score).toBe(0)
   })
 
-  it('die zweite Chance gehoert dem anderen Spieler, ohne neuen Zuschlag', () => {
+  it('the second chance belongs to the other player, without a new buzz-in', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    antworte(harness, 'player-1', 'b')
+    answerWith(harness, 'player-1', 'b')
     harness.advance(gameTiming.incorrectFeedbackMs)
     expect(harness.state!.phase).toBe('second-chance')
 
-    // Um den Zuschlag wird nicht erneut gespielt: Der offene Versuch gehoert
-    // bereits dem anderen Spieler; ein Buzz hat hier nichts mehr zu holen.
+    // The buzz is not played for again: the open attempt already belongs
+    // to the other player; a buzz has nothing to gain here.
     expect(pendingAttempt(harness.state!)!.playerId).toBe('player-2')
     expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
 
@@ -747,23 +747,23 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.players[1]!.score).toBe(scoringRules.secondChancePoints)
   })
 
-  it('sperrt die bereits falsch bewertete Option in der zweiten Chance', () => {
+  it('locks the option already judged wrong in the second chance', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    antworte(harness, 'player-1', 'b')
+    answerWith(harness, 'player-1', 'b')
     harness.advance(gameTiming.incorrectFeedbackMs)
     expect(harness.state!.phase).toBe('second-chance')
 
     expect(harness.expectReject({ type: 'LOG_OPTION_ANSWER', optionId: 'b' }).reason).toBe('option-already-answered')
   })
 
-  it('zeigt erst die Frage allein und oeffnet die Antworten nach der Frist', () => {
+  it('shows the question alone first and opens the answers after the delay', () => {
     const harness = createHarness(sevenNormal())
     harness.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', ...selfService })
     harness.advance(gameTiming.pauseScreenMs)
 
-    // Die Frage steht, der Buzzer ist zu, und die Optionen gehen nicht einmal raus.
+    // The question stands, the buzzer is closed, and the options are not even sent.
     expect(harness.state!.phase).toBe('question-presented')
     expect(harness.state!.buzzer.open).toBe(false)
     expect(availableCommands(harness.state)).not.toContain('BUZZ')
@@ -775,17 +775,18 @@ describe('Selbstbedienung', () => {
     expect(harness.publicView().visibleOptions).toHaveLength(4)
   })
 
-  it('bleibt auf der Loesung stehen, bis ein Spieler weitergeht', () => {
+  it('stays on the solution until a player moves on', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
-    antworte(harness, 'player-1', 'a')
+    answerWith(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     expect(harness.state!.phase).toBe('solution')
     expect(harness.state!.currentSlotIndex).toBe(0)
 
     /*
-     * Beliebig lange warten aendert nichts - das ist der Punkt: Wer liest,
-     * warum seine Antwort falsch war, verliert das Bild nicht unter den Augen.
+     * Waiting any length of time changes nothing - that is the point: whoever
+     * reads why their answer was wrong does not lose the picture under their
+     * eyes.
      */
     harness.advance(60_000)
     expect(harness.state!.phase).toBe('solution')
@@ -800,14 +801,14 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.phase).toBe('question-presented')
   })
 
-  it('erreicht die Ergebnisansicht ohne einen einzigen Operatorbefehl', () => {
+  it('reaches the result view without a single operator command', () => {
     const harness = createHarness([normalQuestion('q1'), normalQuestion('q2')])
     startGame(harness, selfService)
 
     for (let question = 0; question < 2; question += 1) {
-      antworte(harness, 'player-1', 'a')
+      answerWith(harness, 'player-1', 'a')
       harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
-      // `Weiter` kommt vom Spieler selbst, nicht vom Operator.
+      // `Weiter` comes from the player, not from the operator.
       harness.dispatch({ type: 'CONTINUE' })
       harness.advance(gameTiming.pauseScreenMs + selfServiceTiming.questionLeadInMs)
     }
@@ -817,31 +818,31 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.players[0]!.score).toBe(2 * scoringRules.firstAnswerPoints)
   })
 
-  it('bietet keine Operatorbefehle an', () => {
+  it('offers no operator commands', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness, selfService)
 
-    const offen = availableCommands(harness.state)
-    expect(offen).toContain('BUZZ')
-    // Einloggen und Abgeben gibt es erst, wenn ein Versuch offen ist.
-    expect(offen).not.toContain('LOG_OPTION_ANSWER')
-    expect(offen).not.toContain('RESOLVE_ATTEMPT')
-    expect(offen).not.toContain('OPEN_BUZZER')
-    expect(offen).not.toContain('SELECT_PLAYER_MANUALLY')
-    expect(offen).not.toContain('ADJUST_SCORE')
-    // `CONTINUE` gibt es hier auch nicht - es gehoert allein der Loesung.
-    expect(offen).not.toContain('CONTINUE')
+    const open = availableCommands(harness.state)
+    expect(open).toContain('BUZZ')
+    // Logging and submitting exist only once an attempt is open.
+    expect(open).not.toContain('LOG_OPTION_ANSWER')
+    expect(open).not.toContain('RESOLVE_ATTEMPT')
+    expect(open).not.toContain('OPEN_BUZZER')
+    expect(open).not.toContain('SELECT_PLAYER_MANUALLY')
+    expect(open).not.toContain('ADJUST_SCORE')
+    // `CONTINUE` does not exist here either - it belongs to the solution alone.
+    expect(open).not.toContain('CONTINUE')
 
     harness.dispatch({ type: 'BUZZ', playerId: 'player-1' })
-    const gesperrt = availableCommands(harness.state)
-    expect(gesperrt).toContain('LOG_OPTION_ANSWER')
-    expect(gesperrt).toContain('RESOLVE_ATTEMPT')
-    expect(gesperrt).not.toContain('BUZZ')
-    expect(gesperrt).not.toContain('RESET_BUZZER')
-    expect(gesperrt).not.toContain('SKIP_QUESTION')
+    const blocked = availableCommands(harness.state)
+    expect(blocked).toContain('LOG_OPTION_ANSWER')
+    expect(blocked).toContain('RESOLVE_ATTEMPT')
+    expect(blocked).not.toContain('BUZZ')
+    expect(blocked).not.toContain('RESET_BUZZER')
+    expect(blocked).not.toContain('SKIP_QUESTION')
   })
 
-  it('ueberspringt Fragen, die ein Mensch bewerten muesste, und protokolliert das', () => {
+  it('skips questions a human would have to judge, and logs that', () => {
     const harness = createHarness([revealQuestion('muendlich-1')], { spare: [normalQuestion('ersatz-1')] })
     startGame(harness, selfService)
 
@@ -849,12 +850,12 @@ describe('Selbstbedienung', () => {
     expect(harness.events.some((event) => event.message.includes('muendlich-1'))).toBe(true)
   })
 
-  it('ueberspringt einen Fragenplatz, der gar keine beantwortbare Frage enthaelt', () => {
-    // Genau der Fall der ausgelieferten Presets: ein reiner Bilderkennen-Platz.
+  it('skips a question slot that contains no answerable question at all', () => {
+    // Exactly the case of the shipped presets: a pure image-reveal slot.
     const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich'), normalQuestion('q3')])
     startGame(harness, selfService)
 
-    antworte(harness, 'player-1', 'a')
+    answerWith(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     harness.dispatch({ type: 'CONTINUE' })
     harness.advance(gameTiming.pauseScreenMs)
@@ -863,11 +864,11 @@ describe('Selbstbedienung', () => {
     expect(harness.events.some((event) => event.message.includes('Fragenplatz 2'))).toBe(true)
   })
 
-  it('endet mit dem Ergebnis, wenn keine beantwortbare Frage mehr folgt', () => {
+  it('ends with the result when no answerable question follows', () => {
     const harness = createHarness([normalQuestion('q1'), revealQuestion('nur-muendlich')])
     startGame(harness, { ...selfService, playerCount: 1 })
 
-    antworte(harness, 'player-1', 'a')
+    answerWith(harness, 'player-1', 'a')
     harness.advance(gameTiming.correctFeedbackMs + gameTiming.solutionDelayMs)
     harness.dispatch({ type: 'CONTINUE' })
 
@@ -875,7 +876,7 @@ describe('Selbstbedienung', () => {
     expect(determineResult(harness.state!).solo).toEqual({ correctAnswers: 1, questionCount: 1 })
   })
 
-  it('weist den Start ab, wenn keine beantwortbare Frage uebrig bleibt', () => {
+  it('rejects the start when no answerable question remains', () => {
     const harness = createHarness([revealQuestion('nur-muendlich')])
     const rejection = harness.expectReject({
       type: 'START_GAME',
@@ -886,11 +887,12 @@ describe('Selbstbedienung', () => {
     expect(rejection.reason).toBe('no-candidate-question')
   })
 
-  it('startet das Video am Geraet von selbst und blendet die Frage nach dem Ende ein', () => {
+  it('starts the video on the device by itself and fades in the question after the end', () => {
     /*
-     * Am Touchgeraet steht niemand am Pult. Den Auftrag erteilt deshalb der
-     * Server selbst - nach kurzem Vorlauf, damit die Videoflaeche erst auffaehrt.
-     * Das Ende sieht nur das Geraet, und es blendet danach selbst die Frage ein.
+     * At the touch device nobody is at the desk. So the server issues the
+     * request itself - after a short lead-in, so that the video area comes up
+     * first. Only the device sees the end, and it shows the question itself
+     * afterwards.
      */
     const harness = createHarness([videoQuestion('video-1')])
     startGame(harness, selfService)
@@ -898,18 +900,18 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.video).toBeUndefined()
 
     harness.advance(selfServiceTiming.videoLeadInMs)
-    // Der Auftrag steht - die Phase hat sich dabei NICHT geaendert.
+    // The request stands - the phase has NOT changed.
     expect(harness.state!.phase).toBe('video')
     expect(harness.state!.video).toMatchObject({ questionId: 'video-1' })
     expect(harness.state!.pendingTransition).toBeUndefined()
 
-    // Der Server wartet auf nichts: Auch lange danach steht die Frage nicht.
+    // The server waits for nothing: even long after, the question does not stand.
     harness.advance(60_000)
     expect(harness.state!.phase).toBe('video')
 
     /*
-     * Und das Geraet darf das auch: `SHOW_QUESTION_AFTER_VIDEO` steht dem
-     * Spieler offen, weil es dort kein Pult gibt, das den Schritt machen koennte.
+     * And the device may do that: `SHOW_QUESTION_AFTER_VIDEO` is open to the
+     * player, because there is no desk there that could take the step.
      */
     expect(roleMayIssue('player', 'SHOW_QUESTION_AFTER_VIDEO')).toBe(true)
     harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
@@ -918,7 +920,7 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.phase).toBe('buzzer-open')
   })
 
-  it('veroeffentlicht auf Befehl einen Auftrag und wartet danach auf nichts', () => {
+  it('publishes a job on command and waits for nothing afterwards', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
     expect(harness.state!.phase).toBe('video')
@@ -926,49 +928,49 @@ describe('Selbstbedienung', () => {
 
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
-    const auftrag = harness.state!.video!
-    expect(auftrag.questionId).toBe('video-1')
-    expect(auftrag.requestId).toBeTruthy()
-    expect(auftrag.requestedAt).toBeTruthy()
+    const task = harness.state!.video!
+    expect(task.questionId).toBe('video-1')
+    expect(task.requestId).toBeTruthy()
+    expect(task.requestedAt).toBeTruthy()
     /*
-     * KEIN GEPLANTES ENDE. Der Server kennt die Laufzeit nicht und bildet sie
-     * auch nicht nach - das Videoende ist kein serverseitiger Uebergang.
+     * NO SCHEDULED END. The server does not know the duration and does not
+     * mirror it - the end of the video is no server-side transition.
      */
     expect(harness.state!.pendingTransition).toBeUndefined()
     expect(harness.state!.phase).toBe('video')
 
-    // Auch nach beliebig langer Zeit bleibt alles, wie es ist.
+    // Even after any length of time everything stays as it is.
     harness.advance(10 * 60_000)
     expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.video).toEqual(auftrag)
+    expect(harness.state!.video).toEqual(task)
   })
 
-  it('erzeugt bei jedem Klick einen neuen Auftrag', () => {
+  it('creates a new job on every click', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-    const erster = harness.state!.video!.requestId
+    const firstOne = harness.state!.video!.requestId
     harness.advance(3_000)
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
-    // Eine neue Kennung ist die ganze Nachricht: die Buehne spielt wieder von vorn.
-    expect(harness.state!.video!.requestId).not.toBe(erster)
+    // A new id is the whole message: the stage plays from the start again.
+    expect(harness.state!.video!.requestId).not.toBe(firstOne)
     expect(harness.state!.video!.questionId).toBe('video-1')
   })
 
-  it('weist einen Klick ab, der zu einer anderen Frage gehoert', () => {
+  it('rejects a click that belongs to another question', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
-    const abgelehnt = harness.expectReject({ type: 'START_VIDEO', questionId: 'video-von-gestern' })
-    expect(abgelehnt.reason).toBe('video-question-mismatch')
+    const rejectedCount = harness.expectReject({ type: 'START_VIDEO', questionId: 'video-von-gestern' })
+    expect(rejectedCount.reason).toBe('video-question-mismatch')
     expect(harness.state!.video).toBeUndefined()
   })
 
-  it('weist einen Klick ab, wenn zu der Frage kein Video hinterlegt ist', () => {
-    const ohneDatei = { ...videoQuestion('video-1'), media: undefined }
-    const harness = createHarness([ohneDatei, ...sevenNormal().slice(1)])
+  it('rejects a click when no video is attached to the question', () => {
+    const withoutFile = { ...videoQuestion('video-1'), media: undefined }
+    const harness = createHarness([withoutFile, ...sevenNormal().slice(1)])
     startGame(harness)
 
     expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe(
@@ -976,7 +978,7 @@ describe('Selbstbedienung', () => {
     )
   })
 
-  it('weist einen Klick ausserhalb der Videophase ab', () => {
+  it('rejects a click outside the video phase', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
     harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
@@ -984,30 +986,30 @@ describe('Selbstbedienung', () => {
     expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe('invalid-phase')
   })
 
-  it('bietet am Pult nur Starten, Einblenden und Ueberspringen an', () => {
+  it('offers only start, reveal and skip at the desk', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
 
-    const erlaubt = harness.operatorView().allowedCommands
-    expect(erlaubt).toEqual(expect.arrayContaining(['START_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
+    const allowed = harness.operatorView().allowedCommands
+    expect(allowed).toEqual(expect.arrayContaining(['START_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
     /*
-     * Was es nicht mehr gibt: Pausieren, Neustarten und die Statusmeldung des
-     * Clients. Ein Knopf dafuer waere ein Knopf fuer einen Zustand, den niemand
-     * mehr fuehrt.
+     * What no longer exists: pausing, restarting and the client's status
+     * report. A button for those would be a button for a state nobody tracks
+     * any more.
      */
-    expect(erlaubt).not.toContain('PAUSE_VIDEO')
-    expect(erlaubt).not.toContain('RESTART_VIDEO')
-    expect(erlaubt).not.toContain('REPORT_VIDEO_STATUS')
+    expect(allowed).not.toContain('PAUSE_VIDEO')
+    expect(allowed).not.toContain('RESTART_VIDEO')
+    expect(allowed).not.toContain('REPORT_VIDEO_STATUS')
 
-    // Und der Startknopf bleibt die ganze Phase ueber da, auch nach einem Klick.
+    // And the start button stays for the whole phase, also after a click.
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
     expect(harness.operatorView().allowedCommands).toContain('START_VIDEO')
   })
 
-  it('raeumt den Auftrag ab, sobald die Frage eingeblendet ist', () => {
+  it('clears the job as soon as the question is faded in', () => {
     /*
-     * Sonst fuehrte ihn jedes Fenster aus, das jetzt neu laedt - und das Video
-     * liefe unter der schon stehenden Frage noch einmal los.
+     * Otherwise every window reloading now would execute it - and the video
+     * would start again underneath the question already standing.
      */
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
@@ -1019,41 +1021,40 @@ describe('Selbstbedienung', () => {
     expect(harness.state!.video).toBeUndefined()
   })
 
-  it('traegt den Auftrag unveraendert in den Schnappschuss', () => {
+  it('carries the job unchanged into the snapshot', () => {
     const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
     startGame(harness)
     harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
 
-    const auftrag = harness.state!.video!
+    const task = harness.state!.video!
     for (const view of [harness.publicView(), harness.operatorView()]) {
-      // Kennung und Frage - und nichts ueber die Wiedergabe.
-      expect(view.video).toEqual({ questionId: 'video-1', requestId: auftrag.requestId })
+      // Id and question - and nothing about the playback.
+      expect(view.video).toEqual({ questionId: 'video-1', requestId: task.requestId })
     }
   })
 })
 
-describe('Rollenrechte', () => {
+describe('Role permissions', () => {
   /*
-   * Der Moderator steht am Buehnenabend neben den Spielern und sieht als Erster,
-   * wer sich gemeldet hat; der Operator sitzt am Pult. Deshalb darf er den
-   * Zuschlag setzen und die Antwort einloggen - beides Schritte, die er ohnehin
-   * anmoderiert.
+   * On the stage evening the moderator stands next to the players and is the
+   * first to see who raised a hand; the operator sits at the desk. So they may
+   * award the buzz and log the answer - both steps they announce anyway.
    */
-  it('laesst den Moderator den Zuschlag setzen und die Antwort einloggen', () => {
+  it('lets the moderator set the buzz-in and log the answer', () => {
     expect(roleMayIssue('moderator', 'SELECT_PLAYER_MANUALLY')).toBe(true)
     expect(roleMayIssue('moderator', 'LOG_OPTION_ANSWER')).toBe(true)
-    // Aufloesen und Weiterschalten standen ihm schon offen.
+    // Resolving and advancing were open to them already.
     expect(roleMayIssue('moderator', 'RESOLVE_ATTEMPT')).toBe(true)
     expect(roleMayIssue('moderator', 'CONTINUE')).toBe(true)
   })
 
   /*
-   * Was NICHT dazugekommen ist, gehoert genauso zum Vertrag: Punkte, Abbruch,
-   * Inhalte und Technik bleiben beim Operator. Ohne diese Zeilen waere eine
-   * versehentliche Erweiterung der Tabelle nicht zu bemerken.
+   * What has NOT been added belongs to the contract just as much: points,
+   * aborting, content and technical matters stay with the operator. Without
+   * these lines an accidental extension of the table would go unnoticed.
    */
-  it('laesst dem Operator, was ihm gehoert', () => {
-    for (const befehl of [
+  it('leaves the operator what belongs to them', () => {
+    for (const command of [
       'ADJUST_SCORE',
       'ABORT_GAME',
       'SKIP_QUESTION',
@@ -1061,11 +1062,11 @@ describe('Rollenrechte', () => {
       'RESET_BUZZER',
       'START_GAME',
     ] as const) {
-      expect(roleMayIssue('moderator', befehl), befehl).toBe(false)
+      expect(roleMayIssue('moderator', command), command).toBe(false)
     }
   })
 
-  it('nimmt dem Spieler weiterhin die manuelle Spielerwahl', () => {
+  it('still takes manual player selection away from the player', () => {
     expect(roleMayIssue('player', 'SELECT_PLAYER_MANUALLY')).toBe(false)
   })
 })

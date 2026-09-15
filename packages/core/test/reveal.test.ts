@@ -1,6 +1,6 @@
 /**
- * Enthuellungsuhr: Fake-Clock-Tests fuer Restsekunden, Rasteraufloesung und
- * Pausenverhalten (Spezifikation 10.2 und 22.7).
+ * Reveal clock: fake-clock tests for remaining seconds, grid resolution and
+ * pause behaviour (specification 10.2 and 22.7).
  */
 import { describe, expect, it } from 'vitest'
 import { gameTiming, revealGrid, type RevealGrid } from '../src'
@@ -21,25 +21,24 @@ import {
 
 const DURATION = gameTiming.imageRevealDurationMs
 
-describe('Reveal-Uhr', () => {
-  it('leitet Restsekunden und Rasteraufloesung aus derselben Fortschrittsvariable ab', () => {
+describe('Reveal clock', () => {
+  it('derives remaining seconds and grid resolution from the same progress variable', () => {
     const clock = startReveal(createRevealClock(DURATION), 0)
     const plan = revealTilePlan(revealGrid, revealSeed('bild.webp'))
 
-    // Bei jedem Zeitpunkt muessen Restsekunden und offene Kacheln zum selben `progress` passen.
+    // At every point in time remaining seconds and open tiles have to match the same `progress`.
     for (const elapsed of [0, 1_000, 2_500, 5_000, 7_500, 9_999, 10_000]) {
       const progress = revealProgress(clock, elapsed)
       expect(revealCountdownSeconds(clock, elapsed)).toBe(Math.ceil((1 - progress) * (DURATION / 1000)))
       /*
-       * Die Kacheln fallen gleichmaessig ueber die Zeit: Bei halbem Fortschritt
-       * ist die Haelfte offen. Die letzte oeffnet bei genau 1 - deshalb `floor`
-       * und nicht `round`.
+       * The tiles fall evenly over time: at half progress half of them are
+       * open. The last one opens at exactly 1 - hence `floor` and not `round`.
        */
       expect(openTiles(plan, progress)).toBe(Math.floor(progress * plan.length + 1e-9))
     }
   })
 
-  it('laeuft von 10 auf 0 und ist bei 0 vollstaendig aufgedeckt', () => {
+  it('runs from 10 to 0 and is fully uncovered at 0', () => {
     const clock = startReveal(createRevealClock(DURATION), 0)
     expect(revealCountdownSeconds(clock, 0)).toBe(10)
     expect(revealCountdownSeconds(clock, 5_000)).toBe(5)
@@ -49,13 +48,13 @@ describe('Reveal-Uhr', () => {
     expect(openTiles(plan, revealProgress(clock, DURATION))).toBe(plan.length)
   })
 
-  it('friert beim Pausieren exakt ein und setzt an derselben Stelle fort', () => {
+  it('freezes exactly on pause and resumes at the same spot', () => {
     let clock = startReveal(createRevealClock(DURATION), 1_000)
     clock = pauseReveal(clock, 4_000)
     expect(clock.status).toBe('paused')
     expect(revealElapsedMs(clock, 4_000)).toBe(3_000)
 
-    // Auch viel spaeter bleibt der Stand unveraendert - kein Informationsvorteil.
+    // Much later the state is still unchanged - no information advantage.
     expect(revealElapsedMs(clock, 60_000)).toBe(3_000)
     expect(revealCountdownSeconds(clock, 60_000)).toBe(7)
 
@@ -63,14 +62,14 @@ describe('Reveal-Uhr', () => {
     expect(revealElapsedMs(clock, 102_000)).toBe(5_000)
   })
 
-  it('clamped den Fortschritt bei Ueberlauf, statt negativ zu werden', () => {
+  it('clamps the progress on overflow instead of going negative', () => {
     const clock = startReveal(createRevealClock(DURATION), 0)
     expect(revealProgress(clock, 99_999)).toBe(1)
     expect(revealCountdownSeconds(clock, 99_999)).toBe(0)
     expect(isRevealFinished(clock, 99_999)).toBe(true)
   })
 
-  it('deckt vollstaendig auf und setzt technisch korrekt zurueck', () => {
+  it('uncovers completely and resets technically correct', () => {
     let clock = startReveal(createRevealClock(DURATION), 0)
     clock = completeReveal(clock)
     expect(revealProgress(clock, 0)).toBe(1)
@@ -81,23 +80,23 @@ describe('Reveal-Uhr', () => {
     expect(revealProgress(clock, 0)).toBe(0)
   })
 
-  it('rechnet nach einem Reconnect allein aus Serverzeiten weiter', () => {
-    // Der Client kennt nur `startedAtServerMs` und `elapsedBeforeStartMs`.
+  it('continues after a reconnect from server times alone', () => {
+    // The client knows only `startedAtServerMs` and `elapsedBeforeStartMs`.
     const clock = { status: 'running' as const, durationMs: DURATION, startedAtServerMs: 500, elapsedBeforeStartMs: 2_000 }
     expect(revealElapsedMs(clock, 3_500)).toBe(5_000)
     expect(revealProgress(clock, 3_500)).toBeCloseTo(0.5, 6)
   })
 })
 
-/** Wie viele Kacheln bei diesem Fortschritt offen sind. */
+/** How many tiles are open at this progress. */
 function openTiles(plan: number[], progress: number): number {
   return plan.filter((openAt) => progress >= openAt).length
 }
 
-describe('Aufdeckplan des Rasters', () => {
+describe('Reveal plan of the grid', () => {
   const seed = revealSeed('/media/img-42.webp')
 
-  it('gibt jeder Kachel genau einen Platz in der Reihenfolge', () => {
+  it('gives every tile exactly one place in the order', () => {
     const plan = revealTilePlan(revealGrid, seed)
     expect(plan).toHaveLength(revealGrid.columns * revealGrid.rows)
     expect(new Set(plan).size).toBe(plan.length)
@@ -105,13 +104,13 @@ describe('Aufdeckplan des Rasters', () => {
     expect(Math.max(...plan)).toBe(1)
   })
 
-  it('beginnt vollstaendig verdeckt und endet vollstaendig offen', () => {
+  it('starts fully covered and ends fully open', () => {
     const plan = revealTilePlan(revealGrid, seed)
     expect(openTiles(plan, 0)).toBe(0)
     expect(openTiles(plan, 1)).toBe(plan.length)
   })
 
-  it('deckt mit dem Fortschritt immer weiter auf und nimmt nie etwas zurueck', () => {
+  it('uncovers further and further with the progress and never takes anything back', () => {
     const plan = revealTilePlan(revealGrid, seed)
     let previous = 0
     for (let step = 0; step <= 100; step++) {
@@ -121,17 +120,17 @@ describe('Aufdeckplan des Rasters', () => {
     }
   })
 
-  it('liefert fuer dieselbe Frage dieselbe Reihenfolge und fuer eine andere eine andere', () => {
+  it('delivers the same order for the same question and a different one for another', () => {
     expect(revealTilePlan(revealGrid, seed)).toEqual(revealTilePlan(revealGrid, seed))
     expect(revealTilePlan(revealGrid, revealSeed('/media/img-43.webp'))).not.toEqual(revealTilePlan(revealGrid, seed))
   })
 
   /*
-   * Der Kern der Regel "markante Bereiche zuletzt": Gemittelt ueber viele Bilder
-   * muss die Mitte spaeter fallen als der Rand. Einzelne Faelle duerfen abweichen -
-   * genau dafuer ist die Streuung da.
+   * The core of the rule "distinctive areas last": averaged over many pictures
+   * the centre has to fall later than the edge. Individual cases may deviate -
+   * that is exactly what the scatter is for.
    */
-  it('deckt die Bildmitte spaeter auf als den Rand', () => {
+  it('uncovers the image centre later than the edge', () => {
     const middle: number[] = []
     const border: number[] = []
     for (let run = 0; run < 40; run++) {
@@ -147,14 +146,14 @@ describe('Aufdeckplan des Rasters', () => {
     expect(average(middle)).toBeGreaterThan(average(border))
   })
 
-  it('nimmt jede Rastergroesse an - die Voreinstellung ist keine Bedingung', () => {
-    const winzig: RevealGrid = { ...revealGrid, columns: 2, rows: 2 }
-    const plan = revealTilePlan(winzig, seed)
+  it('accepts any grid size - the default is not a condition', () => {
+    const tiny: RevealGrid = { ...revealGrid, columns: 2, rows: 2 }
+    const plan = revealTilePlan(tiny, seed)
     expect(plan).toHaveLength(4)
     expect(openTiles(plan, 0.5)).toBe(2)
   })
 
-  it('kommt ohne Kacheln aus, statt zu stolpern', () => {
+  it('copes without tiles instead of stumbling', () => {
     expect(revealTilePlan({ ...revealGrid, columns: 0, rows: 0 }, seed)).toEqual([])
   })
 })

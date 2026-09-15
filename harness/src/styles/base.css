@@ -1,9 +1,9 @@
 /* ------------------------------------------------------------------ *
- * Grundgeruest des Dokuments: Reset und Grundtypografie.
+ * Basic document scaffolding: reset and basic typography.
  *
- * Die Schriften (@font-face) kommen aus `@hfroemmel/quiz-themes/fonts.css` -
- * Dokument-Styling wie dieses hier bleibt dagegen Sache der Anwendung, damit
- * die Bibliotheken keinen fremden Gastgeber umfaerben.
+ * The fonts (@font-face) come from `@hfroemmel/quiz-themes/fonts.css` -
+ * document styling like this, on the other hand, remains the
+ * application's business, so the libraries don't recolour a foreign host.
  * ------------------------------------------------------------------ */
 
 * {
@@ -19,9 +19,9 @@ body,
 
 body {
   /*
-   * Der Verlauf steht bewusst an der Verwendungsstelle und nicht als eigene
-   * Variable: Eine zusammengesetzte Variable wuerde ihre Farben bereits am
-   * Wurzelelement aufloesen und spaetere Theme-Werte ignorieren.
+   * The gradient deliberately sits at its point of use and not as a
+   * variable of its own: a composed variable would resolve its colours
+   * already at the root element and ignore later theme values.
    */
   background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
   background-attachment: fixed;

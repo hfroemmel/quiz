@@ -1,9 +1,9 @@
 /*
- * Bildrahmen der Buehne.
+ * Image frame of the stage.
  *
- * Die GROESSE gehoert zur Szene und ist in beiden Welten gleich; nur die
- * Rahmung unterscheidet sich. In der Kinderwelt uebernimmt in Frage und Loesung
- * das Raster die Groesse - dort tritt das Eigenmass zurueck.
+ * The SIZE belongs to the scene and is the same in both worlds; only the
+ * framing differs. In the kids' world, in question and solution, the grid
+ * takes over the size - there the frame's own measure steps back.
  */
 
 .media {
@@ -16,34 +16,34 @@
   width: 28cqw;
 }
 /*
- * Beim Bilderkennen ist das Bild der ganze Inhalt: Es steht neben dem
- * Fragetext und nimmt die Haelfte der Buehne ein. Frueher teilte es sich die
- * Flaeche mit dem Enthuellungsring; seit der weg ist, ruecken die Kacheln in
- * dessen Platz nach.
+ * For image guessing, the image is the whole content: it sits next to the
+ * question text and takes half of the stage. It used to share the area
+ * with the reveal ring; now that this is gone, the tiles move into its
+ * place.
  */
 .reveal {
   height: 39.375cqw;
   aspect-ratio: 4 / 3;
 }
 /*
- * Portraet: fast quadratisch - so, wie ein Mensch auf einem Querformatfoto
- * sitzt, wenn man ihn beschneidet. Der Ausschnitt liegt etwas ueber der Mitte,
- * weil Gesichter im oberen Drittel eines Bildes stehen.
+ * Portrait: almost square - the way a person sits in a landscape photo once
+ * cropped. The crop sits slightly above centre because faces sit in the
+ * upper third of an image.
  *
- * Hoehe und Seitenverhaeltnis stehen fest, die Hoehe als Anteil der BREITE wie
- * jede Groesse hier - so bleibt der Ausschnitt derselbe, in welchem Fenster die
- * Buehne auch steht.
+ * Height and aspect ratio are fixed, the height as a share of the WIDTH
+ * like every measure here - this way the crop stays the same, whichever
+ * window the stage happens to sit in.
  */
 .portrait {
   height: 30.9375cqw;
   aspect-ratio: 1 / 1;
 }
 /*
- * Die Bildflaeche - das Foto und, beim Bilderkennen, die Decke darueber.
+ * The image area - the photo and, for image guessing, the cover over it.
  *
- * Sie fuellt den Innenraum des Rahmens und ist der Bezug fuer die Kacheln: Ein
- * Innenabstand der Welt (die Kinderwelt haelt hier ihre gezeichnete Rahmung)
- * bleibt dadurch ausserhalb der Decke.
+ * It fills the frame's interior and is the reference for the tiles: an
+ * inner spacing of the world (the kids' world holds its drawn framing here)
+ * thereby stays outside the cover.
  */
 .canvas {
   position: relative;
@@ -56,14 +56,14 @@
   height: 100%;
   object-fit: cover;
 }
-/* Platz fuer eine hervorschauende Figur - nur die Kinderwelt fuellt ihn. */
+/* Room for a mascot peeking in - only the kids' world fills it. */
 .peek {
   position: absolute;
   pointer-events: none;
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen: Milchglaskante ohne Kontur
+ * Adult stage: frosted-glass edge without an outline
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .media {
@@ -72,9 +72,9 @@
   background: var(--color-tile);
 }
 /*
- * Das Portraet ist das Herz der Ansicht und bekommt deshalb als einziges Medium
- * eine sichtbare Fassung: eine haarfeine helle Kante, damit es sich auch von
- * einem hellen Motiv her gegen den dunklen Grund absetzt.
+ * The portrait is the heart of the view and is therefore the only media
+ * type to get a visible border: a hairline light edge, so it stands out
+ * against the dark background even from a bright motif.
  */
 :global(.stage--default) .portrait {
   border-radius: calc(var(--stage-radius) * 1.6);
@@ -84,7 +84,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt: gezeichneter Portraetrahmen
+ * Kids' world: drawn portrait frame
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .media {
@@ -103,25 +103,26 @@
   pointer-events: none;
 }
 /*
- * Der einzige Radius dieser Welt. Das Foto ist kein gezeichnetes Bauteil,
- * sondern Inhalt, der IM Rahmen liegt; ohne diesen Beschnitt wuerden seine
- * rechtwinkligen Ecken aus der gerundeten Innenform der Rahmenzeichnung
- * herausstehen. `clip-path` greift NACH dem Filter und haelt beim Bilderkennen
- * auch die Weichzeichnung im Rahmen - `border-radius` allein taete das nicht.
+ * The only radius in this world. The photo is not a drawn component, but
+ * content that sits IN the frame; without this crop its right-angled
+ * corners would stick out of the frame artwork's rounded inner shape.
+ * `clip-path` acts AFTER the filter and thereby also keeps the blur inside
+ * the frame during image guessing - `border-radius` alone would not do
+ * that.
  */
 :global(.stage--kids) .image {
   border-radius: 1cqw;
   clip-path: inset(0 round 1cqw);
 }
-/* Beim Bilderkennen sitzt das Foto tiefer im Rahmen: die Unschaerfe schmiert. */
+/* For image guessing the photo sits deeper in the frame: the blur smears. */
 :global(.stage--kids) .reveal {
   padding: 1.7cqw;
 }
 /*
- * In Frage und Loesung bestimmt das Raster der Kopfzone die Groesse - das
- * Eigenmass wuerde die Zelle sprengen und die Fuge zur Fragetafel schliessen.
- * `min-width: 0` haelt die automatische Mindestgroesse der Rasterzelle in
- * Schach, die sonst auf die Eigenbreite des Fotos waechst.
+ * In question and solution, the header zone's grid determines the size -
+ * the frame's own measure would blow out the cell and close the gap to the
+ * question board. `min-width: 0` keeps the grid cell's automatic minimum
+ * size in check, which would otherwise grow to the photo's intrinsic width.
  */
 :global(.stage--kids.stage--scene-question) .media,
 :global(.stage--kids.stage--scene-solution) .media {
@@ -135,12 +136,12 @@
   height: 33cqw;
 }
 /*
- * Karlchen schaut ueber die obere Bildkante: etwas rechts der Mitte wie im
- * Entwurf - links darueber steht die Wortmarke. Er liegt HINTER der
- * gezeichneten Rahmenflaeche, und seine Unterkante steckt ein Stueck weit
- * dahinter: genau dadurch wirkt der gerade Anschnitt der Zeichnung wie ein
- * Griff auf dem Rand. Die Zeichnung endet bei 90,6 Prozent der Bilddatei -
- * darunter liegt durchsichtiger Rand, der herausgerechnet wird.
+ * Karlchen looks over the top edge of the image: slightly right of centre as
+ * in the design - the wordmark sits above and to the left. He sits BEHIND
+ * the drawn frame area, and his lower edge is tucked a bit behind it:
+ * that alone is what makes the artwork's straight cut read as a grip on the
+ * edge. The artwork ends at 90.6 percent of the image file - below that is
+ * transparent margin, which is cropped out.
  */
 :global(.stage--kids) .peek {
   left: 8cqw;

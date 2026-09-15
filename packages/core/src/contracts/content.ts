@@ -1,24 +1,24 @@
 /**
- * Inhaltsmodell des Quiz (Spezifikation Abschnitt 16, 15 und 7.2).
+ * Content model of the quiz (specification sections 16, 15 and 7.2).
  *
- * Wichtigste Regeln, die hier strukturell erzwungen werden:
- *  - Praesentationsform (`presentationType`), Bewertungsverfahren (`evaluationMode`)
- *    und Medium sind getrennt modelliert. Das Legacy-Feld `type: "image"` gibt es nicht mehr.
- *  - Die richtige Antwort wird immer explizit ueber `correctOptionId` referenziert.
- *    Die Legacy-Annahme "option_1 ist richtig" ist abgeschafft.
- *  - Medien werden ueber stabile Asset-IDs referenziert, nie ueber Dateinamen.
- *  - Laufzeitdaten (z. B. das Legacy-Feld `playCount`) gehoeren nicht in den Inhalt.
+ * The most important rules enforced structurally here:
+ *  - Presentation type (`presentationType`), evaluation mode (`evaluationMode`)
+ *    and medium are modelled separately. The legacy field `type: "image"` is gone.
+ *  - The correct answer is always referenced explicitly via `correctOptionId`.
+ *    The legacy assumption "option_1 is correct" is abolished.
+ *  - Media are referenced by stable asset ids, never by file names.
+ *  - Runtime data (such as the legacy field `playCount`) do not belong in the content.
  */
 import { z } from 'zod'
-import { contentThresholds } from './config'
+import { contentThresholds, rulesConfigSchema } from './config'
+import { playerCountSchema, playerCounts, type PlayerCount } from './state'
 
 /**
- * Praesentationsform einer Frage auf dem Buehnenscreen.
+ * Presentation type of a question on the stage screen.
  *
- * `person` ist eine Auswahlfrage mit Bild wie `image-choice` - sie unterscheidet
- * sich ausschliesslich in der Komposition: Das Portraet traegt die Ansicht und
- * steht gross links, Frage und Antworten stehen daneben. Fachlich laeuft sie
- * durch dieselben Regeln.
+ * `person` is a choice question with an image like `image-choice` - it differs
+ * only in composition: the portrait carries the view and stands large on the
+ * left, question and answers stand next to it. The rules treat it the same.
  */
 export const questionPresentationTypes = [
   'text-choice',
@@ -30,26 +30,26 @@ export const questionPresentationTypes = [
 export type QuestionPresentationType = (typeof questionPresentationTypes)[number]
 
 /**
- * Braucht dieser Fragetyp Antwortoptionen?
+ * Does this question type need answer options?
  *
- * EINZIGE QUELLE DIESER ENTSCHEIDUNG - Validierung und Inhaltspflege fragen
- * hier. Wer einen Typ ergaenzt, muss ihn hier einsortieren; eine vergessene
- * Aufzaehlung an anderer Stelle faellt sonst erst im Betrieb auf.
+ * THE ONLY SOURCE OF THIS DECISION - validation and content maintenance ask
+ * here. Whoever adds a type has to sort it in here; a forgotten enumeration
+ * elsewhere would otherwise only show up in operation.
  */
 export function presentationNeedsOptions(type: QuestionPresentationType): boolean {
   return type === 'text-choice' || type === 'image-choice' || type === 'person'
 }
 
-/** Braucht dieser Fragetyp ein Bild? */
+/** Does this question type need an image? */
 export function presentationNeedsImage(type: QuestionPresentationType): boolean {
   return type === 'image-choice' || type === 'person' || type === 'image-reveal'
 }
 
-/** Wie ein Versuch bewertet wird. */
+/** How an attempt is evaluated. */
 export const evaluationModes = ['option-comparison', 'manual-correct-incorrect'] as const
 export type EvaluationMode = (typeof evaluationModes)[number]
 
-/** Bezeichner: klein geschrieben, damit IDs nicht durch Gross-/Kleinschreibung zerfallen. */
+/** Identifier: lower case, so that ids do not fall apart over capitalisation. */
 const idSchema = z
   .string()
   .min(1)
@@ -62,13 +62,13 @@ export const answerOptionSchema = z.object({
 export type AnswerOption = z.infer<typeof answerOptionSchema>
 
 export const questionExplanationSchema = z.object({
-  /** Kurzfassung fuer Moderator und Operator. */
+  /** Short version for moderator and operator. */
   summary: z.string().optional(),
-  /** Ausfuehrlicher Hintergrund. */
+  /** Detailed background. */
   details: z.string().optional(),
-  /** Quellenangabe (redaktionell, nicht automatisch oeffentlich). */
+  /** Source reference (editorial, not public by default). */
   source: z.string().optional(),
-  /** Regiehinweise: nur fuer Moderator und Operator. */
+  /** Directing notes: only for moderator and operator. */
   moderatorNotes: z.string().optional(),
 })
 export type QuestionExplanation = z.infer<typeof questionExplanationSchema>
@@ -80,25 +80,25 @@ export const questionMediaSchema = z.object({
 export type QuestionMedia = z.infer<typeof questionMediaSchema>
 
 /* ------------------------------------------------------------------ *
- * Mehrsprachigkeit
+ * Multiple languages
  *
- * EINE FRAGE BLEIBT EINE FRAGE, auch in fuenf Sprachen. Uebersetzungen haengen
- * deshalb AN der Frage und stehen nicht als zweiter Bestand daneben: Die
- * Auswahl (Wiederholungsvermeidung, Fragenplaetze, Pools) rechnet weiter mit
- * genau einer Menge, und eine Sprache umzuschalten kann keine andere Frage
- * ergeben. Was fehlt, faellt auf die Grundsprache zurueck - eine halb
- * uebersetzte Tabelle ist besser als ein leerer Bildschirm.
+ * A QUESTION STAYS ONE QUESTION, even in five languages. Translations therefore
+ * hang ON the question and do not stand next to it as a second corpus: the
+ * selection (repetition avoidance, slots, pools) keeps working with exactly one
+ * set, and switching the language can never yield a different question. What is
+ * missing falls back to the base locale - a half-translated table is better
+ * than an empty screen.
  * ------------------------------------------------------------------ */
 
-/** Beschriftung je Sprache. Fehlt eine, gilt das `label` daneben. */
-export const uebersetzteBeschriftung = z.record(z.string().min(1), z.string().min(1))
+/** Label per locale. If one is missing, the `label` next to it applies. */
+export const translatedLabels = z.record(z.string().min(1), z.string().min(1))
 
 /**
- * Eine Sprache, in der das Quiz gespielt werden kann.
+ * A locale the quiz can be played in.
  *
- * `label` steht bewusst IN DIESER Sprache ("Deutsch", "English") und nicht in
- * der Sprache der Oberflaeche: Wer die Sprache sucht, sucht ihren eigenen
- * Namen.
+ * `label` is deliberately written IN THAT locale ("Deutsch", "English") and not
+ * in the language of the interface: whoever looks for a language looks for its
+ * own name.
  */
 export const localeSchema = z.object({
   id: z.string().min(2),
@@ -107,12 +107,12 @@ export const localeSchema = z.object({
 export type QuizLocale = z.infer<typeof localeSchema>
 
 /**
- * Der uebersetzbare Teil einer Frage.
+ * The translatable part of a question.
  *
- * Die Optionen tragen dieselben Bezeichner wie im Original - gewertet wird
- * gegen `correctOptionId`, und eine Uebersetzung darf die Wertung nicht
- * verschieben. Das Medium darf abweichen: Ein Bild mit deutscher Beschriftung
- * ist in einer anderen Sprache ein anderes Bild.
+ * The options carry the same ids as the original - scoring compares against
+ * `correctOptionId`, and a translation must not shift the scoring. The medium
+ * may differ: an image with a German caption is a different image in another
+ * language.
  */
 export const questionTranslationSchema = z.object({
   prompt: z.string().min(1).optional(),
@@ -131,22 +131,22 @@ export type QuestionTranslation = z.infer<typeof questionTranslationSchema>
 export const questionSchema = z.object({
   id: idSchema,
   /**
-   * Inhaltlich gleiche Varianten teilen sich eine `repetitionGroupId`.
-   * Die Wiederholungsvermeidung behandelt die ganze Gruppe wie eine einzige Frage.
+   * Variants with the same content share a `repetitionGroupId`.
+   * Repetition avoidance treats the whole group as a single question.
    */
   repetitionGroupId: idSchema.optional(),
   /**
-   * Fragenpools, zu denen die Frage gehoert (Schema v2). Ein Pool ist eine
-   * INHALTSAUSWAHL - "Saarbruecken" ist genau das: ein Pool, kein Modus und
-   * keine Kategorie. Welche Pools ein Spiel zieht, entscheidet `START_GAME`.
+   * Question pools the question belongs to (schema v2). A pool is a CONTENT
+   * SELECTION - "Saarbruecken" is exactly that: a pool, not a mode and not a
+   * category. Which pools a game draws from is decided by `START_GAME`.
    */
   poolIds: z.array(idSchema).min(1),
-  /** Zielgruppen, fuer die die Frage taugt (frueher `modeIds`). */
+  /** Audiences the question suits (formerly `modeIds`). */
   audiences: z.array(idSchema).min(1),
   difficulty: idSchema,
   categories: z.array(idSchema),
   tags: z.array(idSchema),
-  /** BCP-47-Sprachkennung des Frageninhalts, z. B. `de-DE`. */
+  /** BCP-47 locale of the question content, e.g. `de-DE`. */
   locale: z.string().min(2),
 
   prompt: z.string().min(1),
@@ -155,44 +155,44 @@ export const questionSchema = z.object({
 
   options: z.array(answerOptionSchema).optional(),
   correctOptionId: idSchema.optional(),
-  /** Fuer muendliche Antworten: erwartete Formulierungen als Hilfe fuer den Moderator. */
+  /** For oral answers: expected wordings as help for the moderator. */
   acceptedAnswerText: z.array(z.string().min(1)).optional(),
 
   media: questionMediaSchema.optional(),
   explanation: questionExplanationSchema.optional(),
-  /** Fassungen in anderen Sprachen, nach Sprachkennung. Fehlendes faellt zurueck. */
+  /** Versions in other locales, by locale tag. Anything missing falls back. */
   translations: z.record(z.string().min(2), questionTranslationSchema).optional(),
   enabled: z.boolean(),
 })
 export type Question = z.infer<typeof questionSchema>
 
 /**
- * Ist die Frage eine echte Auswahlfrage?
+ * Is the question a real choice question?
  *
- * EINZIGE QUELLE DIESER ENTSCHEIDUNG. Validierung, Engine, Befehlsfreigabe und
- * Projektion fragen hier - und nur hier -, ob Antwortleisten, Buchstabentasten und
- * der automatische Vergleich gegen `correctOptionId` ueberhaupt Sinn ergeben.
+ * THE ONLY SOURCE OF THIS DECISION. Validation, engine, command availability and
+ * projection ask here - and only here - whether answer rows, letter keys and the
+ * automatic comparison against `correctOptionId` make sense at all.
  *
- * Fragen mit weniger als zwei Optionen sind keine Auswahl: Eine einzelne Option
- * waere die Loesung selbst. Sie laufen deshalb ueberall als freie Antwort - der
- * Saal sieht keine Ein-Zeilen-Auswahl, und der Operator bewertet von Hand.
+ * Questions with fewer than two options are not a choice: a single option would
+ * be the solution itself. They therefore run everywhere as a free answer - the
+ * room sees no one-row choice, and the operator evaluates by hand.
  */
 export function isChoiceQuestion(question: Pick<Question, 'options'>): boolean {
   return (question.options?.length ?? 0) >= contentThresholds.minChoiceOptionCount
 }
 
 /**
- * Kann diese Frage ohne Operator beantwortet werden?
+ * Can this question be answered without an operator?
  *
- * Nur echte Auswahlfragen, die gegen `correctOptionId` verglichen werden. Eine
- * muendliche Antwort braucht jemanden, der sie bewertet - im Kiosk gibt es
- * niemanden. Diese Regel steht hier, weil sowohl die Inhaltsvalidierung als auch
- * die Zustandsmaschine sie brauchen und es sie deshalb genau einmal geben darf.
+ * Only real choice questions that are compared against `correctOptionId`. An
+ * oral answer needs someone to evaluate it - in the kiosk there is nobody. The
+ * rule lives here because both the content validation and the state machine
+ * need it, so it may exist exactly once.
  *
- * DIE ZAHL DER OPTIONEN ENTSCHEIDET `isChoiceQuestion` und niemand sonst. Eine
- * eigene Untergrenze hier waere eine zweite Regel: Sie liess frueher eine Frage
- * mit einer einzigen Option durch, und am Geraet stand dann eine Zeile da, die
- * zugleich die Loesung war - nicht spielbar, aber gezogen.
+ * THE NUMBER OF OPTIONS IS DECIDED BY `isChoiceQuestion` and nobody else. A
+ * lower bound of its own here would be a second rule: it once let a question
+ * with a single option through, and the device then showed one row that was
+ * also the solution - unplayable, but drawn.
  */
 export function isSelfServiceAnswerable(question: Question): boolean {
   return question.evaluationMode === 'option-comparison' && isChoiceQuestion(question)
@@ -201,7 +201,7 @@ export function isSelfServiceAnswerable(question: Question): boolean {
 export const mediaAssetSchema = z.object({
   id: idSchema,
   kind: z.enum(['image', 'video', 'audio']),
-  /** Pfad relativ zum Asset-Wurzelverzeichnis des Pakets. Nie absolut, nie mit "..". */
+  /** Path relative to the asset root of the package. Never absolute, never with "..". */
   filename: z
     .string()
     .min(1)
@@ -216,25 +216,25 @@ export const mediaAssetSchema = z.object({
 export type MediaAsset = z.infer<typeof mediaAssetSchema>
 
 /* ------------------------------------------------------------------ *
- * Konfiguration: Modi, Themes, Schwierigkeits-Presets, Fragenplaetze
+ * Configuration: modes, themes, difficulty presets, question slots
  * ------------------------------------------------------------------ */
 
 export const questionSlotRuleSchema = z.object({
   id: idSchema,
-  /** Frei waehlbare Beschriftung fuer Operator-Diagnose und Validierungsbericht. */
+  /** Free label for the operator diagnostics and the validation report. */
   label: z.string().optional(),
   /**
-   * Fehlende Filter bedeuten "beliebig". Ein Sonderwert wie der String `random`
-   * ist deshalb bewusst nicht noetig.
+   * Missing filters mean "any". A special value such as the string `random` is
+   * therefore deliberately unnecessary.
    */
   filters: z
     .object({
       difficultyIds: z.array(idSchema).optional(),
       questionTypes: z.array(z.enum(questionPresentationTypes)).optional(),
       /**
-       * Bewertungsverfahren. Ein Fragenplatz fuer das Touchgeraet filtert auf
-       * `option-comparison`: Eine muendlich zu bewertende Frage koennte dort
-       * niemand aufloesen.
+       * Evaluation mode. A slot for the touch device filters on
+       * `option-comparison`: nobody there could resolve a question that has to
+       * be evaluated orally.
        */
       evaluationModes: z.array(z.enum(evaluationModes)).optional(),
       categoryIds: z.array(idSchema).optional(),
@@ -245,11 +245,11 @@ export const questionSlotRuleSchema = z.object({
 export type QuestionSlotRule = z.infer<typeof questionSlotRuleSchema>
 
 /**
- * Taugt dieses Preset fuer die Selbstbedienung am Touchgeraet?
+ * Is this preset fit for self-service at the touch device?
  *
- * Nur wenn JEDER Fragenplatz ausschliesslich auswertbare Fragen zulaesst. Das
- * wird aus den Filtern abgeleitet und nicht zusaetzlich erklaert: Eine zweite
- * Angabe koennte von den Filtern abweichen, und dann waere unklar, welche gilt.
+ * Only if EVERY slot admits evaluable questions exclusively. This is derived
+ * from the filters and not declared additionally: a second statement could
+ * differ from the filters, and then it would be unclear which one applies.
  */
 export function isSelfServicePreset(preset: DifficultyPreset): boolean {
   return preset.slots.every(
@@ -261,38 +261,38 @@ export function isSelfServicePreset(preset: DifficultyPreset): boolean {
 export const difficultyPresetSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
   /**
-   * Ein Preset ist eine dramaturgische Ablaufkonfiguration, kein globaler Filter.
-   * `easy` darf daher einzelne mittelschwere Fragenplaetze enthalten.
+   * A preset is a dramaturgical flow configuration, not a global filter.
+   * `easy` may therefore contain individual medium slots.
    */
   slots: z.array(questionSlotRuleSchema).min(1),
 })
 export type DifficultyPreset = z.infer<typeof difficultyPresetSchema>
 
 /**
- * Gestaltungswelt eines Themes.
+ * Design world of a theme.
  *
- * `stage` ist die dunkle Buehne des Erwachsenenquiz. `kids` ist die
- * illustrierte Karlchen-Welt mit gezeichneten Flaechen.
+ * `stage` is the dark stage of the adult quiz. `kids` is the illustrated
+ * Karlchen world with drawn surfaces.
  *
- * WARUM ALS DATENFELD: Der Client darf keine Modusnamen kennen. Ohne dieses
- * Feld muesste irgendwo `if (theme.id === 'kids')` stehen - genau die
- * Modus-Sonderbehandlung, die die Spezifikation ausschliesst. So waehlt die
- * Konfiguration die Welt, und ein neuer Modus bekommt sie ohne Codeaenderung.
+ * WHY A DATA FIELD: the client must not know mode names. Without this field
+ * somewhere `if (theme.id === 'kids')` would have to stand - exactly the mode
+ * special-casing the specification rules out. This way the configuration picks
+ * the world, and a new mode gets it without a code change.
  */
 export const themeSkins = ['default', 'kids'] as const
 export type ThemeSkin = (typeof themeSkins)[number]
 
 /**
- * Seit Schema v2 traegt das Quizpaket KEINE Farben und Schriften mehr -
- * Darstellung ist Sache des Gastgebers (`quiz-themes`). Ein Theme nennt nur die
- * Gestaltungswelt und seine Branding-Assets.
+ * Since schema v2 the quiz package carries NO colours and fonts any more -
+ * presentation is the host's concern (`quiz-themes`). A theme names only its
+ * design world and its branding assets.
  */
 export const quizThemeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  /** Gestaltungswelt: `default` oder `kids`. Fehlt sie, gilt `default`. */
+  /** Design world: `default` or `kids`. If missing, `default` applies. */
   skin: z.enum(themeSkins).optional(),
   logoAssetId: idSchema.optional(),
   presentationAnimationSetId: idSchema.optional(),
@@ -300,13 +300,13 @@ export const quizThemeSchema = z.object({
 export type QuizTheme = z.infer<typeof quizThemeSchema>
 
 /**
- * Zielgruppe (Schema v2, frueher "Quizmodus").
+ * Audience (schema v2, formerly "quiz mode").
  *
- * Der alte Modus verquickte drei Dinge: Zielgruppe, Fragenpool und Gestaltung.
- * Jetzt sind sie getrennt - die Zielgruppe traegt Gestaltung und erlaubte
- * Presets, die Pools sind eine eigene Achse der Inhaltsauswahl, und die Fragen
- * nennen beide direkt (`audiences`, `poolIds`). "Saarbruecken" braucht damit
- * keinen Sondermodus mehr: Es ist ein Pool, waehlbar zu jeder Zielgruppe.
+ * The old mode conflated three things: audience, question pool and design. Now
+ * they are separate - the audience carries the design and the permitted
+ * presets, the pools are their own axis of content selection, and the questions
+ * name both directly (`audiences`, `poolIds`). "Saarbruecken" therefore needs no
+ * special mode any more: it is a pool, selectable for every audience.
  */
 export const audienceConfigSchema = z.object({
   id: idSchema,
@@ -314,93 +314,141 @@ export const audienceConfigSchema = z.object({
   themeId: idSchema,
   startVisualAssetId: idSchema.optional(),
   /**
-   * Titel, der auf dem Startbild ueber der Grafik steht. Fehlt er, zeigt die
-   * Startansicht nur die Grafik - etwa wenn diese den Titel schon enthaelt.
+   * Title above the graphic on the start visual. If missing, the start view
+   * shows only the graphic - for instance when it already contains the title.
    */
   startTitle: z.string().min(1).optional(),
   /**
-   * Zwei, drei Zeilen unter dem Titel: worum es in diesem Quiz geht. Sie sind
-   * Werbetext und keine Regel - fehlen sie, steht die Tafel eben ohne sie da.
+   * Two or three lines below the title: what this quiz is about. They are
+   * promotional text and not a rule - if missing, the board simply stands
+   * without them.
    */
   startDescription: z.string().min(1).optional(),
-  labels: uebersetzteBeschriftung.optional(),
-  /** Startbild-Titel je Sprache. */
-  startTitles: uebersetzteBeschriftung.optional(),
-  /** Startbild-Beschreibung je Sprache. */
-  startDescriptions: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
+  /** Start visual title per locale. */
+  startTitles: translatedLabels.optional(),
+  /** Start visual description per locale. */
+  startDescriptions: translatedLabels.optional(),
   allowedPresetIds: z.array(idSchema).min(1),
 })
 export type AudienceConfig = z.infer<typeof audienceConfigSchema>
 
-/** Ein Fragenpool ist nur Kennung und Beschriftung - die Fragen nennen ihn selbst. */
+/** A question pool is only an id and a label - the questions name it themselves. */
 export const questionPoolSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
 })
 export type QuestionPool = z.infer<typeof questionPoolSchema>
 
 /**
- * Eine QUIZART - das eine Angebot, das am Pult gewaehlt wird.
+ * A QUIZ TYPE - the one offer that is chosen at the desk.
  *
- * Zielgruppe, Fragenpool, Theme und die Schwierigkeitswahl sind seit Schema v2
- * getrennte Achsen. Eine Quizart verbindet sie, ohne sie zu verschmelzen: Sie
- * nennt jede einzeln, als Wert, an genau dieser Stelle. "Bremen-Quiz" ist damit
- * eine Zeile in der Konfiguration und keine Bedingung im Code - wer es umhaengt,
- * aendert die Zeile und nichts sonst.
+ * Audience, question pool, theme and the difficulty choice have been separate
+ * axes since schema v2. A quiz type connects them without merging them: it
+ * names each one individually, as a value, right here. "Bremen-Quiz" is thus a
+ * line in the configuration and not a condition in the code - whoever moves it
+ * changes the line and nothing else.
  *
- * WARUM DAS THEME HIER UND NICHT NUR AN DER ZIELGRUPPE STEHT: Zwei Quizarten
- * duerfen dieselbe Zielgruppe und verschiedene Gestaltung haben. Die Zielgruppe
- * behaelt ihr Theme fuer alles, was ohne Quizart startet (Geraet, Kiosk); laeuft
- * ein Spiel MIT Quizart, gilt deren Theme. Es gibt also zu jedem Zeitpunkt genau
- * eine Zuordnung, nicht zwei konkurrierende.
+ * WHY THE THEME IS HERE AND NOT ONLY ON THE AUDIENCE: two quiz types may share
+ * an audience and differ in design. The audience keeps its theme for everything
+ * that starts without a quiz type (device, kiosk); if a game runs WITH a quiz
+ * type, that theme applies. So at any moment there is exactly one mapping, not
+ * two competing ones.
  *
- * DIE SCHWIERIGKEITSWAHL STEHT NICHT ALS SCHALTER DA, sondern folgt aus
- * `presetIds`: Ein einziges Preset heisst, dass es nichts zu waehlen gibt
- * (`quizSupportsDifficulty`). Ein zusaetzliches Feld "unterstuetzt Schwierigkeit"
- * koennte der Liste widersprechen, und dann waere unklar, welches gilt.
+ * THE DIFFICULTY CHOICE IS NOT A SWITCH but follows from `presetIds`: a single
+ * preset means there is nothing to choose (`quizSupportsDifficulty`). An extra
+ * field "supports difficulty" could contradict the list, and then it would be
+ * unclear which one applies.
  */
 export const quizModeSchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
-  /** Zweite Zeile der Angebotskarte - worum es in diesem Quiz geht. */
+  labels: translatedLabels.optional(),
+  /** Second line of the offer card - what this quiz is about. */
   subtitle: z.string().min(1).optional(),
-  subtitles: uebersetzteBeschriftung.optional(),
-  /** Zielgruppe, in der dieses Quiz spielt. */
+  subtitles: translatedLabels.optional(),
+  /** Audience this quiz plays in. */
   audienceId: idSchema,
-  /** Gestaltungswelt dieses Quiz. Muss es in `themes` geben. */
+  /** Design world of this quiz. Must exist in `themes`. */
   themeId: idSchema,
-  /** Fragenpools. Ohne Angabe spielen alle Pools der Zielgruppe mit. */
+  /** Question pools. Without them all pools of the audience take part. */
   poolIds: z.array(idSchema).min(1).optional(),
   /**
-   * Waehlbare Schwierigkeitsgrade, in der Reihenfolge, in der sie angeboten
-   * werden. Genau ein Eintrag heisst: keine Auswahl, dieses Preset gilt.
+   * Selectable difficulty levels, in the order they are offered. Exactly one
+   * entry means: no choice, this preset applies.
    */
   presetIds: z.array(idSchema).min(1),
   /**
-   * Voreinstellung der Schwierigkeitswahl. Ohne Angabe der erste Eintrag.
+   * Default of the difficulty choice. Without it, the first entry.
    *
-   * Sie steht getrennt von der Reihenfolge, weil beides verschiedene Fragen
-   * beantwortet: Angeboten wird von leicht nach schwer, voreingestellt ist die
-   * Stufe, mit der das Haus ueblicherweise spielt.
+   * It is separate from the order because the two answer different questions:
+   * the offer runs from easy to hard, the default is the level the house
+   * usually plays.
    */
   defaultPresetId: idSchema.optional(),
+  /**
+   * Player counts this quiz can be played with, in the order they are offered.
+   *
+   * A device only one person stands at offers `[1]`, and the question about the
+   * number of players falls away. WHY IN THE CONFIGURATION: it is a property of
+   * the installation and of the quiz, not of the program - until now every host
+   * carried it as a component property or as a list of its own.
+   */
+  playerCounts: z.array(playerCountSchema).min(1).optional(),
+  /** Artwork of the offer card. Must exist in `assets`. */
+  artworkAssetId: idSchema.optional(),
+  /**
+   * Weight of the card in the menu. `wide` takes two columns - for the offer a
+   * house leads with.
+   */
+  emphasis: z.enum(['wide', 'regular']).optional(),
+  /**
+   * Position in the menu, ascending. Without it the order of this list applies.
+   *
+   * Numbers with gaps (10, 20, 30) so that one more quiz can be put in between
+   * without renumbering the others.
+   */
+  order: z.number().int().optional(),
 })
 export type QuizMode = z.infer<typeof quizModeSchema>
 
 /**
- * Bietet diese Quizart eine Schwierigkeitswahl an?
+ * The player counts a quiz offers - both when it says nothing.
  *
- * EINZIGE QUELLE DIESER ENTSCHEIDUNG - Formular, Server und Validierung fragen
- * hier. Eine Stufe zur Wahl zu stellen, die es nur einmal gibt, waere ein leeres
- * Auswahlfeld vor dem Start.
+ * ONE PLACE FOR THIS FALLBACK: menu, kiosk and validation ask here, so a quiz
+ * without the entry cannot mean two different things in two hosts.
+ */
+export function playerCountsOf(quiz: Pick<QuizMode, 'playerCounts'>): PlayerCount[] {
+  const configured = quiz.playerCounts?.filter((count, index, all) => all.indexOf(count) === index)
+  return configured && configured.length > 0 ? [...configured] : [...playerCounts]
+}
+
+/**
+ * The quizzes in menu order.
+ *
+ * Whoever states an `order` is placed by it, ascending. Everything without one
+ * follows in the order of the configuration - mixing a number and a position
+ * would be a guess, and the menu does not guess.
+ */
+export function orderedQuizzes(quizzes: QuizMode[] | undefined): QuizMode[] {
+  const all = quizzes ?? []
+  const placed = all.filter((quiz) => quiz.order !== undefined).sort((left, right) => left.order! - right.order!)
+  return [...placed, ...all.filter((quiz) => quiz.order === undefined)]
+}
+
+/**
+ * Does this quiz type offer a difficulty choice?
+ *
+ * THE ONLY SOURCE OF THIS DECISION - form, server and validation ask here.
+ * Offering a level that exists only once would be an empty choice before the
+ * start.
  */
 export function quizSupportsDifficulty(quiz: Pick<QuizMode, 'presetIds'>): boolean {
   return quiz.presetIds.length > 1
 }
 
-/** Die voreingestellte Stufe einer Quizart - ohne eigene Angabe die erste. */
+/** The default level of a quiz type - the first one unless stated. */
 export function defaultPresetIdOf(quiz: Pick<QuizMode, 'presetIds' | 'defaultPresetId'>): string {
   const named = quiz.defaultPresetId
   if (named && quiz.presetIds.includes(named)) return named
@@ -410,18 +458,18 @@ export function defaultPresetIdOf(quiz: Pick<QuizMode, 'presetIds' | 'defaultPre
 export const categorySchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
 })
 export const difficultySchema = z.object({
   id: idSchema,
   label: z.string().min(1),
-  labels: uebersetzteBeschriftung.optional(),
+  labels: translatedLabels.optional(),
 })
 export type Category = z.infer<typeof categorySchema>
 export type Difficulty = z.infer<typeof difficultySchema>
 
 export const quizConfigSchema = z.object({
-  /** Standardanzahl der Fragenplaetze pro Spiel. Genau eine Quelle der Wahrheit. */
+  /** Default number of question slots per game. Exactly one source of truth. */
   questionsPerGame: z.number().int().min(1).max(30),
   difficulties: z.array(difficultySchema).min(1),
   categories: z.array(categorySchema).min(1),
@@ -430,46 +478,54 @@ export const quizConfigSchema = z.object({
   presets: z.array(difficultyPresetSchema).min(1),
   audiences: z.array(audienceConfigSchema).min(1),
   /**
-   * Die Quizarten, die am Pult zur Wahl stehen (siehe `quizModeSchema`).
+   * The quiz types offered at the desk (see `quizModeSchema`).
    *
-   * OPTIONAL, weil nicht jede Aufstellung sie braucht: Ein Kioskgeraet startet
-   * mit Zielgruppe und Preset und kennt gar keine Quizarten. Fehlt die Liste,
-   * gibt es am Pult nichts auszuwaehlen - und das ist eine Aussage der
-   * Konfiguration, kein Programmfehler.
+   * OPTIONAL, because not every installation needs them: a kiosk device starts
+   * with audience and preset and knows no quiz types at all. If the list is
+   * missing, there is nothing to choose at the desk - and that is a statement of
+   * the configuration, not a bug.
    */
   quizzes: z.array(quizModeSchema).optional(),
   /**
-   * Sprachen, in denen dieses Quiz gespielt werden kann.
+   * Locales the quiz can be played in.
    *
-   * Fehlt die Liste oder steht nur eine Sprache darin, gibt es nichts zu
-   * waehlen und der Umschalter erscheint nicht. Die erste ist die Grundsprache:
-   * Was nicht uebersetzt ist, kommt aus ihr.
+   * If the list is missing or holds one locale only, there is nothing to choose
+   * and the switch does not appear. The first one is the base locale: whatever is
+   * not translated comes from it.
    */
   locales: z.array(localeSchema).min(1).optional(),
   /**
-   * Beschriftungen der Oberflaeche je Sprache.
+   * Interface labels per locale.
    *
-   * Die deutschen Fassungen stehen im Code (`@hfroemmel/quiz-react`); hier
-   * stehen nur Abweichungen und die uebrigen Sprachen. So laeuft ein Quiz ohne
-   * einen einzigen Eintrag, und wer einen Satz anders haben will, braucht dafuer
-   * keine neue Programmfassung.
+   * The German versions live in the code (`@hfroemmel/quiz-react`); here stand
+   * only deviations and the other locales. This way a quiz runs without a single
+   * entry, and whoever wants a sentence changed needs no new program version.
    */
   interfaceStrings: z.record(z.string().min(2), z.record(z.string().min(1), z.string())).optional(),
+  /**
+   * Rules of the house - scoring, timings, jokers, idle watch.
+   *
+   * OPTIONAL, and every value has the constant the engine uses today as its
+   * default (`resolveRules`). A package without `rules` therefore plays exactly
+   * as before. Only rules the engine already has are settable; see
+   * `rulesConfigSchema`.
+   */
+  rules: rulesConfigSchema.optional(),
 })
 export type QuizConfig = z.infer<typeof quizConfigSchema>
 
 /* ------------------------------------------------------------------ *
- * Paket (Abschnitt 24.3)
+ * Package (section 24.3)
  * ------------------------------------------------------------------ */
 
-/** Inhaltsprofile der Pipeline. `no-video` traegt die Offline-Apps. */
+/** Content profiles of the pipeline. `no-video` serves the offline apps. */
 export const contentProfiles = ['full', 'no-video'] as const
 export type ContentProfile = (typeof contentProfiles)[number]
 
 export const quizPackageManifestSchema = z.object({
   schemaVersion: z.string().min(1),
   contentVersion: z.string().min(1),
-  /** Inhaltsprofil des Builds. Fehlt es (aeltere Pakete), gilt `full`. */
+  /** Content profile of the build. If missing (older packages), `full` applies. */
   profile: z.enum(contentProfiles).optional(),
   createdAt: z.string().min(1),
   sourceRevision: z.string().optional(),
@@ -480,24 +536,24 @@ export const quizPackageManifestSchema = z.object({
 })
 export type QuizPackageManifest = z.infer<typeof quizPackageManifestSchema>
 
-/** Das im Speicher geladene, validierte Paket. */
+/** The validated package loaded into memory. */
 export interface QuizPackage {
   manifest: QuizPackageManifest
   config: QuizConfig
   questions: Question[]
   assetsById: Map<string, MediaAsset>
-  /** Absoluter Pfad des Verzeichnisses, in dem `assets/` liegt. */
+  /** Absolute path of the directory that holds `assets/`. */
   rootDir: string
 }
 
-/** Aktuelle Schemaversion des Quizpakets. Aenderungen erfordern eine Migration. */
+/** Current schema version of the quiz package. Changes require a migration. */
 export const QUIZ_PACKAGE_SCHEMA_VERSION = '2.0.0'
 
 /* ------------------------------------------------------------------ *
- * Live-Hotfixes (Abschnitt 25)
+ * Live hotfixes (section 25)
  * ------------------------------------------------------------------ */
 
-/** Nur diese Felder duerfen live gepatcht werden. */
+/** Only these fields may be patched live. */
 export const patchableQuestionFieldsSchema = questionSchema
   .pick({
     prompt: true,
@@ -520,10 +576,14 @@ export const questionPatchSchema = z.object({
   createdAt: z.string().min(1),
   createdBy: z.literal('operator'),
   /**
-   * `next-use`: Der Patch wirkt erst, wenn die Frage das naechste Mal gezogen wird.
-   * `immediate-confirmed`: Der Operator hat "Jetzt uebernehmen" ausdruecklich bestaetigt,
-   * die Aenderung geht sofort auf den Buehnenscreen.
+   * `next-use`: the patch takes effect the next time the question is drawn.
+   * `immediate-confirmed`: the operator has explicitly confirmed "apply now";
+   * the change goes to the stage screen immediately.
    */
   applyMode: z.enum(['next-use', 'immediate-confirmed']),
 })
 export type QuestionPatch = z.infer<typeof questionPatchSchema>
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `translatedLabels`. */
+export const uebersetzteBeschriftung = translatedLabels

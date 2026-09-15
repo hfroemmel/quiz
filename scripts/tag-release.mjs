@@ -1,13 +1,13 @@
 /**
- * Git-Tags fuer den aktuellen Versionsstand setzen - ohne Netzzugriff.
+ * Sets git tags for the current version state - without network access.
  *
- * WARUM NICHT `changeset publish`: Dessen Tag-Schritt fragt fuer jedes Paket,
- * dessen Tag lokal fehlt, beim Server nach (`git ls-remote --tags origin`).
- * Das sind fuenf Netzrunden, und sie stehen HINTER einem Spinner: Fragt das
- * Netz nach Zugangsdaten, sieht man die Frage nicht und der Lauf scheint zu
- * haengen. Veroeffentlicht ist zu dem Zeitpunkt laengst alles.
+ * WHY NOT `changeset publish`: its tag step asks the server
+ * (`git ls-remote --tags origin`) for every package whose tag is missing
+ * locally. That's five network round trips, and they sit BEHIND a spinner:
+ * if the network prompts for credentials, the prompt isn't visible and the
+ * run appears to hang. Everything has long since been published by then.
  *
- * Hier wird nur lokal gearbeitet. Was schon existiert, bleibt stehen.
+ * Only local work happens here. Whatever already exists is left alone.
  *
  *   pnpm changeset publish --no-git-tag
  *   pnpm packages:tag

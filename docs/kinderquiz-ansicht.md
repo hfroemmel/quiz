@@ -1,239 +1,249 @@
-# Kinderquiz: illustrierte Spieleransicht
+# Kids quiz: illustrated player view
 
-Umsetzung der Karlchen-Adler-Welt mit dem Boxen-Assetpaket: die Flaechen sind
-die ORIGINALPFADE des Entwurfs (aus `Boxes.svg` geschnitten) und skalieren per
-9-Slice, die Figuren und die Hintergrundszene liegen als Vektor bzw. WebP bei.
-Diese Datei ist die Referenz fuer Aufbau, Zustaende und Abnahme dieser Ansicht.
+Implementation of the Karlchen the eagle world with the boxes asset package:
+the surfaces are the ORIGINAL PATHS from the design (cut from `Boxes.svg`)
+and scale via 9-slice; the characters and the background scene are supplied
+as vector and WebP respectively. This file is the reference for the
+structure, states, and acceptance of this view.
 
-## 1. Bestandsaufnahme vor der Umsetzung
+## 1. Inventory before implementation
 
-| Frage | Befund |
+| Question | Finding |
 |---|---|
-| Wer rendert die Spieleransicht? | `StageApp` → `StageScreen` → Szenenkomponenten unter `presentation/scenes/`. Eine eigene Kinderansicht gab es nicht; die Modi unterschieden sich nur in den Farbtoken. |
-| Woher kommen Frage, Antworten, Bild, Kategorie, Spieler, Punkte, Fragezaehler? | Ausschliesslich aus `PublicQuizViewModel`: `question.prompt`, `question.categoryLabel`, `question.imageUrl`, `visibleOptions[]`, `playerScores[]`, `progress`. |
-| Welche Zustaende existieren? | `PublicOption.state` mit `chosen`, `correct`, `chosen-incorrect`; dazu die Szene (`question`, `solution`, …) und die Phase. |
-| Was ist wiederverwendbar? | `optionLetter` (A–D), das View-Modell, die Uebergangs- und Klanglogik von `StageScreen`. Die dunklen Primitive (`OptionBar`, `Tile`, `MediaFrame`) nicht - sie tragen eine andere Bildsprache. |
-| Wo stehen Themes, Fonts, Styles, Assetpfade? | Farben im Quizpaket (`content/source/config.json`), Schriften und Layout in `apps/web/src/styles.css`, Medien ueber `/media/<assetId>` vom Server. |
-| Welche Viewports? | Der Buehnenscreen ist ein Container (`container-type: size`); alle Groessen stehen in `cqw`/`cqh`. Getestet werden 16:9 und 16:10. |
-| Welche Tests? | Vitest fuer Domain, Inhalt, Persistenz und Server; Playwright mit den Projekten `live` (echter Server) und `preview` (serverfreie Szenenvorschau, mit Screenshot-Baselines). |
+| Who renders the player view? | `StageApp` → `StageScreen` → scene components under `presentation/scenes/`. There was no dedicated kids view; the modes only differed in their color tokens. |
+| Where do question, answers, image, category, players, score, and question counter come from? | Exclusively from `PublicQuizViewModel`: `question.prompt`, `question.categoryLabel`, `question.imageUrl`, `visibleOptions[]`, `playerScores[]`, `progress`. |
+| Which states exist? | `PublicOption.state` with `chosen`, `correct`, `chosen-incorrect`; plus the scene (`question`, `solution`, …) and the phase. |
+| What is reusable? | `optionLetter` (A–D), the view model, and `StageScreen`'s transition and sound logic. Not the dark primitives (`OptionBar`, `Tile`, `MediaFrame`) - they carry a different visual language. |
+| Where do themes, fonts, styles, and asset paths live? | Colors in the quiz package (`content/source/config.json`), fonts and layout in `apps/web/src/styles.css`, media via `/media/<assetId>` from the server. |
+| Which viewports? | The stage screen is a container (`container-type: size`); all sizes are in `cqw`/`cqh`. 16:9 and 16:10 are tested. |
+| Which tests? | Vitest for domain, content, persistence, and server; Playwright with the `live` (real server) and `preview` (server-free scene preview, with screenshot baselines) projects. |
 
-## 2. Auswahl der Gestaltungswelt
+## 2. Choosing the design world
 
-Die Welt haengt am **Theme**, nicht am Modusnamen:
+The world depends on the **theme**, not the mode name:
 
 ```jsonc
 // content/source/config.json
 { "id": "kids", "skin": "kids" }
 ```
 
-`quizThemeSchema.skin` (`default` | `kids`) wird ueber das View-Modell an die
-Buehne durchgereicht. `StageScreen` macht daraus die EINZIGE Klasse, in der sich
-die beiden Welten unterscheiden:
+`quizThemeSchema.skin` (`default` | `kids`) is passed through to the stage
+via the view model. `StageScreen` turns it into the ONLY class in which the
+two worlds differ:
 
 ```text
 .stage.stage--default   .stage.stage--kids
 ```
 
-Im Client steht nirgends ein Modusname, und es gibt keine kinderspezifischen
-Komponenten mehr: Kopfzeile, Fragetafel und Antwortzeilen sind dieselben
-Bauteile wie auf der Buehne der Erwachsenen. Jedes Bauteil bringt beide Welten
-in seinem eigenen CSS-Modul mit (`:global(.stage--kids)`). Ein weiterer Modus
-bekommt die Kinderwelt damit ohne Codeaenderung.
+In the client, no mode name appears anywhere, and there are no more
+kids-specific components: header, question board, and answer rows are the
+same components as on the adult stage. Each component brings both worlds
+along in its own CSS module (`:global(.stage--kids)`). A further mode gets
+the kids world without any code change.
 
-## 3. Dateien
+## 3. Files
 
 ```text
-apps/web/public/assets/kinderquiz/     Assetpaket (boxes/, characters/, fonts/)
-apps/web/src/styles/stage.css          Wurzelklassen und Token beider Welten
+apps/web/public/assets/kinderquiz/     asset package (boxes/, characters/, fonts/)
+apps/web/src/styles/stage.css          root classes and tokens for both worlds
 apps/web/src/presentation/stage/
-├── StageHeader.tsx / .module.css      Wortmarke, Spielerkarten, Fragenzaehler
-├── Score.tsx / .module.css            Punktekarte
-├── Counter.tsx / .module.css          Fragenzaehler
-├── QuestionHead.tsx / .module.css     Fragebild und Fragetafel
-├── Media.tsx / .module.css            Bildrahmen samt hervorschauender Figur
-├── AnswerList.tsx / .module.css       Antwortzeilen
-├── Mascot.tsx / .module.css           Figurenebene
-├── answerState.ts                     einzige Ableitung des Antwortzustands
-└── kidsAssets.ts                      Liste der vorzuladenden Zeichnungen
+├── StageHeader.tsx / .module.css      wordmark, player cards, question counter
+├── Score.tsx / .module.css            score card
+├── Counter.tsx / .module.css          question counter
+├── QuestionHead.tsx / .module.css     question image and question board
+├── Media.tsx / .module.css            image frame with a peeking character
+├── AnswerList.tsx / .module.css       answer rows
+├── Mascot.tsx / .module.css           character layer
+├── answerState.ts                     the single derivation of answer state
+└── kidsAssets.ts                      list of drawings to preload
 ```
 
-Die Adressen der Zeichnungen stehen in den Stylesheets der Bauteile, nicht im
-Markup: Welche Zeichnung ein Zustand traegt, ist eine Frage der Gestaltung.
+The addresses of the drawings live in the components' stylesheets, not in the
+markup: which drawing a state carries is a matter of design.
 
-## 4. Ebenen
+## 4. Layers
 
-| Ebene | Inhalt | Verhalten |
+| Layer | Content | Behavior |
 |---|---|---|
-| 1 | `karlchen-quiz-scene-16x9.webp` | `cover`, rechts zentriert, dekorativ |
-| 2 | Wortmarke, Karten, Frage, Foto, Antworten | echte DOM-Inhalte |
-| 3 | Karlchen (gross und klein) | `pointer-events: none`, ohne Alternativtext |
-| 4 | gezeichnete SVG-Flaechen | Pseudoelement `::before`, 9-Slice via `border-image` |
-| 5 | `paper-grain.svg` | Overlay ueber Karten UND Figuren, abschaltbar |
+| 1 | `karlchen-quiz-scene-16x9.webp` | `cover`, centered right, decorative |
+| 2 | wordmark, cards, question, photo, answers | real DOM content |
+| 3 | Karlchen (large and small) | `pointer-events: none`, no alt text |
+| 4 | drawn SVG surfaces | pseudo-element `::before`, 9-slice via `border-image` |
+| 5 | `paper-grain.svg` | overlay over cards AND characters, can be switched off |
 
-Zum 9-Slice: Handgezeichnete Ecken duerfen nicht verzerrt werden. Jede Box wird
-deshalb nach dem Muster des Pakets (`boxes.css`) in neun Felder zerlegt - Ecken
-bleiben unverzerrt, Kanten und Mitte strecken sich. Der Slice-Wert je Element
-stammt aus `boxes.json` (Prop `slice` von `KidsSurface`), die Randbreite setzt
-die Komponentenklasse in `cqw`: Bei 1920 Containerbreite entspricht sie genau
-dem Quellwert. Zwei Dateien sind abgeleitet, weil der Entwurf sie nicht
-enthaelt (der Weg steht im README des Pakets): `answer-box-correct`
-(Papier -> Gruen) und `answer-box-incorrect` (Rot -> gedecktes Rot).
+On 9-slice: hand-drawn corners must not be distorted. Every box is therefore
+split into nine fields following the package's pattern (`boxes.css`) -
+corners stay undistorted, edges and center stretch. The slice value per
+element comes from `boxes.json` (the `slice` prop of `KidsSurface`); the
+component class sets the border width in `cqw`: at 1920 container width it
+matches the source value exactly. Two files are derived because the design
+does not include them (the process is in the package's README):
+`answer-box-correct` (paper -> green) and `answer-box-incorrect` (red ->
+muted red).
 
-Die Spielerkarte gibt es in zwei Zeichnungen je Spieler: `chip-score-playerN`
-zeigt reines Papier, `chip-score-playerN-selected` das farbige Feld mit der
-gelben Ecke. Wer am Zug ist, steht damit in der Zeichnung - dieselbe Welt, in
-der auch jeder Antwortzustand gezeichnet und nicht gerechnet ist.
+The player card exists in two drawings per player: `chip-score-playerN`
+shows plain paper, `chip-score-playerN-selected` shows the colored field with
+the yellow corner. Who is up is thus visible in the drawing itself - the same
+world in which every answer state is drawn, not computed.
 
-Das Fragefoto traegt einen inhaltlichen Alternativtext, alle dekorativen Bilder
-einen leeren.
+The question photo carries a meaningful alt text, all decorative images an
+empty one.
 
-## 5a. Aufbau einer Antwortzeile
+## 5a. Structure of an answer row
 
-Chip und Karte sind **zwei getrennte Zeichnungen** mit einer sichtbaren Luecke
+Chip and card are **two separate drawings** with a visible gap
 (`clamp(10px, .9cqw, 18px)`):
 
 ```text
-li.kids-answer                Raster, ohne eigene Zeichnung
-├── span.kids-answer__chip    quadratische Chipzeichnung, feste Spalte
-└── span.kids-answer__surface breite Kartenzeichnung
+li.kids-answer                grid, no drawing of its own
+├── span.kids-answer__chip    square chip drawing, fixed column
+└── span.kids-answer__surface wide card drawing
     └── span.kids-answer__text
 ```
 
-Die breite Karte liegt nie auf der Zeile - sonst saesse der Buchstabe mit auf
-ihr, und genau daran war die erste Fassung als Standard-UI zu erkennen.
+The wide card never sits on top of the row - otherwise the letter would sit
+on it too, and that was exactly what gave away the first version as a
+standard-UI look.
 
-## 5. Zustaende der Antworten
+## 5. Answer states
 
-Abgeleitet wird an genau einer Stelle: `answerVisualState`.
+Derived in exactly one place: `answerVisualState`.
 
-| Serverzustand | Darstellung | Flaeche | Chip |
+| Server state | Display | Surface | Chip |
 |---|---|---|---|
-| `state = 'chosen'` | `selected` | `answer-box-b` (rot) | `badge-letter-b` (gelb) |
-| Loesungsszene, `state = 'correct'` | `correct` | `answer-box-correct` (gruen) | Papier-Badge der Zeile |
-| Loesungsszene, alles uebrige | `disabled` | Papier-Box der Zeile, 55 % Deckkraft | Papier-Badge der Zeile |
-| `state = 'chosen-incorrect'` | `incorrect` | `answer-box-incorrect` (gedecktes Rot) | Papier-Badge der Zeile |
-| sonst | `idle` | Papier-Box der Zeile | Papier-Badge der Zeile |
+| `state = 'chosen'` | `selected` | `answer-box-b` (red) | `badge-letter-b` (yellow) |
+| Solution scene, `state = 'correct'` | `correct` | `answer-box-correct` (green) | the row's paper badge |
+| Solution scene, everything else | `disabled` | the row's paper box, 55% opacity | the row's paper badge |
+| `state = 'chosen-incorrect'` | `incorrect` | `answer-box-incorrect` (muted red) | the row's paper badge |
+| otherwise | `idle` | the row's paper box | the row's paper badge |
 
-„Der Zeile": Im Entwurf hat jede Antwortzeile ihre eigene Zeichnung (a bis d,
-verschieden wackelnd); Zeile B liegt nur rot vor und nutzt im Ruhezustand eine
-Nachbarzeichnung. Die Zuordnung steht in `kidsAssets.answerSurface`.
+"The row's": in the design, every answer row has its own drawing (a through
+d, each wobbling differently); row B only exists in red and uses a
+neighboring drawing in its idle state. The mapping lives in
+`kidsAssets.answerSurface`.
 
-Zur Loesungsszene: Dort traegt **ausschliesslich die richtige Antwort** Farbe -
-dieselbe Regel wie auf der dunklen Buehne. `chosen-incorrect` bedeutet ausserhalb
-der Loesung „diese Antwort ist in der zweiten Chance verbraucht"; dafuer ist die
-Flaeche `answer-incorrect` gedacht.
+On the solution scene: there, **only the correct answer** carries color -
+the same rule as on the dark stage. `chosen-incorrect` outside the solution
+means "this answer is used up in the second chance"; the `answer-incorrect`
+surface is meant for that.
 
 ## 6. Layout
 
-- Raster und Anteile der Designreferenz: Bild 27 %, Frage der Rest, Karlchen 25 %.
-- Zwischen Fragebild und Frageflaeche steht eine sichtbare Fuge von
-  `clamp(16px, 1.4cqw, 28px)`; beide beruehren sich nie.
-- Antwortzeilen und Loesungszeile enden bei 75 % der Breite, damit die
-  Figurenflaeche frei bleibt.
-- Karlchen steht am unteren rechten Rand der **ganzen Ansicht**, nicht in der
-  Fragezeile - so steht er wie in der Referenz auf dem Boden. Er ist gut halb
-  so hoch wie die Ansicht (`58cqh`) und praesentiert mit dem ausgestreckten
-  Fluegel nach links zu den Antworten.
-- Er erscheint erst, **wenn die Antworten stehen** (`data-answers-shown` an der
-  Buehne), und bleibt bis zur Loesung. Solange der Moderator nur die Frage
-  vorliest, zeigt sein Fluegel auf eine leere Flaeche - er praesentiert etwas,
-  das es noch nicht gibt. Der kleine Karlchen am Bildrahmen gehoert zur
-  Bildeinfassung und ist davon nicht betroffen.
-- **Am Touchgeraet steht er gar nicht.** Dort gehoeren die aeusseren Draittel den
-  Buzzern der beiden Spieler, und die Figur deckte einen davon zu. Ohne sie muss
-  auch nichts mehr fuer sie frei bleiben: `--kids-content-width` steht dort auf
-  100 Prozent, Frage und Antworten nehmen die ganze Mitte. Der Buzzer selbst
-  traegt die gezeichnete Antwortkarte des Boxenpakets - eine glatte Flaeche in
-  `--tile` verschwaende auf dem hellen Papier.
-- Der kleine Karlchen schaut mittig ueber die obere Bildkante; seine Unterkante
-  steckt 8 bis 13 Pixel hinter der Rahmenzeichnung, damit die Haende auf dem
-  Rand aufzuliegen scheinen.
-- Ohne Fragebild uebernimmt die Frageflaeche die Bildspalte
-  (`.kids-stage--textonly`). Die Reihenfolge Bild → Frage → Antworten aendert
-  sich nie.
+- Grid and proportions of the design reference: image 27%, question the
+  rest, Karlchen 25%.
+- Between the question image and the question area there is a visible gap of
+  `clamp(16px, 1.4cqw, 28px)`; the two never touch.
+- Answer rows and the solution row end at 75% of the width, so the character
+  area stays free.
+- Karlchen stands at the bottom right edge of the **entire view**, not in the
+  question row - so he stands on the floor as in the reference. He is about
+  half as tall as the view (`58cqh`) and presents with his wing stretched out
+  to the left toward the answers.
+- He appears only **once the answers are showing** (`data-answers-shown` on
+  the stage) and stays until the solution. While the moderator is still just
+  reading the question aloud, his wing would point at an empty area - he
+  would be presenting something that does not exist yet. The small Karlchen
+  on the image frame belongs to the picture framing and is not affected by
+  this.
+- **On the touch device he is not shown at all.** There, the outer thirds
+  belong to the two players' buzzers, and the character would cover one of
+  them. Without him, nothing needs to stay free for him either:
+  `--kids-content-width` is set to 100 percent there, and the question and
+  answers take up the whole middle. The buzzer itself carries the boxes
+  package's drawn answer card - a plain surface in `--tile` would fade away
+  on the light paper.
+- The small Karlchen looks out centered over the top image edge; his lower
+  edge sits 8 to 13 pixels behind the frame drawing, so his hands appear to
+  rest on the edge.
+- Without a question image, the question area takes over the image column
+  (`.kids-stage--textonly`). The order image → question → answers never
+  changes.
 
-### Wer gibt nach
+### Who gives way
 
-Die Fragezeile ist der nachgiebige Teil: Sie waechst in den freien Platz, damit
-die Komposition wie in der Referenz die ganze Hoehe traegt, und gibt ihn wieder
-her, sobald vier zweizeilige Antworten mehr Raum brauchen. Die Antwortzeilen
-geben nichts her - sie sind der Inhalt, um den es geht.
+The question row is the flexible part: it grows into the free space so the
+composition carries the full height as in the reference, and gives it back
+as soon as four two-line answers need more room. The answer rows give up
+nothing - they are the content this is all about.
 
-### Masseinheiten
+### Units
 
-Das Assetpaket nennt seine Werte in `vw`/`vh` und meint den Buehnenscreen im
-Vollbild. Umgesetzt sind sie als REINE Containermasse (`cqw`/`cqh`, ohne
-`clamp`-Grenzen): Bei Vollbild ist das derselbe Wert, jede kleinere Buehne -
-auch die Operatorvorschau - ist eine exakt proportionale Verkleinerung. Kein
-Wert wird doppelt gepflegt, und kein Pixeldeckel verschiebt die Komposition.
+The asset package states its values in `vw`/`vh` and means the stage screen
+in fullscreen. They are implemented as PURE container units (`cqw`/`cqh`,
+without `clamp` limits): in fullscreen that is the same value, and every
+smaller stage - including the operator preview - is an exactly proportional
+scale-down. No value is maintained twice, and no pixel cap shifts the
+composition.
 
-### Schmalere Ansichten
+### Narrower views
 
-| Breite | Verhalten |
+| Width | Behavior |
 |---|---|
-| ab 1100 px | Referenzkomposition vollstaendig |
-| unter 1100 px | Antworten auf 88 % Breite, Karlchen kleiner, Frageflaeche breiter |
-| unter 768 px | Entwickler- und Operatorvorschau: Inhalte scrollen, Karlchen wird zur schwachen Dekoration; nichts wird entfernt |
+| from 1100 px | full reference composition |
+| below 1100 px | answers at 88% width, Karlchen smaller, question area wider |
+| below 768 px | developer and operator preview: content scrolls, Karlchen becomes a faint decoration; nothing is removed |
 
-## 7. Schriften
+## 7. Fonts
 
-**Patrick Hand** (400) traegt alles Gelesene: Frage, Antworten, Kategorie und
-Beschriftungen. **Melior** (700) traegt die Zahlen (Spielernummer,
-Punktestaende, Fragenzaehler) und die Buchstaben A–D - dieselbe Serife wie auf
-der grossen Buehne, dort muessen Ziffern beim Hochzaehlen ruhig stehen
+**Patrick Hand** (400) carries everything read: question, answers, category,
+and labels. **Melior** (700) carries the numbers (player number, scores,
+question counter) and the letters A–D - the same serif as on the main
+stage, where digits need to stand still while counting up
 (`tabular-nums`).
 
-Die Handschrift kommt aus dem Assetpaket und liegt unter
-`apps/web/public/assets/kinderquiz/fonts/`. Sie wird bewusst nicht gebuendelt:
-Nur so behaelt sie eine feste Adresse, die `apps/web/index.html` vorladen kann.
-`font-display: block` verhindert, dass auf der Buehne kurz eine Systemschrift zu
-sehen ist; der Rueckfall ist eine Schreibschrift, keine System-Sans. Melior ist
-im regulaeren Schriftbestand gebuendelt (`apps/web/src/styles.css`).
+The handwriting font comes from the asset package and lives under
+`apps/web/public/assets/kinderquiz/fonts/`. It is deliberately not bundled:
+only this way does it keep a fixed address that `apps/web/index.html` can
+preload. `font-display: block` prevents a system font from briefly showing
+on the stage; the fallback is a script font, not a system sans. Melior is
+bundled in the regular font set (`apps/web/src/styles.css`).
 
-Es gibt **keine gerechnete Fettschrift**: Patrick Hand hat genau einen Schnitt
-(400), Melior liegt als echter Bold-Schnitt vor.
+There is **no computed bold**: Patrick Hand has exactly one weight (400),
+Melior exists as a genuine bold cut.
 
-## 8. Abnahme
+## 8. Acceptance
 
-`test/e2e/kids-quiz.spec.ts` prueft im Projekt `preview`:
+`test/e2e/kids-quiz.spec.ts` checks in the `preview` project:
 
-- Wortmarke, beide Spielerkarten, Zaehler, Bild, Frage, vier Antworten
-- gespiegelte Spielerkarten, genau ein aktiver Spieler
-- dreistellige Punktestaende, Zaehler `7/7`, Tabellenziffern
-- Zustandsabbildung `idle` / `selected` / `incorrect` / `correct` / `disabled`
-  samt zugehoeriger Flaechen- und Chipdatei
-- kein CSS-Rahmen, kein CSS-Radius, kein gerechneter Schatten an Karten,
-  Chips, Antworten, Bild, Spielerkarten und Zaehler
-- Chip und Antwortkarte als getrennte Flaechen mit sichtbarer Luecke
-- Patrick Hand fuer Text, Melior fuer Zahlen und Buchstaben, beide wirklich geladen
-- sichtbare Fuge zwischen Fragebild und Frageflaeche
-- Karlchen gut die Haelfte der Bildhoehe, rechts, am Boden, ohne die
-  Antworten zu beruehren; kleiner Karlchen mittig ueber dem Bildrahmen
-- lange Texte in allen vier Zielformaten: kein Abschneiden, mehrzeilige Frage,
-  zweizeilige Antworten, Chip in fester Groesse und mittig
-- Rueckfall ohne Fragebild
+- wordmark, both player cards, counter, image, question, four answers
+- mirrored player cards, exactly one active player
+- three-digit scores, counter `7/7`, tabular digits
+- state mapping `idle` / `selected` / `incorrect` / `correct` / `disabled`
+  with the corresponding surface and chip file
+- no CSS border, no CSS radius, no computed shadow on cards, chips, answers,
+  image, player cards, and counter
+- chip and answer card as separate surfaces with a visible gap
+- Patrick Hand for text, Melior for numbers and letters, both actually
+  loaded
+- visible gap between the question image and the question area
+- Karlchen about half the image height, on the right, on the ground,
+  without touching the answers; small Karlchen centered above the image
+  frame
+- long texts in all four target formats: no clipping, multi-line question,
+  two-line answers, chip at a fixed size and centered
+- fallback without a question image
 - `prefers-reduced-motion`
-- Screenshots bei 1920×1080, 1440×900, 1280×720 und 1024×768
+- screenshots at 1920×1080, 1440×900, 1280×720, and 1024×768
 
-Fuer die Belastungsprobe hat die Entwicklungsvorschau den Schalter
-**Lange Texte**; er setzt die Testtexte aus `ASSET_INTEGRATION.md` ein.
+For stress testing, the development preview has a **Lange Texte** ("Long
+texts") toggle; it inserts the test texts from `ASSET_INTEGRATION.md`.
 
-## 9. Offene Punkte
+## 9. Open points
 
-1. **Frage und Loesung haben eigene Komponenten.** Pausenscreen, Rueckmeldung,
-   Enthuellung, Video, Start und Ergebnis behalten ihre gemeinsame Komposition,
-   sind aber in der Kinderwelt umgezeichnet (`kids.css`, Abschnitt "Kopfzeile
-   der gemeinsamen Szenen"): Spielergruppen und Fragezaehler tragen die
-   Kartenzeichnungen per `border-image`, das Enthuellungsfoto steht im
-   gezeichneten Portraetrahmen (die Unschaerfe haelt ein `clip-path` im
-   Rahmen), der Hinweis zur zweiten Chance ist der gelbe Chip, und die grossen
-   Ergebniskacheln stehen auf Papier.
-2. **Ein einziger Radius bleibt**: der Beschnitt des Fragefotos
-   (`.kids-media__image`). Er ist aus der Innenkontur von `media-frame.svg`
-   abgelesen und verhindert, dass rechtwinklige Fotoecken aus der gerundeten
-   Innenform der Zeichnung herausstehen (Assetpaket, Abschnitt 10). Alle
-   gezeichneten Bauteile sind radienfrei.
-3. **Die Wortmarke** ist das bereits im Projekt vorhandene freigegebene Asset
-   (`apps/web/src/assets/images/logo.svg`), nicht die Zeichnung aus dem Paket.
-4. **Der Kindermodus hat noch keine eigenen Startgrafiken.** Startbild und
-   Pausenlogo kommen weiterhin aus der Konfiguration.
+1. **Question and solution have their own components.** Pause screen,
+   feedback, reveal, video, start, and result keep their shared composition
+   but are redrawn for the kids world (`kids.css`, section "Header of the
+   shared scenes"): player groups and question counter carry the card
+   drawings via `border-image`, the reveal photo sits in the drawn portrait
+   frame (the blur is held by a `clip-path` in the frame), the second-chance
+   hint is the yellow chip, and the large result tiles sit on paper.
+2. **Exactly one radius remains**: the crop of the question photo
+   (`.kids-media__image`). It is read off the inner contour of
+   `media-frame.svg` and prevents right-angled photo corners from sticking
+   out of the drawing's rounded inner shape (asset package, section 10). All
+   drawn components are radius-free.
+3. **The wordmark** is the already-approved asset already present in the
+   project (`apps/web/src/assets/images/logo.svg`), not the drawing from the
+   package.
+4. **The kids mode has no start graphics of its own yet.** The start image
+   and pause logo still come from the configuration.

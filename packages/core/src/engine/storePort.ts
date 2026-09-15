@@ -1,21 +1,21 @@
 /**
- * Speicher-Schnittstelle der Anwendungsschicht.
+ * Storage interface of the application layer.
  *
- * `QuizService` kennt ausschliesslich diesen Port - nicht SQLite. Dadurch kann
- * derselbe Dienst gegen zwei Welten laufen:
+ * `QuizService` knows exclusively this port - not SQLite. That lets the same
+ * service run against two worlds:
  *
- *   - Buehnenbetrieb: der SQLite-Adapter des Buehnenbetriebs (ACID, Audit,
- *     Wiederherstellung nach Absturz);
- *   - Kiosk und Einbettung: `MemoryQuizStore` in `@quiz/runtime`, ohne native
- *     Module und damit auch in einem Renderer- oder Browserprozess lauffaehig.
+ *   - stage operation: the SQLite adapter of the stage operation (ACID, audit,
+ *     recovery after a crash);
+ *   - kiosk and embedding: `MemoryQuizStore` in `@quiz/runtime`, without native
+ *     modules and therefore runnable in a renderer or browser process, too.
  *
- * Der Zuschnitt folgt exakt der Nutzung durch den Dienst; was nur Tests oder
- * Diagnose brauchen (etwa Zeilenzaehlung), gehoert nicht hierher.
+ * The cut follows exactly the use by the service; what only tests or
+ * diagnostics need (such as row counting) does not belong here.
  */
 import type { ActorRole, AuditEntry, GameState, QuestionPatch } from '../contracts'
 import type { DomainEvent, EngineEffects } from './engine'
 
-/** Alles, was zu einem akzeptierten Befehl gehoert - es wird ATOMAR uebernommen. */
+/** Everything that belongs to an accepted command - committed ATOMICALLY. */
 export interface CommitInput {
   commandId: string
   actor: { clientId: string; role: ActorRole }
@@ -37,13 +37,13 @@ export interface UsageRow {
   usedAtMs: number
 }
 
-/** Eine Zeile des Spielprotokolls: alle Spiele einer Zielgruppe. */
+/** One row of the game log: all games of one audience. */
 export interface GameCountRow {
   audience: string
   total: number
   completed: number
   aborted: number
-  /** Zeitpunkt des zuletzt begonnenen Spiels dieser Zielgruppe. */
+  /** Time of the most recently started game of this audience. */
   lastAtIso?: string
 }
 
@@ -58,33 +58,33 @@ export interface AuditAppendInput {
 }
 
 export interface QuizStorePort {
-  /* Veranstaltungstag */
+  /* Event day */
   ensureEventDay(calendarDate: string, nowIso: string, allowRollover: boolean): { id: string; calendarDate: string }
   startNewEventDay(calendarDate: string, nowIso: string): { id: string; calendarDate: string }
 
-  /* Befehlsidempotenz */
+  /* Command idempotency */
   findProcessedCommand(commandId: string): RecordedCommandResponse | null
   recordRejectedCommand(commandId: string, revision: number, response: unknown, nowIso: string): void
 
-  /** Die einzige Schreibmethode fuer akzeptierte Befehle - eine Transaktion. */
+  /** The only write method for accepted commands - one transaction. */
   commitCommand(input: CommitInput): void
 
-  /* Lesen */
+  /* Reading */
   loadResumableGame(eventDayId: string): GameState | null
   loadUsageHistory(eventDayId: string): UsageRow[]
   loadAuditEntries(gameId: string | null, limit: number): AuditEntry[]
 
-  /** Freies Auditereignis ausserhalb eines Befehls (Start, Reconnect, Fehler). */
+  /** Free audit event outside a command (start, reconnect, error). */
   appendAudit(entry: AuditAppendInput): void
 
   /* Hotfixes */
   savePatch(patch: QuestionPatch, previousValues: Record<string, unknown>): void
   loadPatches(): QuestionPatch[]
 
-  /* Spielprotokoll */
+  /* Game log */
   gameCountsByAudience(sinceIso: string | null): GameCountRow[]
 
-  /* Einstellungen */
+  /* Settings */
   getSetting(key: string): string | null
   setSetting(key: string, value: string): void
 

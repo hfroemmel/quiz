@@ -1,19 +1,19 @@
 /**
- * Autoritative Zustandsmaschine (Spezifikation 18).
+ * Authoritative state machine (specification 18).
  *
- * Diese Datei ist die einzige Stelle, an der Phasenwechsel stattfinden. Sie ist rein:
- * Zeit, Zufall, IDs und der Zugriff auf den Fragenpool werden ueber `EngineContext`
- * injiziert. Dadurch laufen alle Regeltests ohne Electron, React, Netzwerk oder echte
- * Systemzeit.
+ * This file is the only place where phase changes happen. It is pure: time,
+ * randomness, ids and the access to the question pool are injected through
+ * `EngineContext`. That way all rule tests run without Electron, React, network
+ * or real system time.
  *
- * Vertrag:
- *   reduce(state, command, ctx) -> akzeptiert (neuer Zustand + Ereignisse + Effekte)
- *                                | abgelehnt (Grund + Klartextmeldung)
+ * Contract:
+ *   reduce(state, command, ctx) -> accepted (new state + events + effects)
+ *                                | rejected (reason + plain-text message)
  *
- * Die Engine erhoeht bei jeder Annahme `revision`. Idempotenz gegen doppelte
- * Netzwerkbefehle stellt der Server ueber die `commandId` sicher (Spezifikation 18.4);
- * zusaetzlich schuetzt die Engine strukturell, weil ein bereits ausgewerteter Versuch
- * nicht erneut ausgewertet werden kann.
+ * The engine increments `revision` on every acceptance. Idempotency against
+ * duplicate network commands is ensured by the server through the `commandId`
+ * (specification 18.4); in addition the engine protects structurally, because
+ * an attempt already evaluated cannot be evaluated again.
  */
 import {
   createJokerStates,
@@ -37,6 +37,8 @@ import {
   type PlayerId,
   type PlayerState,
   type RuntimeQuestion,
+  type GameTiming,
+  type ScoringRules,
   type SelfServiceTiming,
 } from '../contracts'
 import { eligibleOpponent, evaluateBuzz } from './buzzer'
@@ -69,10 +71,10 @@ import {
 import type { QuizLookup } from './quizModes'
 
 /* ------------------------------------------------------------------ *
- * Ports und Ergebnisstruktur
+ * Ports and result structure
  * ------------------------------------------------------------------ */
 
-/** Anfrage der Engine an die Anwendungsschicht: Frage fuer einen Fragenplatz ziehen. */
+/** Request of the engine to the application layer: draw a question for a slot. */
 export interface SlotRequest {
   audience: string
   poolIds?: string[] | undefined
@@ -87,15 +89,15 @@ export type SlotResponse =
   | { ok: false; message: string }
 
 /**
- * Zugriff auf Inhalt und Nutzungshistorie. Die Engine kennt weder Dateisystem noch
- * SQLite; der Server implementiert diesen Port (Abhaengigkeitsrichtung Spezifikation 20.4).
+ * Access to content and usage history. The engine knows neither file system nor
+ * SQLite; the server implements this port (dependency direction, specification 20.4).
  */
 export interface QuestionSource {
-  /** Anzahl Fragenplaetze der Kombination, oder `null` wenn sie nicht existiert. */
+  /** Number of slots of the combination, or `null` if it does not exist. */
   slotCountFor(audience: string, presetId: string): number | null
   /**
-   * Die Quizart aus der Konfiguration, mit Zielgruppe, Pools, Theme und
-   * Schwierigkeitsgraden - vollstaendig geprueft.
+   * The quiz type from the configuration, with audience, pools, theme and
+   * difficulty levels - fully checked.
    */
   quizFor(quizId: string): QuizLookup
   selectForSlot(request: SlotRequest): SlotResponse
@@ -104,14 +106,23 @@ export interface QuestionSource {
 export interface EngineContext {
   nowMs: number
   eventDayId: string
-  /** Erzeugt stabile IDs (Spiel, Versuch, Uebergang). */
+  /** Creates stable ids (game, attempt, transition). */
   newId: (prefix: string) => string
   questionSource: QuestionSource
-  timing?: typeof gameTiming
+  timing?: GameTiming
   selfServiceTiming?: SelfServiceTiming
-  /** Globaler Soundstatus, den ein neu gestartetes Spiel uebernimmt. */
+  /** Scoring of this package (`config.rules.scoring`); without it the constants. */
+  scoring?: ScoringRules
+  /**
+   * Do operated games of this package have jokers? (`config.rules.jokers`)
+   *
+   * Without a statement they do - that is how every game played so far began.
+   * A self-service game never has them, whatever this says.
+   */
+  jokersEnabled?: boolean
+  /** Global sound status a newly started game takes over. */
   initialSoundEnabled?: boolean
-  /** Sprache des Geraets, die ein neu gestartetes Spiel uebernimmt. */
+  /** Locale of the device a newly started game takes over. */
   initialLocale?: string
   /**
    * Source of chance for decisions the engine itself makes - currently only the
@@ -127,7 +138,7 @@ export interface DomainEvent {
   data?: Record<string, unknown>
 }
 
-/** Punktebuchung, die der Server in derselben Transaktion persistieren muss. */
+/** Score booking the server has to persist in the same transaction. */
 export interface ScoreTransaction {
   playerId: PlayerId
   delta: number
@@ -136,7 +147,7 @@ export interface ScoreTransaction {
   attemptId?: string
 }
 
-/** Nutzungseintrag der globalen Wiederholungshistorie (Spezifikation 17.3). */
+/** Usage entry of the global repetition history (specification 17.3). */
 export interface QuestionUsageRecord {
   questionId: string
   repetitionGroupId?: string
@@ -159,7 +170,13 @@ export type EngineResult =
 
 export function reduce(state: GameState | null, command: Command, ctx: EngineContext): EngineResult {
   const timing = ctx.timing ?? gameTiming
-  const work = new Draft(state, ctx, timing, ctx.selfServiceTiming ?? selfServiceTiming)
+  const work = new Draft(
+    state,
+    ctx,
+    timing,
+    ctx.selfServiceTiming ?? selfServiceTiming,
+    ctx.scoring ?? scoringRules,
+  )
 
   /*
    * WHILE THE CARD IS IN THE AIR, THE QUESTION WAITS.
@@ -188,10 +205,10 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 
     case 'SET_LOCALE': {
       /*
-       * Wie beim Ton: Laeuft ein Spiel, wechselt es mit - die Fragen sind
-       * dieselben, nur die Sprache ist eine andere. Laeuft keines, gibt es
-       * nichts, worin der Befehl stehen koennte; dann traegt ihn die
-       * Anwendungsschicht (siehe `QuizService`).
+       * As with the sound: if a game runs, it switches along - the questions
+       * are the same, only the language differs. If none runs, there is
+       * nothing the command could be recorded in; then the application layer
+       * carries it (see `QuizService`).
        */
       if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
       work.mutate((draft) => {
@@ -210,7 +227,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
         draft.buzzer = { open: false }
         draft.pendingTransition = undefined
       })
-      // Ein abgebrochenes Spiel zeigt bewusst keine automatische Gewinneransicht.
+      // An aborted game deliberately shows no automatic winner view.
       work.log('game', 'Spiel abgebrochen. Es wird kein Ergebnis angezeigt.')
       return work.commit()
     }
@@ -258,9 +275,9 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
         return reject('invalid-phase', 'Die Enthüllung wurde bereits gestartet.')
       }
       /*
-       * Erst hier oeffnet der Buzzer. Vorher steht das Bild unscharf, damit der
-       * Moderator die Frage in Ruhe vorlesen kann - ein Buzzern waere sonst ein
-       * Zufallstreffer auf ein Bild, das noch niemand gesehen hat.
+       * Only here does the buzzer open. Before, the picture stands blurred so
+       * that the moderator can read the question in peace - a buzz would
+       * otherwise be a lucky hit on a picture nobody has seen yet.
        */
       work.mutate((draft) => {
         draft.reveal = resumeReveal(draft.reveal ?? createRevealClock(work.timing.imageRevealDurationMs), ctx.nowMs)
@@ -307,7 +324,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       }
       work.mutate((draft) => {
         draft.reveal = completeReveal(draft.reveal!)
-        // Vollstaendige Enthuellung sperrt den Buzzer ausdruecklich NICHT.
+        // A complete reveal explicitly does NOT lock the buzzer.
         if (draft.phase === 'reveal-paused') draft.phase = 'reveal-running'
       })
       work.log('phase', 'Bild vollständig aufgedeckt. Buzzern bleibt erlaubt.')
@@ -324,7 +341,7 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
         draft.reveal = resumeReveal(resetReveal(draft.reveal!), ctx.nowMs)
         draft.phase = 'reveal-running'
       })
-      // Technische Korrekturaktion, bewusst getrennt von "Buzzer zuruecksetzen".
+      // Technical correction, deliberately separate from "reset buzzer".
       work.log('system', 'Enthüllung technisch auf den Anfang zurückgesetzt.')
       return work.commit()
     }
@@ -344,10 +361,11 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       if (work.state.status === 'aborted') {
         return reject('invalid-phase', 'Ein abgebrochenes Spiel kann nicht mehr korrigiert werden.')
       }
-      const step = command.direction === 'increase' ? scoringRules.manualAdjustmentStep : -scoringRules.manualAdjustmentStep
+      const step =
+        command.direction === 'increase' ? work.scoring.manualAdjustmentStep : -work.scoring.manualAdjustmentStep
       const player = work.state.players.find((entry) => entry.id === command.playerId)
       if (!player) return reject('invalid-payload', 'Unbekannter Spieler.')
-      const { score, effectiveDelta } = applyScoreDelta(player.score, step)
+      const { score, effectiveDelta } = applyScoreDelta(player.score, step, work.scoring)
       if (effectiveDelta === 0) {
         return reject('invalid-payload', `Der Punktestand von ${player.label} liegt bereits bei 0.`)
       }
@@ -375,9 +393,9 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'START_NEW_EVENT_DAY':
     case 'RESET_GAME_STATISTICS':
     case 'APPLY_QUESTION_PATCH':
-      // Betriebs- und Wiederherstellungsbefehle sind bewusst keine Spielregeln.
-      // Sie werden in der Anwendungsschicht (`@quiz/runtime`) behandelt, weil sie
-      // Inhalt, Datenbank und Veranstaltungstag betreffen - nicht den Spielablauf.
+      // Operating and recovery commands are deliberately not game rules.
+      // They are handled in the application layer (`@quiz/runtime`) because they
+      // concern content, database and event day - not the game flow.
       return reject('unknown-command', 'Dieser Befehl wird nicht von der Spiel-Engine verarbeitet.')
 
     default: {
@@ -389,15 +407,15 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
 }
 
 /* ------------------------------------------------------------------ *
- * Befehlsimplementierungen
+ * Command implementations
  * ------------------------------------------------------------------ */
 
 /**
- * Die Startkonfiguration, auf die sich der Server festlegt.
+ * The start configuration the server commits to.
  *
- * Sie entsteht an genau EINER Stelle - `resolveStartConfig` - und wird danach
- * nur noch in den Spielstand geschrieben. Weder Pult noch Buehne leiten etwas
- * davon ab: Was hier steht, hat der Server bestaetigt.
+ * It is created in exactly ONE place - `resolveStartConfig` - and afterwards
+ * only written into the game state. Neither desk nor stage derive anything
+ * from it: what stands here, the server has confirmed.
  */
 interface StartConfig {
   quizId?: string
@@ -407,11 +425,11 @@ interface StartConfig {
 }
 
 /**
- * Aus dem Befehl die verbindliche Startkonfiguration machen - oder ablehnen.
+ * Turn the command into the binding start configuration - or refuse.
  *
- * ZWEI WEGE, EIN ERGEBNIS: Das Pult nennt eine Quizart, ein Geraet nennt
- * Zielgruppe und Preset. Beides zusammen ist ein Widerspruch und wird abgelehnt,
- * nicht stillschweigend gewichtet.
+ * TWO WAYS, ONE RESULT: the desk names a quiz type, a device names audience
+ * and preset. Both together are a contradiction and are refused, not silently
+ * weighed.
  */
 function resolveStartConfig(
   work: Draft,
@@ -444,9 +462,9 @@ function resolveStartConfig(
   const quiz = lookup.quiz
 
   /*
-   * DIE SCHWIERIGKEIT GEHOERT NUR ZU EINER QUIZART, DIE SIE ANBIETET. Ein
-   * Formular, das beim Wechsel die alte Stufe stehen laesst, faellt hier auf -
-   * und zwar als Ablehnung und nicht als still gespieltes anderes Quiz.
+   * THE DIFFICULTY BELONGS ONLY TO A QUIZ TYPE THAT OFFERS IT. A form that
+   * leaves the old level standing on a change is caught here - as a refusal
+   * and not as a silently played other quiz.
    */
   const hasChoice = quiz.presetIds.length > 1
   if (!hasChoice) {
@@ -506,10 +524,10 @@ function startGame(
     return reject('invalid-payload', 'Diese Kombination aus Zielgruppe und Schwierigkeits-Preset gibt es nicht.')
   }
 
-  // Ohne Angabe ist ein Spiel ein Duell. Der Buehnenbetrieb bleibt damit
-  // unveraendert, ohne dass er die Spielerzahl mitschicken muss.
+  // Without it a game is a duel. The stage operation thus stays
+  // unchanged without having to send the player count.
   const playerCount: PlayerCount = command.playerCount ?? 2
-  // Ohne Angabe steuert ein Mensch - der Buehnenbetrieb bleibt damit unveraendert.
+  // Without it a human is in control - the stage operation thus stays unchanged.
   const flowProfile: FlowProfile = command.flowProfile ?? 'operated'
   const players: PlayerState[] = playerIds
     .slice(0, playerCount)
@@ -542,15 +560,15 @@ function startGame(
      * keeps the rule in ONE place instead of a configuration flag that each host
      * would have to set correctly.
      */
-    ...(flowProfile === 'operated'
+    ...(flowProfile === 'operated' && (work.ctx.jokersEnabled ?? true)
       ? {
           jokerByPlayer: createJokerStates(players.map((player) => player.id)),
           jokerSequence: { phase: 'idle' as const },
         }
       : {}),
-    // Der globale Soundstatus bleibt ueber Spiele hinweg erhalten.
+    // The global sound status is kept across games.
     soundEnabled: work.ctx.initialSoundEnabled ?? work.state?.soundEnabled ?? true,
-    // Ebenso die Sprache: Sie gehoert dem Geraet und ueberdauert das einzelne Spiel.
+    // Likewise the locale: it belongs to the device and outlives the single game.
     ...(work.ctx.initialLocale ?? work.state?.locale
       ? { locale: work.ctx.initialLocale ?? work.state?.locale }
       : {}),
@@ -568,8 +586,8 @@ function startGame(
   const selection = drawQuestionForCurrentSlot(work, [])
   if (!selection.ok) return selection.rejection
 
-  // Der Pausen-/Logoscreen laeuft als kurze eigene Praesentationsphase an; danach
-  // uebernimmt derselbe Weg wie zwischen zwei Fragen (keine zweite Ablauflogik).
+  // The pause/logo screen starts as a short presentation phase of its own; then
+  // the same path takes over as between two questions (no second flow logic).
   work.scheduleTimedTransition(questionEntryPhase(work.state!), work.timing.pauseScreenMs, 'pause-to-question')
   return work.commit()
 }
@@ -697,7 +715,7 @@ function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual
   if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const decision = evaluateBuzz(work.state, playerId)
   if (!decision.allowed) {
-    // Abgewiesene Ereignisse werden protokolliert - inklusive Auto-Repeat der Tastatur.
+    // Refused events are logged - including the keyboard's auto-repeat.
     return reject(decision.reason ?? 'buzzer-closed', decision.message ?? 'Buzzer nicht möglich.')
   }
 
@@ -706,9 +724,9 @@ function acceptPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual
 }
 
 /**
- * Der Zuschlag selbst - ohne Commit, getrennt von der Zulaessigkeitspruefung.
- * Die Pruefung, ob der Zuschlag erlaubt ist, steht in `evaluateBuzz` und
- * passiert VOR diesem Aufruf.
+ * The buzz itself - without commit, separate from the eligibility check.
+ * Whether the buzz is allowed is checked in `evaluateBuzz`, and that happens
+ * BEFORE this call.
  */
 function claimPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual'): void {
   const label = work.state!.players.find((player) => player.id === playerId)!.label
@@ -716,8 +734,8 @@ function claimPlayer(work: Draft, playerId: PlayerId, via: 'hardware' | 'manual'
 
   work.mutate((draft) => {
     draft.buzzer = { open: false, acceptedPlayerId: playerId, acceptedAtMs: work.ctx.nowMs, acceptedVia: via }
-    // Ein gueltiger Buzzer friert die Enthuellung sofort ein, damit der andere
-    // Spieler waehrend der Antwort keinen Informationsvorteil bekommt.
+    // A valid buzz freezes the reveal immediately, so that the other player
+    // gets no information advantage during the answer.
     if (wasRevealRunning && draft.reveal) {
       draft.reveal = pauseReveal(draft.reveal, work.ctx.nowMs)
     }
@@ -747,9 +765,9 @@ function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' 
     const known = question.options?.some((option) => option.id === input.optionId)
     if (!known) return reject('invalid-payload', 'Diese Antwortoption gehört nicht zur Frage.')
     /*
-     * Eine bereits als falsch bewertete Option ist verbraucht. Sie in der zweiten
-     * Chance erneut einzuloggen koennte nur zu einem zweiten "falsch" fuehren -
-     * der Operator sieht sie deshalb gesperrt, und der Server haelt die Regel.
+     * An option already evaluated as wrong is used up. Logging it again in the
+     * second chance could only lead to a second "wrong" - the operator
+     * therefore sees it locked, and the server holds the rule.
      */
     const alreadyWrong = attemptsForCurrentQuestion(work.state).some(
       (attempt) => attempt.outcome === 'incorrect' && attempt.loggedOptionId === input.optionId,
@@ -794,8 +812,8 @@ function resolveAttempt(work: Draft): EngineResult {
   if (attempt.loggedManualVerdict) {
     outcome = attempt.loggedManualVerdict
   } else if (attempt.loggedOptionId !== undefined) {
-    // Explizite richtige Antwort: verglichen wird immer gegen `correctOptionId`,
-    // niemals gegen eine Position in der Optionsliste.
+    // Explicit correct answer: the comparison is always against `correctOptionId`,
+    // never against a position in the option list.
     outcome = attempt.loggedOptionId === question.correctOptionId ? 'correct' : 'incorrect'
   } else {
     return reject(
@@ -827,11 +845,11 @@ function resolveWithoutAnswer(work: Draft, mode: 'resolve-without-answer' | 'pas
 
   const existing = pendingAttempt(work.state)
   if (existing) {
-    // Ein bereits laufender Versuch (z. B. zweite Chance) wird als "gepasst" gewertet.
+    // An attempt already running (e.g. second chance) counts as "passed".
     return finishAttempt(work, existing, 'passed')
   }
 
-  // Ohne Buzzer und ohne Antwort: neutraler Versuch ohne Spieler, keine Punkte.
+  // Without buzz and without answer: neutral attempt without a player, no points.
   let created: AnswerAttempt | undefined
   work.mutate((draft) => {
     created = createAttempt(work, draft, null)
@@ -841,12 +859,12 @@ function resolveWithoutAnswer(work: Draft, mode: 'resolve-without-answer' | 'pas
 }
 
 /**
- * Wertet einen Versuch verbindlich aus, bucht ggf. Punkte und startet die
- * Feedbacksequenz (Spezifikation 13.1).
+ * Evaluates an attempt for good, books points if due and starts the feedback
+ * sequence (specification 13.1).
  *
- * Punkte werden hier genau einmal vergeben: `outcome` ist danach gesetzt und
- * `pendingAttempt` findet den Versuch nicht mehr, ein zweiter Aufruf wird also
- * bereits vor der Buchung abgewiesen.
+ * Points are awarded here exactly once: `outcome` is set afterwards and
+ * `pendingAttempt` no longer finds the attempt, so a second call is refused
+ * before any booking.
  */
 function finishAttempt(
   work: Draft,
@@ -857,7 +875,7 @@ function finishAttempt(
   const question = state.currentQuestion!.question
   const imageReveal = isImageReveal(question.questionType)
   const previousFailures = countFailedAttemptsForCurrentQuestion(state)
-  const points = outcome === 'correct' ? pointsForCorrectAnswer(previousFailures) : scoringRules.noPoints
+  const points = outcome === 'correct' ? pointsForCorrectAnswer(previousFailures, work.scoring) : work.scoring.noPoints
 
   const playerLabel = attempt.playerId
     ? state.players.find((player) => player.id === attempt.playerId)!.label
@@ -871,13 +889,13 @@ function finishAttempt(
 
     if (points > 0 && attempt.playerId) {
       const player = draft.players.find((entry) => entry.id === attempt.playerId)!
-      const { score } = applyScoreDelta(player.score, points)
+      const { score } = applyScoreDelta(player.score, points, work.scoring)
       player.score = score
     }
 
-    // Bei normalen Fragen ist der Spieler nach einer falschen ersten Antwort fuer
-    // diese Frage gesperrt. Beim Bilderkennen wird nie gesperrt - dort sind
-    // unbegrenzt viele Fehlversuche erlaubt und beide duerfen erneut buzzern.
+    // On normal questions the player is locked for this question after a wrong
+    // first answer. On the image reveal nobody is ever locked - there any number
+    // of failed attempts is allowed and both may buzz again.
     if (outcome === 'incorrect' && !imageReveal && attempt.playerId) {
       const player = draft.players.find((entry) => entry.id === attempt.playerId)!
       player.lockedForCurrentQuestion = true
@@ -902,7 +920,7 @@ function finishAttempt(
     points,
   })
 
-  // Naechste Phase bestimmen und die Feedbacksequenz mit definierter Fallbackzeit starten.
+  // Determine the next phase and start the feedback sequence with a defined fallback time.
   const nextPhase = nextPhaseAfterAttempt(work, outcome, attempt, imageReveal)
   if (outcome === 'correct' || outcome === 'incorrect') {
     const feedbackMs = outcome === 'correct' ? work.timing.correctFeedbackMs : work.timing.incorrectFeedbackMs
@@ -912,7 +930,7 @@ function finishAttempt(
     })
     work.scheduleTimedTransition(nextPhase, feedbackMs + extra, `feedback-${outcome}`)
   } else {
-    // Passen und Aufloesen ohne Antwort brauchen keine Richtig-/Falsch-Animation.
+    // Passing and resolving without an answer need no correct/wrong animation.
     applyPhase(work, nextPhase)
   }
   return work.commit()
@@ -925,12 +943,12 @@ function nextPhaseAfterAttempt(
   imageReveal: boolean,
 ): GamePhase {
   if (outcome !== 'incorrect') return 'solution'
-  // Bilderkennen: Loesung bleibt verborgen, die Enthuellung laeuft an derselben
-  // Stelle weiter, beide Spieler duerfen erneut buzzern.
+  // Image reveal: the solution stays hidden, the reveal continues at the same
+  // spot, both players may buzz again.
   if (imageReveal) return 'reveal-running'
-  // Normale Frage: nach dem ersten Fehlversuch bekommt der andere Spieler die
-  // zweite Chance; nach dem zweiten Fehlversuch folgt die Loesung.
-  // Im Einzelspiel gibt es keinen anderen Spieler - dort folgt sofort die Loesung.
+  // Normal question: after the first failed attempt the other player gets the
+  // second chance; after the second failed attempt the solution follows.
+  // In a solo game there is no other player - there the solution follows at once.
   const opponent = eligibleOpponent(work.state!, attempt.playerId)
   return attempt.attemptNumber === 1 && opponent ? 'second-chance' : 'solution'
 }
@@ -941,8 +959,8 @@ function resetBuzzer(work: Draft): EngineResult {
   if (!question) return reject('invalid-phase', 'Es ist gerade keine Frage aktiv.')
 
   if (work.phase === 'second-chance') {
-    // In der zweiten Chance gibt es keine Buzzer-Zuordnung; zurueckgesetzt wird
-    // nur die bereits eingeloggte Antwort.
+    // In the second chance there is no buzzer assignment; only the answer already
+    // logged is reset.
     const attempt = pendingAttempt(work.state)
     if (!attempt) return reject('no-pending-attempt', 'Es gibt nichts zurückzusetzen.')
     work.mutate((draft) => {
@@ -959,12 +977,12 @@ function resetBuzzer(work: Draft): EngineResult {
   }
 
   work.mutate((draft) => {
-    // Offenen, noch nicht ausgewerteten Versuch verwerfen.
+    // Discard the open, not yet evaluated attempt.
     const open = draft.attempts.findIndex((entry) => entry.outcome === undefined)
     if (open >= 0) draft.attempts.splice(open, 1)
     draft.buzzer = { open: true }
-    // Sperren aus bereits ausgewerteten Fehlversuchen bleiben bestehen - sie sind
-    // eine Spielregel, keine Buzzer-Zuordnung.
+    // Locks from failed attempts already evaluated remain - they are a game
+    // rule, not a buzzer assignment.
     draft.phase = isImageReveal(question.question.questionType)
       ? draft.reveal?.status === 'paused'
         ? 'reveal-paused'
@@ -976,21 +994,20 @@ function resetBuzzer(work: Draft): EngineResult {
 }
 
 /**
- * Die Videofrage: ein Auftrag hin, nichts zurueck.
+ * The video question: one request out, nothing back.
  *
- * ES GIBT GENAU ZWEI BEFEHLE. `START_VIDEO` veroeffentlicht einen Auftrag, das
- * Video von vorn abzuspielen; `SHOW_QUESTION_AFTER_VIDEO` beendet den Videoteil
- * und blendet die Frage ein. Dazwischen wartet der Server auf nichts: Er
- * erfaehrt nicht, ob das Video laeuft, wie weit es ist oder ob es zu Ende ist,
- * und er plant deshalb auch kein Ende ein.
+ * THERE ARE EXACTLY TWO COMMANDS. `START_VIDEO` publishes a request to play the
+ * video from the start; `SHOW_QUESTION_AFTER_VIDEO` ends the video part and
+ * shows the question. In between the server waits for nothing: it does not
+ * learn whether the video is playing, how far it is or whether it has ended,
+ * and therefore schedules no end either.
  *
- * WAS FRUEHER HIER STAND, war der Versuch, die Wiedergabe nachzubilden:
- * Position und Laufzeit im Zustand, eine Statusmeldung des Clients, ein Timer
- * aus der gemeldeten Laufzeit, dazu Pausieren und Neustarten als eigene
- * Befehle. Jede dieser Zahlen war eine zweite Wahrheit neben dem Element im
- * Browser, und zwei Wahrheiten ueber dieselbe Wiedergabe laufen auseinander.
- * Jetzt gibt es nur noch eine - die im Browser - und der Server sagt ihr, wann
- * sie von vorn beginnen soll.
+ * WHAT USED TO STAND HERE was the attempt to mirror the playback: position and
+ * duration in the state, a status report of the client, a timer from the
+ * reported duration, plus pausing and restarting as commands of their own.
+ * Each of those numbers was a second truth next to the element in the browser,
+ * and two truths about the same playback drift apart. Now there is only one -
+ * the one in the browser - and the server tells it when to start over.
  */
 function handleVideoCommand(work: Draft, command: Command): EngineResult {
   if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
@@ -1005,9 +1022,9 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
         return reject('invalid-phase', 'Das Video kann in dieser Phase nicht gestartet werden.')
       }
       /*
-       * EIN KLICK GILT NUR FUER DIE FRAGE, DIE ER GESEHEN HAT. Wurde inzwischen
-       * uebersprungen oder weitergeschaltet, startete er sonst das Video der
-       * naechsten Frage - fuer den Saal aus dem Nichts.
+       * A CLICK COUNTS ONLY FOR THE QUESTION IT SAW. If the game has been
+       * skipped or advanced meanwhile, it would otherwise start the video of the
+       * next question - out of nowhere for the hall.
        */
       if (command.questionId !== question.question.id) {
         return reject('video-question-mismatch', 'Dieser Befehl gehört zu einer anderen Frage.')
@@ -1032,18 +1049,18 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
 }
 
 /**
- * Schreibt einen neuen Abspielauftrag in den Zustand.
+ * Writes a new playback request into the state.
  *
- * Eine neue Kennung ist die ganze Nachricht: Die Buehne merkt sich die zuletzt
- * ausgefuehrte und startet bei jeder anderen von Sekunde null. Ein zweiter Klick
- * braucht deshalb keinen eigenen Befehl, und ein Fenster, das gerade erst
- * dazukommt, fuehrt den stehenden Auftrag genau einmal aus.
+ * A new id is the whole message: the stage remembers the last executed one and
+ * starts from second zero on every other. So a second click needs no command
+ * of its own, and a window that has only just joined executes the standing
+ * request exactly once.
  */
 /**
- * Name des Selbststarts im Selbstbedienungsbetrieb.
+ * Name of the auto-start in self-service operation.
  *
- * Er steht hier, weil ihn zwei Stellen brauchen: die Planung beim Betreten der
- * Videophase und die Stelle, die den faelligen Uebergang wiedererkennt.
+ * It lives here because two places need it: the scheduling on entering the
+ * video phase and the place that recognises the due transition.
  */
 const VIDEO_AUTO_START = 'video-auto-start'
 
@@ -1053,7 +1070,7 @@ function publishVideoRequest(work: Draft): void {
   const requestedAt = new Date(work.ctx.nowMs).toISOString()
   work.mutate((draft) => {
     draft.video = { questionId, requestId, requestedAt }
-    // Waehrend des Videos darf nicht gebuzzert werden.
+    // No buzzing during the video.
     draft.buzzer = { open: false }
   })
 }
@@ -1066,8 +1083,8 @@ function handleContinue(work: Draft): EngineResult {
     return reject('invalid-phase', 'Das Spiel ist beendet. Ueber "Beenden" geht es zurück zur Startansicht.')
   }
   if (work.phase !== 'solution') {
-    // `Weiter` bedeutet immer dasselbe und darf niemals "Antwort bewerten" oder
-    // "zweiten Spieler freigeben" bedeuten - dafuer gibt es eigene Befehle.
+    // `Weiter` always means the same and must never mean "evaluate answer" or
+    // "open for the second player" - there are commands of their own for that.
     return reject('invalid-phase', '"Weiter" ist erst nach der Lösung möglich.')
   }
 
@@ -1090,9 +1107,9 @@ function handleContinue(work: Draft): EngineResult {
   const selection = drawQuestionForCurrentSlot(work, [])
   if (!selection.ok) {
     /*
-     * Ohne Operator gibt es niemanden, der auf eine gescheiterte Auswahl
-     * reagieren koennte. Ein stehengebliebener Bildschirm waere das schlechteste
-     * Ergebnis, deshalb endet das Spiel hier mit dem, was gespielt wurde.
+     * Without an operator there is nobody who could react to a failed
+     * selection. A stuck screen would be the worst result, so the game ends
+     * here with what was played.
      */
     if (state.flowProfile === 'self-service') return finishGameEarly(work)
     return selection.rejection
@@ -1106,11 +1123,11 @@ function handleContinue(work: Draft): EngineResult {
 }
 
 /**
- * Beendet ein Selbstbedienungsspiel, fuer das keine beantwortbare Frage mehr
- * gefunden wurde. Gewertet wird, was gespielt wurde.
+ * Ends a self-service game for which no answerable question was found any
+ * more. What was played is scored.
  *
- * `totalQuestions` bleibt die Zahl der Fragenplaetze des Presets; wie viele Fragen
- * tatsaechlich gestellt wurden, leitet das Ergebnis aus den Versuchen ab.
+ * `totalQuestions` stays the number of slots of the preset; how many questions
+ * were actually asked, the result derives from the attempts.
  */
 function finishGameEarly(work: Draft): EngineResult {
   const played = work.state!.currentSlotIndex
@@ -1165,8 +1182,8 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
   if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const pending = work.state.pendingTransition
   if (!pending || pending.transitionId !== transitionId) {
-    // Doppelte oder verspaetete Meldungen laufen hier ins Leere - ein schneller
-    // Doppelklick kann keinen Uebergang zweimal ausloesen.
+    // Duplicate or late reports run into the void here - a quick double click
+    // cannot trigger a transition twice.
     return reject('invalid-phase', 'Dieser Uebergang ist bereits abgeschlossen.')
   }
   /*
@@ -1175,9 +1192,9 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
    * is why it was scheduled onto the phase it is already in.
    */
   /*
-   * DER SELBSTSTART DES VIDEOS IST EBENFALLS KEIN PHASENWECHSEL. Er erteilt den
-   * Auftrag, den im gefuehrten Spiel der Operator erteilt - die Frage bleibt, wo
-   * sie ist, und deshalb wurde er auf die eigene Phase geplant.
+   * THE AUTO-START OF THE VIDEO IS NO PHASE CHANGE EITHER. It issues the
+   * request the operator issues in an operated game - the question stays where
+   * it is, which is why it was scheduled onto its own phase.
    */
   if (pending.transitionId.startsWith(`${VIDEO_AUTO_START}:`) && work.phase === 'video') {
     publishVideoRequest(work)
@@ -1197,8 +1214,8 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
     return work.commit()
   }
 
-  // Aus der Loesung heraus ist der faellige Uebergang kein Phasenwechsel, sondern
-  // dieselbe Entscheidung wie "Weiter": naechste Frage ziehen oder Ergebnis zeigen.
+  // Out of the solution the due transition is no phase change but the same
+  // decision as "continue": draw the next question or show the result.
   if (work.phase === 'solution') return handleContinue(work)
 
   applyPhase(work, pending.nextPhase)
@@ -1206,28 +1223,28 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
 }
 
 /* ------------------------------------------------------------------ *
- * Phasenuebergaenge
+ * Phase transitions
  * ------------------------------------------------------------------ */
 
 /**
- * Notbremse fuer die Suche nach einer beantwortbaren Frage im
- * Selbstbedienungsbetrieb. Regulaer endet die Suche von selbst, weil bereits
- * gezogene Fragen ausgeschlossen werden und die Fragenplaetze zu Ende gehen.
+ * Emergency brake for the search for an answerable question in self-service
+ * operation. Normally the search ends by itself, because questions already
+ * drawn are excluded and the slots run out.
  */
 const MAX_SELF_SERVICE_DRAWS = 200
 
-/** In welcher Phase startet die aktuelle Frage nach dem Pausenscreen? */
+/** In which phase does the current question start after the pause screen? */
 function questionEntryPhase(state: GameState): GamePhase {
   const type = state.currentQuestion?.question.questionType
   if (type === 'video-then-question') return 'video'
   /*
-   * Bei Selbstbedienung gibt es niemanden, der die Frage vorliest und danach
-   * freigibt. Die Frage steht deshalb trotzdem erst allein da - nur gibt sie
-   * nicht der Operator frei, sondern eine feste Frist (`questionLeadInMs`).
-   * Es sind dieselben Phasen; ersetzt ist allein der Ausloeser.
+   * In self-service there is nobody who reads the question aloud and then
+   * opens it. The question therefore still stands alone at first - only it is
+   * not the operator who opens it but a fixed deadline (`questionLeadInMs`).
+   * The phases are the same; only the trigger is replaced.
    *
-   * Die Enthuellung laeuft dagegen sofort an: Dort IST das Bild die Frage, und
-   * eine Wartezeit davor zeigte nur ein verdecktes Bild ohne Aufgabe.
+   * The reveal, by contrast, starts at once: there the picture IS the question,
+   * and a wait before it would only show a covered picture without a task.
    */
   const selfService = state.flowProfile === 'self-service'
   if (type === 'image-reveal') return selfService ? 'reveal-running' : 'reveal-ready'
@@ -1235,12 +1252,12 @@ function questionEntryPhase(state: GameState): GamePhase {
 }
 
 /**
- * Setzt die Zielphase eines zeitgesteuerten Uebergangs um.
+ * Applies the target phase of a timed transition.
  *
- * Wichtig: Diese Funktion setzt keine frageweiten Daten zurueck. Der Reset pro Frage
- * passiert ausschliesslich in `drawQuestionForCurrentSlot`, damit "Enthuellung nach
- * Fehlversuch fortsetzen" und "neue Bildfrage beginnen" denselben Code teilen koennen,
- * ohne dass der Fortschritt versehentlich verloren geht.
+ * Important: this function resets no per-question data. The per-question reset
+ * happens exclusively in `drawQuestionForCurrentSlot`, so that "resume reveal
+ * after a failed attempt" and "begin new picture question" can share the same
+ * code without the progress getting lost by accident.
  */
 function applyPhase(work: Draft, phase: GamePhase): void {
   applyPhaseMutation(work, phase)
@@ -1253,7 +1270,7 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
       case 'solution': {
         draft.phase = 'solution'
         draft.buzzer = { open: false }
-        // Nach richtiger Antwort oder manuellem Aufloesen ist das Bild vollstaendig scharf.
+        // After a correct answer or a manual resolve the picture is completely sharp.
         if (draft.reveal) draft.reveal = completeReveal(draft.reveal)
         break
       }
@@ -1263,22 +1280,22 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
         break
       }
       case 'reveal-running': {
-        // Sowohl "Bildfrage beginnt" als auch "Enthuellung nach Fehlversuch fortsetzen".
+        // Both "picture question begins" and "resume reveal after a failed attempt".
         draft.phase = 'reveal-running'
         draft.reveal = resumeReveal(draft.reveal ?? createRevealClock(work.timing.imageRevealDurationMs), work.ctx.nowMs)
         draft.buzzer = { open: true }
         break
       }
       case 'reveal-ready': {
-        // Bild steht unscharf, die Uhr laeuft noch nicht - und der Buzzer ist zu.
+        // The picture stands blurred, the clock is not running yet - and the buzzer is closed.
         draft.phase = 'reveal-ready'
         draft.reveal = draft.reveal ?? createRevealClock(work.timing.imageRevealDurationMs)
         draft.buzzer = { open: false }
         break
       }
       case 'buzzer-open': {
-        // Bei Selbstbedienung wird diese Phase automatisch angesteuert; der Buzzer
-        // muss dabei genauso oeffnen wie beim Befehl des Operators.
+        // In self-service this phase is entered automatically; the buzzer has to
+        // open there exactly as it does on the operator's command.
         draft.phase = 'buzzer-open'
         draft.buzzer = { open: true }
         break
@@ -1287,10 +1304,10 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
         draft.phase = 'question-presented'
         draft.buzzer = { open: false }
         /*
-         * DER AUFTRAG STIRBT MIT DEM VIDEOTEIL. Er bleibt nicht als
-         * "zuletzt abgespielt" stehen: Ein Fenster, das jetzt neu laedt, fuehrt
-         * jeden Auftrag aus, den es im Schnappschuss findet - und wuerde das
-         * Video unter der schon eingeblendeten Frage noch einmal starten.
+         * THE REQUEST DIES WITH THE VIDEO PART. It does not stay as "last
+         * played": a window that reloads now executes every request it finds
+         * in the snapshot - and would start the video again underneath the
+         * question already shown.
          */
         draft.video = undefined
         break
@@ -1305,8 +1322,8 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
     }
   })
 
-  // Die zweite Chance bekommt sofort einen offenen Versuch fuer den noch nicht
-  // gesperrten Spieler - erneutes Buzzern ist dafuer nicht erforderlich.
+  // The second chance immediately gets an open attempt for the player not yet
+  // locked - buzzing again is not required for that.
   if (phase === 'second-chance') {
     const state = work.state!
     const eligible = state.players.find((player) => !player.lockedForCurrentQuestion)
@@ -1324,11 +1341,11 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
 }
 
 /**
- * Uebergaenge, die im Selbstbedienungsprofil niemand von Hand ausloest.
+ * Transitions nobody triggers by hand in the self-service profile.
  *
- * Es entsteht dabei keine neue Mechanik: Es sind dieselben zeitgesteuerten
- * Uebergaenge mit serverseitiger Fallbackzeit, die es fuer Feedback und
- * Pausenscreen schon gibt. Nur der Ausloeser fehlt - deshalb plant ihn der Server.
+ * No new mechanism arises: these are the same timed transitions with a
+ * server-side fallback time that already exist for feedback and pause screen.
+ * Only the trigger is missing - so the server schedules it.
  */
 function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
   const state = work.state
@@ -1336,28 +1353,28 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
 
   if (phase === 'question-presented') {
     /*
-     * Erst die Frage, dann die Antworten. Der Server schickt die Optionen
-     * waehrend dieser Frist gar nicht mit (`projection.ts`), und der Buzzer ist
-     * zu - es gibt also nichts zu treffen, bevor jemand gelesen hat.
+     * First the question, then the answers. The server does not even send the
+     * options during this deadline (`projection.ts`), and the buzzer is closed
+     * - so there is nothing to hit before somebody has read.
      */
     work.scheduleTimedTransition('buzzer-open', work.selfServiceTiming.questionLeadInMs, 'question-to-answers')
     return
   }
 
   /*
-   * NACH DER LOESUNG PLANT DER SERVER NICHTS. Weiter geht es allein durch
-   * `CONTINUE` eines Spielers - dieselbe Entscheidung wie beim "Weiter" des
-   * Operators. Ein eingeplanter Uebergang naehme dem, der gerade liest, warum
-   * seine Antwort falsch war, das Bild unter den Augen weg.
+   * AFTER THE SOLUTION THE SERVER SCHEDULES NOTHING. It only goes on through a
+   * player's `CONTINUE` - the same decision as the operator's "continue". A
+   * scheduled transition would take the picture away from whoever is reading
+   * why their answer was wrong.
    */
 
   /*
-   * OHNE OPERATOR ERTEILT DER SERVER DEN AUFTRAG SELBST.
+   * WITHOUT AN OPERATOR THE SERVER ISSUES THE REQUEST ITSELF.
    *
-   * Am Geraet steht niemand, der "Video starten" druecken koennte - dort ist der
-   * Server das Pult. Der kurze Vorlauf laesst die Videoflaeche erst auffahren,
-   * bevor das Bild beginnt. Geplant wird auf DIESELBE Phase: Der Videoteil
-   * bleibt, was sich aendert, ist allein der Auftrag darin.
+   * At the device nobody stands who could press "start video" - there the
+   * server is the desk. The short lead-in lets the video area come up before
+   * the picture begins. It is scheduled onto the SAME phase: the video part
+   * stays, what changes is only the request in it.
    */
   if (phase === 'video' && work.state?.flowProfile === 'self-service') {
     work.scheduleTimedTransition('video', work.selfServiceTiming.videoLeadInMs, VIDEO_AUTO_START)
@@ -1365,8 +1382,8 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
 }
 
 /**
- * Zieht die Frage fuer den aktuellen Fragenplatz und setzt alle frageweiten
- * Laufzeitdaten zurueck (Sperren, Buzzer, Enthuellung, Video).
+ * Draws the question for the current slot and resets all per-question runtime
+ * data (locks, buzzer, reveal, video).
  */
 function drawQuestionForCurrentSlot(
   work: Draft,
@@ -1389,17 +1406,17 @@ function drawQuestionForCurrentSlot(
   let response = draw()
 
   /*
-   * Selbstbedienung: Eine Frage, die nur ein Mensch bewerten kann - eine
-   * muendliche Antwort - laesst sich am Touchgeraet nicht aufloesen. Sie wuerde
-   * den Ablauf anhalten, weil niemand da ist, der ihn beenden koennte.
+   * Self-service: a question only a human can evaluate - an oral answer -
+   * cannot be resolved at the touch device. It would stop the flow because
+   * nobody is there to end it.
    *
-   * Deshalb wird sie wie eine uebersprungene Frage behandelt. Taugt der ganze
-   * Fragenplatz nicht - ein Preset mit einem reinen Bilderkennen-Platz ist genau
-   * dieser Fall -, wird der Platz uebersprungen und der naechste versucht.
+   * So it is treated like a skipped question. If the whole slot is unfit - a
+   * preset with a pure image-reveal slot is exactly that case - the slot is
+   * skipped and the next one tried.
    *
-   * Verhindern soll beides die Inhaltsvalidierung: Ein Kiosk-Preset filtert auf
-   * auswertbare Fragen. Diese Stelle ist das Sicherheitsnetz, nicht der Plan -
-   * und sie schweigt nicht, sondern schreibt jeden Fall ins Protokoll.
+   * Both are meant to be prevented by the content validation: a kiosk preset
+   * filters on evaluable questions. This place is the safety net, not the plan
+   * - and it does not stay silent but writes every case into the log.
    */
   if (selfService) {
     let guard = 0
@@ -1421,8 +1438,8 @@ function drawQuestionForCurrentSlot(
         continue
       }
 
-      // Der ganze Fragenplatz taugt nicht. Gibt es keinen weiteren, entscheidet
-      // der Aufrufer, was das bedeutet: kein Spielstart bzw. vorzeitiges Ende.
+      // The whole slot is unfit. If there is no further one, the caller decides
+      // what that means: no game start or an early end.
       if (state.currentSlotIndex + 1 >= state.totalQuestions) {
         return {
           ok: false,
@@ -1452,8 +1469,8 @@ function drawQuestionForCurrentSlot(
 
   const runtime = response.runtimeQuestion
   work.mutate((draft) => {
-    // Eine uebersprungene Frage bleibt fuer dieses Spiel gesperrt, damit sie nicht
-    // direkt wieder gezogen wird.
+    // A skipped question stays locked for this game, so that it is not
+    // drawn again right away.
     for (const excluded of exclusions) {
       if (!draft.selectedQuestionIds.includes(excluded)) draft.selectedQuestionIds.push(excluded)
     }
@@ -1463,7 +1480,7 @@ function drawQuestionForCurrentSlot(
     if (groupId && !draft.selectedRepetitionGroupIds.includes(groupId)) {
       draft.selectedRepetitionGroupIds.push(groupId)
     }
-    // Frageweiter Reset - genau eine Stelle.
+    // Per-question reset - exactly one place.
     for (const player of draft.players) player.lockedForCurrentQuestion = false
     /*
      * The draw dies with the question - here, at the one place a new question
@@ -1476,7 +1493,7 @@ function drawQuestionForCurrentSlot(
     draft.reveal = isImageReveal(runtime.question.questionType)
       ? createRevealClock(work.timing.imageRevealDurationMs)
       : undefined
-    // Kein Auftrag der vorigen Frage bleibt stehen; der neue kommt vom Pult.
+    // No request of the previous question remains; the new one comes from the desk.
     draft.video = undefined
   })
 
@@ -1495,7 +1512,7 @@ function drawQuestionForCurrentSlot(
 }
 
 /* ------------------------------------------------------------------ *
- * Hilfsmittel
+ * Helpers
  * ------------------------------------------------------------------ */
 
 function createPlayer(id: PlayerId, label: string): PlayerState {
@@ -1541,9 +1558,9 @@ function reject(reason: CommandRejection['reason'], message: string): EngineResu
 }
 
 /**
- * Kleiner Arbeitsbereich fuer einen Befehl: sammelt Zustandsaenderung, Ereignisse und
- * Effekte, damit die einzelnen Befehle knapp bleiben und alle dieselbe
- * Commit-Semantik (Revision erhoehen, Zeitstempel setzen) verwenden.
+ * Small workspace for one command: collects state change, events and effects,
+ * so that the individual commands stay short and all use the same commit
+ * semantics (increment revision, set timestamp).
  */
 class Draft {
   state: GameState | null
@@ -1553,8 +1570,9 @@ class Draft {
   constructor(
     initial: GameState | null,
     readonly ctx: EngineContext,
-    readonly timing: typeof gameTiming,
+    readonly timing: GameTiming,
     readonly selfServiceTiming: SelfServiceTiming,
+    readonly scoring: ScoringRules,
   ) {
     this.state = initial ? structuredClone(initial) : null
   }
@@ -1602,32 +1620,32 @@ class Draft {
     return null
   }
 
-  /** Zeitgesteuerter Uebergang mit definierter Fallbackzeit (Spezifikation 22.1). */
+  /** Timed transition with a defined fallback time (specification 22.1). */
   /**
-   * Einen Phasenwechsel auf die Uhr legen.
+   * Put a phase change on the clock.
    *
-   * `still` trennt zwei Dinge, die frueher eines waren: den ZEITGEBER und den
-   * PRAESENTATIONSUEBERGANG. Normalerweise gehoeren sie zusammen - der Wechsel
-   * von der Rueckmeldung zur Loesung ist beides. Beim Video nicht: Wenn seine
-   * Restzeit auf die Uhr gelegt wird, animiert nichts, und seine Laufzeit ist
-   * keine Animationsdauer.
+   * `still` separates two things that used to be one: the TIMER and the
+   * PRESENTATION TRANSITION. Normally they belong together - the change from
+   * feedback to solution is both. Not for the video: when its remaining time is
+   * put on the clock, nothing animates, and its duration is no animation
+   * duration.
    *
-   * Der Unterschied ist nicht kosmetisch. Der Buehnenclient haengt seinen
-   * Szenenknoten an die Kennung des letzten Uebergangs; eine neue Kennung baut
-   * die Szene neu auf. Beim Video hiesse das: Videoelement weg, Videoelement
-   * neu, Laufzeitmeldung, neue Kennung - eine Schleife, die flackert, das Bild
-   * nie zeigt und den geplanten Uebergang nie faellig werden laesst.
+   * The difference is not cosmetic. The stage client keys its scene node to the
+   * id of the last transition; a new id rebuilds the scene. For the video that
+   * would mean: video element gone, video element new, duration report, new id
+   * - a loop that flickers, never shows the picture and never lets the
+   * scheduled transition fall due.
    */
   scheduleTimedTransition(
     nextPhase: GamePhase,
     durationMs: number,
     transitionId: string,
-    optionen: { still?: boolean } = {},
+    options: { still?: boolean } = {},
   ): void {
     this.mutate((draft) => {
       const id = `${transitionId}:${this.ctx.newId('transition')}`
       draft.pendingTransition = { nextPhase, endsAtMs: this.ctx.nowMs + durationMs, transitionId: id }
-      if (!optionen.still) {
+      if (!options.still) {
         draft.lastTransition = { transitionId: id, startedAtServerMs: this.ctx.nowMs, durationMs }
       }
     })

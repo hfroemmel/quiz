@@ -1,151 +1,149 @@
-# Veroeffentlichung der Pakete
+# Publishing the packages
 
-Die fuenf Bibliotheken des Quiz-Systems erscheinen als PRIVATE Pakete auf
-GitHub Packages unter dem Scope `@hfroemmel`:
+The five libraries of the quiz system appear as PRIVATE packages on GitHub
+Packages under the scope `@hfroemmel`:
 
-| Paket | Inhalt |
+| Package | Contents |
 |---|---|
-| `@hfroemmel/quiz-core` | Vertraege, Engine, Laufzeit (QuizService, Local-/RemoteQuizRuntime) |
-| `@hfroemmel/quiz-content` | Inhalts-Pipeline: Validierung, Paketbau, Legacy-Import, CLI |
-| `@hfroemmel/quiz-themes` | Farbpaletten, Schriften, Theme-Objekte, palette.css/fonts.css |
-| `@hfroemmel/quiz-react` | QuizScene, StageScreen, Szenen, Klaenge, Verbindungs-Hooks |
-| `@hfroemmel/quiz-kiosk` | Das spielbare Quiz als eine Komponente (QuizGame) |
+| `@hfroemmel/quiz-core` | Contracts, engine, runtime (QuizService, Local-/RemoteQuizRuntime) |
+| `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
+| `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, palette.css/fonts.css |
+| `@hfroemmel/quiz-react` | QuizScene, StageScreen, scenes, sounds, connection hooks |
+| `@hfroemmel/quiz-kiosk` | The playable quiz as a single component (QuizGame) |
 
-Ausgeliefert wird sonst nichts: Der Pruefstand unter `harness/` ist von der
-Versionierung ausgenommen, die Anwendungen liegen in eigenen Repositories.
+Nothing else is shipped: the test harness under `harness/` is excluded from
+versioning, and the applications live in their own repositories.
 
-## Versionierung
+## Versioning
 
-Changesets mit **fixed-Versioning**: Alle fuenf Pakete tragen immer dieselbe
-Version und erscheinen im Gleichschritt. Eine Aenderung bekommt vor dem Merge
-einen Changeset (`pnpm changeset`); SemVer gilt ab 1.0 streng
-(View-Modell-, Befehls- und Schemabrueche sind major).
+Changesets with **fixed versioning**: all five packages always carry the
+same version and are released in lockstep. A change gets a changeset
+(`pnpm changeset`) before the merge; SemVer applies strictly from 1.0
+onward (view model, command, and schema breaks are major).
 
-## Ablauf eines Releases
+## Release flow
 
-1. Push auf `main` mit offenen Changesets -> der Workflow `release.yml`
-   erzeugt bzw. aktualisiert den PR **"Version Packages"**.
+1. A push to `main` with open changesets -> the `release.yml` workflow
+   creates or updates the **"Version Packages"** PR.
 
-   Dafuer muss in *Settings -> Actions -> General -> Workflow permissions* die
-   Option „Allow GitHub Actions to create and approve pull requests" aktiv
-   sein; sonst pusht der Lauf zwar den Branch `changeset-release/main`,
-   scheitert aber beim Anlegen des PR. Wer ohne PR arbeiten will, fuehrt
-   `pnpm changeset version` lokal aus und pusht den Versionsstand - der
-   naechste Release-Lauf veroeffentlicht dann direkt.
+   For this, *Settings -> Actions -> General -> Workflow permissions* must
+   have "Allow GitHub Actions to create and approve pull requests" enabled;
+   otherwise the run does push the `changeset-release/main` branch, but
+   fails when creating the PR. Anyone who wants to work without a PR runs
+   `pnpm changeset version` locally and pushes the version state - the next
+   release run then publishes directly.
 
-   Der PR gehoert `github-actions[bot]`; sein CI-Lauf wartet deshalb auf ein
-   einmaliges *Approve and run*.
-2. Diesen PR mergen -> derselbe Workflow veroeffentlicht die Pakete mit dem
-   automatischen `GITHUB_TOKEN` (`permissions: packages: write`) und legt
-   Git-Tags an.
+   The PR belongs to `github-actions[bot]`; its CI run therefore waits for a
+   one-time *Approve and run*.
+2. Merging this PR -> the same workflow publishes the packages with the
+   automatic `GITHUB_TOKEN` (`permissions: packages: write`) and creates git
+   tags.
 
-Veroeffentlicht wird ueber pnpm; erst beim Packen biegt `publishConfig.exports`
-die Eintrittspunkte von `src/` auf `dist/` um. `pnpm packages:verify` prueft
-mit publint und @arethetypeswrong/cli genau dieses Artefakt.
+Publishing goes through pnpm; only at packing time does
+`publishConfig.exports` redirect the entry points from `src/` to `dist/`.
+`pnpm packages:verify` checks exactly this artifact with publint and
+@arethetypeswrong/cli.
 
-## Von Hand veroeffentlichen
+## Publishing by hand
 
-Der Weg ueber CI setzt voraus, dass GitHub Actions fuer dieses Konto ueberhaupt
-Jobs startet. Tut es das nicht - erkennbar daran, dass Laeufe nach ein bis zwei
-Sekunden ohne einen einzigen Schritt und ohne Logdateien scheitern -, geht
-dasselbe von Hand. Es sind genau die Schritte, die `release.yml` ausfuehrt:
+The CI path assumes that GitHub Actions starts jobs for this account at all.
+If it doesn't - recognizable by runs failing after one or two seconds
+without a single step and without log files -, the same thing works by
+hand. These are exactly the steps `release.yml` runs:
 
 ```bash
-pnpm changeset version   # Versionen und Changelogs schreiben, Changeset aufzehren
+pnpm changeset version   # write versions and changelogs, consume the changeset
 pnpm packages:build
-pnpm packages:verify     # publint + attw auf den gepackten Tarballs
-pnpm changeset publish --no-git-tag   # veroeffentlichen
-pnpm packages:tag                     # Git-Tags setzen, rein lokal
+pnpm packages:verify     # publint + attw on the packed tarballs
+pnpm changeset publish --no-git-tag   # publish
+pnpm packages:tag                     # set git tags, purely local
 git add -A && git commit -m "Version Packages" && git push
 git push origin --tags
 ```
 
-**Warum `--no-git-tag`.** Der eingebaute Tag-Schritt fragt fuer jedes Paket,
-dessen Tag lokal fehlt, beim Server nach, ob es ihn dort schon gibt
-(`git ls-remote --tags origin`). Das sind fuenf Netzrunden, und sie stehen
-hinter einem Spinner: Fragt das Netz nach Zugangsdaten, ist die Frage nicht zu
-sehen und der Lauf scheint bei "Creating git tags..." zu haengen.
-Veroeffentlicht ist zu dem Zeitpunkt bereits alles - ein Abbruch mit Strg+C
-kostet nur die Tags. `pnpm packages:tag` setzt dieselben Tags ohne Netzzugriff.
+**Why `--no-git-tag`.** The built-in tag step asks the server, for every
+package whose tag is missing locally, whether it already exists there
+(`git ls-remote --tags origin`). That's five network round trips, and they
+sit behind a spinner: if the network asks for credentials, the prompt is
+invisible and the run appears to hang at "Creating git tags...". Everything
+is already published by that point - aborting with Ctrl+C only costs the
+tags. `pnpm packages:tag` sets the same tags without any network access.
 
-Bleibt der Lauf trotzdem stehen, zeigt
+If the run still seems to hang, run
 
 ```bash
 time git ls-remote --tags origin
 ```
 
-ob es am Netz oder an einer unsichtbaren Passwortfrage liegt.
+to see whether it's the network or an invisible password prompt.
 
-**In den App-Repositories genuegt `pnpm install`.** quiz-standalone,
-app-collection und quiz-live pinnen die fuenf Pakete als **`0.x`** - sie nehmen
-damit jede neue Fassung der Nullerreihe mit, ohne dass jemand eine Nummer
-nachtraegt.
+**In the app repositories, `pnpm install` is enough.** quiz-standalone,
+app-collection, and quiz-live pin the five packages as **`0.x`** - they pick
+up every new release of the zero series without anyone bumping a number.
 
-Der Caret taugt dafuer nicht: `^0.6.0` heisst bei einer 0.x-Version
-`>=0.6.0 <0.7.0`, weil SemVer in der Nullerreihe jede Minor als moeglichen
-Bruch behandelt. Jede Veroeffentlichung fiel damit aus dem gepinnten Bereich,
-und `pnpm install` blieb stumm auf der alten Fassung stehen - stumm, weil die
-Aufloesung ja korrekt war. Das hat zweimal einen halben Tag gekostet.
+The caret doesn't work for this: on a 0.x version, `^0.6.0` means
+`>=0.6.0 <0.7.0`, because SemVer treats every minor as a possible break in
+the zero series. Every publish therefore fell outside the pinned range, and
+`pnpm install` silently stayed on the old version - silently, because the
+resolution was in fact correct. This has cost half a day, twice.
 
-DER PREIS IST BEWUSST BEZAHLT: Eine Anwendung nimmt jetzt auch einen Bruch mit,
-ohne dass ihn jemand freigibt. Das traegt, solange die fuenf Pakete und die drei
-Anwendungen in einer Hand liegen und im Gleichschritt laufen - und solange
-Brueche in der Nullerreihe als `minor` mit Changeset dokumentiert werden. Ab 1.0
-gehoeren hier wieder echte Bereiche hin.
+THE PRICE IS PAID DELIBERATELY: an application now also picks up a breaking
+change without anyone approving it. This holds up as long as the five
+packages and the three applications stay in one hand and run in lockstep -
+and as long as breaks in the zero series are documented as `minor` with a
+changeset. From 1.0 on, real ranges belong here again.
 
-**Den Versionsstand ZURUECKSCHREIBEN.** `changeset version` aendert die
-`package.json` der fuenf Pakete und zehrt die Changesets auf; dieser Stand
-gehoert committet und gepusht. Bleibt er auf dem Rechner liegen, fuehrt das
-Repository weiter die alte Nummer, und der naechste Lauf schlaegt eine Version
-vor, die in der Registry laengst vergeben ist.
+**WRITE BACK the version state.** `changeset version` changes the
+`package.json` of the five packages and consumes the changesets; this state
+needs to be committed and pushed. If it stays on the machine, the
+repository keeps reporting the old number, and the next run proposes a
+version that is already taken in the registry.
 
-
-Dafuer braucht die persoenliche `~/.npmrc` ein classic PAT mit **`write:packages`**
-(zum Lesen genuegt `read:packages`):
+For this, the personal `~/.npmrc` needs a classic PAT with
+**`write:packages`** (`read:packages` is enough for reading):
 
 ```ini
 //npm.pkg.github.com/:_authToken=<PAT>
 ```
 
-Wichtig ist die Reihenfolge: Erst veroeffentlichen, dann den Versionsstand
-pushen. Bricht das Veroeffentlichen ab, steht im Repository keine Version, die
-es in der Registry nicht gibt.
+The order matters: publish first, then push the version state. If
+publishing fails, the repository doesn't end up with a version that doesn't
+exist in the registry.
 
-## Konsum in anderen Repositories
+## Consuming from other repositories
 
-In jedem konsumierenden Repository (`quiz-live`, `quiz-standalone`,
+In every consuming repository (`quiz-live`, `quiz-standalone`,
 `app-collection`):
 
 ```ini
-# .npmrc im Repository
+# .npmrc in the repository
 @hfroemmel:registry=https://npm.pkg.github.com
 ```
 
-Ein privates Paket gehoert zunaechst NUR dem Repository, aus dem es
-veroeffentlicht wurde. Jedes konsumierende Repository muss deshalb einmalig
-freigeschaltet werden: bei jedem der fuenf Pakete unter *Package settings ->
-Manage Actions access -> Add repository* das Repository mit `Read` eintragen.
-Fehlt der Eintrag, antwortet die Registry mit `403`, obwohl das Token gueltig
-ist und der Job `packages: read` besitzt.
+A private package initially belongs ONLY to the repository it was published
+from. Every consuming repository therefore needs a one-time authorization:
+for each of the five packages, under *Package settings -> Manage Actions
+access -> Add repository*, add the repository with `Read`. Without this
+entry, the registry answers with `403`, even though the token is valid and
+the job has `packages: read`.
 
-CI braucht `permissions: packages: read` und uebergibt das Token:
+CI needs `permissions: packages: read` and passes the token:
 
 ```yaml
 - uses: actions/setup-node@v4
   with:
     registry-url: https://npm.pkg.github.com
     scope: '@hfroemmel'
-# NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} beim Installationsschritt
+# NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} at the install step
 ```
 
-Fuer die lokale Entwicklung braucht jede Person einmalig ein classic PAT mit
-`read:packages` in der persoenlichen `~/.npmrc`:
+For local development, each person needs a one-time classic PAT with
+`read:packages` in their personal `~/.npmrc`:
 
 ```ini
 //npm.pkg.github.com/:_authToken=<PAT>
 ```
 
-Die Apps pinnen `0.x` und nehmen damit jede neue Fassung der Nullerreihe mit;
-durch das fixed-Versioning passen die fuenf Pakete darin garantiert zusammen.
-Warum kein Caret: siehe oben unter "In den App-Repositories genuegt
-`pnpm install`".
+The apps pin `0.x` and thus pick up every new release of the zero series;
+fixed versioning guarantees the five packages fit together within it. Why
+not a caret: see "In the app repositories, `pnpm install` is enough" above.

@@ -1,25 +1,25 @@
 /**
- * Die Beschriftungen der Oberflaeche - deutsch im Code, uebersetzbar im Inhalt.
+ * The interface's labels - German in the code, translatable in the content.
  *
- * WARUM BEIDES: Die deutschen Fassungen stehen hier, weil ein Quiz ohne einen
- * einzigen Eintrag in der Konfiguration laufen muss - ein leerer Bildschirm mit
- * Schluesselnamen darauf waere die schlechtere Vorgabe. Uebersetzt wird im
- * Inhalt (`interfaceStrings` in der Konfiguration), weil eine neue Sprache dann
- * keine neue Programmfassung braucht.
+ * WHY BOTH: the German versions live here because a quiz has to run without a
+ * single entry in the configuration - an empty screen with key names on it
+ * would be the worse default. Translation happens in the content
+ * (`interfaceStrings` in the configuration), because a new language then
+ * needs no new program version.
  *
- * WAS HIER NICHT HINEINGEHOERT: alles, was aus dem Inhalt kommt - Fragetexte,
- * Antworten, Rubriken, Namen der Zielgruppen und Schwierigkeitsstufen. Die
- * traegt die Projektion bereits uebersetzt heran. Hier stehen nur die Woerter,
- * die das Programm selbst spricht.
+ * WHAT DOES NOT BELONG HERE: anything that comes from the content - question
+ * texts, answers, categories, names of target audiences and difficulty
+ * levels. The projection already delivers those translated. Only the words
+ * the program itself speaks live here.
  *
- * DIE SCHLUESSEL SIND VERTRAG. Wer einen umbenennt, macht die Uebersetzungen
- * eines Bestandes still unwirksam; wer einen ergaenzt, ergaenzt eine deutsche
- * Fassung gleich mit.
+ * THE KEYS ARE A CONTRACT. Whoever renames one silently disables an existing
+ * set's translations; whoever adds one adds a German version for it right
+ * away.
  */
 import type { PublicQuizViewModel } from '@hfroemmel/quiz-core'
 
-export const standardTexte = {
-  /* Buehne */
+export const defaultTexts = {
+  /* Stage */
   'stage.player': 'Spieler',
   'stage.points': 'Punkte',
   'stage.question': 'Frage',
@@ -31,10 +31,10 @@ export const standardTexte = {
    */
   'stage.joker.available': '{player} hat noch einen Joker.',
   'stage.joker.used': '{player} hat den Joker eingesetzt.',
-  /* Die beiden Ergebnisse einer Ziehung - unter der aufgedeckten Karte. */
+  /* The two outcomes of a draw - under the revealed card. */
   'stage.joker.fiftyFifty': '50:50-Joker',
   'stage.joker.audience': 'Publikumsjoker',
-  /* Wird gesprochen, sobald die Karte liegt. */
+  /* Spoken as soon as the card is laid down. */
   'stage.joker.drawn': '{player} hat gezogen: {joker}',
   'stage.questionOf': 'Frage {current} von {total}',
   'feedback.correct': 'Richtig!',
@@ -47,34 +47,34 @@ export const standardTexte = {
   'result.soloHeadline': '{correct} von {total} richtig',
   'video.missing': 'Kein Video hinterlegt.',
   /*
-   * Wie es um das Video steht - nur in der Operatorvorschau. Im Saal steht an
-   * dieser Stelle das Bild.
+   * The video's status - only in the operator preview. In the hall the
+   * image sits at this spot instead.
    */
 
-  /* Geraet: Startauswahl */
+  /* Device: start selection */
   'kiosk.setupTitle': 'Spiel starten',
   'kiosk.setupSubtitle': 'Wähle Modus und Schwierigkeit.',
   'kiosk.playerCount': 'Wie viele spielen?',
   'kiosk.difficulty': 'Wie schwer?',
   'kiosk.solo': 'Allein',
   'kiosk.duo': 'Zu zweit',
-  /* Die zweite Zeile auf den beiden Moduskarten - ein Wort dazu, was das heisst. */
+  /* The second line on the two mode cards - a word on what that means. */
   'kiosk.soloHint': 'Eine Person',
   'kiosk.duoHint': 'Buzzer-Duell',
   'kiosk.questionCount': '{count} Fragen',
   /*
-   * Fussnote unter der Startschaltflaeche.
+   * Footnote under the start button.
    *
-   * Sie sagt bewusst NICHT "jederzeit aenderbar": Waehrend gespielt wird, gibt
-   * es kein Menue, in dem sich Modus oder Schwierigkeit verstellen liessen -
-   * das waere ein Versprechen, das das Geraet nicht haelt.
+   * It deliberately does NOT say "changeable at any time": while playing,
+   * there is no menu in which mode or difficulty could be adjusted - that
+   * would be a promise the device does not keep.
    */
   'kiosk.start': "Los geht's",
   'kiosk.back': 'Zurück',
   'kiosk.preparing': 'Das Quiz wird vorbereitet...',
   'kiosk.disconnected': 'Keine Verbindung zum Quiz.',
 
-  /* Geraet: Einstellungen */
+  /* Device: settings */
   'kiosk.settings': 'Einstellungen',
   'kiosk.sound': 'Ton',
   'kiosk.on': 'An',
@@ -85,7 +85,7 @@ export const standardTexte = {
   'kiosk.language': 'Sprache',
   'kiosk.done': 'Fertig',
 
-  /* Geraet: Spiel und Abschluss */
+  /* Device: game and finish */
   'kiosk.endGame': 'Spiel beenden',
   'kiosk.endGameQuestion': 'Spiel wirklich beenden?',
   'kiosk.end': 'Beenden',
@@ -97,29 +97,37 @@ export const standardTexte = {
   'kiosk.continue': 'Weiter',
 } as const
 
-export type TextKey = keyof typeof standardTexte
+export type TextKey = keyof typeof defaultTexts
 
 /**
- * Nachschlagen: erst im Inhalt, dann in den deutschen Vorgaben.
+ * Lookup: first in the content, then in the German defaults.
  *
- * `{name}` in einem Text wird durch den gleichnamigen Wert ersetzt. Das ist
- * bewusst die einzige Formatierungsregel - Pluralformen und Zahlenformate
- * gehoeren, wenn sie je gebraucht werden, in `Intl` und nicht in eine
- * selbstgebaute Schablonensprache.
+ * `{name}` in a text is replaced by the value of the same name. That is
+ * deliberately the only formatting rule - plural forms and number formats,
+ * if they are ever needed, belong in `Intl` and not in a home-grown
+ * templating language.
  */
-export function textFuer(
+export function textFor(
   view: Pick<PublicQuizViewModel, 'texts'> | null | undefined,
   key: TextKey,
-  werte?: Record<string, string | number>,
+  values?: Record<string, string | number>,
 ): string {
-  const vorlage = view?.texts?.[key] ?? standardTexte[key]
-  if (!werte) return vorlage
-  return vorlage.replace(/\{(\w+)\}/g, (treffer, name: string) =>
-    name in werte ? String(werte[name]) : treffer,
+  const template = view?.texts?.[key] ?? defaultTexts[key]
+  if (!values) return template
+  return template.replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in values ? String(values[name]) : match,
   )
 }
 
-/** Dieselbe Suche, an eine Ansicht gebunden - fuer Komponenten mit vielen Texten. */
-export function texteFuer(view: Pick<PublicQuizViewModel, 'texts'> | null | undefined) {
-  return (key: TextKey, werte?: Record<string, string | number>) => textFuer(view, key, werte)
+/** The same lookup, bound to one view - for components with many texts. */
+export function textsFor(view: Pick<PublicQuizViewModel, 'texts'> | null | undefined) {
+  return (key: TextKey, values?: Record<string, string | number>) => textFor(view, key, values)
 }
+
+/* Former names, kept for one release so that hosts can migrate. */
+/** @deprecated Renamed to `defaultTexts`. */
+export const standardTexte = defaultTexts
+/** @deprecated Renamed to `textFor`. */
+export const textFuer = textFor
+/** @deprecated Renamed to `textsFor`. */
+export const texteFuer = textsFor

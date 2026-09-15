@@ -1,28 +1,28 @@
 /*
- * Bedienelemente - die EINE Fassung fuer alle Anwendungen.
+ * Controls - the ONE variant for all applications.
  *
- * Hier stehen die Schaltflaechen und Formularfelder, die AUSSERHALB der Buehne
- * liegen: das Operatorpult am Buehnenabend, das Startmenue und die Dialoge am
- * Kioskgeraet. Sie sind bewusst dieselben. Wer beide Anwendungen kennt, soll
- * nicht zweimal lernen, wie ein Knopf hier aussieht - und wer eine Farbe
- * aendert, soll es einmal tun.
+ * This holds the buttons and form fields that live OUTSIDE the stage: the
+ * operator console during the stage show, the start menu and the dialogs on
+ * the kiosk device. They are deliberately the same. Anyone who knows both
+ * applications shouldn't have to learn twice what a button looks like here
+ * - and anyone changing a colour should only have to do it once.
  *
- * NICHT HIER STEHT DIE BUEHNE. Antwortzeilen, Buzzer und Punktekarten gehoeren
- * zur Vorstellung, tragen deren Farben und rechnen in Containereinheiten
- * (`@hfroemmel/quiz-react/styles/stage.css`). Ein Operatorknopf mitten in der
- * Frage waere ein Bruch, kein Gewinn.
+ * THE STAGE DOES NOT LIVE HERE. Answer rows, buzzers and score cards belong
+ * to the performance, carry its colours, and are sized in container units
+ * (`@hfroemmel/quiz-react/styles/stage.css`). An operator button in the
+ * middle of the question would be a break, not a gain.
  *
- * Die Klassen sind GLOBAL und ungehasht: Sie sind die Oberflaeche, die
- * Anwendungen als Zeichenkette setzen. Farben kommen aus den `--ui-*`-Token der
- * Palette (`@hfroemmel/quiz-themes/palette.css`), die Rundung aus
- * `--ui-radius`; wer eine andere braucht, setzt sie am Wurzelelement.
+ * The classes are GLOBAL and unhashed: they are the surface that
+ * applications set as a string. Colours come from the palette's `--ui-*`
+ * tokens (`@hfroemmel/quiz-themes/palette.css`), the rounding from
+ * `--ui-radius`; anyone needing a different one sets it on the root element.
  *
  *   import '@hfroemmel/quiz-themes/palette.css'
  *   import '@hfroemmel/quiz-themes/controls.css'
  *
- * Wer `@hfroemmel/quiz-kiosk` einbettet, braucht die zweite Zeile NICHT: Dessen
- * Startauswahl und Dialoge setzen diese Klassen selbst und liefern sie deshalb
- * in ihrem eigenen Stylesheet mit.
+ * Anyone embedding `@hfroemmel/quiz-kiosk` does NOT need the second line:
+ * its start selection and dialogs set these classes themselves and
+ * therefore ship them in their own stylesheet.
  */
 
 .button {
@@ -74,7 +74,7 @@
   outline-offset: 2px;
 }
 .button--option {
-  /* Traegt nur den Buchstaben - der Antworttext steht auf der Buehne. */
+  /* Carries only the letter - the answer text lives on the stage. */
   justify-content: space-between;
   align-items: center;
 }
@@ -90,7 +90,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Formularfelder
+ * Form fields
  * ------------------------------------------------------------------ */
 
 .field {
@@ -105,8 +105,8 @@
 }
 select {
   /*
-   * Eigener Chevron statt des Systempfeils: Nur so laesst sich der Abstand zum
-   * Rand steuern - der Systempfeil klebt sonst am Rahmen.
+   * Custom chevron instead of the system arrow: only this way can the gap to
+   * the edge be controlled - the system arrow otherwise sticks to the border.
    */
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
@@ -125,8 +125,8 @@ select {
   padding: 10px 12px;
   border-radius: var(--ui-radius, 6px);
   border: 1px solid var(--ui-border);
-  /* `background-color`, nicht `background`: Die Kurzform wuerde das Chevron
-     der Auswahlfelder wieder entfernen. */
+  /* `background-color`, not `background`: the shorthand would remove the
+     select fields' chevron again. */
   background-color: var(--ui-input);
 }
 .field select {

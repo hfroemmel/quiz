@@ -1,22 +1,23 @@
 /**
- * Migration der Legacy-Quellen `questions.js` und `config.js` (Spezifikation 26).
+ * Migration of the legacy sources `questions.js` and `config.js`
+ * (specification 26).
  *
- * Ablauf:
+ * Flow:
  *   questions.js + config.js
- *   -> sicherer Legacy-Parser (kein eval)
- *   -> Normalisierung von IDs und Enumwerten
- *   -> Zuordnung zum neuen Fragenmodell
- *   -> explizite richtige Antwort
- *   -> Erkennung moeglicher Wiederholungsgruppen
- *   -> Korrekturbericht
+ *   -> safe legacy parser (no eval)
+ *   -> normalisation of ids and enum values
+ *   -> mapping to the new question model
+ *   -> explicit correct answer
+ *   -> detection of possible repetition groups
+ *   -> correction report
  *
- * KEINE STILLE KORREKTUR: Automatisch normalisierbare Werte wie `Kids` -> `kids`
- * werden korrigiert, aber immer im Bericht genannt. Inhaltliche Widersprueche,
- * fehlende Optionen und moegliche falsche Antworten brauchen menschliche Freigabe
- * und erscheinen als `needsReview`.
+ * NO SILENT CORRECTION: Automatically normalisable values such as
+ * `Kids` -> `kids` are corrected, but always named in the report. Content
+ * contradictions, missing options and possibly wrong answers need human
+ * approval and appear as `needsReview`.
  *
- * Die Feldnamen der Altdaten werden tolerant erkannt, weil in den Quellen mehrere
- * Schreibweisen vorkommen (z. B. `Anmerkung` neben `note`).
+ * The field names of the legacy data are recognised tolerantly because
+ * several spellings occur in the sources (e.g. `Anmerkung` next to `note`).
  */
 import type { AnswerOption, MediaAsset, Question, QuestionPresentationType } from '@hfroemmel/quiz-core'
 import { extractDeclarations, type LiteralValue } from './parseLiteral'
@@ -32,7 +33,7 @@ export interface MigrationResult {
   questions: Question[]
   assets: MediaAsset[]
   notes: MigrationNote[]
-  /** Fragen, die ohne menschliche Entscheidung nicht uebernommen werden koennen. */
+  /** Questions that cannot be adopted without a human decision. */
   skipped: { legacyId: string; reason: string }[]
   statistics: {
     total: number
@@ -43,18 +44,18 @@ export interface MigrationResult {
 }
 
 export interface MigrationOptions {
-  /** Inhalt von `questions.js`. */
+  /** Content of `questions.js`. */
   questionsSource: string
-  /** Inhalt von `config.js`; optional, wird nur fuer Diagnose gelesen. */
+  /** Content of `config.js`; optional, read for diagnostics only. */
   configSource?: string
   /**
-   * Unterverzeichnis, in dem die Fragenbilder liegen (relativ zu `assets/`).
-   * Vorgabe `questions` - dort liegen die gelieferten Bilder.
+   * Subdirectory holding the question images (relative to `assets/`).
+   * Default `questions` - that is where the delivered images are.
    */
   imageDirectory?: string
 }
 
-/** Enumwerte, die in den Altdaten uneinheitlich geschrieben sind. */
+/** Enum values that are spelled inconsistently in the legacy data. */
 const MODE_ALIASES: Record<string, string> = { kids: 'kids', kid: 'kids', adults: 'adults', adult: 'adults' }
 const DIFFICULTY_ALIASES: Record<string, string> = {
   easy: 'easy',
@@ -123,7 +124,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       })
     }
     const difficulty = normalizeEnum(
-      // In den Altdaten heisst das Feld `level`; aeltere Exporte nutzen `difficulty`.
+      // In the legacy data the field is called `level`; older exports use `difficulty`.
       asString(pick(record, ['difficulty', 'schwierigkeit', 'level', 'niveau', 'stufe'])) ?? 'medium',
       DIFFICULTY_ALIASES,
     )
@@ -140,13 +141,13 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
     const legacyType = (asString(pick(record, ['type', 'typ'])) ?? 'multiple_choice').toLowerCase()
     const options = collectOptions(record)
     const singleAnswer = asString(pick(record, ['answer', 'antwort', 'loesung', 'solution']))
-    // Die Altdaten fuehren den Dateinamen als `img_filename`; weitere Schreibweisen
-    // kommen aus frueheren Exportstaenden.
+    // The legacy data carries the file name as `img_filename`; other spellings
+    // come from earlier export states.
     const imageFile = asString(pick(record, ['img_filename', 'imgFilename', 'image', 'img', 'bild', 'imageFile', 'bilddatei', 'picture']))
 
-    // Das Legacy-Feld `type: "image"` ist zu ungenau: eine Bildfrage mit vier
-    // Optionen ist bildgestuetztes Multiple Choice, eine mit einer Antwort das
-    // Bilderkennen mit Enthuellung.
+    // The legacy field `type: "image"` is too vague: an image question with four
+    // options is image-based multiple choice, one with a single answer is
+    // image recognition with reveal.
     let presentationType: QuestionPresentationType
     if (legacyType === 'image') {
       presentationType = options.length >= 2 ? 'image-choice' : 'image-reveal'
@@ -158,9 +159,9 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
 
     const evaluationMode = presentationType === 'image-reveal' ? 'manual-correct-incorrect' : 'option-comparison'
 
-    // Beim Bilderkennen gibt es keine Auswahl: Die einzige Legacy-Option ist die
-    // erwartete Antwort und wird zur Moderatorhilfe, nicht zu einer sichtbaren
-    // Antwortleiste. Sonst stuende die Loesung von Anfang an auf der Buehne.
+    // Image recognition has no choice: the only legacy option is the expected
+    // answer and becomes a moderator hint, not a visible answer bar.
+    // Otherwise the solution would be on stage from the start.
     const expectedAnswers = evaluationMode === 'manual-correct-incorrect'
       ? [singleAnswer, ...options.map((option) => option.text)].filter((text): text is string => Boolean(text))
       : singleAnswer
@@ -195,8 +196,8 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
         kind: 'image',
         filename: `${imageDirectory}/${imageFile}`,
         mimeType: mimeTypeForFile(imageFile),
-        // Bildnachweis und inhaltliche Quellenangabe sind zwei verschiedene Dinge:
-        // der Nachweis gehoert an das Medium, die Quelle an die Erlaeuterung.
+        // Image credit and content source are two different things:
+        // the credit belongs to the medium, the source to the explanation.
         credit: asString(pick(record, ['img_credit', 'imgCredit', 'bildnachweis', 'credit'])),
         sourceUrl: asString(pick(record, ['source_url', 'sourceUrl', 'quelle'])),
       })
@@ -221,8 +222,8 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       notes.push({ severity: 'needs-review', code: 'missing-info', questionId: id, message: 'Kein Zusatzinformationstext.' })
     }
 
-    // `playCount` ist Laufzeitdatum und wird bewusst nicht uebernommen; Nutzungen
-    // leben ausschliesslich in der `QuestionUsage`-Historie des Servers.
+    // `playCount` is runtime data and is deliberately not adopted; usages
+    // live exclusively in the server's `QuestionUsage` history.
     if (record['playCount'] !== undefined) {
       notes.push({
         severity: 'normalized',
@@ -235,7 +236,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
     seenIds.add(id)
     questions.push({
       id,
-      // Schema v2: Zielgruppe direkt, Pool aus der Regionalkategorie abgeleitet.
+      // Schema v2: audience directly, pool derived from the regional category.
       audiences: [modeId.value],
       poolIds: categories.includes('saarbruecken') ? ['saarbruecken'] : ['bundestag'],
       difficulty: difficulty.value,
@@ -245,8 +246,8 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       prompt,
       questionType: presentationType,
       evaluationMode,
-      // Die Legacy-Annahme "option_1 ist richtig" wird hier genau einmal in eine
-      // explizite `correctOptionId` uebersetzt und danach nie wieder benoetigt.
+      // The legacy assumption "option_1 is correct" is translated exactly once here
+      // into an explicit `correctOptionId` and never needed again afterwards.
       options: selectableOptions.length ? selectableOptions : undefined,
       correctOptionId: selectableOptions.length ? selectableOptions[0]!.id : undefined,
       acceptedAnswerText: expectedAnswers.length ? expectedAnswers : undefined,
@@ -289,10 +290,10 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
 }
 
 /**
- * Inhaltlich gleiche Varianten bekommen eine gemeinsame Wiederholungsgruppe
- * (Spezifikation 16.4). Erkennungsgrundlage ist der normalisierte Fragetext; die
- * Gruppen werden im Bericht genannt, weil die Zusammenfassung redaktionell
- * bestaetigt werden sollte.
+ * Variants with the same content get a shared repetition group
+ * (specification 16.4). The basis of detection is the normalised question
+ * text; the groups are named in the report because the grouping should be
+ * confirmed editorially.
  */
 function assignRepetitionGroups(questions: Question[], notes: MigrationNote[]): void {
   const byPrompt = new Map<string, Question[]>()
@@ -315,7 +316,7 @@ function assignRepetitionGroups(questions: Question[], notes: MigrationNote[]): 
   }
 }
 
-/** Diagnose der Legacy-Konfiguration; sie wird nicht automatisch uebernommen. */
+/** Diagnostics of the legacy configuration; it is not adopted automatically. */
 function inspectLegacyConfig(configSource: string, notes: MigrationNote[]): void {
   let declarations: Map<string, LiteralValue>
   try {
@@ -348,7 +349,7 @@ function inspectLegacyConfig(configSource: string, notes: MigrationNote[]): void
 }
 
 /* ------------------------------------------------------------------ *
- * Feldzugriff und Normalisierung
+ * Field access and normalisation
  * ------------------------------------------------------------------ */
 
 function findQuestionArray(declarations: Map<string, LiteralValue>): LiteralValue[] | null {
@@ -378,7 +379,7 @@ function asString(value: LiteralValue | undefined): string | undefined {
 }
 
 function collectOptions(record: Record<string, LiteralValue>): AnswerOption[] {
-  // Variante 1: option_1 .. option_4 (Legacy). Variante 2: options: [...].
+  // Variant 1: option_1 .. option_4 (legacy). Variant 2: options: [...].
   const numbered: AnswerOption[] = []
   for (let index = 1; index <= 8; index += 1) {
     const text = asString(pick(record, [`option_${index}`, `option${index}`, `antwort_${index}`]))
@@ -412,7 +413,7 @@ function collectCategories(record: Record<string, LiteralValue>): string[] {
   return [...new Set(values.map(normalizeId))]
 }
 
-/** IDs werden klein geschrieben und von Umlauten/Sonderzeichen befreit. */
+/** Ids are lower-cased and stripped of umlauts/special characters. */
 export function normalizeId(value: string): string {
   return value
     .trim()
@@ -449,7 +450,7 @@ function mimeTypeForFile(filename: string): string {
   return map[extension] ?? 'application/octet-stream'
 }
 
-/** Menschenlesbarer Migrationsbericht. */
+/** Human-readable migration report. */
 export function formatMigrationReport(result: MigrationResult): string {
   const lines: string[] = ['# Migrationsbericht Legacy-Quizdaten', '']
   lines.push(`Gelesen: ${result.statistics.total} Eintraege, uebernommen: ${result.statistics.migrated}.`)

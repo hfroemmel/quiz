@@ -1,98 +1,97 @@
-# Stand der Aufteilung
+# Status of the split
 
-Die Aufteilung des Systems in veroeffentlichte Pakete und eigenstaendige
-Anwendungs-Repositories laeuft in Phasen. Diese Datei haelt fest, was erledigt
-ist und was als Naechstes ansteht.
+The split of the system into published packages and standalone application
+repositories runs in phases. This file records what is done and what is next.
 
-## Erledigt
+## Done
 
-| Phase | Inhalt |
+| Phase | Content |
 |---|---|
-| 0 | CI-Regressionsnetz (`ci.yml`), Chromium-Aufloesung in drei Stufen |
-| 1 | Emit-Setup: `dist` je Paket, `publishConfig`, publint/attw auf dem Tarball |
-| 2 | Pfade kommen vom Aufrufer; das Repo-Wurzel-Orakel ist weg |
-| 3 | Kiosk-Selbstbedienung nutzt die Operator-Befehlssequenz (Buzz, Einloggen, Abgeben) |
-| 4 | `QuizRuntime`-Vertrag, `QuizScene`, Ereignisableitung, Theme als Host-Sache |
-| 5 | Fuenf Pakete `@hfroemmel/quiz-{core,content,themes,react,kiosk}`, Schema v2 |
-| 6 | Changesets (fixed), `release.yml`, Vite-lib-Builds, Veroeffentlichung 0.1.0 |
-| 7 | Inhalte nach `quiz-content-data`, Testbestand hier, Inhaltsprofile, `pull` |
-| 8 | Buehnenbetrieb nach `quiz-live`: Server, Persistenz, Rollen-Clients, Electron-Huelle |
-| 9 | Kiosk nach `quiz-standalone`: `LocalQuizRuntime` im Fenster, kein Server, kein Netz |
-| 10 | `app-collection`: Spielesammlung mit eingebettetem Quiz, Auf- und Abbau beim Gastgeber |
-| 11 | Rueckbau: Anwendungen, Server und Persistenz verlassen dieses Repository |
+| 0 | CI regression net (`ci.yml`), three-tier Chromium resolution |
+| 1 | Emit setup: `dist` per package, `publishConfig`, publint/attw on the tarball |
+| 2 | Paths come from the caller; the repo-root oracle is gone |
+| 3 | Kiosk self-service uses the operator command sequence (buzz, log in, submit) |
+| 4 | `QuizRuntime` contract, `QuizScene`, event derivation, theme as a host concern |
+| 5 | Five packages `@hfroemmel/quiz-{core,content,themes,react,kiosk}`, schema v2 |
+| 6 | Changesets (fixed), `release.yml`, Vite lib builds, 0.1.0 publish |
+| 7 | Content moved to `quiz-content-data`, test fixtures here, content profiles, `pull` |
+| 8 | Stage operation moved to `quiz-live`: server, persistence, role clients, Electron shell |
+| 9 | Kiosk moved to `quiz-standalone`: `LocalQuizRuntime` in a window, no server, no network |
+| 10 | `app-collection`: game collection with an embedded quiz, setup and teardown by the host |
+| 11 | Teardown: applications, server, and persistence leave this repository |
 
-Nachweis je Phase: `pnpm typecheck`, `pnpm test`, `pnpm packages:verify`
-(publint + attw auf den gepackten Tarballs) und `npx playwright test` -
-einschliesslich unveraenderter Screenshot-Baselines.
+Proof per phase: `pnpm typecheck`, `pnpm test`, `pnpm packages:verify`
+(publint + attw on the packed tarballs), and `npx playwright test` -
+including unchanged screenshot baselines.
 
-Nach dem Rueckbau stehen hier 149 Unit-Tests und 58 End-to-End-Tests; die
-uebrigen sind mit ihrem Gegenstand umgezogen (35 Server- und Persistenztests
-nach `quiz-live`, die Spielablaeufe ebenso).
+After the teardown, 149 unit tests and 58 end-to-end tests remain here; the
+rest moved with their subject matter (35 server and persistence tests to
+`quiz-live`, likewise the gameplay flows).
 
-## CI laeuft
+## CI is running
 
-Der frueher gemeldete Kontoblocker ist weg: Seit dem 27.08. starten die
-GitHub-gehosteten Runner. Der erste vollstaendig gruene Lauf steht - `checks`
-(Typecheck, Unit-Tests, `packages:verify`, Produktionsbuild) und `e2e` (80
-Playwright-Tests im Container, gut neun Minuten) beide erfolgreich.
+The previously reported account blocker is gone: since August 27, the
+GitHub-hosted runners start. The first fully green run has arrived - both
+`checks` (typecheck, unit tests, `packages:verify`, production build) and
+`e2e` (80 Playwright tests in a container, about nine minutes) succeed.
 
-Eine Anpassung war dafuer noetig: Seit Phase 7 ist `content/dist` nicht mehr
-versioniert, also bauen beide Jobs das Quizpaket vor dem Testlauf.
+One adjustment was needed for this: since phase 7, `content/dist` is no
+longer versioned, so both jobs now build the quiz package before the test run.
 
-## Veroeffentlichte Versionen
+## Published versions
 
-| Version | Was |
+| Version | What |
 |---|---|
-| 0.1.0 | Erste Veroeffentlichung aller fuenf Pakete |
-| 0.2.0 | `QuizGame` nimmt die Laufzeit vom Gastgeber entgegen (`runtime`-Prop) |
+| 0.1.0 | First publish of all five packages |
+| 0.2.0 | `QuizGame` takes the runtime from the host (`runtime` prop) |
 
-Der Weg ist der dokumentierte: Der Release-Workflow legt den PR
-"Version Packages" an, sein Merge veroeffentlicht.
+The path is the documented one: the release workflow creates the "Version
+Packages" PR, and merging it publishes.
 
-Zwei Beobachtungen fuer den naechsten Release:
+Two observations for the next release:
 
-- Der Versions-PR kommt von `github-actions[bot]`; sein CI-Lauf bleibt auf
-  `action_required` stehen und braucht einmal *Approve and run*. Auf den
-  Inhalt hat das keinen Einfluss - der Versions-PR aendert nur
-  `package.json`-Versionen und Changelogs, und `main` prueft ohnehin erneut.
-- Die Changesets-Action legt Versions-Tags an, kann sie aus dieser
-  Arbeitsumgebung aber nicht pushen (GitHub beantwortet `refs/tags/*` mit 403).
-  Die Herkunft steht in den Changelogs und am Merge-Commit; wer die Tags will,
-  setzt sie aus einer eigenen Arbeitskopie.
+- The version PR comes from `github-actions[bot]`; its CI run stays at
+  `action_required` and needs a one-time *Approve and run*. This has no
+  effect on the content - the version PR only changes `package.json`
+  versions and changelogs, and `main` re-checks regardless.
+- The changesets action creates version tags but cannot push them from this
+  work environment (GitHub answers `refs/tags/*` with 403). Their origin is
+  recorded in the changelogs and at the merge commit; whoever needs the tags
+  sets them from their own working copy.
 
-## Blockiert
+## Blocked
 
-1. **Die Pakete sind fuer die Anwendungs-Repositories noch nicht freigegeben.**
-   Deren CI-Laeufe scheitern an der Registry mit `403`, obwohl das Token gueltig
-   ist und der Job `packages: read` besitzt: Ein privates Paket gehoert nur dem
-   Repository, aus dem es veroeffentlicht wurde. Abhilfe: bei jedem der fuenf
-   Pakete unter *Package settings -> Manage Actions access -> Add repository*
-   das konsumierende Repository mit `Read` eintragen - fuer `quiz-live`,
-   `quiz-standalone` und `app-collection`.
-2. **Die Medien fehlen in `quiz-content-data`.** Der LFS-Endpunkt
-   (`lfs.github.com`) ist aus der Migrationssitzung heraus gesperrt. Der
-   Textbestand ist dort vollstaendig; das README des Repositories nennt die
-   Befehle fuer den einmaligen Upload aus einer Arbeitskopie.
+1. **The packages are not yet released to the application repositories.**
+   Their CI runs fail at the registry with `403`, even though the token is
+   valid and the job has `packages: read`: a private package belongs only to
+   the repository it was published from. Remedy: for each of the five
+   packages, under *Package settings -> Manage Actions access -> Add
+   repository*, add the consuming repository with `Read` - for `quiz-live`,
+   `quiz-standalone`, and `app-collection`.
+2. **The media is missing from `quiz-content-data`.** The LFS endpoint
+   (`lfs.github.com`) is blocked from within the migration session. The text
+   content there is complete; the repository's README names the commands for
+   the one-time upload from a working copy.
 
-## Die Aufteilung steht
+## The split stands
 
-| Repository | Was |
+| Repository | What |
 |---|---|
-| `quiz` | die fuenf Bibliotheken plus Pruefstand |
-| `quiz-live` | Buehnenbetrieb: Server, Persistenz, Rollen-Clients, Electron-Huelle |
-| `quiz-standalone` | Kiosk: ein Fenster, kein Server, kein Netz |
-| `app-collection` | Spielesammlung mit eingebettetem Quiz |
-| `quiz-content-data` | die redaktionellen Inhalte |
+| `quiz` | the five libraries plus the test harness |
+| `quiz-live` | stage operation: server, persistence, role clients, Electron shell |
+| `quiz-standalone` | kiosk: one window, no server, no network |
+| `app-collection` | game collection with an embedded quiz |
+| `quiz-content-data` | the editorial content |
 
-Alle drei Anwendungs-Repositories konsumieren `@hfroemmel/quiz-*@^0.2` aus
-GitHub Packages. Die Pakete sind veroeffentlicht; was jedem Repository noch
-fehlt, ist die Lesefreigabe (siehe Blocker 1).
+All three application repositories consume `@hfroemmel/quiz-*@^0.2` from
+GitHub Packages. The packages are published; what each repository still
+lacks is read access (see blocker 1).
 
-Zwei Punkte sind beim Rueckbau bewusst NICHT mitgezogen:
+Two points were deliberately NOT carried along in the teardown:
 
-- Der Einbettungstest „keine Verbindung bleibt zurueck" hing an einem Server,
-  der seine Clients zaehlt. Im Pruefstand gibt es keinen mehr; die
-  entsprechende Zusage - wer die Laufzeit stellt, raeumt sie auf - prueft
-  `app-collection` an seiner Sitzung, ohne Fenster.
-- `docs/` beschreibt weiterhin das System als Ganzes. Einige Dokumente gehoeren
-  fachlich zum Buehnenbetrieb; sie liegen bis auf Weiteres hier.
+- The embedding test "no connection is left behind" depended on a server
+  that counted its clients. There is no longer one in the test harness; the
+  corresponding commitment - whoever provides the runtime cleans it up - is
+  verified by `app-collection` at its session level, without a window.
+- `docs/` continues to describe the system as a whole. Some documents belong
+  topically to stage operation; they remain here for now.

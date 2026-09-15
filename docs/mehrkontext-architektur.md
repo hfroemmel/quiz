@@ -1,356 +1,361 @@
-# Ein Kern, drei Kontexte
+# One Core, Three Contexts
 
-Dieses Dokument beschreibt, wie das Quiz zusaetzlich zum Buehnenbetrieb als
-eigenstaendiges Touch-Spiel und als eingebettetes Spiel einer Multigame-Anwendung
-laeuft - ohne den Spielkern zu duplizieren.
+This document describes how the quiz runs, in addition to stage operation, as a
+standalone touch game and as an embedded game inside a multigame application -
+without duplicating the game core.
 
-Der Kern ist umgesetzt (Abschnitt 6); die Oberflaechen dafuer stehen noch aus.
-Grundlage sind die Entscheidungen aus Abschnitt 7.
+The core is implemented (section 6); the interfaces for it are still pending.
+The decisions in section 7 form the basis.
 
-## 1. Die drei Kontexte
+## 1. The Three Contexts
 
-| Kontext | Bedienung | Wer steuert den Ablauf | Fenster/Prozess |
+| Context | Operation | Who controls the flow | Window/process |
 |---|---|---|---|
-| **A - Buehne** | Operator, Moderator, Hardware-Buzzer | Mensch (Operator/Moderator) | Electron mit Operator- und Praesentationsfenster, LAN-Clients |
-| **B - Alleinstehend** | Touch, 1 oder 2 Spieler | Automatik, Spieler tippen selbst | Electron-Kiosk, ein Vollbildfenster |
-| **C - Multigame** | Touch, 1 oder 2 Spieler | Automatik, Spieler tippen selbst | fremde React-Shell, das Quiz ist eine Komponente darin |
+| **A - Stage** | Operator, moderator, hardware buzzer | Human (operator/moderator) | Electron with operator and presentation windows, LAN clients |
+| **B - Standalone** | Touch, 1 or 2 players | Automatic, players tap themselves | Electron kiosk, one full-screen window |
+| **C - Multigame** | Touch, 1 or 2 players | Automatic, players tap themselves | Third-party React shell, the quiz is a component within it |
 
-B und C unterscheiden sich fachlich **nicht**. Sie unterscheiden sich nur darin, wer
-das Fenster besitzt, wer das Spiel startet und beendet und wo Datenbank und
-Quizpaket liegen. Deshalb gibt es nicht drei Anwendungen, sondern **ein Spielmodul
-und drei Huellen**.
+B and C do **not** differ functionally. They differ only in who owns the
+window, who starts and ends the game, and where the database and quiz package
+live. That's why there aren't three applications, but **one game module and
+three shells**.
 
-## 2. Leitentscheidung
+## 2. Guiding Decision
 
-Der Kern (`@quiz/contracts`, `@quiz/domain`, `@quiz/content`, Anwendungsschicht)
-bleibt die einzige Quelle der Spielregeln. Er wird **erweitert**, nicht kopiert.
+The core (`@quiz/contracts`, `@quiz/domain`, `@quiz/content`, application
+layer) remains the single source of truth for the game rules. It is
+**extended**, not copied.
 
-Zwei naheliegende Abkuerzungen werden ausdruecklich **nicht** genommen:
+Two obvious shortcuts are deliberately **not** taken:
 
-1. **Kein zweiter Ablauf.** Es entsteht keine zweite Zustandsmaschine "fuer Touch".
-   Der Unterschied zwischen Buehne und Selbstbedienung ist Konfiguration im
-   Spielzustand (`flowProfile`), keine zweite Codebahn. Sonst driften die beiden
-   Ablaeufe innerhalb weniger Monate auseinander und jede Regelaenderung muss
-   zweimal gedacht und zweimal getestet werden.
-2. **Kein Operator-Simulator in der Oberflaeche.** Der Touch-Client sendet nicht
-   heimlich Operatorbefehle (`OPEN_BUZZER`, `LOG_OPTION_ANSWER`, `RESOLVE_ATTEMPT`).
-   Das wuerde die Rollenrechte aushebeln, das Auditlog verfaelschen ("Operator hat
-   eingeloggt", obwohl niemand da war) und die Fairness beim gleichzeitigen Tippen
-   von der Netzlaufzeit dreier Nachrichten abhaengig machen. Stattdessen gibt es
-   eine eigene Rolle `player` mit genau einem atomaren Befehl.
+1. **No second flow.** No second state machine "for touch" is created. The
+   difference between stage and self-service is configuration in the game
+   state (`flowProfile`), not a second code path. Otherwise the two flows
+   would drift apart within a few months, and every rule change would have to
+   be thought through and tested twice.
+2. **No operator simulator in the interface.** The touch client does not
+   secretly send operator commands (`OPEN_BUZZER`, `LOG_OPTION_ANSWER`,
+   `RESOLVE_ATTEMPT`). That would undermine role permissions, falsify the
+   audit log ("operator logged in" even though no one was there), and make
+   fairness in simultaneous tapping dependent on the network latency of three
+   messages. Instead, there is a dedicated `player` role with exactly one
+   atomic command.
 
-## 3. Zielarchitektur
+## 3. Target Architecture
 
 ```text
-                 apps/web            apps/kiosk          fremde Multigame-Shell
-              (Operator, Buehne,   (Electron-Vollbild,     (React-Anwendung)
-               Moderator)           Attract-Screen)
+                 apps/web            apps/kiosk          third-party Multigame shell
+              (operator, stage,    (Electron full screen,   (React application)
+               moderator)           attract screen)
                     |                    |                        |
                     |                    +-----------+------------+
                     |                                |
                     v                                v
         packages/presentation  <---------  packages/game
-        (Szenen, Uebergaenge,              (<QuizGame/>: Verbindung,
-         Tokens, Buehnenflaeche)            Touch-Eingabe, Lebenszyklus)
+        (scenes, transitions,              (<QuizGame/>: connection,
+         tokens, stage area)                touch input, lifecycle)
                     \                              /
                      \                            /
                       v                          v
-                        packages/contracts (Vertraege)
-                        packages/domain    (Regeln, Projektion)
+                        packages/contracts (contracts)
+                        packages/domain    (rules, projection)
                                 |
-                        packages/runtime   (QuizService, Ports, Timer)
+                        packages/runtime   (QuizService, ports, timer)
                         /               \
-        packages/server                 In-Prozess-Start
-        (HTTP + WebSocket)              (Electron-Hauptprozess)
+        packages/server                 in-process start
+        (HTTP + WebSocket)              (Electron main process)
                         \               /
                 packages/persistence, packages/content
 ```
 
-### Paketaenderungen
+### Package Changes
 
-| Paket | Aenderung | Begruendung |
+| Package | Change | Rationale |
 |---|---|---|
-| `packages/presentation` | **neu**, aus `apps/web/src/presentation`, `ui/`, `theme/`, `styles.css` | `docs/architektur.md` verzichtet bisher bewusst auf dieses Paket, weil es nur einen Nutzer gab. Ab jetzt gibt es drei. Die dort formulierte Bedingung ist damit erfuellt. |
-| `packages/game` | **neu** | Das spielbare Quiz als eine React-Komponente mit Lebenszyklus-API. Einziger Baustein, den die Multigame-Shell kennt. |
-| `packages/runtime` | **erledigt**, aus `packages/server` herausgeloest: `QuizService`, `ContentService`, Zusammenbau | Der Kern der Anwendungsschicht darf nicht an HTTP haengen. Danach ist `packages/server` nur noch Transportadapter. |
-| `packages/server` | schrumpft auf HTTP, WebSocket, Netzwerkzugang, Auslieferung | - |
-| `apps/kiosk` | **neu** | Electron-Huelle fuer Kontext B. |
-| `apps/web`, `apps/desktop` | importieren `packages/presentation` statt lokaler Ordner | keine Verhaltensaenderung |
-| `packages/contracts`, `packages/domain` | erweitert (Abschnitt 4) | - |
-| `packages/persistence`, `packages/content` | unveraendert | - |
+| `packages/presentation` | **new**, from `apps/web/src/presentation`, `ui/`, `theme/`, `styles.css` | `docs/architektur.md` has so far deliberately done without this package because there was only one consumer. From now on there are three. The condition stated there is thereby met. |
+| `packages/game` | **new** | The playable quiz as a single React component with a lifecycle API. The only building block the multigame shell knows about. |
+| `packages/runtime` | **done**, split out of `packages/server`: `QuizService`, `ContentService`, wiring | The core of the application layer must not depend on HTTP. After this, `packages/server` is only a transport adapter. |
+| `packages/server` | shrinks to HTTP, WebSocket, network access, delivery | - |
+| `apps/kiosk` | **new** | Electron shell for context B. |
+| `apps/web`, `apps/desktop` | import `packages/presentation` instead of local folders | no behavior change |
+| `packages/contracts`, `packages/domain` | extended (section 4) | - |
+| `packages/persistence`, `packages/content` | unchanged | - |
 
-### Transport: bewusst ueberall derselbe
+### Transport: Deliberately the Same Everywhere
 
-`startServer()` laeuft heute schon im Electron-Hauptprozess (`apps/desktop/src/main.ts`).
-Kiosk und Multigame machen es genauso, nur auf `127.0.0.1` mit Port `0` und ohne
-LAN-Freigabe. Der Renderer spricht in allen drei Kontexten ueber denselben
-WebSocket-Vertrag mit demselben `QuizService`.
+`startServer()` already runs today in the Electron main process
+(`apps/desktop/src/main.ts`). Kiosk and multigame do the same, just on
+`127.0.0.1` with port `0` and without LAN exposure. In all three contexts, the
+renderer talks over the same WebSocket contract with the same `QuizService`.
 
-Das ist die wichtigste Vereinfachung dieses Entwurfs: **es gibt keinen zweiten
-Transport, keine zweite Persistenz und keinen zweiten Inhaltszugriff.** SQLite,
-Wiederherstellung nach Absturz, Idempotenz, Auditlog und die serverseitige
-Filterung der Loesung gelten im Kiosk unveraendert.
+This is the most important simplification of this design: **there is no
+second transport, no second persistence, and no second content access.**
+SQLite, crash recovery, idempotency, the audit log, and server-side filtering
+of the solution apply unchanged in the kiosk.
 
-Damit das so bleibt, wird in `packages/game` trotzdem eine schmale
-Transportschnittstelle eingezogen (`send(envelope)`, `onMessage(...)`), heute mit
-genau einer Implementierung (WebSocket). Falls die Multigame-Shell spaeter doch
-eine reine Browseranwendung ohne Node-Prozess ist, kommt eine zweite
-Implementierung dazu, ohne dass eine einzige Szene angefasst wird.
+To keep it that way, `packages/game` still introduces a narrow transport
+interface (`send(envelope)`, `onMessage(...)`), today with exactly one
+implementation (WebSocket). If the multigame shell later turns out to be a
+pure browser application without a Node process, a second implementation is
+added without touching a single scene.
 
-## 4. Was der Kern zusaetzlich koennen muss
+## 4. What the Core Additionally Needs to Support
 
-### 4.1 Ablaufprofil statt zweitem Ablauf
+### 4.1 Flow Profile Instead of a Second Flow
 
-Neu in `GameState` und in `START_GAME`:
+New in `GameState` and in `START_GAME`:
 
 ```ts
 export type FlowProfile = 'operated' | 'self-service'
 ```
 
-Das Profil steuert ausschliesslich, **wer** einen Uebergang ausloest und **welche
-Uebergaenge automatisch eingeplant werden**. Die Phasen selbst bleiben identisch.
+The profile controls exclusively **who** triggers a transition and **which
+transitions get scheduled automatically**. The phases themselves stay
+identical.
 
-| Stelle | `operated` (heute) | `self-service` (neu) |
+| Point | `operated` (today) | `self-service` (new) |
 |---|---|---|
-| Frage sichtbar | Operator gibt Buzzer frei | die Frage steht `questionLeadInMs` allein, dann oeffnet der Server die Antworten |
-| Antwort | Operator loggt ein, loest auf | Spieler tippt: ein Befehl, sofortige Auswertung |
-| Nach der Loesung | Operator drueckt "Weiter" | ein SPIELER drueckt "Weiter" - der Server plant hier nichts ein |
-| Videofrage | Operator startet und blendet um | laeuft automatisch, danach die Frage - auch sie zuerst allein |
-| Bilderkennen | Operator kann pausieren | laeuft durch, Tippen friert wie ein Buzzer ein |
+| Question visible | Operator opens the buzzer | the question stands alone for `questionLeadInMs`, then the server opens the answers |
+| Answer | Operator logs it in, resolves it | Player taps: one command, immediate evaluation |
+| After the solution | Operator presses `Weiter` ("Continue") | a PLAYER presses `Weiter` - the server schedules nothing here |
+| Video question | Operator starts it and switches over | runs automatically, then the question - it too stands alone at first |
+| Image recognition | Operator can pause | runs through, tapping freezes it just like a buzzer |
 
-Technisch braucht es dafuer **keine neue Mechanik**: die vorhandene
-`pendingTransition` mit `ADVANCE_TIMED_PHASE` und serverseitigem Fallback-Timer
-deckt alle automatischen Uebergaenge ab. Erweitert werden `engine.ts`
-(Uebergaenge einplanen, wenn `flowProfile === 'self-service'`) und
-`allowedCommands.ts` (Operatorbefehle im Selbstbedienungsprofil gar nicht erst
-anbieten).
+Technically, this needs **no new mechanism**: the existing `pendingTransition`
+with `ADVANCE_TIMED_PHASE` and a server-side fallback timer covers all
+automatic transitions. What gets extended is `engine.ts` (scheduling
+transitions when `flowProfile === 'self-service'`) and `allowedCommands.ts`
+(not offering operator commands at all in the self-service profile).
 
-Die neuen Haltezeiten kommen als `selfServiceTiming` in
-`packages/contracts/src/config.ts` - dieselbe Quelle der Wahrheit wie `gameTiming`.
+The new hold times arrive as `selfServiceTiming` in
+`packages/contracts/src/config.ts` - the same source of truth as
+`gameTiming`.
 
-### 4.2 Ein bis zwei Spieler
+### 4.2 One to Two Players
 
-Heute ist die Zweierbesetzung strukturell festgeschrieben:
+Today, the two-player setup is structurally fixed:
 `players: [PlayerState, PlayerState]`.
 
-Aenderung: `players: PlayerState[]` mit 1 oder 2 Eintraegen, gesetzt beim
-`START_GAME` (`playerCount: 1 | 2`). `PlayerId` bleibt `player-1 | player-2`.
+Change: `players: PlayerState[]` with 1 or 2 entries, set at `START_GAME`
+(`playerCount: 1 | 2`). `PlayerId` remains `player-1 | player-2`.
 
-Fachliche Folgen (Einzelspieler = "wie heute, nur ohne Gegner"):
+Functional consequences (single player = "like today, just without an
+opponent"):
 
-| Regel | Duell | Einzelspieler |
+| Rule | Duel | Single player |
 |---|---|---|
-| Zweite Chance | anderer Spieler, 50 Punkte | entfaellt - nach dem Fehlversuch direkt `solution` |
-| Sperre nach Fehlversuch | wie heute | wirkungslos, da kein zweiter Spieler |
-| Bilderkennen | beide duerfen erneut buzzern | ein Versuch, danach Loesung |
-| Ergebnis | Gewinner oder Unentschieden | kein Gewinner: Punktestand und Trefferquote |
+| Second chance | other player, 50 points | not applicable - straight to `solution` after the failed attempt |
+| Lock after failed attempt | as today | has no effect, since there is no second player |
+| Image recognition | both may buzz again | one attempt, then the solution |
+| Result | winner or draw | no winner: score and hit rate |
 
-`nextPhaseAfterAttempt()` bekommt dafuer genau eine zusaetzliche Bedingung
-("gibt es einen anderen, nicht gesperrten Spieler?"). `determineResult()` liefert
-zusaetzlich `mode: 'duel' | 'solo'`, damit die Ergebnisszene nicht raten muss.
+For this, `nextPhaseAfterAttempt()` gets exactly one additional condition
+("is there another, non-locked player?"). `determineResult()` additionally
+returns `mode: 'duel' | 'solo'`, so the result scene doesn't have to guess.
 
-Betroffen sind ausserdem: `projection.ts` (`playerScores`, `result`),
-`StageHeader`/`ScoreTile` (einspaltige Darstellung) und die Domaintests.
+Also affected: `projection.ts` (`playerScores`, `result`),
+`StageHeader`/`ScoreTile` (single-column display), and the domain tests.
 
-### 4.3 Neue Rolle `player`, dieselbe Befehlssequenz
+### 4.3 New Role `player`, Same Command Sequence
 
-Die Rolle `player` kommt zusaetzlich in `actorRoles` und `ClientRole`, mit
-Zugang nur ueber Loopback (`checkAccess`).
+The `player` role is additionally added to `actorRoles` and `ClientRole`,
+with access only via loopback (`checkAccess`).
 
-Ein eigener Antwortbefehl existiert nicht (der urspruengliche atomare
-`ANSWER_BY_PLAYER` wurde wieder entfernt). Stattdessen nutzt `player` die
-Operator-Sequenz selbst: `BUZZ` holt den Zuschlag und sperrt den anderen
-Spieler (engine-autoritativ, `evaluateBuzz` wie beim Hardware-Buzzer),
-`LOG_OPTION_ANSWER` markiert die Antwort oeffentlich und bleibt bis zum
-Aufloesen umentscheidbar, `RESOLVE_ATTEMPT` gibt sie ab und wertet - der
-sichtbare Bestaetigungsschritt "Antwort abgeben und aufloesen" am Geraet.
-`BUZZ` und `LOG_OPTION_ANSWER` sind `revisionExempt`: physische Ereignisse
-bzw. deren unmittelbare Folge, keine Entscheidung auf Basis eines gesehenen
-Zustands. Der bindende Schritt `RESOLVE_ATTEMPT` behaelt die
-Revisionspruefung.
+There is no dedicated answer command (the original atomic
+`ANSWER_BY_PLAYER` was removed again). Instead, `player` uses the operator
+sequence itself: `BUZZ` claims the turn and locks out the other player
+(engine-authoritative, `evaluateBuzz` just like the hardware buzzer),
+`LOG_OPTION_ANSWER` marks the answer publicly and stays changeable until it
+is resolved, `RESOLVE_ATTEMPT` submits it and evaluates it - the visible
+confirmation step "submit answer and resolve" on the device. `BUZZ` and
+`LOG_OPTION_ANSWER` are `revisionExempt`: physical events, or their immediate
+consequence, not a decision based on an observed state. The binding step
+`RESOLVE_ATTEMPT` keeps the revision check.
 
-Ausserdem darf `player` `START_GAME` senden, aber nur mit
-`flowProfile: 'self-service'`. Dieselbe Politik gilt fuer die Spielbefehle:
-`BUZZ`, `LOG_OPTION_ANSWER`, `RESOLVE_ATTEMPT` und `CONTINUE` nimmt der Server
-von `player` nur in Selbstbedienungsspielen an. Beides prueft die
-Anwendungsschicht, nicht die Oberflaeche.
+In addition, `player` is allowed to send `START_GAME`, but only with
+`flowProfile: 'self-service'`. The same policy applies to the game commands:
+the server only accepts `BUZZ`, `LOG_OPTION_ANSWER`, `RESOLVE_ATTEMPT`, and
+`CONTINUE` from `player` in self-service games. Both are checked by the
+application layer, not the interface.
 
-Der Buehnenbetrieb bleibt davon vollstaendig unberuehrt: In einem
-operatorgefuehrten Spiel weist der Server jeden Spielerbefehl ab
-(`wrong-flow-profile`), und `player` erreicht keinen Operatorbefehl.
+Stage operation remains completely unaffected by this: in an operator-led
+game, the server rejects every player command (`wrong-flow-profile`), and
+`player` cannot reach any operator command.
 
-### 4.4 Inhalte: Welche Fragen taugen fuer Selbstbedienung?
+### 4.4 Content: Which Questions Are Suitable for Self-Service?
 
-Fragen mit `evaluationMode: 'manual-correct-incorrect'` (muendliche Antwort, vom
-Operator bewertet) sind ohne Operator **nicht spielbar**. Sie duerfen im Kiosk
-nicht gezogen werden.
+Questions with `evaluationMode: 'manual-correct-incorrect'` (spoken answer,
+evaluated by the operator) are **not playable** without an operator. They
+must not be drawn in the kiosk.
 
-Loesung ohne Sondercode in der Engine: `questionSlotRuleSchema.filters` bekommt
-`evaluationModes`. Ein Kiosk-Preset filtert damit auf `option-comparison`. Die
-Inhaltsvalidierung (`packages/content`) prueft zusaetzlich pro Preset, ob genug
-selbstbedienungstaugliche Kandidaten uebrig bleiben - dieselbe Warnschwelle wie
-heute bei kleinen Pools.
+Solution without special-case code in the engine:
+`questionSlotRuleSchema.filters` gets `evaluationModes`. A kiosk preset can
+thus filter on `option-comparison`. Content validation (`packages/content`)
+additionally checks, per preset, whether enough self-service-suitable
+candidates remain - the same warning threshold as today for small pools.
 
-Empfehlung fuer die Reihenfolge: Kiosk startet mit `text-choice` und
-`image-choice`; `image-reveal` folgt in Stufe 5 (funktioniert auf Touch sehr gut),
-`video-then-question` zuletzt.
+Recommended order: the kiosk starts with `text-choice` and `image-choice`;
+`image-reveal` follows in stage 5 (works very well on touch),
+`video-then-question` last.
 
-## 5. Die drei Huellen
+## 5. The Three Shells
 
-### 5.1 Kontext A - Buehne
+### 5.1 Context A - Stage
 
-Unveraendert. `apps/web` und `apps/desktop` bekommen nur den Import aus
-`packages/presentation` und starten Spiele weiterhin mit
-`flowProfile: 'operated'`, `playerCount: 2`. Die bestehenden E2E-Tests sind das
-Regressionsnetz fuer alle Stufen.
+Unchanged. `apps/web` and `apps/desktop` only get the import from
+`packages/presentation` and continue to start games with
+`flowProfile: 'operated'`, `playerCount: 2`. The existing E2E tests are the
+regression net for all stages.
 
-### 5.2 Kontext B - Alleinstehend (`apps/kiosk`)
+### 5.2 Context B - Standalone (`apps/kiosk`)
 
-- Electron, ein Fenster, `kiosk: true`, kein Menue, kein Operatorfenster.
-- Hauptprozess startet `startServer({ host: '127.0.0.1', port: 0 })`.
-- Renderer zeigt: Attract-Screen -> Auswahl "1 Spieler / 2 Spieler" (und, falls
-  gewuenscht, Quizmodus) -> `<QuizGame/>` -> Ergebnis -> zurueck zum Attract-Screen.
-- **Leerlauf-Aufsicht** (gehoert in die Huelle, nicht in den Spielkern): Passiert
-  laenger als `idleTimeoutMs` nichts, wird das Spiel abgebrochen und der
-  Attract-Screen kehrt zurueck. Ohne das bleibt ein Kiosk-Geraet mit einer offenen
-  Frage stehen, weil im gewaehlten Einzelspielermodus bewusst kein Zeitdruck
-  existiert.
-- Veranstaltungstag: Der vorhandene automatische Tageswechsel (`ensureEventDay`
-  mit Rollover) genuegt; die Wiederholungsvermeidung arbeitet damit pro Geraet und
-  Tag.
+- Electron, one window, `kiosk: true`, no menu, no operator window.
+- The main process starts `startServer({ host: '127.0.0.1', port: 0 })`.
+- Renderer shows: attract screen -> selection "1 player / 2 players" (and, if
+  desired, quiz mode) -> `<QuizGame/>` -> result -> back to the attract
+  screen.
+- **Idle supervision** (belongs in the shell, not in the game core): if
+  nothing happens for longer than `idleTimeoutMs`, the game is aborted and
+  the attract screen returns. Without this, a kiosk device would get stuck on
+  an open question, because the chosen single-player mode deliberately has no
+  time pressure.
+- Event day: the existing automatic day change (`ensureEventDay` with
+  rollover) is sufficient; repeat avoidance thus works per device and day.
 
-### 5.3 Kontext C - Multigame
+### 5.3 Context C - Multigame
 
-Die Shell ist eine React-Anwendung. Sie bindet ein:
+The shell is a React application. It embeds:
 
 ```tsx
 import { QuizGame, startQuizBackend } from '@quiz/game'   // Renderer
-// im Electron-Hauptprozess der Shell:
+// in the shell's Electron main process:
 const backend = await startQuizBackend({ databaseFile, packageDir })
 
 <QuizGame
   endpoint={backend.endpoint}          // ws://127.0.0.1:<port>
   match={{ playerCount: 1 | 2, quizModeId?, presetId? }}
   idleTimeoutMs={120_000}
-  onFinished={(result) => shell.showScore(result)}   // Punkte, Dauer, Trefferzahl
-  onExit={() => shell.backToMenu()}                  // Abbruch durch die Spieler
+  onFinished={(result) => shell.showScore(result)}   // points, duration, hit count
+  onExit={() => shell.backToMenu()}                  // exit by the players
 />
 ```
 
-Regeln, damit die Komponente sich als Gast benimmt - sie sind Teil des Vertrags
-und werden getestet:
+Rules so the component behaves like a good guest - they are part of the
+contract and are tested:
 
-- kein `window.location`-Routing, keine globalen Tastaturhandler ohne `opt-in`;
-- kein globales CSS: alle Stile unter `.quiz-root` und ueber die vorhandenen
-  Farbtoken als CSS-Custom-Properties;
-- Assets ueber eine konfigurierbare Basis-URL, nie ueber absolute Pfade;
-- `unmount` beendet Verbindung, Timer und Audio vollstaendig;
-- pausiert bei `document.visibilitychange`, wenn die Shell das Spiel verdeckt.
+- no `window.location` routing, no global keyboard handlers without
+  `opt-in`;
+- no global CSS: all styles under `.quiz-root` and via the existing color
+  tokens as CSS custom properties;
+- assets via a configurable base URL, never via absolute paths;
+- `unmount` fully ends the connection, timers, and audio;
+- pauses on `document.visibilitychange` when the shell covers the game.
 
-Falls die Shell doch kein React ist, aendert sich nur die aeusserste Schicht:
-`packages/game` bekommt zusaetzlich eine Web-Component- oder iframe-Huelle mit
-demselben Lebenszyklus. Der Kern bleibt gleich.
+If the shell turns out not to be React after all, only the outermost layer
+changes: `packages/game` additionally gets a web-component or iframe shell
+with the same lifecycle. The core stays the same.
 
-## 6. Stand und offene Arbeiten
+## 6. Status and Open Work
 
-Die Entwicklung lief zeitweise auf zwei Linien: `main` baute die
-Praesentationsschicht neu auf (CSS Modules, eigene Bauteile unter `stage/`,
-Palette, Kinderwelt), waehrend parallel die Mehrkontext-Faehigkeit entstand. Beide
-haben dieselben Dateien angefasst. Zusammengefuehrt wurde deshalb nicht per Merge,
-sondern in der Reihenfolge, in der die Stufen aufeinander aufbauen - und die
-Oberflaechenstufen werden auf den neuen Bauteilen neu gebaut statt auf den alten.
+Development ran on two lines for a while: `main` rebuilt the presentation
+layer (CSS Modules, dedicated components under `stage/`, palette, kids'
+world), while multi-context capability was built in parallel. Both touched
+the same files. They were therefore not merged, but combined in the order in
+which the stages build on one another - and the interface stages are
+rebuilt on the new components rather than the old ones.
 
-### Erledigt auf `main`
+### Done on `main`
 
-| Stufe | Inhalt |
+| Stage | Content |
 |---|---|
-| **Laufzeitpaket** | `packages/runtime` aus `packages/server` herausgeloest. `createQuizRuntime()` ist der gemeinsame Zusammenbau; `packages/server` ist nur noch Transport. |
-| **Spielerzahl** | `players` ist ein Array mit ein oder zwei Eintraegen. Zweite Chance nur bei vorhandenem Gegner, Solo-Ergebnis mit Trefferzahl statt Gewinner. |
-| **Ablaufprofil** | `operated` und `self-service` im Spielzustand, Rolle `player` mit der Operator-Befehlssequenz (`BUZZ`/`LOG_OPTION_ANSWER`/`RESOLVE_ATTEMPT`), automatische Uebergaenge ueber die vorhandene Timer-Mechanik. |
-| **Inhaltsfilter** | `evaluationModes` im Slotfilter, drei Touch-Presets im Quizpaket, Eignung im Validierungsbericht, gefilterter Katalog fuer die Spieleransicht. |
-| **Touchansicht** | `apps/web/src/game` mit `<QuizGame/>`: Startauswahl, Fussleiste, Ergebnis. Beide Spieler stehen nebeneinander vor demselben Bild; unten hat jeder seine Ecke aus Punktekarte und Buzzer, in der Mitte liegen Hinweis und `Weiter`. Die vier Antworten stehen einmal darueber und benutzen `AnswerList` - dieselben Zeilen wie im Saal. Im Einzelspiel entfallen Gegner und Buzzer; der Fragezaehler nimmt die frei gewordene rechte Ecke ein, damit die Mitte die Mitte bleibt. Erreichbar unter `/play`. |
-| **Kiosk** | `apps/kiosk` als Electron-Vollbild: Laufzeit im selben Prozess, nur Loopback, kein Operatorfenster, Leerlauf-Aufsicht als Betriebsangabe. |
-| **Einbettung** | `onFinished`/`onExit`, Abraeumen beim Entfernen, Beispielsammlung unter `/shell` als Pruefstand. |
+| **Runtime package** | `packages/runtime` split out of `packages/server`. `createQuizRuntime()` is the shared wiring; `packages/server` is now only transport. |
+| **Player count** | `players` is an array with one or two entries. Second chance only when an opponent is present, solo result with hit count instead of a winner. |
+| **Flow profile** | `operated` and `self-service` in the game state, `player` role with the operator command sequence (`BUZZ`/`LOG_OPTION_ANSWER`/`RESOLVE_ATTEMPT`), automatic transitions via the existing timer mechanism. |
+| **Content filter** | `evaluationModes` in the slot filter, three touch presets in the quiz package, suitability in the validation report, filtered catalog for the player view. |
+| **Touch view** | `apps/web/src/game` with `<QuizGame/>`: start selection, foot bar, result. Both players stand side by side in front of the same image; at the bottom each has their own corner made of score card and buzzer, with the hint and `Weiter` in the middle. The four answers appear once above and use `AnswerList` - the same rows as in the hall. In single-player mode, the opponent and buzzer are omitted; the question counter takes over the now-free right-hand corner, so the middle stays the middle. Reachable at `/play`. |
+| **Kiosk** | `apps/kiosk` as an Electron full-screen app: runtime in the same process, loopback only, no operator window, idle supervision as an operational feature. |
+| **Embedding** | `onFinished`/`onExit`, teardown on removal, example collection at `/shell` as a test bed. |
 
-Damit sind zwei der drei Kontexte fertig: Ein Spiel laesst sich ohne einen
-einzigen Operatorbefehl von der ersten Frage bis zum Ergebnis spielen - im
-Browser unter `/play` und am Kioskgeraet. Geprueft ist das an 167 Unit-Tests und
-74 End-to-End-Tests, darunter ein vollstaendiges Einzelspiel ohne Operator; der
-Buehnenbetrieb blieb dabei unveraendert, inklusive der Bildregression der Buehne.
+With this, two of the three contexts are done: a game can be played from the
+first question to the result without a single operator command - in the
+browser at `/play` and on the kiosk device. This is verified by 167 unit
+tests and 74 end-to-end tests, including one complete single-player game
+without an operator; stage operation remained unchanged throughout, including
+the stage's visual regression tests.
 
-Von den vier Fehlern des ersten Anlaufs sind drei beim Wiederaufbau vermieden
-worden - die beiden Socket-Fehler traten nicht wieder auf, weil die
-Verbindungsschicht auf `main` sie bereits behoben hat, und das fremde Ergebnis
-haelt ein eigener Test fest. Der vierte (`pendingStart`) ist als Zwischenzustand
-umgesetzt.
+Of the four bugs from the first attempt, three were avoided during the
+rebuild - the two socket bugs did not recur because the connection layer on
+`main` had already fixed them, and the odd result is now pinned down by a
+dedicated test. The fourth (`pendingStart`) is implemented as an intermediate
+state.
 
-### Offen: der dritte Kontext
+### Open: The Third Context
 
-Was heute geht: Buehne (`/stage` mit Operator) und eigenstaendiges Touchspiel
-(`/play`, Kiosk). Was noch nicht geht: das Quiz als importierbares Bauteil einer
-FREMDEN Anwendung.
+What works today: stage (`/stage` with an operator) and the standalone touch
+game (`/play`, kiosk). What doesn't work yet: the quiz as an importable
+component of a THIRD-PARTY application.
 
-Die Beispielsammlung unter `/shell` zeigt den Lebenszyklus bereits vollstaendig -
-einbinden, verlassen, wieder einbinden, ohne Rest - aber sie lebt in derselben
-Anwendung und benutzt deshalb dieselben globalen Stylesheets. Eine fremde
-Anwendung wuerde die mitladen muessen, und dann bekaeme sie mehr, als ihr lieb ist.
+The example collection at `/shell` already shows the full lifecycle - mount,
+unmount, remount, without residue - but it lives in the same application and
+therefore uses the same global stylesheets. A third-party application would
+have to load them too, and would then get more than it bargained for.
 
-| Stufe | Inhalt | Was dabei zu loesen ist |
+| Stage | Content | What needs to be solved |
 |---|---|---|
-| **Paketschnitt der Praesentation** | `apps/web/src/presentation` und `ui/` nach `packages/presentation` | Ueberwiegend Dateien verschieben. Die Bildregression der Buehne ist das Sicherheitsnetz. |
-| **Verbindung als Paket** | `useQuizConnection` nach `packages/client` | Klein und mechanisch. |
-| **Spielpaket** | `apps/web/src/game` nach `packages/game`, Ausgabe `<QuizGame/>` | Erst danach kann eine fremde Anwendung `import { QuizGame } from '@quiz/game'` schreiben. |
-| **CSS-Kapselung** | Der globale Tokenlayer muss mit | Das ist der eigentliche Punkt, siehe unten. |
+| **Package split of the presentation** | `apps/web/src/presentation` and `ui/` into `packages/presentation` | Mostly moving files. The stage's visual regression test is the safety net. |
+| **Connection as a package** | `useQuizConnection` into `packages/client` | Small and mechanical. |
+| **Game package** | `apps/web/src/game` into `packages/game`, output `<QuizGame/>` | Only after this can a third-party application write `import { QuizGame } from '@quiz/game'`. |
+| **CSS encapsulation** | The global token layer must come along | This is the real issue, see below. |
 
-**Die CSS-Kapselung ist die offene Frage.** Alles Bauteilhafte liegt schon in
-CSS-Modulen und kann nichts anfassen, was ihm nicht gehoert. Der globale Layer
-kann es sehr wohl:
+**CSS encapsulation is the open question.** Everything component-like
+already lives in CSS Modules and can't touch anything that isn't its own. The
+global layer very much can:
 
-| Datei | Was daran der Gast braucht | Warum sie so nicht mitkann |
+| File | What the guest needs from it | Why it can't come along as-is |
 |---|---|---|
-| `palette.css` | die `--color-*`-Rueckfallwerte | setzt sie an `:root` |
-| `tokens.css` | Schriften, Radien, Dauern | setzt sie an `:root` |
-| `stage.css` | `.stage`, `.stage--*` | Klassenselektoren, geht mit |
-| `motion.css` | Keyframes und Uebergangsklassen | geht mit |
-| `base.css` | nichts | Reset mit `*`, `html`, `body` - gehoert dem Gastgeber |
+| `palette.css` | the `--color-*` fallback values | sets them on `:root` |
+| `tokens.css` | fonts, radii, durations | sets them on `:root` |
+| `stage.css` | `.stage`, `.stage--*` | class selectors, comes along fine |
+| `motion.css` | keyframes and transition classes | comes along fine |
+| `base.css` | nothing | reset with `*`, `html`, `body` - belongs to the host |
 
-Die Farben reisen ohnehin schon inline mit (`themeVariables` setzt sie am
-Wurzelelement der Komponente); zu loesen ist der Rest von `tokens.css`. Der Weg
-dahin ist eine Anforderungsklasse am eigenen Wurzelelement statt `:root` - und
-ein Test, der genau das festhaelt: Kein Selektor eines mitgelieferten
-Stylesheets darf mit einem Elementnamen, `*`, `html`, `body` oder einem nackten
-`:root` beginnen.
+The colors already travel along inline anyway (`themeVariables` sets them on
+the component's root element); what remains to be solved is the rest of
+`tokens.css`. The way there is a scoping class on the component's own root
+element instead of `:root` - plus a test that pins exactly that down: no
+selector in a bundled stylesheet may start with an element name, `*`, `html`,
+`body`, or a bare `:root`.
 
-## 7. Getroffene Entscheidungen
+## 7. Decisions Made
 
-| Frage | Entscheidung |
+| Question | Decision |
 |---|---|
-| Plattform der Touch-Variante | Electron-Kiosk, wie `apps/desktop` |
-| Einbettung in die Multigame-App | React-Komponente aus einem Workspace-Paket |
-| Einzelspielerregeln | wie im Duell, nur ohne Gegner: kein Zeitdruck, kein Leben-/Streak-System |
-| Zwei Spieler auf einem Geraet | beide stehen nebeneinander vor demselben Bild: unten je eine Ecke aus Punktekarte und Buzzer in der Farbe des Spielers, die Antworten einmal darueber, wer zuerst drueckt bekommt sie. Frueher lagen sich zwei gespiegelte Antwortleisten gegenueber - dieselben vier Antworten standen dann doppelt auf dem Geraet. |
-| Auswahl am Geraet | Spielerzahl und Schwierigkeit; der Quizmodus gehoert zur Aufstellung |
+| Platform for the touch variant | Electron kiosk, like `apps/desktop` |
+| Embedding in the multigame app | React component from a workspace package |
+| Single-player rules | like the duel, just without an opponent: no time pressure, no lives/streak system |
+| Two players on one device | both stand side by side in front of the same image: at the bottom, each has a corner made of score card and buzzer in the player's color, with the answers appearing once above; whoever presses first gets them. Previously, two mirrored answer rows faced each other - the same four answers then appeared twice on the device. |
+| Selection on the device | player count and difficulty; the quiz mode belongs to the setup |
 
-## 8. Offene Punkte
+## 8. Open Items
 
-1. **Auswahl vor dem Spiel im Kiosk**: nur "1 oder 2 Spieler", oder zusaetzlich
-   Quizmodus und Schwierigkeit? Beides ist billig, es ist eine reine Frage der
-   Bedienfuehrung am Geraet.
-2. **Bestenliste**: soll der Kiosk Punktestaende ueber Spiele hinweg zeigen? Die
-   Datenbank kann es ohne Schemaaenderung nicht; es waere eine kleine Migration.
-3. **Ton im Kiosk**: dauerhaft an, oder stumm mit sichtbarem Schalter?
-4. **Quizpaket im Kiosk**: mitgeliefert und nur bei einer neuen Programmversion
-   aktualisiert, oder soll ein Geraet Inhalte nachladen koennen?
-5. **Multigame-Shell**: liegt sie in diesem Repository oder in einem fremden? Das
-   entscheidet, ob `@quiz/game` ein Workspace-Paket bleibt oder als Paket
-   veroeffentlicht werden muss.
+1. **Selection before the game in the kiosk**: only "1 or 2 players", or
+   additionally quiz mode and difficulty? Both are cheap; it is purely a
+   question of UI flow on the device.
+2. **Leaderboard**: should the kiosk show scores across games? The database
+   can't do this without a schema change; it would be a small migration.
+3. **Sound in the kiosk**: permanently on, or muted with a visible switch?
+4. **Quiz package in the kiosk**: bundled and only updated with a new
+   program version, or should a device be able to reload content?
+5. **Multigame shell**: does it live in this repository or in a third-party
+   one? This decides whether `@quiz/game` stays a workspace package or has to
+   be published as a package.
 
-## 9. Risiken
+## 9. Risks
 
-| Risiko | Gegenmassnahme |
+| Risk | Countermeasure |
 |---|---|
-| Der Buehnenablauf bricht durch Kernaenderungen | Jede Regelaenderung wird fuer beide Ablaufprofile getestet; die bestehenden E2E-Tests laufen in jeder Stufe |
-| Der Touch-Client umgeht die Rollenrechte | `player` darf nur die Selbstbedienungssequenz und ein eingeschraenktes `START_GAME`; geprueft wird serverseitig |
-| Unfaire Antwort bei gleichzeitigem Tippen | der Zuschlag faellt engine-autoritativ ueber `BUZZ` (revisionsfrei); der Server entscheidet in einer Transaktion |
-| Die eingebettete Komponente stoert die Shell | Kapselungsregeln aus Abschnitt 5.3 als Teil des Vertrags, mit Test auf Mehrfach-Einbindung |
-| Fragen ohne Optionen landen im Kiosk | Filter im Preset plus Validierungswarnung, nicht erst zur Laufzeit |
+| Stage flow breaks due to core changes | Every rule change is tested for both flow profiles; the existing E2E tests run at every stage |
+| The touch client bypasses role permissions | `player` may only use the self-service sequence and a restricted `START_GAME`; this is checked server-side |
+| Unfair outcome on simultaneous tapping | the turn is decided engine-authoritatively via `BUZZ` (revision-free); the server decides within one transaction |
+| The embedded component disturbs the shell | encapsulation rules from section 5.3 as part of the contract, with a test for multiple embedding |
+| Questions without options end up in the kiosk | filter in the preset plus validation warning, not only caught at runtime |

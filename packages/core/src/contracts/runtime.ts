@@ -1,13 +1,13 @@
 /**
- * Gemeinsame Laufzeit-Schnittstelle aller Quiz-Kontexte.
+ * Common runtime interface of all quiz contexts.
  *
- * Ein `QuizRuntime` ist die EINZIGE Sicht einer Oberflaeche auf das Spiel:
- * Snapshot lesen, Aenderungen abonnieren, Befehle geben, aufraeumen. Ob dahinter
- * ein Server im LAN steht (`RemoteQuizRuntime`) oder dieselbe Engine im eigenen
- * Prozess (`LocalQuizRuntime`), sieht die Oberflaeche nicht.
+ * A `QuizRuntime` is the ONLY view an interface has of the game: read the
+ * snapshot, subscribe to changes, issue commands, clean up. Whether a server in
+ * the LAN stands behind it (`RemoteQuizRuntime`) or the same engine in the own
+ * process (`LocalQuizRuntime`) is invisible to the interface.
  *
- * Der Envelope (commandId, actor, expectedRevision) ist Sache der Runtime -
- * Komponenten geben nackte Befehle.
+ * The envelope (commandId, actor, expectedRevision) is the runtime's concern -
+ * components issue bare commands.
  */
 import type { Command } from './commands'
 
@@ -19,15 +19,15 @@ export interface QuizRuntimeRejection {
 
 export interface QuizRuntimeConnection {
   connected: boolean
-  /** Nur ein Kontext spielt Sounds ab; die Runtime traegt die Entscheidung. */
+  /** Only one context plays sounds; the runtime carries the decision. */
   audioMaster: boolean
 }
 
 export interface QuizSnapshot<TView> {
-  /** Rollenspezifisches View-Modell, unveraendert projiziert. */
+  /** Role-specific view model, projected unchanged. */
   view: TView | null
   revision: number
-  /** Serverzeit im Moment dieses Snapshots. Fortlaufend: `serverNow()`. */
+  /** Server time at the moment of this snapshot. Continuous: `serverNow()`. */
   serverTimeMs: number
   connection: QuizRuntimeConnection
   lastRejection: QuizRuntimeRejection | null
@@ -37,11 +37,11 @@ export interface QuizRuntime<TView = unknown> {
   getSnapshot(): QuizSnapshot<TView>
   subscribe(listener: (snapshot: QuizSnapshot<TView>) => void): () => void
   dispatch(command: Command): void | Promise<void>
-  /** Fortlaufende Serverzeit fuer lokale Interpolationen (Enthuellungsuhr). */
+  /** Continuous server time for local interpolations (reveal clock). */
   serverNow(): number
-  /** Meldet, dass dieser Kontext hoerbar Ton ausgeben darf. */
+  /** Reports that this context may play audible sound. */
   notifyAudioReady(): void
   clearRejection(): void
-  /** Verbindung bzw. Timer beenden. Danach ist die Runtime nicht mehr benutzbar. */
+  /** End the connection or the timers. Afterwards the runtime is unusable. */
   dispose(): void
 }

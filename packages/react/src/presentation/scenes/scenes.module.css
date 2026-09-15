@@ -1,18 +1,18 @@
 /*
- * Szenen der Buehne.
+ * Scenes of the stage.
  *
- * Hier steht, was ALLE Szenen gemeinsam haben und was die einzelnen Szenen
- * ausmacht, die keine eigene Komponentendatei brauchen (Start, Pause,
- * Rueckmeldung, Enthuellung, Video, Ergebnis).
+ * This holds what ALL scenes have in common and what makes up the
+ * individual scenes that need no component file of their own (start, pause,
+ * feedback, reveal, video, results).
  *
- * Frage- und Loesungsszene bestehen fast nur aus Bauteilen; ihre Regeln stehen
- * deshalb bei den Bauteilen und nicht hier.
+ * The question and solution scenes consist almost entirely of components;
+ * their rules therefore live with the components and not here.
  */
 
 /*
- * Abstaende und Ausrichtung kommen als Token von der Buehne. So kann jede Szene
- * sie an sich selbst ueberschreiben, ohne dass ein Wettlauf um die Spezifitaet
- * entsteht: Eine Angabe AM Element sticht jeden geerbten Wert.
+ * Spacing and alignment come as tokens from the stage. This way every scene
+ * can override them on itself without a specificity race arising: a
+ * declaration ON the element beats any inherited value.
  */
 .scene {
   flex: 1;
@@ -27,9 +27,9 @@
 }
 
 /*
- * Bilderkennen stellt Frage und Bild NEBENEINANDER: Das Bild ist der Inhalt,
- * ueber den gesprochen wird, und bekommt deshalb die Haelfte der Buehne und die
- * volle Hoehe. Der Fragetext steht links daneben und laeuft nicht darueber weg.
+ * Image guessing places question and image SIDE BY SIDE: the image is the
+ * content being discussed and therefore gets half the stage and the full
+ * height. The question text sits to its left and does not run across it.
  */
 :global(.stage--scene-reveal) .scene {
   flex-direction: row;
@@ -58,10 +58,10 @@
 }
 
 /*
- * Der Rahmen um Zaehler und Rubrik ist in der Buehne der Erwachsenen KEIN
- * Element: `display: contents` nimmt ihn aus dem Layout, und die beiden Absaetze
- * bleiben direkte Kinder der Szene - dieselbe Anordnung wie vorher, Zeile fuer
- * Zeile. Nur die Kinderwelt macht daraus eine Tafel.
+ * The frame around counter and category is NOT an element on the adult
+ * stage: `display: contents` removes it from the layout, and the two
+ * paragraphs stay direct children of the scene - the same arrangement as
+ * before, line by line. Only the kids' world turns it into a board.
  */
 .pauseCard {
   display: contents;
@@ -74,8 +74,8 @@
   margin: 0;
 }
 /*
- * Rubrik der kommenden Frage. Sie laeuft dem Fragezaehler kurz hinterher, damit
- * der Blick erst die Nummer und dann das Thema aufnimmt.
+ * Category of the upcoming question. It trails slightly behind the question
+ * counter, so the eye takes in the number first and then the topic.
  */
 .pauseCategory {
   margin: 0;
@@ -90,7 +90,7 @@
   font-family: var(--font-heading);
 }
 
-/* Bilderkennen */
+/* Image guessing */
 .revealStage {
   display: flex;
   align-items: center;
@@ -106,28 +106,29 @@
   justify-content: center;
 }
 /*
- * Platzhalter und Videoflaeche sind DASSELBE Rechteck.
+ * Placeholder and video area are THE SAME rectangle.
  *
- * Es steht in der Operatorvorschau und auf der Buehne gleich - nur liegt auf der
- * Buehne ein Medium darin. Deshalb bestimmt der Platzhalter die Groesse und
- * nicht das Video: Sonst haette die Vorschau eine andere Komposition als der
- * Saal, und waehrend des Ladens spraenge die Flaeche.
+ * It sits the same way in the operator preview and on the stage - only on
+ * the stage does it have media in it. That is why the placeholder
+ * determines the size and not the video: otherwise the preview would have a
+ * different composition than the room, and the area would jump during
+ * loading.
  *
- * Die GROESSE traegt der Kasten darum herum, nicht die Flaeche selbst: Die
- * Flaeche blendet am Ende aus und tritt dabei zurueck, der Stand in der
- * Operatorvorschau muss aber an seinem Platz stehen bleiben.
+ * The box around it carries the SIZE, not the area itself: the area fades
+ * out at the end and steps back in the process, but the state in the
+ * operator preview must stay in its place.
  *
- * `aspect-ratio` gibt ihm die uebliche Breitbildform, in die sich jedes
- * Seitenverhaeltnis einpasst.
+ * `aspect-ratio` gives it the usual widescreen shape, into which every
+ * aspect ratio fits.
  */
 .videoBox {
   position: relative;
   /*
-   * `flex: 0 0 auto` ist Pflicht, nicht Geschmack. Die Szene ist eine Spalte,
-   * ihre Hauptachse also die Hoehe: Ein schrumpfbares Element gaebe hier Hoehe
-   * ab, ohne die Breite mitzunehmen - das Rechteck waere flacher als 16:9,
-   * waehrend das Video darin sein eigenes Verhaeltnis behielte. Genau diese
-   * Abweichung prueft der End-to-End-Test.
+   * `flex: 0 0 auto` is mandatory, not taste. The scene is a column, so its
+   * main axis is the height: a shrinkable element would give up height here
+   * without taking the width along with it - the rectangle would be flatter
+   * than 16:9, while the video inside it kept its own ratio. Exactly this
+   * discrepancy is what the end-to-end test checks.
    */
   flex: 0 0 auto;
   align-self: center;
@@ -145,13 +146,14 @@
   justify-content: center;
 }
 /*
- * KEIN ABGANG NACH DEM VIDEO. Das letzte Bild bleibt stehen, bis der Operator
- * die Frage einblendet - der Server weiss gar nicht, wann das Video durch ist,
- * und eine Flaeche, die von selbst verschwindet, waere eine Behauptung darueber.
+ * NO EXIT AFTER THE VIDEO. The last frame stays put until the operator
+ * brings in the question - the server does not even know when the video is
+ * done, and an area that disappears on its own would be a claim about that.
  */
 /*
- * `contain` statt `cover`: Ein Video wird nicht beschnitten. Was an den Seiten
- * frei bleibt, zeigt den Platzhalter - das ist gewollt und sieht wie ein Rahmen aus.
+ * `contain` instead of `cover`: a video is not cropped. Whatever stays free
+ * at the sides shows the placeholder - that is intentional and looks like a
+ * frame.
  */
 .videoPlayer {
   width: 100%;
@@ -170,12 +172,13 @@
 }
 
 /*
- * Der Stand in der Operatorvorschau.
+ * The state in the operator preview.
  *
- * Er steht mitten auf der Flaeche, dort, wo im Saal das Bild ist: Der Operator
- * schaut waehrend eines Videos in den Saal, nicht auf seinen Bildschirm - der
- * Blick zurueck muss das eine Wort in einem Zug finden. Der Punkt davor traegt
- * die Akzentfarbe nur, solange das Video laeuft; er blinkt nicht.
+ * It sits in the middle of the area, right where the image is in the room:
+ * the operator looks into the room during a video, not at their screen -
+ * the glance back must find the one word in a single pass. The dot in front
+ * of it carries the accent colour only while the video is running; it does
+ * not blink.
  */
 .videoStatus {
   position: absolute;
@@ -210,29 +213,30 @@
   }
 }
 
-/* Rueckmeldung */
+/* Feedback */
 .feedback {
   justify-content: center;
   --scene-gap: 0;
   /*
-   * Mittig in der GESAMTEN Buehnenflaeche, nicht nur in dem Rest unter der
-   * Kopfzeile. Die Kopfzeile ist rund 8 cqw hoch; zusaetzliche Polsterung unten
-   * verschiebt den zentrierten Block um ihre Haelfte nach oben.
+   * Centred in the ENTIRE stage area, not only in the remainder below the
+   * header. The header is around 8 cqw tall; extra padding at the bottom
+   * shifts the centred block up by half of that.
    */
   padding-bottom: 11cqw;
-  /* Kantenlaenge der Bewegtgrafik - alles andere richtet sich danach. */
+  /* Edge length of the motion graphic - everything else follows from it. */
   --feedback-size: 16cqw;
   /*
-   * Anteil der Kantenlaenge, um den das Wort an die Grafik heranrueckt. Die
-   * beiden gelieferten Grafiken haben unterschiedlich viel transparenten Rand:
-   * Der Haken schwingt mit Funken weit aus, das Kreuz sitzt eng im Bild und
-   * braucht deshalb umgekehrt zusaetzlichen Abstand - dafuer ist der Wert negativ.
+   * Share of the edge length by which the word moves in toward the graphic.
+   * The two delivered graphics have different amounts of transparent
+   * margin: the checkmark swings out wide with sparks, the cross sits
+   * tightly in the frame and therefore needs extra distance the other
+   * way - hence the value is negative.
    */
   --feedback-pull: -0.04;
 }
 /*
- * Richtig darf groesser feiern als falsch. Der Haken ist der Moment, auf den der
- * Saal wartet; das Kreuz bleibt bewusst zurueckhaltend.
+ * Correct is allowed to celebrate bigger than wrong. The checkmark is the
+ * moment the room is waiting for; the cross deliberately stays restrained.
  */
 .feedback[data-outcome='correct'] {
   --feedback-size: 34cqw;
@@ -244,9 +248,10 @@
   line-height: 1;
 }
 /*
- * Die gelieferten Bewegtgrafiken haben rundum transparenten Rand - er gehoert zum
- * Ausschwingen der Animation. Der Ausgleich muss deshalb mit der Grafik wachsen,
- * sonst klebt das Wort bei der kleinen Grafik und schwebt bei der grossen.
+ * The delivered motion graphics have transparent margin all around - it
+ * belongs to the animation's follow-through. The offset must therefore
+ * scale with the graphic, or the word would cling to the small graphic and
+ * float away from the large one.
  */
 .feedbackLabel {
   margin: calc(var(--feedback-size) * var(--feedback-pull) * -1) 0 0;
@@ -254,7 +259,7 @@
   font-family: var(--font-heading);
 }
 
-/* Loesung */
+/* Solution */
 .solutionLabel {
   margin: 0;
   align-self: flex-start;
@@ -262,16 +267,16 @@
   font-size: 1.6cqw;
 }
 
-/* Ergebnis */
+/* Results */
 .result {
   justify-content: center;
   --scene-gap: 1.2cqw;
 }
 .resultLabel {
-  /* Die Aussage steht in der Ueberschrift; das Etikett bleibt fuer Tests und
-     Vorlesewerkzeuge erhalten, ohne die Buehne zu belasten. Der eine Pixel ist
-     keine Groesse, sondern die kleinste, die noch vorgelesen wird - er skaliert
-     mit nichts mit. */
+  /* The statement sits in the heading; the label is kept for tests and
+     screen readers, without weighing on the stage. The one pixel is not a
+     size but the smallest that is still read aloud - it scales with
+     nothing. */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -290,16 +295,15 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen
+ * Adult stage
  * ------------------------------------------------------------------ */
 
 
 /*
- * In der Loesung steht die richtige Antwort oben - das ist die Aussage der
- * Szene. Umgestellt wird ausschliesslich die Darstellung; die Reihenfolge im
- * Markup bleibt die des Servers. Der Zuschlag unten stellt den groesseren
- * Abstand zu den uebrigen Zeilen her, den die Szene vorher als eigene Gruppe
- * hatte.
+ * In the solution, the correct answer sits on top - that is the scene's
+ * statement. Only the display is reordered; the order in the markup stays
+ * the server's. The extra margin at the bottom creates the larger gap to
+ * the remaining rows that the scene used to have as its own group before.
  */
 :global(.stage--default) .solution :global([data-state='correct']) {
   order: -1;
@@ -307,18 +311,18 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt
+ * Kids' world
  * ------------------------------------------------------------------ */
 
 /*
- * In der Kinderwelt stehen Frage und Loesung linksbuendig - die Komposition
- * liest sich von der Bildkante her. Alle uebrigen Szenen bleiben mittig.
+ * In the kids' world, question and solution are left-aligned - the
+ * composition reads from the image edge. Every other scene stays centred.
  */
 :global(.stage--kids) .question,
 :global(.stage--kids) .solution {
   --scene-align: flex-start;
   --scene-text-align: left;
-  /* Die Kopfzeile bringt ihren eigenen oberen Abstand mit. */
+  /* The header brings its own top spacing. */
   padding-top: 2cqw;
 }
 :global(.stage--kids) .solutionLabel {
@@ -327,9 +331,10 @@
   font-size: var(--kids-size-category);
 }
 /*
- * Die gemeinsamen Szenen setzen ihre Schrift ueber `--font-heading` selbst -
- * geerbt wird da nichts. Deshalb werden sie hier auf die Handschrift gestellt;
- * sonst steht mitten in der Kinderwelt die Serifenschrift der Buehne.
+ * The shared scenes set their type via `--font-heading` themselves -
+ * nothing is inherited there. That is why they are set to the handwriting
+ * font here; otherwise the stage's serif font would sit in the middle of
+ * the kids' world.
  */
 :global(.stage--kids) .scene,
 :global(.stage--kids) .feedbackLabel,
@@ -346,12 +351,12 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Die Zwischenansicht der Kinderwelt
+ * The kids' world's in-between view
  *
- * Zaehler und Rubrik stehen gemeinsam auf einer gezeichneten Tafel - derselben,
- * die in der Frageszene den Fragetext traegt. Sie ist gross genug, dass sie aus
- * fuenf Metern zu lesen ist, und sie ist EINE Tafel: keine zweite Box darin,
- * keine Zierde daneben.
+ * Counter and category sit together on a drawn board - the same one that
+ * carries the question text in the question scene. It is big enough to
+ * read from five metres away, and it is ONE board: no second box inside it,
+ * no ornament beside it.
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .pauseCard {
@@ -359,10 +364,10 @@
   position: relative;
   isolation: isolate;
   /*
-   * Die Tafel waechst mit ihrem Inhalt und hat dabei zwei Grenzen: Sie beginnt
-   * nicht schmaler als ein Drittel der Szene und wird nicht breiter als ihre
-   * Inhaltsbreite. Eine lange uebersetzte Rubrik bricht damit um, statt aus der
-   * Szene zu laufen oder beschnitten zu werden.
+   * The board grows with its content and has two limits in the process: it
+   * starts no narrower than a third of the scene and never gets wider than
+   * its content width. A long translated category thereby wraps instead of
+   * running out of the scene or getting cropped.
    */
   min-width: 34cqw;
   max-width: var(--kids-content-width);
@@ -370,10 +375,11 @@
   text-align: center;
 }
 /*
- * Die Zeichnung liegt HINTER dem Inhalt - cremefarbene Flaeche, unregelmaessige
- * dunkelblaue Kontur und der harte versetzte Schatten stecken in der Datei. Ein
- * nachgebauter Rahmen aus `border` und `box-shadow` traefe die Handzeichnung
- * nicht und waere eine zweite Fassung derselben Tafel.
+ * The artwork sits BEHIND the content - the cream-coloured area, the
+ * irregular dark blue outline and the hard offset shadow are all baked into
+ * the file. A rebuilt frame made of `border` and `box-shadow` would not
+ * match the hand-drawn artwork and would be a second version of the same
+ * board.
  */
 :global(.stage--kids) .pauseCard::before {
   content: '';
@@ -387,9 +393,9 @@
   pointer-events: none;
 }
 /*
- * DER ZAEHLER IST DIE HAUPTSACHE und steht deshalb oben und am groessten; die
- * Rubrik darunter ist kleiner und in der roten Hausfarbe. Vorher war es
- * umgekehrt - die Rubrik war die groesste Schrift des Screens.
+ * THE COUNTER IS THE MAIN POINT and therefore sits on top and largest; the
+ * category below it is smaller and in the red house colour. It used to be
+ * the other way round - the category was the largest type on the screen.
  */
 :global(.stage--kids) .pauseProgress {
   font-size: 7cqw;
@@ -401,11 +407,11 @@
   font-weight: 400;
   line-height: 1.1;
   color: var(--kids-red);
-  /* Lange Rubriken brechen um und bleiben vollstaendig lesbar. */
+  /* Long categories wrap and stay fully readable. */
   text-wrap: balance;
 }
 
-/* Reduzierte Bewegung: Die Rubrik erscheint ohne Nachlauf. */
+/* Reduced motion: the category appears without a follow-through. */
 @media (prefers-reduced-motion: reduce) {
   .pauseCategory {
     animation-duration: 1ms !important;

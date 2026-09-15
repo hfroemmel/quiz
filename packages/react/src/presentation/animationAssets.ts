@@ -1,21 +1,23 @@
 /**
- * Registry der gelieferten Bewegtgrafiken (Spezifikation 22, Designergaenzung).
+ * Registry of the delivered motion graphics (specification 22, design
+ * addendum).
  *
- * Diese Dateien sind gestaltete Zulieferung, keine im Code gezeichneten Formen.
- * Sie liegen als VP9-WebM mit Alphakanal vor und werden ueber Vite gebuendelt -
- * damit sind sie Teil des Builds und funktionieren ohne Netzwerk.
+ * These files are designed supplies, not shapes drawn in code. They exist as
+ * VP9 WebM with an alpha channel and are bundled via Vite - that makes them
+ * part of the build and lets them work without a network.
  *
- * WARUM EINE REGISTRY:
- * Jede Datei bringt zwei Zeiten mit, die man kennen muss, um sie richtig
- * einzusetzen:
+ * WHY A REGISTRY:
+ * Every file brings two timings that need to be known in order to use it
+ * correctly:
  *
- *   `durationMs`  Gesamtlaenge der Datei, inklusive Standbild am Ende.
- *   `payoffMs`    Zeitpunkt, an dem die Aussage vollstaendig zu sehen ist
- *                 (Haken fertig gezeichnet, Kreuz fertig gezeichnet).
+ *   `durationMs`  Total length of the file, including the still frame at the end.
+ *   `payoffMs`    Point in time at which the statement is fully visible
+ *                 (checkmark fully drawn, cross fully drawn).
  *
- * Eine Phase, die eine dieser Grafiken zeigt, muss mindestens bis `payoffMs`
- * laufen. Sonst schneidet der Zustandswechsel mitten in die Aussage hinein.
- * Deshalb steht der Wert hier und nicht als Kommentar in einer Komponente.
+ * A phase that shows one of these graphics has to run at least until
+ * `payoffMs`. Otherwise the state change cuts into the middle of the
+ * statement. That is why the value lives here and not as a comment in a
+ * component.
  */
 import correctClip from '../assets/animations/correct.webm'
 import wrongClip from '../assets/animations/wrong.webm'
@@ -27,11 +29,11 @@ import confettiSvg from '../assets/animations/confetti.svg'
 export interface AnimationClipAsset {
   id: string
   url: string
-  /** Gesamtlaenge der Datei in Millisekunden. */
+  /** Total length of the file in milliseconds. */
   durationMs: number
-  /** Zeitpunkt, ab dem die Aussage vollstaendig sichtbar ist. */
+  /** Point in time from which the statement is fully visible. */
   payoffMs: number
-  /** Kantenlaenge der quadratischen Quelle in Bildpunkten. */
+  /** Edge length of the square source in pixels. */
   sourceSizePx: number
   description: string
 }
@@ -81,5 +83,5 @@ export const animationClips = {
 
 export type AnimationClipId = keyof typeof animationClips
 
-/** Konfetti liegt als animiertes SVG vor und laeuft ohne Videodekoder. */
+/** Confetti exists as an animated SVG and runs without a video decoder. */
 export const confettiOverlayUrl: string = confettiSvg

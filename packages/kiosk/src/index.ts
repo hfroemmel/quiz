@@ -1,12 +1,12 @@
 /**
- * @hfroemmel/quiz-kiosk - das spielbare Quiz als EINE Komponente.
+ * @hfroemmel/quiz-kiosk - the playable quiz as ONE component.
  *
- * Ein Gastgeber rendert `<QuizGame>` und bekommt Startauswahl, Spiel und
- * Ergebnis; Ereignisse kommen ueber `onFinished`/`onExit`. Kiosk und
- * Multigame-Einbettung nutzen exakt diesen Baustein.
+ * A host renders `<QuizGame>` and gets the start selection, game and result;
+ * events arrive via `onFinished`/`onExit`. Kiosk and multi-game embedding use
+ * exactly this building block.
  */
 /*
- * Die globalen Bedienelemente reisen im Stylesheet des Pakets mit - siehe
+ * The global controls travel along in the package's stylesheet - see
  * `game/controls.css`.
  */
 import './game/controls.css'

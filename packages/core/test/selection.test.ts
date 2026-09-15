@@ -1,7 +1,7 @@
 /**
- * Auswahltests (Spezifikation 31.2).
+ * Selection tests (specification 31.2).
  *
- * Randomisierte Faelle verwenden gesetzte Seeds, damit Fehler reproduzierbar sind.
+ * Randomised cases use fixed seeds, so that failures are reproducible.
  */
 import { describe, expect, it } from 'vitest'
 import type { Question, QuestionSlotRule } from '../src'
@@ -46,8 +46,8 @@ function select(input: {
   })
 }
 
-describe('Slotfilter', () => {
-  it('kombiniert Schwierigkeit, Praesentationstyp, Kategorie und Tags', () => {
+describe('Slot filter', () => {
+  it('combines difficulty, presentation type, category and tags', () => {
     const question = makeQuestion({
       id: 'q1',
       difficulty: 'hard',
@@ -63,7 +63,7 @@ describe('Slotfilter', () => {
     expect(matchesSlot(question, slot({ filters: { categoryIds: ['saarbruecken'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { tags: ['regional'] } }))).toBe(true)
     expect(matchesSlot(question, slot({ filters: { tags: ['regional', 'fehlt'] } }))).toBe(false)
-    // Alle Filter zusammen muessen gleichzeitig passen.
+    // All filters together have to match at the same time.
     expect(
       matchesSlot(question, slot({ filters: { difficultyIds: ['hard'], categoryIds: ['history'] } })),
     ).toBe(true)
@@ -72,36 +72,36 @@ describe('Slotfilter', () => {
     ).toBe(false)
   })
 
-  it('filtert auf das Bewertungsverfahren - die Grundlage des Kioskbetriebs', () => {
-    const muendlich = makeQuestion({
+  it('filters on the evaluation mode - the basis of kiosk operation', () => {
+    const oral = makeQuestion({
       id: 'q-muendlich',
       evaluationMode: 'manual-correct-incorrect',
       options: undefined,
       correctOptionId: undefined,
       acceptedAnswerText: ['Bundestag'],
     })
-    const auswertbar = makeQuestion({ id: 'q-auswertbar' })
+    const evaluable = makeQuestion({ id: 'q-auswertbar' })
     const rule = slot({ filters: { evaluationModes: ['option-comparison'] } })
 
-    expect(matchesSlot(auswertbar, rule)).toBe(true)
-    expect(matchesSlot(muendlich, rule)).toBe(false)
-    // Ohne Filter bleibt beides zulaessig - so laeuft die Buehne.
-    expect(matchesSlot(muendlich, slot())).toBe(true)
+    expect(matchesSlot(evaluable, rule)).toBe(true)
+    expect(matchesSlot(oral, rule)).toBe(false)
+    // Without filters both stay admissible - that is how the stage runs.
+    expect(matchesSlot(oral, slot())).toBe(true)
   })
 
-  it('behandelt fehlende Filter als "beliebig" - kein Sonderwert "random" noetig', () => {
+  it('treats missing filters as "any" - no special value "random" needed', () => {
     const question = makeQuestion({ id: 'q1' })
     expect(matchesSlot(question, slot({ filters: {} }))).toBe(true)
   })
 
-  it('ignoriert deaktivierte Fragen', () => {
+  it('ignores disabled questions', () => {
     const question = makeQuestion({ id: 'q1', enabled: false })
     expect(matchesSlot(question, slot())).toBe(false)
   })
 })
 
-describe('Grundmenge eines Spiels', () => {
-  it('filtert nach Zielgruppe und laesst ohne Poolauswahl alle Pools mitspielen', () => {
+describe('Base set of a game', () => {
+  it('filters by audience and lets all pools play without a pool selection', () => {
     const questions = [
       makeQuestion({ id: 'q1', audiences: ['adults'], poolIds: ['saarbruecken'] }),
       makeQuestion({ id: 'q2', audiences: ['adults'], poolIds: ['bundestag'] }),
@@ -110,7 +110,7 @@ describe('Grundmenge eines Spiels', () => {
     expect(poolForGame(questions, { audience: 'adults' }).map((question) => question.id)).toEqual(['q1', 'q2'])
   })
 
-  it('bildet die regionale Auswahl als reinen Fragenpool ab - ohne Sondercode', () => {
+  it('maps the regional selection as a plain question pool - without special code', () => {
     const questions = [
       makeQuestion({ id: 'q1', audiences: ['adults'], poolIds: ['saarbruecken'] }),
       makeQuestion({ id: 'q2', audiences: ['adults'], poolIds: ['bundestag'] }),
@@ -122,15 +122,15 @@ describe('Grundmenge eines Spiels', () => {
   })
 })
 
-describe('Wiederholungsvermeidung', () => {
-  it('schliesst im Spiel bereits verwendete Fragen aus', () => {
+describe('Repetition avoidance', () => {
+  it('excludes questions already used in the game', () => {
     const questions = pool(3)
     const result = select({ questions, excludeQuestionIds: new Set(['q1', 'q2']) })
     expect(result.ok).toBe(true)
     if (result.ok) expect(result.question.id).toBe('q3')
   })
 
-  it('behandelt eine Wiederholungsgruppe wie dieselbe Frage', () => {
+  it('treats a repetition group like the same question', () => {
     const questions = [
       makeQuestion({ id: 'q1', repetitionGroupId: 'gruppe-a' }),
       makeQuestion({ id: 'q2', repetitionGroupId: 'gruppe-a' }),
@@ -142,7 +142,7 @@ describe('Wiederholungsvermeidung', () => {
     if (result.ok) expect(result.question.id).toBe('q3')
   })
 
-  it('bevorzugt noch nie verwendete Fragen', () => {
+  it('prefers never used questions', () => {
     const questions = pool(6)
     const usage = new Map<string, UsageSummary>([
       ['q1', { lastUsedAtMs: 1, useCount: 1 }],
@@ -159,12 +159,12 @@ describe('Wiederholungsvermeidung', () => {
     }
   })
 
-  it('bevorzugt bei erschoepftem Pool die am laengsten nicht verwendeten Fragen', () => {
+  it('prefers the longest unused questions when the pool is exhausted', () => {
     const questions = pool(10)
     const usage = new Map<string, UsageSummary>(
       questions.map((question, index) => [question.id, { lastUsedAtMs: index * 1_000, useCount: 1 }]),
     )
-    // windowSize = max(3, ceil(10 * 0,2)) = 3 -> nur q1..q3 kommen in Frage.
+    // windowSize = max(3, ceil(10 * 0.2)) = 3 -> only q1..q3 are candidates.
     expect(candidateWindowSize(10)).toBe(3)
     const picked = new Set<string>()
     for (let seed = 0; seed < 60; seed += 1) {
@@ -176,11 +176,11 @@ describe('Wiederholungsvermeidung', () => {
         picked.add(result.question.id)
       }
     }
-    // Innerhalb der Frischeklasse bleibt echte Zufaelligkeit erhalten.
+    // Inside the freshness class real randomness is preserved.
     expect(picked.size).toBeGreaterThan(1)
   })
 
-  it('gewichtet innerhalb des Fensters zugunsten aelterer Fragen', () => {
+  it('weights in favour of older questions within the window', () => {
     const questions = pool(10)
     const usage = new Map<string, UsageSummary>(
       questions.map((question, index) => [question.id, { lastUsedAtMs: index * 1_000, useCount: 1 }]),
@@ -193,8 +193,8 @@ describe('Wiederholungsvermeidung', () => {
     expect(counts.get('q1')!).toBeGreaterThan(counts.get('q3')!)
   })
 
-  it('ist unabhaengig von Modus und Preset, weil die Historie global adressiert wird', () => {
-    // Die Historie wird ueber `repetitionKey` adressiert - ohne Modus oder Preset im Schluessel.
+  it('is independent of mode and preset because the history is addressed globally', () => {
+    // The history is addressed via `repetitionKey` - without mode or preset in the key.
     const questions = pool(4)
     const usage = new Map<string, UsageSummary>([
       ['q1', { lastUsedAtMs: 10, useCount: 1 }],
@@ -208,8 +208,8 @@ describe('Wiederholungsvermeidung', () => {
   })
 })
 
-describe('Fehlerfaelle', () => {
-  it('meldet einen nicht erfuellbaren Fragenplatz mit klarer Meldung', () => {
+describe('Error cases', () => {
+  it('reports an unsatisfiable question slot with a clear message', () => {
     const result = select({
       questions: pool(3, () => ({ difficulty: 'easy' })),
       rule: slot({ id: 'slot-hart', filters: { difficultyIds: ['hard'] } }),
@@ -221,21 +221,21 @@ describe('Fehlerfaelle', () => {
     }
   })
 
-  it('meldet einen im Spiel erschoepften Fragenplatz getrennt', () => {
+  it('reports a question slot exhausted in the game separately', () => {
     const result = select({ questions: pool(2), excludeQuestionIds: new Set(['q1', 'q2']) })
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.message).toContain('bereits verwendet')
   })
 })
 
-describe('Optionsreihenfolge', () => {
-  it('mischt die sichtbare Reihenfolge, ohne Optionen zu verlieren', () => {
+describe('Option order', () => {
+  it('shuffles the visible order without losing options', () => {
     const question = makeQuestion({ id: 'q1' })
     const order = shuffleOptionOrder(question, createSeededRng(42))
     expect([...order].sort()).toEqual(['a', 'b', 'c', 'd'])
   })
 
-  it('ist mit gesetztem Seed reproduzierbar', () => {
+  it('is reproducible with a fixed seed', () => {
     const question = makeQuestion({ id: 'q1' })
     expect(shuffleOptionOrder(question, createSeededRng(99))).toEqual(shuffleOptionOrder(question, createSeededRng(99)))
   })

@@ -1,8 +1,9 @@
 /*
- * Antwortzeilen.
+ * Answer rows.
  *
- * Chip und Antwortflaeche sind zwei getrennte Flaechen. Der Zustand steht als
- * `data-state` an der Zeile; wie er aussieht, entscheidet die jeweilige Welt.
+ * Chip and answer area are two separate areas. The state sits as
+ * `data-state` on the row; what it looks like is decided by the respective
+ * world.
  */
 
 .answers {
@@ -42,12 +43,12 @@
  */
 .answer[data-eliminated='true'] {
   /*
-   * Sie bleibt lesbar, tritt aber deutlich zurueck: Der Saal soll sehen, WAS
-   * weggefallen ist - sonst wirkt die Zeile wie ein Darstellungsfehler.
+   * It stays readable but steps back noticeably: the room should see WHAT
+   * has fallen away - otherwise the row looks like a rendering glitch.
    *
-   * Dauer und Versatz kommen aus `presentationTiming` und werden von der
-   * Komponente gesetzt; mehrere Antworten treten dadurch nacheinander zurueck
-   * statt gleichzeitig umzuspringen.
+   * Duration and offset come from `presentationTiming` and are set by the
+   * component; several answers thereby step back one after another instead
+   * of jumping all at once.
    */
   opacity: 0.45;
   filter: grayscale(1);
@@ -64,22 +65,22 @@
   .answer {
     transition-duration: 1ms;
   }
-  /* Ohne Bewegung tritt die Zeile sofort zurueck - und ohne Staffelung. */
+  /* Without motion the row steps back immediately - and without staggering. */
   .answer[data-eliminated='true'] {
     transition-duration: 1ms;
     transition-delay: 0ms;
   }
 }
 /*
- * Zeile als Schaltflaeche (Touchgeraet).
+ * Row as a button (touch device).
  *
- * Sie bringt KEINE eigene Gestaltung mit, sondern nimmt die Aufteilung der
- * Buehnenzeile auf: Chip und Flaeche liegen genauso nebeneinander. So sehen die
- * Zeilen an beiden Orten gleich aus, obwohl es hier eine Schaltflaeche ist.
+ * It brings NO styling of its own but takes on the stage row's layout: chip
+ * and area sit side by side in exactly the same way. This way the rows look
+ * the same in both places, even though this one is a button.
  *
- * `touch-action: manipulation` nimmt die Wartezeit auf den Doppeltipp heraus -
- * am Tisch wird schnell getippt, und eine halbe Sekunde Verzoegerung fuehlt sich
- * an wie ein verschluckter Tipp.
+ * `touch-action: manipulation` removes the wait for the double-tap - at the
+ * table people tap fast, and half a second of delay feels like a swallowed
+ * tap.
  */
 .touch {
   flex: 1;
@@ -118,14 +119,14 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen: Milchglasleisten
+ * Adult stage: frosted-glass bars
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .answers {
   gap: 0.8cqw;
 }
 :global(.stage--default) .answer {
-  /* Buchstabe und Zeile gehoeren zusammen - der Spalt ist nur eine Fuge. */
+  /* Letter and row belong together - the gap is just a seam. */
   gap: 0.25cqw;
   border-radius: var(--stage-radius);
   animation: option-enter var(--transition-duration) var(--transition-easing) backwards;
@@ -170,9 +171,8 @@
   color: var(--stage-inkOnStrong);
 }
 /*
- * Verbraucht oder in der Loesung zurueckgenommen: beides tritt gleich weit
- * zurueck. Zwei verschiedene Graustufen wuerden eine Bedeutung suggerieren,
- * die es nicht gibt.
+ * Used up or withdrawn in the solution: both step back equally far. Two
+ * different shades of grey would suggest a meaning that is not there.
  */
 :global(.stage--default) .answer[data-state='incorrect'] .surface,
 :global(.stage--default) .answer[data-state='incorrect'] .chip,
@@ -183,13 +183,14 @@
 }
 
 /*
- * Portraetfrage: Die Antworten stehen in einer Spalte neben dem Bild und tragen
- * dort die Ansicht zur Haelfte. Sie sind deshalb hoeher und stehen weiter
- * auseinander als unter einer Frage, und ihre Masse haengen - wie das Portraet
- * daneben - an der HOEHE der Buehne, damit beide Spalten gleich weit reichen.
+ * Portrait question: the answers sit in a column next to the image and
+ * carry half of the view there. They are therefore taller and stand further
+ * apart than under a question, and their measures - like the portrait next
+ * to them - hang off the HEIGHT of the stage, so both columns reach equally
+ * far.
  *
- * Zentrierter Text wirkt in dieser Spalte unruhig: Die Namen beginnen alle an
- * derselben Kante, direkt hinter dem Buchstaben.
+ * Centred text looks unsettled in this column: the names all start at the
+ * same edge, right behind the letter.
  */
 :global(.stage[data-presentation='person']) .surface {
   justify-content: flex-start;
@@ -203,10 +204,10 @@
   gap: 0.9cqw;
 }
 /*
- * Der Buchstabe steht in einem nahezu quadratischen Feld. Die Breite ist gesetzt
- * und nicht aus der Zeilenhoehe abgeleitet: Als Flexbaustein bekommt der Chip
- * seine Breite, bevor die Zeilenhoehe feststeht - ein Seitenverhaeltnis bliebe
- * wirkungslos.
+ * The letter sits in an almost square field. The width is set explicitly
+ * and not derived from the line height: as a flex item the chip gets its
+ * width before the line height is settled - an aspect ratio would have no
+ * effect.
  */
 :global(.stage--default[data-presentation='person']) .chip {
   min-width: 5.0625cqw;
@@ -214,14 +215,14 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt: gezeichnete Karten, je Zeile eine eigene Kontur
+ * Kids' world: drawn cards, each row with its own outline
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .answers {
   gap: 0.5625cqw;
-  /* Rechts bleibt die Figurenflaeche frei. */
+  /* The mascot area on the right stays free. */
   width: var(--kids-content-width);
-  /* Die Antworten geben nichts her; nachgiebig ist die Fragezeile darueber. */
+  /* The answers give up nothing; the question row above is the one that yields. */
   flex: 0 0 auto;
 }
 :global(.stage--kids) .answer {
@@ -251,8 +252,8 @@
   isolation: isolate;
 }
 /*
- * Die Zeichnungen liegen als Pseudoelement HINTER dem Inhalt: So bleibt das
- * Innenmass von Chip und Karte vom Strich der Kontur unberuehrt.
+ * The artworks sit as a pseudo-element BEHIND the content: this way the
+ * inner measure of chip and card stays untouched by the outline's stroke.
  */
 :global(.stage--kids) .chip::before,
 :global(.stage--kids) .surface::before {
@@ -282,8 +283,8 @@
   line-height: 1.08;
 }
 /*
- * Im Entwurf hat jede Zeile ihre eigene, anders wackelnde Kontur. Zeile B liegt
- * nur in Rot vor und leiht sich im Ruhezustand die Nachbarzeichnung.
+ * In the design, each row has its own, differently wobbling outline. Row B
+ * only exists in red and borrows the neighbouring artwork at rest.
  */
 :global(.stage--kids) .answer:nth-child(2) .surface::before {
   border-image-source: url('../../assets/kinderquiz/boxes/answer-box-d.svg');
@@ -303,7 +304,7 @@
 :global(.stage--kids) .answer:nth-child(4) .chip::before {
   border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-d.svg');
 }
-/* Zustaende stechen die Zeilenzeichnung aus. */
+/* States swap out the row's artwork. */
 :global(.stage--kids) .answer[data-state='selected'] .surface::before {
   border-image-source: url('../../assets/kinderquiz/boxes/answer-box-b.svg');
 }
@@ -324,23 +325,23 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Touchgeraet: dieselben Zeilen, aber als Trefferflaechen
+ * Touch device: the same rows, but as hit areas
  * ------------------------------------------------------------------ */
 
 /*
- * Im Saal sind die Zeilen etwas zum Lesen, am Geraet etwas zum Treffen. Sie
- * bekommen deshalb deutlich mehr Hoehe - und zwar ueber die Polsterung und
- * nicht ueber eine feste Zeilenhoehe: Eine zweizeilige Antwort waechst so mit,
- * statt aus ihrer Kachel zu laufen.
+ * In the room the rows are something to read, on the device something to
+ * hit. They therefore get noticeably more height - via the padding and not
+ * via a fixed line height: a two-line answer grows along with it that way,
+ * instead of running out of its tile.
  *
- * Die Masse rechnen gegen die BREITE der Szene, denn die ist am Geraet ihr
- * eigener Container (`Stage.module.css`). Die Zeilen wachsen also mit der
- * Flaeche zwischen den Buzzern - und nur mit ihrer Breite.
+ * The measures compute against the scene's WIDTH, because on the device
+ * that is its own container (`Stage.module.css`). So the rows grow with the
+ * area between the buzzers - and only with its width.
  *
- * NUR IN DER BUEHNE DER ERWACHSENEN. Die gezeichnete Karte der Kinderwelt ist
- * ohnehin daumengross - sie bringt ihre Hoehe selbst mit. Noch einmal
- * Polsterung obendrauf draengte die Fragezeile darueber zusammen, bis der Text
- * unten aus seiner Tafel lief.
+ * ONLY IN THE ADULT STAGE. The kids' world's drawn card is thumb-sized
+ * anyway - it brings its own height. Adding padding on top there would
+ * squeeze the question row above it together until the text ran out of its
+ * board at the bottom.
  */
 :global(.stage--default.stage--touch) .answers {
   gap: 1.0687cqw;
@@ -351,22 +352,22 @@
   padding-bottom: 1cqw;
 }
 /*
- * Der Buchstabe waechst in der Hoehe mit und braucht deshalb auch Breite - sonst
- * steht er als schmaler Streifen neben einer breiten Kachel. Die Breite steht in
- * derselben Einheit wie die Zeilenhoehe, damit das Feld in jeder Flaeche
- * annaehernd quadratisch bleibt.
+ * The letter grows along in height and therefore also needs width -
+ * otherwise it would sit as a narrow stripe next to a wide tile. The width
+ * is in the same unit as the line height, so the field stays roughly square
+ * on every area.
  *
- * Die Kinderwelt bleibt aussen vor: Ihr Buchstabenfeld ist eine gezeichnete
- * Marke mit festem Seitenverhaeltnis.
+ * The kids' world stays out of this: its letter field is a drawn badge with
+ * a fixed aspect ratio.
  */
 :global(.stage--default.stage--touch) .chip {
   min-width: 3.9375cqw;
 }
 
 /*
- * Helle Fassung: Auf den farbigen Flaechen wird der Text hell. Im Dunkeln
- * traegt er ohnehin die helle Textfarbe; auf Papier waere er dort dunkel auf
- * kraeftigem Grund und damit schlecht lesbar.
+ * Light version: on the coloured areas the text becomes light. In the dark
+ * version it already carries the light text colour anyway; on paper it
+ * would be dark on a strong background there and thus poorly readable.
  */
 :global(.stage--bright) .answer[data-state='selected'] .surface,
 :global(.stage--bright) .answer[data-state='correct'] .surface,
@@ -374,7 +375,7 @@
   color: var(--stage-inkOnStrong);
 }
 
-/* Reduzierte Bewegung: Die Zeilen stehen sofort, statt nacheinander einzulaufen. */
+/* Reduced motion: the rows appear immediately instead of running in one by one. */
 @media (prefers-reduced-motion: reduce) {
   .answer {
     animation-duration: 1ms !important;

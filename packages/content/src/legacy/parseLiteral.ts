@@ -1,17 +1,17 @@
 /**
- * Sicherer Parser fuer JavaScript-Objektliterale.
+ * Safe parser for JavaScript object literals.
  *
- * Die Legacy-Dateien `questions.js` und `config.js` sind JavaScript, aber ihr Inhalt
- * ist reine Datenstruktur. Der Migrationscode darf sie ausdruecklich NICHT per `eval`
- * oder `vm` ausfuehren (Spezifikation 26.1): eine fremde Datei koennte sonst beliebigen
- * Code im Build ausfuehren.
+ * The legacy files `questions.js` and `config.js` are JavaScript, but their
+ * content is pure data structure. The migration code must explicitly NOT run
+ * them via `eval` or `vm` (specification 26.1): a foreign file could otherwise
+ * execute arbitrary code in the build.
  *
- * Dieser Parser liest deshalb nur Literale und fuehrt nichts aus. Unterstuetzt werden
- * die Formen, die in den Altdaten tatsaechlich vorkommen:
- *   Objekte, Arrays, Strings (einfache und doppelte Anfuehrungszeichen), Zahlen,
- *   true/false/null, unquotierte Schluessel, nachgestellte Kommata, Kommentare.
- * Alles andere - insbesondere Funktionsaufrufe und Template-Literale mit Ausdruecken -
- * fuehrt zu einem klaren Fehler statt zu stiller Fehlinterpretation.
+ * This parser therefore only reads literals and executes nothing. Supported are
+ * the forms that actually occur in the legacy data:
+ *   objects, arrays, strings (single and double quotes), numbers,
+ *   true/false/null, unquoted keys, trailing commas, comments.
+ * Everything else - in particular function calls and template literals with
+ * expressions - leads to a clear error instead of silent misinterpretation.
  */
 
 export class LiteralParseError extends Error {
@@ -171,7 +171,7 @@ function readNumber(reader: Reader): number {
   if (reader.peek() === '-' || reader.peek() === '+') reader.index += 1
   while (reader.index < reader.source.length && /[0-9._eE+-]/.test(reader.source[reader.index]!)) {
     const char = reader.source[reader.index]!
-    // "+"/"-" gehoeren nur direkt hinter einem Exponenten zur Zahl.
+    // "+"/"-" belong to the number only directly after an exponent.
     if ((char === '+' || char === '-') && !/[eE]/.test(reader.source[reader.index - 1] ?? '')) break
     reader.index += 1
   }
@@ -235,16 +235,16 @@ function readString(reader: Reader): string {
 }
 
 /**
- * Findet die deklarierten Datenstrukturen einer Legacy-Datei.
+ * Finds the declared data structures of a legacy file.
  *
- * Erkannt werden `const/let/var NAME = <literal>`, `window.NAME = <literal>`,
- * `module.exports = <literal>` und `export default <literal>`.
+ * Recognised are `const/let/var NAME = <literal>`, `window.NAME = <literal>`,
+ * `module.exports = <literal>` and `export default <literal>`.
  */
 export function extractDeclarations(source: string): Map<string, LiteralValue> {
   const result = new Map<string, LiteralValue>()
   const patterns: { regex: RegExp; nameGroup: number }[] = [
-    // `export const questions = [...]` kommt in den Altdaten ebenso vor wie die
-    // reine Deklaration ohne `export`.
+    // `export const questions = [...]` occurs in the legacy data just like the
+    // plain declaration without `export`.
     { regex: /(?:^|[\n;])\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*(?=[[{])/g, nameGroup: 1 },
     { regex: /(?:^|[\n;])\s*(?:window|globalThis)\.([A-Za-z0-9_$]+)\s*=\s*(?=[[{])/g, nameGroup: 1 },
     { regex: /(?:^|[\n;])\s*module\.(exports)\s*=\s*(?=[[{])/g, nameGroup: 1 },

@@ -1,25 +1,25 @@
 /**
- * Ableitung von Spielereignissen aus zwei aufeinanderfolgenden Snapshots.
+ * Derivation of game events from two consecutive snapshots.
  *
- * Gastgeber (Kiosk, Multigame-Shell) wollen Ereignisse - "Spiel fertig, hier ist
- * das Ergebnis" -, der Server verteilt aber bewusst nur vollstaendige Snapshots.
- * Diese Funktion schlaegt die Bruecke, DOM-frei und ohne eigenen Zustand: Der
- * Aufrufer haelt den vorigen Snapshot, die Funktion vergleicht.
+ * Hosts (kiosk, multi-game shell) want events - "game finished, here is the
+ * result" -, but the server deliberately distributes complete snapshots only.
+ * This function bridges the gap, DOM-free and without state of its own: the
+ * caller holds the previous snapshot, the function compares.
  *
- * Verallgemeinert die bewaehrte Dedup-Logik des Touchclients: Ein Ergebnis, das
- * beim ersten Snapshot BEREITS dasteht (Neustart vor einem alten Spielstand),
- * ist kein Ereignis dieser Sitzung - ohne Vorgaenger gibt es keine Ereignisse.
+ * Generalises the proven dedup logic of the touch client: a result that is
+ * ALREADY there in the first snapshot (restart in front of an old game state)
+ * is not an event of this session - without a predecessor there are no events.
  */
 import type { AttemptOutcome, PlayerId, PublicQuizViewModel } from '../contracts'
 
-/** Ergebnis eines beendeten Spiels - die Nutzlast fuer den Gastgeber. */
+/** Result of a finished game - the payload for the host. */
 export interface QuizGameResult {
   playerCount: number
   scores: { playerId: PlayerId; label: string; score: number }[]
-  /** `null` bei Unentschieden und im Einzelspiel. */
+  /** `null` on a draw and in a solo game. */
   winnerPlayerId: PlayerId | null
   isDraw: boolean
-  /** Nur im Einzelspiel gesetzt. */
+  /** Set only in a solo game. */
   correctAnswers?: number
   questionCount: number
 }
@@ -33,7 +33,7 @@ export type QuizEvent =
   | { type: 'game-finished'; result: QuizGameResult }
   | { type: 'game-aborted' }
 
-/** Szenen, in denen kein Spiel dargestellt wird. */
+/** Scenes in which no game is shown. */
 const idleScenes: readonly string[] = ['start']
 
 function chosenOptionId(view: PublicQuizViewModel): string | null {
@@ -44,9 +44,9 @@ export function deriveQuizEvents(
   prev: PublicQuizViewModel | null,
   next: PublicQuizViewModel,
 ): QuizEvent[] {
-  // Ohne Vorgaenger gibt es nichts zu vergleichen - und nichts zu melden. Ein
-  // Ergebnis oder laufendes Spiel im allerersten Snapshot gehoert einer
-  // frueheren Sitzung.
+  // Without a predecessor there is nothing to compare - and nothing to report. A
+  // result or a running game in the very first snapshot belongs to an
+  // earlier session.
   if (!prev) return []
 
   const events: QuizEvent[] = []
@@ -55,8 +55,8 @@ export function deriveQuizEvents(
 
   if (!prevInGame && nextInGame) events.push({ type: 'game-started' })
 
-  // Neue Frage: Der Fortschrittszaehler wechselt, waehrend eine Frage sichtbar
-  // ist - oder dieselbe Fragennummer wird nach dem Zwischenscreen sichtbar.
+  // New question: the progress counter changes while a question is visible
+  // - or the same question number becomes visible after the interstitial screen.
   const questionVisible = next.question !== undefined
   const questionAppeared = questionVisible && prev.question === undefined
   const progressChanged = next.progress.current !== prev.progress.current
@@ -92,7 +92,7 @@ export function deriveQuizEvents(
     })
   }
 
-  // Zurueck zur Startszene mitten aus dem Spiel gibt es nur durch Abbruch.
+  // Back to the start scene from the middle of a game happens only by aborting.
   if (prevInGame && idleScenes.includes(next.scene)) events.push({ type: 'game-aborted' })
 
   return events

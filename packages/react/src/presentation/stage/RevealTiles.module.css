@@ -1,25 +1,24 @@
 /*
- * Die Kacheldecke des Bilderkennens.
+ * The tile cover for image guessing.
  *
- * Raster und Kachelzahl kommen als Inline-Wert vom Bauteil, weil sie
- * konfigurierbar sind; hier steht nur, WIE eine Kachel aussieht und verschwindet.
+ * Grid and tile count come as an inline value from the component, because
+ * they are configurable; here only lives HOW a tile looks and disappears.
  */
 
 .tiles {
   position: absolute;
   inset: 0;
   display: grid;
-  /* Ueber dem Foto, aber unter allem, was die Welt darueber zeichnet. */
+  /* Above the photo, but below everything the world draws over it. */
   z-index: 1;
   pointer-events: none;
 }
 /*
- * Die Kachel deckt vollstaendig - eine durchscheinende Flaeche waere kein
- * Verdecken, sondern ein Schleier, und das Motiv liesse sich erraten.
+ * The tile covers completely - a translucent area would not be a cover but
+ * a veil, and the motif could be guessed through it.
  *
- * Sie verschwindet ueber die Deckkraft und nicht ueber die Groesse: Ein
- * schrumpfendes Feld gaebe das Bild an den Raendern frueher frei und liesse die
- * feste Lage der Kacheln verschwimmen.
+ * It disappears via opacity and not via size: a shrinking field would free
+ * the image at the edges earlier and blur the tiles' fixed positions.
  */
 .tile {
   opacity: 1;
@@ -30,7 +29,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Buehne der Erwachsenen: geschlossene Platte mit feiner Fuge
+ * Adult stage: a closed plate with a fine seam
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .tile {
@@ -38,7 +37,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Kinderwelt: Papier mit gezeichneter Fuge
+ * Kids' world: paper with a drawn seam
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .tile {
@@ -46,9 +45,8 @@
 }
 
 /*
- * Reduzierte Bewegung: Die Kachel verschwindet ohne Uebergang. Der Ablauf
- * bleibt derselbe - es wird weiterhin Stueck fuer Stueck aufgedeckt, nur ohne
- * Blende.
+ * Reduced motion: the tile disappears without a transition. The sequence
+ * stays the same - it still reveals piece by piece, just without the fade.
  */
 @media (prefers-reduced-motion: reduce) {
   .tile {
