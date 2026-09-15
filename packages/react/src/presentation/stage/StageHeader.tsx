@@ -28,7 +28,7 @@ import { textsFor } from '../texts'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import { brandWordmarkUrl } from '../brandAssets'
-import { useQuizTheme } from '../QuizProvider'
+import { useQuizChrome, useQuizTheme } from '../QuizProvider'
 import styles from './StageHeader.module.css'
 
 export interface StageHeaderSlots {
@@ -64,6 +64,7 @@ export function StageHeader({
    * header leaves the start view to the start menu.
    */
   const hostTheme = useQuizTheme()
+  const chrome = useQuizChrome()
 
   // The start view has neither a score nor a counter - and no correction.
   if (view.scene === 'start') return null
@@ -85,7 +86,7 @@ export function StageHeader({
         * over a colour area and thus follows the text colour of the world
         * instead of vanishing as black artwork on a dark ground.
         */}
-      {view.theme.logoUrl ? (
+      {!chrome.brand ? null : view.theme.logoUrl ? (
         <img className={styles.brandImage} src={view.theme.logoUrl} data-brand="" alt="" aria-hidden="true" />
       ) : (
         <span

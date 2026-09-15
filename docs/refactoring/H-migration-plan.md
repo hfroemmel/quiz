@@ -215,6 +215,33 @@ a host theme already decides the variant, so nothing forces the switch yet.
 
 **Packages touched.** core, react, (new electron host package). **Hosts.** all. **Dependencies.** Phase 3. **Risk.** low per item; the details slot changes the public view model (adds `explanation.details` under a rule flag), which is additive. **Tests.** bundestags-app details tests move to quiz as package tests; app-collection unit tests for `loadQuizPackage`. **Result.** the bundestags-app `Quiz.js` shrinks to session + mount; the two Electron hosts share one main process.
 
+**Status: three of the five items are done.**
+
+- `loadQuizPackage(raw, { rootDir })` replaces the same twenty lines in four
+  hosts; the harness reads its own package through it.
+- `LocalQuizRuntime` takes a `media` resolver, so an application with its media
+  in its own bundle no longer replaces a method of the content service from
+  outside - a rename in the package would have broken that silently.
+- `QuizProvider` takes `chrome`: which parts of the frame the host supplies
+  itself. What it takes over is not rendered, instead of being hidden by three
+  `display: none` rules that had to be kept in step with the package's markup.
+  Deliberately on the provider and not on `QuizGame`, as the plan said: a host
+  declares its frame in the same place as its design, and a `QuizScene` host
+  (the live stage) can do the same.
+- And `data-surface="light|dark"` on the quiz root and the stage element, for a
+  host that recolours its own bar: `data-theme` names a world, and the
+  children's paper is light too.
+
+Open: the details step (`renderAfterSolution` plus the rule flag from Phase 3,
+which no component reads yet). It is the one item that changes the public view
+model - the editorial background of a question must travel into the solution
+scene, where today deliberately nothing of the explanation arrives - so it
+needs its own pass rather than being appended here. The Electron host package
+is marked optional in the plan and stays open: the two devices cannot install it
+before a release, and their main processes are small.
+
+Measured: 341 unit tests, 115 E2E green.
+
 ## Phase 7 – i18n unification
 
 **Goal.** One place per text: content labels, interface strings with package defaults per locale, host chrome in the host.

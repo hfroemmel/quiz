@@ -21,6 +21,7 @@ import {
   textsFor,
   themeForSkin,
   useAudioUnlock,
+  useQuizChrome,
   useQuizRuntime,
   useQuizSnapshot,
   useQuizTheme,
@@ -147,6 +148,8 @@ export function QuizGame({
   const hostVisible = useHostVisible()
   /** The design of the host, where one surrounds this quiz (`QuizProvider`). */
   const hostTheme = useQuizTheme()
+  /** Which parts of the frame this quiz supplies itself - see `QuizChrome`. */
+  const chrome = useQuizChrome()
   const t = textsFor(snapshot?.view ?? null)
 
   useAudioUnlock(notifyAudioReady)
@@ -441,6 +444,14 @@ export function QuizGame({
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
+        /*
+         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
+         * control bar around the quiz needs to know whether it stands on paper
+         * or in the dark, and `data-theme` names a world instead (the
+         * children's paper is light too). One attribute, two values, readable
+         * from CSS without knowing the package's worlds.
+         */
+        data-surface={variant === 'dark' ? 'dark' : 'light'}
       >
         <StartMenu
           model={deviceStartMenu(view, audienceId, playerCounts)}
@@ -450,7 +461,7 @@ export function QuizGame({
           onStart={start}
           onExit={onExit}
           onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
-          {...(ownDevice ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
+          {...(ownDevice && chrome.settings ? { onOpenSettings: () => setSettingsOpen(true) } : {})}
         />
         {settings}
       </div>
@@ -465,6 +476,14 @@ export function QuizGame({
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
+        /*
+         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
+         * control bar around the quiz needs to know whether it stands on paper
+         * or in the dark, and `data-theme` names a world instead (the
+         * children's paper is light too). One attribute, two values, readable
+         * from CSS without knowing the package's worlds.
+         */
+        data-surface={variant === 'dark' ? 'dark' : 'light'}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -524,7 +543,7 @@ export function QuizGame({
         * Whether it exists is decided by the server state: in a game run by
         * an operator, nobody may abort it from the device.
         */}
-      {!finished && view.allowedCommands.includes('ABORT_GAME') && (
+      {chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
         <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
           {t('kiosk.endGame')}
         </button>

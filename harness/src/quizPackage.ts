@@ -10,12 +10,7 @@
  * Checks run here too: a silently half-loaded question set would be more
  * unpleasant than a clear error.
  */
-import {
-  questionSchema,
-  quizConfigSchema,
-  quizPackageManifestSchema,
-  type QuizPackage,
-} from '@hfroemmel/quiz-core'
+import { loadQuizPackage, type QuizPackage } from '@hfroemmel/quiz-core'
 
 export async function loadHarnessPackage(): Promise<QuizPackage> {
   const fetchValue = async (name: string): Promise<unknown> => {
@@ -30,13 +25,10 @@ export async function loadHarnessPackage(): Promise<QuizPackage> {
     fetchValue('questions.json'),
   ])
 
-  const manifest = quizPackageManifestSchema.parse(rawManifest)
-  return {
-    manifest,
-    config: quizConfigSchema.parse(rawConfig),
-    questions: questionSchema.array().parse(rawQuestions),
-    assetsById: new Map(manifest.assets.map((asset) => [asset.id, asset])),
-    // There is no directory in the browser; media comes via the URL.
-    rootDir: '',
-  }
+  /*
+   * Reading and checking is the package's own job (`loadQuizPackage`) - four
+   * hosts used to carry the same twenty lines. There is no directory in the
+   * browser; media come over the URL, so none is named.
+   */
+  return loadQuizPackage({ manifest: rawManifest, config: rawConfig, questions: rawQuestions })
 }

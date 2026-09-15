@@ -33,9 +33,35 @@ import {
 
 const ThemeContext = createContext<ResolvedTheme | null>(null)
 
+/**
+ * Which parts of the frame the quiz supplies itself.
+ *
+ * A host that has its own control bar carries the word mark, the way back and
+ * its settings there - and hid the quiz's with `display: none`, three rules
+ * that had to be kept in step with the package's markup. It says it here
+ * instead, and what it takes over is not rendered at all.
+ */
+export interface QuizChrome {
+  /** The word mark in the stage header. */
+  brand?: boolean
+  /** The button that ends a running game from the device. */
+  abort?: boolean
+  /** The gear that opens the device's settings. */
+  settings?: boolean
+}
+
+const fullChrome: Required<QuizChrome> = { brand: true, abort: true, settings: true }
+
+const ChromeContext = createContext<Required<QuizChrome>>(fullChrome)
+
 /** The host's theme, where there is one. */
 export function useQuizTheme(): ResolvedTheme | null {
   return useContext(ThemeContext)
+}
+
+/** Which parts of the frame the quiz shows. Without a host: all of them. */
+export function useQuizChrome(): Required<QuizChrome> {
+  return useContext(ChromeContext)
 }
 
 /**
@@ -56,10 +82,15 @@ export interface QuizProviderProps {
    * host that wants nothing of it needs no provider either.
    */
   theme?: ThemeDefinition | undefined
+  /**
+   * What the host supplies itself. Named parts are left out of the quiz's
+   * frame; everything unnamed stays as it is.
+   */
+  chrome?: QuizChrome | undefined
   children: ReactNode
 }
 
-export function QuizProvider({ theme, children }: QuizProviderProps) {
+export function QuizProvider({ theme, chrome, children }: QuizProviderProps) {
   const resolved = useMemo(() => (theme ? resolveTheme(theme) : null), [theme])
   /*
    * The fonts are written as rules, once per theme. They are deliberately NOT
@@ -68,8 +99,10 @@ export function QuizProvider({ theme, children }: QuizProviderProps) {
    * asking for the same file anyway.
    */
   const fontRules = useMemo(() => (resolved ? themeStyles(resolved) : ''), [resolved])
+  const parts = useMemo(() => ({ ...fullChrome, ...chrome }), [chrome])
 
-  if (!resolved) return <>{children}</>
+  const inner = <ChromeContext.Provider value={parts}>{children}</ChromeContext.Provider>
+  if (!resolved) return inner
 
   return (
     <div
@@ -79,7 +112,7 @@ export function QuizProvider({ theme, children }: QuizProviderProps) {
       data-quiz-motion={resolved.motion}
     >
       {fontRules !== '' && <style>{fontRules}</style>}
-      <ThemeContext.Provider value={resolved}>{children}</ThemeContext.Provider>
+      <ThemeContext.Provider value={resolved}>{inner}</ThemeContext.Provider>
     </div>
   )
 }

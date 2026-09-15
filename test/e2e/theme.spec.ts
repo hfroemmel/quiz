@@ -86,6 +86,48 @@ test('the theme reaches the running game, where the package sets its own variant
   await expect(foyer.locator('.stage')).toHaveClass(/stage--bright/)
 })
 
+test('a host with its own bar gets no second frame from the quiz', async ({ page }) => {
+  await page.goto('/pair')
+  const foyer = page.locator('[data-pair="foyer"]')
+  const hall = page.locator('[data-pair="hall"]')
+  await expect(hall.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+
+  /*
+   * The right-hand side carries word mark, way back and settings in its own
+   * bar and says so (`chrome`). Until now such a host hid them with three
+   * `display: none` rules that had to be kept in step with the package's
+   * markup - now they are not rendered at all.
+   */
+  await expect(hall.locator('[data-settings-open]')).toHaveCount(0)
+  await expect(foyer.locator('[data-settings-open]')).toHaveCount(1)
+
+  await hall.locator('[data-player-count="1"]').click()
+  await hall.locator('[data-quiz-start-action]').click()
+  await expect(hall.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+
+  await expect(hall.locator('[data-brand]')).toHaveCount(0)
+  await expect(hall.locator('[data-abort-game]')).toHaveCount(0)
+  // And the quiz that supplies its own frame still has all of it.
+  await expect(foyer.locator('[data-game-start]')).toBeVisible()
+})
+
+test('the surface says whether the room is paper or dark', async ({ page }) => {
+  /*
+   * A host that recolours its own bar around the quiz needs one word for that.
+   * `data-theme` names a world - and the children's paper is light too, so it
+   * cannot answer the question.
+   */
+  await page.goto('/pair')
+  await expect(page.locator('[data-pair="foyer"] [data-game-start]')).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator('[data-pair="foyer"] [data-quiz-game]')).toHaveAttribute('data-surface', 'light')
+  await expect(page.locator('[data-pair="hall"] [data-quiz-game]')).toHaveAttribute('data-surface', 'dark')
+
+  await page.goto('/play?audience=kids')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+  // Paper is light, however much its world differs from the adults' stage.
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-surface', 'light')
+})
+
 test('the children world keeps its paper - a host theme for the stage does not recolour it', async ({ page }) => {
   /*
    * A host states the design of ITS world. The second world of a package is a

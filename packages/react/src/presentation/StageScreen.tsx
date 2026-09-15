@@ -199,6 +199,8 @@ export function StageScreen({
         data-presentation={view.question?.presentationType}
         data-skin={skin}
         data-theme={theme ?? skin}
+        /* Paper or dark - for a host that recolours its own frame around it. */
+        data-surface={theme === 'dark' ? 'dark' : 'light'}
         data-phase={view.phase}
         /*
          * Are the answers already on stage? The children's world hangs
