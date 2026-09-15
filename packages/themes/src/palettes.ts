@@ -147,18 +147,17 @@ export const stageExtras = {
   /**
    * The two player colours of the touch device.
    *
-   * They belong to NO mode: red on the left, blue on the right is the
-   * oldest way to tell two sides apart, and must stay the same in every
-   * colour world. If it changed with the mode, a player's own corner of the
-   * device would suddenly belong to a different colour - and that is
-   * exactly what a player relies on right before hitting their buzzer.
+   * BOTH ARE THE ACCENT OF THE WORLD. The two corners are told apart by
+   * their place - left and right - not by two colours of their own, which in
+   * the kids world stood next to its accent without belonging to it.
    *
-   * Everything else in the stylesheet derives from these two values: the
-   * buzzer's dark background is the same tone, mixed into the stage
-   * background. That's why exactly ONE colour is defined here per player.
+   * They therefore point at `--color-accent` instead of carrying a tone:
+   * whoever changes the accent of a world changes the buzzers with it, and
+   * the stylesheet keeps deriving everything else from these two values (the
+   * buzzer's dark ground is the same tone, mixed into the stage background).
    */
-  playerOne: '#b03a3a',
-  playerTwo: '#3742a8',
+  playerOne: 'var(--color-accent)',
+  playerTwo: 'var(--color-accent)',
 } as const
 
 /* ------------------------------------------------------------------ *
