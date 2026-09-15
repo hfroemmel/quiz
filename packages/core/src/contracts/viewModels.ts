@@ -619,3 +619,13 @@ export interface StartMenuModel {
    */
   preselect?: { quizId?: string; audienceId?: string; playerCount?: PlayerCount }
 }
+
+/**
+ * What narrows a menu down to one installation.
+ *
+ * A device belongs to one audience, and its menu shows only that one's offers.
+ * The desk passes nothing and sees the whole package.
+ */
+export interface StartMenuOptions {
+  audienceId?: string
+}
