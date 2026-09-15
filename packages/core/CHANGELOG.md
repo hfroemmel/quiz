@@ -1,5 +1,105 @@
 # @hfroemmel/quiz-core
 
+## 0.17.0
+
+### Minor Changes
+
+- cac43ab: Three things a host had to build itself
+  
+  **Reading a package.** `loadQuizPackage(raw, { rootDir })` parses manifest,
+  configuration and questions, builds the asset map and hands back the package.
+  Four hosts carried the same twenty lines; the rule they implement matters - a
+  package that is only half read fails at the start and not in the middle of a
+  game, where nobody can intervene.
+  
+  **Resolving media.** `LocalQuizRuntime` takes a `media` resolver. An
+  application whose media live in its own bundle - imported by a bundler,
+  addressed by a protocol of its own - used to replace a method of the content
+  service from outside, and a rename in the package would have broken it
+  silently. A resolver that answers with nothing means: no medium for this id, so
+  the question runs without an image rather than with a broken frame.
+  
+  **Its own frame.** `<QuizProvider chrome={{ brand, abort, settings }}>` says
+  which parts of the frame the host supplies itself - word mark, the way back,
+  the settings gear. What it takes over is not rendered at all; until now such a
+  host hid them with three `display: none` rules that had to be kept in step with
+  the package's markup.
+  
+  And one word for the room: the quiz root and the stage element carry
+  `data-surface="light|dark"`, so a host can recolour its own bar around the quiz
+  without knowing the package's worlds - `data-theme` names a world, and the
+  children's paper is light too.
+  
+  The hall reads the offers with their motifs: `view.quizOffers` carries
+  `artworkUrl` and `emphasis` beside name and subtitle, both from the quiz
+  configuration. A stage that kept its own table of pictures left every quiz
+  added later without one.
+- 715a8dd: One start menu, and the configuration fills it
+  
+  The device's start selection asked two questions and answered them from a
+  property and the catalogue; which quiz was played it could not ask at all. A
+  host that wanted a quiz choice had to bring its own screen - the media table
+  did, with its own three cards in its own code.
+  
+  `StartMenu` (`@hfroemmel/quiz-kiosk`) takes the model of `deriveStartMenu` and
+  asks what the configuration offers: which quiz, how many are playing, how hard.
+  Every step with a single option falls away, because a choice of one is a hurdle
+  and not a choice. The offer cards carry the motif of the content
+  (`artworkAssetId`), and the emphasised quiz takes the whole row (`emphasis`).
+  `GameStart` keeps its old interface for one release and builds the model itself.
+  
+  Two rules of a device moved into the core, where the catalogue is built. A quiz
+  whose levels need somebody to judge an answer does not appear in a device's menu
+  at all - at the device there is nobody to ask - and a quiz that keeps only some
+  of its levels there is shortened to them. And `deriveStartMenu` takes the
+  audience of the installation: a device shows its own audience's offers and never
+  the other one's.
+  
+  An offer that cannot be started now says so before the attempt: the content
+  service counts the questions of every quiz and reports the empty ones
+  (`quizAvailability`), the menu shows the reason and keeps its button disabled.
+  The two sentences are interface texts (`start.rejected.no-questions`,
+  `start.rejected.missing-pool`) and therefore translatable like everything else
+  on that screen; `kiosk.quizChoice` names the new step.
+  
+  Levels in the menu model now carry the length of their round (`slotCount`), and
+  an audience offer always names its levels even when there is only one - the
+  start command needs the id, and whether there is anything to choose is said by
+  the length of the list.
+- dc76ce6: A theme is one object, and it belongs to one quiz
+  
+  Whoever wanted their own design had to know four things: the scene theme for
+  the stage, the stylesheet with the start menu's tokens, the font stacks and the
+  word mark as a property. Where they could not be reached they were copied - the
+  media table repeated three colour values as SCSS variables, with the comment
+  that whoever changes them there changes them here by hand.
+  
+  `ThemeDefinition` (`@hfroemmel/quiz-themes`) states a design once: which
+  built-in set it starts from, what it overrides on the stage, above it and in the
+  menu, which fonts it brings, which word mark, and whether it stands still.
+  `resolveTheme` turns it into the values the components read, `themeStyles` into
+  the `@font-face` rules, and the schema refuses a misspelled token group instead
+  of reading it as "changes nothing". The built-ins are the worlds that exist:
+  `brightTheme`, `darkTheme`, `kidsTheme`.
+  
+  `QuizProvider` (`@hfroemmel/quiz-react`) puts a theme on the quiz's own
+  element. Custom properties inherit downwards only, so two quizzes on one page
+  cannot recolour each other any more - until now a host design had to be written
+  onto the document, where it applied to every quiz on the page. Where a theme is
+  meant for the world being shown, it also wins against the package's own variant
+  rules: those declare their colours on the stage element and on the device's root
+  element, so the resolved theme is written inline onto exactly those two, and its
+  base decides whether the stage stands light or dark.
+  
+  In the light variant the menu mirrors the stage - the selected card carries the
+  accent of a tapped answer, the button the green of "reveal". That relationship
+  now survives an override: a host that gives its stage a green accent gets a
+  green selection without naming it twice.
+  
+  `useQuizTheme` reports the host's theme, `themeForSkin` picks the right one for
+  the world being shown - a theme for the adults' stage does not recolour the
+  children's paper. Hosts that pass nothing keep exactly what they had.
+
 ## 0.16.1
 
 ### Patch Changes
