@@ -253,7 +253,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 24."
+      "summary": "Erklaerung zur Testfrage 24.",
+      "details": "Hintergrund zur Testfrage 24: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -277,7 +278,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 24."
+          "summary": "Explanation for test question 24.",
+          "details": "Background for test question 24: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -325,7 +327,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 25."
+      "summary": "Erklaerung zur Testfrage 25.",
+      "details": "Hintergrund zur Testfrage 25: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -349,7 +352,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 25."
+          "summary": "Explanation for test question 25.",
+          "details": "Background for test question 25: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -397,7 +401,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 26."
+      "summary": "Erklaerung zur Testfrage 26.",
+      "details": "Hintergrund zur Testfrage 26: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -421,7 +426,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 26."
+          "summary": "Explanation for test question 26.",
+          "details": "Background for test question 26: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -469,7 +475,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 21."
+      "summary": "Erklaerung zur Testfrage 21.",
+      "details": "Hintergrund zur Testfrage 21: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -493,7 +500,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 21."
+          "summary": "Explanation for test question 21.",
+          "details": "Background for test question 21: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -541,7 +549,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 22."
+      "summary": "Erklaerung zur Testfrage 22.",
+      "details": "Hintergrund zur Testfrage 22: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -565,7 +574,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 22."
+          "summary": "Explanation for test question 22.",
+          "details": "Background for test question 22: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -613,7 +623,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 23."
+      "summary": "Erklaerung zur Testfrage 23.",
+      "details": "Hintergrund zur Testfrage 23: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -637,7 +648,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 23."
+          "summary": "Explanation for test question 23.",
+          "details": "Background for test question 23: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -792,7 +804,8 @@
       "Richtige Antwort 9"
     ],
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 9."
+      "summary": "Erklaerung zur Testfrage 9.",
+      "details": "Hintergrund zur Testfrage 9: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -801,7 +814,8 @@
           "Correct answer 9"
         ],
         "explanation": {
-          "summary": "Explanation for test question 9."
+          "summary": "Explanation for test question 9.",
+          "details": "Background for test question 9: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -833,7 +847,8 @@
       "Richtige Antwort 10"
     ],
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 10."
+      "summary": "Erklaerung zur Testfrage 10.",
+      "details": "Hintergrund zur Testfrage 10: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -842,7 +857,8 @@
           "Correct answer 10"
         ],
         "explanation": {
-          "summary": "Explanation for test question 10."
+          "summary": "Explanation for test question 10.",
+          "details": "Background for test question 10: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -874,7 +890,8 @@
       "Richtige Antwort 11"
     ],
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 11."
+      "summary": "Erklaerung zur Testfrage 11.",
+      "details": "Hintergrund zur Testfrage 11: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -883,7 +900,8 @@
           "Correct answer 11"
         ],
         "explanation": {
-          "summary": "Explanation for test question 11."
+          "summary": "Explanation for test question 11.",
+          "details": "Background for test question 11: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -915,7 +933,8 @@
       "Richtige Antwort 6"
     ],
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 6."
+      "summary": "Erklaerung zur Testfrage 6.",
+      "details": "Hintergrund zur Testfrage 6: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -924,7 +943,8 @@
           "Correct answer 6"
         ],
         "explanation": {
-          "summary": "Explanation for test question 6."
+          "summary": "Explanation for test question 6.",
+          "details": "Background for test question 6: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -956,7 +976,8 @@
       "Richtige Antwort 7"
     ],
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 7."
+      "summary": "Erklaerung zur Testfrage 7.",
+      "details": "Hintergrund zur Testfrage 7: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -965,7 +986,8 @@
           "Correct answer 7"
         ],
         "explanation": {
-          "summary": "Explanation for test question 7."
+          "summary": "Explanation for test question 7.",
+          "details": "Background for test question 7: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -997,7 +1019,8 @@
       "Richtige Antwort 8"
     ],
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 8."
+      "summary": "Erklaerung zur Testfrage 8.",
+      "details": "Hintergrund zur Testfrage 8: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1006,7 +1029,8 @@
           "Correct answer 8"
         ],
         "explanation": {
-          "summary": "Explanation for test question 8."
+          "summary": "Explanation for test question 8.",
+          "details": "Background for test question 8: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -1332,7 +1356,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 27."
+      "summary": "Erklaerung zur Testfrage 27.",
+      "details": "Hintergrund zur Testfrage 27: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1356,7 +1381,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 27."
+          "summary": "Explanation for test question 27.",
+          "details": "Background for test question 27: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -1401,7 +1427,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 28."
+      "summary": "Erklaerung zur Testfrage 28.",
+      "details": "Hintergrund zur Testfrage 28: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1425,7 +1452,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 28."
+          "summary": "Explanation for test question 28.",
+          "details": "Background for test question 28: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -1470,7 +1498,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 29."
+      "summary": "Erklaerung zur Testfrage 29.",
+      "details": "Hintergrund zur Testfrage 29: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1494,7 +1523,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 29."
+          "summary": "Explanation for test question 29.",
+          "details": "Background for test question 29: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -1539,7 +1569,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 15."
+      "summary": "Erklaerung zur Testfrage 15.",
+      "details": "Hintergrund zur Testfrage 15: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1563,7 +1594,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 15."
+          "summary": "Explanation for test question 15.",
+          "details": "Background for test question 15: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -1608,7 +1640,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 16."
+      "summary": "Erklaerung zur Testfrage 16.",
+      "details": "Hintergrund zur Testfrage 16: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1632,7 +1665,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 16."
+          "summary": "Explanation for test question 16.",
+          "details": "Background for test question 16: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },
@@ -1677,7 +1711,8 @@
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 17."
+      "summary": "Erklaerung zur Testfrage 17.",
+      "details": "Hintergrund zur Testfrage 17: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
     },
     "translations": {
       "en-GB": {
@@ -1701,7 +1736,8 @@
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 17."
+          "summary": "Explanation for test question 17.",
+          "details": "Background for test question 17: this paragraph stands for the editorial background that nobody tells at a device - it is read."
         }
       }
     },

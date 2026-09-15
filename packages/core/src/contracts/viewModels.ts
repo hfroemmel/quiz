@@ -95,6 +95,15 @@ export interface PublicSolution {
   /** Text of the correct answer. */
   answerText: string
   imageUrl?: string
+  /**
+   * Background of the question, where the installation asks to show it.
+   *
+   * Present only with `rules.showDetailsAfterSolution`, and then only
+   * `explanation.details` - a device has nobody to tell the background, so the
+   * players read it themselves. In a hall the field stays absent: there the
+   * moderator tells it, and a screen writing it out would compete with them.
+   */
+  details?: string
 }
 
 /**

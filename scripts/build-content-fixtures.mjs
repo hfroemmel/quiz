@@ -46,7 +46,16 @@ const alleTypen = ['text-choice', 'image-choice', 'person', 'image-reveal', 'vid
 const NEUTRALE_TYPEN = ['text-choice', 'image-choice']
 const alleSchwierigkeiten = config.difficulties.map((entry) => entry.id)
 const alleKategorien = config.categories.map((entry) => entry.id)
-const allePools = config.pools.map((entry) => entry.id)
+/**
+ * Pools that deliberately stay EMPTY.
+ *
+ * `europa` is in the configuration so that there is a quiz whose pool holds no
+ * questions: the start menu says why such a quiz cannot be started, BEFORE the
+ * attempt, and that sentence needs a quiz it is true for. Handing questions
+ * round-robin to every pool in the config would fill it and take the case away.
+ */
+const EMPTY_POOLS = ['europa']
+const allePools = config.pools.map((entry) => entry.id).filter((id) => !EMPTY_POOLS.includes(id))
 const alleZielgruppen = config.audiences.map((entry) => entry.id)
 
 /**
@@ -130,7 +139,23 @@ for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values(
             correctOptionId: 'o1',
           }
         : { acceptedAnswerText: [`Richtige Antwort ${laufendeNummer}`] }),
-      explanation: { summary: `Erklaerung zur Testfrage ${laufendeNummer}.` },
+      /*
+       * BACKGROUND ON EVERYTHING BUT THE EASY LEVEL.
+       *
+       * The detail text is what the details step reads at a device
+       * (`rules.showDetailsAfterSolution`), and that step has two cases to
+       * show: a question that carries background, and one that does not. If
+       * every test question had one, the second case could not be reached from
+       * a test at all - so the easy level deliberately brings none.
+       */
+      explanation: {
+        summary: `Erklaerung zur Testfrage ${laufendeNummer}.`,
+        ...(schwierigkeit === 'easy'
+          ? {}
+          : {
+              details: `Hintergrund zur Testfrage ${laufendeNummer}: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen.`,
+            }),
+      },
       /*
        * EVERY test question carries an English version. Multilingualism is
        * not a special case of individual questions but a property of the
@@ -150,7 +175,14 @@ for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values(
                 ],
               }
             : { acceptedAnswerText: [`Correct answer ${laufendeNummer}`] }),
-          explanation: { summary: `Explanation for test question ${laufendeNummer}.` },
+          explanation: {
+            summary: `Explanation for test question ${laufendeNummer}.`,
+            ...(schwierigkeit === 'easy'
+              ? {}
+              : {
+                  details: `Background for test question ${laufendeNummer}: this paragraph stands for the editorial background that nobody tells at a device - it is read.`,
+                }),
+          },
         },
       },
       enabled: true,

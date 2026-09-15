@@ -1,0 +1,137 @@
+/**
+ * The background of a question, between the solution and the next one.
+ *
+ * WHERE IT SITS is the stage's decision: it goes into `pads.overlay`, which
+ * spans scene, foot bar and grain. Only there does it get the stage's colours,
+ * its container units and its display size - outside it, the card would keep
+ * its full size while everything beneath it shrank with the zoom.
+ */
+
+.step {
+  /*
+   * How long the solution stands alone before the background arrives.
+   *
+   * Right and wrong are already told in the feedback scene; what is left to
+   * read is which answer was the correct one - and the card would cover exactly
+   * that if it came up in the same instant.
+   *
+   * IT IS A TIME, SO IT STANDS WITH THE OTHER TIMES OF THE STAGE. The component
+   * reads it from here, which is also what lets a host give its own room a
+   * longer moment without touching the package.
+   */
+  --stage-details-delay: 2000ms;
+
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.375cqw 4cqw;
+  background: color-mix(in srgb, var(--color-stageBottom) 88%, transparent);
+
+  /*
+   * IT FADES IN BOTH DIRECTIONS.
+   *
+   * The step is mounted before it is open - the round is already held then, so
+   * nobody can skip it - and it stays mounted while it leaves, or there would
+   * be nothing to see going. Closed it catches nothing: the answers behind it
+   * stay reachable.
+   *
+   * `visibility` transitions along on purpose: it flips at the START of the way
+   * in and at the END of the way out, so the panel is out of reach while it is
+   * transparent - for a thumb and for a screen reader alike.
+   *
+   * Duration and easing are the stage's own, so this step moves in the same
+   * time as the blurred question ground under it. The component reads the very
+   * same value to know when the way out is over, instead of keeping a number of
+   * its own in step by hand.
+   */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--stage-fade-duration) var(--stage-fade-easing),
+    visibility var(--stage-fade-duration) var(--stage-fade-easing);
+}
+
+.step[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/*
+ * An OPAQUE card, not a translucent veil. Behind it stands the solution with
+ * its question and four answer rows; a card one can read through would put two
+ * texts on top of each other, and the one that matters here is this one.
+ *
+ * The card scales with the display size, the veil does not - the veil has to
+ * reach the edges at every zoom level. The last two per cent of that scale are
+ * the entrance: barely a move, just enough that the card arrives instead of
+ * appearing.
+ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqw;
+  width: 58cqw;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 3cqw;
+  border-radius: calc(var(--stage-radius) * 1.5);
+  background: var(--color-stageBottom);
+  box-shadow: 0 1cqw 6cqw var(--stage-cardShadow);
+  text-align: center;
+  overflow-y: auto;
+  scale: calc(var(--stage-zoom, 1) * 0.98);
+  transition: scale var(--stage-fade-duration) var(--stage-fade-easing);
+}
+
+.step[data-open='true'] .panel {
+  scale: var(--stage-zoom, 1);
+}
+
+.text {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 1.25cqw;
+  line-height: 1.45;
+}
+
+/*
+ * One button, large enough for a thumb. It IS the way onward here -
+ * `stage-button stage-button--primary` is the shared button of the stage, the
+ * same one the footer's "Weiter" is built from. Only its place in the card
+ * belongs here.
+ *
+ * IT LOOKS SMALLER THAN IT IS. The painted box is narrower and flatter than the
+ * stage default - one sentence of background does not need a bar across the
+ * card. What a thumb hits is unchanged: `::after` carries the difference back
+ * out beyond the visible edge, and a pseudo-element of the button is part of
+ * the button.
+ */
+.continue {
+  --stage-button-pad: 2.4cqw;
+  --stage-button-height: 3.9375cqw;
+
+  position: relative;
+  align-self: center;
+  margin-top: 1cqw;
+}
+.continue::after {
+  content: '';
+  position: absolute;
+  inset: -0.5625cqw -1.6cqw;
+}
+
+/*
+ * Whoever asks for no motion gets none: the step is the same step, it just
+ * stands there instead of arriving.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .step[data-open='true'] .panel {
+    scale: var(--stage-zoom, 1);
+    transition: none;
+  }
+}

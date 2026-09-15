@@ -25,6 +25,7 @@ export * from './presentation/stage/Score'
  */
 export * from './presentation/stage/jokerIcons'
 export * from './presentation/stage/StageHeader'
+export * from './presentation/stage/DetailsStep'
 /* The wordmark as a file - for hosts that show it outside the stage. */
 export * from './presentation/brandAssets'
 export * from './client/useQuizConnection'

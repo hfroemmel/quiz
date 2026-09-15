@@ -241,7 +241,8 @@ a host theme already decides the variant, so nothing forces the switch yet.
 
 **Packages touched.** core, react, (new electron host package). **Hosts.** all. **Dependencies.** Phase 3. **Risk.** low per item; the details slot changes the public view model (adds `explanation.details` under a rule flag), which is additive. **Tests.** bundestags-app details tests move to quiz as package tests; app-collection unit tests for `loadQuizPackage`. **Result.** the bundestags-app `Quiz.js` shrinks to session + mount; the two Electron hosts share one main process.
 
-**Status: three of the five items are done.**
+**Status: the four items that were planned for the packages are done; the
+Electron host package stays optional and open.**
 
 - `loadQuizPackage(raw, { rootDir })` replaces the same twenty lines in four
   hosts; the harness reads its own package through it.
@@ -258,15 +259,41 @@ a host theme already decides the variant, so nothing forces the switch yet.
   host that recolours its own bar: `data-theme` names a world, and the
   children's paper is light too.
 
-Open: the details step (`renderAfterSolution` plus the rule flag from Phase 3,
-which no component reads yet). It is the one item that changes the public view
-model - the editorial background of a question must travel into the solution
-scene, where today deliberately nothing of the explanation arrives - so it
-needs its own pass rather than being appended here. The Electron host package
-is marked optional in the plan and stays open: the two devices cannot install it
-before a release, and their main processes are small.
+- And the details step, the item that changes the public view model: with
+  `rules.showDetailsAfterSolution` the detail text of an explanation travels
+  with the solution, and `DetailsStep` in quiz-react gives it its own card,
+  placed by `QuizGame`. The rule flag had been in the configuration since
+  Phase 3 with nobody reading it.
 
-Measured: 341 unit tests, 115 E2E green.
+  The line the projection exists to draw moved, so it is written down where it
+  is drawn: in a hall nothing of an explanation is public, because the moderator
+  tells it; at a device nobody tells it, and only then, and only `details`, and
+  only in the solution scene. Six unit tests hold that in both directions.
+
+  Two things fell out of it that the host could not have. The times of the step
+  stand in its stylesheet, and the component reads how long its way out lasts
+  off its own element - the app carried a `FADE_MS = 220` and a comment asking
+  whoever changed one to remember the other. And a card lying on the stage has
+  a shadow token now (`--stage-cardShadow`) instead of a colour value in a
+  component.
+
+  `renderAfterSolution` on `QuizGame` is the escape hatch for a host whose room
+  wants a different card: it is handed the text and the way onward, while the
+  holding of the round and the withdrawn footer button stay in the package.
+
+  The rule is global configuration, which made it the awkward thing to test: a
+  suite that turns it on in the shared fixture content turns it on for every
+  other suite. So the harness can override rules for one run
+  (`/play?details=1`), and the generated fixtures carry a background on
+  everything but the easy level - otherwise the case "no background, so no
+  step" could not be reached from a test at all.
+
+Open: only the Electron host package, and it is marked optional in the plan -
+the two devices cannot install it before a release, and their main processes
+are small.
+
+Measured: 348 unit tests (+6 for the background, +1 baseline guard), 120 E2E
+green.
 
 ## Phase 7 – i18n unification
 

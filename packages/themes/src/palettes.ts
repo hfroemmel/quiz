@@ -134,6 +134,15 @@ export const brightPalette: Partial<DesignColors> = {
 export const stageExtras = {
   /** Text on accent, solution or player colour - always light there. */
   inkOnStrong: '#ffffff',
+  /**
+   * Shadow under a card lying ON the stage - the background step after a
+   * solution.
+   *
+   * A card that lies on something says so by the edge it darkens, and it says
+   * it in the same way in the dark world and in the bright one: the shadow is
+   * the distance to the ground, not a colour of the mode.
+   */
+  cardShadow: 'rgb(0 0 0 / 0.2)',
   /** Hairline edge on the portrait, so it stands out from the background. */
   edge: 'rgb(255 255 255 / 0.22)',
   /**

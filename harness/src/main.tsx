@@ -50,6 +50,10 @@ function App() {
      * build:
      *   ?audience=adults   audience of the device
      *   ?idle=120          idle supervision in seconds
+     *   ?details=1         read the background of a question at the device
+     *                      (`rules.showDetailsAfterSolution`) - a rule of the
+     *                      content, switchable here so that one suite can see
+     *                      the step without all of them getting it
      */
     case '/play': {
       const params = new URLSearchParams(window.location.search)
@@ -59,6 +63,7 @@ function App() {
         <TouchDevice
           audience={audience}
           {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
+          {...(params.get('details') === null ? {} : { showDetailsAfterSolution: true })}
         />
       )
     }

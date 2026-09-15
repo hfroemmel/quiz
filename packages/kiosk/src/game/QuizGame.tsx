@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Reac
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
 import {
+  DetailsStep,
   QuizScene,
   releaseAudio,
   textsFor,
@@ -121,6 +122,22 @@ export interface QuizGameProps {
    * up to the host; the shared button is available to it as `stage-button`.
    */
   overlay?: ReactNode
+  /**
+   * The details step in the host's own words.
+   *
+   * The step itself belongs to the package: whether there is one is a question
+   * of the content (`rules.showDetailsAfterSolution` and a question with a
+   * background), when it appears is a question of the stage's timing, and that
+   * it holds the round is a rule. What it may not know is a host whose room
+   * wants a different card - a museum with its own typography, a device that
+   * also shows a QR code next to the text.
+   *
+   * Such a host gets the text and the way onward and draws the rest. Everything
+   * around it stays as it is: the round is held, the device's own way onward
+   * stays out, and this function is called only where there is something to
+   * read.
+   */
+  renderAfterSolution?: (step: { details: string; onContinue: () => void }) => ReactNode
 }
 
 export function QuizGame({
@@ -134,6 +151,7 @@ export function QuizGame({
   onExit,
   idleTimeoutMs,
   overlay,
+  renderAfterSolution,
 }: QuizGameProps) {
   // Without a host runtime, its own connection; with one, none.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
@@ -312,6 +330,49 @@ export function QuizGame({
   // Without a running or finished game, the server shows the start scene.
   const hasGame = view.scene !== 'start'
   const finished = view.scene === 'result'
+
+  /*
+   * THE DETAILS STEP - where the content asks for it.
+   *
+   * `rules.showDetailsAfterSolution` says whether this installation reads the
+   * background itself instead of having it told, and only then does the
+   * solution carry it (`visibleSolution.details`, see the projection). So the
+   * device decides nothing here: it shows what it is given, and a package that
+   * asks for no step gets no layer over its stage either.
+   *
+   * THE ROUND IS HELD FROM THE MOMENT THE SOLUTION STANDS, not only once the
+   * card is there. The card needs a moment - the solution is to be read first -
+   * and in those seconds the device's own way onward would still be sitting
+   * there, one thumb away from skipping the step.
+   */
+  const stepPossible = view.catalog.rules.showDetailsAfterSolution
+  const details = view.visibleSolution?.details
+  const continueRound = () => send({ type: 'CONTINUE' })
+  /** The card is announced by the question it belongs to. */
+  const askedPrompt = view.question?.prompt
+
+  /**
+   * The card: the package's own, or the host's where it brings one.
+   *
+   * `DetailsStep` keeps the last text while it is leaving, so it stays in the
+   * tree for the whole game and draws nothing between two questions. A host's
+   * own card is asked for only where there is something to read - it knows
+   * nothing of fading, and it should not have to.
+   */
+  function detailsStep(): ReactNode {
+    if (!stepPossible) return null
+    if (!renderAfterSolution) {
+      return (
+        <DetailsStep
+          details={details}
+          continueLabel={t('kiosk.continue')}
+          label={askedPrompt}
+          onContinue={continueRound}
+        />
+      )
+    }
+    return details === undefined ? null : renderAfterSolution({ details, onContinue: continueRound })
+  }
 
   /*
    * THE MENU HANDS IN WHAT IT ASKED, AND NOTHING ELSE.
@@ -585,7 +646,16 @@ export function QuizGame({
         variant="touch"
         {...(answering ? { answering } : {})}
         pads={{
-          ...(overlay ? { overlay } : {}),
+          ...(overlay || stepPossible
+            ? {
+                overlay: (
+                  <>
+                    {overlay}
+                    {detailsStep()}
+                  </>
+                ),
+              }
+            : {}),
           bottom: finished ? (
             <div className={styles.footer}>
               <button
@@ -608,7 +678,8 @@ export function QuizGame({
               canBuzz={(playerId) => canBuzz(view, playerId)}
               onBuzz={(playerId) => send({ type: 'BUZZ', playerId })}
               onResolve={() => send({ type: 'RESOLVE_ATTEMPT' })}
-              onContinue={() => send({ type: 'CONTINUE' })}
+              onContinue={continueRound}
+              continueElsewhere={details !== undefined}
             />
           ),
         }}

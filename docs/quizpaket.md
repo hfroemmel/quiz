@@ -66,8 +66,8 @@ hotfixes instead.
   "media": { "imageAssetId": "img-…", "videoAssetId": "vid-…" },
 
   "explanation": {
-    "summary": "Short text - may appear publicly in the solution",
-    "details": "Background - operator and moderator only",
+    "summary": "Short text for the moderator's lead-in - internal",
+    "details": "Background - read at a device, told in a hall",
     "source": "Source reference - internal only",
     "moderatorNotes": "Directorial note - internal only"
   },
@@ -80,9 +80,13 @@ Important:
 * **`correctOptionId` is required** for `option-comparison`. The legacy
   assumption "`option_1` is correct" no longer exists. The visible order is
   shuffled per game, without affecting the evaluation.
-* Of `explanation`, only `summary` is ever shown publicly - and only in the
-  solution scene. `details`, `source`, and `moderatorNotes` never leave the
-  server toward the stage screen.
+* Of `explanation`, nothing reaches the stage screen: in a hall the moderator
+  tells the background, and a screen writing it out would compete with the
+  person speaking. One exception, and it is configured: with
+  `rules.showDetailsAfterSolution` the `details` text travels with the solution,
+  because at a device nobody is there to tell it - see "The background as a
+  step" below. `summary`, `source` and `moderatorNotes` stay with operator and
+  moderator in every case, and nothing travels before the solution scene.
 * Runtime data does not belong in the content. The legacy field `playCount` is
   deliberately not carried over; usages live in the database's `QuestionUsage`
   history.
@@ -174,6 +178,33 @@ are fairness, not taste.
 
 The idle watch and `showDetailsAfterSolution` reach the clients through
 `catalog.rules`; everything else is read by the engine on the server.
+
+### The background as a step
+
+`showDetailsAfterSolution` decides who reads the background of a question. It
+is a property of the PLACE, not of the content: the same question set runs in a
+hall and on a media table.
+
+- **Off (the default).** Nothing of the explanation leaves the server publicly.
+  In the hall the moderator tells the background, in their own words, and the
+  stage shows the solution alone.
+- **On.** The `details` text travels with the solution
+  (`visibleSolution.details`), and the device gives it its own step: the card
+  covers the stage, carries the only way onward, and the round waits until
+  somebody has read it. Where a question brings no background there is no step -
+  an empty in-between screen would be worse than none.
+
+The step belongs to the package (`DetailsStep` in `@hfroemmel/quiz-react`, put
+in place by `QuizGame`): the delay before the card arrives and the fade in both
+directions are the stage's own times (`--stage-details-delay`,
+`--stage-fade-duration`), and the round is held from the moment the solution
+stands - not only once the card is there, or a fast thumb would skip the step in
+the seconds in between.
+
+A host whose room wants a different card passes `renderAfterSolution` to
+`QuizGame` and draws its own body; it is handed the text and the way onward, and
+everything around it - the holding of the round, the withdrawn footer button -
+stays as it is.
 
 ### What the start menu of a device makes of it
 

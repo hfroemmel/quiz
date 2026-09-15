@@ -6,6 +6,13 @@
  * The correct answer, explanations, directing notes and selection rationales are
  * filtered out here and never transmitted before they may be public. Hiding by
  * CSS would not be enough.
+ *
+ * ONE EXCEPTION, AND IT IS CONFIGURED: the detail text of an explanation goes
+ * out with the solution where `rules.showDetailsAfterSolution` says so. In a
+ * hall the background is TOLD - so it stays here; at a device there is nobody
+ * to tell it, and the two people at the table read it themselves. The short
+ * version, the source and the directing notes stay editorial in either case,
+ * and nothing travels before the solution scene.
  */
 import {
   isChoiceQuestion,
@@ -265,9 +272,11 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
  * View of the players at the touch device.
  *
  * SECURITY RULE as for the stage screen: it is the public view. The solution is
- * only transmitted in the solution scene, explanations and directing notes
- * never. Added to it is solely the list of the commands possible now, so that
- * the touch client does not derive its controls itself.
+ * only transmitted in the solution scene, directing notes never, and of an
+ * explanation at most the detail text - in the solution scene, and only where
+ * the configuration asks for it (`publicSolution`). Added to that is solely the
+ * list of the commands possible now, so that the touch client does not derive
+ * its controls itself.
  */
 export function projectPlayer(state: GameState | null, ctx: ProjectionContext): PlayerQuizViewModel {
   return {
@@ -624,13 +633,31 @@ function textsFor(state: GameState | null, ctx: ProjectionContext): { texts?: Re
 
 function publicSolution(ctx: ProjectionContext, question: Question): PublicSolution {
   /*
-   * The solution view shows the answer - nothing more. The explanation stays
-   * reserved for operator and moderator; on the stage it is told, not read. So
-   * it is not transmitted publicly in the first place.
+   * The solution view shows the answer - and, where the installation asks for
+   * it, the background of the question.
+   *
+   * ON A STAGE IT DOES NOT. There the explanation belongs to the moderator, who
+   * tells it; a screen that also wrote it out would compete with the person
+   * speaking. That is why nothing of it used to be transmitted publicly at all.
+   *
+   * At a device nobody tells it. The two people at the table read it
+   * themselves, so a quiz meant for that place says
+   * `rules.showDetailsAfterSolution`, and then the detail text travels with the
+   * solution - in the language of the question, because it comes from the same
+   * translated version as prompt and options.
+   *
+   * ONLY `details`. The short version is written for the moderator's lead-in,
+   * the source is an editorial note, and the directing notes are stage
+   * directions; none of the three is meant to be read by a player.
    */
+  const details = resolveRules(ctx.config.rules).showDetailsAfterSolution
+    ? question.explanation?.details
+    : undefined
+
   return {
     answerText: correctAnswerText(question),
     imageUrl: ctx.assetUrl(question.media?.imageAssetId),
+    ...(details ? { details } : {}),
   }
 }
 
