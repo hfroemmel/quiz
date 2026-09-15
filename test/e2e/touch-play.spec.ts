@@ -963,6 +963,7 @@ test('the accent marks the corner that is playing - in every state', async ({ pa
         /* Per card both of its tiles - the fill sits on them, not on the card. */
         cards: [...document.querySelectorAll('[data-score]')].map((card) => ({
           active: card.getAttribute('data-active') === 'true',
+          locked: card.getAttribute('data-locked') === 'true',
           tiles: [...card.children].map(readInput),
         })),
       }
@@ -970,6 +971,7 @@ test('the accent marks the corner that is playing - in every state', async ({ pa
 
   await startGame(page, 'Zu zweit')
   const accent = await token('--color-accent', 'background')
+  const quietAccent = await token('--color-accentQuiet', 'background')
   const quietGround = await token('--color-tile', 'background')
   const quietFont = await token('--color-textMuted', 'color')
 
@@ -1020,16 +1022,21 @@ test('the accent marks the corner that is playing - in every state', async ({ pa
      * card through `data-active`, the buzzer through its accent. If the two
      * drifted apart, one of them would be lying about whose turn it is.
      *
-     * WHICH FILL the card carries on the device is not decided here - see
-     * `Score.module.css`, where the comment and the rules disagree about the
-     * accent. The test pins the agreement, not the open question.
+     * And the card says it in colour too: its two tiles carry the accent of
+     * the world while that player is on turn, the calm accent once the corner
+     * is locked, and the plain tile as long as nobody has the turn. The fill
+     * sits on the tiles; the card's own ground stays the frosted glass.
      */
     for (const [index, card] of state.cards.entries()) {
       const side = index === 0 ? 'left' : 'right'
       const buzzer = state.buzzer.find((button) => button.side === side)!
-      expect(card.active, `Zustand ${number}, ${side}`).toBe(buzzer.armed)
+      const where = `Zustand ${number}, ${side}`
+      expect(card.active, where).toBe(buzzer.armed)
+
+      const expected = card.active ? accent : card.locked ? quietAccent : quietGround
       for (const tile of card.tiles) {
-        expect(tile.edge, `Zustand ${number}, ${side}`).toBe('0px 0px 0px 0px')
+        expect(tile.ground, where).toBe(expected)
+        expect(tile.edge, where).toBe('0px 0px 0px 0px')
       }
     }
   }
