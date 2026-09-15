@@ -164,7 +164,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.675cqw;
+  gap: 2cqw;
   min-width: 0;
 }
 .notice {
@@ -304,8 +304,11 @@
  * plus the class: that way the rule applies regardless of the order in which
  * a host includes the stylesheets.
  */
-.buzzer:disabled {
-  opacity: 1;
+[data-skin='default'] .buzzer:disabled {
+  color: var(--color-textMuted);
+  background: var(--color-tile);
+  backdrop-filter: blur(1.2cqw);
+  -webkit-backdrop-filter: blur(1.2cqw);
 }
 
 /*

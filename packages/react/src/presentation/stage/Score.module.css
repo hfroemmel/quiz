@@ -113,7 +113,8 @@
 :global(.stage--default) .score[data-active='true'] .cellPoints {
   background: var(--color-accent);
 }
-:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer {
+:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer,
+:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPoints {
   background: var(--color-accentQuiet);
 }
 /* Butted together on the inside, rounded on the outside - the card reads as one block. */
@@ -165,8 +166,8 @@
  * "Submit answer and reveal" sits - and the answer rows, which then belong
  * to only that one player.
  */
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints {
+:global(.stage--default.stage--touch) .score[data-active='true'],
+:global(.stage--default.stage--touch) .score[data-locked='true'] {
   background: var(--color-tile);
 }
 /*
@@ -174,13 +175,9 @@
  * version puts white text on the strong accent tile (see below) - on the
  * neutral tile it would be invisible.
  */
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints {
+:global(.stage--default.stage--touch) .score[data-active='true'],
+:global(.stage--default.stage--touch) .score[data-locked='true'] {
   color: var(--color-text);
-}
-:global(.stage--default.stage--touch) .score[data-active='true'] .cellPlayer .label,
-:global(.stage--default.stage--touch) .score[data-locked='true'] .cellPoints .label {
-  color: var(--color-textMuted);
 }
 
 /* The card fills the width of its corner, so it lines up flush with the buzzer. */
@@ -276,13 +273,11 @@
   font-weight: 700;
   font-size: var(--kids-size-score);
 }
-/* The kids' world celebrates with its own means - without a stars graphic. */
-:global(.stage--kids) .stars {
-  display: none;
-}
 
 /* Light version: the player on turn carries their colour strongly - text light. */
-:global(.stage--bright) .score[data-active='true'] .cellPlayer,
-:global(.stage--bright) .score[data-active='true'] .cellPlayer .label {
+:global(.stage--dark) .score[data-active='true'] .value,
+:global(.stage--dark) .score[data-active='true'] .label,
+:global(.stage--bright) .score[data-active='true'] .value,
+:global(.stage--bright) .score[data-active='true'] .label {
   color: var(--stage-inkOnStrong);
 }

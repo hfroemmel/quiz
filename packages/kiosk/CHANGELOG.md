@@ -1,5 +1,121 @@
 # @hfroemmel/quiz-kiosk
 
+## 0.15.3
+
+### Patch Changes
+
+- Tune the stage type and spacing, and shorten the submit label
+  
+  The category above the question is no longer set in the accent colour with wide
+  letter spacing; it takes the text colour in Noto Sans with a little more room
+  below. In the pause scene the category now leads and the progress line steps
+  back beneath it.
+  
+  The kids' world shows its celebration stars on the score card again. The light
+  text for the player on turn is bound to the dark and bright stage themes, which
+  leaves the adults' stage as it was and keeps it off the kids' paper.
+  
+  The kiosk sets the notice field further above the counter, and the default label of
+  the submit button reads "Antwort abgeben".
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.15.3
+  - @hfroemmel/quiz-themes@0.15.3
+  - @hfroemmel/quiz-react@0.15.3
+
+## 0.15.2
+
+### Patch Changes
+
+- Set the score card of the player on turn in light text
+  
+  The card of the player who holds the turn stands on the strong accent colour, so
+  its values and labels now take the light ink on the default stage as well as on
+  the bright one - in the points cell too, not only beside the name.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.15.2
+  - @hfroemmel/quiz-themes@0.15.2
+  - @hfroemmel/quiz-react@0.15.2
+
+## 0.15.1
+
+### Patch Changes
+
+- Fix the buzzer and score card styles
+  
+  A disabled buzzer in the default skin no longer keeps its full-strength face: it
+  steps back to muted text on the frosted tile ground, so it reads as out of play.
+  
+  On the stage, both player colours now follow the accent colour instead of a fixed
+  red and blue. A locked-out player's points cell takes the quiet accent together
+  with the name cell, and on touch stages the card of the player who holds the
+  turn takes the tile ground and text colour as a whole rather than cell by cell.
+  The category heading of the pause scene is set smaller.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.15.1
+  - @hfroemmel/quiz-themes@0.15.1
+  - @hfroemmel/quiz-react@0.15.1
+
+## 0.15.0
+
+### Minor Changes
+
+- 1b64ce5: Give the two jokers their drawn signs
+  
+  The joker signs were placeholders: three outlined circles for the audience, a
+  split circle for the 50:50. They are now the drawn artwork - three figures with
+  the middle one carried forward, and the `50:50` lettering between two arcs.
+  
+  Both signs keep the mask over `currentColor` as their default, and that is a
+  decision rather than a leftover. The 50:50 is lettered in a near-black grey; on
+  the dark stage of the adults' quiz it would sink into the ground, and the group
+  mark in a score card has to carry the colour of the digit it replaces, never one
+  of its own. A face whose ground is known to be light can ask for the drawing
+  with its own colours: `<JokerTypeIcon type="audience" tone="art" />`.
+  
+  Neither sign is square, and they are not cut alike. `JokerTypeIcon` now sets
+  only the height and derives the width from the file, so both stand equally tall
+  wherever they appear together and neither is squeezed into a square box - the
+  audience mark would otherwise have stood beside the player number at 62 per cent
+  of its height. The proportions ship as `jokerIconRatios` for a host that shapes
+  its own box around the file.
+- ac1d181: Make the quiz type a configured value, not a decision spread over the screens
+  
+  The desk picks ONE thing before an evening: which quiz runs. Until now that was
+  three pickers - audience, preset, pool - and lately five cards that each carried
+  their own `START_GAME` payload. Both said the same thing twice, in two places
+  that could drift apart.
+  
+  `quizzes` in the quiz package is now that one thing. An entry names its audience,
+  its theme, its pools and the difficulty presets it offers, each as a separate
+  value: "Bremen-Quiz" is a line in the configuration, not a condition in a
+  component. `START_GAME` takes `quizId` instead of `audience`, and the server
+  resolves the rest and writes it into the game state - so a reload or a
+  reconnect reads the confirmed configuration back instead of recomputing it.
+  
+  The difficulty choice is not a flag beside the list, it FOLLOWS from it:
+  `presetIds` with one entry means there is nothing to choose, more than one means
+  the operator chooses. `catalog.quizzes[].supportsDifficulty` hands that decision
+  to the form already made, and the server refuses a difficulty for a quiz that
+  offers none - and a missing one for a quiz that does.
+  
+  `PublicQuizViewModel` gains `quizOffers`, the names of the quizzes on offer, so a
+  stage can announce to the hall what there is to play. Deliberately without
+  audience, pools, presets or theme: the stage should not be able to derive any
+  configuration, only to write the names on the wall.
+  
+  The selection palette loses `shadow-lifted` and `focus`. Those five cards moved
+  to the stage, where they are a poster: nothing about them can be hovered,
+  focused or picked. A colour kept for a state that no longer exists is an
+  invitation to build the state back in.
+
+### Patch Changes
+
+- Updated dependencies [1b64ce5]
+- Updated dependencies [ac1d181]
+  - @hfroemmel/quiz-core@0.15.0
+  - @hfroemmel/quiz-themes@0.15.0
+  - @hfroemmel/quiz-react@0.15.0
+
 ## 0.14.0
 
 ### Minor Changes

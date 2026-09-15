@@ -348,8 +348,8 @@
 }
 :global(.stage--default.stage--touch) .surface,
 :global(.stage--default.stage--touch) .chip {
-  padding-top: 1.575cqw;
-  padding-bottom: 1.575cqw;
+  padding-top: 1cqw;
+  padding-bottom: 1cqw;
 }
 /*
  * The letter grows along in height and therefore also needs width -

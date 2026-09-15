@@ -70,7 +70,7 @@
 .pauseProgress {
   color: var(--color-text);
   font-family: var(--font-heading);
-  font-size: 2.8cqw;
+  font-size: 2.4cqw;
   margin: 0;
 }
 /*
@@ -80,7 +80,7 @@
 .pauseCategory {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 4.4cqw;
+  font-size: 3.2cqw;
   font-weight: 700;
   color: var(--color-text);
   animation: pause-category-in 600ms var(--transition-easing) 400ms backwards;
