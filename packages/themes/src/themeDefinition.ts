@@ -34,6 +34,8 @@ import { z } from 'zod'
 import { designColorTokens, type DesignColors, type ThemeSkin } from '@hfroemmel/quiz-core'
 import {
   brightPalette,
+  brightStartInkOnStrong,
+  brightStartMirrors,
   brightStartPalette,
   stageExtras,
   stagePalettes,
@@ -202,6 +204,12 @@ export const builtInThemes: Record<string, ThemeDefinition> = {
 
 export interface ResolvedTheme {
   id: string
+  /**
+   * Which built-in set it started from - and therefore which variant of the
+   * stage it is designed for. A host theme decides that; a viewer's preference
+   * for light or dark applies where no host theme does.
+   */
+  base: 'bright' | 'dark'
   skin: ThemeSkin
   /** What `<QuizScene>` and `<QuizGame>` read today. */
   scene: QuizSceneTheme
@@ -241,9 +249,24 @@ export function resolveTheme(definition: ThemeDefinition): ResolvedTheme {
     ...definition.tokens?.colors,
   }
   const stage = { ...stageExtras, ...definition.tokens?.stage }
+  /*
+   * THE MENU MIRRORS THE STAGE, AND IT DOES SO AFTER THE OVERRIDES.
+   *
+   * In the light variant a row of start tokens is the same value as a stage
+   * token - the selected card is the blue of a tapped answer, the button the
+   * green of "reveal". `brightStartPalette` already says that as a reference,
+   * but it takes that reference once, when the module is read. A host that gives
+   * its stage its own accent would therefore keep the built-in one in its menu.
+   * The relationship is applied here to the RESOLVED colours, and only then does
+   * what the theme names itself have the last word.
+   *
+   * The dark variant is deliberately left out: there the selection and the
+   * action are two different colours on purpose, and the menu's own set says so.
+   */
   const start = {
     ...startPalette,
     ...(bright ? (brightStartPalette as Record<string, string>) : {}),
+    ...(bright ? mirrored(colors, stage) : {}),
     ...definition.tokens?.start,
   }
 
@@ -260,6 +283,7 @@ export function resolveTheme(definition: ThemeDefinition): ResolvedTheme {
 
   return {
     id: definition.id,
+    base: definition.base,
     skin,
     scene: { skin, colors, headingFont: display, bodyFont: body },
     variables,
@@ -267,6 +291,17 @@ export function resolveTheme(definition: ThemeDefinition): ResolvedTheme {
     assets: definition.assets ?? {},
     motion: definition.motion ?? 'default',
   }
+}
+
+/** The start tokens that follow a stage token - see `brightStartMirrors`. */
+function mirrored(colors: DesignColors, stage: Record<string, string>): Record<string, string> {
+  const entries: Record<string, string> = {}
+  for (const [startToken, stageToken] of Object.entries(brightStartMirrors)) {
+    entries[startToken] = colors[stageToken]
+  }
+  const ink = stage['inkOnStrong']
+  if (ink !== undefined) for (const startToken of brightStartInkOnStrong) entries[startToken] = ink
+  return entries
 }
 
 function prefixed(entries: Record<string, string>, prefix: string): Record<string, string> {

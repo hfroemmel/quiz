@@ -10,7 +10,7 @@
  * are the VALUES. That keeps the quiz package free of presentation, while
  * still leaving exactly one source per colour.
  */
-import type { DesignColors, ThemeSkin } from '@hfroemmel/quiz-core'
+import type { DesignColors, DesignColorToken, ThemeSkin } from '@hfroemmel/quiz-core'
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -371,6 +371,47 @@ export const startPalette = {
  * in the background and the cards' hairlines. And only what DIFFERS is
  * listed here: the rest still comes from `startPalette`.
  */
+/**
+ * Which token of the start menu MIRRORS which token of the stage - in the light
+ * variant.
+ *
+ * The values below already say it: `'surface-selected': brightPalette.accent!`
+ * is a reference, not a copy. But it is a reference taken once, when this
+ * module is read - so a host that gives its stage a different accent would keep
+ * the built-in one in its menu. The table states the relationship as DATA, so
+ * `resolveTheme` can apply it AFTER the host's overrides, and a test compares
+ * both against each other: whoever changes one of the two notices it.
+ */
+export const brightStartMirrors = {
+  'bg-top': 'pageTop',
+  'bg-mid': 'pageTop',
+  'bg-bottom': 'pageTop',
+  option: 'option',
+  'option-hover': 'controls',
+  'surface-selected': 'accent',
+  selected: 'accent',
+  'selected-bright': 'accent',
+  text: 'text',
+  'text-muted': 'textMuted',
+  green: 'primary',
+  'green-bright': 'primary',
+  'green-light': 'primary',
+  'green-deep': 'primary',
+  'green-edge': 'primary',
+  'brand-top': 'pageTop',
+  'brand-mid': 'pageTop',
+  'brand-bottom': 'pageTop',
+  'brand-text': 'text',
+  icon: 'textMuted',
+  glass: 'text',
+} as const satisfies Record<string, DesignColorToken>
+
+/**
+ * And these carry the light ink that goes on a strong area - the same value the
+ * stage uses for text on the accent (`stageExtras.inkOnStrong`).
+ */
+export const brightStartInkOnStrong = ['option-icon', 'ink-on-selected', 'ink-on-green', 'ink-on-badge'] as const
+
 export const brightStartPalette = {
   /*
    * WHITE, AND FULLY SO.

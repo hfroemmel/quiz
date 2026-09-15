@@ -9,6 +9,13 @@
  * again, which is the mistake this package exists to prevent.
  */
 import { describe, expect, it } from 'vitest'
+import {
+  brightPalette,
+  brightStartInkOnStrong,
+  brightStartMirrors,
+  brightStartPalette,
+  stageExtras,
+} from '../src/palettes'
 import { paletteStyleSheet } from '../src/paletteStylesheet'
 import {
   brightTheme,
@@ -102,6 +109,52 @@ describe('the built-in themes carry the values of the stylesheet', () => {
     expect(bright.scene.skin).toBe('default')
     expect(bright.scene.colors.pageTop).toBe(bright.variables['--color-pageTop'])
     expect(bright.variables['--font-heading']).toBe(bright.scene.headingFont)
+  })
+})
+
+describe('the menu mirrors the stage', () => {
+  it('the table says the same as the light start palette', () => {
+    /*
+     * `brightStartPalette` states the relationship as a reference taken once;
+     * the table states it as data, so it can be applied after a host's
+     * overrides. Whoever changes one of the two has to change the other.
+     */
+    for (const [startToken, stageToken] of Object.entries(brightStartMirrors)) {
+      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(
+        (brightPalette as Record<string, string>)[stageToken],
+      )
+    }
+    for (const startToken of brightStartInkOnStrong) {
+      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(stageExtras.inkOnStrong)
+    }
+  })
+
+  it('an own stage accent reaches the menu, and the action follows the own green', () => {
+    const theme = resolveTheme({
+      id: 'foyer',
+      base: 'bright',
+      tokens: { colors: { accent: '#00854a', primary: '#7a1f6e' } },
+    })
+    expect(theme.variables['--start-selected']).toBe('#00854a')
+    expect(theme.variables['--start-surface-selected']).toBe('#00854a')
+    expect(theme.variables['--start-green-light']).toBe('#7a1f6e')
+    expect(theme.variables['--start-green-deep']).toBe('#7a1f6e')
+  })
+
+  it('but a token the theme names itself has the last word', () => {
+    const theme = resolveTheme({
+      id: 'foyer',
+      base: 'bright',
+      tokens: { colors: { accent: '#00854a' }, start: { selected: '#111111' } },
+    })
+    expect(theme.variables['--start-selected']).toBe('#111111')
+    expect(theme.variables['--start-surface-selected']).toBe('#00854a')
+  })
+
+  it('the dark menu keeps its own set - there selection and action differ on purpose', () => {
+    const theme = resolveTheme({ id: 'hall', base: 'dark', tokens: { colors: { accent: '#c8531a' } } })
+    expect(theme.variables['--color-accent']).toBe('#c8531a')
+    expect(theme.variables['--start-selected']).not.toBe('#c8531a')
   })
 })
 

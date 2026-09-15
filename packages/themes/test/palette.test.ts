@@ -33,8 +33,12 @@ const sourceDirs = [
  * `PreviewApp.tsx` draws placeholder graphics as data URIs - those are
  * images, not surface colours. They stand in for photos that come from the
  * server in production and have no business being in the palette.
+ *
+ * `hostThemes.ts` is the design of a HOST. A host's own colours are exactly
+ * what a `ThemeDefinition` is for, and the harness plays the host here; the
+ * rule applies to the surfaces of the packages, which must not name a tone.
  */
-const EXEMPT = ['palettes.ts', 'palette.css', 'preview/PreviewApp.tsx']
+const EXEMPT = ['palettes.ts', 'palette.css', 'preview/PreviewApp.tsx', 'hostThemes.ts']
 
 /*
  * Hex values, `rgb(...)`, and CSS's named colours.

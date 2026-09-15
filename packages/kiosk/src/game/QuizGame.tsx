@@ -19,12 +19,14 @@ import {
   QuizScene,
   releaseAudio,
   textsFor,
+  themeForSkin,
   useAudioUnlock,
   useQuizRuntime,
   useQuizSnapshot,
+  useQuizTheme,
   useStageTheme,
 } from '@hfroemmel/quiz-react'
-import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
+import { themeVariables } from '@hfroemmel/quiz-themes'
 import { StartMenu, type StartMenuChoice } from './StartMenu'
 import { deviceStartMenu } from './startMenuModel'
 import { GameSettings } from './GameSettings'
@@ -143,6 +145,8 @@ export function QuizGame({
   const clearRejection = useCallback(() => runtime?.clearRejection(), [runtime])
   const notifyAudioReady = useCallback(() => runtime?.notifyAudioReady(), [runtime])
   const hostVisible = useHostVisible()
+  /** The design of the host, where one surrounds this quiz (`QuizProvider`). */
+  const hostTheme = useQuizTheme()
   const t = textsFor(snapshot?.view ?? null)
 
   useAudioUnlock(notifyAudioReady)
@@ -396,7 +400,27 @@ export function QuizGame({
    * reports here as its own world.
    */
   const [stageTheme] = useStageTheme()
-  const variant = skin === 'kids' ? 'kids' : stageTheme
+  /*
+   * The device's own surfaces - start selection, settings, confirmation - carry
+   * the theme of the world they stand in front of: the host's where it is meant
+   * for that world, the package's otherwise (see `themeForSkin`).
+   */
+  const worldTheme = themeForSkin(hostTheme, skin)
+  /*
+   * ON THIS ELEMENT, not inherited: the light variant of the start menu
+   * declares its tokens on the device's root element
+   * (`[data-quiz-game][data-theme='bright']`), and that beats an inherited
+   * value. A host theme meant for this world therefore lands here as an inline
+   * style - with all its families, because it is a complete set.
+   */
+  const ownTheme = hostTheme && hostTheme.skin === skin ? hostTheme : null
+  const worldVariables = ownTheme ? ownTheme.variables : themeVariables(worldTheme)
+  /*
+   * And the variant follows the host theme where there is one: whoever designs
+   * a dark device has designed it dark, and the light-or-dark preference of a
+   * window applies where no host says otherwise.
+   */
+  const variant = skin === 'kids' ? 'kids' : (ownTheme?.base ?? stageTheme)
 
   const settings = settingsOpen && ownDevice && (
     <GameSettings
@@ -413,7 +437,7 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.startScreen}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
+        style={{ ...worldVariables, ...area }}
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
@@ -437,7 +461,7 @@ export function QuizGame({
     return (
       <div
         className={`${styles.game} ${styles.waiting}`}
-        style={{ ...themeVariables(sceneThemes[skin]), ...area }}
+        style={{ ...worldVariables, ...area }}
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}

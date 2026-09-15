@@ -28,6 +28,7 @@ import { textsFor } from '../texts'
 import { Counter } from './Counter'
 import { Score } from './Score'
 import { brandWordmarkUrl } from '../brandAssets'
+import { useQuizTheme } from '../QuizProvider'
 import styles from './StageHeader.module.css'
 
 export interface StageHeaderSlots {
@@ -58,6 +59,12 @@ export function StageHeader({
   slots?: StageHeaderSlots
   variant?: 'stage' | 'preview' | 'touch'
 }) {
+  /*
+   * BEFORE the early return: a hook may not sit behind a condition, and the
+   * header leaves the start view to the start menu.
+   */
+  const hostTheme = useQuizTheme()
+
   // The start view has neither a score nor a counter - and no correction.
   if (view.scene === 'start') return null
 
@@ -84,7 +91,7 @@ export function StageHeader({
         <span
           className={styles.brand}
           data-brand=""
-          style={{ '--logo-url': cssUrl(brandWordmarkUrl) } as CSSProperties}
+          style={{ '--logo-url': cssUrl(hostTheme?.assets.wordmark ?? brandWordmarkUrl) } as CSSProperties}
           aria-hidden="true"
         />
       )}

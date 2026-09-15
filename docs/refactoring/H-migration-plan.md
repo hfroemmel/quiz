@@ -177,6 +177,36 @@ that deletes the old screen, not before.
 
 **Packages touched.** themes, react. **Hosts.** all. **Dependencies.** Phase 4 (menu consumes tokens). **Risk.** screenshot baselines: values do not change, only their source; a pixel diff would signal a real regression. **Tests.** quiz screenshot E2E unchanged; unit test that `themeVariables(bright)` equals today's `palette.css` values. **Result.** Step 4 of the practice test needs no package release.
 
+**Status: the object and the provider are there; the role names are not.**
+`ThemeDefinition` states a design once - base, world, overrides on the stage,
+above it and in the menu, fonts, word mark, motion - and `resolveTheme` turns it
+into the values the components read. The three built-ins are the worlds that
+exist, and sixteen tests compare every value of theirs against the rule of the
+generated stylesheet that carries it.
+
+`QuizProvider` puts a theme on the quiz's OWN element, so two quizzes on one
+page cannot recolour each other; the harness surface `/pair` shows two devices
+in two designs and `test/e2e/theme.spec.ts` measures them. Two details had to be
+got right for that:
+
+- **A host theme has to win where the package's variant rules sit.** The light
+  stage declares its colours on the stage element and the light menu on the
+  device's root element; a declaration there beats an inherited value. The
+  resolved theme is therefore written inline onto those two elements, and its
+  base decides the variant - whoever designs a dark device has designed it dark.
+- **The menu mirrors the stage AFTER the override.** `brightStartPalette` states
+  that relationship as a reference taken once, when the module is read, so a
+  host's own accent would have stayed outside the menu. `brightStartMirrors`
+  states it as data, `resolveTheme` applies it to the resolved colours, and a
+  test compares table and palette so neither can drift.
+
+What is deliberately NOT done: the role rename of the token families (G.3). It
+touches every stylesheet of the packages and belongs to that sweep; a host gets
+one object now, in the vocabulary its own stylesheets already speak. The kids
+assets and `--kids-*` also stay in the stylesheets of the world, because they
+are drawings and not a palette, and `useStageTheme` stays a hook of the package:
+a host theme already decides the variant, so nothing forces the switch yet.
+
 ## Phase 6 – Host surface
 
 **Goal.** The three concerns every host re-implements move into the packages.
