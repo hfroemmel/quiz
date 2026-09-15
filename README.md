@@ -60,8 +60,10 @@ Playwright in its official container so that the images are compared on one
 renderer; a baseline recorded in a development container with a Chromium of its
 own compares two builds of the same browser against each other, and the diff
 that comes out is the build and not a regression. The refresh is therefore a
-manual start of the CI workflow with `update_snapshots`, whose artifact carries
-the new images to commit (see `.github/workflows/ci.yml`).
+manual start of the CI workflow with `update_snapshots`: the run records the
+images in the container and puts them on the branch it was started from, and
+hands out the same images as an artifact for a look before trusting them (see
+`.github/workflows/ci.yml`).
 
 Stage operation - server, SQLite, WebSocket, resumption - is verified in
 `quiz-live`, offline operation in `quiz-standalone`, and the embedding
