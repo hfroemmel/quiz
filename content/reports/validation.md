@@ -1,5 +1,5 @@
 # Validierungsbericht Quizinhalte
-Ergebnis: BESTANDEN (0 Fehler, 47 Warnungen)
+Ergebnis: BESTANDEN (0 Fehler, 48 Warnungen)
 
 ## Gesamtzahlen
 - Fragen gesamt: 29 (aktiv: 29)
@@ -192,3 +192,4 @@ Fuer das Touchgeraet geeignet: ja
 - [small-pool] kids/touch-medium/bildauswahl: Zielgruppe "kids" / Preset "touch-medium": Fragenplatz 3 ("bildauswahl") hat nur 3 Kandidaten.
 - [small-pool] kids/touch-medium/steigerung: Zielgruppe "kids" / Preset "touch-medium": Fragenplatz 5 ("steigerung") hat nur 6 Kandidaten.
 - [small-pool] kids/touch-medium/bildwissen: Zielgruppe "kids" / Preset "touch-medium": Fragenplatz 6 ("bildwissen") hat nur 6 Kandidaten.
+- [unused-pool] europa: Der Fragenpool "europa" wird von keiner Frage verwendet.

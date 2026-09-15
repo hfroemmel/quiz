@@ -802,8 +802,16 @@
   color: var(--start-text-muted);
 }
 
+/*
+ * The gap between two steps. It is smaller the more steps there are: three of
+ * them plus the button have to fit on the device, and the three groups belong
+ * together - what separates them is their heading, not empty space.
+ */
 .step {
   margin-top: 2.8125vw;
+}
+.setup:has(.offers) .step {
+  margin-top: 1.4vw;
 }
 
 /*
@@ -966,23 +974,32 @@
  * side below it - only here the block is one step among the others instead of
  * a screen of its own.
  *
- * `auto-fit` and not two fixed columns: how many quizzes a setup offers is
- * configuration, and a third one must not fall off the edge.
+ * TWO COLUMNS, as in the design: the emphasised quiz takes the whole row, two
+ * others sit side by side under it. Deliberately not `auto-fit`, which derives
+ * the number of columns from the available width - three cards would then stand
+ * in one row on a wide screen and the emphasised one would lose its row.
  * ------------------------------------------------------------------ */
 
 .offers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.4167vw), 1fr));
-  gap: 1.6667vw;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9vw;
 }
 
+/*
+ * FLATTER THAN A SCREEN OF ITS OWN. The media table's cards filled half the
+ * window, because the quiz choice WAS the screen there. Here it is the first of
+ * up to three steps, and all of them together have to fit on the device without
+ * scrolling - so a card is as tall as a mode card next to it, and the
+ * emphasised one a touch taller.
+ */
 .offer {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6vw;
-  min-height: 8.4vw;
-  padding: 1.2vw 1.2375vw;
+  gap: 0.45vw;
+  min-height: 5.4vw;
+  padding: 0.8438vw 1.2375vw;
   text-align: center;
 }
 /*
@@ -1001,11 +1018,11 @@
   display: block;
   width: auto;
   max-width: 100%;
-  height: 4.2vw;
+  height: 2.4vw;
   object-fit: contain;
 }
 .offer[data-emphasis='wide'] .offerArtwork {
-  height: 6vw;
+  height: 3.6vw;
 }
 /* On the card the text sits under the motif, so it is centred like it. */
 .offer .cardBody {
@@ -1129,6 +1146,9 @@
   display: flex;
   gap: 1.125vw;
   margin-top: 3.5417vw;
+}
+.setup:has(.offers) .actions {
+  margin-top: 1.6vw;
 }
 
 /*

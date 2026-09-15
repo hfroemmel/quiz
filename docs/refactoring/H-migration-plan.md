@@ -132,6 +132,43 @@ label that does not match the step. Both need an install, not a decision.
 
 **Packages touched.** react, kiosk. **Hosts.** all four. **Dependencies.** Phases 2 (artwork assets in content) and 3. **Risk.** medium: three suites assert menu markup (bundestags-app 8 start-screen tests, quiz-live 11 stage-overview tests, quiz kiosk tests); mitigated by keeping the attribute names. **Tests.** move the eight bundestags-app start-screen tests into quiz's E2E as package tests; quiz-live `stage-overview.spec.ts` unchanged. **Result.** kiosk, standalone, app-collection and the app show the same menu; the live desk keeps its form.
 
+**Status: the menu is in the package; the two host cleanups are open.**
+`StartMenu` takes the derived model and asks what the configuration offers -
+quiz, player count, level - and every step with a single option falls away. The
+offer cards carry the motif of the content, the emphasised quiz takes the whole
+row. The start command follows the offer: a quiz type travels as its id, a
+package without quiz types names audience and level as before. `GameStart`
+keeps its old interface for one release and builds the model itself. The eight
+start-screen tests of the media table now run here against the harness device
+(`test/e2e/start-menu.spec.ts`), plus one the app did not have: that the three
+steps fit on the device and the corner buttons stay hittable - the regression
+the third step actually caused.
+
+Two decisions differ from the plan above, both on purpose:
+
+- **The component lives in quiz-kiosk, not quiz-react.** The selection, the
+  settings window and the confirmation dialogs share one stylesheet and one
+  card; splitting them would have duplicated that card. Phase 8 merges the two
+  packages anyway, and no host needs the menu without the kiosk runtime.
+- **The cards are buttons with `aria-pressed`, not native radio groups.** The
+  package's existing selection is built that way and three suites assert it
+  (quiz, quiz-standalone, app-collection); the media table's radio semantics
+  would have rewritten all three for an interaction the package already solves.
+  Tab reaches every card, space and enter trigger it.
+
+Still open in the hosts, both after the next release: the bundestags-app
+deletes `QuizStart.js`, `startOffers.js`, `QuizStart.scss`, the
+`MutationObserver` latch, the `visibility: hidden` rule and its twelve locale
+keys, and states its three quizzes as `quizzes` with `artworkAssetId`; quiz-live
+gets the shared `OfferOverview` and drops `quizArtwork.ts` - that one waits for
+Phase 2, because the artwork has to live in the content package first.
+
+ONE WARNING FOR THAT STEP: the menu carries the media table's data attributes,
+which its own screen carries too. As long as both screens exist, `[data-quiz-start]`,
+`[data-quiz-card]` and their neighbours match twice, and the app's suite fails on
+an ambiguous selector. Its pin therefore has to be bumped in the SAME commit
+that deletes the old screen, not before.
+
 ## Phase 5 – Theme definition
 
 **Goal.** A host passes one theme object; no copied colour values anywhere.

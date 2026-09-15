@@ -53,7 +53,7 @@ async function next(page: Page): Promise<void> {
   await page.locator('[data-continue]').click()
 }
 
-test('the start selection asks only for player count and difficulty', async ({ page }) => {
+test('the start selection asks what the package offers - and nothing else', async ({ page }) => {
   await openStartScreen(page)
 
   /*
@@ -64,9 +64,16 @@ test('the start selection asks only for player count and difficulty', async ({ p
   const presets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(presets.map((entry) => entry.split('\n')[0])).toEqual(['Leicht', 'Mittel', 'Schwer'])
 
-  // The quiz mode belongs to the setup, not on the players' screen.
+  // The quizzes of this audience, and the two ways to play them.
+  await expect(page.locator('[data-quiz-card]')).toHaveCount(3)
   await expect(page.getByRole('button', { name: /^Allein/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Zu zweit/ })).toBeVisible()
+  /*
+   * The audience, on the other hand, belongs to the setup and not on the
+   * players' screen - a device where somebody taps the children's world by
+   * accident would be an operating mistake with no control for it. The menu of
+   * the start selection is checked in `start-menu.spec.ts`.
+   */
   await expect(page.getByRole('button', { name: /Erwachsene|Kinder/ })).toHaveCount(0)
 })
 
