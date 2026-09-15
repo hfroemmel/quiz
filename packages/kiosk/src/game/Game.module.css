@@ -268,47 +268,65 @@
    * intent is clearer than the inheritance.
    */
   border: 0;
-  background: var(--player-color);
   /*
-   * White on both player tones: 5.9:1 on the red, 8.4:1 on the blue. It is the
-   * same value as on every other bold area of the stage, and it holds in
-   * EVERY state - no state lightens the background and no state takes opacity
-   * away from the type.
+   * THE ACCENT OF THE WORLD, NOT A COLOUR OF ITS OWN.
+   *
+   * Both corners carry the same area. They are told apart by their place -
+   * left and right - and the two tones they used to carry stood next to the
+   * world's accent without belonging to it. Read here and not through a
+   * palette token, so that the accent of the RUNNING world applies: a token
+   * that resolves `var(--color-accent)` at the document root freezes the
+   * default world's tone and would keep it in the light one and in the kids'
+   * one.
+   */
+  background: var(--color-accent);
+  /*
+   * White on the accent - the same value as on every other bold area of the
+   * stage, and it holds as long as the area is bold; a corner that cannot act
+   * hands both over below.
    */
   color: var(--stage-inkOnStrong);
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
-.buzzer[data-side='left'] {
-  --player-color: var(--stage-playerOne);
-}
-.buzzer[data-side='right'] {
-  --player-color: var(--stage-playerTwo);
-}
-
 /*
- * THE COLOUR STAYS - EVEN WHEN BUZZING IS NOT POSSIBLE.
+ * A CORNER THAT CANNOT ACT IS NEUTRAL - LIKE ITS SCORE CARD.
  *
- * The buzzer is locked most of the time: before it opens, after a successful
- * buzz, during the solution. The dimming that `.stage-button:disabled` gives
- * every button is therefore wrong here - it would not hit a button that
- * currently does not apply, but the colour that permanently says who this
- * corner belongs to. And it would take away the contrast the white lettering
- * needs.
+ * The accent stays while it means something: the buzzer is open for the
+ * taking, or it is held by the player whose turn it is. `data-armed` follows
+ * exactly the condition the score card above it reads as `data-active`, so
+ * colour in a corner always says the same thing in both places: this one is
+ * playing.
  *
- * What is locked is said by `cursor: default` and the button's `disabled` -
- * and, on the device, by the answer rows, which then belong to only one
- * player. Not the colour.
+ * Everywhere else the corner goes to the stage's frosted tile - the very area
+ * the neutral score card carries - with the muted lettering that belongs on
+ * it. Before the buzzer opens and after the solution, no corner is coloured,
+ * and that is the point: the colour marks a turn, not an ownership.
  *
- * `:disabled` here has the same specificity as `:where(.stage-button):disabled`
- * plus the class: that way the rule applies regardless of the order in which
- * a host includes the stylesheets.
+ * The dimming that `.stage-button:disabled` gives every button would be the
+ * wrong means here, because it would take the contrast off the lettering as
+ * well. `:disabled` here has the same specificity as
+ * `:where(.stage-button):disabled` plus the class: that way the rule applies
+ * regardless of the order in which a host includes the stylesheets.
  */
-[data-skin='default'] .buzzer:disabled {
+[data-skin='default'] .buzzer:disabled:not([data-armed='true']) {
   color: var(--color-textMuted);
   background: var(--color-tile);
   backdrop-filter: blur(1.2cqw);
   -webkit-backdrop-filter: blur(1.2cqw);
+}
+/*
+ * AND IN THIS WORLD THE AREA SAYS IT, NOT THE DIMMING.
+ *
+ * `:where(.stage-button):disabled` fades every locked button to 35 percent.
+ * On these two corners that would be the wrong means twice over: the neutral
+ * tile is already the statement "cannot act here", and the corner with the
+ * turn would carry its accent as a pale wash under white lettering. Both keep
+ * their full fill; what is locked is said by the colour and by the answer
+ * rows, which then belong to one player.
+ */
+[data-skin='default'] .buzzer:disabled {
+  opacity: 1;
 }
 
 /*
@@ -350,13 +368,13 @@
   color: var(--stage-inkOnStrong);
 }
 /*
- * AND THE KIDS' WORLD KEEPS DIMMING. The exception above (`.buzzer:disabled`)
- * applies to the area in the player colour: there the colour is the
- * information and must not fade. Here the buzzer carries no player colour but
- * the same drawn card as an answer - and that fades in this world everywhere
- * it currently does not apply, including on the "Next" below it. The value is
- * therefore the same as in `:where(.stage-button):disabled`; it is only stated
- * here to take the exception back.
+ * AND THE KIDS' WORLD KEEPS DIMMING. The exception above applies to the
+ * adults' corner, where the accent is the information and must not fade.
+ * Here the buzzer carries no accent but the same drawn card as an answer -
+ * and that fades in this world everywhere it currently does not apply,
+ * including on the "Next" below it. The value is therefore the same as in
+ * `:where(.stage-button):disabled`; it is only stated here because the
+ * drawing needs no second statement.
  */
 [data-skin='kids'] .buzzer:disabled {
   opacity: 0.35;

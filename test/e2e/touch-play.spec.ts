@@ -913,22 +913,36 @@ test('the footer sits at the bottom edge of the screen, however tall the window 
 })
 
 /*
- * The player colour carries exactly one fill: the buzzer.
+ * Colour in a corner means: this one is playing.
  *
- * Previously the score card carried it too, and the buzzer itself only as a
- * border with a hint of it inside. In the light version that turned into a
- * pale pink under white text, and the corner was a block in which nothing
- * stood out. Now exactly one thing per corner is coloured, and it is the
- * thing that gets touched.
+ * Both corners carry the accent of the world - they are told apart by their
+ * place, not by two tones of their own. And the accent stays only while it
+ * says something: the buzzer is open for the taking, or its player has the
+ * turn. Otherwise the corner is the neutral tile of the stage, the same area
+ * the score card carries next to it.
+ *
+ * The test reads both tokens out of the running world instead of naming
+ * values: the light device and the dark hall have different accents, and the
+ * one that must arrive is the one of the world on screen.
  */
-test('only the buzzer carries the player colour - in every state', async ({ page }) => {
-  const playerColors = async () =>
-    page.evaluate(() => {
-      const style = getComputedStyle(document.querySelector('.stage')!)
-      return ['--stage-playerOne', '--stage-playerTwo'].map((name) => style.getPropertyValue(name).trim())
-    })
+test('the accent marks the corner that is playing - in every state', async ({ page }) => {
+  /** A token of the world, normalised the way the browser reports colours. */
+  const token = async (name: string, property: 'background' | 'color') =>
+    page.evaluate(
+      ([entry, kind]) => {
+        const stage = document.querySelector('.stage')!
+        const probe = document.createElement('div')
+        probe.style.setProperty(kind, `var(${entry})`)
+        stage.appendChild(probe)
+        const computed = getComputedStyle(probe)
+        const value = kind === 'background' ? computed.backgroundColor : computed.color
+        probe.remove()
+        return value
+      },
+      [name, property] as const,
+    )
 
-  /** Every fill of the footer: background, border and opacity, as it actually stands. */
+  /** Every fill of the footer: background, border, type and opacity, as it actually stands. */
   const bar = async () =>
     page.evaluate(() => {
       const readInput = (element: Element) => {
@@ -943,17 +957,23 @@ test('only the buzzer carries the player colour - in every state', async ({ page
       return {
         buzzer: [...document.querySelectorAll('[data-buzzer]')].map((button) => ({
           side: button.getAttribute('data-side'),
+          armed: button.getAttribute('data-armed') === 'true',
           ...readInput(button),
         })),
-        /* Both tiles of each card - the background sits on them, not on the card. */
-        cards: [...document.querySelectorAll('[data-score]')].flatMap((card) => [...card.children].map(readInput)),
+        /* Per card both of its tiles - the fill sits on them, not on the card. */
+        cards: [...document.querySelectorAll('[data-score]')].map((card) => ({
+          active: card.getAttribute('data-active') === 'true',
+          locked: card.getAttribute('data-locked') === 'true',
+          tiles: [...card.children].map(readInput),
+        })),
       }
     })
 
-  const [one, two] = await (async () => {
-    await startGame(page, 'Zu zweit')
-    return playerColors()
-  })()
+  await startGame(page, 'Zu zweit')
+  const accent = await token('--color-accent', 'background')
+  const quietAccent = await token('--color-accentQuiet', 'background')
+  const quietGround = await token('--color-tile', 'background')
+  const quietFont = await token('--color-textMuted', 'color')
 
   /*
    * Three states in one round: open (both operable), buzzed (one has the turn,
@@ -974,31 +994,57 @@ test('only the buzzer carries the player colour - in every state', async ({ page
   await expect(page.locator('[data-continue]')).toBeVisible()
   states.push(await bar())
 
+  /** Which corners are playing: while the buzzer is open both, after a buzz the one that holds it. */
+  const playing = [
+    ['left', 'right'],
+    ['left'],
+    [],
+  ]
+
   for (const [number, state] of states.entries()) {
     for (const button of state.buzzer) {
-      const expected = button.side === 'left' ? one : two
-      expect(button.ground, `Zustand ${number}, ${button.side}`).toBe(color(expected!))
+      const isPlaying = playing[number]!.includes(button.side!)
+      const where = `Zustand ${number}, ${button.side}`
+      if (isPlaying) {
+        expect(button.ground, where).toBe(accent)
+        expect(button.font, where).toBe('rgb(255, 255, 255)')
+      } else {
+        expect(button.ground, where).toBe(quietGround)
+        expect(button.font, where).toBe(quietFont)
+      }
       // Full-fill also means: no state takes the fill's opacity away.
-      expect(button.opacity, `Zustand ${number}, ${button.side}`).toBe('1')
-      expect(button.edge, `Zustand ${number}, ${button.side}`).toBe('0px 0px 0px 0px')
-      expect(button.font, `Zustand ${number}, ${button.side}`).toBe('rgb(255, 255, 255)')
+      expect(button.opacity, where).toBe('1')
+      expect(button.edge, where).toBe('0px 0px 0px 0px')
     }
-    // And the cards stay neutral in every one of these states.
-    for (const tile of state.cards) {
-      expect([tile.ground, tile.edge], `Zustand ${number}`).not.toContain(color(one!))
-      expect([tile.ground, tile.edge], `Zustand ${number}`).not.toContain(color(two!))
-      expect(tile.edge, `Zustand ${number}`).toBe('0px 0px 0px 0px')
+
+    /*
+     * Card and buzzer of one corner say the same thing about the turn: the
+     * card through `data-active`, the buzzer through its accent. If the two
+     * drifted apart, one of them would be lying about whose turn it is.
+     *
+     * And the card says it in colour too: its two tiles carry the accent of
+     * the world while that player is on turn, the calm accent once the corner
+     * is locked, and the plain tile as long as nobody has the turn. The fill
+     * sits on the tiles; the card's own ground stays the frosted glass.
+     */
+    for (const [index, card] of state.cards.entries()) {
+      const side = index === 0 ? 'left' : 'right'
+      const buzzer = state.buzzer.find((button) => button.side === side)!
+      const where = `Zustand ${number}, ${side}`
+      expect(card.active, where).toBe(buzzer.armed)
+
+      const expected = card.active ? accent : card.locked ? quietAccent : quietGround
+      for (const tile of card.tiles) {
+        expect(tile.ground, where).toBe(expected)
+        expect(tile.edge, where).toBe('0px 0px 0px 0px')
+      }
     }
   }
 
-  /* In solo play there is no buzzer - and the card is the same neutral one. */
+  /* In solo play there is no buzzer at all - and therefore no corner to mark. */
   await startGame(page, 'Allein')
   const solo = await bar()
   expect(solo.buzzer).toHaveLength(0)
-  for (const tile of solo.cards) {
-    expect([tile.ground, tile.edge]).not.toContain(color(one!))
-    expect([tile.ground, tile.edge]).not.toContain(color(two!))
-  }
 })
 
 /*

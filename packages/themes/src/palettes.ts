@@ -144,20 +144,16 @@ export const stageExtras = {
    * there - first of all in the hall, seen from twenty metres away.
    */
   inkOutline: '#000000',
-  /**
-   * The two player colours of the touch device.
+  /*
+   * NO PLAYER COLOURS HERE ANYMORE.
    *
-   * BOTH ARE THE ACCENT OF THE WORLD. The two corners are told apart by
-   * their place - left and right - not by two colours of their own, which in
-   * the kids world stood next to its accent without belonging to it.
-   *
-   * They therefore point at `--color-accent` instead of carrying a tone:
-   * whoever changes the accent of a world changes the buzzers with it, and
-   * the stylesheet keeps deriving everything else from these two values (the
-   * buzzer's dark ground is the same tone, mixed into the stage background).
+   * The two corners of the touch device carry the accent of the world, and
+   * they read it where it applies (`Game.module.css` in
+   * `@hfroemmel/quiz-kiosk`). A token in this file could not do that: its
+   * `var(--color-accent)` is substituted at the document root, so it would
+   * freeze the default world's tone and keep it in the light one and in the
+   * kids' one.
    */
-  playerOne: 'var(--color-accent)',
-  playerTwo: 'var(--color-accent)',
 } as const
 
 /* ------------------------------------------------------------------ *

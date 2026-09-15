@@ -81,7 +81,7 @@ Exported German identifiers that hosts import and therefore need a deprecation a
 
 **Packages touched.** core, content (validation of the new references). **Hosts.** quiz-live (config lines), standalone/app-collection (config lines instead of the `playerCounts` prop). **Dependencies.** Phase 1. **Risk.** low; additive. **Tests.** core unit tests for `deriveStartMenu` (empty `quizzes`, single audience, unavailable pool, locale fallback); quiz-live `quizModes.test.ts` extended. **Result.** a new quiz is one configuration entry in every host.
 
-**Status: done in the packages, pending in the hosts.** `quizzes[]` carries
+**Status: done.** `quizzes[]` carries
 `playerCounts`, `artworkAssetId`, `emphasis` and `order`; `config.rules` carries
 scoring, the phase timings, the joker switch, the idle timeout and the details
 flag, each defaulting to the constant used until now. The engine reads scoring
@@ -102,12 +102,27 @@ actually reaches the game), 100 E2E, package verification for all five
 packages. The `catalog.quizzes` entries and `catalog.rules` are additive, so the
 E2E screenshots are unchanged.
 
-The host config lines are NOT done: quiz-live, quiz-standalone and
-app-collection consume the published packages and cannot see the new schema
-until a release carries it. In this environment a release is impossible - the
-registry rejects the session token, and the release workflow runs on a push to
-`main`. The branch also still says 0.14.0 while `main` and the registry are at
-0.15.3, so the version has to be computed on `main` after the merge (0.16.0).
+In the hosts (after the release of 0.16.0, all four pinned to `~0.16.0`):
+
+- **quiz-live** names `playerCounts`, `emphasis` and `order` on its five
+  quizzes; the menu facts thus live in the content package instead of in the
+  stage code.
+- **quiz-standalone** no longer says `playerCounts={[1]}` in `App.tsx`. The
+  seats are a key of `quiz.config.json` and travel through the main process
+  into the window; where the key is absent, solo stays the default. Its
+  configuration suite proves the route from the file to the two buzzers.
+- **app-collection** hard-coded nothing and therefore only follows the pin: the
+  package says what it offers, the start screen asks for the rest.
+- **bundestags-app** drops `IDLE_TIMEOUT_MS`; its build script writes
+  `rules.idleTimeoutMs` into the generated config, and the four committed
+  packages are regenerated with it. The suite stays at 25 green.
+
+What is not done in the hosts: quiz-live still imports the deprecated alias
+`texteFuer`, because the tree installed here is 0.14.0 and does not know
+`textsFor` yet - the swap belongs to the next install. And the operator desk
+labels its correction buttons from the `scoringRules` constant instead of the
+resolved rules, so a package that configures `manualAdjustmentStep` would get a
+label that does not match the step. Both need an install, not a decision.
 
 ## Phase 4 – Start menu in the package
 

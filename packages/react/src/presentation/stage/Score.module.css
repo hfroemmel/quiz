@@ -155,16 +155,17 @@
  * `Game.module.css` in `@hfroemmel/quiz-kiosk`). The card stays the stage's
  * frosted-glass tile and sits on top like a label, not like a second sign.
  *
- * NEUTRAL ALSO MEANS: WITHOUT THE ACCENT COLOUR. In the room, the tile with
- * the player number carries it as long as that player is on turn (see
- * above) - not on the device. First, here the cards sit next to the
- * buzzers, and the accent would look like a third player colour there.
- * Second, in single-player exactly one player is always on turn: the tile
- * would be permanently blue and say nothing.
+ * THE ACCENT STAYS, THOUGH. The tile with the player number and the one with
+ * the score carry it as long as that player is on turn - in the room and on
+ * the device alike (the rules of the adult stage above do it for both). The
+ * corner thereby says the turn twice: the buzzer is the key, the card above
+ * it the label. In single-player that means a permanently coloured card,
+ * because there exactly one player is always on turn - and that is fine, as
+ * there is no second corner it could be confused with.
  *
- * Whoever has the turn thereby determines the middle of the bar - where
- * "Submit answer and reveal" sits - and the answer rows, which then belong
- * to only that one player.
+ * What stays neutral is the CARD'S OWN GROUND: the two rules below keep the
+ * frosted-glass tile underneath, so the card does not turn into a second
+ * sign around its tiles.
  */
 :global(.stage--default.stage--touch) .score[data-active='true'],
 :global(.stage--default.stage--touch) .score[data-locked='true'] {
