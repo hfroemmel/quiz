@@ -958,6 +958,83 @@
   padding: 0.8438vw 1.2375vw;
 }
 
+/* ------------------------------------------------------------------ *
+ * The quiz cards
+ *
+ * THE FIRST STEP WHERE THERE IS MORE THAN ONE QUIZ. It is the card block of
+ * the media table: the emphasised quiz across both columns, the others side by
+ * side below it - only here the block is one step among the others instead of
+ * a screen of its own.
+ *
+ * `auto-fit` and not two fixed columns: how many quizzes a setup offers is
+ * configuration, and a third one must not fall off the edge.
+ * ------------------------------------------------------------------ */
+
+.offers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.4167vw), 1fr));
+  gap: 1.6667vw;
+}
+
+.offer {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6vw;
+  min-height: 8.4vw;
+  padding: 1.2vw 1.2375vw;
+  text-align: center;
+}
+/*
+ * THE EMPHASISED QUIZ TAKES THE WHOLE ROW. `grid-column: 1 / -1` instead of
+ * two columns: the row is as wide as the configuration makes it, and the wide
+ * card follows it instead of a number.
+ */
+.offer[data-emphasis='wide'] {
+  grid-column: 1 / -1;
+}
+/*
+ * The motif leads with its HEIGHT, the width follows the drawing - no crop and
+ * no stretch. A wide card may show it larger; it has the room.
+ */
+.offerArtwork {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 4.2vw;
+  object-fit: contain;
+}
+.offer[data-emphasis='wide'] .offerArtwork {
+  height: 6vw;
+}
+/* On the card the text sits under the motif, so it is centred like it. */
+.offer .cardBody {
+  align-items: center;
+}
+/*
+ * The checkmark of a quiz card sits in its corner, not at the end of a row:
+ * the card is a surface, not a line.
+ */
+.offer .check {
+  position: absolute;
+  top: 0.9vw;
+  right: 0.9vw;
+  margin: 0;
+}
+
+/*
+ * The sentence under the steps - why the chosen quiz cannot be started, or
+ * what the host has to say about a rejected start. It is quieter than
+ * everything around it and takes no room while there is nothing to say.
+ */
+.startNotice {
+  margin: 1.2vw 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.9375vw;
+  line-height: 1.35;
+  color: var(--start-text-muted);
+}
+
 /* The icon sits in its own round area - the card's anchor. */
 .cardIcon {
   display: grid;

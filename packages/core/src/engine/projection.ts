@@ -833,6 +833,17 @@ export function deriveStartMenu(
   }
 }
 
+/**
+ * Name and length of a level, out of the catalogue.
+ *
+ * A preset the catalogue does not know keeps its id as its name: a menu that
+ * showed nothing there would hide a configuration mistake instead of naming it.
+ */
+function levelOf(catalog: CatalogViewModel, presetId: string): { label: string; slotCount?: number } {
+  const preset = catalog.presets.find((entry) => entry.id === presetId)
+  return { label: preset?.label ?? presetId, ...(preset === undefined ? {} : { slotCount: preset.slotCount }) }
+}
+
 /** The offers of a package with quiz types - the normal case. */
 function quizOffersOf(catalog: CatalogViewModel, quizzes: CatalogViewModel['quizzes']): StartMenuOffer[] {
   return quizzes.map((quiz) => ({
@@ -846,7 +857,7 @@ function quizOffersOf(catalog: CatalogViewModel, quizzes: CatalogViewModel['quiz
       ? {
           difficulties: quiz.presetIds.map((presetId) => ({
             presetId,
-            label: catalog.presets.find((preset) => preset.id === presetId)?.label ?? presetId,
+            ...levelOf(catalog, presetId),
             isDefault: presetId === quiz.defaultPresetId,
           })),
         }
@@ -871,11 +882,19 @@ function audienceOffersOf(catalog: CatalogViewModel, audiences: CatalogViewModel
     ...(audience.startVisualUrl === undefined ? {} : { artworkUrl: audience.startVisualUrl }),
     emphasis: 'regular' as const,
     playerCounts: [...playerCounts],
-    ...(audience.allowedPresetIds.length > 1
+    /*
+     * AN AUDIENCE ALWAYS CARRIES ITS LEVELS, even the single one. Without a
+     * quiz type the engine expects a preset with every start command, so the
+     * menu has to know its id - whether there is anything to CHOOSE is decided
+     * by the length of this list, and a list of one is not a question. A quiz
+     * type is the other way round: there the level belongs to the type, and one
+     * sent along where it offers no choice is refused.
+     */
+    ...(audience.allowedPresetIds.length > 0
       ? {
           difficulties: audience.allowedPresetIds.map((presetId, index) => ({
             presetId,
-            label: catalog.presets.find((preset) => preset.id === presetId)?.label ?? presetId,
+            ...levelOf(catalog, presetId),
             isDefault: index === 0,
           })),
         }

@@ -12,4 +12,6 @@
 import './game/controls.css'
 
 export * from './game/QuizGame'
+export * from './game/StartMenu'
+export * from './game/startMenuModel'
 export * from './game/GameStart'

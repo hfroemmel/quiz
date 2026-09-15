@@ -11,7 +11,7 @@
  * only connected with package, hotfixes and usage history.
  */
 import { applyPatches } from './hotfix'
-import type { Question, QuestionPatch, QuizPackage, RuntimeQuestion } from '../contracts'
+import type { Question, QuestionPatch, QuizPackage, QuizUnavailableReason, RuntimeQuestion } from '../contracts'
 import {
   poolForGame,
   repetitionKey,
@@ -31,6 +31,8 @@ export class ContentService {
   /** Base set plus valid hotfixes - the content actually played. */
   private effectiveQuestions: Question[]
   private rejectedPatches: { questionId: string; reason: string }[] = []
+  /** Counted answer of `quizAvailability` - invalidated with the question set. */
+  private availability: Record<string, QuizUnavailableReason> | null = null
 
   /**
    * The package comes in LOADED - this module reads no files. The loading path
@@ -78,6 +80,9 @@ export class ContentService {
     const overlay = applyPatches(this.quizPackage.questions, patches)
     this.effectiveQuestions = overlay.questions
     this.rejectedPatches = overlay.rejected
+    // A hotfix can switch the last question of a pool off - then the answer
+    // below changes too.
+    this.availability = null
   }
 
   findQuestion(questionId: string): Question | undefined {
@@ -107,6 +112,38 @@ export class ContentService {
   assetUrl(assetId: string | undefined): string | undefined {
     if (!assetId || !this.quizPackage.assetsById.has(assetId)) return undefined
     return `/media/${encodeURIComponent(assetId)}`
+  }
+
+  /**
+   * Which quiz types cannot be started right now - and why.
+   *
+   * A CONFIGURED QUIZ WITHOUT QUESTIONS IS THE NORMAL INTERMEDIATE STATE: the
+   * pool exists, its questions are not written yet. Whoever counts questions is
+   * the only one who can see that, so it is reported here and travels into the
+   * projection, where the start menu reads it (`quizAvailability`).
+   *
+   * IT COUNTS, IT DOES NOT SIMULATE. Whether enough questions are left for
+   * every slot of a round is decided by the selection, per game and against the
+   * usage history; predicting it here would be a second selection that can
+   * disagree with the first. An empty pool, on the other hand, is certain -
+   * and it is the case a menu has to say out loud.
+   */
+  quizAvailability(): Record<string, QuizUnavailableReason> {
+    if (this.availability) return this.availability
+    const unavailable: Record<string, QuizUnavailableReason> = {}
+    for (const quiz of this.quizPackage.config.quizzes ?? []) {
+      const pool = poolForGame(this.effectiveQuestions, {
+        audience: quiz.audienceId,
+        ...(quiz.poolIds === undefined ? {} : { poolIds: quiz.poolIds }),
+      })
+      if (pool.length === 0) unavailable[quiz.id] = 'no-questions'
+    }
+    /*
+     * Counted once, not per projection: the answer only changes with the
+     * question set, and a view is built for every command.
+     */
+    this.availability = unavailable
+    return unavailable
   }
 
   /**

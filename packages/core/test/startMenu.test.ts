@@ -123,10 +123,11 @@ describe('deriveStartMenu', () => {
   it('offers the difficulty choice only where the quiz has one, with its default', () => {
     const menu = deriveStartMenu(testConfig, catalogOf(testConfig), 'de-DE')
     const bundestag = menu.offers.find((offer) => offer.quizId === 'bundestag')!
+    // Every level names the length of its round - that is what its card says.
     expect(bundestag.difficulties).toEqual([
-      { presetId: 'easy', label: 'Leicht', isDefault: false },
-      { presetId: 'medium', label: 'Mittel', isDefault: true },
-      { presetId: 'hard', label: 'Schwer', isDefault: false },
+      { presetId: 'easy', label: 'Leicht', isDefault: false, slotCount: 1 },
+      { presetId: 'medium', label: 'Mittel', isDefault: true, slotCount: 1 },
+      { presetId: 'hard', label: 'Schwer', isDefault: false, slotCount: 1 },
     ])
     expect(menu.offers.find((offer) => offer.quizId === 'kids')!.difficulties).toBeUndefined()
   })
@@ -186,12 +187,18 @@ describe('deriveStartMenu', () => {
     expect(menu.offers.map((offer) => offer.audienceId)).toEqual(['adults', 'kids'])
     expect(menu.offers.every((offer) => offer.quizId === undefined)).toBe(true)
     expect(menu.offers[0]!.difficulties).toEqual([
-      { presetId: 'easy', label: 'Leicht', isDefault: true },
-      { presetId: 'medium', label: 'Mittel', isDefault: false },
-      { presetId: 'hard', label: 'Schwer', isDefault: false },
+      { presetId: 'easy', label: 'Leicht', isDefault: true, slotCount: 1 },
+      { presetId: 'medium', label: 'Mittel', isDefault: false, slotCount: 1 },
+      { presetId: 'hard', label: 'Schwer', isDefault: false, slotCount: 1 },
     ])
-    // One preset for the kids - then there is nothing to choose there either.
-    expect(menu.offers[1]!.difficulties).toBeUndefined()
+    /*
+     * The kids' audience allows exactly one level. It is named all the same -
+     * the start command needs its id - and that there is nothing to choose
+     * there is said by the length, not by a missing list.
+     */
+    expect(menu.offers[1]!.difficulties).toEqual([
+      { presetId: 'easy', label: 'Leicht', isDefault: true, slotCount: 1 },
+    ])
   })
 
   it('says a quiz cannot be started, and why, instead of failing at the start', () => {

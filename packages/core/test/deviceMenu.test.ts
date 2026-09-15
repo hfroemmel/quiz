@@ -96,7 +96,9 @@ describe('the catalogue of a device', () => {
 
   it('leaves a level the device cannot play out of the choice, and the one left is the default', () => {
     const menu = deriveStartMenu(deviceConfig, deviceCatalog(), 'de-DE', { audienceId: 'kids' })
-    expect(menu.offers[0]!.difficulties).toEqual([{ presetId: 'touch-easy', label: 'Leicht', isDefault: true }])
+    expect(menu.offers[0]!.difficulties).toEqual([
+      { presetId: 'touch-easy', label: 'Leicht', isDefault: true, slotCount: 1 },
+    ])
   })
 })
 

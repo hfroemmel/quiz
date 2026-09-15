@@ -586,8 +586,14 @@ export interface StartMenuOffer {
   artworkUrl?: string
   emphasis: 'wide' | 'regular'
   playerCounts: PlayerCount[]
-  /** Only where the quiz offers a choice (`supportsDifficulty`). */
-  difficulties?: { presetId: string; label: string; isDefault: boolean }[]
+  /**
+   * The levels of this offer - with the length of the round they play.
+   *
+   * `slotCount` is what the card says besides the name: the rounds of a setup
+   * differ in length just as often as in difficulty, and "5 questions" is the
+   * only thing about a level that is true before the game.
+   */
+  difficulties?: { presetId: string; label: string; isDefault: boolean; slotCount?: number }[]
   available: boolean
   unavailableReason?: QuizUnavailableReason
 }

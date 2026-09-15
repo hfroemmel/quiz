@@ -25,7 +25,8 @@ import {
   useStageTheme,
 } from '@hfroemmel/quiz-react'
 import { sceneThemes, themeVariables } from '@hfroemmel/quiz-themes'
-import { GameStart } from './GameStart'
+import { StartMenu, type StartMenuChoice } from './StartMenu'
+import { deviceStartMenu } from './startMenuModel'
 import { GameSettings } from './GameSettings'
 import { PlayerFoot } from './PlayerFoot'
 import { clampZoom } from './zoom'
@@ -51,11 +52,14 @@ export interface QuizGameProps {
   /** Audience this device plays in. Without one, the first in the catalog. */
   audience?: string
   /**
-   * Player counts this device offers. Without one, both.
+   * Player counts this device offers - it NARROWS what the package says.
    *
    * A device only one person stands at passes `[1]`; the question about the
    * number of players then falls away. The second corner's buzzer disappears
    * by itself anyway - the footer follows the server's game state.
+   *
+   * Without it, the menu offers what the quizzes of this audience state
+   * (`quizzes[].playerCounts`).
    */
   playerCounts?: readonly PlayerCount[]
   /**
@@ -271,13 +275,13 @@ export function QuizGame({
   }, [view, onFinished])
 
   /*
-   * THE CONFIGURATION DECIDES, THE PROPERTY IS THE FALLBACK.
+   * THE CONFIGURATION DECIDES, THE PROPERTY NARROWS.
    *
-   * Idle time and player counts belong to the installation, and they now live
-   * in the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A
-   * host that still passes them as properties wins, so nothing changes for it
-   * from one version to the next; a host that passes nothing gets what the
-   * package says.
+   * Idle time and player counts belong to the installation, and they live in
+   * the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A host
+   * that still passes them as properties wins, so nothing changes for it from
+   * one version to the next; a host that passes nothing gets what the package
+   * says.
    */
   const effectiveIdleTimeoutMs = idleTimeoutMs ?? view?.catalog.rules.idleTimeoutMs
   const idle = useIdleWatch({
@@ -302,13 +306,28 @@ export function QuizGame({
   const hasGame = view.scene !== 'start'
   const finished = view.scene === 'result'
 
-  const start = ({ playerCount, presetId }: { playerCount: PlayerCount; presetId: string }) => {
+  /*
+   * THE MENU HANDS IN WHAT IT ASKED, AND NOTHING ELSE.
+   *
+   * A quiz type brings audience and pools with it, so only its id travels -
+   * both together are a contradiction and the engine refuses it. A package
+   * without quiz types names audience and level instead, exactly as before. The
+   * level is only sent where the offer has one; where a quiz offers no choice,
+   * sending it would be refused.
+   */
+  const start = ({ quizId, audienceId: chosenAudience, playerCount, presetId }: StartMenuChoice) => {
     setShowChoice(false)
     setPendingStart(true)
     clearRejection()
     // A second tap while starting does not create a second game: the server
     // rejects it, because a game is already running by then.
-    send({ type: 'START_GAME', audience: audienceId, presetId, playerCount, flowProfile: 'self-service' })
+    send({
+      type: 'START_GAME',
+      ...(quizId === undefined ? { audience: chosenAudience ?? audienceId } : { quizId }),
+      ...(presetId === undefined ? {} : { presetId }),
+      playerCount,
+      flowProfile: 'self-service',
+    })
   }
 
   const leave = () => {
@@ -399,10 +418,11 @@ export function QuizGame({
         data-skin={skin}
         data-theme={variant}
       >
-        <GameStart
-          view={view}
-          audience={audienceId}
-          playerCounts={playerCounts ?? configuredPlayerCounts(view.catalog, audienceId)}
+        <StartMenu
+          model={deviceStartMenu(view, audienceId, playerCounts)}
+          texts={view.texts}
+          brand={{ visualUrl: view.theme.startVisualUrl, title: view.theme.startTitle }}
+          canStart={view.allowedCommands.includes('START_GAME')}
           onStart={start}
           onExit={onExit}
           onSelectLocale={(locale) => send({ type: 'SET_LOCALE', locale })}
@@ -552,23 +572,4 @@ export function QuizGame({
       />
     </div>
   )
-}
-
-/**
- * The player counts this device offers, out of the configuration.
- *
- * The quizzes of the audience say it (`quizzes[].playerCounts`); several
- * quizzes are combined, because the menu of this phase does not yet let one be
- * chosen. Without quizzes nothing comes back, and the start selection keeps its
- * own default - a kiosk package without quiz types is a valid package.
- */
-function configuredPlayerCounts(
-  catalog: PlayerQuizViewModel['catalog'],
-  audienceId: string,
-): PlayerCount[] | undefined {
-  const counts = catalog.quizzes
-    .filter((quiz) => quiz.audienceId === audienceId)
-    .flatMap((quiz) => quiz.playerCounts)
-  const unique = [...new Set(counts)].sort((left, right) => left - right)
-  return unique.length > 0 ? unique : undefined
 }
