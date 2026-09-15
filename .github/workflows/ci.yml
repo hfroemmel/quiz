@@ -10,12 +10,25 @@
 #
 # The container version MUST match the @playwright/test version in the
 # lockfile, otherwise browser and reference images drift apart.
+#
+# AND THE REFERENCE IMAGES BELONG IN THIS CONTAINER TOO. A baseline recorded
+# anywhere else - a development container with a Chromium of its own, a laptop -
+# compares two builds of the same browser against each other, and the diff that
+# comes out is the build, not a regression. That is why the refresh runs HERE:
+# start the workflow by hand with `update_snapshots`, and commit what the run
+# leaves behind (the artifact carries the new images).
 name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Re-record the screenshot baselines in the container'
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -59,7 +72,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm content:build
-      - run: pnpm test:e2e
+      - run: pnpm test:e2e ${{ inputs.update_snapshots && '--update-snapshots' || '' }}
         env:
           # The container brings its own browsers; no CHROMIUM_PATH.
           HOME: /root
@@ -71,4 +84,12 @@ jobs:
           path: |
             test-results/
             test/e2e/**/*-actual.png
+          retention-days: 7
+      # The re-recorded baselines, to be committed - see the note at the top.
+      - name: Hand out the new baselines
+        if: ${{ inputs.update_snapshots }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-snapshots
+          path: test/e2e/**/*-snapshots/**
           retention-days: 7

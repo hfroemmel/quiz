@@ -1069,7 +1069,17 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
       return {
         ground: style.backgroundColor,
         edge: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth].join(' '),
-        outline: `${style.outlineStyle} ${style.outlineWidth}`,
+        /*
+         * WHETHER AN OUTLINE IS DRAWN, NOT HOW WIDE IT WOULD BE.
+         *
+         * With `outline-style: none` nothing is drawn, whatever the width says -
+         * and Chromium keeps the width of its own focus ring on a button in
+         * that state, so the number differs between two builds of the same
+         * browser while the screen looks identical. Reading the width there
+         * measured the build, not the design; a style that DOES draw comes back
+         * with its width and fails with it.
+         */
+        outline: style.outlineStyle === 'none' ? 'none' : `${style.outlineStyle} ${style.outlineWidth}`,
         font: style.color,
         /* Every piece of text and every fill INSIDE the card - title, line, icon, checkmark. */
         inner: [...element.querySelectorAll('span')].map((part) => getComputedStyle(part).color),
@@ -1099,7 +1109,7 @@ test('the chosen card is an area, and the same one as a tapped answer', async ({
 
   for (const [name, state] of Object.entries(states)) {
     expect(state.edge, name).toBe('0px 0px 0px 0px')
-    expect(state.outline, name).toBe('none 0px')
+    expect(state.outline, name).toBe('none')
   }
 
   /* On the filled card everything is white - title, line below it, icon, checkmark. */
