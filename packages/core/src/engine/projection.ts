@@ -680,16 +680,27 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
 }
 
 /**
- * The quiz offers for the hall - name and subtitle, nothing else.
+ * The quiz offers for the hall - name, subtitle and motif.
  *
  * DELIBERATELY NOT THE CATALOG: that one carries audiences, pools and presets,
  * i.e. configuration. The stage gets none of it because it must not be able to
- * derive anything; it is to write up the names, nothing more.
+ * derive anything; it is to write up what is on offer, nothing more.
+ *
+ * The motif travels along because it is content: the hall recognises a card by
+ * its picture before it reads the name, and a stage that kept its own table of
+ * pictures left every quiz added later without one.
  */
 function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel['quizOffers'] {
-  return (ctx.config.quizzes ?? []).map((quiz) => {
+  return orderedQuizzes(ctx.config.quizzes).map((quiz) => {
     const subtitle = subtitleFor(quiz, locale)
-    return { id: quiz.id, label: labelFor(quiz, locale), ...(subtitle === undefined ? {} : { subtitle }) }
+    const artworkUrl = ctx.assetUrl(quiz.artworkAssetId)
+    return {
+      id: quiz.id,
+      label: labelFor(quiz, locale),
+      ...(subtitle === undefined ? {} : { subtitle }),
+      ...(artworkUrl === undefined ? {} : { artworkUrl }),
+      emphasis: quiz.emphasis ?? 'regular',
+    }
   })
 }
 

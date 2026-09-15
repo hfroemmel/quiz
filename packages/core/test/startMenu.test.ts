@@ -101,6 +101,42 @@ describe('rules of the package', () => {
   })
 })
 
+describe('the offers of the hall', () => {
+  it('announce name, subtitle, motif and which card takes the row', () => {
+    /*
+     * The stage writes up what is on offer. The motif belongs in it because it
+     * is content: the hall recognises a card by its picture before it reads the
+     * name, and the stage used to keep its own table of pictures - where a quiz
+     * added later stood without one.
+     */
+    const config: QuizConfig = {
+      ...testConfig,
+      quizzes: [
+        { ...testConfig.quizzes![0]!, artworkAssetId: 'art-bundestag', emphasis: 'wide', order: 20 },
+        { ...testConfig.quizzes![1]!, order: 10 },
+      ],
+    }
+    const view = projectOperator(null, {
+      nowMs: 0,
+      config,
+      assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+      contentVersion: 'test',
+      eventDayId: 'event-day-test',
+    })
+
+    // In the order of the menu, so hall and desk name the same first card.
+    expect(view.quizOffers.map((offer) => offer.id)).toEqual(['kids', 'bundestag'])
+    expect(view.quizOffers[1]).toMatchObject({
+      label: 'Bundestagsquiz',
+      artworkUrl: '/media/art-bundestag',
+      emphasis: 'wide',
+    })
+    // Without a motif the card stands without one - it does not disappear.
+    expect(view.quizOffers[0]!.artworkUrl).toBeUndefined()
+    expect(view.quizOffers[0]!.emphasis).toBe('regular')
+  })
+})
+
 describe('deriveStartMenu', () => {
   it('turns the configured quizzes into offers, in the order of the menu', () => {
     const config: QuizConfig = {

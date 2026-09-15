@@ -31,3 +31,8 @@ And one word for the room: the quiz root and the stage element carry
 `data-surface="light|dark"`, so a host can recolour its own bar around the quiz
 without knowing the package's worlds - `data-theme` names a world, and the
 children's paper is light too.
+
+The hall reads the offers with their motifs: `view.quizOffers` carries
+`artworkUrl` and `emphasis` beside name and subtitle, both from the quiz
+configuration. A stage that kept its own table of pictures left every quiz
+added later without one.

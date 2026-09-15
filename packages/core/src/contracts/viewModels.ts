@@ -192,16 +192,28 @@ export interface PublicQuizViewModel {
    */
   quizId?: string
   /**
-   * The quiz offers of the house - id, name, subtitle, nothing else.
+   * The quiz offers of the house - what there is to play, as it is announced.
    *
    * WHAT FOR: before the first game the stage shows WHAT there is to play here.
    * That is an announcement to the room and not a choice: no command follows
    * from this list, and which quiz runs is decided by the desk alone.
    *
+   * THE MOTIF BELONGS IN IT. A card is recognised in the hall by its picture
+   * before its name is read, and the picture is content
+   * (`quizzes[].artworkAssetId`) like the name - the stage used to keep a table
+   * of five images in its own code, and a sixth quiz stood there without one.
+   * `emphasis` says which card takes the whole row, for the same reason.
+   *
    * Audience, pools, presets and theme are DELIBERATELY not in it. They would be
    * configuration, and the stage must not be able to derive any.
    */
-  quizOffers: { id: string; label: string; subtitle?: string }[]
+  quizOffers: {
+    id: string
+    label: string
+    subtitle?: string
+    artworkUrl?: string
+    emphasis: 'wide' | 'regular'
+  }[]
   question?: PublicQuestion
   /**
    * Category of the NEXT question - exclusively for the interstitial screen.

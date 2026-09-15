@@ -163,11 +163,37 @@ keys, and states its three quizzes as `quizzes` with `artworkAssetId`; quiz-live
 gets the shared `OfferOverview` and drops `quizArtwork.ts` - that one waits for
 Phase 2, because the artwork has to live in the content package first.
 
-ONE WARNING FOR THAT STEP: the menu carries the media table's data attributes,
-which its own screen carries too. As long as both screens exist, `[data-quiz-start]`,
-`[data-quiz-card]` and their neighbours match twice, and the app's suite fails on
-an ambiguous selector. Its pin therefore has to be bumped in the SAME commit
-that deletes the old screen, not before.
+**Both host cleanups are done, and both are verified.** The packages of this
+branch were built and linked into the hosts' `node_modules` - the state a
+release will install - so the suites ran against the real new code rather than
+against a promise.
+
+- **bundestags-app** deletes `QuizStart.js`, `startOffers.js`,
+  `QuizStart.scss`, the `MutationObserver` latch, the `visibility: hidden` rule
+  and its fourteen `quiz-start-*` locale keys. Its three quizzes are `quizzes`
+  in the generated content, with their motifs as assets of the package; the
+  wording moves into `interfaceStrings`, word for word, so the table says what
+  it said. `Quiz.js` declares which parts of the frame the app supplies itself
+  (`chrome`) instead of hiding them, and the media resolution is the runtime's
+  parameter now (Phase 6) rather than a patched method. The eight start-screen
+  tests moved here; five stay there for what stays the host's business. 22
+  green.
+- **quiz-live** drops `quizArtwork.ts` and its five image imports: the motifs
+  are assets of the content package, and `view.quizOffers` carries motif and
+  `emphasis` beside name and subtitle. Two deviations from the plan, both
+  deliberate: the per-card COLOURS stay, keyed by the quiz id in the stage's
+  own stylesheet - in the hall the colour is what makes a card recognisable
+  from the back row, and that is presentation of this room, not a property of
+  the quiz; and the shared `OfferOverview` component is not built, because an
+  announcement on a stage and a selection at a device share a card, not a
+  component. 72 unit tests, 64 E2E green.
+
+ONE WARNING FOR THAT STEP, which is why both cleanups had to be one commit
+each: the menu carries the media table's data attributes, which its own screen
+carried too. As long as both screens exist, `[data-quiz-start]`,
+`[data-quiz-card]` and their neighbours match twice, and the app's suite fails
+on an ambiguous selector. The pin therefore rose in the SAME commit that
+deleted the old screen, not before.
 
 ## Phase 5 – Theme definition
 
