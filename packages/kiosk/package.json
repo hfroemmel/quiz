@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-kiosk",
-  "version": "0.15.3",
+  "version": "0.16.0",
   "type": "module",
   "description": "The playable quiz as one component: start selection, game and result for kiosk and embedding",
   "exports": {
