@@ -288,6 +288,22 @@ Electron host package stays optional and open.**
   everything but the easy level - otherwise the case "no background, so no
   step" could not be reached from a test at all.
 
+And in the host, where the step came from: the Bundestags-App gave it up. Gone
+there are the panel, the lookup from question TEXT to background - the player
+view carries no id, so the prompt was the only key both sides had - the
+three-state flag, the subscription on the runtime, the two timers, the card in
+the stylesheet and the rule that hid the quiz's own way onward. Instead the
+background is content (`explanation.details`) and the room says what it is
+(`rules.showDetailsAfterSolution`). `Quiz.js` is down to 172 lines and does
+what its header always claimed: open the session, give it an area, take back
+the exit. 22 of 22 end-to-end runs green against the packed packages.
+
+It also brought a small find of its own: the app's generator wrote the
+UNCHECKED question list to its file, because parsing stripped the field beside
+the schema - while the manifest's checksum was computed over that same
+unchecked list. Nothing is stripped any more, so the checked list is the
+product and the checksum covers what the file holds.
+
 Open: only the Electron host package, and it is marked optional in the plan -
 the two devices cannot install it before a release, and their main processes
 are small.
