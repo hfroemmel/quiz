@@ -8,8 +8,8 @@ live in their own repositories and pull them in as packages.
 | `@hfroemmel/quiz-core` | Contracts, engine, runtime (`QuizService`, `LocalQuizRuntime`, `RemoteQuizRuntime`) |
 | `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
 | `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, `palette.css` / `fonts.css` |
-| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks |
-| `@hfroemmel/quiz-kiosk` | The playable quiz as a single component (`QuizGame`) |
+| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks - and the playable quiz as a single component (`QuizGame`) |
+| `@hfroemmel/quiz-kiosk` | Points at `quiz-react`, where `QuizGame` now lives. Removed one release after 0.19.0 |
 
 | Application | Repository | What it is |
 |---|---|---|

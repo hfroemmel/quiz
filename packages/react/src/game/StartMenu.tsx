@@ -33,7 +33,7 @@
  */
 import { useState } from 'react'
 import type { PlayerCount, StartMenuModel, StartMenuOffer } from '@hfroemmel/quiz-core'
-import { textFor, type TextKey } from '@hfroemmel/quiz-react'
+import { textFor, type TextKey } from '../presentation/texts'
 import { ArrowIcon, CheckIcon, PeopleIcon, PersonIcon, SlidersIcon } from './icons'
 import styles from './Game.module.css'
 

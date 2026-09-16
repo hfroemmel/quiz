@@ -28,9 +28,10 @@
  * counting up, the kids' world's drawn card - comes unchanged from there.
  */
 import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
-import { Counter, Score } from '@hfroemmel/quiz-react'
+import { Counter } from '../presentation/stage/Counter'
+import { Score } from '../presentation/stage/Score'
 import { Buzzer } from './Buzzer'
-import { textsFor } from '@hfroemmel/quiz-react'
+import { textsFor } from '../presentation/texts'
 import styles from './Game.module.css'
 
 interface PlayerFootProps {

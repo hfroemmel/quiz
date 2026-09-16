@@ -5,7 +5,7 @@
  * with a fresh runtime on every page load. That's exactly what's handy
  * here: a reload is the reset button the device doesn't have.
  */
-import { QuizGame } from '@hfroemmel/quiz-kiosk'
+import { QuizGame } from '@hfroemmel/quiz-react'
 import { useLocalRuntime } from './useLocalRuntime'
 
 export function TouchDevice({

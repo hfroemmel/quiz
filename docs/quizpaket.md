@@ -236,7 +236,7 @@ stays as it is.
 
 `deriveStartMenu(config, catalog, locale, { audienceId })` turns the
 configuration into the menu the device shows (`StartMenu` in
-`@hfroemmel/quiz-kiosk`). Four rules decide what appears there:
+`@hfroemmel/quiz-react`). Four rules decide what appears there:
 
 - **One audience per device.** The menu shows the quizzes of the audience the
   device is set up for, never the other one's. Where that audience has no quiz

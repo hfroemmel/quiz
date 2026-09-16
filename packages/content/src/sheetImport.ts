@@ -367,11 +367,3 @@ export function csvUrl(sheet: string): string {
   const address = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`
   return gid ? `${address}&gid=${gid}` : address
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `ImportFinding`. */
-export type ImportBefund = ImportFinding
-/** @deprecated Renamed to `defaultMapping`. */
-export const standardMapping = defaultMapping
-/** @deprecated Renamed to `importSheet`. */
-export const importiereTabelle = importSheet

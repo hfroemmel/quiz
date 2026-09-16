@@ -21,7 +21,7 @@
  * while playing, the contract would be broken.
  */
 import { useState, type ReactNode } from 'react'
-import { QuizGame, type QuizGameResult } from '@hfroemmel/quiz-kiosk'
+import { QuizGame, type QuizGameResult } from '@hfroemmel/quiz-react'
 import { useLocalRuntime } from '../useLocalRuntime'
 import styles from './ShellApp.module.css'
 

@@ -374,6 +374,32 @@ property of the package. Both are host work and belong in one pass with the
 
 **Packages touched.** all. **Hosts.** all (import path change). **Dependencies.** everything above. **Risk.** low, mechanical. **Tests.** full suites; `packages:verify`. **Result.** the API in E is the whole API.
 
+**Status: done in the packages; the four applications change one import line
+each when they take the release.**
+
+- `QuizGame`, `StartMenu` and `deviceStartMenu` are exported by quiz-react.
+  `@hfroemmel/quiz-kiosk` points at the new place for one release - the same
+  grace every renamed export here got - and its stylesheet is an empty file so
+  that an unchanged import resolves instead of breaking a build. The rules
+  travel in quiz-react's stylesheet, which a host showing a quiz already
+  imports.
+- The twenty former names are gone, and `GameStart` with them. Nothing in the
+  four applications used any of them - checked before removing, not after.
+
+AND THREE ITEMS OF THIS PHASE'S LIST ARE DELIBERATELY NOT DONE: `audience`,
+`playerCounts` and `idleTimeoutMs` stay props of `QuizGame`, and
+`brandWordmarkUrl` stays exported. The first three are properties of an
+INSTALLATION and not of the content - which audience a device plays in, how
+many people stand at it, how long it waits before ending a game nobody plays.
+The content answers them where it can (`quizzes[].playerCounts`,
+`rules.idleTimeoutMs`) and the props narrow it per device; removing them would
+move a table's setting into the question set it shares with the hall. The word
+mark as a file is what a host needs that shows the mark OUTSIDE the stage, and
+the stage overview of the live quiz does exactly that.
+
+Open: deleting the kiosk package for good, one release later; then the four
+packages of E.5 are the four packages.
+
 ## Effort and order of value
 
 | Phase | Effort (person-days, rough) | Value for "new quiz tomorrow" |

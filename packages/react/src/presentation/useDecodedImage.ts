@@ -71,9 +71,3 @@ export function useDecodedImage(url: string | undefined): string | undefined {
 
   return state.done === url ? state.done : undefined
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `ImageState`. */
-export type Bildstand = ImageState
-/** @deprecated Renamed to `imageState`. */
-export const bildstand = imageState

@@ -30,6 +30,21 @@ export * from './presentation/stage/DetailsStep'
 export * from './presentation/brandAssets'
 export * from './client/useQuizConnection'
 export * from './client/useQuizRuntime'
+/*
+ * THE PLAYABLE QUIZ - one component, and everything its screen needs.
+ *
+ * It used to be a package of its own (`@hfroemmel/quiz-kiosk`), and the split
+ * never drew a line: the device's screen is built from the same scenes, the
+ * same sounds and the same texts as the stage's, and every host that showed a
+ * quiz installed both halves anyway. What remains of the difference is a
+ * component name.
+ */
+import './game/controls.css'
+
+export * from './game/QuizGame'
+export * from './game/StartMenu'
+export * from './game/startMenuModel'
+
 export * from './client/useQuizSnapshot'
 export * from './client/useRevealClock'
 export * from './ui/AnimationClip'

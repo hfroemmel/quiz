@@ -199,7 +199,7 @@ describe('csvUrl', () => {
   })
 })
 
-describe('standardMapping', () => {
+describe('defaultMapping', () => {
   it('names four answer columns - the stage shows four rows', () => {
     expect(defaultMapping.columns.options).toEqual(['A', 'B', 'C', 'D'])
   })

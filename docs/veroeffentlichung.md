@@ -9,7 +9,7 @@ Packages under the scope `@hfroemmel`:
 | `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
 | `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, palette.css/fonts.css |
 | `@hfroemmel/quiz-react` | QuizScene, StageScreen, scenes, sounds, connection hooks |
-| `@hfroemmel/quiz-kiosk` | The playable quiz as a single component (QuizGame) |
+| `@hfroemmel/quiz-kiosk` | Points at `quiz-react`, where QuizGame now lives - removed one release after 0.19.0 |
 
 Nothing else is shipped: the test harness under `harness/` is excluded from
 versioning, and the applications live in their own repositories.

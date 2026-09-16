@@ -31,7 +31,8 @@ import { TouchDevice } from './TouchDevice'
  *
  * Here they come from the packages' SOURCE; a host that includes the
  * published packages additionally fetches the component styles via
- * `@hfroemmel/quiz-react/styles.css` and `@hfroemmel/quiz-kiosk/styles.css`.
+ * `@hfroemmel/quiz-react/styles.css` - one file since the playable quiz moved
+ * into that package.
  */
 import '@hfroemmel/quiz-themes/palette.css'
 import '@hfroemmel/quiz-themes/fonts.css'

@@ -583,7 +583,3 @@ export const questionPatchSchema = z.object({
   applyMode: z.enum(['next-use', 'immediate-confirmed']),
 })
 export type QuestionPatch = z.infer<typeof questionPatchSchema>
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `translatedLabels`. */
-export const uebersetzteBeschriftung = translatedLabels

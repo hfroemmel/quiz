@@ -15,19 +15,15 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
-import {
-  DetailsStep,
-  QuizScene,
-  releaseAudio,
-  textsFor,
-  themeForSkin,
-  useAudioUnlock,
-  useQuizChrome,
-  useQuizRuntime,
-  useQuizSnapshot,
-  useQuizTheme,
-  useStageTheme,
-} from '@hfroemmel/quiz-react'
+import { DetailsStep } from '../presentation/stage/DetailsStep'
+import { QuizScene } from '../presentation/QuizScene'
+import { releaseAudio } from '../presentation/soundCues'
+import { textsFor } from '../presentation/texts'
+import { themeForSkin, useQuizChrome, useQuizTheme } from '../presentation/QuizProvider'
+import { useAudioUnlock } from '../presentation/useAudioUnlock'
+import { useStageTheme } from '../presentation/stageTheme'
+import { useQuizRuntime } from '../client/useQuizRuntime'
+import { useQuizSnapshot } from '../client/useQuizSnapshot'
 import { themeVariables } from '@hfroemmel/quiz-themes'
 import { StartMenu, type StartMenuChoice } from './StartMenu'
 import { deviceStartMenu } from './startMenuModel'

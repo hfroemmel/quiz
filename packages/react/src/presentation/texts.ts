@@ -237,11 +237,3 @@ export function textsFor(
 ) {
   return (key: TextKey, values?: Record<string, string | number>) => textFor(view, key, values)
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `defaultTexts`. */
-export const standardTexte = defaultTexts
-/** @deprecated Renamed to `textFor`. */
-export const textFuer = textFor
-/** @deprecated Renamed to `textsFor`. */
-export const texteFuer = textsFor

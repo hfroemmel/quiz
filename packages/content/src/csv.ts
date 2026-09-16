@@ -101,7 +101,3 @@ export function gridToRows(sheet: string[][]): { columns: string[]; rows: Record
 
   return { columns: head, rows }
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `csvToRows`. */
-export const csvZuZeilen = csvToRows
