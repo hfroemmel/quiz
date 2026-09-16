@@ -83,6 +83,11 @@ publishes to GitHub Packages. Details in
 
 ## Documentation
 
+START HERE IF YOU ARE BUILDING AN APPLICATION:
+[docs/manual/index.html](docs/manual/index.html) - a step-by-step manual from an
+empty directory to a running, themed quiz. It assumes no knowledge of this
+system and shows every file a consuming application has to write.
+
 `docs/` describes the system as a whole - specification, state machine,
 design system, content format. Some documents belong topically to stage
 operation (operator quick reference, database and recovery); they remain
