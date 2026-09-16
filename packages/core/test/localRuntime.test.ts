@@ -214,9 +214,15 @@ describe('LocalQuizRuntime', () => {
   it('switches questions, answers and labels to the chosen locale', () => {
     /*
      * THE WHOLE WAY IN ONE TEST: command -> service -> state -> projection.
-     * The language is resolved in four places (question, options, catalog,
-     * interface); if one of them fails, the hall would see a German question
+     * The language is resolved in three places here (question, options,
+     * catalogue); if one of them fails, the hall would see a German question
      * with English answers.
+     *
+     * The interface texts are the fourth place, and they are no longer one the
+     * core answers: the package speaks German and English itself, and
+     * `view.texts` carries only what the CONTENT overrides - nothing, in this
+     * fixture set. What arrives here is therefore the locale, and the react
+     * layer picks the set (`textFor`, tested there).
      */
     const { runtime, settle } = createRuntime()
 
@@ -226,9 +232,13 @@ describe('LocalQuizRuntime', () => {
     runtime.dispatch({ type: 'SET_LOCALE', locale: 'en-GB' })
     const beforeGame = runtime.getSnapshot().view!
     expect(beforeGame.locale).toBe('en-GB')
-    // The labels of the catalog and the interface switch along, too.
+    // The labels of the catalogue switch along, too.
     expect(beforeGame.catalog.presets.map((preset) => preset.label)).toContain('Easy')
-    expect(beforeGame.texts?.['kiosk.start']).toBe("Let's go")
+    /*
+     * And nothing is transmitted that the content does not say: an empty
+     * override field is what lets the package's own English apply at all.
+     */
+    expect(beforeGame.texts).toBeUndefined()
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()

@@ -56,8 +56,12 @@ export interface StartMenuProps {
   /** The menu as data - from `deriveStartMenu`. */
   model: StartMenuModel
   /**
-   * The interface texts of the package, as the projection resolves them. Where
-   * it says nothing, the German defaults of `@hfroemmel/quiz-react` apply.
+   * The interface texts the CONTENT overrides, as the projection resolves them.
+   *
+   * Where it says nothing, the package's own set for the menu's language
+   * applies - it speaks German and English itself. Which of the two is a
+   * question of the running game, and the model carries the answer
+   * (`model.locale`).
    */
   texts?: Record<string, string> | undefined
   /** The board on the left: the content's start image and its title. */
@@ -110,7 +114,8 @@ export function StartMenu({
   onOpenSettings,
   onExit,
 }: StartMenuProps) {
-  const t = (key: TextKey, values?: Record<string, string | number>) => textFor({ texts }, key, values)
+  const t = (key: TextKey, values?: Record<string, string | number>) =>
+    textFor({ texts, locale: model.locale }, key, values)
 
   /*
    * ONE STATE FOR THE WHOLE CHOICE.

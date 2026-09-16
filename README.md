@@ -49,8 +49,8 @@ every preset. The real content lives in `quiz-content-data`.
 
 ```bash
 pnpm typecheck        # TypeScript across packages and the test harness
-pnpm test             # core, content pipeline, palette guard (357 tests)
-pnpm test:e2e         # Playwright against the harness (120 runs, screenshot baselines)
+pnpm test             # core, content pipeline, palette guard (364 tests)
+pnpm test:e2e         # Playwright against the harness (121 runs, screenshot baselines)
 pnpm packages:build   # dist per package
 pnpm packages:verify  # publint + attw on the packed tarball
 ```
@@ -69,8 +69,8 @@ Stage operation - server, SQLite, WebSocket, resumption - is verified in
 `quiz-live`, offline operation in `quiz-standalone`, and the embedding
 contract additionally in `app-collection`.
 
-Baseline of the refactoring (branch `refactor`, 2026-09-15): typecheck clean,
-357 unit tests and 120 end-to-end runs green. Every phase of
+Baseline of the refactoring (branch `refactor`, 2026-09-16): typecheck clean,
+364 unit tests and 121 end-to-end runs green. Every phase of
 `docs/refactoring/H-migration-plan.md` has to reproduce these numbers before
 it is merged.
 

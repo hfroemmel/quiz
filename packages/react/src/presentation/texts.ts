@@ -1,11 +1,16 @@
 /**
- * The interface's labels - German in the code, translatable in the content.
+ * The interface's labels - in the code, translatable in the content.
  *
- * WHY BOTH: the German versions live here because a quiz has to run without a
- * single entry in the configuration - an empty screen with key names on it
- * would be the worse default. Translation happens in the content
- * (`interfaceStrings` in the configuration), because a new language then
- * needs no new program version.
+ * WHY IN THE CODE AT ALL: a quiz has to run without a single entry in the
+ * configuration; an empty screen with key names on it would be the worse
+ * default. So the package speaks two languages itself - German and English -
+ * and the content can override every single string (`interfaceStrings`),
+ * because a third language then needs no new program version.
+ *
+ * WHY EXACTLY TWO: they are the two the applications are operated in. A
+ * package that shipped German only forced every English-speaking host to state
+ * EVERY visible string, and a set of fifty overrides in a build script is a
+ * translation nobody reviews - the media table carried one.
  *
  * WHAT DOES NOT BELONG HERE: anything that comes from the content - question
  * texts, answers, categories, names of target audiences and difficulty
@@ -114,7 +119,100 @@ export const defaultTexts = {
 export type TextKey = keyof typeof defaultTexts
 
 /**
- * Lookup: first in the content, then in the German defaults.
+ * The same set in English.
+ *
+ * IT IS A TRANSLATION OF THIS PACKAGE'S VOICE, not of any host's: where an
+ * application words a screen differently - the media table greets its players -
+ * it says so in its content, in both languages, as before.
+ *
+ * Completeness is not a matter of care here but of the type: `Record<TextKey,
+ * string>` refuses a missing key, and a test says the same thing for whoever
+ * reads it rather than compiles it.
+ */
+export const englishTexts: Record<TextKey, string> = {
+  /* Stage */
+  'stage.player': 'Player',
+  'stage.points': 'Points',
+  'stage.question': 'Question',
+  'stage.joker.available': '{player} still has a lifeline.',
+  'stage.joker.used': '{player} has used the lifeline.',
+  'stage.joker.fiftyFifty': '50:50 lifeline',
+  'stage.joker.audience': 'Ask the audience',
+  'stage.joker.drawn': '{player} drew: {joker}',
+  'stage.questionOf': 'Question {current} of {total}',
+  'feedback.correct': 'Correct!',
+  'feedback.incorrect': 'Wrong!',
+  'result.winner': 'Winner',
+  'result.draw': 'Draw',
+  'result.drawHeadline': 'A draw!',
+  'result.winnerHeadline': '{player} wins!',
+  'result.solo': 'Result',
+  'result.soloHeadline': '{correct} out of {total} correct',
+  'video.missing': 'No video available.',
+
+  /* Device: start selection */
+  'kiosk.setupTitle': 'Start a game',
+  'kiosk.setupSubtitle': 'Choose mode and difficulty.',
+  'kiosk.quizChoice': 'Which quiz?',
+  'kiosk.playerCount': 'How many are playing?',
+  'kiosk.difficulty': 'How hard?',
+  'kiosk.solo': 'Alone',
+  'kiosk.duo': 'In pairs',
+  'kiosk.soloHint': 'One person',
+  'kiosk.duoHint': 'Buzzer duel',
+  'kiosk.questionCount': '{count} questions',
+  'kiosk.start': "Let's go",
+  'kiosk.back': 'Back',
+  'start.rejected.no-questions': 'There are no questions for this quiz yet.',
+  'start.rejected.missing-pool': 'This quiz has no question pool yet.',
+  'kiosk.preparing': 'The quiz is getting ready...',
+  'kiosk.disconnected': 'No connection to the quiz.',
+
+  /* Device: settings */
+  'kiosk.settings': 'Settings',
+  'kiosk.sound': 'Sound',
+  'kiosk.on': 'On',
+  'kiosk.off': 'Off',
+  'kiosk.soundTest': 'Sound check',
+  'kiosk.playSound': 'Play a sound',
+  'kiosk.size': 'Size',
+  'kiosk.language': 'Language',
+  'kiosk.done': 'Done',
+
+  /* Device: game and finish */
+  'kiosk.endGame': 'End game',
+  'kiosk.endGameQuestion': 'Really end the game?',
+  'kiosk.end': 'End',
+  'kiosk.keepPlaying': 'Keep playing',
+  'kiosk.playAgain': 'Play again',
+  'kiosk.buzzer': 'Buzz',
+  'kiosk.submit': 'Submit answer',
+  'kiosk.secondChance': '{player}, now you may try as well',
+  'kiosk.continue': 'Next question',
+}
+
+/**
+ * Which set a locale reads, by its LANGUAGE.
+ *
+ * `en-GB` and `en-US` are the same words here; a region that needs its own
+ * wording states it in the content, where a third language would live too.
+ * Anything unknown falls back to German - the base language of the content
+ * format, and the language the questions are written in.
+ */
+const setsByLanguage: Record<string, Record<TextKey, string>> = { en: englishTexts }
+
+function defaultsFor(locale: string | undefined): Record<TextKey, string> | undefined {
+  const language = locale?.split('-')[0]?.toLowerCase()
+  return language ? setsByLanguage[language] : undefined
+}
+
+/**
+ * Lookup: first in the content, then in the defaults of the view's language,
+ * then in the German ones.
+ *
+ * THE CONTENT WINS in every case - it is the place a host words a screen its
+ * own way, and the place a third language arrives without a new program
+ * version.
  *
  * `{name}` in a text is replaced by the value of the same name. That is
  * deliberately the only formatting rule - plural forms and number formats,
@@ -122,11 +220,11 @@ export type TextKey = keyof typeof defaultTexts
  * templating language.
  */
 export function textFor(
-  view: Pick<PublicQuizViewModel, 'texts'> | null | undefined,
+  view: (Pick<PublicQuizViewModel, 'texts'> & Partial<Pick<PublicQuizViewModel, 'locale'>>) | null | undefined,
   key: TextKey,
   values?: Record<string, string | number>,
 ): string {
-  const template = view?.texts?.[key] ?? defaultTexts[key]
+  const template = view?.texts?.[key] ?? defaultsFor(view?.locale)?.[key] ?? defaultTexts[key]
   if (!values) return template
   return template.replace(/\{(\w+)\}/g, (match, name: string) =>
     name in values ? String(values[name]) : match,
@@ -134,7 +232,9 @@ export function textFor(
 }
 
 /** The same lookup, bound to one view - for components with many texts. */
-export function textsFor(view: Pick<PublicQuizViewModel, 'texts'> | null | undefined) {
+export function textsFor(
+  view: (Pick<PublicQuizViewModel, 'texts'> & Partial<Pick<PublicQuizViewModel, 'locale'>>) | null | undefined,
+) {
   return (key: TextKey, values?: Record<string, string | number>) => textFor(view, key, values)
 }
 

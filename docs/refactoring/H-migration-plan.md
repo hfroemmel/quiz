@@ -343,6 +343,29 @@ green.
 
 **Packages touched.** react, core (rejection codes). **Hosts.** bundestags-app, quiz-live. **Dependencies.** Phases 5 and 6. **Risk.** wording changes are visible; keep the German defaults byte-identical. **Tests.** E2E per locale in quiz (`i-de`/`i-en` screenshots exist), bundestags-app variants table shrinks from four packages to two locales. **Result.** D.7 holds in every host.
 
+**Status: the package side is done; the hosts still carry their overrides.**
+
+- `englishTexts` in quiz-react is the German set in English, and `textFor`
+  picks it by the language of the running game. The content still wins over
+  both - that is where a host words a screen its own way and where a third
+  language arrives without a new program version. A region reads as its
+  language (`en-US` gets English), an unknown locale falls back to German.
+- The German defaults are untouched, byte for byte, as the phase demanded.
+- The fixture content of this repository gave up its twenty English overrides;
+  the test bench now shows the package's own English, and an E2E test reads it
+  there AND checks that the content overrides nothing - a leftover would make
+  the assertion pass for the wrong reason.
+- One fix came with it: `StartMenu` asked for its texts without saying which
+  language the game runs in, so the menu fell back to German however the
+  content was configured. It reads `model.locale` now; the model always knew.
+
+Open in the hosts: the media table states roughly fifty strings per English
+package, of which only the ones in its own voice - the greeting, the word
+"Quiz" as a step name - are still needed; and its four content packages
+(audience × language) can become two, because the language is no longer a
+property of the package. Both are host work and belong in one pass with the
+`content.lock.json` route of Phase 2.
+
 ## Phase 8 – API slimming and package reduction
 
 **Goal.** Four packages with the public surface of E.5; deprecated names removed.

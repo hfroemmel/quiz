@@ -970,29 +970,5 @@
       "id": "en-GB",
       "label": "English"
     }
-  ],
-  "interfaceStrings": {
-    "en-GB": {
-      "stage.player": "Player",
-      "stage.points": "Points",
-      "stage.question": "Question",
-      "stage.questionOf": "Question {current} of {total}",
-      "feedback.correct": "Correct!",
-      "feedback.incorrect": "Wrong!",
-      "result.winner": "Winner",
-      "result.draw": "Draw",
-      "kiosk.playerCount": "How many are playing?",
-      "kiosk.difficulty": "How hard?",
-      "kiosk.solo": "Alone",
-      "kiosk.duo": "In pairs",
-      "kiosk.questionCount": "{count} questions",
-      "kiosk.start": "Let's go",
-      "kiosk.settings": "Settings",
-      "kiosk.endGame": "End game",
-      "kiosk.setupTitle": "Start a game",
-      "kiosk.setupSubtitle": "Choose mode and difficulty.",
-      "kiosk.soloHint": "One person",
-      "kiosk.duoHint": "Buzzer duel"
-    }
-  }
+  ]
 }

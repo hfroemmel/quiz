@@ -179,6 +179,32 @@ are fairness, not taste.
 The idle watch and `showDetailsAfterSolution` reach the clients through
 `catalog.rules`; everything else is read by the engine on the server.
 
+### The words of the interface
+
+The packages speak German and English themselves - the two languages the
+applications are operated in. Which of the two a screen uses follows the
+language of the running game (`SET_LOCALE`, `view.locale`), and nothing has to
+be configured for either.
+
+`interfaceStrings` in the configuration overrides single strings, per locale:
+
+```jsonc
+"interfaceStrings": {
+  "de-DE": { "kiosk.difficulty": "Welche Runde?" },
+  "fr-FR": { "kiosk.start": "C'est parti" }
+}
+```
+
+It is for two things, and deliberately not for a third. It is where a host
+words a screen in its OWN voice - the media table greets its players instead of
+saying "Start a game" - and it is where a third language arrives, without a new
+program version. What it is no longer for is translating the package into
+English: a set of fifty overrides in a build script is a translation nobody
+reviews, and two of them had grown that way.
+
+An unknown locale falls back to German, the base language of the content
+format; a region reads as its language, so `en-US` gets the English set.
+
 ### The background as a step
 
 `showDetailsAfterSolution` decides who reads the background of a question. It

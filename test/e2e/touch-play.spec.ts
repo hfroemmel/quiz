@@ -791,6 +791,40 @@ test('the language switch changes selection and game', async ({ page }) => {
   await expect(page.locator('[data-score-label]').first()).toHaveText('Player')
 })
 
+test('the English screen comes from the package, not from the content', async ({ page }) => {
+  /*
+   * THE FIXTURE CONTENT OVERRIDES NOTHING ANY MORE. It used to carry twenty
+   * English strings, because the package spoke German only - and a set of
+   * overrides in a config file is a translation nobody reviews. Both languages
+   * live in the package now; the content is where a host words a screen its own
+   * way, and where a third language would arrive.
+   *
+   * So this test reads the package's own English on the screen, and checks in
+   * the same breath that the content really says nothing: a leftover override
+   * would make the assertion above pass for the wrong reason.
+   */
+  await openStartScreen(page)
+  const overrides = await page.evaluate(async () => {
+    const answer = await fetch('/quiz-package/config.json')
+    const config = (await answer.json()) as { interfaceStrings?: Record<string, unknown> }
+    return Object.keys(config.interfaceStrings ?? {})
+  })
+  expect(overrides, 'locales the fixture content overrides texts for').toEqual([])
+
+  await page.locator('[data-locale="en-GB"]').click()
+  // Words that stand nowhere but in `englishTexts`.
+  await expect(page.getByRole('button', { name: 'Settings' })).toBeVisible()
+  await expect(page.locator('[data-quiz-start-content]')).toContainText('Start a game')
+  await expect(page.locator('[data-quiz-start-content]')).toContainText('Choose mode and difficulty.')
+  /*
+   * And the step names, which are no headlines on the screen: they are what a
+   * screen reader announces before the cards of a group, so they are read
+   * where they live.
+   */
+  await expect(page.getByRole('group', { name: 'How many are playing?' })).toBeVisible()
+  await expect(page.getByRole('group', { name: 'Which quiz?' })).toBeVisible()
+})
+
 test('without a second language there is nothing to switch', async ({ page }) => {
   /*
    * The switch depends on the configuration, not on the code: a package with
