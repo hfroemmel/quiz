@@ -215,11 +215,33 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       continue
     }
 
+    /*
+     * `info` IS THE BACKGROUND, not a short version of it.
+     *
+     * It is the paragraph an audience reads after the solution where nobody
+     * tells it (`rules.showDetailsAfterSolution`), so it becomes
+     * `explanation.details`. It used to land in `summary`, which is the
+     * moderator's lead-in - and a lead-in of six lines is none.
+     *
+     * `Anmerkung` is not content at all: it is what one editor wrote to
+     * another about a question. It therefore becomes a note of the report
+     * instead of a field of the product - dropping it silently would lose a
+     * remark somebody meant to be read, and shipping it would put it on a
+     * screen.
+     */
     const info = asString(pick(record, ['info', 'zusatzinfo', 'explanation']))
     const remark = asString(pick(record, ['Anmerkung', 'anmerkung', 'note', 'hinweis']))
     const sourceReference = asString(pick(record, ['source_reference', 'sourceReference', 'quellenangabe']))
-    if (!info && !remark) {
+    if (!info) {
       notes.push({ severity: 'needs-review', code: 'missing-info', questionId: id, message: 'Kein Zusatzinformationstext.' })
+    }
+    if (remark) {
+      notes.push({
+        severity: 'needs-review',
+        code: 'editorial-remark',
+        questionId: id,
+        message: `Redaktionelle Anmerkung, nicht uebernommen: ${remark}`,
+      })
     }
 
     // `playCount` is runtime data and is deliberately not adopted; usages
@@ -253,8 +275,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       acceptedAnswerText: expectedAnswers.length ? expectedAnswers : undefined,
       media: mediaAssetId ? { imageAssetId: mediaAssetId } : undefined,
       explanation: {
-        summary: info,
-        details: remark,
+        details: info,
         source: sourceReference,
       },
       enabled: true,

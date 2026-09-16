@@ -16,7 +16,7 @@
  * compared to placing a mapping file next to it.
  */
 import { questionSchema, type Question } from '@hfroemmel/quiz-core'
-import { csvToRows } from './csv'
+import { csvToRows, gridToRows } from './csv'
 
 /** Letters of the answer options - the same order as on stage. */
 const OPTION_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'] as const
@@ -66,6 +66,35 @@ export interface SheetMapping {
    * that are only noticed when building.
    */
   values?: Partial<Record<'difficulty' | 'questionType' | 'categories' | 'pools' | 'audiences', Record<string, string>>>
+  /**
+   * Further languages, as column groups of the same row.
+   *
+   * An editorial team that works in two languages writes them side by side:
+   * `question` and `question_en`, `A` and `A_en`. The alternative is two
+   * sheets, and then nothing says which German question the English one
+   * belongs to - the pairing lives in the row, so it is read from the row.
+   *
+   * Only what a translation may change is named here. Everything that decides
+   * the GAME - difficulty, pool, audience, type, which option is correct -
+   * stays with the question itself: a translated row is the same question in
+   * other words, not another question.
+   *
+   * A group whose cells are empty produces no translation. That is the normal
+   * case at the edges of a corpus: not every question exists in both
+   * languages, and a half-filled translation would show a German question with
+   * English answers.
+   */
+  translations?: Record<
+    string,
+    {
+      prompt?: string
+      options?: string[]
+      acceptedAnswerText?: string
+      explanation?: string
+      imageAssetId?: string
+      videoAssetId?: string
+    }
+  >
 }
 
 export interface ImportFinding {
@@ -160,6 +189,55 @@ function findCorrect(value: string, options: { id: string; text: string }[]): st
 }
 
 /**
+ * The further languages of one row.
+ *
+ * A group is only taken over where it says something. An empty group means
+ * "this question does not exist in that language" - the normal case at the
+ * edges of a corpus - and a group with only a prompt filled means the answers
+ * are the ones of the base language, which is what a translation of a picture
+ * question often is.
+ *
+ * Options are translated INDIVIDUALLY and by their id: a group that forgets
+ * one leaves that one in the base language instead of dropping it, and the
+ * option that is compared against can never go missing that way.
+ */
+function translationsOf(
+  row: Record<string, string>,
+  groups: SheetMapping['translations'],
+): { translations: Record<string, Record<string, unknown>> } | undefined {
+  if (!groups) return undefined
+  const translations: Record<string, Record<string, unknown>> = {}
+
+  for (const [locale, group] of Object.entries(groups)) {
+    const at = (name: string | undefined): string => (name ? (row[name] ?? '').trim() : '')
+    const prompt = at(group.prompt)
+    const options = (group.options ?? [])
+      .map((name, position) => ({ id: OPTION_LETTERS[position] ?? `o${position + 1}`, text: at(name) }))
+      .filter((option) => option.text !== '')
+    const expected = at(group.acceptedAnswerText)
+      .split(/\r?\n|;/)
+      .map((entry) => entry.trim())
+      .filter((entry) => entry !== '')
+    const explanation = at(group.explanation)
+    const image = at(group.imageAssetId)
+    const film = at(group.videoAssetId)
+
+    const entry = {
+      ...(prompt ? { prompt } : {}),
+      ...(options.length > 0 ? { options } : {}),
+      ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
+      ...(explanation ? { explanation: { summary: explanation } } : {}),
+      ...(image || film
+        ? { media: { ...(image ? { imageAssetId: image } : {}), ...(film ? { videoAssetId: film } : {}) } }
+        : {}),
+    }
+    if (Object.keys(entry).length > 0) translations[locale] = entry
+  }
+
+  return Object.keys(translations).length > 0 ? { translations } : undefined
+}
+
+/**
  * Translate a sheet into questions.
  *
  * A row that does not pass does NOT stop the import: it is reported with row
@@ -168,7 +246,23 @@ function findCorrect(value: string, options: { id: string; text: string }[]): st
  * expensive answer for the editors - the report says what is missing.
  */
 export function importSheet(csv: string, mapping: SheetMapping = defaultMapping): ImportFinding {
-  const { columns, rows } = csvToRows(csv)
+  return importRows(csvToRows(csv), mapping)
+}
+
+/**
+ * The same import from a workbook's grid - see `readWorkbook`.
+ *
+ * A sheet in a file and a sheet exported as CSV are the same table; only the
+ * way in differs, and it ends here.
+ */
+export function importGrid(grid: string[][], mapping: SheetMapping = defaultMapping): ImportFinding {
+  return importRows(gridToRows(grid), mapping)
+}
+
+function importRows(
+  { columns, rows }: { columns: string[]; rows: Record<string, string>[] },
+  mapping: SheetMapping,
+): ImportFinding {
   const to = mapping.columns
   const preset = mapping.defaults ?? {}
   const values = mapping.values ?? {}
@@ -239,6 +333,7 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
       ...(explanation || source
         ? { explanation: { ...(explanation ? { summary: explanation } : {}), ...(source ? { source: source } : {}) } }
         : {}),
+      ...(translationsOf(row, mapping.translations) ?? {}),
       enabled: yesNo(cell(to.enabled)) ?? true,
     }
 

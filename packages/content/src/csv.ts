@@ -78,7 +78,17 @@ export function parseCsv(text: string): string[][] {
  * second "Frage" column would silently overwrite the first.
  */
 export function csvToRows(text: string): { columns: string[]; rows: Record<string, string>[] } {
-  const sheet = parseCsv(text)
+  return gridToRows(parseCsv(text))
+}
+
+/**
+ * A grid of cells becomes rows addressed by their column header.
+ *
+ * The step is separate from reading CSV because a CSV is no longer the only
+ * way in: an Excel workbook arrives as the same grid (`readWorkbook`), and
+ * from here on both take one route.
+ */
+export function gridToRows(sheet: string[][]): { columns: string[]; rows: Record<string, string>[] } {
   const head = (sheet[0] ?? []).map((name) => name.trim())
 
   const rows = sheet.slice(1).map((values) => {

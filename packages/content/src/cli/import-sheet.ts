@@ -9,13 +9,22 @@
  * THE SHEET IS THE SOURCE. `questions.json` is the product and gets
  * overwritten; whoever corrects the product loses it on the next run.
  *
+ * AND A WORKBOOK IS A SOURCE TOO. An editorial sheet does not always live in a
+ * Google table; often it arrives as a file, `Fragen 2026.xlsx` in a mail.
+ * `--xlsx` reads it directly, because "export it as CSV first" is a manual step
+ * in front of an automated one - and whoever forgets it imports the previous
+ * export.
+ *
  *   quiz-content import-sheet --url <address> [--mapping <file>] [--out <file>]
  *   quiz-content import-sheet --csv <file>             from a downloaded file
+ *   quiz-content import-sheet --xlsx <file> [--sheet <name>]   from a workbook
  *   quiz-content import-sheet --url <address> --print-headers   only show the columns
  *   quiz-content import-sheet --url <address> --dry-run         write nothing
  */
 import { readFileSync, writeFileSync } from 'node:fs'
-import { csvUrl, importSheet, defaultMapping, type SheetMapping } from '../sheetImport'
+import { csvUrl, importGrid, defaultMapping, type SheetMapping } from '../sheetImport'
+import { parseCsv } from '../csv'
+import { readWorkbook } from '../workbook'
 import { contentDir } from './dirs'
 import { join } from 'node:path'
 
@@ -29,10 +38,29 @@ const toggle = (name: string): boolean => argv.includes(`--${name}`)
 
 const url = option('url')
 const csvFile = option('csv')
+const workbookFile = option('xlsx')
 
-if (!url && !csvFile) {
-  console.error('Es fehlt die Quelle: --url <Google-Tabelle> oder --csv <Datei>.')
+if (!url && !csvFile && !workbookFile) {
+  console.error('Es fehlt die Quelle: --url <Google-Tabelle>, --csv <Datei> oder --xlsx <Arbeitsmappe>.')
   process.exit(1)
+}
+
+/**
+ * The table as a grid - from a workbook, a file or the network.
+ *
+ * All three ways end in the same grid, and the import knows only that one.
+ */
+async function readGrid(): Promise<string[][]> {
+  if (workbookFile) {
+    const workbook = readWorkbook(readFileSync(workbookFile))
+    const wanted = option('sheet')
+    if (wanted === undefined && workbook.sheets.length > 1) {
+      console.log(`Blaetter der Arbeitsmappe: ${workbook.sheets.join(', ')}`)
+      console.log(`Gelesen wird das erste ("${workbook.sheets[0]}") - ein anderes waehlt "--sheet <Name>".`)
+    }
+    return workbook.grid(wanted)
+  }
+  return parseCsv(await readCsv())
 }
 
 async function readCsv(): Promise<string> {
@@ -78,10 +106,10 @@ function readMapping(): SheetMapping {
   }
 }
 
-const csv = await readCsv()
+const grid = await readGrid()
 
 if (toggle('print-headers')) {
-  const { columns } = importSheet(csv, { columns: {} })
+  const { columns } = importGrid(grid, { columns: {} })
   console.log('Spalten der Tabelle:')
   for (const [position, name] of columns.entries()) console.log(`  ${position + 1}. ${name}`)
   console.log('')
@@ -89,7 +117,7 @@ if (toggle('print-headers')) {
   process.exit(0)
 }
 
-const finding = importSheet(csv, readMapping())
+const finding = importGrid(grid, readMapping())
 
 console.log(`Gelesen: ${finding.questions.length} Fragen aus ${finding.columns.length} Spalten.`)
 if (finding.skippedRows.length > 0) {

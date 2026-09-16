@@ -113,6 +113,75 @@ describe('importSheet', () => {
     })
   })
 
+  it('reads a second language out of the same row', () => {
+    /*
+     * The pairing of the two languages lives IN THE ROW. Two sheets - one per
+     * language - would leave nothing saying which German question the English
+     * one belongs to; that is the reason for column groups rather than a second
+     * import.
+     */
+    const csv = [
+      'ID,Frage,A,B,Richtig,Erklärung,Frage EN,A EN,B EN,Erklärung EN',
+      'q1,Wer regiert?,Der Bundestag,Der Bundesrat,A,Steht im Grundgesetz.,Who governs?,The Bundestag,The Bundesrat,In the constitution.',
+      // Nothing in the English group: the question exists in German only.
+      'q2,Wer waehlt?,Das Volk,Der Bundesrat,A,,,,,',
+    ].join('\n')
+
+    const { questions } = importSheet(csv, {
+      columns: { id: 'ID', prompt: 'Frage', options: ['A', 'B'], correct: 'Richtig', explanation: 'Erklärung' },
+      translations: {
+        'en-GB': { prompt: 'Frage EN', options: ['A EN', 'B EN'], explanation: 'Erklärung EN' },
+      },
+    })
+
+    expect(questions).toHaveLength(2)
+    expect(questions[0]!.translations).toEqual({
+      'en-GB': {
+        prompt: 'Who governs?',
+        options: [
+          { id: 'a', text: 'The Bundestag' },
+          { id: 'b', text: 'The Bundesrat' },
+        ],
+        explanation: { summary: 'In the constitution.' },
+      },
+    })
+    // What decides the game stays with the question, not with the translation.
+    expect(questions[0]!.correctOptionId).toBe('a')
+    expect(questions[0]!.difficulty).toBe('medium')
+    // An empty group is not an empty translation.
+    expect(questions[1]!.translations).toBeUndefined()
+  })
+
+  it('leaves an option in the base language where the translation forgets it', () => {
+    const csv = [
+      'ID,Frage,A,B,Richtig,Frage EN,A EN,B EN',
+      'q1,Wer regiert?,Der Bundestag,Der Bundesrat,A,Who governs?,The Bundestag,',
+    ].join('\n')
+
+    const { questions } = importSheet(csv, {
+      columns: { id: 'ID', prompt: 'Frage', options: ['A', 'B'], correct: 'Richtig' },
+      translations: { 'en-GB': { prompt: 'Frage EN', options: ['A EN', 'B EN'] } },
+    })
+
+    /*
+     * Only the option that IS translated travels. The other keeps its German
+     * wording when the question is read in English - a dropped option would
+     * mean the one compared against might be missing.
+     */
+    expect(questions[0]!.translations?.['en-GB']?.options).toEqual([{ id: 'a', text: 'The Bundestag' }])
+  })
+
+  it('takes three answer options as they are', () => {
+    // An editorial sheet has such rows; two is the minimum, four is not a rule.
+    const csv = ['ID,Frage,A,B,C,D,Richtig', 'q1,Wie viele?,Eins,Zwei,Drei,,B'].join('\n')
+    const { questions, skippedRows } = importSheet(csv, {
+      columns: { id: 'ID', prompt: 'Frage', options: ['A', 'B', 'C', 'D'], correct: 'Richtig' },
+    })
+    expect(skippedRows).toEqual([])
+    expect(questions[0]!.options).toHaveLength(3)
+    expect(questions[0]!.correctOptionId).toBe('b')
+  })
+
   it('names the columns it read so that a wrong mapping can be found', () => {
     expect(importSheet('Nr,Question\n', { columns: {} }).columns).toEqual(['Nr', 'Question'])
   })

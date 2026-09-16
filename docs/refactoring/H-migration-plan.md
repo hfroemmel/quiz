@@ -73,6 +73,30 @@ Exported German identifiers that hosts import and therefore need a deprecation a
 
 **Packages touched.** content, core (schema unchanged; `explanation.details` now populated by the pipeline). **Hosts.** bundestags-app, quiz-content-data. **Dependencies.** Phase 1 (English CLI). **Risk.** editorial pairing of the two language corpora is manual work; the 21 asset-reference errors in quiz-live's content must be fixed rather than re-stamped. **Tests.** `quiz-content validate` in both profiles; workbook round-trip unit tests (template → fill → import → identical `questions.json`). **Result.** Step 1–2 of the practice test take one route.
 
+**Status: the package part is done; the corpus part is not started.**
+
+- `import-sheet --xlsx [--sheet]` reads an editorial workbook directly.
+  `readWorkbook` is the reader: the zip container and enough XML to find the
+  cells, without a dependency. Verified against the real 2026 sheet - 199 rows,
+  not one cell differing from a hand-made CSV export of the same file, after a
+  bug that is worth remembering: a styled but empty cell (`<c r="F2" s="11"/>`)
+  read as an opening tag eats the cell behind it, and the row arrives shifted by
+  one in a way that looks like data.
+- `translations` in the mapping reads the column groups of further locales out
+  of the same row. Two sheets would leave nothing saying which German question
+  the English one belongs to; the pairing lives in the row.
+- `migrate-legacy`: `info` becomes `explanation.details` (it used to be
+  `summary`, which is the moderator's lead-in), the image credit was already
+  going to the asset, and `Anmerkung` becomes a note of the report - it is one
+  editor writing to another, not content.
+- Three answer options pass, and a test says so.
+
+Open: the workbook TEMPLATE (D.2), and the corpus itself - importing the
+Bundestags-App questions into `quiz-content-data` with the editorial pairing of
+the two language corpora, and the images into LFS. Neither is possible from
+this environment: LFS is blocked here, and the pairing is editorial work, not a
+rule. The route the corpus will take is in place and tested.
+
 ## Phase 3 – Configuration completeness
 
 **Goal.** Everything a start menu shows is in the quiz package configuration.
