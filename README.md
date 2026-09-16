@@ -1,6 +1,6 @@
 # Live Quiz - the libraries
 
-This repository ships the five libraries of the Live Quiz. The applications
+This repository ships the four libraries of the Live Quiz. The applications
 live in their own repositories and pull them in as packages.
 
 | Package | Contents |
@@ -9,7 +9,6 @@ live in their own repositories and pull them in as packages.
 | `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
 | `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, `palette.css` / `fonts.css` |
 | `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks - and the playable quiz as a single component (`QuizGame`) |
-| `@hfroemmel/quiz-kiosk` | Points at `quiz-react`, where `QuizGame` now lives. Removed one release after 0.19.0 |
 
 | Application | Repository | What it is |
 |---|---|---|
@@ -76,7 +75,7 @@ it is merged.
 
 ## Publishing
 
-Changesets with fixed versioning across all five packages; a push to `main`
+Changesets with fixed versioning across all four packages; a push to `main`
 with open changesets creates the "Version Packages" PR, and merging it
 publishes to GitHub Packages. Details in
 [docs/veroeffentlichung.md](docs/veroeffentlichung.md).

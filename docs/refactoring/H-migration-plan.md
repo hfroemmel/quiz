@@ -141,12 +141,11 @@ In the hosts (after the release of 0.16.0, all four pinned to `~0.16.0`):
   `rules.idleTimeoutMs` into the generated config, and the four committed
   packages are regenerated with it. The suite stays at 25 green.
 
-What is not done in the hosts: quiz-live still imports the deprecated alias
-`texteFuer`, because the tree installed here is 0.14.0 and does not know
-`textsFor` yet - the swap belongs to the next install. And the operator desk
-labels its correction buttons from the `scoringRules` constant instead of the
-resolved rules, so a package that configures `manualAdjustmentStep` would get a
-label that does not match the step. Both need an install, not a decision.
+What is not done in the hosts: the operator desk labels its correction buttons
+from the `scoringRules` constant instead of the resolved rules, so a package
+that configures `manualAdjustmentStep` would get a label that does not match
+the step. (The other item of this list, quiz-live's deprecated `texteFuer`
+import, is gone: the desk calls `textsFor`.)
 
 ## Phase 4 – Start menu in the package
 
@@ -397,8 +396,13 @@ move a table's setting into the question set it shares with the hall. The word
 mark as a file is what a host needs that shows the mark OUTSIDE the stage, and
 the stage overview of the live quiz does exactly that.
 
-Open: deleting the kiosk package for good, one release later; then the four
-packages of E.5 are the four packages.
+Done in 0.20.0: `@hfroemmel/quiz-kiosk` is deleted. The four packages of E.5
+are now the four packages that exist - the changeset set, the verification
+script, the tag script and the typecheck no longer name a fifth. The pointer
+lived for exactly the one release it was promised, and the applications take
+the swap with the pin bump: `QuizGame`, `StartMenu` and `deviceStartMenu` come
+from `@hfroemmel/quiz-react`, and its `styles.css` carries what the kiosk
+stylesheet used to.
 
 ## Effort and order of value
 

@@ -1,9 +1,0 @@
-/*
- * EMPTY ON PURPOSE.
- *
- * The playable quiz moved into `@hfroemmel/quiz-react`, and its rules travel
- * in that package's stylesheet - which every host that shows a quiz already
- * imports. This file exists so that an existing
- * `import '@hfroemmel/quiz-kiosk/styles.css'` keeps resolving for one release
- * instead of breaking a build over a line that can simply go.
- */

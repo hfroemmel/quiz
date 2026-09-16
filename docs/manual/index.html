@@ -242,7 +242,7 @@ footer p{margin:0 0 .4rem}
   Everything you can change without touching code is content, and that is deliberate: a new quiz, a new
   language or a new picture must never need a new program version.</p>
 
-  <h3>The five libraries</h3>
+  <h3>The four libraries</h3>
   <div class="scroll">
   <table>
     <thead><tr><th>Package</th><th>You use it for</th><th>Do you need it?</th></tr></thead>
@@ -251,9 +251,8 @@ footer p{margin:0 0 .4rem}
       <tr><td class="mono">@hfroemmel/quiz-react</td><td>The playable quiz as one React component</td><td><span class="chip req">required</span></td></tr>
       <tr><td class="mono">@hfroemmel/quiz-themes</td><td>Palettes, fonts, your own look</td><td><span class="chip req">required</span></td></tr>
       <tr><td class="mono">@hfroemmel/quiz-content</td><td>The <code>quiz-content</code> command line tool: validate, build, import</td><td><span class="chip req">required</span> (build time)</td></tr>
-      <tr><td class="mono">@hfroemmel/quiz-kiosk</td><td>Nothing new &mdash; it points at <code>quiz-react</code></td><td><span class="chip opt">skip it</span></td></tr>
     </tbody>
-    <caption>All five carry the same version number and are released together. <code>quiz-kiosk</code> is a deprecated pointer and disappears one release after 0.19.0 &mdash; do not install it in a new project.</caption>
+    <caption>All four carry the same version number and are released together. A fifth, <code>@hfroemmel/quiz-kiosk</code>, existed up to 0.19.0 and pointed at <code>quiz-react</code>; it is gone. Whatever it exported, <code>quiz-react</code> exports.</caption>
   </table>
   </div>
 

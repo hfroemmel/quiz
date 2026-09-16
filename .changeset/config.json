@@ -10,8 +10,7 @@
       "@hfroemmel/quiz-core",
       "@hfroemmel/quiz-content",
       "@hfroemmel/quiz-themes",
-      "@hfroemmel/quiz-react",
-      "@hfroemmel/quiz-kiosk"
+      "@hfroemmel/quiz-react"
     ]
   ],
   "ignore": [
