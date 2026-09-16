@@ -1,5 +1,92 @@
 # @hfroemmel/quiz-content
 
+## 0.18.0
+
+### Minor Changes
+
+- 0f2d613: The background of a question, read where nobody tells it
+  
+  An explanation is written for the moderator. They tell it, in their own words,
+  while the hall listens - which is why nothing of it ever left the server
+  publicly: a screen writing it out would compete with the person speaking.
+  
+  At a device there is nobody to tell it. The two people at the table read it
+  themselves, and a quiz set up for that place now says so:
+  `rules.showDetailsAfterSolution` - the flag has been in the configuration since
+  the last release, and no component read it. With it on, the detail text travels
+  with the solution (`visibleSolution.details`), in the language of the question,
+  and the device gives it its own step.
+  
+  `DetailsStep` (`@hfroemmel/quiz-react`, put in place by `QuizGame`) is that
+  step: the card covers the stage, carries the only way onward, and the round
+  waits until somebody has read it. Where a question brings no background there is
+  no step at all - an empty in-between screen would be worse than none. The round
+  is held from the moment the solution stands, not only once the card is there: in
+  those seconds the device's own way onward would be one thumb away from skipping
+  the step.
+  
+  Of the explanation only `details` travels, and only in the solution scene. The
+  short version is the moderator's lead-in, the source is an editorial note, the
+  directing notes are stage directions - none of the three is meant for a player,
+  and the projection keeps them where they were.
+  
+  Two smaller things came with it. The times of the step stand in its stylesheet
+  (`--stage-details-delay` beside `--stage-fade-duration`), so the component reads
+  how long its way out lasts instead of keeping a number of its own in step with
+  the CSS by hand - the host this step comes from carried a 220 and a comment
+  asking whoever changed one to remember the other. And a card lying on the stage
+  has a shadow of its own now (`--stage-cardShadow`): the distance to the ground
+  is a physical situation, the same in the dark world and in the bright one.
+  
+  A host whose room wants a different card passes `renderAfterSolution` and draws
+  its own body. It is handed the text and the way onward; the holding of the round
+  and the withdrawn footer button stay with the package.
+- 5877d0a: The editorial sheet is read where it lies
+  
+  An editorial team works in a Google table or in a workbook that arrives as a
+  file, and for the second case the way in was "export it as CSV first". That is
+  a manual step in front of an automated one: it loses the other sheets of the
+  workbook, and whoever forgets it imports the previous export.
+  
+  `quiz-content import-sheet --xlsx <file> [--sheet <name>]` reads the file
+  directly, and `readWorkbook` is the reader behind it - the zip container, enough
+  XML to find the cells, and nothing else. No dependency: the libraries for this
+  format bring styles, number formats, formulas and a date epoch, none of which a
+  question sheet uses. A cell arrives as the text the sheet stored, a formula as
+  its last computed value, and a workbook in zip64 format stops the run with that
+  as the reason instead of reading the wrong bytes.
+  
+  One bug of that reader is worth naming, because it is the kind that looks like
+  data: a styled but empty cell is written `<c r="F2" s="11"/>`, and a pattern
+  that takes its attributes greedily swallows the slash, reads the cell as an
+  opening tag and eats the cell behind it - the next column's raw value then
+  arrives under the empty column, unresolved, and the whole row is shifted by one.
+  The comparison against a hand-made export of the same workbook found it; the
+  test holds it.
+  
+  **Two languages in one sheet.** `translations` in the mapping names the column
+  groups of the further locales: `question` and `question_en`, `A` and `A_en`. Two
+  sheets would be the alternative, and then nothing says which German question the
+  English one belongs to - the pairing lives in the row, so it is read from the
+  row. Only what a translation may change can be named; difficulty, pool,
+  audience, type and the correct option stay with the question, because a
+  translated row is the same question in other words. An empty group produces no
+  translation, and a group that forgets one option leaves that one in the base
+  language instead of dropping it.
+  
+  **The legacy migration puts the background where it is read.** `info` of the
+  old files becomes `explanation.details` - the paragraph an audience reads after
+  the solution where nobody tells it. It used to land in `summary`, which is the
+  moderator's lead-in, and a lead-in of six lines is none. `Anmerkung` is not
+  content at all but one editor writing to another, and it becomes a note of the
+  migration report instead of a field of the product: on a screen it would be a
+  mistake, dropped in silence it would lose something somebody meant to be read.
+
+### Patch Changes
+
+- Updated dependencies [0f2d613]
+  - @hfroemmel/quiz-core@0.18.0
+
 ## 0.17.0
 
 ### Minor Changes

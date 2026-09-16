@@ -1,5 +1,78 @@
 # @hfroemmel/quiz-react
 
+## 0.18.0
+
+### Minor Changes
+
+- 0f2d613: The background of a question, read where nobody tells it
+  
+  An explanation is written for the moderator. They tell it, in their own words,
+  while the hall listens - which is why nothing of it ever left the server
+  publicly: a screen writing it out would compete with the person speaking.
+  
+  At a device there is nobody to tell it. The two people at the table read it
+  themselves, and a quiz set up for that place now says so:
+  `rules.showDetailsAfterSolution` - the flag has been in the configuration since
+  the last release, and no component read it. With it on, the detail text travels
+  with the solution (`visibleSolution.details`), in the language of the question,
+  and the device gives it its own step.
+  
+  `DetailsStep` (`@hfroemmel/quiz-react`, put in place by `QuizGame`) is that
+  step: the card covers the stage, carries the only way onward, and the round
+  waits until somebody has read it. Where a question brings no background there is
+  no step at all - an empty in-between screen would be worse than none. The round
+  is held from the moment the solution stands, not only once the card is there: in
+  those seconds the device's own way onward would be one thumb away from skipping
+  the step.
+  
+  Of the explanation only `details` travels, and only in the solution scene. The
+  short version is the moderator's lead-in, the source is an editorial note, the
+  directing notes are stage directions - none of the three is meant for a player,
+  and the projection keeps them where they were.
+  
+  Two smaller things came with it. The times of the step stand in its stylesheet
+  (`--stage-details-delay` beside `--stage-fade-duration`), so the component reads
+  how long its way out lasts instead of keeping a number of its own in step with
+  the CSS by hand - the host this step comes from carried a 220 and a comment
+  asking whoever changed one to remember the other. And a card lying on the stage
+  has a shadow of its own now (`--stage-cardShadow`): the distance to the ground
+  is a physical situation, the same in the dark world and in the bright one.
+  
+  A host whose room wants a different card passes `renderAfterSolution` and draws
+  its own body. It is handed the text and the way onward; the holding of the round
+  and the withdrawn footer button stay with the package.
+- de3ecc8: The interface speaks two languages by itself
+  
+  The packages shipped their wording in German and left everything else to the
+  content. That sounds like flexibility and worked out as a chore: an
+  English-speaking host had to state EVERY visible string in its configuration -
+  the media table carried fifty of them in a build script, the test bench of this
+  repository twenty more - and a set of overrides in a config file is a
+  translation nobody reviews.
+  
+  `englishTexts` is the same set in English, and `textFor` picks it by the
+  language of the running game. The content still wins over both, because that is
+  where a host words a screen its own way ("Welcome to the quiz." instead of
+  "Start a game") and where a third language arrives without a new program
+  version. A region is read as its language, so `en-US` gets the English set, and
+  an unknown locale falls back to German rather than to key names.
+  
+  Three tests hold what makes the pair trustworthy: both sets carry the same
+  keys, no English text is accidentally the German one, and the placeholders of a
+  text - `{player}`, `{current}` - are the same on both sides, because they are
+  its contract.
+  
+  One fix came with it, and it is the reason the whole thing was worth testing in
+  the browser: `StartMenu` asked for its texts without saying which language the
+  game runs in, so the menu fell back to German however the content was
+  configured. It reads `model.locale` now - the model always knew.
+
+### Patch Changes
+
+- Updated dependencies [0f2d613]
+  - @hfroemmel/quiz-core@0.18.0
+  - @hfroemmel/quiz-themes@0.18.0
+
 ## 0.17.0
 
 ### Minor Changes
