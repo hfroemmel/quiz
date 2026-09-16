@@ -419,7 +419,7 @@ step its package uses, and the media table states eleven deviations instead of
 
 Measured for 0.20.0: quiz typecheck clean, 366 unit tests, 121 end-to-end runs,
 publint and attw green on the packed tarballs of all four packages; quiz-live
-typecheck clean, 72 unit tests, 62 of 64 end-to-end; bundestags-app 22 of 22
+typecheck clean, 72 unit tests, 64 of 64 end-to-end; bundestags-app 22 of 22
 end-to-end. The hosts were verified against the PACKED tarballs installed into
 their trees, not against a promise.
 
@@ -431,14 +431,15 @@ THREE THINGS ARE NOT DONE, and each says why:
   committed (eleven files are tracked). Moving them needs LFS access and an
   editorial decision per diverging question, neither of which is a refactoring
   step. It is the first row of the migration table in `J`.
-- **The two red end-to-end tests in quiz-live.** `game-flows.spec.ts:232` and
-  `live-presentation.spec.ts:82` read a question TYPE off a fixed position, and
-  the transitional configuration (39354fe, "every slot draws from the whole
-  pool") removed the type filters from the `test-person` and `bilderkennen`
-  slots. They have been red since that commit and nothing in 0.20.0 changes
-  which question is drawn. Either the filters come back for those slots or the
-  two tests stop reading a type off a position - a configuration decision, not
-  a package one.
+- **The transitional flat pool in quiz-live**, minus its opening. Slots four to
+  seven of every operated preset still draw from the whole pool, so the arc of
+  a round - easy first, hard at the end - is still gone. What came back are the
+  three named slots: `test-video`, `test-person` and `bilderkennen` ask for a
+  video, a person and an image reveal again. They are the dramaturgy of the
+  opening and they are what two end-to-end tests read, so both were red from
+  39354fe until 0.20.0; a slot called `test-person` drawing a text question was
+  the giveaway that the name is a promise. Restoring the rest waits on more
+  questions per slot, which is content work, not a refactoring step.
 - **The Electron host package** of Phase 8, which the plan marks optional and
   which stays optional.
 
