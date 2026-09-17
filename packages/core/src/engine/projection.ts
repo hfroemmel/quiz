@@ -687,7 +687,24 @@ function publicFeedback(state: GameState): PublicQuizViewModel['feedback'] {
 
 function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTheme {
   const locale = localeFor(state, ctx)
-  const audienceId = state?.audience ?? ctx.previewAudienceId
+  /*
+   * A GAME THAT IS OVER NO LONGER DECIDES THE LOOK.
+   *
+   * The state of an ended game stays around - it carries the log, the language
+   * and the sound switch - but its quiz and its audience are history. As long
+   * as they still counted here, the start view wore the look of the quiz played
+   * last: after the children's quiz the room's poster kept writing in its
+   * handwriting until the next game of the show was started. The start view is
+   * the same announcement before the first game and between two games, so it
+   * gets the same answer here - the audience's look, chosen by the device
+   * (`previewAudienceId`) or the first one in the configuration.
+   *
+   * The language is deliberately NOT part of this: whoever switched the device
+   * to another language keeps it after the game, and a poster in the wrong
+   * language would be an error the room can read.
+   */
+  const running = state && state.status !== 'aborted' ? state : null
+  const audienceId = running?.audience ?? ctx.previewAudienceId
   const audienceConfig =
     ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
   /*
@@ -698,7 +715,7 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
    * type carries the audience's. No condition on a mode name stands here - the
    * id comes from the configuration.
    */
-  const quiz = state?.quizId ? ctx.config.quizzes?.find((entry) => entry.id === state.quizId) : undefined
+  const quiz = running?.quizId ? ctx.config.quizzes?.find((entry) => entry.id === running.quizId) : undefined
   const themeId = quiz?.themeId ?? audienceConfig.themeId
   const theme = ctx.config.themes.find((entry) => entry.id === themeId) ?? ctx.config.themes[0]!
   // Colours and fonts are deliberately not in the view model - presentation is
