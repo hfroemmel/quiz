@@ -104,10 +104,6 @@ export class ContentService {
     return this.effectiveQuestions.find((question) => question.id === questionId)
   }
 
-  assetFilename(assetId: string): string | undefined {
-    return this.quizPackage.assetsById.get(assetId)?.filename
-  }
-
   /**
    * Directories in which a media file is looked for - in this order.
    *

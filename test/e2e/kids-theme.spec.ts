@@ -178,7 +178,7 @@ test.describe('The interstitial before the question', () => {
     expect(drawn).toContain('url(')
   })
 
-  test('shows both entries larger than before, the counter first', async ({ page }) => {
+  test('sizes both entries from the stage, with the rubric leading', async ({ page }) => {
     await openStage(page, 'kids', 'pause')
     const size = async (sel: string) =>
       page.locator(sel).evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize))
@@ -193,13 +193,19 @@ test.describe('The interstitial before the question', () => {
     const width = await page.locator('.stage').evaluate((el) => el.getBoundingClientRect().width)
 
     /*
-     * The earlier values were 2.8cqw for the counter and 4.4cqw for the
-     * category - the counter was the smaller one. Both are bigger now, and
-     * the order is correct: the number is the main thing.
+     * THE ORDER WAS TURNED AROUND ON PURPOSE (2026-09-17, "fix some fonts"):
+     * the counter went from 7cqw to 2.5cqw and the rubric from 5cqw to 3.5cqw,
+     * so the subject of the question leads and the position in the round is
+     * the quieter line. This test used to demand the opposite - it protected a
+     * design that no longer exists.
+     *
+     * What it still protects is the property that the sizes are the stage's
+     * and not the window's: both scale with the stage width, which is what
+     * `cqw` is for and what a `vw` value would silently break.
      */
-    expect(counter).toBeGreaterThan(width * 0.028)
-    expect(rubric).toBeGreaterThan(width * 0.044)
-    expect(counter).toBeGreaterThan(rubric)
+    expect(counter).toBeCloseTo(width * 0.025, 0)
+    expect(rubric).toBeCloseTo(width * 0.035, 0)
+    expect(rubric).toBeGreaterThan(counter)
   })
 
   test('keeps even a long rubric completely on the board', async ({ page }) => {
