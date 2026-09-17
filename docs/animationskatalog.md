@@ -131,7 +131,8 @@ number, then the topic.
 |---|---|---|---|---|
 | `pause-category-in` | 600 ms, 400 ms delay | no movement, instantly visible | - | free |
 
-The screen itself stands for `gameTiming.pauseScreenMs` = 3000 ms.
+The screen itself stands for `gameTiming.pauseScreenMs` = 1500 ms. The fade of
+the category (600 ms, after 400 ms) therefore finishes halfway through it.
 
 ## D - Reveal (fairness)
 

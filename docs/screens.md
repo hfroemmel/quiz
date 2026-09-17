@@ -238,8 +238,8 @@ there.
   second.
 - Only the category is transmitted (`upcomingCategoryLabel`). Question
   text, options, and image stay on the server until the question scene.
-- The screen stands for `gameTiming.pauseScreenMs` (3 s) - short enough not
-  to slow things down, long enough to read the category.
+- The screen stands for `gameTiming.pauseScreenMs` (1.5 s) - it was three
+  seconds; the pace of the round was asked to be twice as quick.
 
 ## Start View (`idle`, Scene `start`)
 
