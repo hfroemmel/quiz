@@ -1,5 +1,28 @@
 # @hfroemmel/quiz-themes
 
+## 0.22.1
+
+### Patch Changes
+
+- The red variant's ground is the commissioned `#CA2F56` again.
+  
+  It was the ordered value when the variant was built, and the sweep that put
+  every colour of the house on the Federal Government's spectrum moved it to the
+  nearest step, `Rot` at 80 percent (`#CD3363`) - fourteen units away, a tone
+  nobody separates at two metres. The client asked for their own tone back, and
+  an order outranks a rule the house set for itself.
+  
+  So the adults' world now has exactly one colour that is not a step of the
+  spectrum, and it is stated as such in three places rather than tolerated: the
+  constant in `palettes.ts` says why, the guard test carries it as a named
+  exception, and a counter-test measures that it is the ONLY value outside the
+  spectrum across every surface - so a second literal creeping in still fails,
+  and so does another sweep that would conform this one away.
+  
+  The three grounds of the variant - stage, start menu, offer overview - read the
+  same constant, so all three turn together.
+- @hfroemmel/quiz-core@0.22.1
+
 ## 0.22.0
 
 ### Minor Changes
