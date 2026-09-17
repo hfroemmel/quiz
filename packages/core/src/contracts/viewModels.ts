@@ -506,11 +506,15 @@ export interface CatalogViewModel {
   /**
    * The rules of this package that a client needs.
    *
-   * Only these two: the idle watch runs in the device, and whether the detail
-   * text gets its own step after the solution is a question of the interface.
-   * Everything else the engine decides, and no client asks about it.
+   * Only these three: the idle watch runs in the device, whether the detail
+   * text gets its own step after the solution is a question of the interface,
+   * and the correction step is a NUMBER THE DESK HAS TO SAY OUT LOUD - its
+   * buttons are announced as "plus 10", and a desk that read the step from the
+   * engine's constant instead of from this package announced a figure the
+   * package does not use. Everything else the engine decides, and no client
+   * asks about it.
    */
-  rules: { idleTimeoutMs?: number; showDetailsAfterSolution: boolean }
+  rules: { idleTimeoutMs?: number; showDetailsAfterSolution: boolean; manualAdjustmentStep: number }
   /** Selectable question pools - "Saarbruecken" is exactly one of them. */
   pools: { id: string; label: string }[]
   presets: { id: string; label: string; slotCount: number }[]

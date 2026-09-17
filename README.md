@@ -1,6 +1,6 @@
 # Live Quiz - the libraries
 
-This repository ships the five libraries of the Live Quiz. The applications
+This repository ships the four libraries of the Live Quiz. The applications
 live in their own repositories and pull them in as packages.
 
 | Package | Contents |
@@ -9,7 +9,6 @@ live in their own repositories and pull them in as packages.
 | `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
 | `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, `palette.css` / `fonts.css` |
 | `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks - and the playable quiz as a single component (`QuizGame`) |
-| `@hfroemmel/quiz-kiosk` | Points at `quiz-react`, where `QuizGame` now lives. Removed one release after 0.19.0 |
 
 | Application | Repository | What it is |
 |---|---|---|
@@ -49,7 +48,7 @@ every preset. The real content lives in `quiz-content-data`.
 
 ```bash
 pnpm typecheck        # TypeScript across packages and the test harness
-pnpm test             # core, content pipeline, palette guard (364 tests)
+pnpm test             # core, content pipeline, palette guard (366 tests)
 pnpm test:e2e         # Playwright against the harness (121 runs, screenshot baselines)
 pnpm packages:build   # dist per package
 pnpm packages:verify  # publint + attw on the packed tarball
@@ -70,13 +69,13 @@ Stage operation - server, SQLite, WebSocket, resumption - is verified in
 contract additionally in `app-collection`.
 
 Baseline of the refactoring (branch `refactor`, 2026-09-16): typecheck clean,
-364 unit tests and 121 end-to-end runs green. Every phase of
+366 unit tests and 121 end-to-end runs green. Every phase of
 `docs/refactoring/H-migration-plan.md` has to reproduce these numbers before
 it is merged.
 
 ## Publishing
 
-Changesets with fixed versioning across all five packages; a push to `main`
+Changesets with fixed versioning across all four packages; a push to `main`
 with open changesets creates the "Version Packages" PR, and merging it
 publishes to GitHub Packages. Details in
 [docs/veroeffentlichung.md](docs/veroeffentlichung.md).

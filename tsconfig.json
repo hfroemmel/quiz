@@ -15,7 +15,6 @@
     "**/node_modules",
     "**/dist",
     "packages/react/src",
-    "packages/react/test",
-    "packages/kiosk/src"
+    "packages/react/test"
   ]
 }

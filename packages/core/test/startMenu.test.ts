@@ -89,15 +89,23 @@ describe('rules of the package', () => {
     expect(resolveRules({ jokers: { enabled: false } }).jokersEnabled).toBe(false)
   })
 
-  it('carries the two rules a client needs into the catalogue', () => {
+  it('carries the three rules a client needs into the catalogue', () => {
     const plain = catalogOf(testConfig)
-    expect(plain.rules).toEqual({ showDetailsAfterSolution: false })
+    expect(plain.rules).toEqual({ showDetailsAfterSolution: false, manualAdjustmentStep: 50 })
 
     const configured = catalogOf({
       ...testConfig,
-      rules: { idleTimeoutMs: 90_000, showDetailsAfterSolution: true },
+      rules: {
+        idleTimeoutMs: 90_000,
+        showDetailsAfterSolution: true,
+        scoring: { manualAdjustmentStep: 10 },
+      },
     })
-    expect(configured.rules).toEqual({ idleTimeoutMs: 90_000, showDetailsAfterSolution: true })
+    expect(configured.rules).toEqual({
+      idleTimeoutMs: 90_000,
+      showDetailsAfterSolution: true,
+      manualAdjustmentStep: 10,
+    })
   })
 })
 

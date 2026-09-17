@@ -141,12 +141,13 @@ In the hosts (after the release of 0.16.0, all four pinned to `~0.16.0`):
   `rules.idleTimeoutMs` into the generated config, and the four committed
   packages are regenerated with it. The suite stays at 25 green.
 
-What is not done in the hosts: quiz-live still imports the deprecated alias
-`texteFuer`, because the tree installed here is 0.14.0 and does not know
-`textsFor` yet - the swap belongs to the next install. And the operator desk
-labels its correction buttons from the `scoringRules` constant instead of the
-resolved rules, so a package that configures `manualAdjustmentStep` would get a
-label that does not match the step. Both need an install, not a decision.
+Done in the hosts with 0.20.0: the operator desk labelled its correction
+buttons from the `scoringRules` constant instead of the resolved rules, so a
+package configuring `manualAdjustmentStep` got a label that did not match the
+step. It could not be fixed in the host - a desk sees a view model, not a
+configuration - so `catalog.rules` carries the resolved figure now and the desk
+reads it. The other item of this list, quiz-live's deprecated `texteFuer`
+import, is gone too: the desk calls `textsFor`.
 
 ## Phase 4 – Start menu in the package
 
@@ -156,7 +157,7 @@ label that does not match the step. Both need an install, not a decision.
 
 **Packages touched.** react, kiosk. **Hosts.** all four. **Dependencies.** Phases 2 (artwork assets in content) and 3. **Risk.** medium: three suites assert menu markup (bundestags-app 8 start-screen tests, quiz-live 11 stage-overview tests, quiz kiosk tests); mitigated by keeping the attribute names. **Tests.** move the eight bundestags-app start-screen tests into quiz's E2E as package tests; quiz-live `stage-overview.spec.ts` unchanged. **Result.** kiosk, standalone, app-collection and the app show the same menu; the live desk keeps its form.
 
-**Status: the menu is in the package; the two host cleanups are open.**
+**Status: done - the menu is in the package and both host cleanups have landed.**
 `StartMenu` takes the derived model and asks what the configuration offers -
 quiz, player count, level - and every step with a single option falls away. The
 offer cards carry the motif of the content, the emphasised quiz takes the whole
@@ -179,13 +180,6 @@ Two decisions differ from the plan above, both on purpose:
   (quiz, quiz-standalone, app-collection); the media table's radio semantics
   would have rewritten all three for an interaction the package already solves.
   Tab reaches every card, space and enter trigger it.
-
-Still open in the hosts, both after the next release: the bundestags-app
-deletes `QuizStart.js`, `startOffers.js`, `QuizStart.scss`, the
-`MutationObserver` latch, the `visibility: hidden` rule and its twelve locale
-keys, and states its three quizzes as `quizzes` with `artworkAssetId`; quiz-live
-gets the shared `OfferOverview` and drops `quizArtwork.ts` - that one waits for
-Phase 2, because the artwork has to live in the content package first.
 
 **Both host cleanups are done, and both are verified.** The packages of this
 branch were built and linked into the hosts' `node_modules` - the state a
@@ -359,12 +353,22 @@ green.
   language the game runs in, so the menu fell back to German however the
   content was configured. It reads `model.locale` now; the model always knew.
 
-Open in the hosts: the media table states roughly fifty strings per English
-package, of which only the ones in its own voice - the greeting, the word
-"Quiz" as a step name - are still needed; and its four content packages
-(audience × language) can become two, because the language is no longer a
-property of the package. Both are host work and belong in one pass with the
-`content.lock.json` route of Phase 2.
+Done in the hosts with 0.20.0: the media table stated 45 English strings and
+33 of them repeated the package's own English word for word. They are gone, and
+what stays is what the table genuinely words differently - eleven strings in
+English, ten in German: the greeting, the word "Quiz" as a step name, "single
+player" for a solo game, and the sentence that says which card to pick when a
+quiz has no questions. One of the 45 named a key no package defines
+(`kiosk.setupNote`) and had been doing nothing. The test "takes its wording from
+the package, in both languages" is what made the removal provable.
+
+STILL OPEN, AND NOW SUPERSEDED: the second half of that paragraph asked for the
+four content packages (audience × language) to become two, because the
+language was to stop being a property of the package. The addendum of
+2026-09-16 decides the opposite - pools are independent per language, with no
+cross-language ids and no translation obligation - which makes four packages by
+audience and language the target shape rather than the thing to remove. See
+`J` (the content and language addendum); the item is dropped here.
 
 ## Phase 8 – API slimming and package reduction
 
@@ -397,8 +401,51 @@ move a table's setting into the question set it shares with the hall. The word
 mark as a file is what a host needs that shows the mark OUTSIDE the stage, and
 the stage overview of the live quiz does exactly that.
 
-Open: deleting the kiosk package for good, one release later; then the four
-packages of E.5 are the four packages.
+Done in 0.20.0: `@hfroemmel/quiz-kiosk` is deleted. The four packages of E.5
+are now the four packages that exist - the changeset set, the verification
+script, the tag script and the typecheck no longer name a fifth. The pointer
+lived for exactly the one release it was promised, and the applications take
+the swap with the pin bump: `QuizGame`, `StartMenu` and `deviceStartMenu` come
+from `@hfroemmel/quiz-react`, and its `styles.css` carries what the kiosk
+stylesheet used to.
+
+## Where the plan stands after 0.20.0
+
+Phases 0, 1, 3, 4, 5, 6, 7 and 8 are done in the packages AND in the
+applications. `@hfroemmel/quiz-kiosk` is deleted, the four applications import
+from `@hfroemmel/quiz-react` and pin `~0.20.0`, the operator desk announces the
+step its package uses, and the media table states eleven deviations instead of
+45 translations.
+
+Measured for 0.20.0: quiz typecheck clean, 366 unit tests, 121 end-to-end runs,
+publint and attw green on the packed tarballs of all four packages; quiz-live
+typecheck clean, 72 unit tests, 64 of 64 end-to-end; bundestags-app 22 of 22
+end-to-end. The hosts were verified against the PACKED tarballs installed into
+their trees, not against a promise.
+
+THREE THINGS ARE NOT DONE, and each says why:
+
+- **Phase 2, the corpus.** The 201 editorial questions still live twice - in
+  `quiz-content-data` as the master and in `quiz-live` as a second copy, already
+  eight prompts apart - and the 254 MB of media under Git LFS were never
+  committed (eleven files are tracked). Moving them needs LFS access and an
+  editorial decision per diverging question, neither of which is a refactoring
+  step. It is the first row of the migration table in `J`.
+- **The transitional flat pool in quiz-live**, minus its opening. Slots four to
+  seven of every operated preset still draw from the whole pool, so the arc of
+  a round - easy first, hard at the end - is still gone. What came back are the
+  three named slots: `test-video`, `test-person` and `bilderkennen` ask for a
+  video, a person and an image reveal again. They are the dramaturgy of the
+  opening and they are what two end-to-end tests read, so both were red from
+  39354fe until 0.20.0; a slot called `test-person` drawing a text question was
+  the giveaway that the name is a promise. Restoring the rest waits on more
+  questions per slot, which is content work, not a refactoring step.
+- **The Electron host package** of Phase 8, which the plan marks optional and
+  which stays optional.
+
+And the next body of work is not a phase of this plan any more: the content and
+language addendum of 2026-09-16 (`J`) supersedes the language half of Phase 7
+and the package half of Phase 2, and it starts where this plan ends.
 
 ## Effort and order of value
 

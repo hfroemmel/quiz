@@ -18,12 +18,12 @@ const themesDir = fileURLToPath(new URL('..', import.meta.url))
 const generated = join(themesDir, 'src', 'palette.css')
 /*
  * Checks run across ALL surface layers: the themes themselves, the React
- * stage, the kiosk package and the harness.
+ * stage - which is where the playable quiz lives since 0.19.0 - and the
+ * harness.
  */
 const sourceDirs = [
   join(themesDir, 'src'),
   join(themesDir, '..', 'react', 'src'),
-  join(themesDir, '..', 'kiosk', 'src'),
   join(themesDir, '..', '..', 'harness', 'src'),
 ]
 
@@ -77,7 +77,7 @@ describe('Colour palette', () => {
   it('generates palette.css unchanged from the source', () => {
     expect(
       readFileSync(generated, 'utf8'),
-      'palette.css passt nicht mehr zu src/palettes.ts - `pnpm palette:build` ausfuehren.',
+      'palette.css no longer matches src/palettes.ts - run `pnpm palette:build`.',
     ).toBe(paletteStyleSheet())
   })
 
@@ -94,7 +94,7 @@ describe('Colour palette', () => {
     }
     expect(
       offenders,
-      'Farbwerte gehoeren nach packages/themes/src/palettes.ts, nicht in ein Stylesheet oder Bauteil.',
+      'Colour values belong in packages/themes/src/palettes.ts, not in a stylesheet or a component.',
     ).toEqual([])
   })
 })

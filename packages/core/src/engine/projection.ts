@@ -738,6 +738,7 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
     rules: {
       ...(rules.idleTimeoutMs === undefined ? {} : { idleTimeoutMs: rules.idleTimeoutMs }),
       showDetailsAfterSolution: rules.showDetailsAfterSolution,
+      manualAdjustmentStep: rules.scoring.manualAdjustmentStep,
     },
     audiences: ctx.config.audiences.map((audienceConfig) => {
       const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId)
