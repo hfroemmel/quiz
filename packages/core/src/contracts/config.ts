@@ -33,14 +33,16 @@ export const scoringRules = {
  */
 export const gameTiming = {
   /**
-   * Duration of the correct-answer animation before the solution appears.
+   * Duration of the correct-answer feedback before the solution appears.
    *
-   * The value follows the delivered motion graphic `correct.webm`: the check mark
-   * is fully drawn after about 1.4 seconds, the confetti has run out after that.
-   * A shorter phase would cut into the middle of the statement.
+   * IT IS THE BEAT, NOT THE DRAWING. The value once followed a delivered clip,
+   * whose check mark was fully drawn after about 1.4 seconds; the mark is drawn
+   * in code now and stands complete after 0.6. The two seconds stay because the
+   * room needs a moment to read it and the score counts up underneath it
+   * meanwhile - a phase as short as the animation would be a flicker.
    */
   correctFeedbackMs: 2_000,
-  /** Duration of the wrong-answer animation (the cross is complete after about 1.4 seconds). */
+  /** Duration of the wrong-answer feedback - the same beat, a touch shorter. */
   incorrectFeedbackMs: 1_800,
   /** Short, defined pause between feedback and the solution view. */
   solutionDelayMs: 250,

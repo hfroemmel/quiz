@@ -21,6 +21,23 @@ async function selectTheme(page: Page, theme: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(1).selectOption(theme)
 }
 
+/**
+ * The fill of the feedback disc, next to the stage token it is supposed to
+ * carry - both as the browser resolves them, so a hex value and an `rgb()` of
+ * the same tone compare equal.
+ */
+async function discAgainstToken(page: Page, name: string): Promise<[string, string]> {
+  return page.locator('[data-answer-result] circle').evaluate((disc, entry) => {
+    const stage = disc.closest('.stage')!
+    const probe = document.createElement('span')
+    probe.style.color = getComputedStyle(stage).getPropertyValue(entry).trim()
+    stage.appendChild(probe)
+    const expected = getComputedStyle(probe).color
+    probe.remove()
+    return [getComputedStyle(disc).fill, expected]
+  }, name)
+}
+
 /** Only present in the question and solution scenes; there the selector sits in third place. */
 async function selectQuestionType(page: Page, type: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(2).selectOption(type)
@@ -132,11 +149,21 @@ test.describe('Visual smoke tests of all scenes', () => {
   test('feedback scene shows correct and wrong differently', async ({ page }) => {
     await selectScene(page, 'feedback')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="correct"]')).toBeVisible()
-    await expect(page.locator('[data-clip="correct"]')).toBeVisible()
+    /*
+     * The mark is drawn from the palette's tokens, so the check is not that a
+     * file is there but that the disc carries the meaning colour of the running
+     * stage - a mark with a colour of its own would be the old clip's mistake
+     * in a new form.
+     */
+    await expect(page.locator('[data-answer-result="correct"]')).toBeVisible()
+    const [correctFill, correctToken] = await discAgainstToken(page, '--color-correct')
+    expect(correctFill).toBe(correctToken)
 
     await page.locator('[data-preview-panel] select').nth(2).selectOption('incorrect')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="incorrect"]')).toBeVisible()
-    await expect(page.locator('[data-clip="wrong"]')).toBeVisible()
+    await expect(page.locator('[data-answer-result="wrong"]')).toBeVisible()
+    const [wrongFill, wrongToken] = await discAgainstToken(page, '--color-incorrect')
+    expect(wrongFill).toBe(wrongToken)
     // The wrong-answer animation must not give away the solution early.
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })

@@ -426,11 +426,14 @@ in the design. Separation arises solely through brightness.
 |---|---|---|
 | Fullscreen | top right | four corner angles, 2 px stroke, white |
 | Sound off | top right, below | speaker with a diagonal slash |
-| Checkmark | correct feedback | delivered motion graphic `correct.webm` |
-| Cross | incorrect feedback | delivered motion graphic `wrong.webm` |
+| Checkmark | correct feedback | drawn as SVG on a disc in `--color-correct` (`AnswerResultAnimation`) |
+| Cross | incorrect feedback | drawn as SVG on a disc in `--color-incorrect` (`AnswerResultAnimation`) |
 
-This clarifies the cross missing from the templates: it is part of the
-delivered incorrect graphic.
+This clarifies the cross missing from the templates: it is drawn on the disc.
+Both marks used to be delivered WebM clips; they are vectors now, so the disc
+carries the meaning colour of the running theme instead of a tone baked into a
+file - which is what lets the same mark work on the light, the dark and the red
+stage and in the children's world.
 
 Fullscreen and sound are drawn as inline SVG with `currentColor`. There is
 no icon font and no external symbol files.
@@ -441,7 +444,7 @@ no icon font and no external symbol files.
 |---|---|---|
 | `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | adult start screen: eagle at 8% opacity, with the `?` on top. The title is application text, not part of the graphic |
 | `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | kids start screen, 1024 x 828, edge-to-edge |
-| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
+| `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
 | `confetti.svg` | `apps/web/src/assets/animations/` | animated SVG for the results view |
 
 The start screens are content of the quiz package and are assigned via

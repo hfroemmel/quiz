@@ -48,6 +48,7 @@ export * from './game/startMenuModel'
 export * from './client/useQuizSnapshot'
 export * from './client/useRevealClock'
 export * from './ui/AnimationClip'
+export * from './ui/AnswerResultAnimation'
 export * from './components/Confetti'
 /* For hosts with their own composition: operator desk and preview harness. */
 export * from './presentation/stage/answerState'

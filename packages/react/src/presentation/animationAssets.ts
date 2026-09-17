@@ -11,16 +11,20 @@
  * correctly:
  *
  *   `durationMs`  Total length of the file, including the still frame at the end.
- *   `payoffMs`    Point in time at which the statement is fully visible
- *                 (checkmark fully drawn, cross fully drawn).
+ *   `payoffMs`    Point in time at which the statement is fully visible.
  *
  * A phase that shows one of these graphics has to run at least until
  * `payoffMs`. Otherwise the state change cuts into the middle of the
  * statement. That is why the value lives here and not as a comment in a
  * component.
+ *
+ * THE RIGHT/WRONG MARK IS NO LONGER AMONG THEM. It was the one statement in
+ * here that had to follow the theme, and a file cannot: its turquoise and its
+ * red were baked in, whatever palette the running stage carried. It is drawn
+ * from the palette's tokens now (`AnswerResultAnimation`), which also takes the
+ * only two entries out of this table that a phase duration had to be matched
+ * to. What remains are the graphics that carry no meaning colour.
  */
-import correctClip from '../assets/animations/correct.webm'
-import wrongClip from '../assets/animations/wrong.webm'
 import trophyClip from '../assets/animations/trophy.webm'
 import starsClip from '../assets/animations/stars.webm'
 import questionMarksClip from '../assets/animations/question-marks.webm'
@@ -39,22 +43,6 @@ export interface AnimationClipAsset {
 }
 
 export const animationClips = {
-  correct: {
-    id: 'correct',
-    url: correctClip,
-    durationMs: 4_000,
-    payoffMs: 1_400,
-    sourceSizePx: 500,
-    description: 'Türkiser Kreis wächst, Konfetti stiebt aus, Haken zeichnet sich.',
-  },
-  wrong: {
-    id: 'wrong',
-    url: wrongClip,
-    durationMs: 2_000,
-    payoffMs: 1_400,
-    sourceSizePx: 500,
-    description: 'Roter Kreis wächst mit Ringimpuls, zwei Striche drehen sich zum Kreuz.',
-  },
   trophy: {
     id: 'trophy',
     url: trophyClip,

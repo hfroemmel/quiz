@@ -62,36 +62,44 @@ stars are omitted.
 `score-count-up` deliberately runs **during** the correct-answer animation, so
 the point gain and the checkmark are read together (confirmed).
 
-## C - Feedback (delivered motion graphics)
+## C - Feedback (drawn, not delivered)
 
-Correct and incorrect are **not** drawn in code, but delivered as files. They
-are VP9 WebM with an alpha channel, 500 x 500 pixels, 30 frames per second,
-without an audio track, and are registered centrally via
-`apps/web/src/presentation/animationAssets.ts`.
+Correct and incorrect are drawn in code: a disc that springs in, then a symbol
+drawn along its own path (`AnswerResultAnimation` in quiz-react). They used to
+be delivered files - VP9 WebM with an alpha channel, 500 x 500 pixels - and that
+was the one statement on the stage that could not follow the theme: the clip's
+turquoise and its red were baked in, whatever palette the running stage carried.
 
-| File | Length | Statement complete after | Sequence |
+| Mark | Sequence | Statement complete after | Colours |
 |---|---|---|---|
-| `correct.webm` | 4.0 s | 1.4 s | circle grows from 0.6 s, confetti bursts out, checkmark draws until 1.2 s, confetti fades out until 1.9 s, then still frame |
-| `wrong.webm` | 2.0 s | 1.4 s | circle grows with a ring pulse, two strokes start at 0.9 s and rotate into a cross until 1.2 s, pulse fades out until 2.0 s |
+| Checkmark | disc scales in over 480 ms with a short overshoot, checkmark draws from 250 ms over 360 ms | 0.61 s | disc `--color-correct`, symbol `--stage-inkOnStrong` |
+| Cross | the same motion, two strokes as one path | 0.61 s | disc `--color-incorrect`, symbol `--stage-inkOnStrong` |
 
 This resolves the previously open point "the incorrect circle is missing a
-cross": the cross is part of the delivered graphic.
+cross": the cross is drawn on the disc.
+
+The disc measures 92 percent of `--feedback-size` (14.2 cqw), which puts it on
+the stage at the size the two clips had - they carried a lot of transparent
+margin, so their frames were 34 and 16 cqw for discs of the same size. Reduced
+motion keeps the mark and drops the movement, as the clips' still frame did.
 
 ### Consequence for the phase durations
 
-A phase must run at least until the statement is complete, otherwise the
-state transition cuts into the movement. That's why the values in
-`gameTiming` were adjusted to the files:
+A phase must run at least until the statement is complete, otherwise the state
+transition cuts into the movement. The numbers in `gameTiming` were once matched
+to the files:
 
-| Value | Before | Now | Reason |
-|---|---|---|---|
-| `correctFeedbackMs` | 1400 ms | **2000 ms** | checkmark done at 1.4 s, confetti faded out afterward |
-| `incorrectFeedbackMs` | 1200 ms | **1800 ms** | cross done at 1.4 s, ring pulse fading out |
+| Value | Value | Reason |
+|---|---|---|
+| `correctFeedbackMs` | **2000 ms** | matched to the old clip; the mark now stands complete after 0.61 s and rests for the remainder |
+| `incorrectFeedbackMs` | **1800 ms** | the same |
 
-The specification explicitly names these two numbers as example values to be
-set during visual fine-tuning; only the ten seconds of the image reveal are
-binding. Both transitions remain `locked`: the server ends the phase after
-exactly this time.
+They are **kept** as the pacing of the moment, not as a constraint from a file:
+the room needs a beat to read the mark, and the score counts up underneath it
+meanwhile. The specification explicitly names these two numbers as example
+values to be set during visual fine-tuning; only the ten seconds of the image
+reveal are binding. Both transitions remain `locked`: the server ends the phase
+after exactly this time.
 
 | ID | Duration | Reduced | Sound | Binding |
 |---|---|---|---|---|

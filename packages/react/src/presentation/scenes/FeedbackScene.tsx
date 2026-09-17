@@ -5,15 +5,17 @@
  * answer, the second chance follows, not the reveal - the server does not
  * even send the solution during this phase.
  *
- * The motion comes from the supplied animated graphics `correct` and `wrong`
- * (see `animationAssets.ts`), not from shapes drawn in code. How long the
- * scene stays visible is decided solely by the server via its fallback
- * timer; this component does not report any `animationend` back.
+ * THE MARK IS DRAWN, NOT FILMED (`AnswerResultAnimation`). It used to be a
+ * delivered WebM clip per outcome; the drawing takes its colours from the
+ * running theme, so the wrong answer is red on the red stage too and the
+ * children's world gets its own green without a second file. How long the scene
+ * stays visible is still decided solely by the server via its phase timer; this
+ * component reports no `animationend` back.
  *
  * The score is deliberately NOT shown here: it counts up in the header's
  * score tile during this animation instead (a later design addition).
  */
-import { AnimationClip } from '../../ui/AnimationClip'
+import { AnswerResultAnimation } from '../../ui/AnswerResultAnimation'
 import { textsFor } from '../texts'
 import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
@@ -26,8 +28,8 @@ export function FeedbackScene({ view }: SceneProps) {
   return (
     <div className={`${styles.scene} ${styles.feedback}`} data-outcome={correct ? 'correct' : 'incorrect'}>
       <div className={styles.feedbackSymbol}>
-        <AnimationClip
-          clipId={correct ? 'correct' : 'wrong'}
+        <AnswerResultAnimation
+          result={correct ? 'correct' : 'wrong'}
           // A new attempt by the same player restarts the animation.
           restartKey={`${feedback?.playerId ?? 'none'}-${feedback?.outcome ?? 'none'}-${view.revision}`}
         />
