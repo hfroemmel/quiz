@@ -127,7 +127,7 @@
   scale: var(--stage-zoom, 1);
   transform-origin: top center;
   /* Stay right under the header; the footer is fixed and out of flow. */
-  margin: 0 auto;
+  margin: 0 auto 5vw;
 }
 /* The scene box fills the area. */
 :global(.stage--touch) .sceneRoot {

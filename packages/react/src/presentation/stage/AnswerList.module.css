@@ -197,11 +197,10 @@
   padding-left: 1.6cqw;
 }
 :global(.stage--default[data-presentation='person']) .answers {
-  gap: 1.7438cqw;
+  gap: 1.3cqw;
 }
 :global(.stage--default[data-presentation='person']) .answer {
   min-height: 4.8937cqw;
-  gap: 0.9cqw;
 }
 /*
  * The letter sits in an almost square field. The width is set explicitly

@@ -231,7 +231,7 @@
  * the scene takes the remaining space itself (`flex: 1`).
  */
 .stage--touch {
-  justify-content: space-between;
+  justify-content: center;
 }
 
 /* ------------------------------------------------------------------ *
