@@ -91,8 +91,9 @@ export class LocalQuizRuntime implements QuizRuntime<PlayerQuizViewModel> {
       view: this.service.snapshotFor('player'),
       revision: this.service.currentRevision,
       serverTimeMs: this.serverNow(),
-      // Locally there is neither a network nor competition for the audio lead.
-      connection: { connected: true, audioMaster: true },
+      // Locally there is neither a network nor competition for either lead:
+      // one window plays everything and sounds everything.
+      connection: { connected: true, audioMaster: true, videoAudioMaster: true },
       lastRejection: this.lastRejection,
     }
     return this.snapshot

@@ -43,6 +43,11 @@ export interface StageScreenProps {
   serverNow: () => number
   /** Only the audio master plays sounds and video audio. */
   isAudioMaster: boolean
+  /**
+   * May this window sound a video it plays? Without a value: yes, because a
+   * window that shows the picture is the one the room hears.
+   */
+  isVideoAudioMaster?: boolean
   /** The stage client may only report media status back. */
   onCommand?: (command: Command) => void
   /**
@@ -82,6 +87,7 @@ export function StageScreen({
   view,
   serverNow,
   isAudioMaster,
+  isVideoAudioMaster = true,
   onCommand,
   variant = 'stage',
   headerSlots,
@@ -264,7 +270,7 @@ export function StageScreen({
             className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
             data-scene-root=""
           >
-            {renderScene(view, sceneProps, isAudioMaster, onCommand)}
+            {renderScene(view, sceneProps, isVideoAudioMaster, onCommand)}
           </div>
           <Mascot />
         </div>
@@ -302,7 +308,7 @@ function isRevealing(view: PublicQuizViewModel): boolean {
 function renderScene(
   view: PublicQuizViewModel,
   props: SceneProps,
-  isAudioMaster: boolean,
+  isVideoAudioMaster: boolean,
   onCommand?: (command: Command) => void,
 ) {
   switch (view.scene) {
@@ -315,7 +321,7 @@ function renderScene(
     case 'reveal':
       return <RevealScene {...props} />
     case 'video':
-      return <VideoScene {...props} isAudioMaster={isAudioMaster} onCommand={onCommand} />
+      return <VideoScene {...props} isVideoAudioMaster={isVideoAudioMaster} onCommand={onCommand} />
     case 'feedback':
       return <FeedbackScene {...props} />
     case 'solution':

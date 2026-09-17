@@ -90,6 +90,7 @@ export function QuizScene<TView extends PublicQuizViewModel>({
         view={view}
         serverNow={serverNow}
         isAudioMaster={snapshot.connection.audioMaster && audible}
+        isVideoAudioMaster={snapshot.connection.videoAudioMaster && audible}
         onCommand={command}
         variant={variant}
         {...(headerSlots ? { headerSlots } : {})}

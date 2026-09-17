@@ -34,8 +34,17 @@ import styles from './scenes.module.css'
 import type { SceneProps } from './sceneProps'
 
 interface VideoSceneProps extends SceneProps {
-  /** Only the audio master plays the sound. */
-  isAudioMaster?: boolean
+  /**
+   * May this window sound the video it plays?
+   *
+   * NOT THE CUE AUTHORITY. The cues may come from any window that is allowed
+   * to sound; a video is played only where the room sees it. Asking the cue
+   * authority left a hole in the middle: the operator held it, the operator's
+   * window plays no video, and the stage played it muted because it was not
+   * the authority - so nobody sounded it. `connection.videoAudioMaster` is
+   * elected among the windows that carry the picture.
+   */
+  isVideoAudioMaster?: boolean
   /**
    * The device's command to the server - used only on the touch device.
    *
@@ -60,7 +69,7 @@ interface VideoSceneProps extends SceneProps {
  */
 let lastExecuted: string | null = null
 
-export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: VideoSceneProps) {
+export function VideoScene({ view, variant, isVideoAudioMaster = true, onCommand }: VideoSceneProps) {
   const t = textsFor(view)
   const elementRef = useRef<HTMLVideoElement | null>(null)
   const question = view.question
@@ -94,8 +103,29 @@ export function VideoScene({ view, variant, isAudioMaster = true, onCommand }: V
    * the console of the window it concerns, and nowhere else.
    */
   const [soundRefused, setSoundRefused] = useState(false)
-  useEffect(() => setSoundRefused(false), [isAudioMaster])
-  const muted = !isAudioMaster || soundRefused
+  useEffect(() => setSoundRefused(false), [isVideoAudioMaster])
+  const muted = !isVideoAudioMaster || soundRefused
+
+  /*
+   * AND IT TRIES AGAIN AT THE FIRST TOUCH. A refusal is not a property of the
+   * file, it is the state of a window nobody has clicked in yet - so it ends
+   * the moment somebody does. Unmuting is allowed from that gesture on, and
+   * the clip keeps its position: it goes on sounding where it is instead of
+   * starting over, which would be worse in a room than the silence was.
+   *
+   * Without this, one refusal muted the whole clip, and the next one, until
+   * the window was reloaded.
+   */
+  useEffect(() => {
+    if (!soundRefused || !isVideoAudioMaster) return undefined
+    const retry = () => setSoundRefused(false)
+    window.addEventListener('pointerdown', retry, { once: true })
+    window.addEventListener('keydown', retry, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', retry)
+      window.removeEventListener('keydown', retry)
+    }
+  }, [soundRefused, isVideoAudioMaster])
 
   const games = useCallback((element: HTMLVideoElement) => {
     void element.play().catch((error: Error) => {

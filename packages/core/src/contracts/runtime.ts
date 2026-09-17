@@ -21,6 +21,22 @@ export interface QuizRuntimeConnection {
   connected: boolean
   /** Only one context plays sounds; the runtime carries the decision. */
   audioMaster: boolean
+  /**
+   * May this context sound a VIDEO it plays?
+   *
+   * A SECOND AUTHORITY, BECAUSE IT IS A SECOND SET OF WINDOWS. The sound cues
+   * can come from any window that is allowed to sound - the operator's laptop
+   * included, which is why the first authority may land there. A video is
+   * played by the windows that show the room its picture, and by nobody else:
+   * the operator's desk shows the same area empty on purpose.
+   *
+   * Tying the video to the cue authority therefore had a hole in the middle.
+   * In the normal setup - the operator clicks in their window, the projector
+   * window is never touched - the cue authority went to the operator, whose
+   * window plays no video, while the stage played it muted because it was not
+   * the authority. Nobody sounded it, and no error said so.
+   */
+  videoAudioMaster: boolean
 }
 
 export interface QuizSnapshot<TView> {
