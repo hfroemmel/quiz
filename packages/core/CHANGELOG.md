@@ -1,5 +1,50 @@
 # @hfroemmel/quiz-core
 
+## 0.20.0
+
+### Minor Changes
+
+- 8e8e468: The catalogue names the correction step, so the desk can say it.
+  
+  The operator's two score-correction buttons are announced as "plus 50" and
+  "minus 50" - and that figure came from the engine's constant, not from the
+  package being played. A package that set `scoring.manualAdjustmentStep` therefore
+  moved the score by its own step while the desk announced 50, and a screen
+  reader read out a number nothing in the room used.
+  
+  `catalog.rules` carries `manualAdjustmentStep` now, next to the two values that
+  were already there (`idleTimeoutMs`, `showDetailsAfterSolution`). It is the
+  resolved figure: the package's where it sets one, the engine's otherwise. No
+  behaviour changes - the step itself was always the resolved one, only its label
+  was not.
+- 8e8e468: `@hfroemmel/quiz-kiosk` is gone. There are four packages.
+  
+  IT WAS A POINTER FOR ONE RELEASE, and that was the promise. In 0.19.0 the
+  playable quiz moved into `@hfroemmel/quiz-react` and the kiosk package stayed
+  behind as a re-export with an empty stylesheet, so that an unchanged
+  application kept building while it took the release at its own pace. That
+  release has happened. The pointer is now deleted rather than kept, because a
+  package that only names another place is a place people keep arriving at.
+  
+  WHAT AN APPLICATION CHANGES, and it is two lines:
+  
+      - import { QuizGame, StartMenu, deviceStartMenu } from '@hfroemmel/quiz-kiosk'
+      + import { QuizGame, StartMenu, deviceStartMenu } from '@hfroemmel/quiz-react'
+  
+      - import '@hfroemmel/quiz-kiosk/styles.css'
+  
+  The second import is not replaced by anything: since 0.19.0 the game's own
+  rules travel in `@hfroemmel/quiz-react/styles.css`, which every application
+  showing a quiz already imports. Nothing else moves - the components, their
+  props and their behaviour are the ones from 0.19.0, byte for byte. Remove the
+  dependency from `package.json` and the swap is complete.
+  
+  THE FOUR PACKAGES ARE NOW FOUR EVERYWHERE, not four plus a leftover: the
+  fixed-version set of the changeset configuration, the tarball verification,
+  the tag script and the typecheck each name exactly the packages that exist. The
+  two scripts behind the release gave up their German identifiers on the way,
+  which was the last of them outside a user-visible label.
+
 ## 0.19.0
 
 ### Minor Changes

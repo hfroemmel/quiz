@@ -1,5 +1,60 @@
 # @hfroemmel/quiz-content
 
+## 0.20.0
+
+### Minor Changes
+
+- 8e8e468: `@hfroemmel/quiz-kiosk` is gone. There are four packages.
+  
+  IT WAS A POINTER FOR ONE RELEASE, and that was the promise. In 0.19.0 the
+  playable quiz moved into `@hfroemmel/quiz-react` and the kiosk package stayed
+  behind as a re-export with an empty stylesheet, so that an unchanged
+  application kept building while it took the release at its own pace. That
+  release has happened. The pointer is now deleted rather than kept, because a
+  package that only names another place is a place people keep arriving at.
+  
+  WHAT AN APPLICATION CHANGES, and it is two lines:
+  
+      - import { QuizGame, StartMenu, deviceStartMenu } from '@hfroemmel/quiz-kiosk'
+      + import { QuizGame, StartMenu, deviceStartMenu } from '@hfroemmel/quiz-react'
+  
+      - import '@hfroemmel/quiz-kiosk/styles.css'
+  
+  The second import is not replaced by anything: since 0.19.0 the game's own
+  rules travel in `@hfroemmel/quiz-react/styles.css`, which every application
+  showing a quiz already imports. Nothing else moves - the components, their
+  props and their behaviour are the ones from 0.19.0, byte for byte. Remove the
+  dependency from `package.json` and the swap is complete.
+  
+  THE FOUR PACKAGES ARE NOW FOUR EVERYWHERE, not four plus a leftover: the
+  fixed-version set of the changeset configuration, the tarball verification,
+  the tag script and the typecheck each name exactly the packages that exist. The
+  two scripts behind the release gave up their German identifiers on the way,
+  which was the last of them outside a user-visible label.
+- daf199c: The import says whose pictures are still unclear.
+  
+  A question's image is somebody's work and the licence line belongs with it.
+  Validation has warned about a missing one for a while, but at the end of a
+  build report it is a research job; at the import it is a question whoever just
+  read the workbook can still answer, with the mail the picture came in still
+  open.
+  
+  `uncreditedImages(questions, assets)` is the rule, and it is now the only place
+  it lives - the validation asks the same function, so the two cannot drift.
+  `quiz-content import-sheet` reports what it finds, per question, and says which
+  of the two problems it is: a medium declared without a credit, or one that is
+  not in `assets.json` at all.
+  
+  Only the IMAGES OF QUESTIONS. A word mark and a quiz motif come from the house
+  itself and nobody researches those; a rule that fires on every asset without a
+  credit is a rule people switch off.
+
+### Patch Changes
+
+- Updated dependencies [8e8e468]
+- Updated dependencies [8e8e468]
+  - @hfroemmel/quiz-core@0.20.0
+
 ## 0.19.0
 
 ### Minor Changes
