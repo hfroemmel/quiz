@@ -162,7 +162,7 @@ local files.
   }],
   "rules": {                             // optional; every value has today's constant as default
     "scoring": { "firstAnswerPoints": 100, "secondChancePoints": 50, "manualAdjustmentStep": 50 },
-    "timing":  { "pauseScreenMs": 3000, "imageRevealDurationMs": 10000, "questionLeadInMs": 2500 },
+    "timing":  { "pauseScreenMs": 1500, "imageRevealDurationMs": 10000, "questionLeadInMs": 2500 },
     "jokers":  { "enabled": true },
     "idleTimeoutMs": 120000,             // 0 switches the idle watch off
     "showDetailsAfterSolution": false

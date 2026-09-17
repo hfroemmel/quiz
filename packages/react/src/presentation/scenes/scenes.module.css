@@ -216,45 +216,36 @@
 /* Feedback */
 .feedback {
   justify-content: center;
-  --scene-gap: 0;
   /*
    * Centred in the ENTIRE stage area, not only in the remainder below the
    * header. The header is around 8 cqw tall; extra padding at the bottom
    * shifts the centred block up by half of that.
    */
   padding-bottom: 11cqw;
-  /* Edge length of the motion graphic - everything else follows from it. */
-  --feedback-size: 16cqw;
   /*
-   * Share of the edge length by which the word moves in toward the graphic.
-   * The two delivered graphics have different amounts of transparent
-   * margin: the checkmark swings out wide with sparks, the cross sits
-   * tightly in the frame and therefore needs extra distance the other
-   * way - hence the value is negative.
+   * ONE SIZE FOR BOTH OUTCOMES, and one distance to the word.
+   *
+   * There used to be two of each, plus a share by which the word moved in
+   * toward the graphic: the delivered clips carried different amounts of
+   * transparent margin - the checkmark swung out wide with sparks, the cross
+   * sat tightly in its frame - so two frames of 34 and 16 cqw were needed to
+   * put two discs of the same size on the stage. The mark is drawn now
+   * (`AnswerResultAnimation`) and its disc fills its box but for the overshoot,
+   * so the box is the disc and the distance is an ordinary gap.
+   *
+   * The disc measures 92 percent of this, which is what the two clips put on
+   * the stage before it - the moment keeps its size.
    */
-  --feedback-pull: -0.04;
-}
-/*
- * Correct is allowed to celebrate bigger than wrong. The checkmark is the
- * moment the room is waiting for; the cross deliberately stays restrained.
- */
-.feedback[data-outcome='correct'] {
-  --feedback-size: 34cqw;
-  --feedback-pull: 0.22;
+  --scene-gap: 2.4cqw;
+  --feedback-size: 14.2cqw;
 }
 .feedbackSymbol {
   width: var(--feedback-size);
   aspect-ratio: 1;
   line-height: 1;
 }
-/*
- * The delivered motion graphics have transparent margin all around - it
- * belongs to the animation's follow-through. The offset must therefore
- * scale with the graphic, or the word would cling to the small graphic and
- * float away from the large one.
- */
 .feedbackLabel {
-  margin: calc(var(--feedback-size) * var(--feedback-pull) * -1) 0 0;
+  margin: 0;
   font-size: 3.8cqw;
   font-family: var(--font-heading);
 }

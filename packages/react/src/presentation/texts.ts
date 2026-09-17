@@ -105,8 +105,8 @@ export const defaultTexts = {
   'kiosk.done': 'Fertig',
 
   /* Device: game and finish */
-  'kiosk.endGame': 'Spiel beenden',
-  'kiosk.endGameQuestion': 'Spiel wirklich beenden?',
+  'kiosk.endRound': 'Runde beenden',
+  'kiosk.endRoundQuestion': 'Diese Runde wirklich beenden?',
   'kiosk.end': 'Beenden',
   'kiosk.keepPlaying': 'Weiterspielen',
   'kiosk.playAgain': 'Nochmal spielen',
@@ -180,8 +180,8 @@ export const englishTexts: Record<TextKey, string> = {
   'kiosk.done': 'Done',
 
   /* Device: game and finish */
-  'kiosk.endGame': 'End game',
-  'kiosk.endGameQuestion': 'Really end the game?',
+  'kiosk.endRound': 'End round',
+  'kiosk.endRoundQuestion': 'Really end this round?',
   'kiosk.end': 'End',
   'kiosk.keepPlaying': 'Keep playing',
   'kiosk.playAgain': 'Play again',

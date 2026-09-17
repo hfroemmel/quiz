@@ -1,5 +1,5 @@
 /**
- * Light or dark version of the stage.
+ * Which colour variant of the stage is on show - light, dark or red.
  *
  * WHAT THIS IS AND WHAT IT IS NOT: it is a viewing preference of the person
  * operating it, not game state. The server knows nothing about it, it is not
@@ -7,13 +7,23 @@
  * itself. That is why the choice lives in `localStorage` and not in the state
  * machine.
  *
- * ONLY THE ADULTS' STAGE knows both versions. The children's world is its own
+ * ONLY THE ADULTS' STAGE knows these versions. The children's world is its own
  * design world with its own paper and its own drawings; it is not touched by
- * the switch.
+ * the choice.
+ *
+ * THE LIST IS THE OFFER, AND IN THIS ORDER. Whoever adds a variant adds it
+ * here, and every place that shows the choice grows by one option on its own -
+ * the stage carries it as `stage--<name>`, the screens in front of it as
+ * `data-theme="<name>"`, and `packages/themes/src/palette.css` holds the
+ * colours under those names. A host builds its box FROM THIS LIST rather than
+ * from a list of its own: a box that offers a variant this build does not know
+ * shows a choice that cannot take effect - the value is rejected on the next
+ * read, the field snaps back and nothing is recoloured. That was a real
+ * evening's confusion at the desk, with an application newer than its package.
  */
 import { useCallback, useEffect, useState } from 'react'
 
-export const stageThemes = ['dark', 'bright'] as const
+export const stageThemes = ['bright', 'dark', 'red'] as const
 export type StageTheme = (typeof stageThemes)[number]
 
 const STORAGE_KEY = 'quiz.stageTheme'
@@ -37,9 +47,20 @@ const FALLBACK: StageTheme = 'bright'
  */
 const CHANGE_EVENT = 'quiz:stage-theme'
 
-function read(): StageTheme {
-  const stored = window.localStorage.getItem(STORAGE_KEY)
+/**
+ * What a stored value means - and the fallback for everything else.
+ *
+ * Exported because this is the rule the whole preference stands on, and it can
+ * be read and tested here without a window: an unknown name gives the
+ * fallback, so a storage written by another build never puts a variant on the
+ * stage that this one cannot paint.
+ */
+export function stageThemeFrom(stored: string | null): StageTheme {
   return stageThemes.includes(stored as StageTheme) ? (stored as StageTheme) : FALLBACK
+}
+
+function read(): StageTheme {
+  return stageThemeFrom(window.localStorage.getItem(STORAGE_KEY))
 }
 
 export function useStageTheme(): [StageTheme, (next: StageTheme) => void] {

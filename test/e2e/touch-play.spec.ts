@@ -140,8 +140,8 @@ test('the start selection is in the same version as the stage afterwards', async
     const value = (name: string) => measured.getPropertyValue(name).trim()
     return { ground: value('--start-bg-top'), selection: value('--start-selected'), green: value('--start-green') }
   })
-  // Paper, not night.
-  expect(colors.ground).toBe('#fff')
+  // Paper, not night - `Weiß` of the federal spectrum, as the palette writes it.
+  expect(colors.ground).toBe('#FFFFFF')
   /*
    * THE SELECTION IS NOT THE ACTION. Both used to be the same green; on paper
    * the selection carries the blue of the marked answer, and green belongs
@@ -614,6 +614,11 @@ test('a solo game runs to the result without a single operator command', async (
   // Solo result: no winner, just your own number of correct answers.
   await expect(page.locator('[data-result-label]')).toHaveText('Ergebnis')
   await expect(page.getByRole('button', { name: 'Nochmal spielen' })).toBeVisible()
+  /*
+   * And no way to end a round that is over: the result view offers another
+   * round and the way out instead.
+   */
+  await expect(page.locator('[data-abort-game]')).toHaveCount(0)
 })
 
 /* ------------------------------------------------------------------ *
@@ -734,7 +739,15 @@ test('the scene appears immediately in the set size, not only after the transiti
   expect(Math.max(...measured) - Math.min(...measured)).toBeLessThan(2)
 })
 
-test('"end game" asks first and leads back to the selection', async ({ page }) => {
+/* ------------------------------------------------------------------ *
+ * Ending a running round
+ *
+ * The one control that sits ON the game. What is checked is where it is, when
+ * it exists, that it asks before it acts, and that what comes back is a menu
+ * and not the remains of a round.
+ * ------------------------------------------------------------------ */
+
+test('"end round" asks first and leads back to the selection', async ({ page }) => {
   await startGame(page, 'Allein')
 
   await page.locator('[data-abort-game]').click()
@@ -748,6 +761,110 @@ test('"end game" asks first and leads back to the selection', async ({ page }) =
   await page.locator('[data-abort-game]').click()
   await page.locator('[data-abort-confirm]').click()
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+})
+
+test('it exists only while a round runs, and sits in the middle of its head', async ({ page }) => {
+  await openStartScreen(page)
+  // Not in the menu: there is nothing running to end.
+  await expect(page.locator('[data-abort-game]')).toHaveCount(0)
+
+  await page.getByRole('button', { name: /^Allein/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+
+  const chip = page.locator('[data-abort-game]')
+  await expect(chip).toBeVisible()
+  /*
+   * CENTRED, and that is the point of its place: the corners belong to the
+   * players - buzzers below, the host's own bar above - and a control that
+   * ends the round for both of them sits in neither hand.
+   */
+  const placed = await chip.evaluate((node) => {
+    const box = node.getBoundingClientRect()
+    return { offset: Math.round(box.left + box.width / 2 - window.innerWidth / 2), top: Math.round(box.top) }
+  })
+  expect(Math.abs(placed.offset), 'distance from the middle').toBeLessThan(2)
+  expect(placed.top, 'in the head of the screen').toBeLessThan(80)
+  // A finger's target, not a word's box.
+  const size = (await chip.boundingBox())!
+  expect(size.height).toBeGreaterThanOrEqual(30)
+})
+
+test('it looks the same in every version of the stage', async ({ page }) => {
+  /*
+   * One look everywhere, by decision: whoever wants out of a round should not
+   * have to find a different button on the dark stage than on paper. The chip
+   * therefore reads its two colours from tokens that belong to no theme
+   * (`--stage-chip`, `--stage-inkOnChip`) - this measures that they really do
+   * not move with the version.
+   */
+  const colours = async (variant: string) => {
+    await page.addInitScript((value) => localStorage.setItem('quiz.stageTheme', value as string), variant)
+    await startGame(page, 'Allein')
+    return page.locator('[data-abort-game]').evaluate((node) => {
+      const measured = getComputedStyle(node)
+      return { area: measured.backgroundColor, ink: measured.color }
+    })
+  }
+  const bright = await colours('bright')
+  const dark = await colours('dark')
+  const red = await colours('red')
+  expect(dark).toEqual(bright)
+  expect(red).toEqual(bright)
+  // And it is a light surface with dark ink on it, not the other way round.
+  expect(bright.area).toBe('rgb(242, 243, 244)')
+  expect(bright.ink).toBe('rgb(0, 75, 118)')
+})
+
+test('the round can be ended with the keyboard alone', async ({ page }) => {
+  await startGame(page, 'Allein')
+
+  /*
+   * The chip is a button and reachable by tabbing; the dialog puts the
+   * keyboard on its confirming answer, and Escape is the way back out of it.
+   */
+  await page.locator('[data-abort-game]').focus()
+  await expect(page.locator('[data-abort-game]')).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-abort-dialog]')).toBeVisible()
+  await expect(page.locator('[data-abort-confirm]')).toBeFocused()
+
+  await page.keyboard.press('Escape')
+  await expect(page.locator('[data-abort-dialog]')).toHaveCount(0)
+  await expect(page.locator('[data-answers]')).toBeVisible()
+
+  await page.locator('[data-abort-game]').focus()
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+})
+
+test('a duel ends the same way, and what comes back is a fresh round', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+  // Play into the round, so there is something to reset.
+  await page.locator(freeBuzzer).first().click()
+  await page.locator(openAnswer).first().click()
+  await page.locator('[data-confirm]').click()
+
+  await page.locator('[data-abort-game]').click()
+  await page.locator('[data-abort-confirm]').click()
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+  // The menu, not the remains of a round: nothing of the game is left on screen.
+  await expect(page.locator('[data-answers]')).toHaveCount(0)
+  await expect(page.locator('[data-abort-game]')).toHaveCount(0)
+
+  /*
+   * AND THE NEXT ROUND STARTS AT THE BEGINNING. The state is reset, not
+   * paused: first question, no points - in the mode chosen anew.
+   */
+  await page.getByRole('button', { name: /^Zu zweit/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('[data-counter]')).toContainText('1/')
+  const points = await page.locator('[data-score-value="points"]').allInnerTexts()
+  expect(points).toEqual(['0', '0'])
 })
 
 /* ------------------------------------------------------------------ *

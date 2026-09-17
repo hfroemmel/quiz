@@ -1,5 +1,112 @@
 # @hfroemmel/quiz-core
 
+## 0.22.2
+
+## 0.22.1
+
+## 0.22.0
+
+### Minor Changes
+
+- be04fe9: The screen before a question stands half as long.
+  
+  `gameTiming.pauseScreenMs` is 1500 instead of 3000 milliseconds. It is the one
+  central value for that screen: the server schedules the switch to the question
+  from it (`pause-to-question`, in all three places a round reaches it), the
+  presentation mirrors it into `presentationTiming`, and no host and no mode
+  overrides it - `rules.timing.pauseScreenMs` could, and none of the five
+  packages does. So every quiz gets the shorter pace at once, on the stage, on
+  the media table, on the standalone device and in the collection.
+  
+  NOTHING ELSE MOVES. The screen, the fade of its category and the transition to
+  the question are unchanged; the server simply schedules that transition
+  earlier. The counter is there from the first frame, and the category arrives
+  after one second (400 ms delay, 600 ms of fade) - so half a second of the
+  screen now stands still rather than two.
+  
+  THAT SECOND IS THE FLOOR, and a test says so instead of a comment: the
+  category's arrival is compared against the duration, so a further shortening
+  fails rather than cutting the fade off. The note this value carried said one
+  and a half seconds had once been too short to read the category in; whoever
+  finds that again should raise this number rather than add a second one
+  somewhere else.
+- b768fb3: A video sounds where it plays, not where the cues do.
+  
+  THE BUG, AND IT WAS THE NORMAL SETUP: stage and operator in two browser tabs.
+  The operator clicks buttons all evening, so their window is the only one a
+  browser allows to sound and it takes the audio authority. But the operator's
+  window plays no video - it shows the same area empty on purpose, so the room
+  sees one picture and not two. The stage played the video MUTED because it was
+  not the authority. Nobody sounded it: the picture ran, the room heard nothing,
+  and no error said why.
+  
+  The two things were coupled that should not be. The cues may sound from any
+  window that is allowed to; a video is played only by the windows that carry
+  the room's picture. `QuizRuntimeConnection` therefore has a second authority,
+  `videoAudioMaster`, and `VideoScene` follows that one (`isVideoAudioMaster` on
+  `StageScreen`, defaulting to `true` for a host that plays alone). The
+  `client-info` message carries it; where a server does not send it, the cue
+  authority decides as before, so an old server stays exactly as it was.
+  
+  AND A REFUSED CLIP TRIES AGAIN. A browser that has never been clicked in
+  refuses audible playback, and the scene then plays the picture muted rather
+  than not at all. That refusal used to last for the whole clip and the next
+  one, until the window was reloaded. It now ends at the first click or key in
+  that window, and the clip keeps its position: it goes on sounding where it is
+  instead of starting over, which in a room is worse than the silence was.
+
+### Patch Changes
+
+- c51bbb9: The right/wrong mark is drawn, not filmed.
+  
+  Correct and incorrect were delivered WebM clips with an alpha channel, one per
+  outcome. They are vectors now (`AnswerResultAnimation`): a disc that scales in
+  over 480 ms with a short overshoot, then the symbol drawn along its own path -
+  `pathLength` normalises it, so the check mark and the cross need no timing of
+  their own. Reduced motion keeps the finished mark and drops the movement, as
+  the clips' still frame did.
+  
+  WHY IT MATTERS BEYOND THE MOTION: a file cannot follow a theme. The clip's
+  turquoise and its red were baked in, so the stage showed them whatever palette
+  was running - and with a third stage variant that became visible. The disc takes
+  `--color-correct` and `--color-incorrect`, the same tokens the answer rows
+  carry, and the symbol the light ink that goes on a strong area. The children's
+  world therefore gets its own green instead of the adults' turquoise, without a
+  second file, and no decoder is needed to show a circle and a check mark.
+  
+  THE MOMENT KEEPS ITS SIZE. The clips carried a lot of transparent margin - the
+  check mark swung out wide with sparks, the cross sat tight in its frame - so two
+  frames of 34 and 16 cqw put two discs of the SAME size on the stage, and the
+  word below had to be pulled back toward each of them by a different share. One
+  size (14.2 cqw, disc 92 percent of it) and one ordinary gap replace all of that;
+  measured against the old clips, the disc lands within a pixel of where it was.
+  
+  `animationClips` therefore no longer carries `correct` and `wrong`, and the two
+  files are gone; `trophy`, `stars` and `question-marks` stay as they were. The
+  feedback phase durations stay too (`correctFeedbackMs`, `incorrectFeedbackMs`):
+  they were once matched to the clips, but what they are is the beat the room
+  needs to read the mark while the score counts up underneath it.
+- 99f87e4: The start view no longer wears the look of the quiz played last.
+  
+  The state of a game that is over lives on - it carries the log, the language and
+  the sound switch - and its theme lived on with it. The projection read the quiz
+  and the audience out of that state even after the abort, so the view model
+  reported the finished game's theme for the `start` scene: after the children's
+  quiz the room's poster kept writing in its handwriting until the next game of
+  the show was started, because the host puts `--font-heading` and the stage
+  colours on the frame that holds the start view too.
+  
+  `resolveTheme` now asks a state only while its game is running. Once it is
+  aborted the answer is the one the view gets before the first game: the theme of
+  the audience the device names (`previewAudienceId`) or the first one in the
+  configuration. The start view is the same announcement before the first game and
+  between two games, and it is now told so exactly once - the self-service menu of
+  `<QuizGame>` has been reading the audience out of the catalogue for this very
+  reason, and the two no longer disagree.
+  
+  The language is deliberately not part of this: whoever switched the device to
+  another language keeps it after the game.
+
 ## 0.21.1
 
 ### Patch Changes

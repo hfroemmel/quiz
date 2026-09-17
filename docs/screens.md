@@ -36,7 +36,8 @@ restart, moderator view.
 
 ### Ground and Atmosphere
 
-The stage sits on a cool, slightly bluish gradient (`#171C21` to `#293139`).
+The stage sits on a gradient of one grey (`#232728` to `#343A3C` - `Dunkelgrau`
+of the federal spectrum, darkened to 40 and 60 percent).
 Behind it lies the **question image itself**: filling the format, heavily
 blurred, darkened, and overlaid with a color veil. This way, every question
 gets its own atmosphere without the text losing any calm.
@@ -237,8 +238,8 @@ there.
   second.
 - Only the category is transmitted (`upcomingCategoryLabel`). Question
   text, options, and image stay on the server until the question scene.
-- The screen stands for `gameTiming.pauseScreenMs` (3 s) - short enough not
-  to slow things down, long enough to read the category.
+- The screen stands for `gameTiming.pauseScreenMs` (1.5 s) - it was three
+  seconds; the pace of the round was asked to be twice as quick.
 
 ## Start View (`idle`, Scene `start`)
 

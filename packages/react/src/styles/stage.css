@@ -89,6 +89,17 @@
   --stage-fade-duration: 220ms;
   --stage-fade-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
 
+  /*
+   * THE FROSTED GLASS - ONE MEASURE FOR EVERY PANE.
+   *
+   * Score card, question counter, the letter chip and the answer bar are
+   * semi-transparent and blur what lies behind them: the blurred question
+   * image. Four modules used to spell the same blur out, and a variant that
+   * wants no glass had to be given four exceptions. It is one token now, and
+   * the variant that wants none sets it to `none`.
+   */
+  --stage-glass: blur(1.2cqw);
+
   /* Spacing and alignment of the scenes - the scenes read them as tokens. */
   --scene-gap: 2cqw;
   --scene-pad: 3cqw;
@@ -120,6 +131,28 @@
   --stage-button-size: 1.5cqw;
   --stage-button-weight: 700;
   --stage-button-gap: 1cqw;
+}
+
+/*
+ * THE RED VARIANT IS A FLAT SURFACE - NO GLASS, NO PICTURE BEHIND IT.
+ *
+ * The two other variants are built on the blurred question image: the ground
+ * darkens or lightens it, and the panes above let it through like frosted
+ * glass. That is what makes the picture live, and it is exactly what a
+ * commissioned ground cannot survive - every photo pulled the room's red
+ * somewhere else, and in the running game the specified tone was nowhere on
+ * screen any more. This variant therefore drops both: the panes stop blurring
+ * (`--stage-glass`), the picture behind the scene stays out (see
+ * `Stage.module.css`), and what remains is one surface in one tone.
+ *
+ * WHAT STAYS IS THE DEPTH. The panes keep their white veils at five to nine
+ * percent, and over one flat ground those composite to flat, slightly lighter
+ * reds - the same order of surfaces as in the other variants, without a
+ * second colour entering the room. Nothing shines through any more, because
+ * behind them there is nothing but the ground.
+ */
+.stage--red {
+  --stage-glass: none;
 }
 
 /*

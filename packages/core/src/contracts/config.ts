@@ -33,14 +33,16 @@ export const scoringRules = {
  */
 export const gameTiming = {
   /**
-   * Duration of the correct-answer animation before the solution appears.
+   * Duration of the correct-answer feedback before the solution appears.
    *
-   * The value follows the delivered motion graphic `correct.webm`: the check mark
-   * is fully drawn after about 1.4 seconds, the confetti has run out after that.
-   * A shorter phase would cut into the middle of the statement.
+   * IT IS THE BEAT, NOT THE DRAWING. The value once followed a delivered clip,
+   * whose check mark was fully drawn after about 1.4 seconds; the mark is drawn
+   * in code now and stands complete after 0.6. The two seconds stay because the
+   * room needs a moment to read it and the score counts up underneath it
+   * meanwhile - a phase as short as the animation would be a flicker.
    */
   correctFeedbackMs: 2_000,
-  /** Duration of the wrong-answer animation (the cross is complete after about 1.4 seconds). */
+  /** Duration of the wrong-answer feedback - the same beat, a touch shorter. */
   incorrectFeedbackMs: 1_800,
   /** Short, defined pause between feedback and the solution view. */
   solutionDelayMs: 250,
@@ -52,11 +54,23 @@ export const gameTiming = {
   /**
    * Duration of the pause/logo screen between two questions.
    *
-   * It announces the question number and the category. One and a half seconds
-   * were not enough: the category fades in, and the room should be able to read
-   * it before the question stands.
+   * It announces the question number and the category, and it is the one screen
+   * of a round on which nothing happens - so its length is the pace of the
+   * evening: five questions carry four of these screens.
+   *
+   * IT WAS THREE SECONDS AND IS NOW HALF OF THAT. The note that stood here said
+   * one and a half seconds had been too short to read the category in - the
+   * fade is part of that time. It is the number that was asked for
+   * nonetheless, and it applies everywhere at once: no host and no mode
+   * overrides this value, they all read it from here (`rules.timing` could,
+   * and none does). Whoever finds the category unreadable again should raise
+   * this value rather than add a second one somewhere else.
+   *
+   * Nothing else moves with it: the screen, its fade and the transition to the
+   * question are unchanged - the server simply schedules that transition
+   * earlier (`pause-to-question`).
    */
-  pauseScreenMs: 3_000,
+  pauseScreenMs: 1_500,
 } as const
 
 /**

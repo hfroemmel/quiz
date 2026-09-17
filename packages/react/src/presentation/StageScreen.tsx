@@ -205,8 +205,14 @@ export function StageScreen({
         data-presentation={view.question?.presentationType}
         data-skin={skin}
         data-theme={theme ?? skin}
-        /* Paper or dark - for a host that recolours its own frame around it. */
-        data-surface={theme === 'dark' ? 'dark' : 'light'}
+        /*
+         * Paper or dark - for a host that recolours its own frame around it.
+         *
+         * The question is about the INK, not about the hue: the light side is
+         * named, so a strong new ground - the red variant - counts as dark,
+         * which is what it is here. It carries the dark stage's white text.
+         */
+        data-surface={theme === 'bright' || theme === null ? 'light' : 'dark'}
         data-phase={view.phase}
         /*
          * Are the answers already on stage? The children's world hangs

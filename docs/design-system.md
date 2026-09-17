@@ -98,26 +98,33 @@ All colors are CSS variables. No component writes a color value directly.
 
 ### Base (application's base tone)
 
-| Token | Value | Use |
-|---|---|---|
-| `pageTop` | `#12161A` | page background, top |
-| `pageBottom` | `#171C21` | page background, bottom (linear gradient) |
-| `stageTop` | `#171C21` | stage area, top |
-| `stageBottom` | `#293139` | stage area, bottom |
-| `controls` | `#12161A` | control bar |
-| `tile` | `rgb(255 255 255 / 0.09)` | tiles, letter chips |
-| `tileDisabled` | `rgb(255 255 255 / 0.05)` | locked area |
-| `tileQuiet` | `rgb(255 255 255 / 0.06)` | stepped-back tile |
-| `option` | `rgb(255 255 255 / 0.05)` | answer bar, neutral |
+Every colour outside the children's world is a tone of the Federal
+Government's colour spectrum at one of its steps - lightened towards white or
+darkened with black, in the steps 100, 80, 60, 40 and 20 percent. Nothing is
+mixed freely; `packages/themes/src/federalSpectrum.ts` holds the seventeen
+tones and the two rules, and a guard test measures every palette against them.
 
-The stage area runs lighter from top to bottom and slightly toward blue - a
-cool background against which the warm light of the question images works.
+| Token | Value | Spectrum | Use |
+|---|---|---|---|
+| `pageTop` | `#111314` | Dunkelgrau 20 % abgedunkelt | page background, top |
+| `pageBottom` | `#232728` | Dunkelgrau 40 % abgedunkelt | page background, bottom (linear gradient) |
+| `stageTop` | `#232728` | Dunkelgrau 40 % abgedunkelt | stage area, top |
+| `stageBottom` | `#343A3C` | Dunkelgrau 60 % abgedunkelt | stage area, bottom |
+| `controls` | `#111314` | Dunkelgrau 20 % abgedunkelt | control bar |
+| `tile` | `rgb(255 255 255 / 0.09)` | Weiß, veiled | tiles, letter chips |
+| `tileDisabled` | `rgb(255 255 255 / 0.05)` | Weiß, veiled | locked area |
+| `tileQuiet` | `rgb(255 255 255 / 0.06)` | Weiß, veiled | stepped-back tile |
+| `option` | `rgb(255 255 255 / 0.05)` | Weiß, veiled | answer bar, neutral |
+
+The stage area runs lighter from top to bottom - three steps of one grey,
+against which the warm light of the question images works.
 
 **The area colors are semi-transparent.** This isn't a detail, it's the
 core of the design: behind the scene lies the blurred question image, and
 tiles, letters, and answer bars let it shimmer through like frosted glass,
 instead of covering it up. A token with an opaque color would immediately
-destroy the depth.
+destroy the depth. (The red variant is the exception - see below: there the
+same veils sit on a flat ground, with nothing behind them.)
 
 ### Blurred Question Image as Background
 
@@ -134,6 +141,19 @@ bright sky would otherwise tip the stage into a milky look.
 blurred (`blur(9cqw)`, `brightness(0.5)`, veil 84%). The task there is
 to recognize the subject; the background must not give away a silhouette -
 9 cqw is roughly 170 pixels of blur on a 1920-wide projector.
+
+**Not in the red variant, and not in the kids world.** The red variant stands
+on a commissioned ground, and this layer is what a commissioned ground cannot
+survive: every photo pulls the tone somewhere else, and in the running game the
+specified colour is nowhere on screen any more. So the layer stays out
+(`.stage--default.stage--red .backdrop { display: none }`) and the frosted glass
+is switched off with it - `--stage-glass`, the one token score card, counter,
+letter chip and answer bar read, is `none` there. The panes keep their white
+veils, which over one flat ground composite to flat, slightly lighter reds: the
+same order of surfaces, no second colour in the room. The question's own
+picture is untouched - it stands framed in the scene, as content rather than
+atmosphere. In the kids world the illustrated scene carries the background
+instead, and the question photo stays out for that reason.
 
 ### Radii and Shadows
 
@@ -190,6 +210,11 @@ not here:
 | `--ui-incorrect` | `Antwort war falsch` ("Answer was wrong"), warnings |
 | `--ui-warning-soft`, `--ui-error-soft` | highlighted messages in the connection banner |
 
+The frame's greys are four steps of the spectrum's `Dunkelgrau`, darkened, and
+its two signals are the stage's: the same green for a correct answer, the same
+red for a wrong one. They used to be tones of their own, which meant the room
+and the desk disagreed about the colour of the same statement.
+
 The reason for the separation is practical, not aesthetic: the room should see
 the color of the quiz mode, while the operator always sees the same
 surface - otherwise they'd have to relocate their buttons on every mode
@@ -209,7 +234,8 @@ image while still carrying official values. The dark version takes
 the lightened shades of the tint scale - the pure tone would drown
 on a dark background - the light version uses the same colors at 100 percent.
 
-The values are **not here**, but in `packages/contracts/src/theme.ts`.
+The values are **not here**, but in `packages/themes/src/palettes.ts`, where
+they are written as tone and step (`ci('blau', 80)`) rather than as numbers.
 A copy in this file would go stale at the next color change, without
 anyone noticing.
 
@@ -339,20 +365,34 @@ the stage area; every component brings both worlds along in its own CSS
 module (`:global(.stage--default)` / `:global(.stage--kids)`). There are no
 mode-dependent components or class names - `Score`, not `KidsScore`.
 
-The `default` world additionally has **two versions**:
+The `default` world additionally has **three versions**:
 
 | Version | Class | Effect |
 |---|---|---|
-| dark | `.stage--dark` | the quiz mode's values, unchanged |
-| light | `.stage--bright` | the same eighteen tokens on a light panel |
+| light | `.stage--bright` | the eighteen tokens on a light panel |
+| dark | `.stage--dark` | the quiz mode's values, unchanged - the fallback layer of `palette.css` |
+| red | `.stage--red` | the commissioned `#CA2F56`, flat: no blurred image behind the scene, no frosted panes |
 
 The version changes **only colors, transparencies, outlines, and
-shadows**. Fonts, components, positions, and spacing are identical in both.
-It is a matter of the operator's own preference - it lives in
+shadows**. Fonts, components, positions, and spacing are identical in all
+three. It is a matter of the operator's own preference - it lives in
 `localStorage`, not in the snapshot, and the server knows nothing about it.
-It is toggled in the header of the operator view, to the left of the
-fullscreen switch; in kids mode the switch is dropped, because that world
+It is chosen in the header of the operator view, in a select box to the left of
+the fullscreen switch; in kids mode the box is dropped, because that world
 brings its own paper along.
+
+**The data flow, end to end.** `stageThemes` in `@hfroemmel/quiz-react` is the
+list of versions that exist, in the order a box shows them, and a host builds
+its choice from that list rather than from a list of its own. `useStageTheme`
+writes the name into `localStorage` under `quiz.stageTheme` and fires
+`quiz:stage-theme`; the `storage` event carries it to every other window of the
+origin, so the projector follows the desk without a command and a window that
+opens later reads it straight out of the storage. `stageThemeFrom` is the rule
+on the way back in: a name this build does not know gives the light version.
+That last point is what makes a version mismatch visible rather than puzzling -
+a box built from a newer list than the package's would otherwise offer a choice
+that silently snaps back, which is exactly what an application newer than its
+installed package once did with `red`.
 
 **Why the theme values sit on the frame and not on the stage:** `themeVariables`
 delivers the eighteen tokens as an inline style, and an inline style beats every
@@ -426,11 +466,14 @@ in the design. Separation arises solely through brightness.
 |---|---|---|
 | Fullscreen | top right | four corner angles, 2 px stroke, white |
 | Sound off | top right, below | speaker with a diagonal slash |
-| Checkmark | correct feedback | delivered motion graphic `correct.webm` |
-| Cross | incorrect feedback | delivered motion graphic `wrong.webm` |
+| Checkmark | correct feedback | drawn as SVG on a disc in `--color-correct` (`AnswerResultAnimation`) |
+| Cross | incorrect feedback | drawn as SVG on a disc in `--color-incorrect` (`AnswerResultAnimation`) |
 
-This clarifies the cross missing from the templates: it is part of the
-delivered incorrect graphic.
+This clarifies the cross missing from the templates: it is drawn on the disc.
+Both marks used to be delivered WebM clips; they are vectors now, so the disc
+carries the meaning colour of the running theme instead of a tone baked into a
+file - which is what lets the same mark work on the light, the dark and the red
+stage and in the children's world.
 
 Fullscreen and sound are drawn as inline SVG with `currentColor`. There is
 no icon font and no external symbol files.
@@ -441,7 +484,7 @@ no icon font and no external symbol files.
 |---|---|---|
 | `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | adult start screen: eagle at 8% opacity, with the `?` on top. The title is application text, not part of the graphic |
 | `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | kids start screen, 1024 x 828, edge-to-edge |
-| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
+| `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
 | `confetti.svg` | `apps/web/src/assets/animations/` | animated SVG for the results view |
 
 The start screens are content of the quiz package and are assigned via

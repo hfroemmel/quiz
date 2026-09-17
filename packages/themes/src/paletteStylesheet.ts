@@ -24,22 +24,37 @@
  *                                  theme colours arrive as inline variables
  *                                  on the frame, and a declaration of its
  *                                  own beats an inherited value.
- *   [data-quiz-game][data-theme]   the light variant of the start screen. It
- *                                  sits ABOVE the stage and therefore cannot
- *                                  read its class; the variant sits on the
- *                                  device's root element as an attribute. A
- *                                  data attribute and not a class, because
- *                                  this stylesheet is generated and the
- *                                  components' classes are hashed.
+ *   .stage--default.stage--red     the red variant, for the same reason and in
+ *                                  the same place. It names only the ground;
+ *                                  everything else stays the dark variant's,
+ *                                  which is where it comes from.
+ *   [data-quiz-game][data-theme]   the light and the red variant of the start
+ *                                  screen. It sits ABOVE the stage and
+ *                                  therefore cannot read its class; the
+ *                                  variant sits on the device's root element
+ *                                  as an attribute. A data attribute and not a
+ *                                  class, because this stylesheet is generated
+ *                                  and the components' classes are hashed.
+ *   [data-quiz-overview]           the dark and the red variant of the offer
+ *                                  overview - the screen the room shows while
+ *                                  no game is running. Its light set is the
+ *                                  fallback level above, so only the two
+ *                                  others need a rule of their own.
  *
- * For the dark variant and the kids world, DELIBERATELY no rule is produced:
- * their colours are supplied by the running quiz's theme. A rule here would
- * lock out a theme with its own colours.
+ * For the stage's dark variant and the kids world, DELIBERATELY no rule is
+ * produced: their colours are supplied by the running quiz's theme. A rule here
+ * would lock out a theme with its own colours. The overview is different - it
+ * stands BEFORE the choice of a quiz and therefore carries no theme that could
+ * be locked out.
  */
 import {
   brightPalette,
   brightStartPalette,
+  darkQuizSelectPalette,
   quizSelectPalette,
+  redPalette,
+  redQuizSelectPalette,
+  redStartPalette,
   stageExtras,
   stagePalettes,
   startPalette,
@@ -85,8 +100,25 @@ export function paletteStyleSheet(): string {
     '/* Light version of the adults stage - only surfaces, edges and type. */',
     block('.stage--default.stage--bright', prefixed(brightPalette as Record<string, string>, 'color-')),
     '',
+    '/* Red version of the adults stage - the dark one with its ground exchanged. */',
+    block('.stage--default.stage--red', prefixed(redPalette as Record<string, string>, 'color-')),
+    '',
     '/* Light version of the start selection in front of it - only what differs from the dark one. */',
     block("[data-quiz-game][data-theme='bright']", prefixed(brightStartPalette as Record<string, string>, 'start-')),
+    '',
+    '/* And its red version - the ground, and the two lights switched off. */',
+    block("[data-quiz-game][data-theme='red']", prefixed(redStartPalette as Record<string, string>, 'start-')),
+    '',
+    '/* The offer overview on a dark and on a red ground - the cards stay as they are. */',
+    block(
+      "[data-quiz-overview][data-theme='dark']",
+      prefixed(darkQuizSelectPalette as Record<string, string>, 'quiz-select-'),
+    ),
+    '',
+    block(
+      "[data-quiz-overview][data-theme='red']",
+      prefixed(redQuizSelectPalette as Record<string, string>, 'quiz-select-'),
+    ),
     '',
   ].join('\n')
 }

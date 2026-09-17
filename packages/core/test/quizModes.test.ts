@@ -171,6 +171,29 @@ describe('Theme and offer list in the stage view', () => {
     expect(harness.publicView().theme.skin).toBe('kids')
   })
 
+  /*
+   * WHAT THE ROOM READS BETWEEN TWO GAMES IS THE HOUSE'S LOOK.
+   *
+   * The children's world writes in a handwriting, and the state of the game it
+   * ran lives on after the abort - with the log, the language and the sound
+   * switch. Its theme used to live on with it, so the start view came back in
+   * that handwriting: the poster of the hall kept writing like the children's
+   * quiz until the next game of the show was started. The start view is the
+   * same announcement before the first game and between two games.
+   */
+  it('gives the start view the house look again once the kids game is over', () => {
+    const harness = createHarness(script())
+    const before = harness.publicView().theme
+    harness.dispatch({ type: 'START_GAME', quizId: 'kids' })
+    expect(harness.publicView().theme.skin).toBe('kids')
+
+    harness.dispatch({ type: 'ABORT_GAME' })
+    const after = harness.publicView()
+    expect(after.scene).toBe('start')
+    expect(after.theme).toEqual(before)
+    expect(after.theme.skin).toBeUndefined()
+  })
+
   it('leaves the Bremen quiz in the default theme - a colourful card is not a theme', () => {
     const harness = createHarness(script())
     harness.dispatch({ type: 'START_GAME', quizId: 'bremen' })

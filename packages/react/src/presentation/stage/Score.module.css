@@ -90,8 +90,8 @@
   padding: 1cqw 1.2cqw 0.6cqw;
   /* Frosted glass: semi-transparent with blur, no border. */
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
+  backdrop-filter: var(--stage-glass);
+  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
 }
 :global(.stage--default) .cellPoints {
@@ -275,10 +275,17 @@
   font-size: var(--kids-size-score);
 }
 
-/* Light version: the player on turn carries their colour strongly - text light. */
-:global(.stage--dark) .score[data-active='true'] .value,
-:global(.stage--dark) .score[data-active='true'] .label,
-:global(.stage--bright) .score[data-active='true'] .value,
-:global(.stage--bright) .score[data-active='true'] .label {
+/*
+ * The adults' stage: the player on turn carries their colour strongly, so the
+ * text on it goes light.
+ *
+ * IT ASKS FOR THE WORLD, NOT FOR THE VARIANT. This used to name the two
+ * variants there were - dark and light - and adding the red one would have
+ * meant a third selector saying the same thing. What the rule is about is the
+ * adults' stage: there the active card is a filled surface in every variant,
+ * while in the children's world it is a drawn chip that brings its own ink.
+ */
+:global(.stage--default) .score[data-active='true'] .value,
+:global(.stage--default) .score[data-active='true'] .label {
   color: var(--stage-inkOnStrong);
 }
