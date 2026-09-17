@@ -1473,26 +1473,68 @@
  * does not belong to the game shown there, but to the box it is running in -
  * and therefore looks like the other controls, not like a buzzer.
  */
+/*
+ * THE CHIP THAT ENDS A ROUND, top centre of the running game.
+ *
+ * IT LOOKS THE SAME IN EVERY WORLD. The tokens are `--stage-chip` and
+ * `--stage-inkOnChip`, which belong to no theme: a light surface with dark
+ * blue on it, opaque, so it reads on paper, on the dark stage, on the red one
+ * and over the children's drawing. It used to carry the START MENU's colours
+ * while sitting on the game, which made it the least visible thing on the
+ * darkest screen.
+ *
+ * IT SCALES WITH THE STAGE like the corners do (`--stage-zoom`), from its top
+ * centre - so it stays centred while it shrinks.
+ */
 .abort {
   position: absolute;
-  top: 0.9vw;
-  right: 1.5278vw;
+  /*
+   * The row of the header: level with the word mark of the standalone device,
+   * and level with the host's own bar where one sits above the quiz (the media
+   * table keeps its bar between 1 and 4.75 vw and lets the middle through).
+   */
+  top: 1.9vw;
+  left: 50%;
+  translate: -50%;
   z-index: 11;
-  padding: 0.6188vw 1.0687vw;
-  border: 0.0694vw solid var(--start-line-strong);
-  border-radius: 0.7875vw;
-  background: var(--start-surface);
-  color: var(--start-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5vw;
+  /*
+   * A FINGER'S TARGET, not a word's box: the padding is what makes this
+   * comfortably tappable on a table, and the minimum height holds that even
+   * where the label is short.
+   */
+  min-height: 2.5vw;
+  padding: 0.5vw 1.1vw;
+  border: 0;
+  border-radius: 0.6vw;
+  background: var(--stage-chip);
+  color: var(--stage-inkOnChip);
   font-family: var(--font-ui);
-  font-size: 0.9vw;
+  font-size: 0.95vw;
   font-weight: 600;
   cursor: pointer;
   scale: var(--stage-zoom, 1);
-  transform-origin: top right;
+  transform-origin: top center;
+}
+.abortIcon {
+  /* The cross leads the label and is as tall as its capitals. */
+  width: 1.1vw;
+  height: 1.1vw;
+  flex: none;
 }
 .abort:hover {
-  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
-  color: var(--start-text);
+  /* The only state it has: a touch darker, so the surface answers a pointer. */
+  background: color-mix(in srgb, var(--stage-chip) 92%, var(--stage-inkOnChip));
+}
+/*
+ * The keyboard gets a ring, and it is drawn OUTSIDE the chip: inside it would
+ * sit on the ink and be read as part of the label.
+ */
+.abort:focus-visible {
+  outline: 0.2vw solid var(--stage-inkOnChip);
+  outline-offset: 0.2vw;
 }
 
 /*

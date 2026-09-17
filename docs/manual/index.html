@@ -1054,8 +1054,23 @@ import { houseTheme } from './theme'
   &lt;QuizGame runtime={runtime} audience="adults" onExit={backToMenu} /&gt;
 &lt;/QuizProvider&gt;</code></pre>
 
-  <p><code>brand</code> is the word mark in the header, <code>abort</code> the button that ends a running
-  game, <code>settings</code> the gear. Anything you do not name stays as it is.</p>
+  <p><code>brand</code> is the word mark in the header, <code>abort</code> the chip that ends a running
+  round, <code>settings</code> the gear. Anything you do not name stays as it is.</p>
+
+  <div class="note">
+    <h4>Ending a round is not the way out of your application</h4>
+    <p><code>abort</code> is the quiz's own control: a compact chip at the top centre of a running
+    round &mdash; <em>Runde beenden</em>, with a cross &mdash; which asks for confirmation and then ends
+    the round, resets the state and hands back the quiz's start menu. It appears only while a round
+    runs: not in the start menu, not in the result view, and never on a stage, which is a different
+    component altogether.</p>
+    <p><code>onExit</code> is the other thing: it leaves the quiz and returns to <em>your</em>
+    application. If your own frame carries a way home, keep it &mdash; but do not switch
+    <code>abort</code> off for it. They are two different promises, and a round left standing behind a
+    way home is a round the next visitor walks into mid-question.</p>
+    <p>The chip looks the same in every variant, light grey with dark blue on it, because whoever wants
+    out of a round should not have to look for a different button on a dark stage than on paper.</p>
+  </div>
 
   <h3>What theming deliberately cannot touch</h3>
   <ul>

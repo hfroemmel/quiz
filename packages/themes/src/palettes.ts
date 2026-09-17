@@ -235,6 +235,21 @@ export const stageExtras = {
    * there - first of all in the hall, seen from twenty metres away.
    */
   inkOutline: schwarz,
+  /**
+   * THE CHIP THAT ENDS A ROUND - a light surface with dark blue on it.
+   *
+   * It is the one control that sits ON the running game, and it looks the same
+   * in every world for exactly that reason: a player who wants out of a round
+   * should not have to find a different button on the dark stage than on paper
+   * or over the children's drawing. Following the theme would give it four
+   * appearances and, on the dark ground, the least visible one.
+   *
+   * `Hellgrau` at 20 percent carries `Dunkelblau` whole at a contrast of about
+   * seven to one - the style guide's own pairing, and readable on all four
+   * grounds because the surface is opaque.
+   */
+  chip: ci('hellgrau', 20),
+  inkOnChip: ci('dunkelblau'),
   /*
    * NO PLAYER COLOURS HERE ANYMORE.
    *

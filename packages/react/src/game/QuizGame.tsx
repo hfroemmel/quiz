@@ -28,6 +28,7 @@ import { themeVariables } from '@hfroemmel/quiz-themes'
 import { StartMenu, type StartMenuChoice } from './StartMenu'
 import { deviceStartMenu } from './startMenuModel'
 import { GameSettings } from './GameSettings'
+import { CloseIcon } from './icons'
 import { PlayerFoot } from './PlayerFoot'
 import { clampZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
@@ -590,31 +591,68 @@ export function QuizGame({
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/*
-        * Exiting a running game.
+        * ENDING A RUNNING ROUND - the one control that sits on the game.
+        *
+        * IT SITS TOP CENTRE, and where it sits is the whole point: the corners
+        * of this screen belong to the players - buzzers below, the way out of
+        * the application above them in the host's own bar - and a control that
+        * ends the round for BOTH of them does not belong in either hand. In
+        * the middle it is equally far from both, and nobody reaches it while
+        * tapping an answer.
         *
         * WITH A CONFIRMATION DIALOG, and not out of caution about data loss:
-        * the button sits at the edge of an area that is being tapped the
-        * whole time, and an accidental hit would otherwise end the game for
-        * both players standing in front of it in the middle of a question.
+        * an accidental hit would otherwise end the round for two people
+        * standing in front of it in the middle of a question.
         *
-        * Whether it exists is decided by the server state: in a game run by
-        * an operator, nobody may abort it from the device.
+        * IT APPEARS ONLY WHILE A ROUND RUNS. This branch is the running game -
+        * the start menu and the waiting screen are their own returns above -
+        * and `finished` takes it off the result view, where "play again" and
+        * the way out are the offer instead. On the stage there is no such
+        * button at all: that screen is `StageScreen`, and an operator's game
+        * is not ended from the room. Whether the host draws its own instead is
+        * its word (`chrome.abort`).
         */}
       {chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
-        <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
-          {t('kiosk.endGame')}
+        <button
+          type="button"
+          className={styles.abort}
+          data-abort-game=""
+          aria-haspopup="dialog"
+          onClick={() => setAskExit(true)}
+        >
+          <CloseIcon className={styles.abortIcon} />
+          {t('kiosk.endRound')}
         </button>
       )}
 
       {askExit && (
         <div className={styles.overlay} data-abort-dialog="">
-          <div className={styles.panel} role="dialog" aria-label={t('kiosk.endGame')}>
-            <h2 className={styles.panelTitle}>{t('kiosk.endGameQuestion')}</h2>
+          {/*
+            * ESCAPE IS THE CANCEL. A dialog that can only be left by aiming at
+            * one of two buttons is a dialog somebody has to reach across the
+            * table for; the key that closes things closes this too.
+            */}
+          <div
+            className={styles.panel}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('kiosk.endRound')}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setAskExit(false)
+            }}
+          >
+            <h2 className={styles.panelTitle}>{t('kiosk.endRoundQuestion')}</h2>
             <div className={styles.actions}>
               <button
                 type="button"
                 className={styles.action}
                 data-abort-confirm=""
+                /*
+                 * The keyboard lands on the dialog, not behind it - and on the
+                 * answer that needs the deliberate press. Escape and the
+                 * second button are the way on from here.
+                 */
+                autoFocus
                 onClick={abort}
               >
                 {t('kiosk.end')}
