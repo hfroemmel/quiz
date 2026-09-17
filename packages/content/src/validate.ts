@@ -25,6 +25,7 @@ import {
   type QuizConfig,
 } from '@hfroemmel/quiz-core'
 import { matchesSlot, poolForGame, repetitionKey } from '@hfroemmel/quiz-core'
+import { uncreditedImages } from './credits'
 
 export type IssueSeverity = 'error' | 'warning'
 
@@ -575,12 +576,14 @@ function validateEditorialWarnings(question: Question, assetsById: Map<string, M
   if (!question.explanation?.summary && !question.explanation?.details) {
     add('warning', 'missing-explanation', 'Kein Erklaerungstext hinterlegt.', question.id)
   }
-  const imageId = question.media?.imageAssetId
-  if (imageId) {
-    const asset = assetsById.get(imageId)
-    if (asset && !asset.credit) {
-      add('warning', 'missing-credit', `Kein Bildnachweis fuer "${imageId}".`, question.id)
-    }
+  /*
+   * The picture's licence line - the rule lives in `credits.ts`, because the
+   * import asks the same question at the moment it can still be answered
+   * cheaply.
+   */
+  for (const missing of uncreditedImages([question], [...assetsById.values()])) {
+    if (!missing.declared) continue // reported as `asset-reference`, an error
+    add('warning', 'missing-credit', `Kein Bildnachweis fuer "${missing.assetId}".`, question.id)
   }
   if (question.prompt.length > contentThresholds.longPromptChars) {
     add('warning', 'long-prompt', `Sehr langer Fragetext (${question.prompt.length} Zeichen).`, question.id)

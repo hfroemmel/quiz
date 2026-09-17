@@ -20,11 +20,17 @@
  *   quiz-content import-sheet --xlsx <file> [--sheet <name>]   from a workbook
  *   quiz-content import-sheet --url <address> --print-headers   only show the columns
  *   quiz-content import-sheet --url <address> --dry-run         write nothing
+ *
+ * AND IT SAYS WHOSE PICTURES ARE UNCLEAR. Every question image without a
+ * licence line is listed at the end - see `credits.ts` for why here and not
+ * only in the build report.
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { csvUrl, importGrid, defaultMapping, type SheetMapping } from '../sheetImport'
 import { parseCsv } from '../csv'
 import { readWorkbook } from '../workbook'
+import { uncreditedImages } from '../credits'
+import { mediaAssetSchema } from '@hfroemmel/quiz-core'
 import { contentDir } from './dirs'
 import { join } from 'node:path'
 
@@ -106,6 +112,31 @@ function readMapping(): SheetMapping {
   }
 }
 
+/**
+ * Which pictures still need their licence line.
+ *
+ * The medium directory is read from where the import writes, because that is
+ * the set these questions will be built with. Without one there is nothing to
+ * say - an import into an empty directory brings its pictures later.
+ */
+function reportUncreditedImages(): void {
+  const directory = contentDir(argv, 'source', 'source')
+  const path = join(directory, 'assets.json')
+  if (!existsSync(path)) return
+
+  const assets = mediaAssetSchema.array().parse(JSON.parse(readFileSync(path, 'utf8')))
+  const missing = uncreditedImages(finding.questions, assets)
+  if (missing.length === 0) return
+
+  console.log('')
+  console.log(`Ohne Bildnachweis: ${missing.length} ${missing.length === 1 ? 'Frage' : 'Fragen'}`)
+  for (const entry of missing) {
+    const note = entry.declared ? '' : ' (Medium nicht in assets.json)'
+    console.log(`  Frage ${entry.questionId}: ${entry.assetId}${note}`)
+  }
+  console.log(`Der Nachweis gehoert nach ${join(directory, 'assets.json')}, Feld "credit".`)
+}
+
 const grid = await readGrid()
 
 if (toggle('print-headers')) {
@@ -120,6 +151,7 @@ if (toggle('print-headers')) {
 const finding = importGrid(grid, readMapping())
 
 console.log(`Gelesen: ${finding.questions.length} Fragen aus ${finding.columns.length} Spalten.`)
+reportUncreditedImages()
 if (finding.skippedRows.length > 0) {
   console.log('')
   console.log(`Uebersprungen: ${finding.skippedRows.length} Zeilen`)
