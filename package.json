@@ -30,6 +30,8 @@
     "content:validate:no-video": "tsx packages/content/src/cli/validate.ts --profile no-video",
     "palette:build": "pnpm --filter @hfroemmel/quiz-themes run palette:build",
     "harness": "pnpm --filter @quiz/harness dev",
+    "preview:build": "pnpm content:assets && pnpm content:build:dev && pnpm --filter @quiz/harness build",
+    "preview:serve": "pnpm --filter @quiz/harness preview",
     "lint": "pnpm typecheck"
   },
   "devDependencies": {

@@ -44,24 +44,9 @@ import '@hfroemmel/quiz-react/styles/stage.css'
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/'
   switch (path) {
-    /*
-     * Self-service at the touch device. Two operating settings arrive as
-     * query parameters, so a device can set up its window without its own
-     * build:
-     *   ?audience=adults   audience of the device
-     *   ?idle=120          idle supervision in seconds
-     */
-    case '/play': {
-      const params = new URLSearchParams(window.location.search)
-      const audience = params.get('audience') ?? 'adults'
-      const idleSeconds = Number(params.get('idle'))
-      return (
-        <TouchDevice
-          audience={audience}
-          {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
-        />
-      )
-    }
+    // Self-service at the touch device.
+    case '/play':
+      return touchDevice()
     /*
      * Example host application. It shows how an external application
      * embeds the quiz - and serves as the harness for the embedding
@@ -76,9 +61,35 @@ function App() {
      */
     case '/pair':
       return <ThemedPair />
+    /*
+     * The scene preview is development only - in a built folder it is
+     * locked behind `import.meta.env.DEV` and shows nothing but a note.
+     * A build is a folder on a static host, so the root there would be a
+     * dead end; it opens the quiz itself instead.
+     */
     default:
-      return <PreviewApp />
+      return import.meta.env.DEV ? <PreviewApp /> : touchDevice()
   }
+}
+
+/**
+ * The touch device with the operating settings from the query string.
+ *
+ * Two of them, so that a device can set up its window without a build of
+ * its own:
+ *   ?audience=adults   audience of the device
+ *   ?idle=120          idle supervision in seconds
+ */
+function touchDevice() {
+  const params = new URLSearchParams(window.location.search)
+  const audience = params.get('audience') ?? 'adults'
+  const idleSeconds = Number(params.get('idle'))
+  return (
+    <TouchDevice
+      audience={audience}
+      {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
+    />
+  )
 }
 
 const container = document.getElementById('root')

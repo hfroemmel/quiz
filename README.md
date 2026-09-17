@@ -45,6 +45,13 @@ The test fixtures are GENERATED (`pnpm content:fixtures`): 29 synthetic
 questions and placeholder media, just enough to fill every question slot of
 every preset. The real content lives in `quiz-content-data`.
 
+## The customer preview
+
+`pnpm preview:build` turns the harness into a folder that needs no server -
+quiz package, media and routes included - for a permanently reachable
+preview on a free static host. Details in
+[docs/vorschau-deploy.md](docs/vorschau-deploy.md).
+
 ## Checks
 
 ```bash
