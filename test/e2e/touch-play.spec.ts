@@ -140,8 +140,8 @@ test('the start selection is in the same version as the stage afterwards', async
     const value = (name: string) => measured.getPropertyValue(name).trim()
     return { ground: value('--start-bg-top'), selection: value('--start-selected'), green: value('--start-green') }
   })
-  // Paper, not night.
-  expect(colors.ground).toBe('#fff')
+  // Paper, not night - `Weiß` of the federal spectrum, as the palette writes it.
+  expect(colors.ground).toBe('#FFFFFF')
   /*
    * THE SELECTION IS NOT THE ACTION. Both used to be the same green; on paper
    * the selection carries the blue of the marked answer, and green belongs
