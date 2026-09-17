@@ -12,6 +12,20 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { federalValues } from '../src/federalSpectrum'
+import {
+  brightPalette,
+  brightStartPalette,
+  darkQuizSelectPalette,
+  quizSelectPalette,
+  redPalette,
+  redQuizSelectPalette,
+  redStartPalette,
+  stageExtras,
+  stagePalettes,
+  startPalette,
+  uiPalette,
+} from '../src/palettes'
 import { paletteStyleSheet } from '../src/paletteStylesheet'
 
 const themesDir = fileURLToPath(new URL('..', import.meta.url))
@@ -37,8 +51,12 @@ const sourceDirs = [
  * `hostThemes.ts` is the design of a HOST. A host's own colours are exactly
  * what a `ThemeDefinition` is for, and the harness plays the host here; the
  * rule applies to the surfaces of the packages, which must not name a tone.
+ *
+ * `federalSpectrum.ts` is the style guide itself - the seventeen tones and the
+ * two rules that make every step of them. It is the one file allowed to state
+ * a value, and the third test below is what keeps it the only one that matters.
  */
-const EXEMPT = ['palettes.ts', 'palette.css', 'preview/PreviewApp.tsx', 'hostThemes.ts']
+const EXEMPT = ['palettes.ts', 'federalSpectrum.ts', 'palette.css', 'preview/PreviewApp.tsx', 'hostThemes.ts']
 
 /*
  * Hex values, `rgb(...)`, and CSS's named colours.
@@ -116,5 +134,88 @@ describe('Colour palette', () => {
       offenders,
       'Colour values belong in packages/themes/src/palettes.ts, not in a stylesheet or a component.',
     ).toEqual([])
+  })
+})
+
+/**
+ * EVERY COLOUR OF THIS HOUSE IS A COLOUR OF THE FEDERAL SPECTRUM.
+ *
+ * `palettes.ts` names tones and steps rather than values, so conformance is
+ * true by construction - which is exactly why it needs a test: the next hand
+ * that writes a literal in there would break the rule without breaking the
+ * build. This resolves every palette and measures each value against the set
+ * the two rules can produce.
+ *
+ * WHAT COUNTS AS A COLOUR OF THE SPECTRUM:
+ *   - one of the seventeen tones at 100, 80, 60, 40 or 20 percent,
+ *   - the same darkened with black at those steps,
+ *   - white and black, which the style guide uses for labels and grounds,
+ *   - any of those as a translucent veil: the alpha is not a colour.
+ * A gradient is checked stop by stop.
+ *
+ * THE CHILDREN'S WORLD IS NOT IN HERE, and that is the one exception this
+ * house makes: its colours come from its drawings, and a drawn frame does not
+ * follow a spectrum (see `palettes.ts`). It is excluded by name, so the
+ * exception stays visible instead of being a gap in a list.
+ */
+describe('the federal colour spectrum', () => {
+  const legal = federalValues()
+
+  /** Every colour token of a value - a gradient carries several. */
+  function colours(value: string): string[] {
+    const found = value.match(/#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)/g)
+    return found ?? []
+  }
+
+  /** A veil reduced to the colour under it; anything else stays as it is. */
+  function tone(colour: string): string | null {
+    const veiled = colour.match(/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/)
+    if (!veiled) return colour.toUpperCase()
+    const [red, green, blue] = veiled.slice(1, 4).map(Number) as [number, number, number]
+    return `#${[red, green, blue].map((part) => part.toString(16).padStart(2, '0').toUpperCase()).join('')}`
+  }
+
+  const surfaces: Record<string, Record<string, string>> = {
+    'stage, dark': stagePalettes.default,
+    'stage, light': brightPalette as Record<string, string>,
+    'stage, red': redPalette as Record<string, string>,
+    'stage extras': stageExtras as unknown as Record<string, string>,
+    'offer overview': quizSelectPalette as unknown as Record<string, string>,
+    'offer overview, dark': darkQuizSelectPalette as unknown as Record<string, string>,
+    'offer overview, red': redQuizSelectPalette as unknown as Record<string, string>,
+    'control frame': uiPalette as unknown as Record<string, string>,
+    'start menu': startPalette as unknown as Record<string, string>,
+    'start menu, light': brightStartPalette as unknown as Record<string, string>,
+    'start menu, red': redStartPalette as unknown as Record<string, string>,
+  }
+
+  for (const [name, palette] of Object.entries(surfaces)) {
+    it(`${name} carries only tones of the spectrum`, () => {
+      const strangers: string[] = []
+      for (const [token, value] of Object.entries(palette)) {
+        for (const colour of colours(value)) {
+          /* `transparent` and `currentColor` name no tone - they pass by not matching. */
+          const flat = tone(colour)
+          if (flat && !legal.has(flat)) strangers.push(`${token}: ${colour}`)
+        }
+      }
+      expect(
+        strangers,
+        'Not a step of the Federal Government spectrum - see packages/themes/src/federalSpectrum.ts.',
+      ).toEqual([])
+    })
+  }
+
+  it('states the children world as the exception, not as a gap', () => {
+    /*
+     * The counter-test: the drawn world really does carry colours the spectrum
+     * does not have. If this ever came out empty, the exception above would be
+     * pointless - and somebody would have quietly recoloured the illustrations.
+     */
+    const own = Object.values(stagePalettes.kids).filter((value) => {
+      const flat = tone(colours(value)[0] ?? '')
+      return flat !== null && !legal.has(flat)
+    })
+    expect(own.length).toBeGreaterThan(5)
   })
 })

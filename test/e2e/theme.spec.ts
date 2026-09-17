@@ -173,8 +173,12 @@ test('the red variant is the dark stage on a red ground', async ({ page }) => {
 
   await open('red')
   await expect(page.locator('[data-preview-stage] .stage')).toHaveClass(/stage--red/)
-  // The ground turns - and it is the one value this variant is.
-  expect(await token('[data-preview-stage] .stage', '--color-pageTop', page)).toBe('#ca2f56')
+  /*
+   * The ground turns - and it is `Rot` at 80 percent, a step of the federal
+   * spectrum. The value is written out here on purpose: it is the one place
+   * where a change to the variant's ground has to be noticed.
+   */
+  expect(await token('[data-preview-stage] .stage', '--color-pageTop', page)).toBe('#CD3363')
   expect(await token('[data-preview-stage] .stage', '--color-pageTop', page)).not.toBe(dark.ground)
 
   /*

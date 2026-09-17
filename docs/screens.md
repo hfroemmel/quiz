@@ -36,7 +36,8 @@ restart, moderator view.
 
 ### Ground and Atmosphere
 
-The stage sits on a cool, slightly bluish gradient (`#171C21` to `#293139`).
+The stage sits on a gradient of one grey (`#232728` to `#343A3C` - `Dunkelgrau`
+of the federal spectrum, darkened to 40 and 60 percent).
 Behind it lies the **question image itself**: filling the format, heavily
 blurred, darkened, and overlaid with a color veil. This way, every question
 gets its own atmosphere without the text losing any calm.

@@ -1,16 +1,33 @@
 /**
  * THE COLOURS. All of them. In one place.
  *
- * Every colour value of the quiz system lives in this file - the two
- * design worlds, the light variant of the adult stage, the few colours
- * that belong to no world, and the operator's control frame. No colour
- * value lives anywhere else; `test/palette.test.ts` enforces that.
+ * Every colour of the quiz system is assigned here - the two design worlds,
+ * the light and the red variant of the adults' stage, the few colours that
+ * belong to no world, the start menu and the operator's control frame. No
+ * colour is assigned anywhere else; `test/palette.test.ts` enforces that.
+ *
+ * AND NONE OF THEM IS A VALUE OF OUR OWN ANY MORE. Every colour outside the
+ * children's world is a tone of the Federal Government's colour spectrum at
+ * one of its steps (`federalSpectrum.ts`): `ci('blau', 80)` is the style
+ * guide's "Blau, Abstufung 80 %", `ciDark('rot', 80)` its "Rot, mit Schwarz
+ * abgedunkelt". Nothing is mixed freely, and a literal in this file would be
+ * a colour the house does not have - which is what the guard test reports.
+ *
+ * WHERE A TONE WAS CHOSEN, it is the nearest step to the value it replaces,
+ * so this is a conformance change and not a redesign. Only where a role names
+ * a colour does the role win over the distance: the three signals, the grades
+ * of the start menu, and the surface of a card that stands for its quiz.
+ *
+ * THE CHILDREN'S WORLD IS THE ONE EXCEPTION, and it is deliberate: its
+ * colours come from its own illustrations, and a drawn frame does not follow a
+ * spectrum. Its values stay literals below, and the guard test names them.
  *
  * The token vocabulary (`designColorTokens`) is defined by the core - here
  * are the VALUES. That keeps the quiz package free of presentation, while
  * still leaving exactly one source per colour.
  */
 import type { DesignColors, DesignColorToken, ThemeSkin } from '@hfroemmel/quiz-core'
+import { ci, ciDark, schwarz, veil, weiss } from './federalSpectrum'
 
 /**
  * The ground of the red variant - the one value that variant is.
@@ -19,7 +36,7 @@ import type { DesignColors, DesignColorToken, ThemeSkin } from '@hfroemmel/quiz-
  * start menu in front of it, and the offer overview of the room. A copy in
  * each of the three is how the three would drift apart.
  */
-const redGround = '#ca2f56'
+const redGround = ci('rot', 80)
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -37,15 +54,20 @@ const redGround = '#ca2f56'
  */
 export const stagePalettes: Record<ThemeSkin, DesignColors> = {
   default: {
-    pageTop: '#12161A',
-    pageBottom: '#171C21',
-    stageTop: '#171C21',
-    stageBottom: '#293139',
-    controls: '#12161A',
-    tile: 'rgba(255, 255, 255, 0.09)',
-    tileDisabled: 'rgba(255, 255, 255, 0.05)',
-    tileQuiet: 'rgba(255, 255, 255, 0.06)',
-    option: 'rgba(255, 255, 255, 0.05)',
+    /*
+     * The ground: one tone, three steps of it. Grey is the spectrum's
+     * `Dunkelgrau`, darkened with black - the deepest step for the page, a
+     * lighter one under the stage, so the board still lifts off the page.
+     */
+    pageTop: ciDark('dunkelgrau', 20),
+    pageBottom: ciDark('dunkelgrau', 40),
+    stageTop: ciDark('dunkelgrau', 40),
+    stageBottom: ciDark('dunkelgrau', 60),
+    controls: ciDark('dunkelgrau', 20),
+    tile: veil(weiss, 0.09),
+    tileDisabled: veil(weiss, 0.05),
+    tileQuiet: veil(weiss, 0.06),
+    option: veil(weiss, 0.05),
     /*
      * Meaning colours from the federal colour spectrum.
      *
@@ -59,20 +81,20 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
      * would drown in the background. The light variant takes the same
      * colours at 100 percent.
      */
-    accent: '#3392C5', // Blau 80 %
-    accentQuiet: '#005A76', // Petrol, 80 % abgedunkelt
-    primary: '#339D6E', // Gruen 80 %
-    solution: '#339D6E', // Gruen 80 %
+    accent: ci('blau', 80),
+    accentQuiet: ciDark('petrol', 80),
+    primary: ci('gruen', 80),
+    solution: ci('gruen', 80),
     /*
      * Same tone as the bar: the letter and the answer are ONE surface, split
      * only by a seam. Two greens side by side read like two separate
      * statements - the darker chip looked like a second state.
      */
-    solutionChip: '#339D6E', // Gruen 80 %
-    correct: '#339AA2', // Tuerkis 80 %
-    incorrect: '#9A0030', // Rot, 80 % abgedunkelt
-    text: '#FFFFFF',
-    textMuted: 'rgba(255, 255, 255, 0.6)',
+    solutionChip: ci('gruen', 80),
+    correct: ci('tuerkis', 80),
+    incorrect: ciDark('rot', 80),
+    text: weiss,
+    textMuted: veil(weiss, 0.6),
   },
   kids: {
     pageTop: '#A9D5EF',
@@ -97,6 +119,17 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
 }
 
 /**
+ * THE INK OF THE LIGHT VARIANT - a near black, and a tone of the spectrum.
+ *
+ * The style guide labels its colours in white or black; on paper that is
+ * black. A page of running text in pure black is harder to read than one in a
+ * soft black, so `Dunkelgrau` at its deepest step stands here instead - it is
+ * the spectrum's own near black, and every veil of the light variant is mixed
+ * from it.
+ */
+const brightInk = ciDark('dunkelgrau', 20)
+
+/**
  * Light variant of the adult stage - the toggle in the stage's header.
  *
  * The layout mirrors the dark variant: where white veils sit on dark there,
@@ -110,26 +143,31 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
  * world, its light variant belongs in that theme.
  */
 export const brightPalette: Partial<DesignColors> = {
-  pageTop: '#fff',
-  pageBottom: '#f6f6f6',
-  stageTop: '#fff',
-  stageBottom: '#ebebeb',
-  controls: '#eeeeee',
+  pageTop: weiss,
+  /*
+   * Paper, and two steps of `Hellgrau` on it. The spectrum's grey ladder is
+   * what the light variant's near-whites were reaching for; at 20 and 40
+   * percent it holds the same three levels the design had.
+   */
+  pageBottom: ci('hellgrau', 20),
+  stageTop: weiss,
+  stageBottom: ci('hellgrau', 40),
+  controls: ci('hellgrau', 40),
   /* Not a meaning but a withdrawal: the locked-out player on paper. */
-  accentQuiet: '#dcdcdc',
+  accentQuiet: ci('hellgrau', 60),
   /* Frosted glass stays frosted glass - just made of ink instead of light. */
-  tile: 'rgba(25, 25, 25, 0.06)',
-  tileDisabled: 'rgba(25, 25, 25, 0.04)',
-  tileQuiet: 'rgba(25, 25, 25, 0.05)',
-  option: 'rgba(25, 25, 25, 0.05)',
-  accent: '#0077B6', // Blau 100 %
-  primary: '#00854A', // Gruen 100 %
-  solution: '#00854A', // Gruen 100 %
-  solutionChip: '#00854A', // Gruen 100 %, siehe oben
-  correct: '#00818B', // Tuerkis 100 %
-  incorrect: '#780F2D', // Dunkelrot 100 %
-  text: 'rgb(25, 25, 25)',
-  textMuted: 'rgba(25, 25, 25, 0.6)',
+  tile: veil(brightInk, 0.06),
+  tileDisabled: veil(brightInk, 0.04),
+  tileQuiet: veil(brightInk, 0.05),
+  option: veil(brightInk, 0.05),
+  accent: ci('blau'),
+  primary: ci('gruen'),
+  solution: ci('gruen'),
+  solutionChip: ci('gruen'), // siehe oben
+  correct: ci('tuerkis'),
+  incorrect: ci('dunkelrot'),
+  text: brightInk,
+  textMuted: veil(brightInk, 0.6),
 }
 
 /**
@@ -153,6 +191,11 @@ export const brightPalette: Partial<DesignColors> = {
  * apart than it is on grey - it is the one place where this variant is weaker
  * than the two others, and moving the token would break the agreement that
  * the three signals mean the same thing in every variant.
+ *
+ * THE GROUND IS `Rot` AT 80 PERCENT. The value this variant was specified with
+ * (`#ca2f56`) is not a step of the spectrum; the nearest one is fourteen units
+ * away, which is a tone nobody can tell apart at two metres - and it is a
+ * colour the house actually has.
  */
 export const redPalette: Partial<DesignColors> = {
   pageTop: redGround,
@@ -172,7 +215,7 @@ export const redPalette: Partial<DesignColors> = {
  */
 export const stageExtras = {
   /** Text on accent, solution or player colour - always light there. */
-  inkOnStrong: '#ffffff',
+  inkOnStrong: weiss,
   /**
    * Shadow under a card lying ON the stage - the background step after a
    * solution.
@@ -181,9 +224,9 @@ export const stageExtras = {
    * it in the same way in the dark world and in the bright one: the shadow is
    * the distance to the ground, not a colour of the mode.
    */
-  cardShadow: 'rgb(0 0 0 / 0.2)',
+  cardShadow: veil(schwarz, 0.2),
   /** Hairline edge on the portrait, so it stands out from the background. */
-  edge: 'rgb(255 255 255 / 0.22)',
+  edge: veil(weiss, 0.22),
   /**
    * Outline around light text sitting on a busy background.
    *
@@ -191,7 +234,7 @@ export const stageExtras = {
    * light and dark areas. Text without an outline would disappear in places
    * there - first of all in the hall, seen from twenty metres away.
    */
-  inkOutline: '#000000',
+  inkOutline: schwarz,
   /*
    * NO PLAYER COLOURS HERE ANYMORE.
    *
@@ -241,11 +284,17 @@ export const stageExtras = {
  * a poster - it has no states, because it cannot be operated. A tone for a
  * state that doesn't exist would be an invitation to add one anyway.
  */
-const selectInk = '#07152d'
-const selectInkQuiet = '#284d73'
+/*
+ * The ink of the poster: `Dunkelblau`, at its deepest step for the heading and
+ * whole for the line under it. The two used to be a near-black navy and a mid
+ * navy mixed by hand; the spectrum has that family, and the step rule gives
+ * the two levels the design asks for.
+ */
+const selectInk = ciDark('dunkelblau', 40)
+const selectInkQuiet = ci('dunkelblau')
 
 export const quizSelectPalette = {
-  page: '#fbfbfa',
+  page: weiss,
   ink: selectInk,
   'ink-quiet': selectInkQuiet,
   /*
@@ -261,16 +310,25 @@ export const quizSelectPalette = {
    */
   'ink-on-card': selectInk,
   'meta-on-card': selectInkQuiet,
-  /* The five card surfaces. Gradients, because a flat surface looks empty here. */
-  'card-bundestag': 'linear-gradient(135deg, #eef2f6 0%, #d5dee8 100%)',
-  'card-kids': 'linear-gradient(180deg, #aed5f0 0%, #c1d6f1 50%, #d5d7f1 100%)',
-  'card-europe': '#003399',
-  'card-unity': 'linear-gradient(135deg, #f7f7f5 0%, #ececea 100%)',
-  'card-bremen': 'linear-gradient(135deg, #fbe5e2 0%, #efbfc2 100%)',
-  /* On the Union blue, only white works. */
-  'ink-on-europe': '#ffffff',
+  /*
+   * THE FIVE CARD SURFACES. Gradients, because a flat surface looks empty here.
+   *
+   * Each card is a step of the tone its quiz is recognised by, and that is
+   * where the role beats the distance: two of the five were near-whites told
+   * apart only by their warmth, which no spectrum can reproduce. The house
+   * grey carries the Bundestag, the light blue the children's quiz, the deep
+   * blue Europe, gold the German Unity banner and red the Bremen coat of arms.
+   * The motifs on top keep their own colours - a flag is content, not a token.
+   */
+  'card-bundestag': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
+  'card-kids': `linear-gradient(180deg, ${ci('hellblau', 60)} 0%, ${ci('hellblau', 40)} 50%, ${ci('blau', 20)} 100%)`,
+  'card-europe': ci('dunkelblau'),
+  'card-unity': `linear-gradient(135deg, ${ci('gelb', 20)} 0%, ${ci('hellorange', 20)} 100%)`,
+  'card-bremen': `linear-gradient(135deg, ${ci('rot', 20)} 0%, ${ci('rot', 40)} 100%)`,
+  /* On the deep blue, only white works - the style guide says so too. */
+  'ink-on-europe': weiss,
   /* The shadow is a hint - the cards rest, they don't float. */
-  shadow: 'rgb(7 21 45 / 0.055)',
+  shadow: veil(schwarz, 0.055),
 } as const
 
 /**
@@ -308,32 +366,44 @@ export const redQuizSelectPalette = {
 } as const
 
 export const uiPalette = {
-  page: '#0d0f13',
+  /*
+   * FOUR LEVELS OF ONE TONE. The desk was a ladder of hand-mixed greys; it is
+   * the spectrum's `Dunkelgrau`, darkened, at four of its steps - the same
+   * order of light and dark as before, so the operator finds their buttons
+   * where they were.
+   */
+  page: ciDark('dunkelgrau', 20),
   /* Cards and bars: control bar, private area, popups, start panel. */
-  surface: '#171b21',
+  surface: ciDark('dunkelgrau', 40),
   /* Header and footer - a shade below the cards, so they recede. */
-  'surface-quiet': '#12151a',
+  'surface-quiet': ciDark('dunkelgrau', 20),
   /* Lightened surface INSIDE a card - such as the notes column. */
-  'surface-raised': 'rgba(255, 255, 255, 0.06)',
-  control: '#242a33',
-  'control-disabled': '#1a1e24',
-  input: 'rgb(0 0 0 / 0.35)',
-  border: 'rgb(255 255 255 / 0.1)',
+  'surface-raised': veil(weiss, 0.06),
+  control: ciDark('dunkelgrau', 60),
+  'control-disabled': ciDark('dunkelgrau', 40),
+  input: veil(schwarz, 0.35),
+  border: veil(weiss, 0.1),
   /* Divider line inside a card - fainter than the outer edge. */
-  'border-quiet': 'rgb(255 255 255 / 0.12)',
+  'border-quiet': veil(weiss, 0.12),
   /* Edge of a field that should stand out - the stage preview. */
-  'border-strong': 'rgba(255, 255, 255, 0.24)',
+  'border-strong': veil(weiss, 0.24),
   /* Surface behind a popup and background of the preview tile. */
-  scrim: 'rgb(0 0 0 / 0.55)',
-  'scrim-quiet': 'rgb(0 0 0 / 0.3)',
-  text: '#ffffff',
-  'text-muted': 'rgb(255 255 255 / 0.5)',
-  accent: '#36b35e',
-  correct: '#36b35e',
-  incorrect: '#a62749',
+  scrim: veil(schwarz, 0.55),
+  'scrim-quiet': veil(schwarz, 0.3),
+  text: weiss,
+  'text-muted': veil(weiss, 0.5),
+  /*
+   * And the desk speaks the stage's signals: the same green for what worked,
+   * the same red for what did not. They used to be two tones of their own,
+   * which meant the room and the desk disagreed about the colour of a correct
+   * answer.
+   */
+  accent: ci('gruen', 80),
+  correct: ci('gruen', 80),
+  incorrect: ciDark('rot', 80),
   /* Highlighted messages: just a hint of colour, the text carries the message. */
-  'warning-soft': 'rgba(255, 195, 43, 0.16)',
-  'error-soft': 'rgba(255, 92, 92, 0.16)',
+  'warning-soft': veil(ci('hellorange'), 0.16),
+  'error-soft': veil(ci('rot'), 0.16),
 } as const
 
 /* ------------------------------------------------------------------ *
@@ -367,19 +437,19 @@ export const startPalette = {
    * violet, in the light variant pink and lavender - a name that states the
    * colour would be wrong in the other variant.
    */
-  'bg-top': '#111b25',
-  'bg-mid': '#0a1118',
-  'bg-bottom': '#070c11',
-  'ambient-left': '#2bbe65',
-  'ambient-right': '#726bea',
+  'bg-top': ciDark('blau', 20),
+  'bg-mid': ciDark('dunkelblau', 20),
+  'bg-bottom': schwarz,
+  'ambient-left': ci('gruen', 80),
+  'ambient-right': ci('violett', 60),
 
   /* Cards and edges of the right-hand column. */
-  surface: '#17212d',
-  'surface-quiet': '#111a24',
+  surface: ciDark('hellblau', 20),
+  'surface-quiet': ciDark('blau', 20),
   /* A selected card: the same box, just tinted green. */
-  'surface-selected': '#1a2b29',
-  line: '#263442',
-  'line-strong': '#2b3948',
+  'surface-selected': ciDark('dunkelgruen', 40),
+  line: ciDark('dunkelgrau', 60),
+  'line-strong': ciDark('dunkelgrau', 80),
 
   /*
    * THE SELECTION CARDS AND THE SECONDARY BUTTON HAVE THEIR OWN NAME.
@@ -391,16 +461,16 @@ export const startPalette = {
    * window keeps its frosted glass. Here the same values as before are kept,
    * so nothing changes in the dark variant.
    */
-  option: '#17212d',
+  option: ciDark('hellblau', 20),
   /* A shade lighter under the pointer - the card lifts instead of flashing. */
-  'option-hover': '#1b2735',
+  'option-hover': ciDark('dunkelgrau', 60),
   /* The round surface under the icon of an unselected card. */
-  'option-icon': 'rgba(255, 255, 255, 0.045)',
+  'option-icon': veil(weiss, 0.045),
 
-  text: '#f5f7f9',
-  'text-muted': '#98a7b7',
+  text: weiss,
+  'text-muted': ci('dunkelgrau', 60),
   /* The footnote under the start button - quieter than everything else. */
-  'text-quiet': '#6f7f8e',
+  'text-quiet': ci('dunkelgrau', 80),
 
   /*
    * SELECTION IS NOT THE ACTION.
@@ -412,48 +482,60 @@ export const startPalette = {
    * separable - and here the same values as before are kept, so nothing
    * changes in the dark variant.
    */
-  selected: '#42d176',
+  selected: ci('gruen', 80),
   /* Edge, icon and keyboard mark of a selected card. */
-  'selected-bright': '#63df8e',
+  'selected-bright': ci('gruen', 60),
   /* Text ON a selected card - and the quieter line below it. */
-  'ink-on-selected': '#f5f7f9',
-  'meta-on-selected': '#98a7b7',
+  'ink-on-selected': weiss,
+  'meta-on-selected': ci('dunkelgrau', 60),
 
-  green: '#42d176',
-  'green-bright': '#63df8e',
-  'green-light': '#46d77a',
-  'green-deep': '#28b962',
+  /*
+   * The green of the action, in four steps of ONE tone. There used to be four
+   * hand-mixed greens here whose only relation was that they looked alike; the
+   * spectrum's `Grün` gives the bar its gradient (80 to 100 percent), the
+   * lighter step its edge and the brighter one its mark.
+   */
+  green: ci('gruen', 80),
+  'green-bright': ci('gruen', 60),
+  'green-light': ci('gruen', 80),
+  'green-deep': ci('gruen'),
   /* Edge on the start button, so its gradient doesn't fray. */
-  'green-edge': '#9cf0b8',
+  'green-edge': ci('gruen', 40),
   /*
    * The label ON the green. It is light: the bar is the surface's only full
    * colour, and everything on it belongs to the text next to it.
    */
-  'ink-on-green': '#f5f7f9',
+  'ink-on-green': weiss,
   /*
    * The icon on the filled selection marker. It is small and carries the
    * selection colour at full strength - the opposite rule applies here than
    * on the bar.
    */
-  'ink-on-badge': '#06140c',
-  lime: '#d9e93e',
-  violet: '#8d86ff',
+  'ink-on-badge': schwarz,
+  /*
+   * The two other grades. They are order, not meaning - and the spectrum has
+   * the order: `Hellgrün` sits next to `Grün`, `Violett` at the far end of it.
+   * Violet appears at 60 percent, because the pure tone is a dark plum that
+   * would read as a shadow on this ground rather than as a light.
+   */
+  lime: ci('hellgruen'),
+  violet: ci('violett', 60),
 
   /* The brand panel on the left: a warmer green than the control column on the right. */
-  'brand-top': '#1d2b27',
-  'brand-mid': '#173828',
-  'brand-bottom': '#205d34',
-  'brand-line': '#34483e',
-  'brand-text': '#bed0c7',
+  'brand-top': ciDark('dunkelgruen', 40),
+  'brand-mid': ciDark('dunkelgruen', 60),
+  'brand-bottom': ci('dunkelgruen'),
+  'brand-line': ciDark('dunkelgruen', 80),
+  'brand-text': ci('hellgrau'),
   /* Shadow and chip background INSIDE the panel - darker than its gradient. */
-  'brand-shade': '#07100d',
+  'brand-shade': schwarz,
 
   /* Icon of an unselected card and of the corner buttons. */
-  icon: '#a9b6c4',
+  icon: ci('hellgrau'),
   /* Lightening as frosted glass - the tone all veils are mixed from. */
-  glass: '#ffffff',
+  glass: weiss,
   /* Darkening - shadow under the panels. */
-  shade: '#000000',
+  shade: schwarz,
 } as const
 
 /**
@@ -531,10 +613,10 @@ export const brightStartPalette = {
    * a grey box. That applies to the settings window and the confirmation
    * prompt above it - the cards next to it go their own way, see `option`.
    */
-  surface: 'rgba(255, 255, 255, 0.62)',
-  'surface-quiet': 'rgba(255, 255, 255, 0.45)',
-  line: 'rgba(25, 25, 25, 0.1)',
-  'line-strong': 'rgba(25, 25, 25, 0.16)',
+  surface: veil(weiss, 0.62),
+  'surface-quiet': veil(weiss, 0.45),
+  line: veil(brightInk, 0.1),
+  'line-strong': veil(brightInk, 0.16),
 
   /*
    * THE SELECTION CARD IS A SURFACE - THE SAME AS AN ANSWER IN THE GAME.
@@ -560,7 +642,7 @@ export const brightStartPalette = {
 
   text: brightPalette.text!,
   'text-muted': brightPalette.textMuted!,
-  'text-quiet': 'rgba(25, 25, 25, 0.45)',
+  'text-quiet': veil(brightInk, 0.45),
 
   /* The selection carries the blue of the marked answer. */
   selected: brightPalette.accent!,
@@ -571,7 +653,7 @@ export const brightStartPalette = {
    * was correct as long as the selected card was only tinted blue.
    */
   'ink-on-selected': stageExtras.inkOnStrong,
-  'meta-on-selected': 'rgba(255, 255, 255, 0.78)',
+  'meta-on-selected': veil(weiss, 0.78),
 
   /*
    * The start button is the same button as "Submit answer and reveal": one
@@ -591,9 +673,9 @@ export const brightStartPalette = {
   'brand-top': brightPalette.pageTop!,
   'brand-mid': brightPalette.pageTop!,
   'brand-bottom': brightPalette.pageTop!,
-  'brand-line': 'rgba(25, 25, 25, 0.1)',
+  'brand-line': veil(brightInk, 0.1),
   'brand-text': brightPalette.text!,
-  'brand-shade': 'rgba(25, 25, 25, 0.08)',
+  'brand-shade': veil(brightInk, 0.08),
 
   icon: brightPalette.textMuted!,
   /* The veils are mixed from ink, not from light. */

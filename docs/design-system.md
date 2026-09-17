@@ -98,20 +98,26 @@ All colors are CSS variables. No component writes a color value directly.
 
 ### Base (application's base tone)
 
-| Token | Value | Use |
-|---|---|---|
-| `pageTop` | `#12161A` | page background, top |
-| `pageBottom` | `#171C21` | page background, bottom (linear gradient) |
-| `stageTop` | `#171C21` | stage area, top |
-| `stageBottom` | `#293139` | stage area, bottom |
-| `controls` | `#12161A` | control bar |
-| `tile` | `rgb(255 255 255 / 0.09)` | tiles, letter chips |
-| `tileDisabled` | `rgb(255 255 255 / 0.05)` | locked area |
-| `tileQuiet` | `rgb(255 255 255 / 0.06)` | stepped-back tile |
-| `option` | `rgb(255 255 255 / 0.05)` | answer bar, neutral |
+Every colour outside the children's world is a tone of the Federal
+Government's colour spectrum at one of its steps - lightened towards white or
+darkened with black, in the steps 100, 80, 60, 40 and 20 percent. Nothing is
+mixed freely; `packages/themes/src/federalSpectrum.ts` holds the seventeen
+tones and the two rules, and a guard test measures every palette against them.
 
-The stage area runs lighter from top to bottom and slightly toward blue - a
-cool background against which the warm light of the question images works.
+| Token | Value | Spectrum | Use |
+|---|---|---|---|
+| `pageTop` | `#111314` | Dunkelgrau 20 % abgedunkelt | page background, top |
+| `pageBottom` | `#232728` | Dunkelgrau 40 % abgedunkelt | page background, bottom (linear gradient) |
+| `stageTop` | `#232728` | Dunkelgrau 40 % abgedunkelt | stage area, top |
+| `stageBottom` | `#343A3C` | Dunkelgrau 60 % abgedunkelt | stage area, bottom |
+| `controls` | `#111314` | Dunkelgrau 20 % abgedunkelt | control bar |
+| `tile` | `rgb(255 255 255 / 0.09)` | Weiß, veiled | tiles, letter chips |
+| `tileDisabled` | `rgb(255 255 255 / 0.05)` | Weiß, veiled | locked area |
+| `tileQuiet` | `rgb(255 255 255 / 0.06)` | Weiß, veiled | stepped-back tile |
+| `option` | `rgb(255 255 255 / 0.05)` | Weiß, veiled | answer bar, neutral |
+
+The stage area runs lighter from top to bottom - three steps of one grey,
+against which the warm light of the question images works.
 
 **The area colors are semi-transparent.** This isn't a detail, it's the
 core of the design: behind the scene lies the blurred question image, and
@@ -190,6 +196,11 @@ not here:
 | `--ui-incorrect` | `Antwort war falsch` ("Answer was wrong"), warnings |
 | `--ui-warning-soft`, `--ui-error-soft` | highlighted messages in the connection banner |
 
+The frame's greys are four steps of the spectrum's `Dunkelgrau`, darkened, and
+its two signals are the stage's: the same green for a correct answer, the same
+red for a wrong one. They used to be tones of their own, which meant the room
+and the desk disagreed about the colour of the same statement.
+
 The reason for the separation is practical, not aesthetic: the room should see
 the color of the quiz mode, while the operator always sees the same
 surface - otherwise they'd have to relocate their buttons on every mode
@@ -209,7 +220,8 @@ image while still carrying official values. The dark version takes
 the lightened shades of the tint scale - the pure tone would drown
 on a dark background - the light version uses the same colors at 100 percent.
 
-The values are **not here**, but in `packages/contracts/src/theme.ts`.
+The values are **not here**, but in `packages/themes/src/palettes.ts`, where
+they are written as tone and step (`ci('blau', 80)`) rather than as numbers.
 A copy in this file would go stale at the next color change, without
 anyone noticing.
 
