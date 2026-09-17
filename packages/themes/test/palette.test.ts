@@ -52,7 +52,8 @@ const NAMED = [
   'pink', 'brown', 'gray', 'grey', 'silver', 'gold', 'cyan', 'magenta',
   'teal', 'navy', 'olive', 'maroon', 'lime', 'aqua', 'fuchsia',
 ].join('|')
-const COLOR = new RegExp(`#[0-9a-fA-F]{3,8}\\b|\\brgba?\\(|(?<![-\\w])(${NAMED})(?![-\\w])`)
+const VALUE = /#[0-9a-fA-F]{3,8}\b|\brgba?\(/
+const NAMED_COLOR = new RegExp(`(?<![-\\w])(${NAMED})(?![-\\w])`)
 
 /*
  * Comments are prose, not surface colours: "a white flash" in an explanation
@@ -63,6 +64,23 @@ function withoutComments(text: string): string {
   return text
     .replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '))
     .replace(/^\s*\/\/.*$/gm, '')
+}
+
+/*
+ * A NAME IS NOT A VALUE.
+ *
+ * Since the stage has a red variant, that word stands in the sources as its
+ * NAME: `stageThemes` offers it, and `[data-theme='red']` selects it. Both sit
+ * in brackets - an array's or a selector's - and the named colours are not
+ * looked for in there. A value would not be written that way: it stands after
+ * a colon, and where it does it is still found.
+ *
+ * Hex values and `rgb()` keep being looked for everywhere, brackets or not:
+ * those are values wherever they stand, and they are the form in which a
+ * second copy of the palette actually creeps in.
+ */
+function withoutBrackets(text: string): string {
+  return text.replace(/\[[^\]\n]*\]/g, (span) => span.replace(/[^\n]/g, ' '))
 }
 
 function sourceFiles(dir: string): string[] {
@@ -88,7 +106,9 @@ describe('Colour palette', () => {
         const relative = file.slice(dir.length + 1)
         if (EXEMPT.some((entry) => relative.endsWith(entry))) continue
         for (const [index, line] of withoutComments(readFileSync(file, 'utf8')).split('\n').entries()) {
-          if (COLOR.test(line)) offenders.push(`${relative}:${index + 1}: ${line.trim()}`)
+          if (VALUE.test(line) || NAMED_COLOR.test(withoutBrackets(line))) {
+            offenders.push(`${relative}:${index + 1}: ${line.trim()}`)
+          }
         }
       }
     }

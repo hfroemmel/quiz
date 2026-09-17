@@ -13,6 +13,15 @@
 import type { DesignColors, DesignColorToken, ThemeSkin } from '@hfroemmel/quiz-core'
 
 /**
+ * The ground of the red variant - the one value that variant is.
+ *
+ * It stands here as a constant because three palettes read it: the stage, the
+ * start menu in front of it, and the offer overview of the room. A copy in
+ * each of the three is how the three would drift apart.
+ */
+const redGround = '#ca2f56'
+
+/**
  * Cool, slightly bluish system for the adult stage.
  *
  * The surface colours are semi-transparent: behind the scene sits the blurred
@@ -124,6 +133,36 @@ export const brightPalette: Partial<DesignColors> = {
 }
 
 /**
+ * THE RED VARIANT OF THE ADULTS' STAGE - a third choice next to dark and light.
+ *
+ * It is the DARK stage with one thing exchanged: the dark grey of the ground
+ * becomes `#ca2f56`. Nothing else is named here, so everything else is the
+ * dark variant's, by the same mechanism the light variant uses - a partial
+ * set on top of `stagePalettes.default`.
+ *
+ * WHY NAMING ONLY THE GROUND IS ENOUGH. The surfaces of this stage are veils,
+ * not paint: tile, option and their quiet forms are white at five to nine
+ * percent. Over the red they become lighter red by themselves, and the depth
+ * between ground, board and answer row survives the exchange without a single
+ * new value. That is also why no gradient is invented: all four ground tokens
+ * carry the same tone, and what still separates the areas are the veils.
+ *
+ * THE MEANING COLOURS STAY, and that is a decision, not an omission: blue
+ * marks the selection and the player whose turn it is, green the right answer,
+ * red the wrong one. A red ground makes the wrong-answer red harder to tell
+ * apart than it is on grey - it is the one place where this variant is weaker
+ * than the two others, and moving the token would break the agreement that
+ * the three signals mean the same thing in every variant.
+ */
+export const redPalette: Partial<DesignColors> = {
+  pageTop: redGround,
+  pageBottom: redGround,
+  stageTop: redGround,
+  stageBottom: redGround,
+  controls: redGround,
+}
+
+/**
  * Stage colours that belong to no theme.
  *
  * They don't describe a theme but a physical situation: text sitting on a
@@ -202,10 +241,26 @@ export const stageExtras = {
  * a poster - it has no states, because it cannot be operated. A tone for a
  * state that doesn't exist would be an invitation to add one anyway.
  */
+const selectInk = '#07152d'
+const selectInkQuiet = '#284d73'
+
 export const quizSelectPalette = {
   page: '#fbfbfa',
-  ink: '#07152d',
-  'ink-quiet': '#284d73',
+  ink: selectInk,
+  'ink-quiet': selectInkQuiet,
+  /*
+   * INK ON A CARD IS NOT INK ON THE PAGE.
+   *
+   * Here the two are the same value, which is why the second pair looks
+   * redundant - in the dark and the red variant they part ways. There the
+   * GROUND turns and the cards do not: they carry the colours of their
+   * quizzes and stay the light surfaces they are in every variant, so the
+   * text on them stays dark while the heading above them goes light. Without
+   * the second pair, the variant would have to choose between an unreadable
+   * heading and unreadable cards.
+   */
+  'ink-on-card': selectInk,
+  'meta-on-card': selectInkQuiet,
   /* The five card surfaces. Gradients, because a flat surface looks empty here. */
   'card-bundestag': 'linear-gradient(135deg, #eef2f6 0%, #d5dee8 100%)',
   'card-kids': 'linear-gradient(180deg, #aed5f0 0%, #c1d6f1 50%, #d5d7f1 100%)',
@@ -216,6 +271,40 @@ export const quizSelectPalette = {
   'ink-on-europe': '#ffffff',
   /* The shadow is a hint - the cards rest, they don't float. */
   shadow: 'rgb(7 21 45 / 0.055)',
+} as const
+
+/**
+ * THE OVERVIEW IN THE DARK AND THE RED VARIANT.
+ *
+ * The room shows the offer for as long as no game is running, so it is part of
+ * the evening's picture and not a screen of its own: whoever puts the stage on
+ * the dark or the red ground must not get a white poster in front of it. Both
+ * variants therefore exist for the same reason the stage's do - and they are
+ * partial sets on top of the light one, like `brightPalette` on the dark stage.
+ *
+ * WHAT TURNS IS THE GROUND AND THE INK ON IT. The five card surfaces stay
+ * exactly as they are: they stand for the quizzes - the blue of the Union, the
+ * paper of Unity, the red of the Bremen coat of arms - and a card that changed
+ * colour with the variant would be saying something about the variant instead
+ * of about its quiz. That is what `ink-on-card` is for: the cards stay light,
+ * so their text stays dark.
+ *
+ * THE SHADOW BECOMES THE STAGE'S. On paper a barely visible blue-black hint is
+ * enough to let the cards rest; on a dark or a strong ground it would be
+ * invisible. `stageExtras.cardShadow` is the value the stage already uses for a
+ * card lying on it - the same situation, and therefore not a new number.
+ */
+export const darkQuizSelectPalette = {
+  page: stagePalettes.default.pageTop,
+  ink: stagePalettes.default.text,
+  'ink-quiet': stagePalettes.default.textMuted,
+  shadow: stageExtras.cardShadow,
+} as const
+
+/** And the red variant is that one with the ground exchanged - nothing else. */
+export const redQuizSelectPalette = {
+  ...darkQuizSelectPalette,
+  page: redGround,
 } as const
 
 export const uiPalette = {
@@ -509,6 +598,32 @@ export const brightStartPalette = {
   icon: brightPalette.textMuted!,
   /* The veils are mixed from ink, not from light. */
   glass: brightPalette.text!,
+} as const
+
+/**
+ * THE RED VARIANT OF THE DEVICE'S START SCREEN.
+ *
+ * It exists because the choice is made per WINDOW and not per screen: the
+ * console's select box writes it to the origin's storage, and the touch device
+ * in the room reads it from there (`useStageTheme`). Without this set, a red
+ * evening would have a red stage and a dark blue foyer device in front of it.
+ *
+ * ONLY THE GROUND IS NAMED, and it is the same value the stage's ground carries.
+ * The cards, the brand panel and the three difficulty colours stay the dark
+ * screen's - this variant is the dark one on a red ground, and the components
+ * are meant to stay what they are.
+ *
+ * THE TWO LIGHTS GO OUT. They exist to give an almost black surface depth;
+ * that is what the light variant switches them off for, and the reason holds
+ * here too - a red ground has presence of its own, and a green glow on it
+ * would be neither of the two colours.
+ */
+export const redStartPalette = {
+  'bg-top': redGround,
+  'bg-mid': redGround,
+  'bg-bottom': redGround,
+  'ambient-left': 'transparent',
+  'ambient-right': 'transparent',
 } as const
 
 /**

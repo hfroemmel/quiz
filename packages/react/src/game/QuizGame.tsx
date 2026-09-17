@@ -481,6 +481,20 @@ export function QuizGame({
    * window applies where no host says otherwise.
    */
   const variant = skin === 'kids' ? 'kids' : (ownTheme?.base ?? stageTheme)
+  /*
+   * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own control
+   * bar around the quiz needs to know whether it stands on paper or in the
+   * dark, and `data-theme` names a world instead (the children's paper is light
+   * too). One attribute, two values, readable from CSS without knowing the
+   * package's worlds.
+   *
+   * THE QUESTION IS ABOUT THE INK, NOT ABOUT THE HUE. This used to ask for the
+   * one dark variant there was; the red one is dark in exactly the sense that
+   * matters here - it carries the dark screen's light text - so the light side
+   * is named instead, and a new strong ground lands on the right side by
+   * itself.
+   */
+  const surface = variant === 'bright' || variant === 'kids' ? 'light' : 'dark'
 
   const settings = settingsOpen && ownDevice && (
     <GameSettings
@@ -501,14 +515,7 @@ export function QuizGame({
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
-        /*
-         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
-         * control bar around the quiz needs to know whether it stands on paper
-         * or in the dark, and `data-theme` names a world instead (the
-         * children's paper is light too). One attribute, two values, readable
-         * from CSS without knowing the package's worlds.
-         */
-        data-surface={variant === 'dark' ? 'dark' : 'light'}
+        data-surface={surface}
       >
         <StartMenu
           model={deviceStartMenu(view, audienceId, playerCounts)}
@@ -533,14 +540,7 @@ export function QuizGame({
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
-        /*
-         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
-         * control bar around the quiz needs to know whether it stands on paper
-         * or in the dark, and `data-theme` names a world instead (the
-         * children's paper is light too). One attribute, two values, readable
-         * from CSS without knowing the package's worlds.
-         */
-        data-surface={variant === 'dark' ? 'dark' : 'light'}
+        data-surface={surface}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>

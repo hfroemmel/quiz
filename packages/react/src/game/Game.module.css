@@ -934,19 +934,24 @@
  *
  * The kids' world is untouched by either - it sets `border: 0` itself and
  * places its painted outline behind the content (see above).
+ *
+ * THE RED VARIANT IS ONE OF THE DARK ONES HERE. It is the dark screen with its
+ * ground exchanged: the cards stay the same almost-black boxes, so they need
+ * the same edge. `:is()` says that once instead of doubling four rules, and it
+ * keeps the specificity of the single selector it replaces.
  */
-[data-theme='dark'] .card {
+:is([data-theme='dark'], [data-theme='red']) .card {
   border: 0.0694vw solid var(--start-line-strong);
 }
-[data-theme='dark'] .card:hover {
+:is([data-theme='dark'], [data-theme='red']) .card:hover {
   border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
 }
-[data-theme='dark'] .cardOn,
-[data-theme='dark'] .cardOn:hover {
+:is([data-theme='dark'], [data-theme='red']) .cardOn,
+:is([data-theme='dark'], [data-theme='red']) .cardOn:hover {
   border-color: var(--start-selected);
   border-width: 0.1389vw;
 }
-[data-theme='dark'] .actionSecondary {
+:is([data-theme='dark'], [data-theme='red']) .actionSecondary {
   border: 0.0694vw solid var(--start-line-strong);
 }
 /*
@@ -954,7 +959,7 @@
  * second area on an area; in the dark, the selected card is only tipped
  * toward green, and the disc is what sets the icon apart from the box at all.
  */
-[data-theme='dark'] .cardOn .cardIcon {
+:is([data-theme='dark'], [data-theme='red']) .cardOn .cardIcon {
   background: color-mix(in srgb, var(--start-selected) 12%, transparent);
   color: var(--start-selected-bright);
 }

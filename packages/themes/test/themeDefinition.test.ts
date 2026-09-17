@@ -218,3 +218,93 @@ describe('the schema of a theme', () => {
     expect(() => themeDefinitionSchema.parse({ id: 'x', base: 'paper' })).toThrow()
   })
 })
+
+/**
+ * THE RED VARIANT - the one it is easiest to break without noticing.
+ *
+ * It is the dark stage with its ground exchanged, and it says that by naming
+ * almost nothing. Exactly that is what is checked here: a value that creeps
+ * into this rule would be a colour the dark stage does not have, and the three
+ * signals - blue for the selection and the player on turn, green for the right
+ * answer, red for the wrong one - are the ones that must not move.
+ */
+describe('the red variant', () => {
+  const fallback = declarations(':root')
+  const redStage = declarations('.stage--default.stage--red')
+  const redStart = declarations("[data-quiz-game][data-theme='red']")
+  const darkOverview = declarations("[data-quiz-overview][data-theme='dark']")
+  const redOverview = declarations("[data-quiz-overview][data-theme='red']")
+
+  it('names the ground of the stage, and nothing else', () => {
+    expect(Object.keys(redStage).sort()).toEqual([
+      '--color-controls',
+      '--color-pageBottom',
+      '--color-pageTop',
+      '--color-stageBottom',
+      '--color-stageTop',
+    ])
+    // One tone across all four areas - the veils on top of it make the depth.
+    const ground = new Set(Object.values(redStage))
+    expect(ground.size).toBe(1)
+    expect(redStage['--color-pageTop']).not.toBe(fallback['--color-pageTop'])
+  })
+
+  it('leaves the signals and the veils to the dark stage', () => {
+    for (const token of [
+      '--color-accent',
+      '--color-primary',
+      '--color-solution',
+      '--color-correct',
+      '--color-incorrect',
+      '--color-tile',
+      '--color-option',
+      '--color-text',
+    ]) {
+      expect(redStage[token], token).toBeUndefined()
+      expect(fallback[token], token).toBeDefined()
+    }
+  })
+
+  it('gives the device start screen the same ground and switches its lights off', () => {
+    expect(Object.keys(redStart).sort()).toEqual([
+      '--start-ambient-left',
+      '--start-ambient-right',
+      '--start-bg-bottom',
+      '--start-bg-mid',
+      '--start-bg-top',
+    ])
+    expect(redStart['--start-bg-top']).toBe(redStage['--color-pageTop'])
+    expect(redStart['--start-ambient-left']).toBe(redStart['--start-ambient-right'])
+    expect(redStart['--start-ambient-left']).not.toBe(fallback['--start-ambient-left'])
+  })
+
+  it('turns the offer overview ground and ink, and keeps the cards as they are', () => {
+    for (const [name, rule] of [
+      ['dark', darkOverview],
+      ['red', redOverview],
+    ] as const) {
+      expect(Object.keys(rule).sort(), name).toEqual([
+        '--quiz-select-ink',
+        '--quiz-select-ink-quiet',
+        '--quiz-select-page',
+        '--quiz-select-shadow',
+      ])
+    }
+    // Two grounds, one ink: the red variant is the dark one with its ground exchanged.
+    expect(redOverview['--quiz-select-page']).toBe(redStage['--color-pageTop'])
+    expect(redOverview['--quiz-select-page']).not.toBe(darkOverview['--quiz-select-page'])
+    expect(redOverview['--quiz-select-ink']).toBe(darkOverview['--quiz-select-ink'])
+
+    /*
+     * AND THE CARDS KEEP THEIR DARK TEXT. Their surfaces are the colours of
+     * their quizzes and stay light in every variant, so the ink on them may not
+     * follow the page's - that is what the second pair of names is for.
+     */
+    expect(darkOverview['--quiz-select-ink-on-card']).toBeUndefined()
+    expect(fallback['--quiz-select-ink-on-card']).toBe(fallback['--quiz-select-ink'])
+    expect(darkOverview['--quiz-select-ink']).not.toBe(fallback['--quiz-select-ink-on-card'])
+    for (const card of ['bundestag', 'kids', 'europe', 'unity', 'bremen']) {
+      expect(darkOverview[`--quiz-select-card-${card}`], card).toBeUndefined()
+    }
+  })
+})

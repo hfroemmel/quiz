@@ -1,5 +1,5 @@
 /**
- * Light or dark version of the stage.
+ * Which colour variant of the stage is on show - light, dark or red.
  *
  * WHAT THIS IS AND WHAT IT IS NOT: it is a viewing preference of the person
  * operating it, not game state. The server knows nothing about it, it is not
@@ -7,13 +7,18 @@
  * itself. That is why the choice lives in `localStorage` and not in the state
  * machine.
  *
- * ONLY THE ADULTS' STAGE knows both versions. The children's world is its own
+ * ONLY THE ADULTS' STAGE knows these versions. The children's world is its own
  * design world with its own paper and its own drawings; it is not touched by
- * the switch.
+ * the choice.
+ *
+ * THE LIST IS THE OFFER. Whoever adds a variant adds it here, and every place
+ * that shows the choice grows by one option on its own - the stage carries it
+ * as `stage--<name>`, the screens in front of it as `data-theme="<name>"`, and
+ * `packages/themes/src/palette.css` holds the colours under those names.
  */
 import { useCallback, useEffect, useState } from 'react'
 
-export const stageThemes = ['dark', 'bright'] as const
+export const stageThemes = ['dark', 'bright', 'red'] as const
 export type StageTheme = (typeof stageThemes)[number]
 
 const STORAGE_KEY = 'quiz.stageTheme'

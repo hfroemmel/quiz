@@ -145,3 +145,49 @@ test('the children world keeps its paper - a host theme for the stage does not r
 
   expect(paper).not.toBe(foyerPage)
 })
+
+/**
+ * THE RED VARIANT, on the surface where it is visible.
+ *
+ * The rule that carries it sits on the stage element itself, and that is the
+ * hard part: the frame around it hands variables down, and only a declaration
+ * on the element itself beats them. What is checked here is therefore not the
+ * stylesheet - the package's tests do that - but what the browser resolves in
+ * the place where the room looks.
+ */
+test('the red variant is the dark stage on a red ground', async ({ page }) => {
+  const open = async (variant: string) => {
+    await page.addInitScript((value) => localStorage.setItem('quiz.stageTheme', value as string), variant)
+    await page.goto('/preview')
+    await expect(page.locator('[data-preview-stage] .stage')).toBeVisible({ timeout: 15_000 })
+  }
+
+  await open('dark')
+  const dark = {
+    ground: await token('[data-preview-stage] .stage', '--color-pageTop', page),
+    accent: await token('[data-preview-stage] .stage', '--color-accent', page),
+    correct: await token('[data-preview-stage] .stage', '--color-correct', page),
+    incorrect: await token('[data-preview-stage] .stage', '--color-incorrect', page),
+    tile: await token('[data-preview-stage] .stage', '--color-tile', page),
+  }
+
+  await open('red')
+  await expect(page.locator('[data-preview-stage] .stage')).toHaveClass(/stage--red/)
+  // The ground turns - and it is the one value this variant is.
+  expect(await token('[data-preview-stage] .stage', '--color-pageTop', page)).toBe('#ca2f56')
+  expect(await token('[data-preview-stage] .stage', '--color-pageTop', page)).not.toBe(dark.ground)
+
+  /*
+   * And everything else stays the dark stage's: the three signals - blue for
+   * the selection, green for the right answer, red for the wrong one - and the
+   * veils the surfaces are made of. They become lighter red over the ground on
+   * their own, which is why this variant names no surface of its own.
+   */
+  expect(await token('[data-preview-stage] .stage', '--color-accent', page)).toBe(dark.accent)
+  expect(await token('[data-preview-stage] .stage', '--color-correct', page)).toBe(dark.correct)
+  expect(await token('[data-preview-stage] .stage', '--color-incorrect', page)).toBe(dark.incorrect)
+  expect(await token('[data-preview-stage] .stage', '--color-tile', page)).toBe(dark.tile)
+
+  // The ink stays light, so a host that recolours its own frame is told so.
+  await expect(page.locator('[data-preview-stage] .stage')).toHaveAttribute('data-surface', 'dark')
+})

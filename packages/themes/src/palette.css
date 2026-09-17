@@ -94,6 +94,8 @@
   --quiz-select-page: #fbfbfa;
   --quiz-select-ink: #07152d;
   --quiz-select-ink-quiet: #284d73;
+  --quiz-select-ink-on-card: #07152d;
+  --quiz-select-meta-on-card: #284d73;
   --quiz-select-card-bundestag: linear-gradient(135deg, #eef2f6 0%, #d5dee8 100%);
   --quiz-select-card-kids: linear-gradient(180deg, #aed5f0 0%, #c1d6f1 50%, #d5d7f1 100%);
   --quiz-select-card-europe: #003399;
@@ -123,6 +125,15 @@
   --color-incorrect: #780F2D;
   --color-text: rgb(25, 25, 25);
   --color-textMuted: rgba(25, 25, 25, 0.6);
+}
+
+/* Red version of the adults stage - the dark one with its ground exchanged. */
+.stage--default.stage--red {
+  --color-pageTop: #ca2f56;
+  --color-pageBottom: #ca2f56;
+  --color-stageTop: #ca2f56;
+  --color-stageBottom: #ca2f56;
+  --color-controls: #ca2f56;
 }
 
 /* Light version of the start selection in front of it - only what differs from the dark one. */
@@ -162,4 +173,28 @@
   --start-brand-shade: rgba(25, 25, 25, 0.08);
   --start-icon: rgba(25, 25, 25, 0.6);
   --start-glass: rgb(25, 25, 25);
+}
+
+/* And its red version - the ground, and the two lights switched off. */
+[data-quiz-game][data-theme='red'] {
+  --start-bg-top: #ca2f56;
+  --start-bg-mid: #ca2f56;
+  --start-bg-bottom: #ca2f56;
+  --start-ambient-left: transparent;
+  --start-ambient-right: transparent;
+}
+
+/* The offer overview on a dark and on a red ground - the cards stay as they are. */
+[data-quiz-overview][data-theme='dark'] {
+  --quiz-select-page: #12161A;
+  --quiz-select-ink: #FFFFFF;
+  --quiz-select-ink-quiet: rgba(255, 255, 255, 0.6);
+  --quiz-select-shadow: rgb(0 0 0 / 0.2);
+}
+
+[data-quiz-overview][data-theme='red'] {
+  --quiz-select-page: #ca2f56;
+  --quiz-select-ink: #FFFFFF;
+  --quiz-select-ink-quiet: rgba(255, 255, 255, 0.6);
+  --quiz-select-shadow: rgb(0 0 0 / 0.2);
 }
