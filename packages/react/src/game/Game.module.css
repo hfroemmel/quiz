@@ -723,7 +723,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.125vw;
+  gap: 3vw;
   /*
    * THE BOARD IS AS TALL AS THE SELECTION NEXT TO IT - that is the design, and
    * it is a RELATIONSHIP, not a number. This used to say `min(70.1vh, 100%)`,
@@ -736,7 +736,6 @@
    * Its height is in `vw` like everything here - the window height never
    * comes into it.
    */
-  align-self: stretch;
   padding: 2.1938vw;
 }
 
@@ -1049,7 +1048,7 @@
  */
 .offer .check {
   position: absolute;
-  top: 0.9vw;
+  top: calc(50% - 1.1vw);
   right: 0.9vw;
   margin: 0;
 }
@@ -1125,11 +1124,7 @@
   width: 1.8vw;
   height: 1.8vw;
   margin-left: auto;
-  border-radius: 50%;
   color: var(--start-ink-on-badge);
-}
-.check[data-on='true'] {
-  background: var(--start-selected);
 }
 .check > svg {
   width: 70%;
