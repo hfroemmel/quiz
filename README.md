@@ -15,7 +15,7 @@ live in their own repositories and pull them in as packages.
 | Stage operation | `hfroemmel/quiz-live` | Server, operator desk, stage screen, host, buzzer device |
 | Kiosk | `hfroemmel/quiz-standalone` | A single window in the foyer, no server, no network |
 | Game collection | `hfroemmel/app-collection` | Menu with an embedded quiz |
-| Content | `hfroemmel/quiz-content-data` | The editorial questions and media |
+| Content | `hfroemmel/quiz-live` | The editorial questions and media live with the application that plays them |
 
 ## The test harness
 
@@ -42,7 +42,7 @@ pnpm harness         # test harness at http://localhost:5180
 
 The test fixtures are GENERATED (`pnpm content:fixtures`): 29 synthetic
 questions and placeholder media, just enough to fill every question slot of
-every preset. The real content lives in `quiz-content-data`.
+every preset. The real content lives in `quiz-live`.
 
 ## Checks
 

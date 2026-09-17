@@ -1,10 +1,12 @@
 # Adoption of the original question catalog
 
-> **Historical.** Since the system split, the catalog lives in
-> [`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data);
+> **Historical.** Since the system split, the catalog lives with the
+> application that plays it, in
+> [`hfroemmel/quiz-live`](https://github.com/hfroemmel/quiz-live);
 > `content/source` here carries a generated test fixture set. This file
 > still describes WHAT was adopted and the catalog's particulars - both
-> still apply unchanged, only the location differs.
+> still apply unchanged, only the location differs. (Between the split and
+> 2026-09-17 the catalog sat in `hfroemmel/quiz-content-data`.)
 
 The delivered catalog has been adopted: it carries the 199 real questions.
 The previously bundled sample package has been dropped.

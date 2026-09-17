@@ -73,7 +73,7 @@ Exported German identifiers that hosts import and therefore need a deprecation a
 
 **Packages touched.** content, core (schema unchanged; `explanation.details` now populated by the pipeline). **Hosts.** bundestags-app, quiz-content-data. **Dependencies.** Phase 1 (English CLI). **Risk.** editorial pairing of the two language corpora is manual work; the 21 asset-reference errors in quiz-live's content must be fixed rather than re-stamped. **Tests.** `quiz-content validate` in both profiles; workbook round-trip unit tests (template → fill → import → identical `questions.json`). **Result.** Step 1–2 of the practice test take one route.
 
-**Status: the package part is done; the corpus part is not started.**
+**Status: done - the package part, and the corpus with it.**
 
 - `import-sheet --xlsx [--sheet]` reads an editorial workbook directly.
   `readWorkbook` is the reader: the zip container and enough XML to find the
@@ -91,11 +91,33 @@ Exported German identifiers that hosts import and therefore need a deprecation a
   editor writing to another, not content.
 - Three answer options pass, and a test says so.
 
-Open: the workbook TEMPLATE (D.2), and the corpus itself - importing the
-Bundestags-App questions into `quiz-content-data` with the editorial pairing of
-the two language corpora, and the images into LFS. Neither is possible from
-this environment: LFS is blocked here, and the pairing is editorial work, not a
-rule. The route the corpus will take is in place and tested.
+THE CORPUS WAS SETTLED ON 2026-09-17, by giving up the destination instead of
+moving the files. `quiz-content-data` was never a master for the media: its
+`content/source/assets` was declared as Git LFS and not one file was ever
+committed - 195 entries in `assets.json` with zero bytes behind them. The files
+had been in `quiz-live` the whole time as ordinary git objects, 289 of them,
+174 MB. So there was one complete copy and one incomplete one, and the addendum
+decides the direction anyway: the consuming application owns its content.
+
+- `quiz-live` is the master. The editorial workbook is committed there
+  (`content/import/bundestag-de/de-DE/questions.xlsx`), which is the one thing
+  that was missing from both repositories.
+- Three questions had a different correct answer in the two copies - 105, 106
+  and 115, all three "how many ... currently". The 2026 workbook decided.
+  Prompts, option texts, difficulties and categories were identical in all 201;
+  the 43 remaining `explanation` differences were `{}` against `null`.
+- `quiz-content-data` keeps the sheet mapping and its history. Its
+  `questions.json`, `assets.json`, `config.json` and the `.gitattributes` that
+  promised LFS are gone, and with them the workflows and scripts that existed
+  to validate and release content that is no longer there.
+- The credits are not a blocker: a missing licence line is reported at the
+  IMPORT now, per question, where whoever read the workbook can still answer it
+  (`uncreditedImages`).
+
+Still open, and smaller than it was: the workbook TEMPLATE (D.2). And the
+Bundestags-App questions are not merged into the Bundestag corpus - under the
+addendum's pool model they are their own pools per audience and language, which
+is a content decision and not a migration step.
 
 ## Phase 3 – Configuration completeness
 
@@ -425,12 +447,11 @@ their trees, not against a promise.
 
 THREE THINGS ARE NOT DONE, and each says why:
 
-- **Phase 2, the corpus.** The 201 editorial questions still live twice - in
-  `quiz-content-data` as the master and in `quiz-live` as a second copy, already
-  eight prompts apart - and the 254 MB of media under Git LFS were never
-  committed (eleven files are tracked). Moving them needs LFS access and an
-  editorial decision per diverging question, neither of which is a refactoring
-  step. It is the first row of the migration table in `J`.
+- **The workbook template** (D.2) of Phase 2, and the Bundestags-App questions,
+  which under the addendum's pool model are their own pools per audience and
+  language rather than something to merge. The corpus itself is settled: one
+  master in `quiz-live`, workbook committed, `quiz-content-data` reduced to its
+  sheet mapping.
 - **The transitional flat pool in quiz-live**, minus its opening. Slots four to
   seven of every operated preset still draw from the whole pool, so the arc of
   a round - easy first, hard at the end - is still gone. What came back are the

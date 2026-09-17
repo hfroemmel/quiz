@@ -4,9 +4,15 @@ A quiz package is the **only** source from which the server loads content at
 runtime. It is built from `content/source/` and lands, built, under
 `content/dist/`.
 
-The editorial content lives in
-[`hfroemmel/quiz-content-data`](https://github.com/hfroemmel/quiz-content-data);
-`content/source` here contains a generated test set (see README).
+The editorial content lives with the application that plays it, in
+[`hfroemmel/quiz-live`](https://github.com/hfroemmel/quiz-live) -
+`content/import` the workbook it is read from, `content/source` the generated
+set and its media. `content/source` HERE contains a generated test set (see
+README).
+
+It used to live in `hfroemmel/quiz-content-data`, which turned out to be a
+master for the text only: its media were declared as Git LFS and never
+committed. That repository is now the sheet mapping and its history.
 
 ```text
 content/dist/

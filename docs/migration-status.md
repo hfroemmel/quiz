@@ -68,10 +68,12 @@ Two observations for the next release:
    packages, under *Package settings -> Manage Actions access -> Add
    repository*, add the consuming repository with `Read` - for `quiz-live`,
    `quiz-standalone`, and `app-collection`.
-2. **The media is missing from `quiz-content-data`.** The LFS endpoint
-   (`lfs.github.com`) is blocked from within the migration session. The text
-   content there is complete; the repository's README names the commands for
-   the one-time upload from a working copy.
+2. ~~**The media is missing from `quiz-content-data`.**~~ RESOLVED on
+   2026-09-17, by giving up the destination rather than the files: the LFS
+   endpoint (`lfs.github.com`) stayed blocked, the upload never happened, and
+   the media were in `quiz-live` the whole time as ordinary git objects - 289
+   files, 174 MB. `quiz-live` is the master now; `quiz-content-data` keeps the
+   sheet mapping and its history.
 
 ## The split stands
 
@@ -81,7 +83,7 @@ Two observations for the next release:
 | `quiz-live` | stage operation: server, persistence, role clients, Electron shell |
 | `quiz-standalone` | kiosk: one window, no server, no network |
 | `app-collection` | game collection with an embedded quiz |
-| `quiz-content-data` | the editorial content |
+| `quiz-content-data` | the sheet mapping and the editorial history; the content itself moved to `quiz-live` on 2026-09-17 |
 
 All three application repositories consume `@hfroemmel/quiz-*@^0.2` from
 GitHub Packages. The packages are published; what each repository still
