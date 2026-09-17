@@ -555,7 +555,16 @@ export type ServerMessage =
    * several times with an offset. In standard operation that is the local
    * desktop application; remote presentation clients start muted.
    */
-  | { type: 'client-info'; audioMaster: boolean }
+  | {
+      type: 'client-info'
+      audioMaster: boolean
+      /**
+       * May this client sound a video it plays? Absent from a server that does
+       * not know the second authority yet - then the cue authority decides, as
+       * it did before.
+       */
+      videoAudioMaster?: boolean
+    }
   | {
       type: 'snapshot'
       role: ClientRole

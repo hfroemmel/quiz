@@ -86,7 +86,7 @@ describe('LocalQuizRuntime', () => {
     const unsubscribe = runtime.subscribe((snapshot) => seen.push(snapshot))
 
     // Locally there is no connection question and no competition for the sound.
-    expect(runtime.getSnapshot().connection).toEqual({ connected: true, audioMaster: true })
+    expect(runtime.getSnapshot().connection).toEqual({ connected: true, audioMaster: true, videoAudioMaster: true })
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
