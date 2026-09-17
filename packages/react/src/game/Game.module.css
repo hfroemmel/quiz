@@ -312,8 +312,18 @@
 [data-skin='default'] .buzzer:disabled:not([data-armed='true']) {
   color: var(--color-textMuted);
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
+  /*
+   * The fallback is the measure itself: this corner sits in the device's
+   * footer and thus OUTSIDE the stage, where the stage's token does not
+   * reach. The red variant is the one that wants no glass, and it says so on
+   * the next rule - for the same reason as on the stage.
+   */
+  backdrop-filter: var(--stage-glass, blur(1.2cqw));
+  -webkit-backdrop-filter: var(--stage-glass, blur(1.2cqw));
+}
+[data-theme='red'] .buzzer:disabled:not([data-armed='true']) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 /*
  * AND IN THIS WORLD THE AREA SAYS IT, NOT THE DIMMING.

@@ -195,6 +195,14 @@ export const brightPalette: Partial<DesignColors> = {
  * new value. That is also why no gradient is invented: all four ground tokens
  * carry the same tone, and what still separates the areas are the veils.
  *
+ * AND IN THIS VARIANT THERE IS NOTHING BEHIND THEM. The other two are built on
+ * the blurred question image, which the veils let through like frosted glass;
+ * under a commissioned ground that is what pulled the room's tone somewhere
+ * else with every photo. The stage keeps that layer out of this variant and
+ * switches the blur off with it (`--stage-glass`, see the react package's
+ * `stage.css`), so the veils composite over one flat surface - which is what
+ * makes five values enough for a whole variant.
+ *
  * THE MEANING COLOURS STAY, and that is a decision, not an omission: blue
  * marks the selection and the player whose turn it is, green the right answer,
  * red the wrong one. A red ground makes the wrong-answer red harder to tell

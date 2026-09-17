@@ -1005,10 +1005,13 @@ Type      text  textMuted</code></pre>
     <h4>Light, dark, red &mdash; and who decides</h4>
     <p>The adults' stage ships in three colour variants. <b>Hell</b> is paper, <b>dunkel</b> the
     darkened hall, and <b>rot</b> is that dark set with one thing exchanged: the ground becomes
-    <code>#CA2F56</code> (the tone the variant was commissioned with). Everything else stays &mdash; the surfaces are white veils at five to nine
-    percent and become lighter red over it by themselves, and the three signals keep their meaning in
-    every variant (blue for the selection and the player on turn, green for the right answer, red for
-    the wrong one).</p>
+    <code>#CA2F56</code> (the tone the variant was commissioned with). The surfaces stay white veils at
+    five to nine percent and become lighter red over it by themselves, and the three signals keep their
+    meaning in every variant (blue for the selection and the player on turn, green for the right answer,
+    red for the wrong one). What this variant does NOT carry is the atmosphere of the other two: the
+    blurred question image behind the scene stays out and the frosted panes stop blurring
+    (<code>--stage-glass: none</code>), so the ground stands in one tone across the whole area. The
+    question's own picture is untouched.</p>
     <p>Which one is on show is a preference <b>of the window</b>, not game state: it lives in
     <code>localStorage</code> under <code>quiz.stageTheme</code>, reaches every window of the same
     origin, and the server never learns about it. <code>useStageTheme()</code> reads and sets it, and

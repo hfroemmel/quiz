@@ -123,7 +123,8 @@ against which the warm light of the question images works.
 core of the design: behind the scene lies the blurred question image, and
 tiles, letters, and answer bars let it shimmer through like frosted glass,
 instead of covering it up. A token with an opaque color would immediately
-destroy the depth.
+destroy the depth. (The red variant is the exception - see below: there the
+same veils sit on a flat ground, with nothing behind them.)
 
 ### Blurred Question Image as Background
 
@@ -140,6 +141,19 @@ bright sky would otherwise tip the stage into a milky look.
 blurred (`blur(9cqw)`, `brightness(0.5)`, veil 84%). The task there is
 to recognize the subject; the background must not give away a silhouette -
 9 cqw is roughly 170 pixels of blur on a 1920-wide projector.
+
+**Not in the red variant, and not in the kids world.** The red variant stands
+on a commissioned ground, and this layer is what a commissioned ground cannot
+survive: every photo pulls the tone somewhere else, and in the running game the
+specified colour is nowhere on screen any more. So the layer stays out
+(`.stage--default.stage--red .backdrop { display: none }`) and the frosted glass
+is switched off with it - `--stage-glass`, the one token score card, counter,
+letter chip and answer bar read, is `none` there. The panes keep their white
+veils, which over one flat ground composite to flat, slightly lighter reds: the
+same order of surfaces, no second colour in the room. The question's own
+picture is untouched - it stands framed in the scene, as content rather than
+atmosphere. In the kids world the illustrated scene carries the background
+instead, and the question photo stays out for that reason.
 
 ### Radii and Shadows
 
@@ -357,7 +371,7 @@ The `default` world additionally has **three versions**:
 |---|---|---|
 | light | `.stage--bright` | the eighteen tokens on a light panel |
 | dark | `.stage--dark` | the quiz mode's values, unchanged - the fallback layer of `palette.css` |
-| red | `.stage--red` | the dark version with the commissioned `#CA2F56` as its ground |
+| red | `.stage--red` | the commissioned `#CA2F56`, flat: no blurred image behind the scene, no frosted panes |
 
 The version changes **only colors, transparencies, outlines, and
 shadows**. Fonts, components, positions, and spacing are identical in all

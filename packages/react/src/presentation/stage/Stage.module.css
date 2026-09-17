@@ -204,6 +204,24 @@
 }
 
 /*
+ * THE RED VARIANT SHOWS NO PICTURE BEHIND THE SCENE.
+ *
+ * The other two variants are built on it - the ground darkens or lightens the
+ * blurred question image and the panes let it through. Under a commissioned
+ * ground that is the one thing that cannot stay: every photo pulled the room's
+ * red somewhere else, and in the running game the specified tone was nowhere
+ * on screen any more. So the layer stays out here, exactly as it does in the
+ * children's world, and the stage's own gradient - one tone at both stops -
+ * is the whole background.
+ *
+ * The question's picture itself is of course untouched: it stands framed in
+ * the scene, where it is content and not atmosphere.
+ */
+:global(.stage--default.stage--red) .backdrop {
+  display: none;
+}
+
+/*
  * Light version: the blurred question image must LIGHTEN instead of
  * darken - otherwise a dark patch would sit in the middle of the paper. The
  * veil carries the same job as in the dark version and covers a bit more

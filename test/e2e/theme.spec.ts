@@ -195,4 +195,28 @@ test('the red variant is the dark stage on a red ground', async ({ page }) => {
 
   // The ink stays light, so a host that recolours its own frame is told so.
   await expect(page.locator('[data-preview-stage] .stage')).toHaveAttribute('data-surface', 'dark')
+
+  /*
+   * AND THIS VARIANT IS FLAT. The two others are built on the blurred question
+   * image and let it through their panes; under a commissioned ground that is
+   * what pulled the room's red somewhere else with every photo. So the glass
+   * is switched off at the stage - one token, read by score card, counter,
+   * letter chip and answer bar - and the picture behind the scene stays out.
+   */
+  expect(await token('[data-preview-stage] .stage', '--stage-glass', page)).toBe('none')
+  const frosted = await page
+    .locator('[data-preview-stage] .stage, [data-preview-stage] .stage *')
+    .evaluateAll((nodes) =>
+      nodes.map((node) => getComputedStyle(node).backdropFilter).filter((value) => value && value !== 'none'),
+    )
+  expect(frosted).toEqual([])
+
+  const backdrop = page.locator('[data-preview-stage] [data-backdrop]')
+  if (await backdrop.count()) {
+    expect(await backdrop.first().evaluate((node) => getComputedStyle(node).display)).toBe('none')
+  }
+
+  // The dark variant, for comparison, does frost - otherwise this proves nothing.
+  await open('dark')
+  expect(await token('[data-preview-stage] .stage', '--stage-glass', page)).toBe('blur(1.2cqw)')
 })

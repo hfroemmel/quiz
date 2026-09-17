@@ -135,8 +135,8 @@
   min-width: 3.4cqw;
   padding: 0.8cqw 0 0.4cqw;
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
+  backdrop-filter: var(--stage-glass);
+  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -148,8 +148,8 @@
   justify-content: center;
   padding: 1cqw 1.2cqw 0.8cqw;
   background: var(--color-option);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
+  backdrop-filter: var(--stage-glass);
+  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
