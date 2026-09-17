@@ -1,5 +1,35 @@
 # @hfroemmel/quiz-react
 
+## 0.22.2
+
+### Patch Changes
+
+- The red variant of the stage is one flat surface - no glass, no picture behind
+  it.
+  
+  The other two variants are BUILT on the blurred question image: the ground
+  darkens or lightens it, and the panes above - score card, counter, letter chip,
+  answer bar - let it through like frosted glass. That is what makes those two
+  live, and it is the one thing a commissioned ground cannot survive. Every photo
+  pulled the room's red somewhere else; in the running game the specified tone
+  was nowhere on screen any more, and a graffiti wall put a warm patch in the
+  corner of the hall.
+  
+  So this variant drops both. The picture behind the scene stays out, exactly as
+  it does in the children's world, and the glass is switched off. The panes keep
+  their white veils at five to nine percent, which over one flat ground composite
+  to flat, slightly lighter reds - the same order of surfaces as in the other
+  variants, without a second colour entering the room. The question's own picture
+  is untouched: it stands framed in the scene, where it is content and not
+  atmosphere.
+  
+  `--stage-glass` is the blur as a token on the stage. Four modules used to spell
+  the same value out, so a variant that wants no glass needed four exceptions;
+  whoever wants a stage without frosted panes now sets one value. Its default is
+  the measure the other variants have always used.
+- @hfroemmel/quiz-core@0.22.2
+  - @hfroemmel/quiz-themes@0.22.2
+
 ## 0.22.1
 
 ### Patch Changes
