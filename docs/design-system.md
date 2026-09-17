@@ -351,20 +351,34 @@ the stage area; every component brings both worlds along in its own CSS
 module (`:global(.stage--default)` / `:global(.stage--kids)`). There are no
 mode-dependent components or class names - `Score`, not `KidsScore`.
 
-The `default` world additionally has **two versions**:
+The `default` world additionally has **three versions**:
 
 | Version | Class | Effect |
 |---|---|---|
-| dark | `.stage--dark` | the quiz mode's values, unchanged |
-| light | `.stage--bright` | the same eighteen tokens on a light panel |
+| light | `.stage--bright` | the eighteen tokens on a light panel |
+| dark | `.stage--dark` | the quiz mode's values, unchanged - the fallback layer of `palette.css` |
+| red | `.stage--red` | the dark version with `Rot` at 80 percent as its ground |
 
 The version changes **only colors, transparencies, outlines, and
-shadows**. Fonts, components, positions, and spacing are identical in both.
-It is a matter of the operator's own preference - it lives in
+shadows**. Fonts, components, positions, and spacing are identical in all
+three. It is a matter of the operator's own preference - it lives in
 `localStorage`, not in the snapshot, and the server knows nothing about it.
-It is toggled in the header of the operator view, to the left of the
-fullscreen switch; in kids mode the switch is dropped, because that world
+It is chosen in the header of the operator view, in a select box to the left of
+the fullscreen switch; in kids mode the box is dropped, because that world
 brings its own paper along.
+
+**The data flow, end to end.** `stageThemes` in `@hfroemmel/quiz-react` is the
+list of versions that exist, in the order a box shows them, and a host builds
+its choice from that list rather than from a list of its own. `useStageTheme`
+writes the name into `localStorage` under `quiz.stageTheme` and fires
+`quiz:stage-theme`; the `storage` event carries it to every other window of the
+origin, so the projector follows the desk without a command and a window that
+opens later reads it straight out of the storage. `stageThemeFrom` is the rule
+on the way back in: a name this build does not know gives the light version.
+That last point is what makes a version mismatch visible rather than puzzling -
+a box built from a newer list than the package's would otherwise offer a choice
+that silently snaps back, which is exactly what an application newer than its
+installed package once did with `red`.
 
 **Why the theme values sit on the frame and not on the stage:** `themeVariables`
 delivers the eighteen tokens as an inline style, and an inline style beats every
