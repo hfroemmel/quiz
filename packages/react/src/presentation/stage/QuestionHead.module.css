@@ -21,9 +21,9 @@
 }
 .category {
   margin: 0 0 1cqw;
-  font-family: 'Noto Sans', sans-serif;
-  font-size: 1.25vw;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 1vw;
+  font-weight: 700;
 }
 /*
  * `useFittedPrompt` sets `--prompt-scale` on the element when a long
@@ -36,16 +36,6 @@
   font-weight: 400;
   line-height: 1.25;
   font-family: var(--font-heading);
-}
-
-/*
- * Portrait question: the category sits as a small capitalised line above
- * the question. There it has no image column beside it to align against -
- * the capitals give it back its edge.
- */
-:global(.stage[data-presentation='person']) .category {
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
 /* ------------------------------------------------------------------ *

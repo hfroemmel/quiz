@@ -398,12 +398,12 @@
  * the other way round - the category was the largest type on the screen.
  */
 :global(.stage--kids) .pauseProgress {
-  font-size: 7cqw;
+  font-size: 2.5cqw;
   line-height: 1.05;
 }
 :global(.stage--kids) .pauseCategory {
   margin-top: 1cqw;
-  font-size: 5cqw;
+  font-size: 3.5cqw;
   font-weight: 400;
   line-height: 1.1;
   color: var(--kids-red);
