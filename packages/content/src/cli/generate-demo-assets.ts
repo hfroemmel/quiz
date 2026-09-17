@@ -12,7 +12,7 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { mediaAssetSchema } from '@hfroemmel/quiz-core'
+import { mediaAssetSchema, questionSchema } from '@hfroemmel/quiz-core'
 import { contentDir } from './dirs'
 import { readJson, resolveAssetPath } from '../package'
 
@@ -195,17 +195,30 @@ const brandingLabels: Record<string, string> = {
 
 function main(): void {
   const contentSourceDir = contentDir(process.argv.slice(2), 'source', 'source')
+  /*
+   * TWO PLACES NAME A FILE. `assets.json` holds the house's media, referenced
+   * by id from the configuration; the questions carry their own. A file named
+   * by several questions is drawn once - the set is what matters.
+   */
   const assets = mediaAssetSchema.array().parse(readJson(join(contentSourceDir, 'assets.json')))
+  const questions = questionSchema.array().parse(readJson(join(contentSourceDir, 'questions.json')))
+  const wanted = new Map<string, string>()
+  for (const asset of assets) wanted.set(asset.filename, asset.id)
+  for (const question of questions) {
+    for (const medium of [question.image, question.video]) {
+      if (medium && !wanted.has(medium.filename)) wanted.set(medium.filename, question.id)
+    }
+  }
   let written = 0
   let kept = 0
 
-  for (const asset of assets) {
-    const isImage = asset.kind === 'image' && asset.filename.endsWith('.svg')
-    const isVideo = asset.kind === 'video' && asset.filename.endsWith('.mp4')
+  for (const [filename, label] of wanted) {
+    const isImage = filename.endsWith('.svg')
+    const isVideo = filename.endsWith('.mp4')
     if (!isImage && !isVideo) continue
-    const target = resolveAssetPath(contentSourceDir, asset.filename)
+    const target = resolveAssetPath(contentSourceDir, filename)
     if (!target) {
-      throw new Error(`Asset-Pfad "${asset.filename}" liegt ausserhalb des Asset-Verzeichnisses.`)
+      throw new Error(`Asset-Pfad "${filename}" liegt ausserhalb des Asset-Verzeichnisses.`)
     }
     // Existing files stay untouched: as soon as approved material is in the
     // pool, a repeated run must not replace it with a placeholder
@@ -218,8 +231,8 @@ function main(): void {
     if (isVideo) {
       writeFileSync(target, placeholderMp4())
     } else {
-      const label = brandingLabels[asset.id]
-      writeFileSync(target, label ? brandingSvg(asset.id, label) : questionImageSvg(asset.id), 'utf8')
+      const branding = brandingLabels[label]
+      writeFileSync(target, branding ? brandingSvg(label, branding) : questionImageSvg(label), 'utf8')
     }
     written += 1
   }

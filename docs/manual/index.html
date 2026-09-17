@@ -501,7 +501,8 @@ pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
     <thead><tr><th>Filter</th><th>Restricts to</th></tr></thead>
     <tbody>
       <tr><td class="mono">difficultyIds</td><td>Questions of these difficulties</td></tr>
-      <tr><td class="mono">questionTypes</td><td><code>text-choice</code>, <code>image-choice</code>, <code>person</code>, <code>image-reveal</code>, <code>video-then-question</code></td></tr>
+      <tr><td class="mono">questionTypes</td><td><code>text-choice</code>, <code>image-choice</code>, <code>person</code>, <code>image-reveal</code></td></tr>
+      <tr><td class="mono">hasVideo</td><td><code>true</code> demands a question with a video, <code>false</code> excludes one</td></tr>
       <tr><td class="mono">evaluationModes</td><td><code>option-comparison</code> (machine-checked) or <code>manual-correct-incorrect</code> (a human decides)</td></tr>
       <tr><td class="mono">categoryIds</td><td>Questions in these categories</td></tr>
       <tr><td class="mono">tags</td><td>Questions carrying these tags</td></tr>
@@ -590,7 +591,7 @@ pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
       { "id": "o3", "text": "Kanzleramt" }
     ],
     "correctOptionId": "o1",
-    "media": { "imageAssetId": "img-reichstag" },
+    "image": { "filename": "questions/reichstag.jpg", "credit": "Foto: Deutscher Bundestag / Julia Nowak" },
     "enabled": true
   }
 ]</code></pre>
@@ -621,7 +622,8 @@ pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
       <tr><td class="mono">enabled</td><td><span class="chip req">yes</span></td><td><code>false</code> parks a question without deleting it</td></tr>
       <tr><td class="mono">options, correctOptionId</td><td><span class="chip opt">by type</span></td><td>Needed by the choice types. <b>At least two options</b>, or it is not a choice</td></tr>
       <tr><td class="mono">acceptedAnswerText</td><td><span class="chip opt">optional</span></td><td>Expected wordings, as help for a human evaluator</td></tr>
-      <tr><td class="mono">media</td><td><span class="chip opt">optional</span></td><td><code>{ imageAssetId, videoAssetId }</code></td></tr>
+      <tr><td class="mono">image</td><td><span class="chip opt">by type</span></td><td><code>{ filename, credit }</code> &mdash; the file under <code>assets/</code> and whose work it is. No entry in <code>assets.json</code></td></tr>
+      <tr><td class="mono">video</td><td><span class="chip opt">optional</span></td><td><code>{ filename, credit }</code>. A clip that runs <b>before</b> the question, whatever its type</td></tr>
       <tr><td class="mono">explanation</td><td><span class="chip opt">optional</span></td><td><code>summary</code> for the operator, <code>details</code> for the background step</td></tr>
       <tr><td class="mono">repetitionGroupId</td><td><span class="chip opt">optional</span></td><td>Variants of one question; repeat avoidance treats the group as one</td></tr>
       <tr><td class="mono">translations</td><td><span class="chip opt">optional</span></td><td>Other languages &mdash; see step&nbsp;12</td></tr>
@@ -629,16 +631,16 @@ pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
   </table>
   </div>
 
-  <h3>The five question types</h3>
+  <h3>The four question types</h3>
   <div class="scroll">
   <table>
     <thead><tr><th>Type</th><th>What the player sees</th><th>Needs</th></tr></thead>
     <tbody>
       <tr><td class="mono">text-choice</td><td>Question and answer rows</td><td>options</td></tr>
-      <tr><td class="mono">image-choice</td><td>A picture, then answer rows</td><td>options + <code>media.imageAssetId</code></td></tr>
+      <tr><td class="mono">image-choice</td><td>A picture, then answer rows</td><td>options + <code>image</code></td></tr>
       <tr><td class="mono">person</td><td>A portrait, asked about a person</td><td>options + image</td></tr>
       <tr><td class="mono">image-reveal</td><td>A picture that sharpens over time &mdash; buzz early, score more</td><td>image; options optional</td></tr>
-      <tr><td class="mono">video-then-question</td><td>A clip plays, then the question</td><td><code>media.videoAssetId</code></td></tr>
+      
     </tbody>
     <caption>A question with fewer than two options is never treated as a choice, whatever its type says: one row would be the solution itself.</caption>
   </table>
@@ -697,8 +699,8 @@ pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
   <div class="note warn">
     <h4>Fill in <code>credit</code> from the start</h4>
     <p>A missing credit is reported as a <em>warning</em>, so a build with unattributed pictures succeeds.
-    That is how an existing corpus in this project ended up with seventeen uncredited images. Treat the
-    warning as an error in your own project.</p>
+    That is how an existing corpus in this project ended up with uncredited images. The import names them
+    per question the moment it reads a table, which is where the gap is cheapest to close.</p>
   </div>
 
   <h4>The video-free profile</h4>
@@ -706,9 +708,9 @@ pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
   <code>--profile no-video</code> and the pipeline drops video assets <b>and</b> every question that needs
   one:</p>
 <pre class="shell-block"><code>quiz-content build --profile no-video</code></pre>
-  <p>The same flag exists on <code>validate</code>, so the check matches what you ship. Remember that a
-  preset slot filtering <code>questionTypes: ["video-then-question"]</code> can then no longer be
-  filled &mdash; and validation will say so.</p>
+  <p>The same flag exists on <code>validate</code>, so the check matches what you ship. A preset slot
+  that demands a video (<code>"hasVideo": true</code>) becomes a free slot in that profile &mdash; the
+  number of slots stays, only the clip is gone.</p>
 
   <h4>Working without the real pictures</h4>
   <p>Two helpers make an early start possible. <code>--placeholder-media</code> turns a missing file from

@@ -18,10 +18,10 @@ const revealQuestion = (id: string) =>
     options: undefined,
     correctOptionId: undefined,
     acceptedAnswerText: ['Brandenburger Tor'],
-    media: { imageAssetId: 'img-1' },
+    image: { filename: 'questions/img-1.jpg' },
   })
 const videoQuestion = (id: string) =>
-  makeQuestion({ id, questionType: 'video-then-question', media: { videoAssetId: 'vid-1' } })
+  makeQuestion({ id, video: { filename: 'video/vid-1.mp4' } })
 
 const sevenNormal = () => Array.from({ length: 7 }, (_, index) => normalQuestion(`q${index + 1}`))
 
@@ -669,7 +669,7 @@ describe('Self-service', () => {
     const tappableImage = makeQuestion({
       id: 'bild-mit-optionen',
       questionType: 'image-reveal',
-      media: { imageAssetId: 'img-1' },
+      image: { filename: 'questions/img-1.jpg' },
     })
     const harness = createHarness([tappableImage, ...sevenNormal().slice(1)])
     startGame(harness, selfService)
@@ -969,13 +969,17 @@ describe('Self-service', () => {
   })
 
   it('rejects a click when no video is attached to the question', () => {
-    const withoutFile = { ...videoQuestion('video-1'), media: undefined }
-    const harness = createHarness([withoutFile, ...sevenNormal().slice(1)])
+    /*
+     * A question without a video never reaches the video phase now - the clip
+     * is what puts it there. So the refusal is the phase, not a missing source:
+     * `video-source-missing` was a second finding for the same fact and is gone
+     * with the type that could promise a video it did not carry.
+     */
+    const withoutVideo = { ...videoQuestion('video-1'), video: undefined }
+    const harness = createHarness([withoutVideo, ...sevenNormal().slice(1)])
     startGame(harness)
 
-    expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe(
-      'video-source-missing',
-    )
+    expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe('invalid-phase')
   })
 
   it('rejects a click outside the video phase', () => {

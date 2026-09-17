@@ -76,7 +76,8 @@ export function questionTextFor(question: Question, locale: string | undefined):
     ...(options ? { options: options } : {}),
     ...(translation.acceptedAnswerText ? { acceptedAnswerText: translation.acceptedAnswerText } : {}),
     ...(translation.explanation ? { explanation: { ...question.explanation, ...translation.explanation } } : {}),
-    ...(translation.media ? { media: { ...question.media, ...translation.media } } : {}),
+    ...(translation.image ? { image: translation.image } : {}),
+    ...(translation.video ? { video: translation.video } : {}),
   }
 }
 

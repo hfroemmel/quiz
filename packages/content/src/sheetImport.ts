@@ -42,13 +42,36 @@ export interface SheetMapping {
     /** The correct answer - as a letter (`B`), as a number (`2`) or as text. */
     correct?: string
     acceptedAnswerText?: string
-    imageAssetId?: string
-    videoAssetId?: string
+    /**
+     * The question's picture and its licence line - two columns, one medium.
+     *
+     * A FILE NAME, NOT AN ASSET ID. The question carries its file itself
+     * (`image: { filename, credit }`), so the editorial table names the file
+     * and whose work it is, and nothing has to be declared a second time in
+     * `assets.json`.
+     */
+    image?: string
+    imageCredit?: string
+    /** A clip that runs before the question - whatever type the question is. */
+    video?: string
+    videoCredit?: string
     explanation?: string
     source?: string
     tags?: string
     enabled?: string
   }
+  /**
+   * The answer that is always the right one, as a 1-based position.
+   *
+   * SOME TABLES DO NOT MARK THE ANSWER, THEY ORDER IT: the first option is the
+   * correct one in every row, and the stage shuffles anyway. Stating that here
+   * beats naming the answer column and matching its text - a question whose
+   * answer is "B" or "2" reads as a letter or a position and lands on the
+   * wrong option, which is a mistake no report shows because the row passes.
+   *
+   * It wins over `columns.correct` where both are given.
+   */
+  correctOption?: number
   /** What applies where the sheet says nothing. */
   defaults?: {
     poolIds?: string[]
@@ -57,6 +80,15 @@ export interface SheetMapping {
     difficulty?: string
     questionType?: Question['questionType']
     tags?: string[]
+    /**
+     * Directory in front of a file name from the table, e.g. `questions`.
+     *
+     * An editorial table names the file, not its place: `reichstag.jpg`, not
+     * `questions/reichstag.jpg`. Where the media lie is a property of the
+     * package, so it is stated once here instead of in every row.
+     */
+    imageDirectory?: string
+    videoDirectory?: string
   }
   /**
    * Translation of cell values to identifiers - one table per field.
@@ -91,8 +123,10 @@ export interface SheetMapping {
       options?: string[]
       acceptedAnswerText?: string
       explanation?: string
-      imageAssetId?: string
-      videoAssetId?: string
+      image?: string
+      imageCredit?: string
+      video?: string
+      videoCredit?: string
     }
   >
 }
@@ -117,22 +151,56 @@ export const defaultMapping: SheetMapping = {
     options: ['A', 'B', 'C', 'D'],
     correct: 'Richtig',
     acceptedAnswerText: 'Antwort',
-    imageAssetId: 'Bild',
-    videoAssetId: 'Video',
+    image: 'Bild',
+    imageCredit: 'Bildnachweis',
+    video: 'Video',
+    videoCredit: 'Videonachweis',
     explanation: 'Erklärung',
     source: 'Quelle',
   },
   defaults: { poolIds: ['bundestag'], audiences: ['adults'], locale: 'de-DE', difficulty: 'medium' },
   values: {
     difficulty: { leicht: 'easy', mittel: 'medium', schwer: 'hard' },
+    /*
+     * THE TYPE IS THE PRESENTATION, AND NOTHING ELSE. `video` is deliberately
+     * not in this table any more: a clip is a step in front of the question,
+     * so it comes from the video COLUMN and leaves the type alone. A video in
+     * front of a person question used to be unwritable.
+     */
     questionType: {
       text: 'text-choice',
+      multiple_choice: 'text-choice',
       bild: 'image-choice',
       person: 'person',
+      image: 'image-reveal',
       bilderkennen: 'image-reveal',
-      video: 'video-then-question',
     },
   },
+}
+
+/**
+ * A medium from two cells: the file, and whose work it is.
+ *
+ * An empty file name means there is no medium - a credit without a file is an
+ * editorial note about a picture nobody attached, and it would arrive as a
+ * medium with an empty name that no build could copy.
+ *
+ * A missing credit, by contrast, IS taken over: the question keeps its
+ * picture, and `uncreditedImages` reports the gap at the end of the import
+ * where somebody can still close it.
+ */
+function medium(
+  filename: string | undefined,
+  credit: string | undefined,
+  directory?: string,
+): { filename: string; credit?: string } | undefined {
+  const file = (filename ?? '').trim()
+  if (file === '') return undefined
+  const place = (directory ?? '').replace(/^\/+|\/+$/g, '')
+  // A name that already carries its directory keeps it - the table wins.
+  const path = place === '' || file.includes('/') ? file : `${place}/${file}`
+  const line = (credit ?? '').trim()
+  return { filename: path, ...(line === '' ? {} : { credit: line }) }
 }
 
 function identifier(value: string): string {
@@ -219,17 +287,16 @@ function translationsOf(
       .map((entry) => entry.trim())
       .filter((entry) => entry !== '')
     const explanation = at(group.explanation)
-    const image = at(group.imageAssetId)
-    const film = at(group.videoAssetId)
+    const image = medium(at(group.image), at(group.imageCredit))
+    const film = medium(at(group.video), at(group.videoCredit))
 
     const entry = {
       ...(prompt ? { prompt } : {}),
       ...(options.length > 0 ? { options } : {}),
       ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
       ...(explanation ? { explanation: { summary: explanation } } : {}),
-      ...(image || film
-        ? { media: { ...(image ? { imageAssetId: image } : {}), ...(film ? { videoAssetId: film } : {}) } }
-        : {}),
+      ...(image ? { image } : {}),
+      ...(film ? { video: film } : {}),
     }
     if (Object.keys(entry).length > 0) translations[locale] = entry
   }
@@ -291,7 +358,13 @@ function importRows(
       preset.questionType ??
       (options.length >= 2 ? 'text-choice' : 'image-reveal')
 
-    const correctOptionId = options.length >= 2 ? findCorrect(cell(to.correct) ?? '', options) : undefined
+    const fixedCorrect = mapping.correctOption
+    const correctOptionId =
+      options.length < 2
+        ? undefined
+        : fixedCorrect !== undefined
+          ? options[fixedCorrect - 1]?.id
+          : findCorrect(cell(to.correct) ?? '', options)
     if (options.length >= 2 && !correctOptionId) {
       skippedRows.push({ row: rowNumber, reason: 'Die richtige Antwort ist nicht zuzuordnen.' })
       return
@@ -305,8 +378,8 @@ function importRows(
       .map((entry) => entry.trim())
       .filter((entry) => entry !== '')
 
-    const image = cell(to.imageAssetId)?.trim()
-    const film = cell(to.videoAssetId)?.trim()
+    const image = medium(cell(to.image), cell(to.imageCredit), preset.imageDirectory)
+    const film = medium(cell(to.video), cell(to.videoCredit), preset.videoDirectory)
     const explanation = cell(to.explanation)?.trim()
     const source = cell(to.source)?.trim()
 
@@ -327,9 +400,8 @@ function importRows(
       evaluationMode: correctOptionId ? ('option-comparison' as const) : ('manual-correct-incorrect' as const),
       ...(options.length >= 2 ? { options: options, correctOptionId } : {}),
       ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
-      ...(image || film
-        ? { media: { ...(image ? { imageAssetId: image } : {}), ...(film ? { videoAssetId: film } : {}) } }
-        : {}),
+      ...(image ? { image } : {}),
+      ...(film ? { video: film } : {}),
       ...(explanation || source
         ? { explanation: { ...(explanation ? { summary: explanation } : {}), ...(source ? { source: source } : {}) } }
         : {}),

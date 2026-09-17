@@ -43,7 +43,7 @@ const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 
 
 /**
  * Question types with their own layout that can be checked in the question
- * and solution scenes. `image-reveal` and `video-then-question` have their
+ * and solution scenes. `image-reveal` and the video step have their
  * own scenes and are therefore not offered as a choice.
  */
 const QUESTION_TYPES: QuestionPresentationType[] = ['image-choice', 'text-choice', 'person']
@@ -476,7 +476,7 @@ function buildSampleView(input: {
         question: {
           id: 'video-1',
           prompt: 'Videofrage',
-          presentationType: 'video-then-question',
+          presentationType: 'text-choice',
           videoUrl: '/media/beispielvideo',
         },
         video: { questionId: 'video-1', requestId: 'vorschau' },

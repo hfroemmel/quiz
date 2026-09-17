@@ -17,7 +17,7 @@ const manifest = {
   createdAt: new Date(0).toISOString(),
   questionsFile: 'questions.json',
   configFile: 'config.json',
-  assets: [{ id: 'img-1', kind: 'image', filename: 'assets/img-1.svg', mimeType: 'image/svg+xml' }],
+  assets: [{ id: 'img-1', kind: 'image', filename: 'branding/img-1.svg', mimeType: 'image/svg+xml' }],
   checksum: 'abc',
 }
 
@@ -30,7 +30,7 @@ describe('loadQuizPackage', () => {
     expect(quizPackage.manifest.contentVersion).toBe('1.0.0')
     expect(quizPackage.config.questionsPerGame).toBe(testConfig.questionsPerGame)
     expect(quizPackage.questions).toHaveLength(1)
-    expect(quizPackage.assetsById.get('img-1')?.filename).toBe('assets/img-1.svg')
+    expect(quizPackage.assetsById.get('img-1')?.filename).toBe('branding/img-1.svg')
   })
 
   it('has no directory unless the host names one - the core reads no files', () => {
@@ -49,9 +49,17 @@ describe('loadQuizPackage', () => {
 describe('the media resolution of a host', () => {
   it('serves the package route where the host says nothing', () => {
     const runtime = new LocalQuizRuntime({ quizPackage: loadQuizPackage(raw) })
-    expect(runtime.content.assetUrl('img-1')).toBe('/media/img-1')
+    /*
+     * THE ROUTE CARRIES THE FILE NAME, not an id. A question names its own
+     * file and has no id to look up; the house's media keep theirs in
+     * `assets.json`, and the id is resolved to the same file route here.
+     */
+    expect(runtime.content.mediaUrl('questions/a.jpg')).toBe('/media/questions/a.jpg')
+    expect(runtime.content.assetUrl('img-1')).toBe('/media/branding/img-1.svg')
     // An id the package does not know has no medium.
     expect(runtime.content.assetUrl('img-2')).toBeUndefined()
+    // A name with a space arrives encoded, and its slashes stay slashes.
+    expect(runtime.content.mediaUrl('questions/a b.jpg')).toBe('/media/questions/a%20b.jpg')
     runtime.dispose()
   })
 
@@ -62,11 +70,13 @@ describe('the media resolution of a host', () => {
      */
     const runtime = new LocalQuizRuntime({
       quizPackage: loadQuizPackage(raw),
-      media: (assetId) => (assetId === 'img-1' ? 'app://quiz/media/one.svg' : undefined),
+      media: (filename) => (filename === 'branding/img-1.svg' ? 'app://quiz/media/one.svg' : undefined),
     })
 
     expect(runtime.content.assetUrl('img-1')).toBe('app://quiz/media/one.svg')
+    expect(runtime.content.mediaUrl('branding/img-1.svg')).toBe('app://quiz/media/one.svg')
     // And its "nothing" means nothing: the question runs without an image.
+    expect(runtime.content.mediaUrl('questions/unknown.jpg')).toBeUndefined()
     expect(runtime.content.assetUrl('img-2')).toBeUndefined()
     expect(runtime.content.assetUrl(undefined)).toBeUndefined()
     runtime.dispose()
@@ -95,10 +105,10 @@ describe('the media resolution of a host', () => {
     }
     const runtime = new LocalQuizRuntime({
       quizPackage: loadQuizPackage({ ...raw, config }),
-      media: (assetId) => `app://quiz/media/${assetId}.svg`,
+      media: (filename) => `app://quiz/${filename}`,
     })
 
-    expect(runtime.getSnapshot().view?.catalog.audiences[0]?.startVisualUrl).toBe('app://quiz/media/img-1.svg')
+    expect(runtime.getSnapshot().view?.catalog.audiences[0]?.startVisualUrl).toBe('app://quiz/branding/img-1.svg')
     runtime.dispose()
   })
 })

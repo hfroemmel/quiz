@@ -188,21 +188,26 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       }
     }
 
-    let mediaAssetId: string | undefined
-    if (imageFile) {
-      mediaAssetId = `img-${id}`
-      assets.set(mediaAssetId, {
-        id: mediaAssetId,
-        kind: 'image',
-        filename: `${imageDirectory}/${imageFile}`,
-        mimeType: mimeTypeForFile(imageFile),
-        // Image credit and content source are two different things:
-        // the credit belongs to the medium, the source to the explanation.
-        credit: asString(pick(record, ['img_credit', 'imgCredit', 'bildnachweis', 'credit'])),
-        sourceUrl: asString(pick(record, ['source_url', 'sourceUrl', 'quelle'])),
-      })
-    }
-    if (mediaAssetId && !assets.get(mediaAssetId)?.credit) {
+    /*
+     * The picture goes ON the question, not into a medium directory.
+     *
+     * It used to become an asset of its own with a generated id (`img-<id>`),
+     * and the id existed for nothing but finding the file name behind it. The
+     * question carries file and credit now, which is also the shape the
+     * editorial table has (`img_filename`, `img_credit`).
+     */
+    const image = imageFile
+      ? {
+          filename: `${imageDirectory}/${imageFile}`,
+          // Image credit and content source are two different things:
+          // the credit belongs to the medium, the source to the explanation.
+          ...(() => {
+            const credit = asString(pick(record, ['img_credit', 'imgCredit', 'bildnachweis', 'credit']))
+            return credit ? { credit } : {}
+          })(),
+        }
+      : undefined
+    if (image && image.credit === undefined) {
       notes.push({
         severity: 'needs-review',
         code: 'missing-image-credit',
@@ -210,7 +215,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
         message: 'Bild ohne Bildnachweis. Vor der Veroeffentlichung klaeren.',
       })
     }
-    if ((presentationType === 'image-choice' || presentationType === 'image-reveal') && !mediaAssetId) {
+    if ((presentationType === 'image-choice' || presentationType === 'image-reveal') && !image) {
       skipped.push({ legacyId, reason: 'Bildfrage ohne hinterlegtes Bild.' })
       continue
     }
@@ -273,7 +278,7 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       options: selectableOptions.length ? selectableOptions : undefined,
       correctOptionId: selectableOptions.length ? selectableOptions[0]!.id : undefined,
       acceptedAnswerText: expectedAnswers.length ? expectedAnswers : undefined,
-      media: mediaAssetId ? { imageAssetId: mediaAssetId } : undefined,
+      image,
       explanation: {
         details: info,
         source: sourceReference,

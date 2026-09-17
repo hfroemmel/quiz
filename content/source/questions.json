@@ -10,65 +10,66 @@
     ],
     "difficulty": "easy",
     "categories": [
-      "recht",
+      "erdkunde",
       "saarbruecken"
     ],
     "tags": [],
     "locale": "de-DE",
-    "prompt": "Testfrage 18: Welche Antwort ist die richtige?",
+    "prompt": "Testfrage 10: Welche Antwort ist die richtige?",
     "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
         "id": "o1",
-        "text": "Richtige Antwort 18"
+        "text": "Richtige Antwort 10"
       },
       {
         "id": "o2",
-        "text": "Falsche Antwort A 18"
+        "text": "Falsche Antwort A 10"
       },
       {
         "id": "o3",
-        "text": "Falsche Antwort B 18"
+        "text": "Falsche Antwort B 10"
       },
       {
         "id": "o4",
-        "text": "Falsche Antwort C 18"
+        "text": "Falsche Antwort C 10"
       }
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 18."
+      "summary": "Erklaerung zur Testfrage 10."
     },
     "translations": {
       "en-GB": {
-        "prompt": "Test question 18: which answer is correct?",
+        "prompt": "Test question 10: which answer is correct?",
         "options": [
           {
             "id": "o1",
-            "text": "Correct answer 18"
+            "text": "Correct answer 10"
           },
           {
             "id": "o2",
-            "text": "Wrong answer A 18"
+            "text": "Wrong answer A 10"
           },
           {
             "id": "o3",
-            "text": "Wrong answer B 18"
+            "text": "Wrong answer B 10"
           },
           {
             "id": "o4",
-            "text": "Wrong answer C 18"
+            "text": "Wrong answer C 10"
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 18."
+          "summary": "Explanation for test question 10."
         }
       }
     },
     "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-easy-auswahl-1"
+    "image": {
+      "filename": "questions/img-test-image-choice-easy-auswahl-1.svg",
+      "credit": "Platzhalter"
     }
   },
   {
@@ -82,1037 +83,70 @@
     ],
     "difficulty": "easy",
     "categories": [
-      "wahl",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 19: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 19"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 19"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 19"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 19"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 19."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 19: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 19"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 19"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 19"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 19"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 19."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-easy-auswahl-2"
-    }
-  },
-  {
-    "id": "test-image-choice-easy-auswahl-3",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "begriffe",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 20: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 20"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 20"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 20"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 20"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 20."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 20: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 20"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 20"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 20"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 20"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 20."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-easy-auswahl-3"
-    }
-  },
-  {
-    "id": "test-image-choice-hard-auswahl-1",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 24: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 24"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 24"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 24"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 24"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 24.",
-      "details": "Hintergrund zur Testfrage 24: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 24: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 24"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 24"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 24"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 24"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 24.",
-          "details": "Background for test question 24: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-hard-auswahl-1"
-    }
-  },
-  {
-    "id": "test-image-choice-hard-auswahl-2",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "institution",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 25: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 25"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 25"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 25"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 25"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 25.",
-      "details": "Hintergrund zur Testfrage 25: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 25: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 25"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 25"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 25"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 25"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 25.",
-          "details": "Background for test question 25: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-hard-auswahl-2"
-    }
-  },
-  {
-    "id": "test-image-choice-hard-auswahl-3",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "person",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 26: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 26"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 26"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 26"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 26"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 26.",
-      "details": "Hintergrund zur Testfrage 26: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 26: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 26"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 26"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 26"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 26"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 26.",
-          "details": "Background for test question 26: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-hard-auswahl-3"
-    }
-  },
-  {
-    "id": "test-image-choice-medium-auswahl-1",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "kurioses",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 21: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 21"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 21"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 21"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 21"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 21.",
-      "details": "Hintergrund zur Testfrage 21: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 21: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 21"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 21"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 21"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 21"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 21.",
-          "details": "Background for test question 21: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-medium-auswahl-1"
-    }
-  },
-  {
-    "id": "test-image-choice-medium-auswahl-2",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "erdkunde",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 22: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 22"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 22"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 22"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 22"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 22.",
-      "details": "Hintergrund zur Testfrage 22: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 22: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 22"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 22"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 22"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 22"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 22.",
-          "details": "Background for test question 22: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-medium-auswahl-2"
-    }
-  },
-  {
-    "id": "test-image-choice-medium-auswahl-3",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "fahnen-und-symbole",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 23: Welche Antwort ist die richtige?",
-    "questionType": "image-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 23"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 23"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 23"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 23"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 23.",
-      "details": "Hintergrund zur Testfrage 23: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 23: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 23"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 23"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 23"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 23"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 23.",
-          "details": "Background for test question 23: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-choice-medium-auswahl-3"
-    }
-  },
-  {
-    "id": "test-image-reveal-easy-muendlich-1",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "gebaeude",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 3: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 3"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 3."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 3: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 3"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 3."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-easy-muendlich-1"
-    }
-  },
-  {
-    "id": "test-image-reveal-easy-muendlich-2",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "geschichte",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 4: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 4"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 4."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 4: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 4"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 4."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-easy-muendlich-2"
-    }
-  },
-  {
-    "id": "test-image-reveal-easy-muendlich-3",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "aemter",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 5: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 5"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 5."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 5: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 5"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 5."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-easy-muendlich-3"
-    }
-  },
-  {
-    "id": "test-image-reveal-hard-muendlich-1",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "kurioses",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 9: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 9"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 9.",
-      "details": "Hintergrund zur Testfrage 9: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 9: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 9"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 9.",
-          "details": "Background for test question 9: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-hard-muendlich-1"
-    }
-  },
-  {
-    "id": "test-image-reveal-hard-muendlich-2",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "erdkunde",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 10: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 10"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 10.",
-      "details": "Hintergrund zur Testfrage 10: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 10: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 10"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 10.",
-          "details": "Background for test question 10: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-hard-muendlich-2"
-    }
-  },
-  {
-    "id": "test-image-reveal-hard-muendlich-3",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
       "fahnen-und-symbole",
       "saarbruecken"
     ],
     "tags": [],
     "locale": "de-DE",
     "prompt": "Testfrage 11: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 11"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 11.",
-      "details": "Hintergrund zur Testfrage 11: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 11: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 11"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 11.",
-          "details": "Background for test question 11: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-hard-muendlich-3"
-    }
-  },
-  {
-    "id": "test-image-reveal-medium-muendlich-1",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "recht",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 6: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 6"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 6.",
-      "details": "Hintergrund zur Testfrage 6: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 6: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 6"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 6.",
-          "details": "Background for test question 6: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-medium-muendlich-1"
-    }
-  },
-  {
-    "id": "test-image-reveal-medium-muendlich-2",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "wahl",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 7: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 7"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 7.",
-      "details": "Hintergrund zur Testfrage 7: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 7: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 7"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 7.",
-          "details": "Background for test question 7: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-medium-muendlich-2"
-    }
-  },
-  {
-    "id": "test-image-reveal-medium-muendlich-3",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "begriffe",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 8: Welche Antwort ist die richtige?",
-    "questionType": "image-reveal",
-    "evaluationMode": "manual-correct-incorrect",
-    "acceptedAnswerText": [
-      "Richtige Antwort 8"
-    ],
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 8.",
-      "details": "Hintergrund zur Testfrage 8: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 8: which answer is correct?",
-        "acceptedAnswerText": [
-          "Correct answer 8"
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 8.",
-          "details": "Background for test question 8: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-image-reveal-medium-muendlich-3"
-    }
-  },
-  {
-    "id": "test-person-easy-auswahl-1",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "person",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 2: Welche Antwort ist die richtige?",
-    "questionType": "person",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
         "id": "o1",
-        "text": "Richtige Antwort 2"
+        "text": "Richtige Antwort 11"
       },
       {
         "id": "o2",
-        "text": "Falsche Antwort A 2"
+        "text": "Falsche Antwort A 11"
       },
       {
         "id": "o3",
-        "text": "Falsche Antwort B 2"
+        "text": "Falsche Antwort B 11"
       },
       {
         "id": "o4",
-        "text": "Falsche Antwort C 2"
+        "text": "Falsche Antwort C 11"
       }
     ],
     "correctOptionId": "o1",
     "explanation": {
-      "summary": "Erklaerung zur Testfrage 2."
+      "summary": "Erklaerung zur Testfrage 11."
     },
     "translations": {
       "en-GB": {
-        "prompt": "Test question 2: which answer is correct?",
+        "prompt": "Test question 11: which answer is correct?",
         "options": [
           {
             "id": "o1",
-            "text": "Correct answer 2"
+            "text": "Correct answer 11"
           },
           {
             "id": "o2",
-            "text": "Wrong answer A 2"
+            "text": "Wrong answer A 11"
           },
           {
             "id": "o3",
-            "text": "Wrong answer B 2"
+            "text": "Wrong answer B 11"
           },
           {
             "id": "o4",
-            "text": "Wrong answer C 2"
+            "text": "Wrong answer C 11"
           }
         ],
         "explanation": {
-          "summary": "Explanation for test question 2."
+          "summary": "Explanation for test question 11."
         }
       }
     },
     "enabled": true,
-    "media": {
-      "imageAssetId": "img-test-person-easy-auswahl-1"
+    "image": {
+      "filename": "questions/img-test-image-choice-easy-auswahl-2.svg",
+      "credit": "Platzhalter"
     }
   },
   {
-    "id": "test-text-choice-easy-auswahl-1",
+    "id": "test-image-choice-easy-auswahl-3",
     "poolIds": [
       "bundestag"
     ],
@@ -1127,7 +161,7 @@
     "tags": [],
     "locale": "de-DE",
     "prompt": "Testfrage 12: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1177,219 +211,14 @@
         }
       }
     },
-    "enabled": true
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-easy-auswahl-3.svg",
+      "credit": "Platzhalter"
+    }
   },
   {
-    "id": "test-text-choice-easy-auswahl-2",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "institution",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 13: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 13"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 13"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 13"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 13"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 13."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 13: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 13"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 13"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 13"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 13"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 13."
-        }
-      }
-    },
-    "enabled": true
-  },
-  {
-    "id": "test-text-choice-easy-auswahl-3",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "easy",
-    "categories": [
-      "person",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 14: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 14"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 14"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 14"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 14"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 14."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 14: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 14"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 14"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 14"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 14"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 14."
-        }
-      }
-    },
-    "enabled": true
-  },
-  {
-    "id": "test-text-choice-hard-auswahl-1",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "gebaeude",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 27: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 27"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 27"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 27"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 27"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 27.",
-      "details": "Hintergrund zur Testfrage 27: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 27: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 27"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 27"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 27"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 27"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 27.",
-          "details": "Background for test question 27: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true
-  },
-  {
-    "id": "test-text-choice-hard-auswahl-2",
+    "id": "test-image-choice-hard-auswahl-1",
     "poolIds": [
       "bundestag"
     ],
@@ -1398,219 +227,6 @@
       "kids"
     ],
     "difficulty": "hard",
-    "categories": [
-      "geschichte",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 28: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 28"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 28"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 28"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 28"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 28.",
-      "details": "Hintergrund zur Testfrage 28: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 28: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 28"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 28"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 28"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 28"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 28.",
-          "details": "Background for test question 28: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true
-  },
-  {
-    "id": "test-text-choice-hard-auswahl-3",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "hard",
-    "categories": [
-      "aemter",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 29: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 29"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 29"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 29"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 29"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 29.",
-      "details": "Hintergrund zur Testfrage 29: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 29: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 29"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 29"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 29"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 29"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 29.",
-          "details": "Background for test question 29: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true
-  },
-  {
-    "id": "test-text-choice-medium-auswahl-1",
-    "poolIds": [
-      "saarbruecken"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
-    "categories": [
-      "gebaeude",
-      "saarbruecken"
-    ],
-    "tags": [],
-    "locale": "de-DE",
-    "prompt": "Testfrage 15: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
-    "evaluationMode": "option-comparison",
-    "options": [
-      {
-        "id": "o1",
-        "text": "Richtige Antwort 15"
-      },
-      {
-        "id": "o2",
-        "text": "Falsche Antwort A 15"
-      },
-      {
-        "id": "o3",
-        "text": "Falsche Antwort B 15"
-      },
-      {
-        "id": "o4",
-        "text": "Falsche Antwort C 15"
-      }
-    ],
-    "correctOptionId": "o1",
-    "explanation": {
-      "summary": "Erklaerung zur Testfrage 15.",
-      "details": "Hintergrund zur Testfrage 15: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
-    },
-    "translations": {
-      "en-GB": {
-        "prompt": "Test question 15: which answer is correct?",
-        "options": [
-          {
-            "id": "o1",
-            "text": "Correct answer 15"
-          },
-          {
-            "id": "o2",
-            "text": "Wrong answer A 15"
-          },
-          {
-            "id": "o3",
-            "text": "Wrong answer B 15"
-          },
-          {
-            "id": "o4",
-            "text": "Wrong answer C 15"
-          }
-        ],
-        "explanation": {
-          "summary": "Explanation for test question 15.",
-          "details": "Background for test question 15: this paragraph stands for the editorial background that nobody tells at a device - it is read."
-        }
-      }
-    },
-    "enabled": true
-  },
-  {
-    "id": "test-text-choice-medium-auswahl-2",
-    "poolIds": [
-      "bundestag"
-    ],
-    "audiences": [
-      "adults",
-      "kids"
-    ],
-    "difficulty": "medium",
     "categories": [
       "geschichte",
       "saarbruecken"
@@ -1618,7 +234,7 @@
     "tags": [],
     "locale": "de-DE",
     "prompt": "Testfrage 16: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1670,10 +286,14 @@
         }
       }
     },
-    "enabled": true
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-hard-auswahl-1.svg",
+      "credit": "Platzhalter"
+    }
   },
   {
-    "id": "test-text-choice-medium-auswahl-3",
+    "id": "test-image-choice-hard-auswahl-2",
     "poolIds": [
       "saarbruecken"
     ],
@@ -1681,7 +301,7 @@
       "adults",
       "kids"
     ],
-    "difficulty": "medium",
+    "difficulty": "hard",
     "categories": [
       "aemter",
       "saarbruecken"
@@ -1689,7 +309,7 @@
     "tags": [],
     "locale": "de-DE",
     "prompt": "Testfrage 17: Welche Antwort ist die richtige?",
-    "questionType": "text-choice",
+    "questionType": "image-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1741,10 +361,776 @@
         }
       }
     },
-    "enabled": true
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-hard-auswahl-2.svg",
+      "credit": "Platzhalter"
+    }
   },
   {
-    "id": "test-video-then-question-easy-auswahl-1",
+    "id": "test-image-choice-hard-auswahl-3",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "recht",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 18: Welche Antwort ist die richtige?",
+    "questionType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 18"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 18"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 18"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 18"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 18.",
+      "details": "Hintergrund zur Testfrage 18: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 18: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 18"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 18"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 18"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 18"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 18.",
+          "details": "Background for test question 18: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-hard-auswahl-3.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-choice-medium-auswahl-1",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "institution",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 13: Welche Antwort ist die richtige?",
+    "questionType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 13"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 13"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 13"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 13"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 13.",
+      "details": "Hintergrund zur Testfrage 13: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 13: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 13"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 13"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 13"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 13"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 13.",
+          "details": "Background for test question 13: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-medium-auswahl-1.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-choice-medium-auswahl-2",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "person",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 14: Welche Antwort ist die richtige?",
+    "questionType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 14"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 14"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 14"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 14"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 14.",
+      "details": "Hintergrund zur Testfrage 14: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 14: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 14"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 14"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 14"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 14"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 14.",
+          "details": "Background for test question 14: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-medium-auswahl-2.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-choice-medium-auswahl-3",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "gebaeude",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 15: Welche Antwort ist die richtige?",
+    "questionType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 15"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 15"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 15"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 15"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 15.",
+      "details": "Hintergrund zur Testfrage 15: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 15: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 15"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 15"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 15"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 15"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 15.",
+          "details": "Background for test question 15: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-choice-medium-auswahl-3.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-easy-muendlich-1",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "easy",
+    "categories": [
+      "begriffe",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 20: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 20"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 20."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 20: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 20"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 20."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-easy-muendlich-1.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-easy-muendlich-2",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "easy",
+    "categories": [
+      "kurioses",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 21: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 21"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 21."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 21: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 21"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 21."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-easy-muendlich-2.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-easy-muendlich-3",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "easy",
+    "categories": [
+      "erdkunde",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 22: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 22"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 22."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 22: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 22"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 22."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-easy-muendlich-3.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-hard-muendlich-1",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "person",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 26: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 26"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 26.",
+      "details": "Hintergrund zur Testfrage 26: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 26: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 26"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 26.",
+          "details": "Background for test question 26: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-hard-muendlich-1.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-hard-muendlich-2",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "gebaeude",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 27: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 27"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 27.",
+      "details": "Hintergrund zur Testfrage 27: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 27: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 27"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 27.",
+          "details": "Background for test question 27: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-hard-muendlich-2.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-hard-muendlich-3",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "geschichte",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 28: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 28"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 28.",
+      "details": "Hintergrund zur Testfrage 28: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 28: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 28"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 28.",
+          "details": "Background for test question 28: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-hard-muendlich-3.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-medium-muendlich-1",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "fahnen-und-symbole",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 23: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 23"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 23.",
+      "details": "Hintergrund zur Testfrage 23: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 23: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 23"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 23.",
+          "details": "Background for test question 23: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-medium-muendlich-1.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-medium-muendlich-2",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 24: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 24"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 24.",
+      "details": "Hintergrund zur Testfrage 24: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 24: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 24"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 24.",
+          "details": "Background for test question 24: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-medium-muendlich-2.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-image-reveal-medium-muendlich-3",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "institution",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 25: Welche Antwort ist die richtige?",
+    "questionType": "image-reveal",
+    "evaluationMode": "manual-correct-incorrect",
+    "acceptedAnswerText": [
+      "Richtige Antwort 25"
+    ],
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 25.",
+      "details": "Hintergrund zur Testfrage 25: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 25: which answer is correct?",
+        "acceptedAnswerText": [
+          "Correct answer 25"
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 25.",
+          "details": "Background for test question 25: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-image-reveal-medium-muendlich-3.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-person-easy-auswahl-1",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "easy",
+    "categories": [
+      "wahl",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 19: Welche Antwort ist die richtige?",
+    "questionType": "person",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 19"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 19"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 19"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 19"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 19."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 19: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 19"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 19"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 19"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 19"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 19."
+        }
+      }
+    },
+    "enabled": true,
+    "image": {
+      "filename": "questions/img-test-person-easy-auswahl-1.svg",
+      "credit": "Platzhalter"
+    }
+  },
+  {
+    "id": "test-text-choice-easy-auswahl-1",
     "poolIds": [
       "saarbruecken"
     ],
@@ -1760,7 +1146,7 @@
     "tags": [],
     "locale": "de-DE",
     "prompt": "Testfrage 1: Welche Antwort ist die richtige?",
-    "questionType": "video-then-question",
+    "questionType": "text-choice",
     "evaluationMode": "option-comparison",
     "options": [
       {
@@ -1810,9 +1196,574 @@
         }
       }
     },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-easy-auswahl-2",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "easy",
+    "categories": [
+      "person",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 2: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 2"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 2"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 2"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 2"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 2."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 2: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 2"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 2"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 2"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 2"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 2."
+        }
+      }
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-easy-auswahl-3",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "easy",
+    "categories": [
+      "gebaeude",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 3: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 3"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 3"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 3"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 3"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 3."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 3: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 3"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 3"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 3"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 3"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 3."
+        }
+      }
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-hard-auswahl-1",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "wahl",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 7: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 7"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 7"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 7"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 7"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 7.",
+      "details": "Hintergrund zur Testfrage 7: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 7: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 7"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 7"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 7"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 7"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 7.",
+          "details": "Background for test question 7: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-hard-auswahl-2",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "begriffe",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 8: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 8"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 8"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 8"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 8"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 8.",
+      "details": "Hintergrund zur Testfrage 8: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 8: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 8"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 8"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 8"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 8"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 8.",
+          "details": "Background for test question 8: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-hard-auswahl-3",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "hard",
+    "categories": [
+      "kurioses",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 9: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 9"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 9"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 9"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 9"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 9.",
+      "details": "Hintergrund zur Testfrage 9: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 9: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 9"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 9"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 9"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 9"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 9.",
+          "details": "Background for test question 9: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-medium-auswahl-1",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "geschichte",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 4: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 4"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 4"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 4"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 4"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 4.",
+      "details": "Hintergrund zur Testfrage 4: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 4: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 4"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 4"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 4"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 4"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 4.",
+          "details": "Background for test question 4: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
     "enabled": true,
-    "media": {
-      "videoAssetId": "vid-test-video-then-question-easy-auswahl-1"
+    "video": {
+      "filename": "video/vid-test-text-choice-medium-auswahl-1.mp4",
+      "credit": "Platzhalter"
     }
+  },
+  {
+    "id": "test-text-choice-medium-auswahl-2",
+    "poolIds": [
+      "saarbruecken"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "aemter",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 5: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 5"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 5"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 5"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 5"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 5.",
+      "details": "Hintergrund zur Testfrage 5: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 5: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 5"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 5"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 5"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 5"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 5.",
+          "details": "Background for test question 5: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true
+  },
+  {
+    "id": "test-text-choice-medium-auswahl-3",
+    "poolIds": [
+      "bundestag"
+    ],
+    "audiences": [
+      "adults",
+      "kids"
+    ],
+    "difficulty": "medium",
+    "categories": [
+      "recht",
+      "saarbruecken"
+    ],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Testfrage 6: Welche Antwort ist die richtige?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Richtige Antwort 6"
+      },
+      {
+        "id": "o2",
+        "text": "Falsche Antwort A 6"
+      },
+      {
+        "id": "o3",
+        "text": "Falsche Antwort B 6"
+      },
+      {
+        "id": "o4",
+        "text": "Falsche Antwort C 6"
+      }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Erklaerung zur Testfrage 6.",
+      "details": "Hintergrund zur Testfrage 6: Dieser Absatz steht fuer den redaktionellen Hintergrund, den am Geraet niemand erzaehlt - er wird gelesen."
+    },
+    "translations": {
+      "en-GB": {
+        "prompt": "Test question 6: which answer is correct?",
+        "options": [
+          {
+            "id": "o1",
+            "text": "Correct answer 6"
+          },
+          {
+            "id": "o2",
+            "text": "Wrong answer A 6"
+          },
+          {
+            "id": "o3",
+            "text": "Wrong answer B 6"
+          },
+          {
+            "id": "o4",
+            "text": "Wrong answer C 6"
+          }
+        ],
+        "explanation": {
+          "summary": "Explanation for test question 6.",
+          "details": "Background for test question 6: this paragraph stands for the editorial background that nobody tells at a device - it is read."
+        }
+      }
+    },
+    "enabled": true
   }
 ]

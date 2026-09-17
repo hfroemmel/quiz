@@ -583,6 +583,7 @@ export class QuizService {
       nowMs: this.now(),
       config: this.content.config,
       assetUrl: (assetId) => this.content.assetUrl(assetId),
+      mediaUrl: (filename) => this.content.mediaUrl(filename),
       quizAvailability: this.content.quizAvailability(),
       contentVersion: this.content.contentVersion,
       eventDayId: this.eventDay.id,

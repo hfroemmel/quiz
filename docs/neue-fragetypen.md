@@ -9,7 +9,7 @@ new editorial request often does not need a new type at all.
 |---|---|
 | Image with a spoken answer | `image-reveal` with `manual-correct-incorrect` |
 | Question without options | `evaluationMode: "manual-correct-incorrect"` plus `acceptedAnswerText` |
-| Video before the question | `video-then-question` - two phases of the same question |
+| Video before the question | not a type: any question may bring a `video`, and the clip runs first |
 
 ## A type that only looks different
 

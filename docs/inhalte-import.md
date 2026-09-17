@@ -169,4 +169,4 @@ either gets the same file name or its own entry in `assets.json`.
 
 Videos live under `content/source/assets/video/`. They are registered via
 `assets.json` just like images (`"kind": "video"`) and attached to a
-question via `media.videoAssetId`.
+question via `video`.

@@ -43,7 +43,7 @@ export interface RawSource {
  * `no-video` filters out everything video-related for the offline apps:
  *   - video questions are dropped,
  *   - video files leave the media directory,
- *   - question slots that filter for video questions lose exactly that
+ *   - question slots that demand a video (`hasVideo: true`) lose exactly that
  *     filter and become free slots - the number of slots per preset stays,
  *     only the dramaturgy of the video slot is gone.
  *
@@ -53,24 +53,23 @@ export interface RawSource {
 export function applyContentProfile(source: RawSource, profile: ContentProfile): RawSource {
   if (profile === 'full') return source
 
+  /*
+   * A QUESTION WITH A VIDEO GOES, whatever type it is. The video used to BE
+   * the type, so this filtered on `video-then-question`; now the clip is a
+   * step in front of any question, and it is the clip that cannot travel.
+   */
   const questions = Array.isArray(source.questions)
-    ? source.questions.filter(
-        (question) => (question as { questionType?: string }).questionType !== 'video-then-question',
-      )
+    ? source.questions.filter((question) => (question as { video?: unknown }).video === undefined)
     : source.questions
   const assets = source.assets.filter((asset) => asset.kind !== 'video')
 
   const config = structuredClone(source.config) as {
-    presets?: { slots?: { filters?: { questionTypes?: string[] } }[] }[]
+    presets?: { slots?: { filters?: { hasVideo?: boolean } }[] }[]
   }
   for (const preset of config?.presets ?? []) {
     for (const slot of preset.slots ?? []) {
-      const types = slot.filters?.questionTypes
-      if (!types) continue
-      const remaining = types.filter((type) => type !== 'video-then-question')
-      if (remaining.length === types.length) continue
-      if (remaining.length > 0) slot.filters!.questionTypes = remaining
-      else delete slot.filters!.questionTypes
+      // A slot that demanded a video becomes a free one - the count stays.
+      if (slot.filters?.hasVideo === true) delete slot.filters.hasVideo
     }
   }
 
@@ -99,8 +98,8 @@ export function resolveAssetPath(rootDir: string, filename: string): string | nu
   return candidate
 }
 
-export function assetFileExists(rootDir: string, asset: MediaAsset): boolean {
-  const path = resolveAssetPath(rootDir, asset.filename)
+export function mediaFileExists(rootDir: string, filename: string): boolean {
+  const path = resolveAssetPath(rootDir, filename)
   return path !== null && existsSync(path) && statSync(path).isFile()
 }
 
@@ -115,7 +114,7 @@ export function validateSource(source: RawSource, options: SourceValidationOptio
     config: source.config,
     questions: source.questions,
     assets: source.assets,
-    assetFileExists: (asset) => assetFileExists(source.rootDir, asset),
+    mediaFileExists: (filename) => mediaFileExists(source.rootDir, filename),
     contentVersion: options.contentVersion,
     missingMediaSeverity: options.missingMediaSeverity,
   })
@@ -182,16 +181,35 @@ export function buildPackage(options: BuildOptions): BuildResult {
   writeJson(join(options.outDir, QUESTIONS_FILE), normalizedQuestions)
   writeJson(join(options.outDir, ASSETS_FILE), assets)
 
+  /*
+   * EVERY FILE THE PACKAGE NEEDS, from both places it can be named.
+   *
+   * `assets.json` holds the house's own media - word marks, start visuals,
+   * quiz motifs - and the questions name their own files. A file named by
+   * several questions is copied once; the set is what matters, not the count.
+   */
+  const mediaFiles = new Set<string>(assets.map((asset) => asset.filename))
+  for (const question of normalizedQuestions) {
+    for (const medium of [question.image, question.video]) {
+      if (medium) mediaFiles.add(medium.filename)
+    }
+    for (const translation of Object.values(question.translations ?? {})) {
+      for (const medium of [translation.image, translation.video]) {
+        if (medium) mediaFiles.add(medium.filename)
+      }
+    }
+  }
+
   const missingAssetFiles: string[] = []
-  for (const asset of assets) {
-    const from = resolveAssetPath(source.rootDir, asset.filename)
-    const to = resolveAssetPath(options.outDir, asset.filename)
+  for (const filename of [...mediaFiles].sort()) {
+    const from = resolveAssetPath(source.rootDir, filename)
+    const to = resolveAssetPath(options.outDir, filename)
     if (!from || !to) continue
     if (!existsSync(from)) {
       // Validation has already checked this case: if the file of an ENABLED
       // question were missing, the build would have aborted above. Only media of
       // disabled questions remain here - those may stay in the pool as templates.
-      missingAssetFiles.push(asset.filename)
+      missingAssetFiles.push(filename)
       continue
     }
     mkdirSync(dirname(to), { recursive: true })

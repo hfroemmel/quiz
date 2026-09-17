@@ -100,9 +100,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
+            "hasVideo": true
           }
         },
         {
@@ -174,9 +172,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
+            "hasVideo": true
           }
         },
         {
@@ -255,9 +251,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
+            "hasVideo": true
           }
         },
         {
@@ -337,9 +331,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
+            "hasVideo": true
           }
         },
         {
@@ -408,9 +400,7 @@
           "id": "test-video",
           "label": "Test: Videofrage",
           "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
+            "hasVideo": true
           }
         },
         {

@@ -57,7 +57,7 @@ hotfixes instead.
   "locale": "de-DE",
 
   "prompt": "Welche Stadt ist die Hauptstadt Australiens?",
-  "questionType": "text-choice",                  // text-choice | image-choice | person | image-reveal | video-then-question
+  "questionType": "text-choice",                  // text-choice | image-choice | person | image-reveal
   "evaluationMode": "option-comparison",          // option-comparison | manual-correct-incorrect
 
   "options": [
@@ -69,7 +69,8 @@ hotfixes instead.
   "correctOptionId": "o4",                        // ALWAYS explicit, never via position
   "acceptedAnswerText": ["Canberra"],             // for spoken answers
 
-  "media": { "imageAssetId": "img-…", "videoAssetId": "vid-…" },
+  "image": { "filename": "questions/…jpg", "credit": "Foto: …" },
+  "video": { "filename": "video/…mp4" },   // runs BEFORE the question, whatever its type
 
   "explanation": {
     "summary": "Short text for the moderator's lead-in - internal",

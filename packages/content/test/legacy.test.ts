@@ -169,9 +169,10 @@ describe('Field names of the delivered catalogue', () => {
   it('recognises the image file in "img_filename" and the credit in "img_credit"', () => {
     const result = migrateLegacy({ questionsSource: delivered })
     expect(result.skipped).toHaveLength(0)
-    const asset = result.assets.find((entry) => entry.id === 'img-0')
-    expect(asset?.filename).toBe('questions/europe.jpg')
-    expect(asset?.credit).toBe('Pixabay/Greg Montani')
+    // The picture goes ON the question now, file and credit together.
+    const question = result.questions.find((entry) => entry.id === '0')
+    expect(question?.image?.filename).toBe('questions/europe.jpg')
+    expect(question?.image?.credit).toBe('Pixabay/Greg Montani')
     expect(result.notes.some((note) => note.code === 'missing-image-credit' && note.questionId === '13')).toBe(true)
   })
 

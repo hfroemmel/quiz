@@ -86,8 +86,8 @@ export interface ValidationInput {
   config: unknown
   questions: unknown
   assets: MediaAsset[]
-  /** Does the asset's file exist? Wired to the file system by the CLI. */
-  assetFileExists: (asset: MediaAsset) => boolean
+  /** Does a media file exist, by its name? Wired to the file system by the CLI. */
+  mediaFileExists: (filename: string) => boolean
   contentVersion?: string
   /**
    * During development the approved image set is not available yet. With
@@ -328,12 +328,12 @@ export function validateContent(input: ValidationInput): ValidationResult {
           )
         }
       }
-      for (const assetId of [translation.media?.imageAssetId, translation.media?.videoAssetId]) {
-        if (assetId && !assetsById.has(assetId)) {
+      for (const medium of [translation.image, translation.video]) {
+        if (medium && !input.mediaFileExists(medium.filename)) {
           add(
             'error',
-            'asset-reference',
-            `Uebersetzung "${locale}" verweist auf fehlendes Medium "${assetId}".`,
+            'asset-file-missing',
+            `Uebersetzung "${locale}" nennt die fehlende Mediendatei "${medium.filename}".`,
             question.id,
           )
         }
@@ -356,7 +356,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
 
     validateAnswerModel(question, add)
-    validateMedia(question, assetsById, input.assetFileExists, input.missingMediaSeverity ?? 'error', add)
+    validateMedia(question, input.mediaFileExists, input.missingMediaSeverity ?? 'error', add)
     validateEditorialWarnings(question, assetsById, add)
 
     if (question.id !== question.id.toLowerCase()) {
@@ -409,11 +409,14 @@ export function validateContent(input: ValidationInput): ValidationResult {
     }
   }
 
+  /*
+   * WHICH HOUSE MEDIA ARE IN USE. The questions no longer appear here: they
+   * carry their files themselves, so there is no id of theirs that could be
+   * orphaned. What is left is what the configuration points at - word marks,
+   * start visuals, quiz motifs - and an unused one of those really is a
+   * leftover.
+   */
   const usedAssetIds = new Set<string>()
-  for (const question of questions) {
-    if (question.media?.imageAssetId) usedAssetIds.add(question.media.imageAssetId)
-    if (question.media?.videoAssetId) usedAssetIds.add(question.media.videoAssetId)
-  }
   for (const theme of config.themes) if (theme.logoAssetId) usedAssetIds.add(theme.logoAssetId)
   for (const audienceConfig of config.audiences) if (audienceConfig.startVisualAssetId) usedAssetIds.add(audienceConfig.startVisualAssetId)
   for (const quiz of config.quizzes ?? []) if (quiz.artworkAssetId) usedAssetIds.add(quiz.artworkAssetId)
@@ -520,56 +523,50 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
   }
 }
 
+/**
+ * The media of one question - the files it names.
+ *
+ * THERE IS NO REFERENCE TO RESOLVE ANY MORE, so two of the old findings are
+ * gone with the asset id: `asset-reference` (an id nothing declares) and
+ * `asset-kind` (an id declared as the wrong kind). A question names a file, and
+ * the only question left about it is whether it is there.
+ *
+ * NO TYPE DEMANDS A VIDEO. A clip is a step in front of the question, and a
+ * question without one simply starts with itself - so only the image is
+ * required, and only for the types that show one.
+ */
 function validateMedia(
   question: Question,
-  assetsById: Map<string, MediaAsset>,
-  assetFileExists: (asset: MediaAsset) => boolean,
+  mediaFileExists: (filename: string) => boolean,
   missingMediaSeverity: IssueSeverity,
   add: AddIssue,
 ): void {
-  const requiresImage = presentationNeedsImage(question.questionType)
-  const requiresVideo = question.questionType === 'video-then-question'
-
-  const check = (assetId: string | undefined, kind: 'image' | 'video', required: boolean) => {
-    if (!assetId) {
-      if (required) {
-        add('error', 'missing-media', `Fragetyp "${question.questionType}" verlangt ein Medium (${kind}).`, question.id)
-      }
-      return
-    }
-    const asset = assetsById.get(assetId)
-    if (!asset) {
-      add('error', 'asset-reference', `Unbekanntes Medium "${assetId}".`, question.id)
-      return
-    }
-    if (asset.kind !== kind) {
-      add('error', 'asset-kind', `Medium "${assetId}" ist vom Typ "${asset.kind}", erwartet wurde "${kind}".`, question.id)
-    }
-    if (!assetFileExists(asset)) {
-      // A disabled question is in no pool and cannot endanger the show.
-      // It may therefore stay in the pool as a prepared template without a media file.
-      if (question.enabled) {
-        add(
-          missingMediaSeverity,
-          'asset-file-missing',
-          missingMediaSeverity === 'error'
-            ? `Mediendatei "${asset.filename}" existiert nicht.`
-            : `Mediendatei "${asset.filename}" fehlt. Es wird ein Ersatzbild gezeigt.`,
-          question.id,
-        )
-      } else {
-        add(
-          'warning',
-          'asset-file-missing-disabled',
-          `Mediendatei "${asset.filename}" fehlt. Die Frage ist deaktiviert und wird nicht gespielt.`,
-          question.id,
-        )
-      }
-    }
+  if (question.image === undefined && presentationNeedsImage(question.questionType)) {
+    add('error', 'missing-media', `Fragetyp "${question.questionType}" verlangt ein Bild.`, question.id)
   }
 
-  check(question.media?.imageAssetId, 'image', requiresImage)
-  check(question.media?.videoAssetId, 'video', requiresVideo)
+  for (const medium of [question.image, question.video]) {
+    if (medium === undefined || mediaFileExists(medium.filename)) continue
+    // A disabled question is in no pool and cannot endanger the show.
+    // It may therefore stay in the pool as a prepared template without a media file.
+    if (question.enabled) {
+      add(
+        missingMediaSeverity,
+        'asset-file-missing',
+        missingMediaSeverity === 'error'
+          ? `Mediendatei "${medium.filename}" existiert nicht.`
+          : `Mediendatei "${medium.filename}" fehlt. Es wird ein Ersatzbild gezeigt.`,
+        question.id,
+      )
+    } else {
+      add(
+        'warning',
+        'asset-file-missing-disabled',
+        `Mediendatei "${medium.filename}" fehlt. Die Frage ist deaktiviert und wird nicht gespielt.`,
+        question.id,
+      )
+    }
+  }
 }
 
 function validateEditorialWarnings(question: Question, assetsById: Map<string, MediaAsset>, add: AddIssue): void {
@@ -581,9 +578,8 @@ function validateEditorialWarnings(question: Question, assetsById: Map<string, M
    * import asks the same question at the moment it can still be answered
    * cheaply.
    */
-  for (const missing of uncreditedImages([question], [...assetsById.values()])) {
-    if (!missing.declared) continue // reported as `asset-reference`, an error
-    add('warning', 'missing-credit', `Kein Bildnachweis fuer "${missing.assetId}".`, question.id)
+  for (const missing of uncreditedImages([question])) {
+    add('warning', 'missing-credit', `Kein Bildnachweis fuer "${missing.filename}".`, question.id)
   }
   if (question.prompt.length > contentThresholds.longPromptChars) {
     add('warning', 'long-prompt', `Sehr langer Fragetext (${question.prompt.length} Zeichen).`, question.id)

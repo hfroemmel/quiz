@@ -198,6 +198,7 @@ export function createHarness(
       nowMs: harness.now,
       config: options.rules ? { ...testConfig, rules: options.rules } : testConfig,
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+      mediaUrl: (filename: string | undefined) => (filename ? `/media/${filename}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',
     }

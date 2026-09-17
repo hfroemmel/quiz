@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Platzhalterbild">
-  <rect width="1200" height="675" fill="hsl(52 45% 18%)" />
-  <g transform="rotate(52 600 337)"><circle cx="782" cy="260" r="199" fill="hsl(77 70% 55%)" opacity="0.5" /><circle cx="481" cy="517" r="75" fill="hsl(242 65% 60%)" opacity="0.5" /><circle cx="424" cy="224" r="257" fill="hsl(147 60% 48%)" opacity="0.5" /><circle cx="123" cy="482" r="133" fill="hsl(77 70% 55%)" opacity="0.5" /><circle cx="538" cy="330" r="83" fill="hsl(242 65% 60%)" opacity="0.5" /><circle cx="237" cy="107" r="149" fill="hsl(147 60% 48%)" opacity="0.5" /><circle cx="180" cy="295" r="141" fill="hsl(77 70% 55%)" opacity="0.5" /></g>
+  <rect width="1200" height="675" fill="hsl(94 45% 18%)" />
+  <g transform="rotate(34 600 337)"><circle cx="812" cy="67" r="54" fill="hsl(119 70% 55%)" opacity="0.5" /><circle cx="511" cy="-155" r="-70" fill="hsl(284 65% 60%)" opacity="0.5" /><circle cx="210" cy="-377" r="-4" fill="hsl(189 60% 48%)" opacity="0.5" /><circle cx="869" cy="-120" r="62" fill="hsl(119 70% 55%)" opacity="0.5" /><circle cx="1056" cy="-3" r="-20" fill="hsl(284 65% 60%)" opacity="0.5" /><circle cx="755" cy="-225" r="46" fill="hsl(189 60% 48%)" opacity="0.5" /><circle cx="454" cy="32" r="-78" fill="hsl(119 70% 55%)" opacity="0.5" /></g>
   <rect x="0" y="600" width="1200" height="75" fill="rgba(0,0,0,0.45)" />
   <text x="24" y="648" font-family="sans-serif" font-size="28" fill="#ffffff" opacity="0.75">Platzhaltergrafik - bitte ersetzen</text>
 </svg>

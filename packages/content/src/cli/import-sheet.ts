@@ -25,12 +25,11 @@
  * licence line is listed at the end - see `credits.ts` for why here and not
  * only in the build report.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { csvUrl, importGrid, defaultMapping, type SheetMapping } from '../sheetImport'
 import { parseCsv } from '../csv'
 import { readWorkbook } from '../workbook'
 import { uncreditedImages } from '../credits'
-import { mediaAssetSchema } from '@hfroemmel/quiz-core'
 import { contentDir } from './dirs'
 import { join } from 'node:path'
 
@@ -104,8 +103,18 @@ function readMapping(): SheetMapping {
     vorgaben?: SheetMapping['defaults']
     werte?: SheetMapping['values']
   }
-  // Defaults and value tables extend the default mapping instead of replacing it.
+  /*
+   * Defaults and value tables EXTEND the built-in mapping instead of replacing
+   * it; everything else the file says is taken over as it stands.
+   *
+   * The spread at the front is what makes that true. Listing the three merged
+   * groups by hand and nothing else is how `correctOption` and `translations`
+   * went missing once: the file stated them, this function dropped them, and
+   * the import fell back to matching the answer text - which skipped every row
+   * whose answer column had been removed.
+   */
   return {
+    ...raw,
     columns: { ...defaultMapping.columns, ...(raw.columns ?? raw.spalten) },
     defaults: { ...defaultMapping.defaults, ...(raw.defaults ?? raw.vorgaben) },
     values: { ...defaultMapping.values, ...(raw.values ?? raw.werte) },
@@ -115,26 +124,18 @@ function readMapping(): SheetMapping {
 /**
  * Which pictures still need their licence line.
  *
- * The medium directory is read from where the import writes, because that is
- * the set these questions will be built with. Without one there is nothing to
- * say - an import into an empty directory brings its pictures later.
+ * The question carries its file and its credit itself, so this reads nothing
+ * but what was just imported - and it names the sheet column to fix, not a
+ * file to edit afterwards.
  */
 function reportUncreditedImages(): void {
-  const directory = contentDir(argv, 'source', 'source')
-  const path = join(directory, 'assets.json')
-  if (!existsSync(path)) return
-
-  const assets = mediaAssetSchema.array().parse(JSON.parse(readFileSync(path, 'utf8')))
-  const missing = uncreditedImages(finding.questions, assets)
+  const missing = uncreditedImages(finding.questions)
   if (missing.length === 0) return
 
   console.log('')
   console.log(`Ohne Bildnachweis: ${missing.length} ${missing.length === 1 ? 'Frage' : 'Fragen'}`)
-  for (const entry of missing) {
-    const note = entry.declared ? '' : ' (Medium nicht in assets.json)'
-    console.log(`  Frage ${entry.questionId}: ${entry.assetId}${note}`)
-  }
-  console.log(`Der Nachweis gehoert nach ${join(directory, 'assets.json')}, Feld "credit".`)
+  for (const entry of missing) console.log(`  Frage ${entry.questionId}: ${entry.filename}`)
+  console.log('Der Nachweis gehoert in die Nachweisspalte der Tabelle (Zuordnung "imageCredit").')
 }
 
 const grid = await readGrid()

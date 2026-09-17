@@ -108,12 +108,17 @@ export function poolForGame(
 /** Does the question satisfy every filter of the slot? A missing filter = any. */
 export function matchesSlot(question: Question, slot: QuestionSlotRule): boolean {
   if (!question.enabled) return false
-  const { difficultyIds, questionTypes, evaluationModes, categoryIds, tags } = slot.filters
+  const { difficultyIds, questionTypes, evaluationModes, categoryIds, tags, hasVideo } = slot.filters
   if (difficultyIds?.length && !difficultyIds.includes(question.difficulty)) return false
   if (questionTypes?.length && !questionTypes.includes(question.questionType)) return false
   if (evaluationModes?.length && !evaluationModes.includes(question.evaluationMode)) return false
   if (categoryIds?.length && !categoryIds.some((id) => question.categories.includes(id))) return false
   if (tags?.length && !tags.every((tag) => question.tags.includes(tag))) return false
+  /*
+   * A slot may demand a video or rule one out. `undefined` means it does not
+   * matter - the same "missing filter means anything" as everywhere here.
+   */
+  if (hasVideo !== undefined && hasVideo !== (question.video !== undefined)) return false
   return true
 }
 

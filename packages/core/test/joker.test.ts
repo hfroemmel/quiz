@@ -56,7 +56,7 @@ const pictureQuestion = (id: string) =>
     options: undefined,
     correctOptionId: undefined,
     acceptedAnswerText: ['Brandenburger Tor'],
-    media: { imageAssetId: 'img-1' },
+    image: { filename: 'questions/img-1.jpg' },
   })
 
 const script = (make: (id: string) => ReturnType<typeof makeQuestion>) =>

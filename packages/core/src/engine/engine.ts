@@ -1012,8 +1012,8 @@ function resetBuzzer(work: Draft): EngineResult {
 function handleVideoCommand(work: Draft, command: Command): EngineResult {
   if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
   const question = work.state.currentQuestion
-  if (!question || question.question.questionType !== 'video-then-question') {
-    return reject('invalid-phase', 'Die aktuelle Frage ist keine Videofrage.')
+  if (!question || question.question.video === undefined) {
+    return reject('invalid-phase', 'Zu der aktuellen Frage ist kein Video hinterlegt.')
   }
 
   switch (command.type) {
@@ -1029,10 +1029,6 @@ function handleVideoCommand(work: Draft, command: Command): EngineResult {
       if (command.questionId !== question.question.id) {
         return reject('video-question-mismatch', 'Dieser Befehl gehört zu einer anderen Frage.')
       }
-      if (!question.question.media?.videoAssetId) {
-        return reject('video-source-missing', 'Zu dieser Frage ist kein Video hinterlegt.')
-      }
-
       publishVideoRequest(work)
       work.log('phase', 'Video gestartet.')
       return work.commit()
@@ -1235,8 +1231,15 @@ const MAX_SELF_SERVICE_DRAWS = 200
 
 /** In which phase does the current question start after the pause screen? */
 function questionEntryPhase(state: GameState): GamePhase {
-  const type = state.currentQuestion?.question.questionType
-  if (type === 'video-then-question') return 'video'
+  const current = state.currentQuestion?.question
+  const type = current?.questionType
+  /*
+   * A VIDEO IS A STEP IN FRONT, NOT A PRESENTATION. Whatever the question is,
+   * the clip runs first and the question follows in its own form - so the
+   * entry phase asks whether there IS a video and not what type the question
+   * has.
+   */
+  if (current?.video !== undefined) return 'video'
   /*
    * In self-service there is nobody who reads the question aloud and then
    * opens it. The question therefore still stands alone at first - only it is

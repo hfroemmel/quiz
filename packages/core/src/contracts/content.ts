@@ -25,7 +25,6 @@ export const questionPresentationTypes = [
   'image-choice',
   'person',
   'image-reveal',
-  'video-then-question',
 ] as const
 export type QuestionPresentationType = (typeof questionPresentationTypes)[number]
 
@@ -73,11 +72,27 @@ export const questionExplanationSchema = z.object({
 })
 export type QuestionExplanation = z.infer<typeof questionExplanationSchema>
 
-export const questionMediaSchema = z.object({
-  imageAssetId: idSchema.optional(),
-  videoAssetId: idSchema.optional(),
+/**
+ * A medium of a question - the file, and whose work it is.
+ *
+ * NO ASSET ID AND NO ENTRY IN `assets.json`. A question's picture is not a
+ * shared, named thing that several places point at: it belongs to this one
+ * question, and the id in between was a key that existed only to find the file
+ * name behind it. The licence line travels with it, where an editor writes it -
+ * in the editorial table next to the file name, and it arrives here through the
+ * import.
+ *
+ * `assets.json` keeps what the HOUSE brings: word marks, start visuals, quiz
+ * motifs. Those are few, they are referenced by id from the configuration, and
+ * they are reused - that is what a directory is for.
+ */
+export const questionAssetSchema = z.object({
+  /** Path under the package's `assets/`, e.g. `questions/reichstag.jpg`. */
+  filename: z.string().min(1),
+  /** The licence line. Missing is reported, not refused - see `uncreditedImages`. */
+  credit: z.string().optional(),
 })
-export type QuestionMedia = z.infer<typeof questionMediaSchema>
+export type QuestionAsset = z.infer<typeof questionAssetSchema>
 
 /* ------------------------------------------------------------------ *
  * Multiple languages
@@ -119,12 +134,9 @@ export const questionTranslationSchema = z.object({
   options: z.array(answerOptionSchema).optional(),
   acceptedAnswerText: z.array(z.string().min(1)).optional(),
   explanation: questionExplanationSchema.optional(),
-  media: z
-    .object({
-      imageAssetId: idSchema.optional(),
-      videoAssetId: idSchema.optional(),
-    })
-    .optional(),
+  /** A picture with words in it is a different picture in another language. */
+  image: questionAssetSchema.optional(),
+  video: questionAssetSchema.optional(),
 })
 export type QuestionTranslation = z.infer<typeof questionTranslationSchema>
 
@@ -158,7 +170,20 @@ export const questionSchema = z.object({
   /** For oral answers: expected wordings as help for the moderator. */
   acceptedAnswerText: z.array(z.string().min(1)).optional(),
 
-  media: questionMediaSchema.optional(),
+  /**
+   * The question's picture, with the file and its licence line.
+   *
+   * Which types need one is decided by `presentationNeedsImage`.
+   */
+  image: questionAssetSchema.optional(),
+  /**
+   * A clip that runs BEFORE the question - whatever the question is.
+   *
+   * It used to be a presentation type of its own, which made every video
+   * question a text choice afterwards. A video in front of an image reveal is
+   * a sentence one can now write.
+   */
+  video: questionAssetSchema.optional(),
   explanation: questionExplanationSchema.optional(),
   /** Versions in other locales, by locale tag. Anything missing falls back. */
   translations: z.record(z.string().min(2), questionTranslationSchema).optional(),
@@ -239,6 +264,17 @@ export const questionSlotRuleSchema = z.object({
       evaluationModes: z.array(z.enum(evaluationModes)).optional(),
       categoryIds: z.array(idSchema).optional(),
       tags: z.array(idSchema).optional(),
+      /**
+       * Does the question bring a video?
+       *
+       * IT USED TO BE A TYPE (`video-then-question`), and that made the video
+       * the presentation: a question with a clip in front of it was a text
+       * choice afterwards and could never have been an image reveal. The video
+       * is a step BEFORE the question now, whatever the question is, so a slot
+       * that wants one asks for one. `true` demands a video, `false` excludes
+       * one, and leaving it out means it does not matter.
+       */
+      hasVideo: z.boolean().optional(),
     })
     .default({}),
 })
@@ -561,7 +597,8 @@ export const patchableQuestionFieldsSchema = questionSchema
     correctOptionId: true,
     acceptedAnswerText: true,
     explanation: true,
-    media: true,
+    image: true,
+    video: true,
     enabled: true,
   })
   .partial()

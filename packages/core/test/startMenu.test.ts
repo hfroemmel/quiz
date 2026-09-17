@@ -26,6 +26,7 @@ function catalogOf(config: QuizConfig, locale = 'de-DE') {
     nowMs: 0,
     config,
     assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+    mediaUrl: (filename: string | undefined) => (filename ? `/media/${filename}` : undefined),
     contentVersion: 'test',
     eventDayId: 'event-day-test',
     locale,
@@ -128,6 +129,7 @@ describe('the offers of the hall', () => {
       nowMs: 0,
       config,
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+      mediaUrl: (filename: string | undefined) => (filename ? `/media/${filename}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',
     })
@@ -266,6 +268,7 @@ describe('deriveStartMenu', () => {
       nowMs: 0,
       config: testConfig,
       assetUrl: () => undefined,
+      mediaUrl: () => undefined,
       contentVersion: 'test',
       eventDayId: 'event-day-test',
       quizAvailability: { kids: 'no-questions' },

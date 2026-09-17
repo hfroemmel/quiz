@@ -6,16 +6,6 @@ import type { MediaAsset, Question } from '@hfroemmel/quiz-core'
 import { uncreditedImages } from '../src/credits'
 import { validateContent } from '../src/validate'
 
-function image(id: string, credit?: string): MediaAsset {
-  return {
-    id,
-    kind: 'image',
-    filename: `questions/${id}.svg`,
-    mimeType: 'image/svg+xml',
-    ...(credit === undefined ? {} : { credit }),
-  }
-}
-
 function question(overrides: Partial<Question> & { id: string }): Question {
   return {
     poolIds: ['bundestag'],
@@ -38,45 +28,37 @@ function question(overrides: Partial<Question> & { id: string }): Question {
   }
 }
 
-const withImage = (id: string, assetId: string): Question => question({ id, media: { imageAssetId: assetId } })
+const withImage = (id: string, filename: string, credit?: string): Question =>
+  question({ id, image: { filename, ...(credit === undefined ? {} : { credit }) } })
 
 describe('uncreditedImages', () => {
-  it('names the question and the picture that has no licence line', () => {
-    const found = uncreditedImages([withImage('q1', 'img-1')], [image('img-1')])
+  it('names the question and the file that has no licence line', () => {
+    const found = uncreditedImages([withImage('q1', 'questions/a.jpg')])
 
-    expect(found).toEqual([{ questionId: 'q1', assetId: 'img-1', declared: true }])
+    expect(found).toEqual([{ questionId: 'q1', filename: 'questions/a.jpg' }])
   })
 
   it('says nothing about a picture that has one', () => {
-    expect(uncreditedImages([withImage('q1', 'img-1')], [image('img-1', 'Foto: jemand')])).toEqual([])
+    expect(uncreditedImages([withImage('q1', 'questions/a.jpg', 'Foto: jemand')])).toEqual([])
   })
 
   it('treats a credit of spaces as none - typing one is not finishing it', () => {
-    expect(uncreditedImages([withImage('q1', 'img-1')], [image('img-1', '   ')])).toHaveLength(1)
-  })
-
-  it('marks an undeclared medium as such, because that is a different fix', () => {
-    const found = uncreditedImages([withImage('q1', 'img-missing')], [])
-
-    expect(found).toEqual([{ questionId: 'q1', assetId: 'img-missing', declared: false }])
+    expect(uncreditedImages([withImage('q1', 'questions/a.jpg', '   ')])).toHaveLength(1)
   })
 
   it('ignores questions without a picture, and the videos of those that have one', () => {
     const plain = question({ id: 'q1', questionType: 'text-choice' })
-    const video = question({
-      id: 'q2',
-      questionType: 'video-then-question',
-      media: { videoAssetId: 'vid-1' },
-    })
+    const video = question({ id: 'q2', questionType: 'text-choice', video: { filename: 'video/v.mp4' } })
 
-    expect(uncreditedImages([plain, video], [])).toEqual([])
+    expect(uncreditedImages([plain, video])).toEqual([])
   })
 
   it('keeps the order of the questions, so the list reads like the table', () => {
-    const found = uncreditedImages(
-      [withImage('q1', 'img-1'), withImage('q2', 'img-2'), withImage('q3', 'img-3')],
-      [image('img-1'), image('img-2', 'Foto: jemand'), image('img-3')],
-    )
+    const found = uncreditedImages([
+      withImage('q1', 'questions/a.jpg'),
+      withImage('q2', 'questions/b.jpg', 'Foto: jemand'),
+      withImage('q3', 'questions/c.jpg'),
+    ])
 
     expect(found.map((entry) => entry.questionId)).toEqual(['q1', 'q3'])
   })
@@ -94,32 +76,37 @@ describe('the same rule inside the validation', () => {
     quizzes: [],
   }
 
-  function issuesFor(assets: MediaAsset[]) {
+  function issuesFor(credit: string | undefined, assets: MediaAsset[] = []) {
     return validateContent({
       config,
-      questions: [withImage('q1', 'img-1')],
+      questions: [withImage('q1', 'questions/a.jpg', credit)],
       assets,
-      assetFileExists: () => true,
+      mediaFileExists: () => true,
       missingMediaSeverity: 'warning',
     }).issues
   }
 
   it('warns once per question, under the code the report groups by', () => {
-    const credits = issuesFor([image('img-1')]).filter((issue) => issue.code === 'missing-credit')
+    const credits = issuesFor(undefined).filter((issue) => issue.code === 'missing-credit')
 
     expect(credits).toHaveLength(1)
     expect(credits[0]?.severity).toBe('warning')
     expect(credits[0]?.subject).toBe('q1')
   })
 
-  it('says nothing about a credit when the medium itself is missing', () => {
-    /*
-     * That is `asset-reference`, an error. Two findings for one cause would
-     * send the reader looking for the licence line of a picture nobody has.
-     */
-    const codes = issuesFor([]).map((issue) => issue.code)
+  it('stays silent where the licence line is there', () => {
+    expect(issuesFor('Foto: jemand').map((issue) => issue.code)).not.toContain('missing-credit')
+  })
 
-    expect(codes).toContain('asset-reference')
-    expect(codes).not.toContain('missing-credit')
+  it('no longer reports an unknown medium, because there is no reference to resolve', () => {
+    /*
+     * `asset-reference` and `asset-kind` were findings about an ASSET ID. A
+     * question names a file now, and the only question left about it is
+     * whether it exists - which `asset-file-missing` answers.
+     */
+    const codes = issuesFor('Foto: jemand').map((issue) => issue.code)
+
+    expect(codes).not.toContain('asset-reference')
+    expect(codes).not.toContain('asset-kind')
   })
 })

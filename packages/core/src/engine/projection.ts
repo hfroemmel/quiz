@@ -68,8 +68,17 @@ import { drawableJokerTypes, evaluateJokerDraw, gameHasJokers, questionStillOpen
 export interface ProjectionContext {
   nowMs: number
   config: QuizConfig
-  /** Resolution of an asset id into a servable URL. */
+  /**
+   * Resolution of an asset id into a servable URL - for the house's own media,
+   * which are declared in `assets.json` and referenced by id from the
+   * configuration: word marks, start visuals, quiz motifs.
+   */
   assetUrl: (assetId: string | undefined) => string | undefined
+  /**
+   * Resolution of a FILE NAME into a servable URL - for the media of a
+   * question, which carry their file themselves and have no id.
+   */
+  mediaUrl: (filename: string | undefined) => string | undefined
   contentVersion: string
   eventDayId: string
   /** Rationale of the current question selection - for operator diagnostics only. */
@@ -186,8 +195,8 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           id: question.id,
           prompt: question.prompt,
           presentationType: question.questionType,
-          imageUrl: ctx.assetUrl(question.media?.imageAssetId),
-          videoUrl: scene === 'video' ? ctx.assetUrl(question.media?.videoAssetId) : undefined,
+          imageUrl: ctx.mediaUrl(question.image?.filename),
+          videoUrl: scene === 'video' ? ctx.mediaUrl(question.video?.filename) : undefined,
           categoryLabel: categoryLabel(question, ctx, locale),
         }
       : undefined
@@ -656,7 +665,7 @@ function publicSolution(ctx: ProjectionContext, question: Question): PublicSolut
 
   return {
     answerText: correctAnswerText(question),
-    imageUrl: ctx.assetUrl(question.media?.imageAssetId),
+    imageUrl: ctx.mediaUrl(question.image?.filename),
     ...(details ? { details } : {}),
   }
 }

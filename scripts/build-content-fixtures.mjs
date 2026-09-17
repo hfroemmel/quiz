@@ -31,9 +31,9 @@ const PRO_KOMBINATION = 3
  * exactly one of each. The tests rely on a pool that's too small being
  * forced to repeat - so the test content reproduces that property.
  */
-const EINZELSTUECKE = ['video-then-question', 'person']
+const ONE_OF_EACH = ['person']
 
-const alleTypen = ['text-choice', 'image-choice', 'person', 'image-reveal', 'video-then-question']
+const allTypes = ['text-choice', 'image-choice', 'person', 'image-reveal']
 /**
  * Types that a slot WITHOUT a type filter should receive.
  *
@@ -90,9 +90,9 @@ for (const preset of config.presets) {
          * their test slot doesn't filter by difficulty, and a slot without a
          * type filter only picks them up incidentally anyway.
          */
-        const einzelstueck = EINZELSTUECKE.includes(typ)
-        const stufe = einzelstueck ? alleSchwierigkeiten[0] : schwierigkeit
-        const schluessel = einzelstueck ? typ : `${typ}|${stufe}|${bewertung}`
+        const oneOfEach = ONE_OF_EACH.includes(typ)
+        const stufe = oneOfEach ? alleSchwierigkeiten[0] : schwierigkeit
+        const schluessel = oneOfEach ? typ : `${typ}|${stufe}|${bewertung}`
         kombinationen.set(schluessel, { typ, schwierigkeit: stufe, bewertung, kategorie })
       }
     }
@@ -100,14 +100,27 @@ for (const preset of config.presets) {
 }
 
 const fragen = []
+/*
+ * `assets.json` holds the HOUSE's media only - the branding of the audiences
+ * and themes. What a question shows travels on the question; the file names
+ * are collected here so the placeholder generator knows what to draw.
+ */
 const medien = []
+const dateien = []
 let laufendeNummer = 0
 
-const braucht = { image: ['image-choice', 'person', 'image-reveal'], video: ['video-then-question'] }
+const needsImage = ['image-choice', 'person', 'image-reveal']
+/*
+ * EXACTLY ONE QUESTION BRINGS A VIDEO, and it is not a type of its own any
+ * more: the clip is a step in front of a question of any kind, so the test set
+ * hangs one on a plain text choice. The video slot of a preset asks for it
+ * with `hasVideo: true`.
+ */
+const VIDEO_QUESTION_ID = 'test-text-choice-medium-auswahl-1'
 
 for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values()) {
   // One video question is enough: it's a lead-in, not game content.
-  const anzahl = EINZELSTUECKE.includes(typ) ? 1 : PRO_KOMBINATION
+  const anzahl = ONE_OF_EACH.includes(typ) ? 1 : PRO_KOMBINATION
   for (let index = 0; index < anzahl; index += 1) {
     laufendeNummer += 1
     // The scoring type belongs in the identifier: image recognition exists
@@ -188,27 +201,18 @@ for (const { typ, schwierigkeit, bewertung, kategorie } of kombinationen.values(
       enabled: true,
     }
 
-    if (braucht.image.includes(typ)) {
-      const assetId = `img-${id}`
-      frage.media = { imageAssetId: assetId }
-      medien.push({
-        id: assetId,
-        kind: 'image',
-        filename: `questions/${assetId}.svg`,
-        mimeType: 'image/svg+xml',
-        credit: 'Platzhalter',
-      })
+    /*
+     * THE MEDIUM GOES ON THE QUESTION, file and credit together. It is not an
+     * entry in `assets.json` any anymore - that directory keeps the house's own
+     * media, and a question's picture belongs to the question.
+     */
+    if (needsImage.includes(typ)) {
+      frage.image = { filename: `questions/img-${id}.svg`, credit: 'Platzhalter' }
+      dateien.push(`questions/img-${id}.svg`)
     }
-    if (braucht.video.includes(typ)) {
-      const assetId = `vid-${id}`
-      frage.media = { videoAssetId: assetId }
-      medien.push({
-        id: assetId,
-        kind: 'video',
-        filename: `video/${assetId}.mp4`,
-        mimeType: 'video/mp4',
-        credit: 'Platzhalter',
-      })
+    if (id === VIDEO_QUESTION_ID) {
+      frage.video = { filename: `video/vid-${id}.mp4`, credit: 'Platzhalter' }
+      dateien.push(`video/vid-${id}.mp4`)
     }
     fragen.push(frage)
   }
@@ -220,6 +224,7 @@ for (const audience of config.audiences) if (audience.startVisualAssetId) brandi
 for (const theme of config.themes) if (theme.logoAssetId) brandingIds.add(theme.logoAssetId)
 for (const id of brandingIds) {
   medien.push({ id, kind: 'image', filename: `branding/${id}.svg`, mimeType: 'image/svg+xml', credit: 'Platzhalter' })
+  dateien.push(`branding/${id}.svg`)
 }
 
 fragen.sort((a, b) => a.id.localeCompare(b.id))
@@ -230,5 +235,7 @@ mkdirSync(join(sourceDir, 'assets'), { recursive: true })
 writeFileSync(join(sourceDir, 'questions.json'), `${JSON.stringify(fragen, null, 2)}\n`)
 writeFileSync(join(sourceDir, 'assets.json'), `${JSON.stringify(medien, null, 2)}\n`)
 
-console.log(`${fragen.length} Testfragen und ${medien.length} Medienverweise geschrieben.`)
+console.log(
+  `${fragen.length} Testfragen, ${medien.length} Hausmedien und ${new Set(dateien).size} Mediendateien geschrieben.`,
+)
 console.log('Naechster Schritt: pnpm content:demo-assets (erzeugt die Platzhalterdateien).')
