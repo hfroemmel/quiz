@@ -124,10 +124,10 @@
    */
   width: min(100%, calc((100cqh - 24cqw) / 0.45));
   /* The device shows the stage at 80 %; the host zoom scales that further. */
-  scale: calc(0.8 * var(--stage-zoom, 1));
+  scale: var(--stage-zoom, 1);
   transform-origin: top center;
   /* Stay right under the header; the footer is fixed and out of flow. */
-  margin-block: 0 auto;
+  margin: 0 auto;
 }
 /* The scene box fills the area. */
 :global(.stage--touch) .sceneRoot {
