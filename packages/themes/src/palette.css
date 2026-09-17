@@ -131,11 +131,11 @@
 
 /* Red version of the adults stage - the dark one with its ground exchanged. */
 .stage--default.stage--red {
-  --color-pageTop: #CD3363;
-  --color-pageBottom: #CD3363;
-  --color-stageTop: #CD3363;
-  --color-stageBottom: #CD3363;
-  --color-controls: #CD3363;
+  --color-pageTop: #CA2F56;
+  --color-pageBottom: #CA2F56;
+  --color-stageTop: #CA2F56;
+  --color-stageBottom: #CA2F56;
+  --color-controls: #CA2F56;
 }
 
 /* Light version of the start selection in front of it - only what differs from the dark one. */
@@ -179,9 +179,9 @@
 
 /* And its red version - the ground, and the two lights switched off. */
 [data-quiz-game][data-theme='red'] {
-  --start-bg-top: #CD3363;
-  --start-bg-mid: #CD3363;
-  --start-bg-bottom: #CD3363;
+  --start-bg-top: #CA2F56;
+  --start-bg-mid: #CA2F56;
+  --start-bg-bottom: #CA2F56;
   --start-ambient-left: transparent;
   --start-ambient-right: transparent;
 }
@@ -195,7 +195,7 @@
 }
 
 [data-quiz-overview][data-theme='red'] {
-  --quiz-select-page: #CD3363;
+  --quiz-select-page: #CA2F56;
   --quiz-select-ink: #FFFFFF;
   --quiz-select-ink-quiet: rgb(255 255 255 / 0.6);
   --quiz-select-shadow: rgb(0 0 0 / 0.2);

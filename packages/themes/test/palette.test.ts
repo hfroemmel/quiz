@@ -161,6 +161,18 @@ describe('Colour palette', () => {
 describe('the federal colour spectrum', () => {
   const legal = federalValues()
 
+  /*
+   * THE ONE COMMISSIONED TONE OF THE ADULTS' WORLD.
+   *
+   * The red variant was ordered with this ground and the client asked for it
+   * back after the conformance sweep had put `Rot` at 80 percent (#CD3363) in
+   * its place - fourteen units away, a tone nobody separates at two metres.
+   * An order outranks a rule the house set for itself, so the value stands in
+   * `palettes.ts`; it stands HERE so that it is an exception with a reason and
+   * not a hole in the guard. Anything else that is not a step still fails.
+   */
+  const commissioned = new Set(['#CA2F56'])
+
   /** Every colour token of a value - a gradient carries several. */
   function colours(value: string): string[] {
     const found = value.match(/#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)/g)
@@ -196,7 +208,7 @@ describe('the federal colour spectrum', () => {
         for (const colour of colours(value)) {
           /* `transparent` and `currentColor` name no tone - they pass by not matching. */
           const flat = tone(colour)
-          if (flat && !legal.has(flat)) strangers.push(`${token}: ${colour}`)
+          if (flat && !legal.has(flat) && !commissioned.has(flat)) strangers.push(`${token}: ${colour}`)
         }
       }
       expect(
@@ -205,6 +217,33 @@ describe('the federal colour spectrum', () => {
       ).toEqual([])
     })
   }
+
+  it('carries the commissioned ground - the one tone the spectrum does not have', () => {
+    /*
+     * The counter-test to the exception. It reads the ground from all three
+     * palettes that show it, because they read one constant and a copy in one
+     * of them is how the poster and the stage would drift apart. And the last
+     * assertion is the sharp one: across every surface of the adults' world
+     * there is EXACTLY this one value outside the spectrum. A second literal
+     * creeping in fails here, and so does a sweep that conforms this one away
+     * - which is what happened once, and what the client asked to have undone.
+     */
+    expect(redPalette.pageTop).toBe('#CA2F56')
+    expect(redStartPalette['bg-top']).toBe('#CA2F56')
+    expect(redQuizSelectPalette.page).toBe('#CA2F56')
+    expect(legal.has('#CA2F56')).toBe(false)
+
+    const outsiders = new Set<string>()
+    for (const palette of Object.values(surfaces)) {
+      for (const value of Object.values(palette)) {
+        for (const colour of colours(value)) {
+          const flat = tone(colour)
+          if (flat && !legal.has(flat)) outsiders.add(flat)
+        }
+      }
+    }
+    expect([...outsiders]).toEqual(['#CA2F56'])
+  })
 
   it('states the children world as the exception, not as a gap', () => {
     /*

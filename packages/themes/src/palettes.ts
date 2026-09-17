@@ -18,9 +18,11 @@
  * a colour does the role win over the distance: the three signals, the grades
  * of the start menu, and the surface of a card that stands for its quiz.
  *
- * THE CHILDREN'S WORLD IS THE ONE EXCEPTION, and it is deliberate: its
- * colours come from its own illustrations, and a drawn frame does not follow a
- * spectrum. Its values stay literals below, and the guard test names them.
+ * TWO EXCEPTIONS ARE DELIBERATE, and both are named. The children's world
+ * takes its colours from its own illustrations, and a drawn frame does not
+ * follow a spectrum. The ground of the red variant is the tone that variant
+ * was commissioned with (`redGround`). Both stay literals below, and the guard
+ * test states them rather than allowing literals in general.
  *
  * The token vocabulary (`designColorTokens`) is defined by the core - here
  * are the VALUES. That keeps the quiz package free of presentation, while
@@ -35,8 +37,16 @@ import { ci, ciDark, schwarz, veil, weiss } from './federalSpectrum'
  * It stands here as a constant because three palettes read it: the stage, the
  * start menu in front of it, and the offer overview of the room. A copy in
  * each of the three is how the three would drift apart.
+ *
+ * AND IT IS THE ONE COMMISSIONED VALUE OF THE ADULTS' WORLD. The variant was
+ * ordered with this tone, and the client confirmed it after seeing the
+ * spectrum's nearest step in its place: `ci('rot', 80)` is `#CD3363`, fourteen
+ * units away and a tone nobody separates at two metres - but the order names
+ * this one, and an order outranks a rule the house set for itself. The guard
+ * test states it as an exception rather than tolerating it, exactly as it does
+ * for the children's illustrations.
  */
-const redGround = ci('rot', 80)
+const redGround = '#CA2F56'
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -192,10 +202,12 @@ export const brightPalette: Partial<DesignColors> = {
  * than the two others, and moving the token would break the agreement that
  * the three signals mean the same thing in every variant.
  *
- * THE GROUND IS `Rot` AT 80 PERCENT. The value this variant was specified with
- * (`#ca2f56`) is not a step of the spectrum; the nearest one is fourteen units
- * away, which is a tone nobody can tell apart at two metres - and it is a
- * colour the house actually has.
+ * THE GROUND IS THE COMMISSIONED `#CA2F56`, and it is not a step of the
+ * spectrum - the only value of this world that is not (see `redGround`). It
+ * stood at `Rot` 80 percent for one release, because that step is fourteen
+ * units away and the house had just put every colour on the spectrum; the
+ * client asked for their tone back, and a commissioned colour is not something
+ * a conformance rule overrules.
  */
 export const redPalette: Partial<DesignColors> = {
   pageTop: redGround,

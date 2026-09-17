@@ -357,7 +357,7 @@ The `default` world additionally has **three versions**:
 |---|---|---|
 | light | `.stage--bright` | the eighteen tokens on a light panel |
 | dark | `.stage--dark` | the quiz mode's values, unchanged - the fallback layer of `palette.css` |
-| red | `.stage--red` | the dark version with `Rot` at 80 percent as its ground |
+| red | `.stage--red` | the dark version with the commissioned `#CA2F56` as its ground |
 
 The version changes **only colors, transparencies, outlines, and
 shadows**. Fonts, components, positions, and spacing are identical in all
