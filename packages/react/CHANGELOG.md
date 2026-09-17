@@ -1,5 +1,155 @@
 # @hfroemmel/quiz-react
 
+## 0.22.0
+
+### Minor Changes
+
+- 98aa830: A red variant of the adults' stage - a third choice next to light and dark.
+  
+  IT IS THE DARK STAGE WITH ONE THING EXCHANGED: the dark grey of the ground
+  becomes `#ca2f56`. `redPalette` therefore names five tokens and nothing else -
+  the four ground surfaces and the operator's control band - and everything else
+  stays the dark variant's, by the same mechanism the light one uses.
+  
+  WHY NAMING ONLY THE GROUND IS ENOUGH. The surfaces of this stage are veils, not
+  paint: tile, option and their quiet forms are white at five to nine percent.
+  Over the red they become lighter red by themselves, and the depth between
+  ground, board and answer row survives the exchange without a single new value.
+  No gradient is invented either - all four ground tokens carry the same tone.
+  
+  THE THREE SIGNALS STAY, and that is a decision: blue marks the selection and the
+  player whose turn it is, green the right answer, red the wrong one. A red ground
+  makes the wrong-answer red harder to tell apart than it is on grey - the one
+  place this variant is weaker than the other two - and moving the token would
+  break the agreement that a signal means the same thing in every variant.
+  
+  `stageThemes` is now three values, so anything that builds a switch from that
+  list offers the third one without a change. The screens in front of the stage
+  follow it: the device's start menu gets the same ground with its two coloured
+  lights switched off, and the offer overview of a room - the `--quiz-select-*`
+  family, light until now - gets a dark and a red variant. Its cards keep their
+  colours in both, because those stand for their quizzes and not for the variant;
+  that is what the new `ink-on-card` and `meta-on-card` are for, so the text on a
+  light card stays dark while the heading above it goes light.
+  
+  AND `data-surface` NOW ASKS ABOUT THE INK, not about the hue. It used to name
+  the one dark variant there was; the red one is dark in the sense that matters
+  for a host recolouring its own frame - it carries light text - so the light side
+  is named instead, and a further strong ground lands on the right side by itself.
+- The list of colour variants is the offer, and it is now readable as one.
+  
+  `stageThemes` stands in the order a box shows them - light, dark, red - so a
+  host builds its choice FROM THIS LIST instead of keeping a list of its own. That
+  second list is what turned a missing release into a puzzle at the desk: an
+  application that already knew the red variant offered "Rot" while its installed
+  package still knew two variants, so the preference rejected the value on the
+  next read, the controlled field snapped back and no colour moved. A box built
+  from `stageThemes` cannot offer a variant this build is unable to paint.
+  
+  `stageThemeFrom` is the same rule as an exported function: what a stored value
+  means, and the fallback for everything else. It is what `useStageTheme` reads
+  with, and it can be read - and tested - without a window.
+- c51bbb9: The right/wrong mark is drawn, not filmed.
+  
+  Correct and incorrect were delivered WebM clips with an alpha channel, one per
+  outcome. They are vectors now (`AnswerResultAnimation`): a disc that scales in
+  over 480 ms with a short overshoot, then the symbol drawn along its own path -
+  `pathLength` normalises it, so the check mark and the cross need no timing of
+  their own. Reduced motion keeps the finished mark and drops the movement, as
+  the clips' still frame did.
+  
+  WHY IT MATTERS BEYOND THE MOTION: a file cannot follow a theme. The clip's
+  turquoise and its red were baked in, so the stage showed them whatever palette
+  was running - and with a third stage variant that became visible. The disc takes
+  `--color-correct` and `--color-incorrect`, the same tokens the answer rows
+  carry, and the symbol the light ink that goes on a strong area. The children's
+  world therefore gets its own green instead of the adults' turquoise, without a
+  second file, and no decoder is needed to show a circle and a check mark.
+  
+  THE MOMENT KEEPS ITS SIZE. The clips carried a lot of transparent margin - the
+  check mark swung out wide with sparks, the cross sat tight in its frame - so two
+  frames of 34 and 16 cqw put two discs of the SAME size on the stage, and the
+  word below had to be pulled back toward each of them by a different share. One
+  size (14.2 cqw, disc 92 percent of it) and one ordinary gap replace all of that;
+  measured against the old clips, the disc lands within a pixel of where it was.
+  
+  `animationClips` therefore no longer carries `correct` and `wrong`, and the two
+  files are gone; `trophy`, `stars` and `question-marks` stay as they were. The
+  feedback phase durations stay too (`correctFeedbackMs`, `incorrectFeedbackMs`):
+  they were once matched to the clips, but what they are is the beat the room
+  needs to read the mark while the score counts up underneath it.
+- 7c6383f: The round can be ended where it runs.
+  
+  The device quiz always had a way to end a running game, but it sat in the top
+  right corner in the colours of the START MENU - the least visible thing on the
+  darkest screen - and it was worded as if it ended the game for good. It is a
+  chip at the top CENTRE now, `Runde beenden` with a cross before it, and where
+  it sits is the point: the corners of that screen belong to the players -
+  buzzers below, a host's own bar above - and a control that ends the round for
+  both of them belongs in neither hand.
+  
+  IT LOOKS THE SAME IN EVERY VARIANT, and that is a decision: light grey with
+  dark blue on it, from two tokens that belong to no theme (`--stage-chip`,
+  `--stage-inkOnChip` - `Hellgrau` at 20 percent and `Dunkelblau` of the federal
+  spectrum, about seven to one). Whoever wants out of a round should not have to
+  find a different button on the dark stage than on paper or over the children's
+  drawing, and following the theme would have given it four appearances and, on
+  the dark ground, the worst one.
+  
+  WHEN IT EXISTS IS UNCHANGED IN SUBSTANCE and now checked: only while a round
+  runs - not in the start menu, not on the waiting screen, not in the result
+  view, where another round and the way out are the offer - and never on a stage,
+  which is `StageScreen` and not this component. A game an operator runs is not
+  ended from a device either; that gate is the server's (`allowedCommands`).
+  
+  `kiosk.endGame` and `kiosk.endGameQuestion` are `kiosk.endRound` and
+  `kiosk.endRoundQuestion`, in German and English: what the button does is end
+  the ROUND and return to the quiz's own start menu - the state is reset, not
+  parked. Escape now cancels the dialog, the confirming answer takes the keyboard
+  when it opens, and the chip carries a focus ring, so the whole way through can
+  be walked with the keyboard alone.
+  
+  A host that draws its own way out of a running round still says so
+  (`chrome.abort`), but it should think twice: `onExit` leaves the application,
+  this ends the round. A round left standing behind a way home is a round the
+  next visitor walks into mid-question.
+- b768fb3: A video sounds where it plays, not where the cues do.
+  
+  THE BUG, AND IT WAS THE NORMAL SETUP: stage and operator in two browser tabs.
+  The operator clicks buttons all evening, so their window is the only one a
+  browser allows to sound and it takes the audio authority. But the operator's
+  window plays no video - it shows the same area empty on purpose, so the room
+  sees one picture and not two. The stage played the video MUTED because it was
+  not the authority. Nobody sounded it: the picture ran, the room heard nothing,
+  and no error said why.
+  
+  The two things were coupled that should not be. The cues may sound from any
+  window that is allowed to; a video is played only by the windows that carry
+  the room's picture. `QuizRuntimeConnection` therefore has a second authority,
+  `videoAudioMaster`, and `VideoScene` follows that one (`isVideoAudioMaster` on
+  `StageScreen`, defaulting to `true` for a host that plays alone). The
+  `client-info` message carries it; where a server does not send it, the cue
+  authority decides as before, so an old server stays exactly as it was.
+  
+  AND A REFUSED CLIP TRIES AGAIN. A browser that has never been clicked in
+  refuses audible playback, and the scene then plays the picture muted rather
+  than not at all. That refusal used to last for the whole clip and the next
+  one, until the window was reloaded. It now ends at the first click or key in
+  that window, and the clip keeps its position: it goes on sounding where it is
+  instead of starting over, which in a room is worse than the silence was.
+
+### Patch Changes
+
+- Updated dependencies [98aa830]
+- Updated dependencies [a0e1e22]
+- Updated dependencies [be04fe9]
+- Updated dependencies [c51bbb9]
+- Updated dependencies [99f87e4]
+- Updated dependencies [7c6383f]
+- Updated dependencies [b768fb3]
+  - @hfroemmel/quiz-themes@0.22.0
+  - @hfroemmel/quiz-core@0.22.0
+
 ## 0.21.1
 
 ### Patch Changes

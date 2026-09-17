@@ -1,5 +1,128 @@
 # @hfroemmel/quiz-themes
 
+## 0.22.0
+
+### Minor Changes
+
+- 98aa830: A red variant of the adults' stage - a third choice next to light and dark.
+  
+  IT IS THE DARK STAGE WITH ONE THING EXCHANGED: the dark grey of the ground
+  becomes `#ca2f56`. `redPalette` therefore names five tokens and nothing else -
+  the four ground surfaces and the operator's control band - and everything else
+  stays the dark variant's, by the same mechanism the light one uses.
+  
+  WHY NAMING ONLY THE GROUND IS ENOUGH. The surfaces of this stage are veils, not
+  paint: tile, option and their quiet forms are white at five to nine percent.
+  Over the red they become lighter red by themselves, and the depth between
+  ground, board and answer row survives the exchange without a single new value.
+  No gradient is invented either - all four ground tokens carry the same tone.
+  
+  THE THREE SIGNALS STAY, and that is a decision: blue marks the selection and the
+  player whose turn it is, green the right answer, red the wrong one. A red ground
+  makes the wrong-answer red harder to tell apart than it is on grey - the one
+  place this variant is weaker than the other two - and moving the token would
+  break the agreement that a signal means the same thing in every variant.
+  
+  `stageThemes` is now three values, so anything that builds a switch from that
+  list offers the third one without a change. The screens in front of the stage
+  follow it: the device's start menu gets the same ground with its two coloured
+  lights switched off, and the offer overview of a room - the `--quiz-select-*`
+  family, light until now - gets a dark and a red variant. Its cards keep their
+  colours in both, because those stand for their quizzes and not for the variant;
+  that is what the new `ink-on-card` and `meta-on-card` are for, so the text on a
+  light card stays dark while the heading above it goes light.
+  
+  AND `data-surface` NOW ASKS ABOUT THE INK, not about the hue. It used to name
+  the one dark variant there was; the red one is dark in the sense that matters
+  for a host recolouring its own frame - it carries light text - so the light side
+  is named instead, and a further strong ground lands on the right side by itself.
+- a0e1e22: Only the Federal Government's colour spectrum, everywhere but the children's world.
+  
+  The stage already carried nine values from the style guide - the three signals
+  and their light counterparts. Everything else was mixed by hand: the dark
+  ground, the near-whites of the light variant, the desk's greys, the start
+  menu's four greens, a violet glow, five card surfaces. Written as literals,
+  there was no way to tell the two apart and no way to state the rule.
+  
+  `federalSpectrum.ts` now holds the spectrum - the seventeen tones with the HEX
+  values the style guide states, and the two rules that make every other value
+  from them: lightened towards white or darkened with black, in the steps 100,
+  80, 60, 40 and 20 percent. `palettes.ts` names tones and steps instead of
+  numbers (`ci('blau', 80)` is "Blau, Abstufung 80 %"), so there is no literal
+  left in it outside the children's world, and a guard test measures every
+  palette against the set the two rules can produce - a veil counts as its own
+  colour, a gradient is checked stop by stop.
+  
+  THE STEP RULES ARE PROVEN, not assumed: they reproduce all nine values the
+  palette already attributed to the style guide, and the published Blau ladder
+  (100 % #0077B6, 80 % #3392C5, 60 % #66ADD3, 40 % #99C9E2, 20 % #CCE4F0) to the
+  digit.
+  
+  WHAT MOVED, and by how little: each value became the nearest step to the one it
+  replaced, so this is conformance and not a redesign - the dark ground is three
+  steps of `Dunkelgrau` within seven to eighteen units of where it was, the light
+  variant's near-whites are `Hellgrau` at 20 to 60 percent within five to twelve.
+  Only where a role names a colour does the role win over the distance: the
+  desk's green and red are the stage's signals now, the start menu's grades are
+  `Grün`, `Hellgrün` and `Violett`, and the five cards of the offer overview each
+  carry a step of the tone their quiz is recognised by - house grey, light blue,
+  `Dunkelblau`, gold for the Unity banner, red for the Bremen coat of arms. Two
+  of those five were near-whites told apart only by their warmth, which no
+  spectrum reproduces. The motifs on the cards keep their own colours: a flag is
+  content, not a token.
+  
+  THE RED VARIANT'S GROUND is `Rot` at 80 percent (#CD3363) instead of the
+  #ca2f56 it was specified with - fourteen units, a tone nobody tells apart at
+  two metres, and a colour the house actually has.
+  
+  THE CHILDREN'S WORLD IS EXEMPT, by decision: its colours come from its own
+  illustrations, and a drawn frame does not follow a spectrum. The guard test
+  names that exception and asserts it is real - if the drawn world ever stopped
+  carrying colours of its own, the exception would be pointless.
+- 7c6383f: The round can be ended where it runs.
+  
+  The device quiz always had a way to end a running game, but it sat in the top
+  right corner in the colours of the START MENU - the least visible thing on the
+  darkest screen - and it was worded as if it ended the game for good. It is a
+  chip at the top CENTRE now, `Runde beenden` with a cross before it, and where
+  it sits is the point: the corners of that screen belong to the players -
+  buzzers below, a host's own bar above - and a control that ends the round for
+  both of them belongs in neither hand.
+  
+  IT LOOKS THE SAME IN EVERY VARIANT, and that is a decision: light grey with
+  dark blue on it, from two tokens that belong to no theme (`--stage-chip`,
+  `--stage-inkOnChip` - `Hellgrau` at 20 percent and `Dunkelblau` of the federal
+  spectrum, about seven to one). Whoever wants out of a round should not have to
+  find a different button on the dark stage than on paper or over the children's
+  drawing, and following the theme would have given it four appearances and, on
+  the dark ground, the worst one.
+  
+  WHEN IT EXISTS IS UNCHANGED IN SUBSTANCE and now checked: only while a round
+  runs - not in the start menu, not on the waiting screen, not in the result
+  view, where another round and the way out are the offer - and never on a stage,
+  which is `StageScreen` and not this component. A game an operator runs is not
+  ended from a device either; that gate is the server's (`allowedCommands`).
+  
+  `kiosk.endGame` and `kiosk.endGameQuestion` are `kiosk.endRound` and
+  `kiosk.endRoundQuestion`, in German and English: what the button does is end
+  the ROUND and return to the quiz's own start menu - the state is reset, not
+  parked. Escape now cancels the dialog, the confirming answer takes the keyboard
+  when it opens, and the chip carries a focus ring, so the whole way through can
+  be walked with the keyboard alone.
+  
+  A host that draws its own way out of a running round still says so
+  (`chrome.abort`), but it should think twice: `onExit` leaves the application,
+  this ends the round. A round left standing behind a way home is a round the
+  next visitor walks into mid-question.
+
+### Patch Changes
+
+- Updated dependencies [be04fe9]
+- Updated dependencies [c51bbb9]
+- Updated dependencies [99f87e4]
+- Updated dependencies [b768fb3]
+  - @hfroemmel/quiz-core@0.22.0
+
 ## 0.21.1
 
 ### Patch Changes
