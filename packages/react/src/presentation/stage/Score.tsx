@@ -59,6 +59,15 @@ interface ScoreProps {
    * answer belongs to. The mark says "the room is being asked", nothing else.
    */
   audienceMarker?: boolean
+  /**
+   * The points cell alone - no player cell beside it.
+   *
+   * It is the head of the kiosk layout with ONE player: there is nobody to
+   * tell apart there, so "Spieler 1" says nothing, and a cell kept empty in
+   * its place would say even less. The card keeps everything else - the frame,
+   * the counting digits, the celebration on a rise.
+   */
+  pointsOnly?: boolean
 }
 
 export function Score({
@@ -71,6 +80,7 @@ export function Score({
   playerText = 'Spieler',
   pointsText = 'Punkte',
   audienceMarker,
+  pointsOnly = false,
 }: ScoreProps) {
   // The stage shows no proper names, only the number from the label.
   const number = label.replace(/\D+/g, '') || '1'
@@ -124,9 +134,10 @@ export function Score({
       data-player={number}
       data-active={String(active)}
       data-locked={String(locked)}
+      {...(pointsOnly ? { 'data-points-only': '' } : {})}
     >
-      {mirrored ? points : player}
-      {mirrored ? player : points}
+      {pointsOnly ? points : mirrored ? points : player}
+      {pointsOnly ? null : mirrored ? player : points}
     </div>
   )
 }
