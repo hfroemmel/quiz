@@ -145,7 +145,7 @@
   --start-bg-bottom: #FFFFFF;
   --start-ambient-left: transparent;
   --start-ambient-right: transparent;
-  --start-surface: rgb(255 255 255 / 0.62);
+  --start-surface: rgb(255 255 255 / 0.75);
   --start-surface-quiet: rgb(255 255 255 / 0.45);
   --start-line: rgb(17 19 20 / 0.1);
   --start-line-strong: rgb(17 19 20 / 0.16);

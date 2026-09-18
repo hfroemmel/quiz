@@ -1182,9 +1182,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.125vw;
-  min-height: 5vw;
+  height: 5vw;
   padding: 0 1.5vw;
   border-radius: var(--stage-radius);
+  border: none;
   background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
   /*
    * THE LABEL BELONGS ON THE GREEN, not on the area next to it: the bar is the
@@ -1236,7 +1237,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 5.2875vw;
+  height: 5vw;
   padding: 0 1.9688vw;
   /* The same quiet area as an unselected card, and without an edge. */
   border: 0;
@@ -1383,9 +1384,9 @@
   gap: 1.4625vw;
   min-width: 43.0556vw;
   max-width: 92%;
-  padding: 2.1938vw;
+  padding: 3vw;
   border: 0.0694vw solid var(--start-line-strong);
-  border-radius: 2.25vw;
+  border-radius: calc(var(--stage-radius) * 1.5);
   background: var(--start-surface);
   color: var(--start-text);
   font-family: var(--font-ui);

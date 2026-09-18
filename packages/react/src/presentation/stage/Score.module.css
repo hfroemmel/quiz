@@ -58,8 +58,8 @@
  */
 .groupMark {
   height: 1em;
-  font-size: 3cqw;
-  color: var(--color-text);
+  font-size: 2cqw;
+  color: var(--stage-inkOnStrong);
 }
 
 @media (prefers-reduced-motion: reduce) {
