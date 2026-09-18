@@ -87,7 +87,7 @@
 
 :global(.stage--default) .cell {
   width: 7cqw;
-  padding: 1cqw 1.2cqw 0.6cqw;
+  padding: 1cqw 2cqw 0.6cqw;
   /* Frosted glass: semi-transparent with blur, no border. */
   background: var(--color-tile);
   backdrop-filter: var(--stage-glass);

@@ -104,7 +104,7 @@
   justify-content: flex-start;
   padding: 2.25cqw 4cqw 0;
   scale: var(--stage-zoom, 1);
-  transform-origin: top left;
+  transform-origin: top center;
 }
 :global(.stage--default.stage--touch) .brand,
 :global(.stage--default.stage--touch) .brandImage {
@@ -160,12 +160,6 @@
 :global(.stage--default.stage--touch[data-layout='kiosk']) .header {
   justify-content: center;
   padding: 2.25cqw 4cqw 0;
-  /*
-   * The row itself does not scale - its parts do, each toward its own anchor
-   * (the same rule as in the foot). Scaling the whole row from one corner
-   * would pull the centred group out of the middle at a smaller size.
-   */
-  scale: none;
 }
 :global(.stage--default.stage--touch[data-layout='kiosk']) .header > * {
   scale: var(--stage-zoom, 1);

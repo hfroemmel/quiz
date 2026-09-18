@@ -1643,7 +1643,7 @@
  * rectangle around a drawing that already has its own shape.
  */
 .buzzerGraphic {
-  width: 13cqw;
+  width: 18cqw;
   aspect-ratio: 360 / 300;
   padding: 0;
   border: 0;

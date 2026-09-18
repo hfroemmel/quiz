@@ -67,6 +67,7 @@
   display: flex;
   min-width: 0;
   min-height: 0;
+  transform-origin: center;
 }
 
 /* Everything content-related sits above the background. */
@@ -122,10 +123,8 @@
    * the buzzers. The zoom is applied on top of this width, so a smaller zoom
    * always shrinks the scene instead of relaxing the cap.
    */
-  width: min(100%, calc((100cqh - 24cqw) / 0.45));
   /* The device shows the stage at 80 %; the host zoom scales that further. */
   scale: var(--stage-zoom, 1);
-  transform-origin: top center;
   /* Stay right under the header; the footer is fixed and out of flow. */
   margin: 0 auto 5vw;
 }
@@ -148,10 +147,12 @@
 :global(.stage--touch[data-layout='kiosk']) .sceneArea {
   flex: 1 1 auto;
   min-height: 0;
-  width: auto;
+  width: 100%;
   max-width: 100%;
   align-self: center;
   aspect-ratio: 16 / 9;
+  width: 100%;
+  padding-top: 15vw;
 }
 
 /* The scene box fills the area. */
