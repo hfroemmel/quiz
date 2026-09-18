@@ -124,7 +124,7 @@
    * and that has to fit on one line without the button blowing out the
    * middle of the footer.
    */
-  --stage-button-height: 5.0625cqw;
+  --stage-button-height: 4cqw;
   --stage-button-pad: 4cqw;
   --stage-button-radius: var(--stage-radius);
   --stage-button-font: var(--font-heading);

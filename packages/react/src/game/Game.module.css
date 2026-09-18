@@ -48,7 +48,21 @@
    * NOT PART OF THIS are the two corner buttons, language and gear: they do
    * not stand in the row but at the edge, and are deliberately smaller.
    */
-  --kiosk-button-font-size: 1.3219vw;
+  --kiosk-button-font-size: 1.2vw;
+
+  /*
+   * THE SAME CORNER AS ON THE STAGE, for the screens that stand without one.
+   *
+   * `.stage` declares this token for everything inside it (`stage.css`); the
+   * start and waiting screens are siblings of the stage, not children, and
+   * therefore never inherited it - their cards and bars came out square.
+   * The value is repeated rather than moved, because inside the stage it must
+   * keep measuring against the stage: there `cqw` refers to the stage as the
+   * container, here - where no container is declared - to the window. In the
+   * full-screen kiosk both come out the same; in a stage boxed into a corner
+   * of a host, the stage keeps its own smaller corner.
+   */
+  --stage-radius: 0.7cqw;
 }
 
 /* The start and waiting screens stand without a stage and bring their own background. */
@@ -198,7 +212,7 @@
 
 
 [data-skin='kids'] {
-  --kiosk-button-font-size: 1.5469vw;
+  --kiosk-button-font-size: 1.33vw;
 }
 /*
  * In the kids' world this button is also a drawn card - the same one as "Let's
@@ -869,10 +883,10 @@
    * combined certainly cannot either.
    */
   border: 0;
-  border-radius: 1.125vw;
+  border-radius: var(--stage-radius);
   background: var(--start-option);
   color: var(--start-text);
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, box-shadow 120ms ease, scale 120ms ease, transform 120ms ease;
@@ -1009,12 +1023,10 @@
  */
 .offer {
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   gap: 0.45vw;
-  min-height: 5.4vw;
-  padding: 0.8438vw 1.2375vw;
-  text-align: center;
+  min-height: 4vw;
+  padding: 1vw 1.5vw;
 }
 /*
  * THE EMPHASISED QUIZ TAKES THE WHOLE ROW. `grid-column: 1 / -1` instead of
@@ -1037,10 +1049,6 @@
 }
 .offer[data-emphasis='wide'] .offerArtwork {
   height: 3.6vw;
-}
-/* On the card the text sits under the motif, so it is centred like it. */
-.offer .cardBody {
-  align-items: center;
 }
 /*
  * The checkmark of a quiz card sits in its corner, not at the end of a row:
@@ -1099,6 +1107,7 @@
 }
 
 .cardTitle {
+  font-family: var(--font-display);
   font-size: var(--kiosk-button-font-size);
   font-weight: 600;
   line-height: 1.15;
@@ -1173,10 +1182,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.125vw;
-  min-height: 5.2875vw;
-  padding: 0 1.5188vw 0 3.0375vw;
-  border: 0.0694vw solid color-mix(in srgb, var(--start-green-edge) 42%, transparent);
-  border-radius: 1.1813vw;
+  min-height: 5vw;
+  padding: 0 1.5vw;
+  border-radius: var(--stage-radius);
   background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
   /*
    * THE LABEL BELONGS ON THE GREEN, not on the area next to it: the bar is the
@@ -1185,7 +1193,7 @@
    * cards next to it in the light variant.
    */
   color: var(--start-ink-on-green);
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-size: var(--kiosk-button-font-size);
   font-weight: 700;
   cursor: pointer;
@@ -1201,7 +1209,7 @@
   flex: 1 1 auto;
 }
 .action[data-start] {
-  font-size: 1.8731vw;
+  font-size: 1.6vw;
 }
 /*
  * The arrow sits freely on the bar - without its own disc. It only repeats
