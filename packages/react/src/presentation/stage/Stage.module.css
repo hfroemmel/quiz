@@ -129,6 +129,31 @@
   /* Stay right under the header; the footer is fixed and out of flow. */
   margin: 0 auto 5vw;
 }
+/*
+ * THE KIOSK LAYOUT DIVIDES THE HEIGHT INSTEAD OF ESTIMATING IT.
+ *
+ * The live device's rule above computes what is left for the scene from an
+ * assumed head and foot (24cqw) and pins the box to the bottom edge. That
+ * works there because both are known and small - a word mark above, one row
+ * of corners below. This arrangement has neither: its head carries two score
+ * cards and its foot three rows under each other, and a number written here
+ * would be a copy of what those two actually measure.
+ *
+ * So the three simply share the column: head and foot take the height they
+ * need, the scene takes what is left (`flex: 1`), and its width follows from
+ * that height through the 16:9 it is composed in. Nothing can overlap,
+ * because nothing is taken out of the flow - which is also why the foot of
+ * this layout does not sit fixed (see `Game.module.css`).
+ */
+:global(.stage--touch[data-layout='kiosk']) .sceneArea {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: auto;
+  max-width: 100%;
+  align-self: center;
+  aspect-ratio: 16 / 9;
+}
+
 /* The scene box fills the area. */
 :global(.stage--touch) .sceneRoot {
   width: 100%;

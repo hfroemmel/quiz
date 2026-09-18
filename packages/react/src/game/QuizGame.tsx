@@ -29,6 +29,7 @@ import { StartMenu, type StartMenuChoice } from './StartMenu'
 import { deviceStartMenu } from './startMenuModel'
 import { GameSettings } from './GameSettings'
 import { CloseIcon } from './icons'
+import { KioskFoot } from './KioskFoot'
 import { PlayerFoot } from './PlayerFoot'
 import { clampZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
@@ -135,6 +136,24 @@ export interface QuizGameProps {
    * read.
    */
   renderAfterSolution?: (step: { details: string; onContinue: () => void }) => ReactNode
+  /**
+   * WHICH ARRANGEMENT THIS DEVICE DRAWS AROUND THE GAME.
+   *
+   *   live    the device of a live event: score card and buzzer sit together
+   *           at the bottom in the corner of the player they belong to, and
+   *           the way out of the round sits top centre. An operator runs that
+   *           evening; the device is one seat at their table.
+   *   kiosk   a device standing on its own - the media table, the game
+   *           collection, the standalone application. Score cards and counter
+   *           move into the head as one group, the two buzzers become the
+   *           drawn push-buttons in the bottom corners, and between them a
+   *           fixed field says what to do next.
+   *
+   * IT IS A DECISION OF THE HOST, not of the content or of a screen size: the
+   * same quiz, the same engine and the same scenes run in both. Whoever says
+   * nothing gets `live`, which is what every host got before this existed.
+   */
+  layout?: 'live' | 'kiosk'
 }
 
 export function QuizGame({
@@ -149,6 +168,7 @@ export function QuizGame({
   idleTimeoutMs,
   overlay,
   renderAfterSolution,
+  layout = 'live',
 }: QuizGameProps) {
   // Without a host runtime, its own connection; with one, none.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
@@ -583,47 +603,52 @@ export function QuizGame({
 
 
 
+  /*
+   * THE WAY OUT OF THE ROUND - one button, two places.
+   *
+   * At a live event it sits top centre: the corners of that screen belong to
+   * the players - buzzers below, the way out of the application above - and a
+   * control that ends the round for BOTH of them does not belong in either
+   * hand. In the kiosk layout the corners carry the drawn buzzers instead, and
+   * the middle column under the hint field is the one column that belongs to
+   * nobody; the button stands at its foot, always in the same place, above
+   * nothing and below everything.
+   *
+   * WITH A CONFIRMATION in both, and not out of caution about data loss: an
+   * accidental hit would otherwise end the round for two people standing in
+   * front of it in the middle of a question.
+   *
+   * IT APPEARS ONLY WHILE A ROUND RUNS. This branch is the running game - the
+   * start menu and the waiting screen are their own returns above - and
+   * `finished` takes it off the result view, where "play again" and the way
+   * out are the offer instead. On the stage there is no such button at all:
+   * that screen is `StageScreen`, and an operator's game is not ended from the
+   * room. Whether the host draws its own instead is its word (`chrome.abort`).
+   */
+  const kiosk = layout === 'kiosk'
+  const endRound = chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
+    <button
+      type="button"
+      className={kiosk ? styles.kioskEndRound : styles.abort}
+      data-abort-game=""
+      aria-haspopup="dialog"
+      onClick={() => setAskExit(true)}
+    >
+      <CloseIcon className={kiosk ? styles.kioskEndRoundIcon : styles.abortIcon} />
+      {t('kiosk.endRound')}
+    </button>
+  )
+
   return (
     <div className={styles.game} style={area} data-quiz-game=""
       data-skin={skin}
       data-theme={variant}
+      data-layout={layout}
       onPointerDown={idle.notice}>
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
-      {/*
-        * ENDING A RUNNING ROUND - the one control that sits on the game.
-        *
-        * IT SITS TOP CENTRE, and where it sits is the whole point: the corners
-        * of this screen belong to the players - buzzers below, the way out of
-        * the application above them in the host's own bar - and a control that
-        * ends the round for BOTH of them does not belong in either hand. In
-        * the middle it is equally far from both, and nobody reaches it while
-        * tapping an answer.
-        *
-        * WITH A CONFIRMATION DIALOG, and not out of caution about data loss:
-        * an accidental hit would otherwise end the round for two people
-        * standing in front of it in the middle of a question.
-        *
-        * IT APPEARS ONLY WHILE A ROUND RUNS. This branch is the running game -
-        * the start menu and the waiting screen are their own returns above -
-        * and `finished` takes it off the result view, where "play again" and
-        * the way out are the offer instead. On the stage there is no such
-        * button at all: that screen is `StageScreen`, and an operator's game
-        * is not ended from the room. Whether the host draws its own instead is
-        * its word (`chrome.abort`).
-        */}
-      {chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
-        <button
-          type="button"
-          className={styles.abort}
-          data-abort-game=""
-          aria-haspopup="dialog"
-          onClick={() => setAskExit(true)}
-        >
-          <CloseIcon className={styles.abortIcon} />
-          {t('kiosk.endRound')}
-        </button>
-      )}
+      {/* Top centre at a live event; the kiosk layout carries it in its foot. */}
+      {!kiosk && endRound}
 
       {askExit && (
         <div className={styles.overlay} data-abort-dialog="">
@@ -678,6 +703,7 @@ export function QuizGame({
          */
         audible={hostVisible}
         variant="touch"
+        layout={layout}
         {...(answering ? { answering } : {})}
         pads={{
           ...(overlay || stepPossible
@@ -705,6 +731,17 @@ export function QuizGame({
                 </button>
               )}
             </div>
+          ) : kiosk ? (
+            <KioskFoot
+              view={view}
+              turn={turn}
+              canBuzz={(playerId) => canBuzz(view, playerId)}
+              onBuzz={(playerId) => send({ type: 'BUZZ', playerId })}
+              onResolve={() => send({ type: 'RESOLVE_ATTEMPT' })}
+              onContinue={continueRound}
+              continueElsewhere={details !== undefined}
+              endRound={endRound}
+            />
           ) : (
             <PlayerFoot
               view={view}

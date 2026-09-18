@@ -56,6 +56,14 @@ export interface StageScreenProps {
    */
   variant?: 'stage' | 'preview' | 'touch'
   /**
+   * Which arrangement a touch device uses around the scene (see `QuizGame`).
+   *
+   * The scene itself is the same composition in both - what differs is where
+   * the score cards, the counter and the players' hands sit. The stage does
+   * not know the question at all: `live` is what it has always been.
+   */
+  layout?: 'live' | 'kiosk'
+  /**
    * Operator controls that sit over the area in the design.
    *
    * They are used here ONLY so that they line up with the tiles. The stage
@@ -90,6 +98,7 @@ export function StageScreen({
   isVideoAudioMaster = true,
   onCommand,
   variant = 'stage',
+  layout = 'live',
   headerSlots,
   pads,
   answering,
@@ -215,6 +224,13 @@ export function StageScreen({
         data-surface={theme === 'bright' || theme === null ? 'light' : 'dark'}
         data-phase={view.phase}
         /*
+         * The device's arrangement, for the rules that differ between them.
+         * It stands on the stage rather than on the frame around it because
+         * head and foot are drawn inside here, and a stylesheet that has to
+         * reach both of them from one attribute needs it at their root.
+         */
+        data-layout={layout}
+        /*
          * Are the answers already on stage? The children's world hangs
          * Karlchen on that: he only appears once there is something to choose -
          * while the question is being read out, nothing should distract from
@@ -254,7 +270,7 @@ export function StageScreen({
           />
         )}
 
-        <StageHeader view={view} slots={headerSlots} variant={variant} />
+        <StageHeader view={view} slots={headerSlots} variant={variant} layout={layout} />
 
         {/*
           * THE SCENE AND ITS FIGURE ARE ONE AREA.

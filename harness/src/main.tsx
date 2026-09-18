@@ -55,6 +55,9 @@ function App() {
      *                      (`rules.showDetailsAfterSolution`) - a rule of the
      *                      content, switchable here so that one suite can see
      *                      the step without all of them getting it
+     *   ?layout=kiosk      the arrangement of a device standing on its own -
+     *                      score cards in the head, drawn buzzers in the
+     *                      corners. Without it, the live event's device.
      */
     case '/play': {
       const params = new URLSearchParams(window.location.search)
@@ -63,6 +66,7 @@ function App() {
       return (
         <TouchDevice
           audience={audience}
+          {...(params.get('layout') === 'kiosk' ? { layout: 'kiosk' as const } : {})}
           {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
           {...(params.get('details') === null ? {} : { showDetailsAfterSolution: true })}
         />

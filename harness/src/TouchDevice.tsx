@@ -12,9 +12,16 @@ export function TouchDevice({
   audience,
   idleTimeoutMs,
   showDetailsAfterSolution,
+  layout,
 }: {
   audience: string
   idleTimeoutMs?: number
+  /**
+   * Which arrangement the device draws around the game - the harness plays
+   * both, because both are shipped: `live` is the seat at an operator's
+   * table, `kiosk` the device standing on its own in a foyer.
+   */
+  layout?: 'live' | 'kiosk'
   /**
    * Read the background of a question at the device instead of having it told.
    *
@@ -36,6 +43,7 @@ export function TouchDevice({
     <QuizGame
       runtime={runtime}
       audience={audience}
+      {...(layout === undefined ? {} : { layout })}
       {...(idleTimeoutMs === undefined ? {} : { idleTimeoutMs })}
     />
   )

@@ -114,6 +114,16 @@ export const defaultTexts = {
   'kiosk.submit': 'Antwort abgeben',
   'kiosk.secondChance': '{player}, du darfst es jetzt auch versuchen',
   'kiosk.continue': 'Weiter',
+  /*
+   * The three sentences of the kiosk layout's hint field - the only place
+   * where an unattended device addresses the people in front of it. They
+   * follow the state of the question, one at a time: the call to buzz, the
+   * call to the player who got it, and the reminder that a marked row is not
+   * yet an answer (see `KioskFoot`).
+   */
+  'kiosk.hintBuzz': 'Wenn du die Antwort kennst, jetzt buzzern!',
+  'kiosk.hintChoose': '{player}, bitte wähle eine Antwort.',
+  'kiosk.hintSubmit': 'Sicher? Dann gib deine Antwort nun ab.',
 } as const
 
 export type TextKey = keyof typeof defaultTexts
@@ -189,6 +199,9 @@ export const englishTexts: Record<TextKey, string> = {
   'kiosk.submit': 'Submit answer',
   'kiosk.secondChance': '{player}, now you may try as well',
   'kiosk.continue': 'Next question',
+  'kiosk.hintBuzz': 'If you know the answer, buzz now!',
+  'kiosk.hintChoose': '{player}, please pick an answer.',
+  'kiosk.hintSubmit': 'Sure? Then submit your answer.',
 }
 
 /**
