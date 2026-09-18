@@ -539,8 +539,9 @@ Only six stylesheets are global, and each for a reason:
 | `RevealTiles` | tile cover for image recognition | - |
 | `AnswerList` | answer rows with letter chip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
 | `Mascot` | character layer | visible only in the kids world |
-| `Buzzer` | a player's buzz area on the touch device | left, right; free, on turn, withdrawn |
-| `PlayerFoot` | touch device footer: both player corners and the counter | - |
+| `Buzzer` | a player's buzz area on the touch device | left, right; the word on an area (`live`) or the drawn push-button (`kiosk`); `waiting`, `ready`, `armed`, `locked` |
+| `PlayerFoot` | touch device footer of the LIVE arrangement: both player corners and the counter | - |
+| `KioskFoot` | touch device footer of the KIOSK arrangement: the drawn buzzers, the hint field and the way out of the round | single player, duel |
 
 On the touch device, the rows of `AnswerList` are buttons - the same list,
 just with `onSelect`. There is deliberately no second row component for the
@@ -554,6 +555,60 @@ height, so a two-line answer grows with it instead of overflowing its tile. The
 letter is widened accordingly, otherwise it would stand as a narrow strip
 next to a wide tile. In the kids world this doesn't apply: the drawn
 card is thumb-sized anyway and brings its own height.
+
+### Two Arrangements of the Same Device
+
+The playable quiz has ONE component (`<QuizGame>`), and a host says which
+arrangement it draws around the game:
+
+```ts
+layout?: 'live' | 'kiosk'   // default: 'live'
+```
+
+**`live`** is the seat at an operator's table. Score card and buzzer sit
+together at the bottom in the corner of the player they belong to, the head
+carries the word mark alone, and the way out of the round sits top centre.
+Someone runs that evening; the device is one place at their table.
+
+**`kiosk`** is a device standing on its own - the media table, the game
+collection, the standalone application. Nobody explains it, so the screen has
+to: the score cards and the counter stand together in the head
+(`[Spieler|1][Punkte] [Frage|3/7] [Punkte][2|Spieler]`, and with one player
+just `[Frage|3/7][Punkte]`, without a player cell), the two buzzers are the
+drawn push-buttons in the bottom corners, and between them a field states what
+to do next. The way out of the round stands under that field, in the middle.
+
+The switch travels as a prop through `QuizScene` to `StageScreen`, which writes
+it onto the stage as `data-layout`; head and foot read it from there. The scene
+in between - image, question, answers - is the same composition in both, and
+the stage and the operator's preview never see the attribute at anything other
+than `live`.
+
+**What the hint field says** follows the state of the question, one sentence at
+a time, and the order is the priority (`KioskFoot`):
+
+| State | Text (`interfaceStrings`) |
+|---|---|
+| an answer is marked, submitting is possible | `kiosk.hintSubmit` |
+| the second chance has passed the turn on | `kiosk.secondChance` |
+| this player may answer | `kiosk.hintChoose` |
+| the answers are up and nobody has buzzed | `kiosk.hintBuzz` |
+| after the solution | the field carries "Weiter" instead |
+
+**The buzzers** carry their state as `data-buzzer-state`: `waiting` before the
+release (taken back), `ready` once the answers are up (full colour, operable),
+`armed` for the player who got the buzz (unchanged - what says it is theirs is
+the other corner and their score card), `locked` for the other one (grey and
+translucent, and disabled with it). The confirmation "Antwort abgeben" appears
+ON the armed corner, covering the middle of the drawing; with one player there
+is no corner, so it stands in the middle above the way out of the round.
+
+**The heights divide the column.** The live arrangement computes what is left
+for the scene from an assumed head and foot and fixes its footer to the bottom
+edge; the kiosk arrangement lets head, scene and foot share the column (the
+scene takes what is left and derives its width from its 16:9). Nothing can
+overlap there, at any window size - which is what `test/e2e/kiosk-layout.spec.ts`
+measures, in both modes.
 
 ### The Scene on the Touch Device
 

@@ -1556,3 +1556,243 @@
     filter: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * KIOSK LAYOUT
+ *
+ * The lower half of a device that stands on its own (see `KioskFoot`): a
+ * drawn buzzer in each bottom corner, and between them one column that says
+ * what to do and how to stop.
+ *
+ * It sits INSIDE the stage area (`StageScreen.pads`) and therefore computes
+ * in container units, like everything there - the same arrangement holds from
+ * the tablet up to the large touch table, and nothing here is measured
+ * against a window height.
+ * ------------------------------------------------------------------ */
+
+.kioskFoot {
+  /*
+   * IN THE FLOW, unlike the live device's foot. There the bar is fixed to the
+   * bottom edge and the scene above it keeps clear by a computed width; here
+   * head, scene and foot share the column, so an overlap cannot happen at any
+   * window size (see `Stage.module.css`).
+   */
+  flex: 0 0 auto;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2cqw;
+  /*
+   * The distance to the screen edge shrinks with the zoom level, exactly as in
+   * the live device's foot: otherwise the corners would drift away from the
+   * edge at a small display size.
+   */
+  padding: 0 calc(3cqw * var(--stage-zoom, 1)) calc(1.6875cqw * var(--stage-zoom, 1));
+}
+/*
+ * ONE PLAYER HAS NO CORNERS, so the column has to centre itself rather than
+ * be held in the middle by two neighbours. `space-between` with a single
+ * child would push it to the left edge.
+ */
+.kioskFoot[data-mode='solo'] {
+  justify-content: center;
+}
+/*
+ * ZOOM: EACH COLUMN TOWARD ITS OWN EDGE - the same rule as in the live foot.
+ * The buzzers belong at the screen's corners, the middle column at its
+ * bottom centre, and the space they occupy in the layout stays unchanged.
+ */
+.kioskFoot > * {
+  scale: var(--stage-zoom, 1);
+}
+.kioskCorner[data-corner='left'] {
+  transform-origin: bottom left;
+}
+.kioskCorner[data-corner='right'] {
+  transform-origin: bottom right;
+}
+.kioskMiddle {
+  transform-origin: bottom center;
+}
+
+/*
+ * The corner is the frame the confirmation hangs in: it takes the buzzer's
+ * size, and the button that appears on it is positioned against THIS box.
+ */
+.kioskCorner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/*
+ * THE BUZZER IS A DRAWING, AND STILL A BUTTON.
+ *
+ * No box of its own, no border, no background: the graphic is the whole
+ * visible button, and the element around it contributes the hit area, the
+ * keyboard and the states. Everything that says "button" in this package
+ * (`.stage-button`) is deliberately NOT used here - it would put a second
+ * rectangle around a drawing that already has its own shape.
+ */
+.buzzerGraphic {
+  width: 13cqw;
+  aspect-ratio: 360 / 300;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* No waiting for the double-tap and no blue veil on a touch device. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter 160ms ease, opacity 160ms ease, scale 120ms ease;
+}
+.buzzerImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+/*
+ * FOUR STATES, AND THEY SAY FOUR DIFFERENT THINGS.
+ *
+ *   waiting  the question is still being read - the drawing is there, taken
+ *            back, so nobody reaches for it yet
+ *   ready    the answers are up: full colour, this is the moment
+ *   armed    this corner got the buzz - it stays lit and gains a ring in the
+ *            stage's own accent, the same colour the score card above it
+ *            carries while it is this player's turn
+ *   locked   the other corner was faster, or this player has used up their
+ *            attempt: grey, and the button is disabled with it
+ */
+.buzzerGraphic[data-buzzer-state='waiting'] {
+  filter: grayscale(0.55) brightness(0.85);
+  opacity: 0.6;
+}
+.buzzerGraphic[data-buzzer-state='locked'] {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+/*
+ * The player who got the buzz keeps their button exactly as it was: red and
+ * whole. What says it is theirs is the other corner going grey and their score
+ * card in the head turning blue - two changes for one event are enough, and a
+ * third on the button they are about to be handed would be noise.
+ */
+.buzzerGraphic:disabled {
+  cursor: default;
+}
+.buzzerGraphic:active:not(:disabled) {
+  scale: 0.96;
+}
+.buzzerGraphic:focus-visible {
+  outline: 0.25cqw solid var(--color-accent);
+  outline-offset: 0.3cqw;
+  border-radius: 50%;
+}
+
+/*
+ * The middle column: hint field, the one button that belongs to both players,
+ * and the way out of the round. Each row keeps its height through every state
+ * of a question, so nothing above shifts while a finger is on its way.
+ */
+.kioskMiddle {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1cqw;
+  min-width: 0;
+}
+.kioskHint {
+  /* Exactly as tall as a stage button - see `styles/stage.css`. */
+  min-height: var(--stage-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+/*
+ * The slot of the middle button. It keeps its height while it is empty: in a
+ * duel the confirmation stands on the buzzer instead, and the row underneath
+ * must not travel upwards for it.
+ */
+.kioskAction {
+  min-height: var(--stage-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kioskConfirm {
+  white-space: nowrap;
+}
+/*
+ * IN A DUEL THE CONFIRMATION STANDS ON THE BUZZER of the player it belongs
+ * to: their hand is already in that corner. It covers the drawing plainly
+ * rather than sitting next to it - what is underneath is out of play in this
+ * moment, and the button says what is.
+ */
+.kioskCorner .kioskConfirm {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 2;
+  /*
+   * Narrower than a button in the middle of the screen: it lies ON the drawn
+   * buzzer and covers its middle, and one that grew wider than the button
+   * underneath would look like a bar in the corner rather than a label on a
+   * button.
+   */
+  --stage-button-pad: 1.2cqw;
+  max-width: 12cqw;
+}
+
+/*
+ * THE WAY OUT OF THE ROUND, at the foot of the middle column.
+ *
+ * The same chip as on the live device (`.abort`), in container units: here it
+ * stands inside the stage, where every size is a share of the area.
+ */
+.kioskEndRound {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5cqw;
+  min-height: 2.6cqw;
+  padding: 0.5cqw 1.2cqw;
+  border: 0;
+  border-radius: 0.6cqw;
+  background: var(--stage-chip);
+  color: var(--stage-inkOnChip);
+  font-family: var(--font-ui);
+  font-size: 1.1cqw;
+  font-weight: 600;
+  cursor: pointer;
+}
+.kioskEndRoundIcon {
+  width: 1.2cqw;
+  height: 1.2cqw;
+  flex: none;
+}
+.kioskEndRound:hover {
+  background: color-mix(in srgb, var(--stage-chip) 92%, var(--stage-inkOnChip));
+}
+.kioskEndRound:focus-visible {
+  outline: 0.2cqw solid var(--stage-inkOnChip);
+  outline-offset: 0.2cqw;
+}
+
+/*
+ * Reduced motion: the buzzer's states stay, the movement between them goes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .buzzerGraphic {
+    transition: none;
+  }
+  .buzzerGraphic:active:not(:disabled) {
+    scale: 1;
+  }
+}

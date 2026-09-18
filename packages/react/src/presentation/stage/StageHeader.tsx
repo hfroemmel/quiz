@@ -54,10 +54,18 @@ export function StageHeader({
   view,
   slots,
   variant,
+  layout = 'live',
 }: {
   view: PublicQuizViewModel
   slots?: StageHeaderSlots
   variant?: 'stage' | 'preview' | 'touch'
+  /**
+   * Which arrangement the device uses (see `QuizGame`). The kiosk layout puts
+   * score cards and counter back into the head - at a table in a foyer the top
+   * edge is the calm zone and the hands belong at the bottom, where its
+   * buzzers are.
+   */
+  layout?: 'live' | 'kiosk'
 }) {
   /*
    * BEFORE the early return: a hook may not sit behind a condition, and the
@@ -70,9 +78,26 @@ export function StageHeader({
   if (view.scene === 'start') return null
 
   const t = textsFor(view)
-  const showsScores = variant !== 'touch' && view.scene !== 'result' && view.playerScores.length > 0
+  /*
+   * THE KIOSK HEAD IS THE STAGE HEAD, MINUS A PLAYER.
+   *
+   * Two players get the same two cards the room sees, with the counter moved
+   * BETWEEN them: the group then reads as one line about this round, and each
+   * card sits on the side of the person it belongs to. One player gets the
+   * counter and their points and nothing else - no card with a number on it,
+   * and no empty space where the second card would be, because a player alone
+   * is not "player 1 of 1".
+   */
+  const kiosk = variant === 'touch' && layout === 'kiosk'
+  const showsScores = (variant !== 'touch' || kiosk) && view.scene !== 'result' && view.playerScores.length > 0
   const showsCounter = showsScores && view.progress.total > 0
   const [playerOne, playerTwo] = view.playerScores
+  const solo = view.playerScores.length < 2
+  const counter = showsCounter && (
+    <div className={styles.counterSlot}>
+      <Counter current={view.progress.current} total={view.progress.total} label={t('stage.question')} />
+    </div>
+  )
 
   return (
     <header className={styles.header}>
@@ -97,22 +122,32 @@ export function StageHeader({
         />
       )}
 
-      <div className={styles.scores}>
+      <div className={styles.scores} {...(kiosk ? { 'data-head-group': solo ? 'solo' : 'duel' } : {})}>
         {slots?.beforePlayerOne}
+        {/* One player: the counter leads and the card behind it is points only. */}
+        {kiosk && solo && counter}
         {showsScores && playerOne && (
           <div className={styles.scoreGroup} data-score-group={playerOne.playerId}>
             {slots?.besidePlayer?.(playerOne)}
             <Score
               label={playerOne.label}
               score={playerOne.score}
-              active={playerOne.active}
+              /*
+               * Alone at the device nobody is marked: the blue says "it is
+               * this player's turn", and with one player that is always true
+               * and therefore says nothing.
+               */
+              active={!solo && playerOne.active}
               locked={playerOne.locked}
               playerText={t('stage.player')}
               pointsText={t('stage.points')}
+              pointsOnly={kiosk && solo}
               {...audienceMarkerFor(view, playerOne)}
             />
           </div>
         )}
+        {/* Two players: the counter stands between the cards, in the middle of the head. */}
+        {kiosk && !solo && counter}
         {showsScores && playerTwo && (
           <div className={styles.scoreGroup} data-score-group={playerTwo.playerId}>
             {slots?.besidePlayer?.(playerTwo)}
@@ -131,11 +166,8 @@ export function StageHeader({
         {slots?.afterPlayerTwo}
       </div>
 
-      {showsCounter && (
-        <div className={styles.counterSlot}>
-          <Counter current={view.progress.current} total={view.progress.total} label={t('stage.question')} />
-        </div>
-      )}
+      {/* In the room the counter hangs in the corner; in the kiosk head it stands inside the group. */}
+      {!kiosk && counter}
     </header>
   )
 }
