@@ -94,8 +94,18 @@
   -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
 }
+/*
+ * THE POINTS CELL RESERVES ITS DIGITS, and that is what keeps the head still.
+ *
+ * The cell used to be as wide as the number in it, so every score that grew a
+ * digit widened the card - and with it moved the counter beside it and the
+ * other player's card: a small, visible jump at exactly the moment everybody
+ * is looking at the score. The reserve holds three digits, which is what a
+ * round can produce (seven questions at a hundred points), and the digits are
+ * tabular, so 111 and 999 are the same width.
+ */
 :global(.stage--default) .cellPoints {
-  min-width: 7cqw;
+  min-width: 7.5cqw;
 }
 :global(.stage--default) .label {
   /* Labels in the sans-serif, values in the serif font. */

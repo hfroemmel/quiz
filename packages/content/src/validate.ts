@@ -328,7 +328,7 @@ export function validateContent(input: ValidationInput): ValidationResult {
           )
         }
       }
-      for (const medium of [translation.image, translation.video]) {
+      for (const medium of [translation.image]) {
         if (medium && !input.mediaFileExists(medium.filename)) {
           add(
             'error',
@@ -531,9 +531,8 @@ function validateAnswerModel(question: Question, add: AddIssue): void {
  * `asset-kind` (an id declared as the wrong kind). A question names a file, and
  * the only question left about it is whether it is there.
  *
- * NO TYPE DEMANDS A VIDEO. A clip is a step in front of the question, and a
- * question without one simply starts with itself - so only the image is
- * required, and only for the types that show one.
+ * ONLY THE IMAGE IS REQUIRED, and only for the types that show one; every
+ * other file a question names is an addition, not a condition.
  */
 function validateMedia(
   question: Question,
@@ -545,7 +544,7 @@ function validateMedia(
     add('error', 'missing-media', `Fragetyp "${question.questionType}" verlangt ein Bild.`, question.id)
   }
 
-  for (const medium of [question.image, question.video]) {
+  for (const medium of [question.image]) {
     if (medium === undefined || mediaFileExists(medium.filename)) continue
     // A disabled question is in no pool and cannot endanger the show.
     // It may therefore stay in the pool as a prepared template without a media file.

@@ -97,21 +97,6 @@ export const commandSchema = z.discriminatedUnion('type', [
   /** Technical correction: reveal back to second 10. Do not mix with RESET_BUZZER. */
   z.object({ type: z.literal('RESET_IMAGE_REVEAL') }),
 
-  /*
-   * Play the video of this question from the start.
-   *
-   * THE QUESTION IS PART OF THE COMMAND because it could not be checked
-   * otherwise: a click that was on its way when the operator skipped the
-   * question would start the video of the next question. With the id the
-   * server refuses it.
-   *
-   * A second click is no special case - it simply creates a new request, and
-   * the stage plays from the start again. So there is neither "pause" nor
-   * "restart".
-   */
-  z.object({ type: z.literal('START_VIDEO'), questionId: z.string().min(1) }),
-  /** After the video phase, show the actual question. Same question, second phase. */
-  z.object({ type: z.literal('SHOW_QUESTION_AFTER_VIDEO') }),
   /**
    * Switch the language of the quiz.
    *
@@ -239,14 +224,6 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
   RESUME_IMAGE_REVEAL: ['operator', 'moderator'],
   REVEAL_IMAGE_COMPLETELY: ['operator'],
   RESET_IMAGE_REVEAL: ['operator'],
-  START_VIDEO: ['operator'],
-  /*
-   * The player too - because at the touch device there is no operator who
-   * could show the question. There the device is its own desk: it shows the
-   * video, it sees the video end, and it shows the question afterwards. In the
-   * hall nothing changes; there the command keeps coming from the desk.
-   */
-  SHOW_QUESTION_AFTER_VIDEO: ['operator', 'moderator', 'player'],
   /*
    * Anyone standing in front of the quiz may switch the language - at the
    * device the player, on the stage evening the operator. It changes no scoring
@@ -365,11 +342,6 @@ export const commandRejectionReasons = [
   'joker-no-answering-player',
   /** No such player in this game. */
   'unknown-player',
-  /* ---- The video question ---- */
-  /** The command names a question other than the one running. */
-  'video-question-mismatch',
-  /** This question has no video - there is nothing to play. */
-  'video-source-missing',
   'no-candidate-question',
   'nothing-to-resume',
   'invalid-patch',

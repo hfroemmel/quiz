@@ -3,7 +3,7 @@
  *
  * TWO THINGS THAT BELONG TOGETHER. Browsers block every audible playback
  * until a click or tap has happened once in THAT window. This affects the
- * sound cues and the video audio equally - and it affects, of all windows,
+ * sound cues - and it affects, of all windows,
  * the stage window, which is never touched during operation. That is why
  * this not only unlocks but also reports: the server assigns audio authority
  * to a window that is really allowed to sound (see `assignAudioMaster`).

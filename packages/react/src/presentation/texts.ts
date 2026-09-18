@@ -50,12 +50,6 @@ export const defaultTexts = {
   'result.winnerHeadline': '{player} hat gewonnen!',
   'result.solo': 'Ergebnis',
   'result.soloHeadline': '{correct} von {total} richtig',
-  'video.missing': 'Kein Video hinterlegt.',
-  /*
-   * The video's status - only in the operator preview. In the hall the
-   * image sits at this spot instead.
-   */
-
   /* Device: start selection */
   'kiosk.setupTitle': 'Spiel starten',
   'kiosk.setupSubtitle': 'Wähle Modus und Schwierigkeit.',
@@ -158,7 +152,6 @@ export const englishTexts: Record<TextKey, string> = {
   'result.winnerHeadline': '{player} wins!',
   'result.solo': 'Result',
   'result.soloHeadline': '{correct} out of {total} correct',
-  'video.missing': 'No video available.',
 
   /* Device: start selection */
   'kiosk.setupTitle': 'Start a game',

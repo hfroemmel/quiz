@@ -11,7 +11,6 @@ import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import {
   QUIZ_PACKAGE_SCHEMA_VERSION,
   mediaAssetSchema,
-  type ContentProfile,
   questionSchema,
   quizConfigSchema,
   quizPackageManifestSchema,
@@ -37,44 +36,6 @@ export interface RawSource {
 }
 
 /** Reads a source directory (`content/source`) without validating. */
-/**
- * Applies a content profile to the source.
- *
- * `no-video` filters out everything video-related for the offline apps:
- *   - video questions are dropped,
- *   - video files leave the media directory,
- *   - question slots that demand a video (`hasVideo: true`) lose exactly that
- *     filter and become free slots - the number of slots per preset stays,
- *     only the dramaturgy of the video slot is gone.
- *
- * The transformation runs BEFORE validation: both profiles are checked as
- * their own, complete source.
- */
-export function applyContentProfile(source: RawSource, profile: ContentProfile): RawSource {
-  if (profile === 'full') return source
-
-  /*
-   * A QUESTION WITH A VIDEO GOES, whatever type it is. The video used to BE
-   * the type, so this filtered on `video-then-question`; now the clip is a
-   * step in front of any question, and it is the clip that cannot travel.
-   */
-  const questions = Array.isArray(source.questions)
-    ? source.questions.filter((question) => (question as { video?: unknown }).video === undefined)
-    : source.questions
-  const assets = source.assets.filter((asset) => asset.kind !== 'video')
-
-  const config = structuredClone(source.config) as {
-    presets?: { slots?: { filters?: { hasVideo?: boolean } }[] }[]
-  }
-  for (const preset of config?.presets ?? []) {
-    for (const slot of preset.slots ?? []) {
-      // A slot that demanded a video becomes a free one - the count stays.
-      if (slot.filters?.hasVideo === true) delete slot.filters.hasVideo
-    }
-  }
-
-  return { config, questions, assets, rootDir: source.rootDir }
-}
 
 export function readSource(sourceDir: string): RawSource {
   const config = readJson(join(sourceDir, CONFIG_FILE))
@@ -128,8 +89,6 @@ export interface BuildOptions {
   createdAt: string
   /** See `ValidationInput.missingMediaSeverity`. Default is `'error'`. */
   missingMediaSeverity?: IssueSeverity
-  /** Content profile. Default is `full`. */
-  profile?: ContentProfile
 }
 
 export interface BuildResult {
@@ -145,8 +104,7 @@ export interface BuildResult {
  * pass through but have to be consciously approved in the report.
  */
 export function buildPackage(options: BuildOptions): BuildResult {
-  const profile: ContentProfile = options.profile ?? 'full'
-  const source = applyContentProfile(readSource(options.sourceDir), profile)
+  const source = readSource(options.sourceDir)
   const validation = validateSource(source, {
     contentVersion: options.contentVersion,
     missingMediaSeverity: options.missingMediaSeverity,
@@ -190,11 +148,11 @@ export function buildPackage(options: BuildOptions): BuildResult {
    */
   const mediaFiles = new Set<string>(assets.map((asset) => asset.filename))
   for (const question of normalizedQuestions) {
-    for (const medium of [question.image, question.video]) {
+    for (const medium of [question.image]) {
       if (medium) mediaFiles.add(medium.filename)
     }
     for (const translation of Object.values(question.translations ?? {})) {
-      for (const medium of [translation.image, translation.video]) {
+      for (const medium of [translation.image]) {
         if (medium) mediaFiles.add(medium.filename)
       }
     }
@@ -222,7 +180,6 @@ export function buildPackage(options: BuildOptions): BuildResult {
     contentVersion: options.contentVersion,
     createdAt: options.createdAt,
     sourceRevision: options.sourceRevision,
-    ...(profile === 'full' ? {} : { profile }),
     questionsFile: QUESTIONS_FILE,
     configFile: CONFIG_FILE,
     assets,

@@ -13,7 +13,7 @@ import type { JokerSequence, PlayerJokerStates } from './joker'
  *
  * Impossible combinations are prevented structurally: opening the buzzer
  * depends on the phase alone (see `packages/domain/src/buzzer.ts`), so for
- * instance `video` can never have an open buzzer.
+ * instance `pause-screen` can never have an open buzzer.
  */
 export const gamePhases = [
   /** No game active. */
@@ -25,15 +25,6 @@ export const gamePhases = [
    * The moderator reads the question aloud before the operator opens it.
    */
   'question-presented',
-  /**
-   * Video part of a video question: the video area stands, the buzzer is locked.
-   *
-   * ONE PHASE, NOT THREE. Whether the video is playing, loading or already
-   * finished is known only to the client that plays it - the server does not
-   * learn it and does not need to. What it tracks is the section of the
-   * question: video on the screen, and on it goes via `SHOW_QUESTION_AFTER_VIDEO`.
-   */
-  'video',
   /** Buzzer open (normal question). */
   'buzzer-open',
   /** A player holds the buzz, the operator logs the answer. */
@@ -153,38 +144,6 @@ export interface RevealClockState {
   elapsedBeforeStartMs: number
 }
 
-/**
- * The request to play a video - and explicitly NOT a playback status.
- *
- * It says: "play the video of this question, from the start." It does not say
- * whether it is loaded, started, far along or finished; none of that is in the
- * server state, and nobody reports it back. The flow runs one way - desk,
- * server, stage - and ends there.
- *
- * IT LIVES IN THE STATE AND NOT IN AN EVENT. A fleeting event is missed by
- * whoever loses the connection at the wrong moment. A request in the snapshot
- * is still there after a reload, and a stage that joins just now executes it
- * exactly once.
- */
-export interface VideoPlaybackRequest {
-  /**
-   * Question this request belongs to.
-   *
-   * This lets the stage recognise a request that does not belong to what it
-   * currently shows - and leave it be instead of starting the wrong video.
-   */
-  questionId: string
-  /**
-   * Identity of THIS request. Every accepted click creates a new one.
-   *
-   * It is the whole mechanism: the same id means "already executed", a new id
-   * means "start from second zero". So there is neither a confirmation nor a
-   * status value.
-   */
-  requestId: string
-  /** ISO timestamp of acceptance - for the log, not for the flow. */
-  requestedAt: string
-}
 
 /** A question used in the game, including game-specific presentation data. */
 export interface RuntimeQuestion {
@@ -258,7 +217,6 @@ export interface GameState {
   buzzer: BuzzerState
   attempts: AnswerAttempt[]
   reveal?: RevealClockState
-  video?: VideoPlaybackRequest
 
   /** Global sound status; kept during the game. */
   soundEnabled: boolean

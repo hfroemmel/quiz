@@ -77,8 +77,6 @@ startable.
 | `RESUME_IMAGE_REVEAL` | operator, moderator | yes |
 | `REVEAL_IMAGE_COMPLETELY` | operator | yes |
 | `RESET_IMAGE_REVEAL` | operator | yes |
-| `START_VIDEO` | operator | yes |
-| `SHOW_QUESTION_AFTER_VIDEO` | operator, moderator, player | yes |
 | `ADJUST_SCORE` | operator | yes |
 | `CONTINUE` | operator, moderator, player | yes |
 | `ABORT_GAME` | operator, player | yes |
@@ -129,7 +127,7 @@ does not know the sender.
 
 **Operator** (only from the event laptop) has full technical control: start
 and abort the game, buzzer and player assignment, log and evaluate answers,
-resolve, advance, control image reveal and video, correct points, sound and
+resolve, advance, control the image reveal, correct points, sound and
 fullscreen, skip, correct, or disable questions, technical recovery.
 
 **Moderator** (iPad on the LAN, session code required) is allowed to do
@@ -139,7 +137,7 @@ pause and resume the image reveal, open the next answer phase. They are
 edit content, or reset data. Moderator actions appear in the operator log.
 
 **Stage clients** are not allowed to send any control commands at all -
-without exception. They also do not report anything back about the video;
+without exception. They also report nothing back about their media;
 whatever loads, plays, or fails there stays in the window (see
 `docs/zustandsmaschine.md`).
 

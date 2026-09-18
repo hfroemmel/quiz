@@ -131,18 +131,6 @@ export function availableCommands(state: GameState | null): CommandType[] {
       list.add('SKIP_QUESTION')
       break
 
-    /*
-     * The video has exactly one button, and it stays available for the whole
-     * phase: the server does not know whether it is playing right now, and a
-     * second click is simply a new request from the start. "Show question"
-     * next to it is no video control but the next step of the flow.
-     */
-    case 'video':
-      list.add('START_VIDEO')
-      list.add('SHOW_QUESTION_AFTER_VIDEO')
-      list.add('SKIP_QUESTION')
-      break
-
     case 'solution':
       list.add('CONTINUE')
       break

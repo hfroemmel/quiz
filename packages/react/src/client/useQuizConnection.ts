@@ -33,13 +33,6 @@ export interface QuizConnection<TView extends PublicQuizViewModel> {
   /** Only one client plays sounds. */
   audioMaster: boolean
   /**
-   * May this client sound a VIDEO it plays?
-   *
-   * A second authority, because it is a second set of windows: the cues may
-   * sound from the operator's window, a video only where the room sees it.
-   */
-  videoAudioMaster: boolean
-  /**
    * Reports to the server that this window is allowed to output audible sound.
    *
    * The server then chooses the audio authority accordingly. The call can be
@@ -91,7 +84,6 @@ export function useQuizConnection<TView extends PublicQuizViewModel>(
       view: snapshot?.view ?? null,
       connected: snapshot?.connection.connected ?? false,
       audioMaster: snapshot?.connection.audioMaster ?? false,
-      videoAudioMaster: snapshot?.connection.videoAudioMaster ?? false,
       notifyAudioReady,
       lastRejection: snapshot?.lastRejection ?? null,
       clearRejection,

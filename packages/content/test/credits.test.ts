@@ -46,11 +46,10 @@ describe('uncreditedImages', () => {
     expect(uncreditedImages([withImage('q1', 'questions/a.jpg', '   ')])).toHaveLength(1)
   })
 
-  it('ignores questions without a picture, and the videos of those that have one', () => {
+  it('ignores questions without a picture', () => {
     const plain = question({ id: 'q1', questionType: 'text-choice' })
-    const video = question({ id: 'q2', questionType: 'text-choice', video: { filename: 'video/v.mp4' } })
 
-    expect(uncreditedImages([plain, video])).toEqual([])
+    expect(uncreditedImages([plain])).toEqual([])
   })
 
   it('keeps the order of the questions, so the list reads like the table', () => {

@@ -71,5 +71,5 @@ export const animationClips = {
 
 export type AnimationClipId = keyof typeof animationClips
 
-/** Confetti exists as an animated SVG and runs without a video decoder. */
+/** Confetti exists as an animated SVG and needs no decoder at all. */
 export const confettiOverlayUrl: string = confettiSvg

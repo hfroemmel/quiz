@@ -20,7 +20,7 @@ content/dist/
   config.json       quiz types, audiences, pools, presets, themes, categories, difficulties
   questions.json    all questions, sorted by ID
   assets.json       media directory
-  assets/           images and videos
+  assets/           images and audio
 ```
 
 ## Manifest
@@ -29,7 +29,6 @@ content/dist/
 {
   "schemaVersion": "2.0.0",
   "contentVersion": "1.0.1",
-  "profile": "no-video",   // absent in the full profile
   "createdAt": "2026-08-18T05:36:00.000Z",
   "questionsFile": "questions.json",
   "configFile": "config.json",
@@ -70,7 +69,6 @@ hotfixes instead.
   "acceptedAnswerText": ["Canberra"],             // for spoken answers
 
   "image": { "filename": "questions/…jpg", "credit": "Foto: …" },
-  "video": { "filename": "video/…mp4" },   // runs BEFORE the question, whatever its type
 
   "explanation": {
     "summary": "Short text for the moderator's lead-in - internal",
@@ -103,7 +101,7 @@ Important:
 ```jsonc
 {
   "id": "img-bauwerk-brandenburger-tor",
-  "kind": "image",                       // image | video | audio
+  "kind": "image",                       // image | audio
   "filename": "images/img-bauwerk-brandenburger-tor.svg",   // relative, without ".."
   "mimeType": "image/svg+xml",
   "credit": "Image credit",
@@ -266,21 +264,6 @@ configuration into the menu the device shows (`StartMenu` in
 `playerCounts`, `artworkAssetId`, `emphasis` and `order` are the four fields a
 menu reads beyond the quiz itself: what may play it, which motif its card
 carries, whether the card takes the whole row, and where it stands.
-
-## Content profiles
-
-The same source produces two packages:
-
-| Profile | Invocation | Content |
-|---|---|---|
-| `full` | `quiz-content build` | everything, including video questions |
-| `no-video` | `quiz-content build --profile no-video` | without video questions and video files |
-
-`no-video` powers the offline apps: it removes video questions and video
-media and strips the video type from the question-slot filters. The NUMBER of
-question slots per preset stays the same - a slot that only allowed video
-questions becomes a free slot. Both profiles are validated separately; the
-built package names its profile in the manifest.
 
 Which pools a game draws from is decided by `START_GAME` - either via the quiz
 type (`quizId`, with the pools listed in `quizzes`) or directly (`audience`,

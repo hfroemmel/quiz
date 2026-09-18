@@ -136,7 +136,6 @@ export const questionTranslationSchema = z.object({
   explanation: questionExplanationSchema.optional(),
   /** A picture with words in it is a different picture in another language. */
   image: questionAssetSchema.optional(),
-  video: questionAssetSchema.optional(),
 })
 export type QuestionTranslation = z.infer<typeof questionTranslationSchema>
 
@@ -176,14 +175,6 @@ export const questionSchema = z.object({
    * Which types need one is decided by `presentationNeedsImage`.
    */
   image: questionAssetSchema.optional(),
-  /**
-   * A clip that runs BEFORE the question - whatever the question is.
-   *
-   * It used to be a presentation type of its own, which made every video
-   * question a text choice afterwards. A video in front of an image reveal is
-   * a sentence one can now write.
-   */
-  video: questionAssetSchema.optional(),
   explanation: questionExplanationSchema.optional(),
   /** Versions in other locales, by locale tag. Anything missing falls back. */
   translations: z.record(z.string().min(2), questionTranslationSchema).optional(),
@@ -225,7 +216,14 @@ export function isSelfServiceAnswerable(question: Question): boolean {
 
 export const mediaAssetSchema = z.object({
   id: idSchema,
-  kind: z.enum(['image', 'video', 'audio']),
+  /*
+   * A picture or a sound. The moving picture is gone: a clip before the
+   * question was its own section of the flow, its own scene, its own audio
+   * authority and its own two commands, and it earned none of that - the
+   * rounds that shipped carried no video, and the only ones that ever existed
+   * were fixtures for the tests of the feature itself.
+   */
+  kind: z.enum(['image', 'audio']),
   /** Path relative to the asset root of the package. Never absolute, never with "..". */
   filename: z
     .string()
@@ -264,17 +262,6 @@ export const questionSlotRuleSchema = z.object({
       evaluationModes: z.array(z.enum(evaluationModes)).optional(),
       categoryIds: z.array(idSchema).optional(),
       tags: z.array(idSchema).optional(),
-      /**
-       * Does the question bring a video?
-       *
-       * IT USED TO BE A TYPE (`video-then-question`), and that made the video
-       * the presentation: a question with a clip in front of it was a text
-       * choice afterwards and could never have been an image reveal. The video
-       * is a step BEFORE the question now, whatever the question is, so a slot
-       * that wants one asks for one. `true` demands a video, `false` excludes
-       * one, and leaving it out means it does not matter.
-       */
-      hasVideo: z.boolean().optional(),
     })
     .default({}),
 })
@@ -554,15 +541,19 @@ export type QuizConfig = z.infer<typeof quizConfigSchema>
  * Package (section 24.3)
  * ------------------------------------------------------------------ */
 
-/** Content profiles of the pipeline. `no-video` serves the offline apps. */
-export const contentProfiles = ['full', 'no-video'] as const
-export type ContentProfile = (typeof contentProfiles)[number]
-
 export const quizPackageManifestSchema = z.object({
   schemaVersion: z.string().min(1),
   contentVersion: z.string().min(1),
-  /** Content profile of the build. If missing (older packages), `full` applies. */
-  profile: z.enum(contentProfiles).optional(),
+  /**
+   * The profile a package was built with.
+   *
+   * THE PIPELINE NO LONGER HAS ONE. It had two - `full` and `no-video`, the
+   * second one for the offline applications, which could not ship the clips -
+   * and with the video feature gone the distinction is gone with it. The field
+   * stays readable so packages built before that still load; nothing reads the
+   * value.
+   */
+  profile: z.string().optional(),
   createdAt: z.string().min(1),
   sourceRevision: z.string().optional(),
   questionsFile: z.string().min(1),
@@ -598,7 +589,6 @@ export const patchableQuestionFieldsSchema = questionSchema
     acceptedAnswerText: true,
     explanation: true,
     image: true,
-    video: true,
     enabled: true,
   })
   .partial()

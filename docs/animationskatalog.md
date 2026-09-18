@@ -26,9 +26,8 @@ How animations are technically set up and changed is described in
 |---|---|---|---|---|---|---|
 | `scene-fade` | any → `pause` | 400 ms | 120 ms | standard | cross-fade of the whole area | `scene-change` |
 | `question-enter` | `pause`/`start` → `question` | 420 ms | 120 ms | emphasized | media and text rise 12 px and fade in | `question-appear` |
-| `options-stagger` | within `question` | 70 ms offset per row | 0 ms | standard | answer bars slide in one after another from the left, 16 px | - |
+| `options-stagger` | within `question` | 380 ms per row (`optionEnterMs`), 70 ms offset (`optionStaggerMs`) | 0 ms | standard | answer rows rise 1.4 cqw and fade in, one after another | - |
 | `reveal-enter` | `question` → `reveal` | 420 ms | 120 ms | emphasized | the covered image area fades in | `question-appear` |
-| `video-enter` | any → `video` | 640 ms | 120 ms | emphasized | video area grows from the center (90% → 100%), rises slightly, and fades in | - |
 | `solution-reveal` | `feedback` → `solution` | 520 ms | 150 ms | emphasized | solution bar grows from the center to full width, text fades in 120 ms later | `solution` |
 | `result-celebration` | `solution` → `result` | 6000 ms | 0 ms | standard | confetti falls, result tiles rise 20 px | `result` |
 | `start-return` | any → `start` | 400 ms | 120 ms | standard | cross-fade to the start image | `scene-change` |
@@ -46,7 +45,6 @@ the answer zone. It also runs when the options only appear after `Starten`
 | `option-choose` | answer logged in | 200 ms | 80 ms | chosen bar colors to `--accent` | - |
 | `option-clear` | `Zurücksetzen` ("Reset") | 200 ms | 80 ms | coloring falls back to neutral | - |
 | `options-appear` | `Starten` ("Start") | 420 ms | 120 ms | answer zone expands, then `options-stagger` | `question-appear` |
-| `video-exit` | video finished playing (`video.status = ended`) | 700 ms (`videoExitMs`) | 1 ms | video area fades out and recedes slightly; the element only stops afterward | - |
 | `score-count-up` | score changes | 600 ms | n/a | digits count up from the old to the new snapshot value | `score` |
 | `score-stars` | score **increases** | 1000 ms | n/a | delivered graphic `stars.webm` plays over the score tile | - |
 

@@ -50,7 +50,7 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
     view: null,
     revision: 0,
     serverTimeMs: Date.now(),
-    connection: { connected: false, audioMaster: false, videoAudioMaster: false },
+    connection: { connected: false, audioMaster: false },
     lastRejection: null,
   }
 
@@ -188,12 +188,6 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
           connection: {
             ...this.snapshot.connection,
             audioMaster: message.audioMaster,
-            /*
-             * A server that does not know the second authority yet says
-             * nothing about it; then the cue authority decides, exactly as it
-             * did before. A silent video is the old behaviour, not a new one.
-             */
-            videoAudioMaster: message.videoAudioMaster ?? message.audioMaster,
           },
         })
         break

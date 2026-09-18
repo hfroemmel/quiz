@@ -288,6 +288,41 @@ test.describe('Kiosk layout, single player', () => {
 })
 
 /*
+ * THE SCORE MAY RISE, THE HEAD MAY NOT MOVE.
+ *
+ * The points cell used to be as wide as the number in it, so the first
+ * correct answer of a round - nought becoming a hundred - widened the card and
+ * pushed the counter and the other player's card sideways, at exactly the
+ * moment everybody is looking at the score. The cell reserves three digits
+ * now, which is the most a round produces (seven questions at a hundred
+ * points).
+ *
+ * THE NUMBER IS WRITTEN INTO THE CELL HERE instead of being played for: what
+ * is asked is a property of the cell's width, not of the engine's scoring -
+ * the points a correct answer is worth are counted in `touch-play.spec.ts`.
+ */
+test('the head group stands still while a score grows to three digits', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+
+  const points = page.locator('[data-score-group="player-1"] [data-score-value="points"]')
+  const neighbour = page.locator('[data-score-group="player-2"]')
+  const width = () =>
+    points.evaluate((node) => {
+      const cell = (node as HTMLElement).closest('div')!
+      return Number(cell.getBoundingClientRect().width.toFixed(1))
+    })
+  const write = (value: string) => points.evaluate((node, text) => ((node as HTMLElement).textContent = text), value)
+
+  await write('0')
+  const narrow = await width()
+  const place = await box(neighbour)
+
+  await write('700')
+  expect(await width()).toBe(narrow)
+  await expectSamePlace(neighbour, place)
+})
+
+/*
  * THE OTHER HALF OF THE STATEMENT.
  *
  * Everything above describes one arrangement; this describes what must NOT

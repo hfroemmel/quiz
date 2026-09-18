@@ -16,7 +16,7 @@ import type { PublicScene } from '@hfroemmel/quiz-core'
 import { prefersReducedMotion } from '../animationPresets'
 import type { PresentationTransitionDefinition } from './types'
 import { fadeThroughPause } from './fadeThrough'
-import { questionEnter, revealEnter, videoEnter } from './questionEnter'
+import { questionEnter, revealEnter } from './questionEnter'
 import { correctFeedback } from './correctFeedback'
 import { incorrectFeedback } from './incorrectFeedback'
 import { solutionReveal } from './solutionReveal'
@@ -26,7 +26,6 @@ export const transitions: PresentationTransitionDefinition[] = [
   fadeThroughPause,
   questionEnter,
   revealEnter,
-  videoEnter,
   correctFeedback,
   incorrectFeedback,
   solutionReveal,

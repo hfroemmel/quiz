@@ -20,9 +20,6 @@ const revealQuestion = (id: string) =>
     acceptedAnswerText: ['Brandenburger Tor'],
     image: { filename: 'questions/img-1.jpg' },
   })
-const videoQuestion = (id: string) =>
-  makeQuestion({ id, video: { filename: 'video/vid-1.mp4' } })
-
 const sevenNormal = () => Array.from({ length: 7 }, (_, index) => normalQuestion(`q${index + 1}`))
 
 describe('Game start and flow', () => {
@@ -73,23 +70,6 @@ describe('Buzzer rules', () => {
     harness.expectReject({ type: 'BUZZ', playerId: 'player-1' })
     expect(harness.state!.revision).toBe(revisionAfterFirst)
     expect(harness.state!.attempts).toHaveLength(1)
-  })
-
-  it('the buzzer is locked during the video', () => {
-    const harness = createHarness([videoQuestion('v1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    expect(harness.state!.phase).toBe('video')
-
-    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-1' }).reason).toBe('invalid-phase')
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'v1' })
-    expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.buzzer.open).toBe(false)
-    expect(harness.expectReject({ type: 'BUZZ', playerId: 'player-2' }).reason).toBe('invalid-phase')
-
-    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
-    harness.dispatch({ type: 'OPEN_BUZZER' })
-    harness.dispatch({ type: 'BUZZ', playerId: 'player-2' })
-    expect(harness.state!.buzzer.acceptedPlayerId).toBe('player-2')
   })
 
   it('manual player selection passes the same validation as the buzzer', () => {
@@ -887,155 +867,6 @@ describe('Self-service', () => {
     expect(rejection.reason).toBe('no-candidate-question')
   })
 
-  it('starts the video on the device by itself and fades in the question after the end', () => {
-    /*
-     * At the touch device nobody is at the desk. So the server issues the
-     * request itself - after a short lead-in, so that the video area comes up
-     * first. Only the device sees the end, and it shows the question itself
-     * afterwards.
-     */
-    const harness = createHarness([videoQuestion('video-1')])
-    startGame(harness, selfService)
-    expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.video).toBeUndefined()
-
-    harness.advance(selfServiceTiming.videoLeadInMs)
-    // The request stands - the phase has NOT changed.
-    expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.video).toMatchObject({ questionId: 'video-1' })
-    expect(harness.state!.pendingTransition).toBeUndefined()
-
-    // The server waits for nothing: even long after, the question does not stand.
-    harness.advance(60_000)
-    expect(harness.state!.phase).toBe('video')
-
-    /*
-     * And the device may do that: `SHOW_QUESTION_AFTER_VIDEO` is open to the
-     * player, because there is no desk there that could take the step.
-     */
-    expect(roleMayIssue('player', 'SHOW_QUESTION_AFTER_VIDEO')).toBe(true)
-    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
-    expect(harness.state!.phase).toBe('question-presented')
-    harness.advance(selfServiceTiming.questionLeadInMs)
-    expect(harness.state!.phase).toBe('buzzer-open')
-  })
-
-  it('publishes a job on command and waits for nothing afterwards', () => {
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.video).toBeUndefined()
-
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-
-    const task = harness.state!.video!
-    expect(task.questionId).toBe('video-1')
-    expect(task.requestId).toBeTruthy()
-    expect(task.requestedAt).toBeTruthy()
-    /*
-     * NO SCHEDULED END. The server does not know the duration and does not
-     * mirror it - the end of the video is no server-side transition.
-     */
-    expect(harness.state!.pendingTransition).toBeUndefined()
-    expect(harness.state!.phase).toBe('video')
-
-    // Even after any length of time everything stays as it is.
-    harness.advance(10 * 60_000)
-    expect(harness.state!.phase).toBe('video')
-    expect(harness.state!.video).toEqual(task)
-  })
-
-  it('creates a new job on every click', () => {
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-    const firstOne = harness.state!.video!.requestId
-    harness.advance(3_000)
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-
-    // A new id is the whole message: the stage plays from the start again.
-    expect(harness.state!.video!.requestId).not.toBe(firstOne)
-    expect(harness.state!.video!.questionId).toBe('video-1')
-  })
-
-  it('rejects a click that belongs to another question', () => {
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-
-    const rejectedCount = harness.expectReject({ type: 'START_VIDEO', questionId: 'video-von-gestern' })
-    expect(rejectedCount.reason).toBe('video-question-mismatch')
-    expect(harness.state!.video).toBeUndefined()
-  })
-
-  it('rejects a click when no video is attached to the question', () => {
-    /*
-     * A question without a video never reaches the video phase now - the clip
-     * is what puts it there. So the refusal is the phase, not a missing source:
-     * `video-source-missing` was a second finding for the same fact and is gone
-     * with the type that could promise a video it did not carry.
-     */
-    const withoutVideo = { ...videoQuestion('video-1'), video: undefined }
-    const harness = createHarness([withoutVideo, ...sevenNormal().slice(1)])
-    startGame(harness)
-
-    expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe('invalid-phase')
-  })
-
-  it('rejects a click outside the video phase', () => {
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
-
-    expect(harness.expectReject({ type: 'START_VIDEO', questionId: 'video-1' }).reason).toBe('invalid-phase')
-  })
-
-  it('offers only start, reveal and skip at the desk', () => {
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-
-    const allowed = harness.operatorView().allowedCommands
-    expect(allowed).toEqual(expect.arrayContaining(['START_VIDEO', 'SHOW_QUESTION_AFTER_VIDEO', 'SKIP_QUESTION']))
-    /*
-     * What no longer exists: pausing, restarting and the client's status
-     * report. A button for those would be a button for a state nobody tracks
-     * any more.
-     */
-    expect(allowed).not.toContain('PAUSE_VIDEO')
-    expect(allowed).not.toContain('RESTART_VIDEO')
-    expect(allowed).not.toContain('REPORT_VIDEO_STATUS')
-
-    // And the start button stays for the whole phase, also after a click.
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-    expect(harness.operatorView().allowedCommands).toContain('START_VIDEO')
-  })
-
-  it('clears the job as soon as the question is faded in', () => {
-    /*
-     * Otherwise every window reloading now would execute it - and the video
-     * would start again underneath the question already standing.
-     */
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-    expect(harness.state!.video).toBeDefined()
-
-    harness.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
-    expect(harness.state!.phase).toBe('question-presented')
-    expect(harness.state!.video).toBeUndefined()
-  })
-
-  it('carries the job unchanged into the snapshot', () => {
-    const harness = createHarness([videoQuestion('video-1'), ...sevenNormal().slice(1)])
-    startGame(harness)
-    harness.dispatch({ type: 'START_VIDEO', questionId: 'video-1' })
-
-    const task = harness.state!.video!
-    for (const view of [harness.publicView(), harness.operatorView()]) {
-      // Id and question - and nothing about the playback.
-      expect(view.video).toEqual({ questionId: 'video-1', requestId: task.requestId })
-    }
-  })
 })
 
 describe('Role permissions', () => {

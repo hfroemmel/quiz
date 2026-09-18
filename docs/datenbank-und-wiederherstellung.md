@@ -59,7 +59,6 @@ For live safety, "restore paused after a crash" applies deliberately:
 * A **running reveal** at the time of the crash is restored as `paused`,
   frozen at the last persisted state; the phase is set to `reveal-paused`
   accordingly. The buzzer stays open.
-* A **running video** is paused at the last known position.
 * A **timed transition** (feedback, break screen) is completed immediately
   on resume, instead of waiting out a deadline that has long since expired.
 
@@ -71,7 +70,7 @@ After a network interruption, a client immediately receives:
 * the current revision
 * the server time for synchronization
 * the allowed commands
-* the running reveal or video state, if any
+* the running reveal state, if any
 
 Clients never need to reconstruct missed individual events. The web client
 reconnects automatically with increasing intervals (0.5 s to 8 s).

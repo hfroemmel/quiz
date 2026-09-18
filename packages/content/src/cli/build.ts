@@ -44,9 +44,6 @@ if (existsSync(previousManifestPath)) {
 
 /** See `pnpm content:validate --placeholder-media`. */
 const placeholderMedia = args.includes('--placeholder-media')
-/** `--profile no-video` filters video questions and media for the offline apps. */
-const profile = flagValue(args, 'profile') === 'no-video' ? ('no-video' as const) : ('full' as const)
-
 const contentVersion = nextContentVersion()
 const result = buildPackage({
   sourceDir,
@@ -55,7 +52,6 @@ const result = buildPackage({
   sourceRevision: process.env['SOURCE_REVISION'],
   createdAt: new Date().toISOString(),
   missingMediaSeverity: placeholderMedia ? 'warning' : 'error',
-  profile,
 })
 
 const report = formatValidationReport(result.validation, {

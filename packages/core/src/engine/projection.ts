@@ -144,8 +144,6 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
     case 'answer-locked':
     case 'second-chance':
       return 'question'
-    case 'video':
-      return 'video'
     case 'reveal-ready':
     case 'reveal-running':
     case 'reveal-paused':
@@ -187,7 +185,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
    */
   const question = runtime ? questionTextFor(runtime.question, locale) : undefined
   const active = activePlayerId(state)
-  const showsQuestion = scene === 'question' || scene === 'feedback' || scene === 'solution' || scene === 'reveal' || scene === 'video'
+  const showsQuestion = scene === 'question' || scene === 'feedback' || scene === 'solution' || scene === 'reveal'
 
   const publicQuestion: PublicQuestion | undefined =
     showsQuestion && question
@@ -196,7 +194,6 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           prompt: question.prompt,
           presentationType: question.questionType,
           imageUrl: ctx.mediaUrl(question.image?.filename),
-          videoUrl: scene === 'video' ? ctx.mediaUrl(question.video?.filename) : undefined,
           categoryLabel: categoryLabel(question, ctx, locale),
         }
       : undefined
@@ -256,7 +253,6 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
      * already. The timestamp stays in the server state: it belongs to the log,
      * and the stage decides on the id alone.
      */
-    video: state.video ? { questionId: state.video.questionId, requestId: state.video.requestId } : undefined,
     result:
       scene === 'result'
         ? { ...determineResult(state), scores }
@@ -982,8 +978,6 @@ function nextStepHint(state: GameState | null): string {
       return 'Frage steht. Vorlesen, dann "Antworten einblenden".'
     case 'reveal-ready':
       return 'Bild steht unscharf. Vorlesen, dann "Enthüllung starten".'
-    case 'video':
-      return 'Videofrage: "Video starten" spielt es auf der Bühne ab, "Frage einblenden" geht weiter. Buzzern ist erst nach dem Video möglich.'
     case 'buzzer-open':
       return 'Buzzer offen. Wer zuerst drückt, antwortet.'
     case 'reveal-running':

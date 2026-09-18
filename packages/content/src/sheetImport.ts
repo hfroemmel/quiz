@@ -53,8 +53,6 @@ export interface SheetMapping {
     image?: string
     imageCredit?: string
     /** A clip that runs before the question - whatever type the question is. */
-    video?: string
-    videoCredit?: string
     explanation?: string
     source?: string
     tags?: string
@@ -88,7 +86,6 @@ export interface SheetMapping {
      * package, so it is stated once here instead of in every row.
      */
     imageDirectory?: string
-    videoDirectory?: string
   }
   /**
    * Translation of cell values to identifiers - one table per field.
@@ -125,8 +122,6 @@ export interface SheetMapping {
       explanation?: string
       image?: string
       imageCredit?: string
-      video?: string
-      videoCredit?: string
     }
   >
 }
@@ -153,20 +148,13 @@ export const defaultMapping: SheetMapping = {
     acceptedAnswerText: 'Antwort',
     image: 'Bild',
     imageCredit: 'Bildnachweis',
-    video: 'Video',
-    videoCredit: 'Videonachweis',
     explanation: 'Erklärung',
     source: 'Quelle',
   },
   defaults: { poolIds: ['bundestag'], audiences: ['adults'], locale: 'de-DE', difficulty: 'medium' },
   values: {
     difficulty: { leicht: 'easy', mittel: 'medium', schwer: 'hard' },
-    /*
-     * THE TYPE IS THE PRESENTATION, AND NOTHING ELSE. `video` is deliberately
-     * not in this table any more: a clip is a step in front of the question,
-     * so it comes from the video COLUMN and leaves the type alone. A video in
-     * front of a person question used to be unwritable.
-     */
+    /* THE TYPE IS THE PRESENTATION, AND NOTHING ELSE. */
     questionType: {
       text: 'text-choice',
       multiple_choice: 'text-choice',
@@ -288,7 +276,6 @@ function translationsOf(
       .filter((entry) => entry !== '')
     const explanation = at(group.explanation)
     const image = medium(at(group.image), at(group.imageCredit))
-    const film = medium(at(group.video), at(group.videoCredit))
 
     const entry = {
       ...(prompt ? { prompt } : {}),
@@ -296,7 +283,6 @@ function translationsOf(
       ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
       ...(explanation ? { explanation: { summary: explanation } } : {}),
       ...(image ? { image } : {}),
-      ...(film ? { video: film } : {}),
     }
     if (Object.keys(entry).length > 0) translations[locale] = entry
   }
@@ -379,7 +365,6 @@ function importRows(
       .filter((entry) => entry !== '')
 
     const image = medium(cell(to.image), cell(to.imageCredit), preset.imageDirectory)
-    const film = medium(cell(to.video), cell(to.videoCredit), preset.videoDirectory)
     const explanation = cell(to.explanation)?.trim()
     const source = cell(to.source)?.trim()
 
@@ -401,7 +386,6 @@ function importRows(
       ...(options.length >= 2 ? { options: options, correctOptionId } : {}),
       ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
       ...(image ? { image } : {}),
-      ...(film ? { video: film } : {}),
       ...(explanation || source
         ? { explanation: { ...(explanation ? { summary: explanation } : {}), ...(source ? { source: source } : {}) } }
         : {}),

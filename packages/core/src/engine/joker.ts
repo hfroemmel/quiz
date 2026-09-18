@@ -231,7 +231,7 @@ export function evaluateJokerDraw(
  * has one side.
  *
  * THE ANSWERS DECIDE THIS, NOT THE NAME OF THE TYPE. `image-reveal` is the case
- * because it carries no options, and a `video-then-question` carries them and
+ * because it carries no options, and a text choice carries them and
  * is therefore an ordinary choice question with a prologue. A list of type names
  * here would be a second rule beside `isChoiceQuestion` and would get the next
  * type wrong - which is exactly how a 50:50 could be drawn on a question with
