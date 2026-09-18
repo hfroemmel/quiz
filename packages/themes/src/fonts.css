@@ -77,10 +77,5 @@
   --font-heading: 'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --font-body: var(--font-heading);
   --font-display: 'Noto Sans Display', 'Segoe UI', system-ui, sans-serif;
-  /*
-   * The operator's control frame carries the same family, and keeps its own
-   * name for it: whoever wants the frame in a different one changes this
-   * line and leaves the stage untouched.
-   */
   --font-ui: var(--font-display);
 }

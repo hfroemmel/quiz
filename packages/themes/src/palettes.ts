@@ -648,7 +648,7 @@ export const brightStartPalette = {
    * a grey box. That applies to the settings window and the confirmation
    * prompt above it - the cards next to it go their own way, see `option`.
    */
-  surface: veil(weiss, 0.62),
+  surface: veil(weiss, 0.75),
   'surface-quiet': veil(weiss, 0.45),
   line: veil(brightInk, 0.1),
   'line-strong': veil(brightInk, 0.16),
