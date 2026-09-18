@@ -1,5 +1,23 @@
 # @hfroemmel/quiz-react
 
+## 0.23.1
+
+### Patch Changes
+
+- Scale the stage from its middle, and draw the buzzer larger
+  
+  Scene and head no longer shrink toward an edge but toward their centre, so a
+  device at a smaller zoom keeps its composition centred instead of drifting
+  to one side. The live stage drops the width cap that computed what was left for
+  the scene from an assumed head and foot; in the kiosk arrangement the scene
+  fills the width it is given and sits lower in the column.
+  
+  The drawn buzzer of the children's world is larger, and a score cell on the
+  default stage carries more air to its left and right.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.23.1
+  - @hfroemmel/quiz-themes@0.23.1
+
 ## 0.23.0
 
 ### Minor Changes
