@@ -1734,6 +1734,14 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  /*
+   * THE FIELD IS AS WIDE AS THE COLUMN, and it has to say so: the column
+   * centres its children, and the only child of this one is positioned
+   * absolutely - so the box had no content to take its width from and
+   * collapsed to nothing. The sentence inside it then wrapped at the narrowest
+   * point it could find, one word per line, in the middle of the screen.
+   */
+  align-self: stretch;
 }
 .kioskHint .noticeText {
   position: absolute;

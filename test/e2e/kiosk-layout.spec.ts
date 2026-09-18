@@ -117,6 +117,29 @@ test.describe('Kiosk layout, duel', () => {
     await expect(page.locator('[data-buzzer][data-side="left"]')).toHaveAccessibleName('Spieler 1 Buzzern')
   })
 
+  /*
+   * THE FIELD IS AS WIDE AS ITS COLUMN, and that is not a detail of taste: its
+   * sentence is positioned absolutely inside it, so the box had nothing to
+   * take a width from and collapsed - and a sentence in a box of no width
+   * wraps at every space, one word per line, in the middle of the screen. Text
+   * content alone does not see this; the lines do.
+   */
+  test('gives its hint the whole column, on one line', async ({ page }) => {
+    await startGame(page, 'Zu zweit')
+
+    const field = await box(page.locator('[data-hint]'))
+    const column = await box(page.locator('[data-kiosk-foot] [data-hint]').locator('..'))
+    expect(Math.round(field.width)).toBe(Math.round(column.width))
+
+    // One sentence, one line: its height is the height of a line of it.
+    const lines = await page.locator('[data-hint] span').evaluate((node) => {
+      const style = getComputedStyle(node)
+      const line = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2
+      return Math.round(node.getBoundingClientRect().height / line)
+    })
+    expect(lines).toBe(1)
+  })
+
   test('lights the corner that got the buzz and shuts the other one', async ({ page }) => {
     await startGame(page, 'Zu zweit')
     await page.locator('[data-buzzer][data-side="left"]').click()
