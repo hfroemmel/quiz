@@ -29,6 +29,8 @@
   position: relative;
   display: flex;
   align-items: flex-start;
+  border-radius: var(--stage-button-radius);
+  overflow: hidden;
 }
 /*
  * Wordmark. It sits as a mask over a colour area and thereby follows the
@@ -160,8 +162,6 @@
 :global(.stage--default.stage--touch[data-layout='kiosk']) .header {
   justify-content: center;
   padding: 2.25cqw 4cqw 0;
-}
-:global(.stage--default.stage--touch[data-layout='kiosk']) .header > * {
   scale: var(--stage-zoom, 1);
 }
 :global(.stage--default.stage--touch[data-layout='kiosk']) .brand,

@@ -105,7 +105,7 @@
   margin-bottom: 0.3cqw;
 }
 :global(.stage--default) .value {
-  font-size: 3cqw;
+  font-size: 2.7cqw;
   font-family: var(--font-heading);
 }
 /* The player whose turn it is carries the accent colour, a locked one the calm one. */

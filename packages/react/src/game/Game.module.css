@@ -1765,12 +1765,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5cqw;
-  min-height: 2.6cqw;
+  height: 3cqw;
   padding: 0.5cqw 1.2cqw;
   border: 0;
   border-radius: 0.6cqw;
   background: var(--stage-chip);
-  color: var(--stage-inkOnChip);
   font-family: var(--font-ui);
   font-size: 1.1cqw;
   font-weight: 600;
@@ -1780,13 +1779,6 @@
   width: 1.2cqw;
   height: 1.2cqw;
   flex: none;
-}
-.kioskEndRound:hover {
-  background: color-mix(in srgb, var(--stage-chip) 92%, var(--stage-inkOnChip));
-}
-.kioskEndRound:focus-visible {
-  outline: 0.2cqw solid var(--stage-inkOnChip);
-  outline-offset: 0.2cqw;
 }
 
 /*
