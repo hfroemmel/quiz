@@ -178,8 +178,7 @@
 :global(.stage--default) .answer[data-state='incorrect'] .chip,
 :global(.stage--default) .answer[data-state='disabled'] .surface,
 :global(.stage--default) .answer[data-state='disabled'] .chip {
-  color: var(--color-textMuted);
-  background: color-mix(in srgb, var(--color-option) 55%, transparent);
+  opacity: 0.33;
 }
 
 /*
