@@ -113,10 +113,6 @@
 :global(.stage--default) .score[data-active='true'] .cellPoints {
   background: var(--color-accent);
 }
-:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer,
-:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPoints {
-  background: var(--color-accentQuiet);
-}
 /* Butted together on the inside, rounded on the outside - the card reads as one block. */
 :global(.stage--default) .cell:first-child {
   border-top-right-radius: 0;
