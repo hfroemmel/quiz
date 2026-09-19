@@ -12,50 +12,24 @@ screen, and unreviewed AI corrections.
 ## Content
 
 * The catalog contains the **199 adopted questions** from the delivered set,
-  plus two lorem-ipsum test questions (`test-video`, `test-person`). The
+  plus the lorem-ipsum test question `test-person`. The
   images are real material, not placeholders.
 * Validation reports **85 warnings**. Most of them are missing explanation
   texts (42) and missing image credits (17) - both editorial work, not a
-  technical shortcoming. 21 warnings concern the deliberately small pools of
-  the two test slots (see below). Two questions (119, 127) carry two
+  technical shortcoming. 21 warnings concern the deliberately small pool of
+  the test slot (see below). Two questions (119, 127) carry two
   identical answer options and are therefore not playable.
 
-## Test slots at the start of every game
+## Test slot at the start of every game
 
-Question slots 1 and 2 are fixed in **all** presets to the two test
-questions, so the video question and portrait layout can be checked without
-playing through a full game. This is a development fixture, not dramaturgy:
-before the event, the two slots are replaced again by editorial filters in
-`content/source/config.json`.
+Question slot 2 is fixed in **all** presets to the portrait test question, so
+the portrait layout can be checked without playing through a full game. This
+is a development fixture, not dramaturgy: before the event, the slot is
+replaced again by an editorial filter in `content/source/config.json`.
 
-The test questions carry the category `saarbruecken` as a second category.
+The test question carries the category `saarbruecken` as a second category.
 This is not content but the key to the regional mode - it filters on this
-category and would otherwise have no candidate for the two slots.
-
-## Video questions
-
-The bundled `testvideo.mp4` is **test material without editorial approval**.
-It lives under `content/source/assets/video/` and is attached to the
-question `test-video`.
-
-The video logic is fully implemented and tested: buzzer lock during the
-video, start/pause/restart, `Frage einblenden` (show question) as the second
-phase of the same question, error message with `Frage überspringen` (skip
-question) when the medium fails to load. End-to-end case 7 of the
-specification runs.
-
-Two points about this:
-
-* **The Chromium of the test environment does not play the file.** It does
-  not recognize H.264 and AAC (`canPlayType` returns empty) and shows "Video
-  unavailable". The same file plays in the shipped browser and in the
-  desktop application. The end-to-end test therefore checks the flow, not
-  the playback.
-* **There is no seeking in the video.** The operator starts, pauses, and
-  restarts from the beginning. A position slider would require the playback
-  duration, and that is not available in the server state. Whoever needs it
-  must add the duration to the state - the stage client knows it from
-  `loadedmetadata`.
+category and would otherwise have no candidate for the slot.
 
 ## Native SQLite module
 

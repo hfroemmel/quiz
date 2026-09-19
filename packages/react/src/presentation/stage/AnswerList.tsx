@@ -98,6 +98,12 @@ export function AnswerList({ rows, onSelect, disabled, label }: AnswerListProps)
                 /* Offset of the entrance animation - the rows appear one after another. */
                 animationDelay: `${index * presentationTiming.optionStaggerMs}ms`,
                 /*
+                 * And its duration, which belongs to the row and not to the
+                 * scene: the answers are released in the middle of a question,
+                 * where no scene transition is running.
+                 */
+                '--option-enter-duration': `${presentationTiming.optionEnterMs}ms`,
+                /*
                  * And the same idea on stepping back: several answers taken
                  * out by a 50:50 step back one after another.
                  */

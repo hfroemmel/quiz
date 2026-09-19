@@ -557,8 +557,8 @@ test('the idle watch releases the device again', async ({ page }) => {
   /*
    * Eight seconds instead of two minutes - the supervision limit comes in as
    * an operating setting. It must not be any shorter here: the countdown runs
-   * from the start of the game, and the lead-in of video and interstitial
-   * screen still counts towards it.
+   * from the start of the game, and the lead-in of the interstitial screen
+   * still counts towards it.
    */
   await page.goto('/play?idle=8')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })

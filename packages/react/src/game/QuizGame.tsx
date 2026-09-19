@@ -238,16 +238,22 @@ export function QuizGame({
   const [askExit, setAskExit] = useState(false)
 
   /*
-   * The default from the config file applies on every start - but only once:
-   * after that, the toggle belongs to whoever stands in front of the device,
-   * until the next start.
+   * THE HOST'S SWITCH IS FOLLOWED, AND IT KEEPS BEING FOLLOWED.
+   *
+   * It applies on every start - and again whenever the host CHANGES it, which
+   * is the case this ref exists for: an application with a sound button of its
+   * own (the media table has one in its bar) switches it while the quiz is
+   * open, and a quiz that had only read the value once went on sounding into a
+   * room that had just asked for quiet. What is remembered is the last value
+   * TAKEN FROM THE HOST, so a device's own toggle in between still works and is
+   * only overruled when the host says something new.
    */
-  const soundSetRef = useRef(false)
+  const soundFromHost = useRef<boolean | undefined>(undefined)
   useEffect(() => {
-    if (soundDefault === undefined || soundSetRef.current) return
+    if (soundDefault === undefined || soundFromHost.current === soundDefault) return
     const state = snapshot?.view
     if (!state) return
-    soundSetRef.current = true
+    soundFromHost.current = soundDefault
     if (state.soundEnabled !== soundDefault) send({ type: 'SET_SOUND_ENABLED', enabled: soundDefault })
   }, [soundDefault, snapshot, send])
 
@@ -537,6 +543,14 @@ export function QuizGame({
         data-skin={skin}
         data-theme={variant}
         data-surface={surface}
+        /*
+         * WHETHER THIS DEVICE SOUNDS, readable from outside. The switch of the
+         * settings and the one a host brings along write the same game state,
+         * and this is the one place where its value is visible - during a round
+         * the settings are gone, so without it nobody could tell a silent
+         * device from a loud one.
+         */
+        data-sound={String(view.soundEnabled)}
       >
         <StartMenu
           model={deviceStartMenu(view, audienceId, playerCounts)}
@@ -640,11 +654,16 @@ export function QuizGame({
   )
 
   return (
-    <div className={styles.game} style={area} data-quiz-game=""
+    <div
+      className={styles.game}
+      style={area}
+      data-quiz-game=""
       data-skin={skin}
       data-theme={variant}
       data-layout={layout}
-      onPointerDown={idle.notice}>
+      data-sound={String(view.soundEnabled)}
+      onPointerDown={idle.notice}
+    >
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
       {/* Top centre at a live event; the kiosk layout carries it in its foot. */}

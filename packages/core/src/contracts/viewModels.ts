@@ -16,7 +16,6 @@ export const publicScenes = [
   'start',
   'pause',
   'question',
-  'video',
   'reveal',
   'feedback',
   'solution',
@@ -73,15 +72,14 @@ export interface PublicQuestion {
   /**
    * Id of the question currently on screen.
    *
-   * IT IS NOT A DISPLAY VALUE but an identity: a client that is to execute a
-   * request (today the video playback request) must be able to check whether
-   * the request belongs to what it shows. Without it only trust would remain.
+   * IT IS NOT A DISPLAY VALUE but an identity: a client that has to tell what
+   * it is showing apart from what a message is about - the picture it has
+   * decoded, a patch that arrives - compares this, not the text.
    */
   id: string
   prompt: string
   presentationType: QuestionPresentationType
   imageUrl?: string
-  videoUrl?: string
   /**
    * Category line above the prompt: the label of the FIRST category of the
    * question (design addition). Pure display value - the client derives nothing
@@ -148,22 +146,6 @@ export interface PublicRevealState {
    * server value again with every snapshot (drift correction).
    */
   elapsedMs: number
-}
-
-/**
- * The standing request to play the video - not a playback status.
- *
- * IT ONLY SAYS: "play the video of this question, from the start." How far the
- * stage has got is not in here and never comes back; the flow goes one way. If
- * the field is missing, nothing has been started yet.
- *
- * The stage remembers the last executed `requestId` LOCALLY and starts from
- * second zero on every other one. So the same snapshot may arrive any number of
- * times: the same id means "already done".
- */
-export interface PublicVideoRequest {
-  questionId: string
-  requestId: string
 }
 
 export interface PublicFeedback {
@@ -250,7 +232,6 @@ export interface PublicQuizViewModel {
   currentPlayer?: PlayerId
   progress: { current: number; total: number }
   reveal?: PublicRevealState
-  video?: PublicVideoRequest
   result?: PublicResult
   soundEnabled: boolean
   /** Locale this view is in. */
@@ -558,12 +539,6 @@ export type ServerMessage =
   | {
       type: 'client-info'
       audioMaster: boolean
-      /**
-       * May this client sound a video it plays? Absent from a server that does
-       * not know the second authority yet - then the cue authority decides, as
-       * it did before.
-       */
-      videoAudioMaster?: boolean
     }
   | {
       type: 'snapshot'

@@ -34,7 +34,7 @@ apps/web/src/presentation/
   useStageSounds.ts        cues that arise WITHIN a scene
   soundCues.ts             sound cues (Web Audio, no files)
   StageScreen.tsx          selects scene, applies transition, plays sound cue
-  scenes/                  PauseScene, QuestionScene, RevealScene, VideoScene,
+  scenes/                  PauseScene, QuestionScene, RevealScene,
                            FeedbackScene, SolutionScene, ResultScene, StartScene
   transitions/
     types.ts               animation contract
@@ -42,6 +42,27 @@ apps/web/src/presentation/
     fadeThrough.ts  questionEnter.ts  correctFeedback.ts
     incorrectFeedback.ts  solutionReveal.ts  resultCelebration.ts
 ```
+
+## Where keyframes belong
+
+Two kinds of movement live in two places, and mixing them up produces a bug
+that leaves no trace - the rule is there, the element simply does not move.
+
+* **A whole scene area moving** is applied by the transition registry through a
+  GLOBAL class (`.scene-fade`, `.question-enter`, ...). Those classes and their
+  keyframes live together in `packages/react/src/styles/motion.css`, which the
+  host imports as a plain stylesheet.
+* **One component's own movement** - the entrance of an answer row, the
+  arrival of the category on the interim screen, the disc of the answer mark -
+  belongs in that component's CSS MODULE, keyframes included.
+
+The reason is the module: it scopes every animation name it sees, so
+`animation: option-enter ...` in a module asks for a keyframe called
+`_option-enter_<hash>`. A definition in `motion.css` is not that, and the
+browser silently runs no animation at all. Whoever adds a keyframe to a module
+therefore defines it in the same file - and whoever tests one asks not only for
+the name but for whether a keyframe of that name is loaded
+(`test/e2e/steady-layout.spec.ts`).
 
 ## The animation contract
 

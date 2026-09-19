@@ -228,42 +228,6 @@ describe('Error cases', () => {
   })
 })
 
-describe('The video filter of a slot', () => {
-  /*
-   * A VIDEO IS NOT A TYPE ANY MORE, so a slot that wants one asks for one. The
-   * three cases are the three a filter can have here: demanded, ruled out, and
-   * not mentioned - and the last one is what "a missing filter means anything"
-   * has to keep meaning.
-   */
-  const withVideo = makeQuestion({ id: 'with-video', video: { filename: 'video/clip.mp4' } })
-  const withoutVideo = makeQuestion({ id: 'without-video' })
-
-  it('picks only a question that brings one where it demands one', () => {
-    const result = select({ questions: [withoutVideo, withVideo], rule: slot({ filters: { hasVideo: true } }) })
-
-    expect(result.ok).toBe(true)
-    if (result.ok) expect(result.question.id).toBe('with-video')
-  })
-
-  it('picks only a question without one where it rules one out', () => {
-    const result = select({ questions: [withVideo, withoutVideo], rule: slot({ filters: { hasVideo: false } }) })
-
-    expect(result.ok).toBe(true)
-    if (result.ok) expect(result.question.id).toBe('without-video')
-  })
-
-  it('reports an exhausted pool where nothing brings a video', () => {
-    expect(select({ questions: [withoutVideo], rule: slot({ filters: { hasVideo: true } }) }).ok).toBe(false)
-  })
-
-  it('leaves both in where it says nothing about a video', () => {
-    for (const seed of [1, 2, 3, 4, 5]) {
-      const result = select({ questions: [withVideo, withoutVideo], rule: slot(), seed })
-      expect(result.ok).toBe(true)
-    }
-  })
-})
-
 describe('Option order', () => {
   it('shuffles the visible order without losing options', () => {
     const question = makeQuestion({ id: 'q1' })

@@ -60,26 +60,6 @@ answer and additional information. The audience sees none of it.
   technical correction and deliberately different from `zurücksetzen`
   (reset).
 
-## Video questions
-
-There is **one** button: `Video starten` (start video). It plays the video
-on the stage from the beginning. There is no pause or seek - if something
-goes wrong, just press `Video starten` again; it then starts again from
-zero. The buzzer is locked during the video phase. Playback happens only on
-the stage; the desk area stays empty so the composition remains legible.
-
-**The desk shows no video status** - not ready, not playing, not finished.
-That is intentional: none of it is needed. Looking at the audience says it
-better than any indicator.
-
-Nothing happens automatically at the end; the last frame stays on screen
-until `Frage einblenden` (show question) is pressed, then `Antworten
-einblenden` (show answers).
-
-If the area stays black, the file is the problem on the stage computer.
-Options: press `Video starten` again, continue without the video via `Frage
-einblenden`, or `Frage überspringen` (skip question).
-
 ## When something goes wrong
 
 | Situation | What to do |

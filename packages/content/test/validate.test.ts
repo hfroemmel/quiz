@@ -4,7 +4,6 @@
 import { describe, expect, it } from 'vitest'
 import type { MediaAsset, Question } from '@hfroemmel/quiz-core'
 import { validateContent } from '../src/validate'
-import { applyContentProfile } from '../src/package'
 
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
 
@@ -384,62 +383,3 @@ describe('Quiz modes', () => {
   })
 })
 
-describe('Content profiles', () => {
-  const videoQuestion = question({
-    id: 'v1',
-    video: { filename: 'video/clip.mp4' },
-  })
-  const videoAsset: MediaAsset = {
-    id: 'vid-1',
-    kind: 'video',
-    filename: 'video/test.mp4',
-    mimeType: 'video/mp4',
-    credit: 'Eigene',
-  }
-  const source = {
-    config: {
-      ...baseConfig,
-      presets: [
-        {
-          id: 'standard',
-          label: 'Standard',
-          slots: [
-            { id: 'text', filters: { questionTypes: ['text-choice'] } },
-            { id: 'nur-video', filters: { hasVideo: true } },
-          ],
-        },
-      ],
-    },
-    questions: [question({ id: 'q1' }), videoQuestion],
-    assets: [asset, videoAsset],
-    rootDir: '/tmp',
-  }
-
-  it('leaves the "full" profile unchanged', () => {
-    expect(applyContentProfile(source, 'full')).toBe(source)
-  })
-
-  it('removes questions, media and slot filters for "no-video"', () => {
-    const reduced = applyContentProfile(source, 'no-video')
-
-    expect((reduced.questions as Question[]).map((entry) => entry.id)).toEqual(['q1'])
-    expect(reduced.assets.map((entry) => entry.id)).toEqual(['img-1'])
-
-    /*
-     * The NUMBER of question slots stays - otherwise the preset would no
-     * longer match `questionsPerGame`. A slot that DEMANDED a video becomes a
-     * free slot, and a slot that asks for a type keeps asking: the video is no
-     * longer one of the types, so a mixed filter has nothing to lose.
-     */
-    const slots = (reduced.config as typeof source.config).presets[0]!.slots
-    expect(slots).toHaveLength(2)
-    expect(slots[0]!.filters).toEqual({ questionTypes: ['text-choice'] })
-    expect(slots[1]!.filters).toEqual({})
-  })
-
-  it('leaves the source of the full profile untouched', () => {
-    applyContentProfile(source, 'no-video')
-    expect((source.questions as Question[]).map((entry) => entry.id)).toEqual(['q1', 'v1'])
-    expect(source.config.presets[0]!.slots[1]!.filters.hasVideo).toBe(true)
-  })
-})

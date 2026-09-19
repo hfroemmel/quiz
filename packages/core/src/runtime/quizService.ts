@@ -133,9 +133,9 @@ export class QuizService {
    *
    * Deterministic strategy for running clocks (chosen this way for live
    * safety): a reveal running at the crash is restored as PAUSED - frozen at
-   * the last persisted state. A running video is no longer requested after the
-   * restart. A timed transition (feedback, pause screen) is completed at once
-   * on resume instead of waiting out an already expired deadline again.
+   * the last persisted state. A timed transition (feedback, pause screen) is
+   * completed at once on resume instead of waiting out an already expired
+   * deadline again.
    */
   private restore(): void {
     const found = this.store.loadResumableGame(this.eventDay.id)
@@ -151,18 +151,6 @@ export class QuizService {
       // `reveal-paused`. The buzzer deliberately stays open.
       if (prepared.phase === 'reveal-running') prepared.phase = 'reveal-paused'
     }
-    /*
-     * A PLAYBACK REQUEST DOES NOT SURVIVE THE RESTART.
-     *
-     * A stage executes every request it does not know yet - after a restart
-     * this one too, and the video would start over in the hall without anyone
-     * asking for it. After a crash the operator decides: the button is ready,
-     * the phase is right, and a click creates a new request.
-     *
-     * A RECONNECT of the stage is something else - there the request stays and
-     * is caught up exactly once.
-     */
-    prepared.video = undefined
     if (prepared.pendingTransition) {
       prepared.pendingTransition = { ...prepared.pendingTransition, endsAtMs: 0 }
     }
@@ -173,7 +161,7 @@ export class QuizService {
       atMs: this.now(),
       actorRole: 'system',
       category: 'system',
-      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Die Enthüllung wurde pausiert wiederhergestellt; ein Video startet erst wieder auf Befehl.`,
+      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Die Enthüllung wurde pausiert wiederhergestellt.`,
     })
   }
 

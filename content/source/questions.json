@@ -1618,11 +1618,7 @@
         }
       }
     },
-    "enabled": true,
-    "video": {
-      "filename": "video/vid-test-text-choice-medium-auswahl-1.mp4",
-      "credit": "Platzhalter"
-    }
+    "enabled": true
   },
   {
     "id": "test-text-choice-medium-auswahl-2",

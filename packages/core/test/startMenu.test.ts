@@ -81,7 +81,6 @@ describe('rules of the package', () => {
   it('splits the timing block into the two groups the engine reads', () => {
     const rules = resolveRules({ timing: { questionLeadInMs: 0, imageRevealDurationMs: 5_000 } })
     expect(rules.selfServiceTiming.questionLeadInMs).toBe(0)
-    expect(rules.selfServiceTiming.videoLeadInMs).toBe(selfServiceTiming.videoLeadInMs)
     expect(rules.timing.imageRevealDurationMs).toBe(5_000)
     expect(rules.timing).not.toHaveProperty('questionLeadInMs')
   })

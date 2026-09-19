@@ -5,7 +5,7 @@
  * statement used to be a delivered WebM clip per outcome (`animationClips`),
  * which brought three problems this does not have: the colours were baked into
  * the file, so a stage variant or a world with its own palette got the clip's
- * turquoise and red anyway; it needed a video decoder to show a circle and a
+ * turquoise and red anyway; it needed a decoder to show a circle and a
  * checkmark; and it carried transparent margin that every place showing it had
  * to compensate for. Here the disc is a `<circle>` and the symbol a `<path>`,
  * both filled from the theme's own tokens - the meaning colour of the active

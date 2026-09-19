@@ -10,9 +10,8 @@ import type { CommandRejectionReason, GamePhase, GameState, PlayerId, PlayerStat
 /**
  * Phases in which the server accepts buzzer events at all.
  *
- * `video-playing` is deliberately missing: no buzzing during the video. Because
- * eligibility depends on the phase alone, the forbidden combination "video
- * playing and buzzer open" structurally cannot exist.
+ * Because eligibility depends on the phase alone, a forbidden combination -
+ * "question still being read and buzzer open" - structurally cannot exist.
  *
  * `reveal-paused` is included: when the operator pauses the reveal, answering
  * stays possible - only the picture is frozen.

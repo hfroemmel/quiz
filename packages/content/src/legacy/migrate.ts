@@ -470,8 +470,6 @@ function mimeTypeForFile(filename: string): string {
     webp: 'image/webp',
     gif: 'image/gif',
     svg: 'image/svg+xml',
-    mp4: 'video/mp4',
-    webm: 'video/webm',
   }
   return map[extension] ?? 'application/octet-stream'
 }

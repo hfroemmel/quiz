@@ -11,7 +11,9 @@
  *     once per finished game;
  *   - whoever provides the runtime also tears it down;
  *   - a host layer of its own (`overlay`) sits IN the stage and carries its
- *     dimensions, colours and zoom level.
+ *     dimensions, colours and zoom level;
+ *   - a sound switch of the host's own is followed - at the start of a round
+ *     and while one is running.
  *
  * The runtime therefore belongs to THIS component, not to the quiz: it is
  * created on entry and torn down on exit. The shipped game collection
@@ -56,10 +58,19 @@ function HostLayer({ onClose }: { onClose: () => void }) {
 /** Holds the runtime - and releases it again on removal. */
 function Game({
   overlay,
+  soundEnabled,
   onFinished,
   onExit,
 }: {
   overlay?: ReactNode
+  /**
+   * The collection's own sound setting.
+   *
+   * A host application that has one switch for everything it runs owns this
+   * decision, and the quiz follows it - not only when a round starts but also
+   * when the switch is thrown while one is running.
+   */
+  soundEnabled: boolean
   onFinished: (result: QuizGameResult) => void
   onExit: () => void
 }) {
@@ -78,6 +89,7 @@ function Game({
        * checked here.
        */
       audience={audienceFromLocation()}
+      soundEnabled={soundEnabled}
       idleTimeoutMs={120_000}
       onFinished={onFinished}
       onExit={onExit}
@@ -96,21 +108,38 @@ export function ShellApp() {
   const [lastResult, setLastResult] = useState<QuizGameResult | null>(null)
   const [rounds, setRounds] = useState(0)
   const [layer, setLayer] = useState(false)
+  /* The collection's sound setting - one switch for every game in it. */
+  const [sound, setSound] = useState(true)
 
   return (
     <div className={styles.shell} data-shell="">
       <header className={styles.bar} data-shell-bar="">
         <h1 className={styles.title}>Spielesammlung</h1>
-        {running && (
-          <div className={styles.barActions}>
-            <button className={styles.back} data-shell-layer-open="" onClick={() => setLayer(true)}>
-              Eigene Ebene
-            </button>
-            <button className={styles.back} onClick={() => setRunning(false)}>
-              Zur Sammlung
-            </button>
-          </div>
-        )}
+        <div className={styles.barActions}>
+          {/*
+            * The collection's sound switch stands in the bar all the time -
+            * in the menu as in a running round, because that is where a host
+            * application keeps such a switch.
+            */}
+          <button
+            className={styles.back}
+            data-shell-sound=""
+            aria-pressed={sound}
+            onClick={() => setSound((value) => !value)}
+          >
+            {sound ? 'Ton aus' : 'Ton an'}
+          </button>
+          {running && (
+            <>
+              <button className={styles.back} data-shell-layer-open="" onClick={() => setLayer(true)}>
+                Eigene Ebene
+              </button>
+              <button className={styles.back} onClick={() => setRunning(false)}>
+                Zur Sammlung
+              </button>
+            </>
+          )}
+        </div>
       </header>
 
       {running ? (
@@ -121,6 +150,7 @@ export function ShellApp() {
             * its area.
             */}
           <Game
+            soundEnabled={sound}
             {...(layer ? { overlay: <HostLayer onClose={() => setLayer(false)} /> } : {})}
             onFinished={(result) => {
               setLastResult(result)

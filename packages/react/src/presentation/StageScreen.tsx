@@ -24,7 +24,6 @@ import { effectiveDurationMs, transitionFor, transitionStyle } from './transitio
 import { PauseScene } from './scenes/PauseScene'
 import { QuestionScene } from './scenes/QuestionScene'
 import { RevealScene } from './scenes/RevealScene'
-import { VideoScene } from './scenes/VideoScene'
 import { FeedbackScene } from './scenes/FeedbackScene'
 import { SolutionScene } from './scenes/SolutionScene'
 import { ResultScene } from './scenes/ResultScene'
@@ -41,13 +40,8 @@ import type { SceneAnswering, SceneProps } from './scenes/sceneProps'
 export interface StageScreenProps {
   view: PublicQuizViewModel
   serverNow: () => number
-  /** Only the audio master plays sounds and video audio. */
+  /** Only the audio master plays sounds. */
   isAudioMaster: boolean
-  /**
-   * May this window sound a video it plays? Without a value: yes, because a
-   * window that shows the picture is the one the room hears.
-   */
-  isVideoAudioMaster?: boolean
   /** The stage client may only report media status back. */
   onCommand?: (command: Command) => void
   /**
@@ -95,7 +89,6 @@ export function StageScreen({
   view,
   serverNow,
   isAudioMaster,
-  isVideoAudioMaster = true,
   onCommand,
   variant = 'stage',
   layout = 'live',
@@ -292,7 +285,7 @@ export function StageScreen({
             className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
             data-scene-root=""
           >
-            {renderScene(view, sceneProps, isVideoAudioMaster, onCommand)}
+            {renderScene(view, sceneProps, onCommand)}
           </div>
           <Mascot />
         </div>
@@ -330,7 +323,6 @@ function isRevealing(view: PublicQuizViewModel): boolean {
 function renderScene(
   view: PublicQuizViewModel,
   props: SceneProps,
-  isVideoAudioMaster: boolean,
   onCommand?: (command: Command) => void,
 ) {
   switch (view.scene) {
@@ -342,8 +334,6 @@ function renderScene(
       return <QuestionScene {...props} />
     case 'reveal':
       return <RevealScene {...props} />
-    case 'video':
-      return <VideoScene {...props} isVideoAudioMaster={isVideoAudioMaster} onCommand={onCommand} />
     case 'feedback':
       return <FeedbackScene {...props} />
     case 'solution':

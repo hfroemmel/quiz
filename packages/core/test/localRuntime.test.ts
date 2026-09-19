@@ -86,19 +86,10 @@ describe('LocalQuizRuntime', () => {
     const unsubscribe = runtime.subscribe((snapshot) => seen.push(snapshot))
 
     // Locally there is no connection question and no competition for the sound.
-    expect(runtime.getSnapshot().connection).toEqual({ connected: true, audioMaster: true, videoAudioMaster: true })
+    expect(runtime.getSnapshot().connection).toEqual({ connected: true, audioMaster: true })
 
     runtime.dispatch({ type: 'START_GAME', audience: 'adults', presetId: 'medium', flowProfile: 'self-service' })
     settle()
-    /*
-     * At the device the video starts by itself and shows the question after
-     * its end - here there is no element that could end, so the test takes the
-     * step the scene takes there.
-     */
-    if (runtime.service.authoritativeState?.phase === 'video') {
-      runtime.dispatch({ type: 'SHOW_QUESTION_AFTER_VIDEO' })
-      settle()
-    }
 
     const view = runtime.getSnapshot().view!
     expect(view.phase).toBe('buzzer-open')
@@ -151,65 +142,6 @@ describe('LocalQuizRuntime', () => {
     restored.dispose()
   })
 
-  it('publishes the playback job through the service - and plans nothing beyond it', () => {
-    /*
-     * THE ENGINE ALONE IS NOT PROOF ENOUGH. Between it and the hall stands the
-     * service: it accepts the command, checks role and revision and writes the
-     * request into the state from which all clients get their snapshot.
-     *
-     * And it sets NO timer: the end of the video is no server-side transition
-     * any more. If one remained here, the question in the hall would change
-     * while the video is still running.
-     */
-    const { runtime, clock } = createRuntime()
-    const service = runtime.service
-    let counter = 0
-    const asOperator = (command: Command) =>
-      service.dispatch({
-        commandId: `video-${counter++}`,
-        command,
-        actor: { clientId: 'test-operator', role: 'operator' },
-        expectedRevision: service.currentRevision,
-      })
-
-    expect(asOperator({ type: 'START_GAME', audience: 'adults', presetId: 'easy', flowProfile: 'operated' }).ok).toBe(
-      true,
-    )
-
-    // The pause screen runs out; then the video question stands.
-    const due = service.authoritativeState!.pendingTransition!
-    clock.nowMs = due.endsAtMs
-    service.dispatch({
-      commandId: 'video-pausenscreen',
-      command: { type: 'ADVANCE_TIMED_PHASE', transitionId: due.transitionId },
-      actor: { clientId: 'test-system', role: 'system' },
-      expectedRevision: service.currentRevision,
-    })
-    expect(service.authoritativeState!.phase).toBe('video')
-    expect(service.authoritativeState!.video).toBeUndefined()
-
-    const questionId = service.authoritativeState!.currentQuestion!.question.id
-    expect(asOperator({ type: 'START_VIDEO', questionId: questionId }).ok).toBe(true)
-
-    const task = service.authoritativeState!.video!
-    expect(task.questionId).toBe(questionId)
-    expect(service.authoritativeState!.pendingTransition).toBeUndefined()
-
-    // The snapshot carries it to the stage - and nothing else about the video.
-    expect(service.snapshotFor('stage').video).toEqual({
-      questionId: questionId,
-      requestId: task.requestId,
-    })
-
-    // A second click is a new request, no special case.
-    expect(asOperator({ type: 'START_VIDEO', questionId: questionId }).ok).toBe(true)
-    expect(service.authoritativeState!.video!.requestId).not.toBe(task.requestId)
-
-    // And the phase stands still the whole time: the server waits for nobody.
-    clock.nowMs += 10 * 60_000
-    expect(service.authoritativeState!.phase).toBe('video')
-    runtime.dispose()
-  })
 
   it('switches questions, answers and labels to the chosen locale', () => {
     /*

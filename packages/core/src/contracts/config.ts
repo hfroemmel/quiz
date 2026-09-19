@@ -129,8 +129,6 @@ export const selfServiceTiming = {
    * Changing it changes the fairness of the game, not its pace.
    */
   questionLeadInMs: 2_500,
-  /** Short lead-in before a video starts by itself. */
-  videoLeadInMs: 500,
 } as const
 
 /** Parameters of the selection algorithm (specification 17.2). */
@@ -227,8 +225,6 @@ export const rulesConfigSchema = z
         pauseScreenMs: z.number().int().min(0).max(10_000).optional(),
         /** Only the question stands this long before the answers appear (self-service). */
         questionLeadInMs: z.number().int().min(0).max(15_000).optional(),
-        /** Lead-in before a video starts by itself (self-service). */
-        videoLeadInMs: z.number().int().min(0).max(5_000).optional(),
       })
       .optional(),
     /**

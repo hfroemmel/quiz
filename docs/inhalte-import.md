@@ -166,7 +166,3 @@ The real image material of the adopted catalog lives under
 placeholder graphics and is therefore now meant only for new, still
 unillustrated questions - it does not overwrite existing files. A new image
 either gets the same file name or its own entry in `assets.json`.
-
-Videos live under `content/source/assets/video/`. They are registered via
-`assets.json` just like images (`"kind": "video"`) and attached to a
-question via `video`.

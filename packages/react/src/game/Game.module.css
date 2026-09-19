@@ -1710,14 +1710,48 @@
   align-items: center;
   gap: 1cqw;
   min-width: 0;
+  /*
+   * A width the sentences wrap inside instead of pushing the corners apart.
+   * Wide enough for the longest of them on one line, narrow enough that two
+   * lines still stand between the buzzers.
+   */
+  width: 34cqw;
 }
+/*
+ * THE HINT FIELD HAS A HEIGHT, NOT A MINIMUM.
+ *
+ * It is exactly as tall as a stage button, because one of the two things it
+ * holds IS a button ("Weiter"). The height is fixed rather than minimal so a
+ * longer sentence - a translation, a long player name - cannot make the field
+ * grow: this foot is in the flow, and anything that grows here takes its space
+ * from the scene above, which would move the question while somebody is
+ * reading it.
+ *
+ * A sentence that does not fit is not cut off either. It is anchored to the
+ * BOTTOM of the field and grows upward, into the empty space between the
+ * answers and the foot - the one direction where there is nothing to push.
+ */
 .kioskHint {
-  /* Exactly as tall as a stage button - see `styles/stage.css`. */
-  min-height: var(--stage-button-height);
+  position: relative;
+  height: var(--stage-button-height);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  /*
+   * THE FIELD IS AS WIDE AS THE COLUMN, and it has to say so: the column
+   * centres its children, and the only child of this one is positioned
+   * absolutely - so the box had no content to take its width from and
+   * collapsed to nothing. The sentence inside it then wrapped at the narrowest
+   * point it could find, one word per line, in the middle of the screen.
+   */
+  align-self: stretch;
+}
+.kioskHint .noticeText {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 /*
  * The slot of the middle button. It keeps its height while it is empty: in a
@@ -1725,7 +1759,7 @@
  * must not travel upwards for it.
  */
 .kioskAction {
-  min-height: var(--stage-button-height);
+  height: var(--stage-button-height);
   display: flex;
   align-items: center;
   justify-content: center;

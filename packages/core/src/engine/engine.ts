@@ -346,10 +346,6 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       return work.commit()
     }
 
-    case 'START_VIDEO':
-    case 'SHOW_QUESTION_AFTER_VIDEO':
-      return handleVideoCommand(work, command)
-
     case 'DRAW_JOKER':
       return drawJoker(work)
 
@@ -993,84 +989,6 @@ function resetBuzzer(work: Draft): EngineResult {
   return work.commit()
 }
 
-/**
- * The video question: one request out, nothing back.
- *
- * THERE ARE EXACTLY TWO COMMANDS. `START_VIDEO` publishes a request to play the
- * video from the start; `SHOW_QUESTION_AFTER_VIDEO` ends the video part and
- * shows the question. In between the server waits for nothing: it does not
- * learn whether the video is playing, how far it is or whether it has ended,
- * and therefore schedules no end either.
- *
- * WHAT USED TO STAND HERE was the attempt to mirror the playback: position and
- * duration in the state, a status report of the client, a timer from the
- * reported duration, plus pausing and restarting as commands of their own.
- * Each of those numbers was a second truth next to the element in the browser,
- * and two truths about the same playback drift apart. Now there is only one -
- * the one in the browser - and the server tells it when to start over.
- */
-function handleVideoCommand(work: Draft, command: Command): EngineResult {
-  if (!work.state) return reject('no-active-game', 'Es läuft gerade kein Spiel.')
-  const question = work.state.currentQuestion
-  if (!question || question.question.video === undefined) {
-    return reject('invalid-phase', 'Zu der aktuellen Frage ist kein Video hinterlegt.')
-  }
-
-  switch (command.type) {
-    case 'START_VIDEO': {
-      if (work.phase !== 'video') {
-        return reject('invalid-phase', 'Das Video kann in dieser Phase nicht gestartet werden.')
-      }
-      /*
-       * A CLICK COUNTS ONLY FOR THE QUESTION IT SAW. If the game has been
-       * skipped or advanced meanwhile, it would otherwise start the video of the
-       * next question - out of nowhere for the hall.
-       */
-      if (command.questionId !== question.question.id) {
-        return reject('video-question-mismatch', 'Dieser Befehl gehört zu einer anderen Frage.')
-      }
-      publishVideoRequest(work)
-      work.log('phase', 'Video gestartet.')
-      return work.commit()
-    }
-    case 'SHOW_QUESTION_AFTER_VIDEO': {
-      if (work.phase !== 'video') return reject('invalid-phase', 'Die Videophase ist nicht aktiv.')
-      applyPhaseMutation(work, 'question-presented')
-      work.log('phase', 'Videophase beendet, Frage eingeblendet.')
-      return work.commit()
-    }
-    default:
-      return reject('unknown-command', 'Unbekannter Videobefehl.')
-  }
-}
-
-/**
- * Writes a new playback request into the state.
- *
- * A new id is the whole message: the stage remembers the last executed one and
- * starts from second zero on every other. So a second click needs no command
- * of its own, and a window that has only just joined executes the standing
- * request exactly once.
- */
-/**
- * Name of the auto-start in self-service operation.
- *
- * It lives here because two places need it: the scheduling on entering the
- * video phase and the place that recognises the due transition.
- */
-const VIDEO_AUTO_START = 'video-auto-start'
-
-function publishVideoRequest(work: Draft): void {
-  const questionId = work.state!.currentQuestion!.question.id
-  const requestId = work.ctx.newId('video')
-  const requestedAt = new Date(work.ctx.nowMs).toISOString()
-  work.mutate((draft) => {
-    draft.video = { questionId, requestId, requestedAt }
-    // No buzzing during the video.
-    draft.buzzer = { open: false }
-  })
-}
-
 function handleContinue(work: Draft): EngineResult {
   const guard = work.requireActiveGame()
   if (guard) return guard
@@ -1153,7 +1071,6 @@ function skipQuestion(work: Draft, reason: string | undefined): EngineResult {
     'buzzer-open',
     'answer-locked',
     'second-chance',
-    'video',
     'reveal-ready',
     'reveal-running',
     'reveal-paused',
@@ -1187,19 +1104,6 @@ function advanceTimedPhase(work: Draft, transitionId: string): EngineResult {
    * leaves the question exactly where it was and only advances the draw - which
    * is why it was scheduled onto the phase it is already in.
    */
-  /*
-   * THE AUTO-START OF THE VIDEO IS NO PHASE CHANGE EITHER. It issues the
-   * request the operator issues in an operated game - the question stays where
-   * it is, which is why it was scheduled onto its own phase.
-   */
-  if (pending.transitionId.startsWith(`${VIDEO_AUTO_START}:`) && work.phase === 'video') {
-    publishVideoRequest(work)
-    work.mutate((draft) => {
-      draft.pendingTransition = undefined
-    })
-    return work.commit()
-  }
-
   if (isJokerRevealTransition(work.state, pending.transitionId)) {
     const sequence = work.state.jokerSequence!
     if (sequence.phase !== 'drawing') return reject('invalid-phase', 'Diese Ziehung ist nicht mehr offen.')
@@ -1233,13 +1137,6 @@ const MAX_SELF_SERVICE_DRAWS = 200
 function questionEntryPhase(state: GameState): GamePhase {
   const current = state.currentQuestion?.question
   const type = current?.questionType
-  /*
-   * A VIDEO IS A STEP IN FRONT, NOT A PRESENTATION. Whatever the question is,
-   * the clip runs first and the question follows in its own form - so the
-   * entry phase asks whether there IS a video and not what type the question
-   * has.
-   */
-  if (current?.video !== undefined) return 'video'
   /*
    * In self-service there is nobody who reads the question aloud and then
    * opens it. The question therefore still stands alone at first - only it is
@@ -1306,18 +1203,6 @@ function applyPhaseMutation(work: Draft, phase: GamePhase): void {
       case 'question-presented': {
         draft.phase = 'question-presented'
         draft.buzzer = { open: false }
-        /*
-         * THE REQUEST DIES WITH THE VIDEO PART. It does not stay as "last
-         * played": a window that reloads now executes every request it finds
-         * in the snapshot - and would start the video again underneath the
-         * question already shown.
-         */
-        draft.video = undefined
-        break
-      }
-      case 'video': {
-        draft.phase = 'video'
-        draft.buzzer = { open: false }
         break
       }
       default:
@@ -1370,23 +1255,11 @@ function scheduleSelfServiceFollowUp(work: Draft, phase: GamePhase): void {
    * scheduled transition would take the picture away from whoever is reading
    * why their answer was wrong.
    */
-
-  /*
-   * WITHOUT AN OPERATOR THE SERVER ISSUES THE REQUEST ITSELF.
-   *
-   * At the device nobody stands who could press "start video" - there the
-   * server is the desk. The short lead-in lets the video area come up before
-   * the picture begins. It is scheduled onto the SAME phase: the video part
-   * stays, what changes is only the request in it.
-   */
-  if (phase === 'video' && work.state?.flowProfile === 'self-service') {
-    work.scheduleTimedTransition('video', work.selfServiceTiming.videoLeadInMs, VIDEO_AUTO_START)
-  }
 }
 
 /**
  * Draws the question for the current slot and resets all per-question runtime
- * data (locks, buzzer, reveal, video).
+ * data (locks, buzzer, reveal).
  */
 function drawQuestionForCurrentSlot(
   work: Draft,
@@ -1496,8 +1369,6 @@ function drawQuestionForCurrentSlot(
     draft.reveal = isImageReveal(runtime.question.questionType)
       ? createRevealClock(work.timing.imageRevealDurationMs)
       : undefined
-    // No request of the previous question remains; the new one comes from the desk.
-    draft.video = undefined
   })
 
   work.usage({
@@ -1629,15 +1500,11 @@ class Draft {
    *
    * `still` separates two things that used to be one: the TIMER and the
    * PRESENTATION TRANSITION. Normally they belong together - the change from
-   * feedback to solution is both. Not for the video: when its remaining time is
-   * put on the clock, nothing animates, and its duration is no animation
-   * duration.
-   *
-   * The difference is not cosmetic. The stage client keys its scene node to the
-   * id of the last transition; a new id rebuilds the scene. For the video that
-   * would mean: video element gone, video element new, duration report, new id
-   * - a loop that flickers, never shows the picture and never lets the
-   * scheduled transition fall due.
+   * feedback to solution is both. Where they must not be, the clock runs
+   * without an animation: the stage client keys its scene node to the id of
+   * the last transition, so a new id rebuilds the scene, and a section that is
+   * merely waiting out its time would be rebuilt underneath whoever is looking
+   * at it.
    */
   scheduleTimedTransition(
     nextPhase: GamePhase,

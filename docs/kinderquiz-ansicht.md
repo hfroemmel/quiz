@@ -241,7 +241,7 @@ texts") toggle; it inserts the test texts from `ASSET_INTEGRATION.md`.
 ## 9. Open points
 
 1. **Question and solution have their own components.** Pause screen,
-   feedback, reveal, video, start, and result keep their shared composition
+   feedback, reveal, start, and result keep their shared composition
    but are redrawn for the kids world (`kids.css`, section "Header of the
    shared scenes"): player groups and question counter carry the card
    drawings via `border-image`, the reveal photo sits in the drawn portrait

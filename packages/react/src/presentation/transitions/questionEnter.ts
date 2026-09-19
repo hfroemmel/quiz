@@ -1,7 +1,7 @@
 /**
  * Entrance of a new question.
  *
- * Affects: the switch into the question, video and image-reveal scenes.
+ * Affects: the switch into the question and image-reveal scenes.
  * The question prompt (`question-prompt`) and answer tiles (`option-card`)
  * are animated; the tiles run in one after another with `optionStaggerMs`.
  *
@@ -37,12 +37,3 @@ export const revealEnter: PresentationTransitionDefinition = {
     'Animation abgeleitet werden.',
 }
 
-export const videoEnter: PresentationTransitionDefinition = {
-  id: 'video-enter',
-  description: 'Videophase: die Videofläche wächst aus der Mitte heraus und blendet ein.',
-  appliesTo: { from: '*', to: 'video' },
-  durationMs: 640,
-  easing: easings.emphasized,
-  reducedMotionDurationMs: 120,
-  classNames: { active: 'video-enter', to: 'scene-enter' },
-}

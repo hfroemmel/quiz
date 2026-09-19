@@ -9,7 +9,6 @@ new editorial request often does not need a new type at all.
 |---|---|
 | Image with a spoken answer | `image-reveal` with `manual-correct-incorrect` |
 | Question without options | `evaluationMode: "manual-correct-incorrect"` plus `acceptedAnswerText` |
-| Video before the question | not a type: any question may bring a `video`, and the clip runs first |
 
 ## A type that only looks different
 
@@ -77,5 +76,8 @@ Everything else - phases, buzzer rules, projection, commands - stays untouched.
 * Commands `START_AUDIO`, `PAUSE_AUDIO`, `SHOW_QUESTION_AFTER_AUDIO`
 * Scene `AudioScene.tsx`, transition `audioEnter.ts`
 
-This matches exactly the structure of the video question - it is the best
-template.
+A medium that plays before the question is a step of its own in front of the
+question: an extra phase that is not in `buzzablePhases`, the commands that
+start it and hand over to the question, and a scene with its own transition.
+The image reveal, which likewise runs ahead of the answers, is the closest
+template in the code.

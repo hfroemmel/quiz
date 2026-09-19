@@ -7,7 +7,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { contentDir, flagValue } from './dirs'
-import { applyContentProfile, readSource, validateSource } from '../package'
+import { readSource, validateSource } from '../package'
 import { formatValidationReport } from '../report'
 
 const args = process.argv.slice(2)
@@ -21,9 +21,7 @@ const args = process.argv.slice(2)
 const placeholderMedia = args.includes('--placeholder-media')
 const sourceDir = contentDir(args, 'source', 'source')
 const reportDir = contentDir(args, 'report', 'reports')
-/** `--profile no-video` validates the source the way the offline apps see it. */
-const profile = flagValue(args, 'profile') === 'no-video' ? ('no-video' as const) : ('full' as const)
-const source = applyContentProfile(readSource(sourceDir), profile)
+const source = readSource(sourceDir)
 const result = validateSource(source, { missingMediaSeverity: placeholderMedia ? 'warning' : 'error' })
 
 const report = formatValidationReport(result, { title: 'Validierungsbericht Quizinhalte' })

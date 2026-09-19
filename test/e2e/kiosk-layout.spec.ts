@@ -117,6 +117,29 @@ test.describe('Kiosk layout, duel', () => {
     await expect(page.locator('[data-buzzer][data-side="left"]')).toHaveAccessibleName('Spieler 1 Buzzern')
   })
 
+  /*
+   * THE FIELD IS AS WIDE AS ITS COLUMN, and that is not a detail of taste: its
+   * sentence is positioned absolutely inside it, so the box had nothing to
+   * take a width from and collapsed - and a sentence in a box of no width
+   * wraps at every space, one word per line, in the middle of the screen. Text
+   * content alone does not see this; the lines do.
+   */
+  test('gives its hint the whole column, on one line', async ({ page }) => {
+    await startGame(page, 'Zu zweit')
+
+    const field = await box(page.locator('[data-hint]'))
+    const column = await box(page.locator('[data-kiosk-foot] [data-hint]').locator('..'))
+    expect(Math.round(field.width)).toBe(Math.round(column.width))
+
+    // One sentence, one line: its height is the height of a line of it.
+    const lines = await page.locator('[data-hint] span').evaluate((node) => {
+      const style = getComputedStyle(node)
+      const line = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2
+      return Math.round(node.getBoundingClientRect().height / line)
+    })
+    expect(lines).toBe(1)
+  })
+
   test('lights the corner that got the buzz and shuts the other one', async ({ page }) => {
     await startGame(page, 'Zu zweit')
     await page.locator('[data-buzzer][data-side="left"]').click()
@@ -285,6 +308,41 @@ test.describe('Kiosk layout, single player', () => {
     await confirm.click()
     await expect(page.locator('.stage')).not.toHaveAttribute('data-phase', 'answer-locked', { timeout: 10_000 })
   })
+})
+
+/*
+ * THE SCORE MAY RISE, THE HEAD MAY NOT MOVE.
+ *
+ * The points cell used to be as wide as the number in it, so the first
+ * correct answer of a round - nought becoming a hundred - widened the card and
+ * pushed the counter and the other player's card sideways, at exactly the
+ * moment everybody is looking at the score. The cell reserves three digits
+ * now, which is the most a round produces (seven questions at a hundred
+ * points).
+ *
+ * THE NUMBER IS WRITTEN INTO THE CELL HERE instead of being played for: what
+ * is asked is a property of the cell's width, not of the engine's scoring -
+ * the points a correct answer is worth are counted in `touch-play.spec.ts`.
+ */
+test('the head group stands still while a score grows to three digits', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+
+  const points = page.locator('[data-score-group="player-1"] [data-score-value="points"]')
+  const neighbour = page.locator('[data-score-group="player-2"]')
+  const width = () =>
+    points.evaluate((node) => {
+      const cell = (node as HTMLElement).closest('div')!
+      return Number(cell.getBoundingClientRect().width.toFixed(1))
+    })
+  const write = (value: string) => points.evaluate((node, text) => ((node as HTMLElement).textContent = text), value)
+
+  await write('0')
+  const narrow = await width()
+  const place = await box(neighbour)
+
+  await write('700')
+  expect(await width()).toBe(narrow)
+  await expectSamePlace(neighbour, place)
 })
 
 /*

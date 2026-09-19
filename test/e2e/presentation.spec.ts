@@ -141,11 +141,6 @@ test.describe('Visual smoke tests of all scenes', () => {
     await expect(page.locator('[data-seconds]')).toHaveCount(0)
   })
 
-  test('video scene shows the video area', async ({ page }) => {
-    await selectScene(page, 'video')
-    await expect(page.locator('.stage[data-scene="video"]')).toBeVisible()
-  })
-
   test('feedback scene shows correct and wrong differently', async ({ page }) => {
     await selectScene(page, 'feedback')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="correct"]')).toBeVisible()
@@ -505,43 +500,5 @@ test.describe('Screenshot regression of central states', () => {
       maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
-  })
-})
-
-/* ------------------------------------------------------------------ *
- * Video scene
- * ------------------------------------------------------------------ */
-
-test.describe('Video', () => {
-  /*
-   * In the operator's preview no second piece of media is playing - and it
-   * tells them nothing about the playback either. There is nothing to see
-   * there except the area by which they recognise the composition.
-   */
-  test('the operator preview plays nothing and shows no state', async ({ page }) => {
-    await page.goto('/preview')
-    await selectScene(page, 'video')
-    await page.locator('[data-preview-variant]').selectOption('preview')
-
-    await expect(page.locator('[data-video-placeholder]')).toBeVisible()
-    await expect(page.locator('video')).toHaveCount(0)
-    /*
-     * No "ready", no "running", no "finished": the operator needs nothing from
-     * the stage in order to start the video or to move on afterwards.
-     */
-    await expect(page.locator('[data-video-status]')).toHaveCount(0)
-  })
-
-  test('on the stage the image stands, preloaded and unstarted', async ({ page }) => {
-    await page.goto('/preview')
-    await selectScene(page, 'video')
-    await expect(page.locator('[data-video-placeholder]')).toBeVisible()
-
-    const medium = page.locator('video')
-    await expect(medium).toHaveCount(1)
-    await expect(medium).toHaveAttribute('preload', 'auto')
-    // The area stays visible - it no longer fades out after the video.
-    await expect(page.locator('[data-video-placeholder]')).toHaveCSS('opacity', '1')
-    await expect(page.locator('[data-video-status]')).toHaveCount(0)
   })
 })

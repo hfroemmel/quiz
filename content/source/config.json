@@ -97,11 +97,8 @@
       "label": "Leicht",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "hasVideo": true
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -169,11 +166,8 @@
       "label": "Mittel",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "hasVideo": true
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -248,11 +242,8 @@
       "label": "Schwer",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "hasVideo": true
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -328,11 +319,8 @@
       "label": "Gemischt",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "hasVideo": true
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -397,11 +385,8 @@
       "label": "Saarbrücken",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "hasVideo": true
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",

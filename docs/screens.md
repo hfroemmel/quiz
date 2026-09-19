@@ -29,8 +29,8 @@ all transitions in [`docs/animationskatalog.md`](animationskatalog.md).
 | 1 | `result` | `result` | Confetti, result tiles, `Spiel beenden` ("End game") |
 
 Not included in the templates and therefore designed below: `pause-screen`,
-`video`, `second-chance`, `aborted`, connection loss, resumption after
-restart, moderator view.
+`second-chance`, `aborted`, connection loss, resumption after restart,
+moderator view.
 
 ## Shared Frame
 
@@ -423,22 +423,6 @@ Time-driven interim state per specification 6.2.
   interesting right now.
 - Control bar: everything locked; the server advances on its own after
   `gameTiming.pauseScreenMs`.
-
-## Video Question (`video`) - Implemented
-
-- The video sits centered in 16:9 on the stage area. One phase, one
-  picture: whether it's paused, playing, or finished is shown by the
-  picture itself.
-- NO display of playback status, no progress bar, no play icon - neither on
-  the stage nor at the console. None of that reaches the server, so nothing
-  can display it either (see `docs/zustandsmaschine.md`).
-- Nothing fades out at the end: the last frame stays on screen until the
-  operator brings in the question.
-- Control bar: `Video starten` ("Start video", plays from the beginning,
-  any number of times) and `Frage einblenden` ("Show question"). If the
-  file cannot be played, the area stays empty - `Frage einblenden` and
-  `Frage ueberspringen` ("Skip question") are unaffected by this, so the
-  flow can never get stuck on a file.
 
 ## Abort (`aborted`) - Designed
 
