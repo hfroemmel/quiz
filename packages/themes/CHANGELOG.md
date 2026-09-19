@@ -1,5 +1,29 @@
 # @hfroemmel/quiz-themes
 
+## 0.25.1
+
+### Patch Changes
+
+- The start menu measures against itself, and the accent turns to light
+  
+  Artwork, checkmark and its sign are shares of the area now instead of shares
+  of the window: the same card holds up in a boxed stage as it does full screen.
+  A chosen card no longer paints itself - it keeps the surface it has and says
+  its state through the mark in its corner - and the start bar takes the primary
+  colour instead of a gradient between two greens.
+  
+  On the dark stage the accent is white and its withdrawn step a near-white, so
+  the player on turn is marked by brightness rather than by hue; on paper that
+  step is a mid grey. What stands on a strong area is dark there and dark on a
+  chip, while the light variant names the light ink it needs for its own black
+  surfaces. Two tones nobody reads any more are gone from the palette, and the
+  guard lists exactly the ones that are carried.
+  
+  An answer row no longer inherits the gap of its list, so letter and text sit
+  against each other as one surface.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.25.1
+
 ## 0.25.0
 
 ### Minor Changes
