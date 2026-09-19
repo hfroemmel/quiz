@@ -82,6 +82,22 @@ const houseRed = '#ca2f56'
 const chipInk = '#333333'
 const europeBlue = '#003399'
 const brightInkMuted = '#999999'
+/*
+ * THE GROUND OF THE DARK STAGE, in three plain greys, and the tones that sit
+ * on it. The spectrum's `Dunkelgrau` carries a blue cast at every step; these
+ * are the neutral greys the design asks for, written out because no step of
+ * the spectrum is neutral. `houseWhite` and `houseBlack` are the short forms
+ * the design uses - they are values of their own to the guard, so they stand
+ * here rather than being spelled out twice.
+ */
+const houseInk = '#111'
+const houseInkSoft = '#232323'
+const houseInkLift = '#343434'
+const houseChip = '#f2f2f2'
+const houseWhite = '#fff'
+const houseBlack = '#000'
+/* The action of the light start menu - a mint that is not the stage's green. */
+const houseMint = '#00ce9d'
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -104,11 +120,11 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
      * `Dunkelgrau`, darkened with black - the deepest step for the page, a
      * lighter one under the stage, so the board still lifts off the page.
      */
-    pageTop: ciDark('dunkelgrau', 20),
-    pageBottom: ciDark('dunkelgrau', 40),
-    stageTop: ciDark('dunkelgrau', 40),
-    stageBottom: ciDark('dunkelgrau', 60),
-    controls: ciDark('dunkelgrau', 20),
+    pageTop: houseInk,
+    pageBottom: houseInkSoft,
+    stageTop: houseInkSoft,
+    stageBottom: houseInkLift,
+    controls: houseInk,
     tile: veil(weiss, 0.09),
     tileDisabled: veil(weiss, 0.05),
     tileQuiet: veil(weiss, 0.06),
@@ -128,7 +144,9 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
      */
     accent: houseCyan,
     accentQuiet: houseCyanDeep,
-    primary: houseGreen,
+    primary: houseWhite,
+    /* The primary is near-white here, so what stands on it is the dark ink. */
+    primaryInk: houseBlack,
     solution: houseGreen,
     /*
      * Same tone as the bar: the letter and the answer are ONE surface, split
@@ -154,6 +172,8 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
     accent: '#D61E1E',
     accentQuiet: '#D98B93',
     primary: '#D61E1E',
+    /* A strong red ground - the drawn world writes on it in white. */
+    primaryInk: '#FFFFFF',
     solution: '#6FBE6B',
     solutionChip: '#F9CD36',
     correct: '#6FBE6B',
@@ -205,13 +225,15 @@ export const brightPalette: Partial<DesignColors> = {
   tileDisabled: veil(brightInk, 0.04),
   tileQuiet: veil(brightInk, 0.05),
   option: veil(brightInk, 0.05),
-  accent: houseCyan,
+  accent: schwarz,
   /*
    * ON PAPER THE PRIMARY IS THE INK, not the green: the green of this system
    * carries the light stage, and on white it is a signal without a ground to
    * sit on. What names the rank here is the text colour itself.
    */
   primary: schwarz,
+  /* And on the black of the light variant, the light ink. */
+  primaryInk: houseWhite,
   solution: houseGreen,
   solutionChip: houseGreen, // siehe oben
   correct: houseGreen,
@@ -290,7 +312,7 @@ export const redPalette: Partial<DesignColors> = {
  */
 export const stageExtras = {
   /** Text on accent, solution or player colour - always light there. */
-  inkOnStrong: weiss,
+  inkOnStrong: schwarz,
   /**
    * Shadow under a card lying ON the stage - the background step after a
    * solution.
@@ -323,7 +345,7 @@ export const stageExtras = {
    * seven to one - the style guide's own pairing, and readable on all four
    * grounds because the surface is opaque.
    */
-  chip: ci('hellgrau', 20),
+  chip: houseChip,
   inkOnChip: chipInk,
   /*
    * NO PLAYER COLOURS HERE ANYMORE.
@@ -446,7 +468,12 @@ export const quizSelectPalette = {
  * card lying on it - the same situation, and therefore not a new number.
  */
 export const darkQuizSelectPalette = {
-  page: stagePalettes.default.pageTop,
+  /*
+   * The poster keeps the ground it was drawn on. The stage's own page is a
+   * plainer grey now (`houseInk`); this surface is not the stage, and the
+   * spectrum's deepest `Dunkelgrau` is what its cards were measured against.
+   */
+  page: ciDark('dunkelgrau', 20),
   ink: stagePalettes.default.text,
   'ink-quiet': stagePalettes.default.textMuted,
   shadow: stageExtras.cardShadow,
@@ -472,8 +499,8 @@ export const uiPalette = {
   'surface-quiet': ciDark('dunkelgrau', 20),
   /* Lightened surface INSIDE a card - such as the notes column. */
   'surface-raised': veil(weiss, 0.06),
-  control: ciDark('dunkelgrau', 60),
-  'control-disabled': ciDark('dunkelgrau', 40),
+  control: houseInkLift,
+  'control-disabled': houseInkSoft,
   input: veil(schwarz, 0.35),
   border: veil(weiss, 0.1),
   /* Divider line inside a card - fainter than the outer edge. */
@@ -724,7 +751,14 @@ export const brightStartPalette = {
   option: brightPalette.option!,
   'option-hover': brightPalette.controls!,
   /* On the grey, the icon stands out via white, not via ink. */
-  'option-icon': stageExtras.inkOnStrong,
+  /*
+   * THE LIGHT INK OF THIS SCREEN IS ITS OWN. The stage writes dark on its
+   * strong areas now (`stageExtras.inkOnStrong`); here a filled card, the
+   * start bar and the badge are deep colours, and only white holds up on
+   * them. The four names below therefore state the value instead of
+   * following the stage's.
+   */
+  'option-icon': weiss,
   /*
    * AND THE SELECTED CARD IS FULLY FILLED WITH IT - not tinted blue, but the
    * same blue that a tapped answer carries in the game. It is the same value
@@ -737,7 +771,7 @@ export const brightStartPalette = {
    * this screen is not dragged along by a change made for the stage. The
    * four names below hold the same value for the same reason.
    */
-  'surface-selected': ci('blau'),
+  'surface-selected': houseCyan,
 
   text: brightInk,
   'text-muted': veil(brightInk, 0.6),
@@ -751,7 +785,7 @@ export const brightStartPalette = {
    * and checkmark. Previously the ink of the other cards was used here; that
    * was correct as long as the selected card was only tinted blue.
    */
-  'ink-on-selected': stageExtras.inkOnStrong,
+  'ink-on-selected': weiss,
   'meta-on-selected': veil(weiss, 0.78),
 
   /*
@@ -760,13 +794,13 @@ export const brightStartPalette = {
    * runs here between two identical tones - it disappears without the
    * stylesheet rule needing to know about it.
    */
-  green: ci('gruen'),
-  'green-bright': ci('gruen'),
-  'green-light': ci('gruen'),
-  'green-deep': ci('gruen'),
-  'green-edge': ci('gruen'),
-  'ink-on-green': stageExtras.inkOnStrong,
-  'ink-on-badge': stageExtras.inkOnStrong,
+  green: houseMint,
+  'green-bright': houseMint,
+  'green-light': houseMint,
+  'green-deep': houseMint,
+  'green-edge': houseMint,
+  'ink-on-green': weiss,
+  'ink-on-badge': weiss,
 
   /* The brand panel sits on the same paper as everything else. */
   'brand-top': brightPalette.pageTop!,

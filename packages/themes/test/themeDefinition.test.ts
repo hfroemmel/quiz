@@ -130,9 +130,16 @@ describe('the menu mirrors the stage', () => {
       expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBeDefined()
       expect((brightPalette as Record<string, string>)[stageToken], stageToken).toBeDefined()
     }
-    for (const startToken of brightStartInkOnStrong) {
-      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(stageExtras.inkOnStrong)
-    }
+    /*
+     * AND THE FOUR LIGHT INKS ARE NO LONGER THE STAGE'S. The stage writes
+     * dark on its strong areas; a filled card, the start bar and the badge of
+     * this screen are deep colours, so all four carry the same light ink of
+     * their own. What the list still states is which tokens a host theme's
+     * `stage.inkOnStrong` may steer.
+     */
+    const inks = brightStartInkOnStrong.map((token) => (brightStartPalette as Record<string, string>)[token])
+    expect(new Set(inks).size, inks.join(', ')).toBe(1)
+    expect(inks[0]).not.toBe(stageExtras.inkOnStrong)
   })
 
   it('an own stage accent reaches the menu, and the action follows the own green', () => {

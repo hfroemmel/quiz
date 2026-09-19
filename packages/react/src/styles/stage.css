@@ -205,7 +205,7 @@
 /* Action colour: the one button that moves the view forward. */
 :where(.stage-button--primary) {
   background: var(--color-primary);
-  color: var(--stage-inkOnStrong);
+  color: var(--color-primaryInk);
 }
 
 /* Immediate feedback on the press - ahead of any server response. */

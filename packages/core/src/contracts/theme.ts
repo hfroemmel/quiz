@@ -22,6 +22,13 @@ export const designColorTokens = [
   'accent',
   'accentQuiet',
   'primary',
+  /*
+   * The ink ON the primary colour. It is a token of its own because the two
+   * do not move together: a world whose primary is a strong ground wants
+   * light text on it, one whose primary is near-white wants dark - and only
+   * the theme that names the one knows the other.
+   */
+  'primaryInk',
   'solution',
   'solutionChip',
   'correct',

@@ -1,5 +1,40 @@
 # @hfroemmel/quiz-content
 
+## 0.25.0
+
+### Minor Changes
+
+- The ink on the primary colour becomes a token of its own
+  
+  `primaryInk` joins the colour vocabulary (`designColorTokens`). It is a break
+  in the small way that matters: a host building a complete `DesignColors`
+  object in TypeScript now has one more token to name. Everything the packages
+  ship fills it already - the dark stage writes dark on its near-white primary,
+  the light variant light on its black, and the children's world white on its
+  red.
+  
+  WHY A TOKEN AND NOT A RULE. The button that moves the view forward used to
+  write in the ink meant for strong coloured areas. That held as long as the
+  primary colour was one, and it stopped holding the moment a world made its
+  primary near-white: the two do not move together, and only the theme that
+  names the one knows the other.
+  
+  The colours of the adults' world follow the same change. The stage stands on
+  three plain greys, its primary is near-white, what sits on a light chip is
+  dark, and the control frame takes the same greys. On paper the accent is
+  black. In the light start menu the selection carries the cyan of the stage and
+  the action a mint of its own, while the four inks on its filled surfaces stay
+  light - a deep card needs white on it, whatever the stage does. The offer
+  overview keeps the ground it was drawn on.
+  
+  The guard over the colour spectrum keeps working and names every tone outside
+  it, the commissioned ground of the red variant included.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.25.0
+
 ## 0.24.10
 
 ### Patch Changes

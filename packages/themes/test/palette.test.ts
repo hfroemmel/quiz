@@ -204,6 +204,18 @@ describe('the federal colour spectrum', () => {
     '#BBB',
     /* The last stop of the children's card. */
     '#CBC9F1',
+    /*
+     * The ground of the dark stage in three plain greys, the chip on it, and
+     * the mint of the light start button. The short forms are the design's
+     * own writing and count as values of their own here.
+     */
+    '#111',
+    '#232323',
+    '#343434',
+    '#F2F2F2',
+    '#FFF',
+    '#000',
+    '#00CE9D',
   ])
 
   /** Every colour token of a value - a gradient carries several. */
