@@ -193,6 +193,10 @@
   width: auto;
 }
 
+:global(.stage--touch) .scoreGroup[data-head-group="solo"] .score .cellPoints {
+  border-radius: var(--stage-radius);
+}
+
 /* ------------------------------------------------------------------ *
  * Kids' world: a drawn paper card with a coloured field
  * ------------------------------------------------------------------ */

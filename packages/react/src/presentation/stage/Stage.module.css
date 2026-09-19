@@ -64,7 +64,8 @@
   z-index: 1;
   flex: 1;
   display: flex;
-  transform-origin: center;
+  width: 100cqw;
+  transform-origin: bottom center;
 }
 
 /* Everything content-related sits above the background. */
@@ -100,7 +101,6 @@
   aspect-ratio: 16 / 9;
   /* The host zoom scales the whole area; the device itself shows it full size. */
   scale: var(--stage-zoom, 1);
-  transform-origin: top center;
 }
 /*
  * THE KIOSK LAYOUT GIVES THE SCENE THE WHOLE WIDTH.
@@ -126,15 +126,13 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 :global(.stage--touch[data-layout='kiosk']) .sceneArea {
-  width: 100cqw;
   justify-self: center;
   aspect-ratio: 16 / 9;
-  transform-origin: center;
   margin: 0 auto;
 }
 
 :global(.stage--kids) .sceneArea {
-  width: 80cqw;
+  width: 80cqw !important;
 }
 
 /* The scene box fills the area. */

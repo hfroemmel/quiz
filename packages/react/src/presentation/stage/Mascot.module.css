@@ -2,12 +2,12 @@
  * Mascot layer. In the adult stage it stays empty; the kids' world places
  * Karlchen at the right edge.
  */
-
-.mascot {
+:global(.stage--kids.stage--scene-question[data-answers-shown='true']) .mascot,
+:global(.stage--kids.stage--scene-solution) .mascot {
   position: fixed;
   z-index: 1;
-  right: 0;
-  bottom: 2.25cqw;
+  right: -11cqw;
+  bottom: -4.75cqw;
   height: 32.625cqw;
   aspect-ratio: 927 / 1131;
   background: url('../../assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
