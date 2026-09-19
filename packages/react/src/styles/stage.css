@@ -145,11 +145,15 @@
  * (`--stage-glass`), the picture behind the scene stays out (see
  * `Stage.module.css`), and what remains is one surface in one tone.
  *
- * WHAT STAYS IS THE DEPTH. The panes keep their white veils at five to nine
- * percent, and over one flat ground those composite to flat, slightly lighter
- * reds - the same order of surfaces as in the other variants, without a
- * second colour entering the room. Nothing shines through any more, because
- * behind them there is nothing but the ground.
+ * WHAT STAYS IS THE DEPTH, but it is no longer made of veils. Everywhere else
+ * a pane is white at five to nine percent and the ground decides what it
+ * becomes; over this red such a veil reads as a pale patch instead of a
+ * surface. The tile and the answer option therefore name a darker red of
+ * their own (`redTile` in `palettes.ts`), and what is switched off or held
+ * back stays on the ground itself. That is the second tone this world
+ * carries, and the guard in `palette.test.ts` names both by hand. Nothing
+ * shines through any more, because behind them there is nothing but the
+ * ground.
  */
 .stage--red {
   --stage-glass: none;

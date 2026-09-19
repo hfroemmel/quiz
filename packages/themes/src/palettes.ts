@@ -47,6 +47,41 @@ import { ci, ciDark, schwarz, veil, weiss } from './federalSpectrum'
  * for the children's illustrations.
  */
 const redGround = '#CA2F56'
+/*
+ * The tile on that ground - the commissioned tone, carried a few steps into
+ * the dark. It is written out and not computed: the red is a commissioned
+ * colour rather than a step of the spectrum, so nothing here derives a second
+ * one from it (see `redPalette`).
+ */
+const redTile = '#a22644'
+
+/*
+ * THE HOUSE TONES - the colours this system was set to, and they are not
+ * steps of the spectrum.
+ *
+ * The signals, the grades of the start menu, the ink on a chip and the card
+ * of the Europe quiz name values of their own: a cyan where the spectrum's
+ * blue stood, one green in four grades where `Gruen` stood, near-black ink
+ * and the European blue on its card. They are written out because there is
+ * nothing to derive them from - no step lies close enough to call this a
+ * rounding.
+ *
+ * THEY STAND HERE AND NOWHERE ELSE. Six of them are read by more than one
+ * palette (the stage, its light variant, the start menu), and a copy in one
+ * of them is how two surfaces drift apart. The guard in `palette.test.ts`
+ * lists them by name, so a value that is neither a step nor one of these
+ * still fails there.
+ */
+const houseCyan = '#00acd3'
+const houseCyanDeep = '#0084a1'
+const houseGreen = '#8cd000'
+const houseGreenBright = '#a8e063'
+const houseGreenLight = '#b7f0a1'
+const houseGreenDeep = '#5a9e2b'
+const houseRed = '#ca2f56'
+const chipInk = '#333333'
+const europeBlue = '#003399'
+const brightInkMuted = '#999999'
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -91,18 +126,18 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
      * would drown in the background. The light variant takes the same
      * colours at 100 percent.
      */
-    accent: ci('blau', 80),
-    accentQuiet: ciDark('petrol', 80),
-    primary: ci('gruen', 80),
-    solution: ci('gruen', 80),
+    accent: houseCyan,
+    accentQuiet: houseCyanDeep,
+    primary: houseGreen,
+    solution: houseGreen,
     /*
      * Same tone as the bar: the letter and the answer are ONE surface, split
      * only by a seam. Two greens side by side read like two separate
      * statements - the darker chip looked like a second state.
      */
-    solutionChip: ci('gruen', 80),
-    correct: ci('tuerkis', 80),
-    incorrect: ciDark('rot', 80),
+    solutionChip: houseGreen,
+    correct: houseGreen,
+    incorrect: houseRed,
     text: weiss,
     textMuted: veil(weiss, 0.6),
   },
@@ -170,14 +205,19 @@ export const brightPalette: Partial<DesignColors> = {
   tileDisabled: veil(brightInk, 0.04),
   tileQuiet: veil(brightInk, 0.05),
   option: veil(brightInk, 0.05),
-  accent: ci('blau'),
-  primary: ci('gruen'),
-  solution: ci('gruen'),
-  solutionChip: ci('gruen'), // siehe oben
-  correct: ci('tuerkis'),
+  accent: houseCyan,
+  /*
+   * ON PAPER THE PRIMARY IS THE INK, not the green: the green of this system
+   * carries the light stage, and on white it is a signal without a ground to
+   * sit on. What names the rank here is the text colour itself.
+   */
+  primary: schwarz,
+  solution: houseGreen,
+  solutionChip: houseGreen, // siehe oben
+  correct: houseGreen,
   incorrect: ci('dunkelrot'),
-  text: brightInk,
-  textMuted: veil(brightInk, 0.6),
+  text: schwarz,
+  textMuted: brightInkMuted,
 }
 
 /**
@@ -211,7 +251,9 @@ export const brightPalette: Partial<DesignColors> = {
  * the three signals mean the same thing in every variant.
  *
  * THE GROUND IS THE COMMISSIONED `#CA2F56`, and it is not a step of the
- * spectrum - the only value of this world that is not (see `redGround`). It
+ * spectrum. It and the tile tone carried out of it (`redTile`) are the two
+ * values of this world that are not - and the guard in `palette.test.ts`
+ * names exactly these two, so a third one still fails there. It
  * stood at `Rot` 80 percent for one release, because that step is fourteen
  * units away and the house had just put every colour on the spectrum; the
  * client asked for their tone back, and a commissioned colour is not something
@@ -223,6 +265,19 @@ export const redPalette: Partial<DesignColors> = {
   stageTop: redGround,
   stageBottom: redGround,
   controls: redGround,
+
+  /*
+   * THE TILES CARRY THEIR OWN TONES HERE. In the dark world they are white
+   * veils over an almost black ground; over this red the same veils turn
+   * milky, and a tile reads as a pale patch instead of a surface. The tile
+   * and the answer option therefore take the darker tone, while the two
+   * quiet ones stay on the ground itself - what is switched off or held back
+   * shows no surface at all.
+   */
+  tile: redTile,
+  tileDisabled: redGround,
+  tileQuiet: redGround,
+  option: redTile,
 }
 
 /**
@@ -269,7 +324,7 @@ export const stageExtras = {
    * grounds because the surface is opaque.
    */
   chip: ci('hellgrau', 20),
-  inkOnChip: ci('dunkelblau'),
+  inkOnChip: chipInk,
   /*
    * NO PLAYER COLOURS HERE ANYMORE.
    *
@@ -320,18 +375,19 @@ export const stageExtras = {
  * state that doesn't exist would be an invitation to add one anyway.
  */
 /*
- * The ink of the poster: `Dunkelblau`, at its deepest step for the heading and
- * whole for the line under it. The two used to be a near-black navy and a mid
- * navy mixed by hand; the spectrum has that family, and the step rule gives
- * the two levels the design asks for.
+ * The ink ON A CARD of the poster: `Dunkelblau` at its deepest step.
+ *
+ * THE PAGE AND THE CARD NAME DIFFERENT INKS. The page carries the house black
+ * and its grey step (`ink` and `ink-quiet` below); a light card is not the
+ * page, and what stands on it keeps the spectrum's navy - that is also what
+ * the Europe card's white ink is measured against.
  */
 const selectInk = ciDark('dunkelblau', 40)
-const selectInkQuiet = ci('dunkelblau')
 
 export const quizSelectPalette = {
   page: weiss,
-  ink: selectInk,
-  'ink-quiet': selectInkQuiet,
+  ink: '#000',
+  'ink-quiet': '#696969',
   /*
    * INK ON A CARD IS NOT INK ON THE PAGE.
    *
@@ -344,7 +400,7 @@ export const quizSelectPalette = {
    * heading and unreadable cards.
    */
   'ink-on-card': selectInk,
-  'meta-on-card': selectInkQuiet,
+  'meta-on-card': '#696969',
   /*
    * THE FIVE CARD SURFACES. Gradients, because a flat surface looks empty here.
    *
@@ -356,10 +412,12 @@ export const quizSelectPalette = {
    * The motifs on top keep their own colours - a flag is content, not a token.
    */
   'card-bundestag': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
-  'card-kids': `linear-gradient(180deg, ${ci('hellblau', 60)} 0%, ${ci('hellblau', 40)} 50%, ${ci('blau', 20)} 100%)`,
-  'card-europe': ci('dunkelblau'),
-  'card-unity': `linear-gradient(135deg, ${ci('gelb', 20)} 0%, ${ci('hellorange', 20)} 100%)`,
-  'card-bremen': `linear-gradient(135deg, ${ci('rot', 20)} 0%, ${ci('rot', 40)} 100%)`,
+  'card-kids': `linear-gradient(180deg, ${ci('hellblau', 60)} 0%, ${ci('hellblau', 40)} 50%, #cbc9f1 100%)`,
+  'card-europe': europeBlue,
+  /* The same grey paper as the Bundestag card - one value, written twice. */
+  'card-unity': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
+  /* The same grey paper as the Bundestag card - one value, written once. */
+  'card-bremen': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
   /* On the deep blue, only white works - the style guide says so too. */
   'ink-on-europe': weiss,
   /* The shadow is a hint - the cards rest, they don't float. */
@@ -530,10 +588,10 @@ export const startPalette = {
    * spectrum's `Grün` gives the bar its gradient (80 to 100 percent), the
    * lighter step its edge and the brighter one its mark.
    */
-  green: ci('gruen', 80),
-  'green-bright': ci('gruen', 60),
-  'green-light': ci('gruen', 80),
-  'green-deep': ci('gruen'),
+  green: houseGreen,
+  'green-bright': houseGreenBright,
+  'green-light': houseGreenLight,
+  'green-deep': houseGreenDeep,
   /* Edge on the start button, so its gradient doesn't fray. */
   'green-edge': ci('gruen', 40),
   /*
@@ -566,7 +624,7 @@ export const startPalette = {
   'brand-shade': schwarz,
 
   /* Icon of an unselected card and of the corner buttons. */
-  icon: ci('hellgrau'),
+  icon: '#bbb',
   /* Lightening as frosted glass - the tone all veils are mixed from. */
   glass: weiss,
   /* Darkening - shadow under the panels. */
@@ -673,15 +731,21 @@ export const brightStartPalette = {
    * as `selected` below; that two names point to one colour here is exactly
    * the point: in the dark variant they are two different colours.
    */
-  'surface-selected': brightPalette.accent!,
+  /*
+   * AND IT NAMES ITS OWN BLUE. The stage carries the house cyan now; the
+   * light start selection keeps the spectrum's blue it was built with, so
+   * this screen is not dragged along by a change made for the stage. The
+   * four names below hold the same value for the same reason.
+   */
+  'surface-selected': ci('blau'),
 
-  text: brightPalette.text!,
-  'text-muted': brightPalette.textMuted!,
+  text: brightInk,
+  'text-muted': veil(brightInk, 0.6),
   'text-quiet': veil(brightInk, 0.45),
 
   /* The selection carries the blue of the marked answer. */
-  selected: brightPalette.accent!,
-  'selected-bright': brightPalette.accent!,
+  selected: ci('blau'),
+  'selected-bright': ci('blau'),
   /*
    * On the full blue surface, only white works - title, line below it, icon
    * and checkmark. Previously the ink of the other cards was used here; that
@@ -696,11 +760,11 @@ export const brightStartPalette = {
    * runs here between two identical tones - it disappears without the
    * stylesheet rule needing to know about it.
    */
-  green: brightPalette.primary!,
-  'green-bright': brightPalette.primary!,
-  'green-light': brightPalette.primary!,
-  'green-deep': brightPalette.primary!,
-  'green-edge': brightPalette.primary!,
+  green: ci('gruen'),
+  'green-bright': ci('gruen'),
+  'green-light': ci('gruen'),
+  'green-deep': ci('gruen'),
+  'green-edge': ci('gruen'),
   'ink-on-green': stageExtras.inkOnStrong,
   'ink-on-badge': stageExtras.inkOnStrong,
 
@@ -709,12 +773,12 @@ export const brightStartPalette = {
   'brand-mid': brightPalette.pageTop!,
   'brand-bottom': brightPalette.pageTop!,
   'brand-line': veil(brightInk, 0.1),
-  'brand-text': brightPalette.text!,
+  'brand-text': brightInk,
   'brand-shade': veil(brightInk, 0.08),
 
-  icon: brightPalette.textMuted!,
+  icon: veil(brightInk, 0.6),
   /* The veils are mixed from ink, not from light. */
-  glass: brightPalette.text!,
+  glass: brightInk,
 } as const
 
 /**

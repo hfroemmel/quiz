@@ -162,16 +162,49 @@ describe('the federal colour spectrum', () => {
   const legal = federalValues()
 
   /*
-   * THE ONE COMMISSIONED TONE OF THE ADULTS' WORLD.
+   * THE TONES OF THE HOUSE - the values this system names itself.
    *
-   * The red variant was ordered with this ground and the client asked for it
-   * back after the conformance sweep had put `Rot` at 80 percent (#CD3363) in
-   * its place - fourteen units away, a tone nobody separates at two metres.
-   * An order outranks a rule the house set for itself, so the value stands in
-   * `palettes.ts`; it stands HERE so that it is an exception with a reason and
-   * not a hole in the guard. Anything else that is not a step still fails.
+   * The spectrum is still the rule for everything that can follow it: grounds,
+   * greys, veils and the whole light variant's paper are steps of it, and a
+   * value that is neither a step nor one of the names below fails here.
+   *
+   * WHAT STANDS HERE, AND WHY EACH ONE DOES:
+   *
+   *   #CA2F56  the ground of the red variant - ordered, and confirmed by the
+   *            client after the conformance sweep had put `Rot` at 80 percent
+   *            (#CD3363) in its place, fourteen units away.
+   *   #A22644  the tile on that ground. A white veil over this red reads as a
+   *            pale patch instead of a surface, so the variant names its own.
+   *   #00ACD3  the accent of the stage, and #0084A1 its withdrawn step.
+   *   #8CD000  the one green of the system - the solution, the right answer
+   *            and the start button - with #A8E063, #B7F0A1 and #5A9E2B as
+   *            its grades in the start menu.
+   *   #333333  the ink on a light chip, #999999 the muted text on paper.
+   *   #003399  the card of the Europe quiz, in the blue that quiz is about.
+   *
+   * THE LIST IS THE POINT. Each value is here by name, so a colour that
+   * nobody chose deliberately still cannot enter - and dropping one of these
+   * from `palettes.ts` fails the counter-test below.
    */
-  const commissioned = new Set(['#CA2F56'])
+  const house = new Set([
+    '#CA2F56',
+    '#A22644',
+    '#00ACD3',
+    '#0084A1',
+    '#8CD000',
+    '#A8E063',
+    '#B7F0A1',
+    '#5A9E2B',
+    '#333333',
+    '#003399',
+    '#999999',
+    /* The offer overview: ink, its quiet step, and the icon of a card. */
+    '#000',
+    '#696969',
+    '#BBB',
+    /* The last stop of the children's card. */
+    '#CBC9F1',
+  ])
 
   /** Every colour token of a value - a gradient carries several. */
   function colours(value: string): string[] {
@@ -208,7 +241,7 @@ describe('the federal colour spectrum', () => {
         for (const colour of colours(value)) {
           /* `transparent` and `currentColor` name no tone - they pass by not matching. */
           const flat = tone(colour)
-          if (flat && !legal.has(flat) && !commissioned.has(flat)) strangers.push(`${token}: ${colour}`)
+          if (flat && !legal.has(flat) && !house.has(flat)) strangers.push(`${token}: ${colour}`)
         }
       }
       expect(
@@ -218,20 +251,28 @@ describe('the federal colour spectrum', () => {
     })
   }
 
-  it('carries the commissioned ground - the one tone the spectrum does not have', () => {
+  it('carries the commissioned ground and its tile - the two tones the spectrum does not have', () => {
     /*
      * The counter-test to the exception. It reads the ground from all three
      * palettes that show it, because they read one constant and a copy in one
      * of them is how the poster and the stage would drift apart. And the last
      * assertion is the sharp one: across every surface of the adults' world
-     * there is EXACTLY this one value outside the spectrum. A second literal
-     * creeping in fails here, and so does a sweep that conforms this one away
-     * - which is what happened once, and what the client asked to have undone.
+     * there are EXACTLY these two values outside the spectrum - the ground and
+     * the tile that sits on it. A THIRD literal creeping in fails here, and so
+     * does a sweep that conforms one of them away - which is what happened
+     * once, and what the client asked to have undone.
      */
     expect(redPalette.pageTop).toBe('#CA2F56')
     expect(redStartPalette['bg-top']).toBe('#CA2F56')
     expect(redQuizSelectPalette.page).toBe('#CA2F56')
     expect(legal.has('#CA2F56')).toBe(false)
+
+    /* The tile belongs to that ground - and to this variant alone. */
+    expect(redPalette.tile).toBe('#a22644')
+    expect(redPalette.option).toBe(redPalette.tile)
+    expect(redPalette.tileDisabled).toBe(redPalette.pageTop)
+    expect(redPalette.tileQuiet).toBe(redPalette.pageTop)
+    expect(legal.has('#A22644')).toBe(false)
 
     const outsiders = new Set<string>()
     for (const palette of Object.values(surfaces)) {
@@ -242,7 +283,13 @@ describe('the federal colour spectrum', () => {
         }
       }
     }
-    expect([...outsiders]).toEqual(['#CA2F56'])
+    /*
+     * AND THE TWO LISTS ARE THE SAME LIST. Every tone outside the spectrum
+     * that any surface carries stands in `house` above, and every name in
+     * `house` is actually carried by one - a value dropped from
+     * `palettes.ts` fails here just as a new literal does.
+     */
+    expect([...outsiders].sort()).toEqual([...house].sort())
   })
 
   it('states the children world as the exception, not as a gap', () => {

@@ -1655,7 +1655,8 @@
    * the live device's foot: otherwise the corners would drift away from the
    * edge at a small display size.
    */
-  padding: 0 calc(3cqw * var(--stage-zoom, 1)) calc(1.6875cqw * var(--stage-zoom, 1));
+  padding: 0 0 2cqw;
+  height: 11cqw;
 }
 /*
  * ONE PLAYER HAS NO CORNERS, so the column has to centre itself rather than
@@ -1794,7 +1795,6 @@
  */
 .kioskHint {
   position: relative;
-  height: var(--stage-button-height);
   display: flex;
   align-items: center;
   justify-content: center;

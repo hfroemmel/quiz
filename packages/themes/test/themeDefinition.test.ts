@@ -113,16 +113,22 @@ describe('the built-in themes carry the values of the stylesheet', () => {
 })
 
 describe('the menu mirrors the stage', () => {
-  it('the table says the same as the light start palette', () => {
+  it('the table names start tokens the light menu actually has', () => {
     /*
-     * `brightStartPalette` states the relationship as a reference taken once;
-     * the table states it as data, so it can be applied after a host's
-     * overrides. Whoever changes one of the two has to change the other.
+     * THE TABLE IS NO LONGER A COPY OF THE DEFAULTS. It used to state that
+     * each of these start tokens holds the same value as its stage token;
+     * since the stage carries the house tones and this screen keeps the
+     * spectrum's blue and green, the two sets differ on purpose.
+     *
+     * What the table states now is the RELATIONSHIP a host theme may steer:
+     * name a stage token, and these start tokens follow it (`mirrored` in
+     * `themeDefinition.ts`). So what has to hold is that both sides name
+     * tokens this menu really has - a typo on either side would otherwise
+     * silently steer nothing.
      */
     for (const [startToken, stageToken] of Object.entries(brightStartMirrors)) {
-      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(
-        (brightPalette as Record<string, string>)[stageToken],
-      )
+      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBeDefined()
+      expect((brightPalette as Record<string, string>)[stageToken], stageToken).toBeDefined()
     }
     for (const startToken of brightStartInkOnStrong) {
       expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(stageExtras.inkOnStrong)
@@ -235,29 +241,54 @@ describe('the red variant', () => {
   const darkOverview = declarations("[data-quiz-overview][data-theme='dark']")
   const redOverview = declarations("[data-quiz-overview][data-theme='red']")
 
-  it('names the ground of the stage, and nothing else', () => {
+  it('names the ground of the stage and the tone that sits on it', () => {
     expect(Object.keys(redStage).sort()).toEqual([
       '--color-controls',
+      '--color-option',
       '--color-pageBottom',
       '--color-pageTop',
       '--color-stageBottom',
       '--color-stageTop',
+      '--color-tile',
+      '--color-tileDisabled',
+      '--color-tileQuiet',
     ])
-    // One tone across all four areas - the veils on top of it make the depth.
-    const ground = new Set(Object.values(redStage))
-    expect(ground.size).toBe(1)
+    /*
+     * ONE GROUND, AND ONE TONE ON IT. The four areas and the two quiet tiles
+     * carry the commissioned ground; the tile and the answer option carry the
+     * darker tone that took the place of the white veils in this variant - a
+     * veil over the red read as a pale patch instead of a surface. What is
+     * switched off or held back shows no surface at all and stays on the
+     * ground.
+     */
+    const onTheGround = [
+      '--color-pageTop',
+      '--color-pageBottom',
+      '--color-stageTop',
+      '--color-stageBottom',
+      '--color-controls',
+      '--color-tileDisabled',
+      '--color-tileQuiet',
+    ].map((token) => redStage[token])
+    expect(new Set(onTheGround).size).toBe(1)
+    expect(new Set([redStage['--color-tile'], redStage['--color-option']]).size).toBe(1)
+    expect(redStage['--color-tile']).not.toBe(redStage['--color-pageTop'])
     expect(redStage['--color-pageTop']).not.toBe(fallback['--color-pageTop'])
   })
 
-  it('leaves the signals and the veils to the dark stage', () => {
+  it('leaves the signals to the dark stage', () => {
+    /*
+     * THE VEILS ARE NO LONGER AMONG THEM - tile and option name a tone of
+     * their own here (see the test above). THE SIGNALS STAY: blue marks the
+     * turn, green the right answer, red the wrong one, and they mean the same
+     * thing in every variant, so this world may not re-book them.
+     */
     for (const token of [
       '--color-accent',
       '--color-primary',
       '--color-solution',
       '--color-correct',
       '--color-incorrect',
-      '--color-tile',
-      '--color-option',
       '--color-text',
     ]) {
       expect(redStage[token], token).toBeUndefined()
@@ -301,7 +332,13 @@ describe('the red variant', () => {
      * follow the page's - that is what the second pair of names is for.
      */
     expect(darkOverview['--quiz-select-ink-on-card']).toBeUndefined()
-    expect(fallback['--quiz-select-ink-on-card']).toBe(fallback['--quiz-select-ink'])
+    /*
+     * AND ON THE LIGHT PAGE THE TWO DIFFER TOO. The page names the house black
+     * for its heading; a card is not the page, and what stands on it keeps the
+     * spectrum's navy (`selectInk` in `palettes.ts`).
+     */
+    expect(fallback['--quiz-select-ink-on-card']).toBeDefined()
+    expect(fallback['--quiz-select-ink-on-card']).not.toBe(fallback['--quiz-select-ink'])
     expect(darkOverview['--quiz-select-ink']).not.toBe(fallback['--quiz-select-ink-on-card'])
     for (const card of ['bundestag', 'kids', 'europe', 'unity', 'bremen']) {
       expect(darkOverview[`--quiz-select-card-${card}`], card).toBeUndefined()

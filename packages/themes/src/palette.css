@@ -21,13 +21,13 @@
   --color-tileDisabled: rgb(255 255 255 / 0.05);
   --color-tileQuiet: rgb(255 255 255 / 0.06);
   --color-option: rgb(255 255 255 / 0.05);
-  --color-accent: #3392C5;
-  --color-accentQuiet: #005A76;
-  --color-primary: #339D6E;
-  --color-solution: #339D6E;
-  --color-solutionChip: #339D6E;
-  --color-correct: #339AA2;
-  --color-incorrect: #9A0030;
+  --color-accent: #00acd3;
+  --color-accentQuiet: #0084a1;
+  --color-primary: #8cd000;
+  --color-solution: #8cd000;
+  --color-solutionChip: #8cd000;
+  --color-correct: #8cd000;
+  --color-incorrect: #ca2f56;
   --color-text: #FFFFFF;
   --color-textMuted: rgb(255 255 255 / 0.6);
   --stage-inkOnStrong: #FFFFFF;
@@ -35,7 +35,7 @@
   --stage-edge: rgb(255 255 255 / 0.22);
   --stage-inkOutline: #000000;
   --stage-chip: #F2F3F4;
-  --stage-inkOnChip: #004B76;
+  --stage-inkOnChip: #333333;
   --ui-page: #111314;
   --ui-surface: #232728;
   --ui-surface-quiet: #111314;
@@ -75,10 +75,10 @@
   --start-selected-bright: #66B692;
   --start-ink-on-selected: #FFFFFF;
   --start-meta-on-selected: #9AA0A2;
-  --start-green: #339D6E;
-  --start-green-bright: #66B692;
-  --start-green-light: #339D6E;
-  --start-green-deep: #00854A;
+  --start-green: #8cd000;
+  --start-green-bright: #a8e063;
+  --start-green-light: #b7f0a1;
+  --start-green-deep: #5a9e2b;
   --start-green-edge: #99CEB7;
   --start-ink-on-green: #FFFFFF;
   --start-ink-on-badge: #000000;
@@ -90,19 +90,19 @@
   --start-brand-line: #004A37;
   --start-brand-text: #BEC5C9;
   --start-brand-shade: #000000;
-  --start-icon: #BEC5C9;
+  --start-icon: #bbb;
   --start-glass: #FFFFFF;
   --start-shade: #000000;
   --quiz-select-page: #FFFFFF;
-  --quiz-select-ink: #001E2F;
-  --quiz-select-ink-quiet: #004B76;
+  --quiz-select-ink: #000;
+  --quiz-select-ink-quiet: #696969;
   --quiz-select-ink-on-card: #001E2F;
-  --quiz-select-meta-on-card: #004B76;
+  --quiz-select-meta-on-card: #696969;
   --quiz-select-card-bundestag: linear-gradient(135deg, #F2F3F4 0%, #D8DCDF 100%);
-  --quiz-select-card-kids: linear-gradient(180deg, #B3E1F4 0%, #CCEBF7 50%, #CCE4F0 100%);
-  --quiz-select-card-europe: #004B76;
-  --quiz-select-card-unity: linear-gradient(135deg, #FEF9D8 0%, #FDF1D8 100%);
-  --quiz-select-card-bremen: linear-gradient(135deg, #F2CCD8 0%, #E699B1 100%);
+  --quiz-select-card-kids: linear-gradient(180deg, #B3E1F4 0%, #CCEBF7 50%, #cbc9f1 100%);
+  --quiz-select-card-europe: #003399;
+  --quiz-select-card-unity: linear-gradient(135deg, #F2F3F4 0%, #D8DCDF 100%);
+  --quiz-select-card-bremen: linear-gradient(135deg, #F2F3F4 0%, #D8DCDF 100%);
   --quiz-select-ink-on-europe: #FFFFFF;
   --quiz-select-shadow: rgb(0 0 0 / 0.055);
 }
@@ -119,14 +119,14 @@
   --color-tileDisabled: rgb(17 19 20 / 0.04);
   --color-tileQuiet: rgb(17 19 20 / 0.05);
   --color-option: rgb(17 19 20 / 0.05);
-  --color-accent: #0077B6;
-  --color-primary: #00854A;
-  --color-solution: #00854A;
-  --color-solutionChip: #00854A;
-  --color-correct: #00818B;
+  --color-accent: #00acd3;
+  --color-primary: #000000;
+  --color-solution: #8cd000;
+  --color-solutionChip: #8cd000;
+  --color-correct: #8cd000;
   --color-incorrect: #780F2D;
-  --color-text: #111314;
-  --color-textMuted: rgb(17 19 20 / 0.6);
+  --color-text: #000000;
+  --color-textMuted: #999999;
 }
 
 /* Red version of the adults stage - the dark one with its ground exchanged. */

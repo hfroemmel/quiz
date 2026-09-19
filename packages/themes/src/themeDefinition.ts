@@ -250,15 +250,16 @@ export function resolveTheme(definition: ThemeDefinition): ResolvedTheme {
   }
   const stage = { ...stageExtras, ...definition.tokens?.stage }
   /*
-   * THE MENU MIRRORS THE STAGE, AND IT DOES SO AFTER THE OVERRIDES.
+   * THE MENU FOLLOWS A STAGE A HOST COLOURS ITSELF - AND ONLY THEN.
    *
-   * In the light variant a row of start tokens is the same value as a stage
-   * token - the selected card is the blue of a tapped answer, the button the
-   * green of "reveal". `brightStartPalette` already says that as a reference,
-   * but it takes that reference once, when the module is read. A host that gives
-   * its stage its own accent would therefore keep the built-in one in its menu.
-   * The relationship is applied here to the RESOLVED colours, and only then does
-   * what the theme names itself have the last word.
+   * A row of start tokens can follow a stage token: the selected card takes
+   * the colour of a tapped answer, the button the colour of "reveal". That
+   * relationship is applied to what the THEME NAMES ITSELF, so a host giving
+   * its stage an own accent carries it into the menu, while a theme that names
+   * nothing leaves this screen the values `brightStartPalette` states - the two
+   * sets are no longer one colour under two names (the stage carries the house
+   * tones, the menu keeps the spectrum's blue and green). What the theme states
+   * under `start` still has the last word, below.
    *
    * The dark variant is deliberately left out: there the selection and the
    * action are two different colours on purpose, and the menu's own set says so.
@@ -266,7 +267,7 @@ export function resolveTheme(definition: ThemeDefinition): ResolvedTheme {
   const start = {
     ...startPalette,
     ...(bright ? (brightStartPalette as Record<string, string>) : {}),
-    ...(bright ? mirrored(colors, stage) : {}),
+    ...(bright ? mirrored(definition.tokens?.colors ?? {}, definition.tokens?.stage ?? {}) : {}),
     ...definition.tokens?.start,
   }
 
@@ -294,10 +295,11 @@ export function resolveTheme(definition: ThemeDefinition): ResolvedTheme {
 }
 
 /** The start tokens that follow a stage token - see `brightStartMirrors`. */
-function mirrored(colors: DesignColors, stage: Record<string, string>): Record<string, string> {
+function mirrored(colors: Partial<DesignColors>, stage: Record<string, string>): Record<string, string> {
   const entries: Record<string, string> = {}
   for (const [startToken, stageToken] of Object.entries(brightStartMirrors)) {
-    entries[startToken] = colors[stageToken]
+    const value = colors[stageToken]
+    if (value !== undefined) entries[startToken] = value
   }
   const ink = stage['inkOnStrong']
   if (ink !== undefined) for (const startToken of brightStartInkOnStrong) entries[startToken] = ink
