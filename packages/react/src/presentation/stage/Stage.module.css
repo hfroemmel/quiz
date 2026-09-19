@@ -54,11 +54,10 @@
 /*
  * The scene's area: the scene box and the mascot beside it.
  *
- * It is the reference for both - Karlchen measures his size and his place
- * against THIS area and not against the device. In the room they are the
- * same; on the device the scene is a shrunk-down stage, and only this way
- * does the mascot end up at the same spot within its scene instead of on
- * the buzzer.
+ * It holds the two together and declares no container of its own: what a
+ * component inside it computes in `cqw` therefore measures against the STAGE
+ * (`stage.css` names it), not against this box. Scene and mascot thus share
+ * one measure with header and foot, whatever width this area is given.
  */
 .sceneArea {
   position: relative;
@@ -78,35 +77,22 @@
 }
 
 /*
- * ON A TOUCH DEVICE THE SCENE IS A SHRUNK-DOWN STAGE - 16:9 AND ITS OWN
- * CONTAINER.
+ * ON A TOUCH DEVICE THE SCENE IS A STAGE IN 16:9.
  *
  * Every stage size is designed for 16:9. That is why the scene keeps its
- * aspect ratio and shrinks as a whole: this way, EXACTLY the same
- * composition applies at the centre as in the room, just smaller - no
- * component needs a second measure for the device.
+ * aspect ratio: EXACTLY the same composition applies here as in the room,
+ * and no component needs a second measure for the device.
  *
- * IT TAKES ITS WIDTH, NOT ITS HEIGHT. Computed the other way round - height
- * from the remaining space, width derived from that - the whole composition
- * would hang off the WINDOW HEIGHT: two devices of the same width would show
- * the question at different sizes as soon as one is flatter. That is
- * exactly how it used to be, and exactly that is gone now.
+ * THE WIDTH COMES FROM OUTSIDE, the height from the ratio. The arrangements
+ * below say how wide the box stands; nothing here computes a width from the
+ * space that is left, so the composition never hangs off the window height
+ * and two devices of the same width show the question at the same size.
  *
- * ZOOM: THE SCENE SHRINKS TOWARD THE HEADER, ITS SPACE STAYS. What scales is
- * the display, not the box - if the box had the smaller size, buzzers and
- * score would move up with it. `scale` AND NOT `transform: scale()`: the
- * scene transitions sit on the scene box inside it and those animate
- * `transform`; the dedicated `scale` property is composed with that instead
- * of being overwritten by it.
- *
- * `container-type: size` makes the area the reference: without it, the
- * components would keep computing against the whole device and the
- * shrinking would not happen. Width and height stand in a fixed ratio - so
- * every `cqw` inside it stays a pure function of the width.
- *
- * THE SHRINKING SITS ON THE AREA, NOT ON THE SCENE BOX: this way the mascot
- * moves along with it, instead of standing at full size next to a shrunk
- * scene.
+ * ZOOM: `scale` AND NOT `transform: scale()` - the scene transitions sit on
+ * the scene box inside it and those animate `transform`; the dedicated
+ * `scale` property is composed with that instead of being overwritten by it.
+ * It sits on the AREA, not on the scene box, so the mascot moves along
+ * instead of standing at full size next to a shrunk scene.
  */
 :global(.stage--touch) .sceneArea {
   flex: 0 0 auto;
@@ -117,20 +103,14 @@
   transform-origin: top center;
 }
 /*
- * THE KIOSK LAYOUT DIVIDES THE HEIGHT INSTEAD OF ESTIMATING IT.
+ * THE KIOSK LAYOUT GIVES THE SCENE THE WHOLE WIDTH.
  *
- * The live device's rule above computes what is left for the scene from an
- * assumed head and foot (24cqw) and pins the box to the bottom edge. That
- * works there because both are known and small - a word mark above, one row
- * of corners below. This arrangement has neither: its head carries two score
- * cards and its foot three rows under each other, and a number written here
- * would be a copy of what those two actually measure.
- *
- * So the three simply share the column: head and foot take the height they
- * need, the scene takes what is left (`flex: 1`), and its width follows from
- * that height through the 16:9 it is composed in. Nothing can overlap,
- * because nothing is taken out of the flow - which is also why the foot of
- * this layout does not sit fixed (see `Game.module.css`).
+ * Its head carries two score cards and its foot three rows under each other,
+ * so nothing here estimates what they take: head and foot get a row of the
+ * grid each, the scene the row between them. The box spans the stage width
+ * and derives its height from the 16:9 it is composed in. Nothing is taken
+ * out of the flow - which is also why the foot of this layout does not sit
+ * fixed (see `Game.module.css`).
  */
 /*
  * THREE ROWS, AND THE MIDDLE ONE IS WHAT IS LEFT. The stage is a column

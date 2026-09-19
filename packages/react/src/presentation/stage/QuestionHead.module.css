@@ -26,9 +26,10 @@
   font-weight: 700;
 }
 /*
- * `useFittedPrompt` sets `--prompt-scale` on the element when a long
- * question would otherwise push the answer rows out of the image. Without
- * adjustment the factor is 1 and the base size applies.
+ * ONE SIZE, WHATEVER THE QUESTION IS LONG. `useFittedPrompt` still sets
+ * `--prompt-scale` on the element, but only the children's world reads it
+ * (see below) - here the size stands, and a long question keeps the measure
+ * of a short one.
  */
 .prompt {
   margin: 0;

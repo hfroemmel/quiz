@@ -1,5 +1,28 @@
 # @hfroemmel/quiz-themes
 
+## 0.24.4
+
+### Patch Changes
+
+- Say in the stylesheets what they now do
+  
+  Nothing renders differently here. Several comments on the stage still
+  described rules that have since been rewritten, which is worse than no
+  comment at all: whoever reads them takes a measure that no longer exists for
+  the reason behind the one that does.
+  
+  The scene's area no longer declares a container of its own, so what a
+  component computes inside it measures against the stage - the text says that
+  now instead of explaining the reference the area used to be. The touch stage
+  takes its width from the arrangement around it rather than from the space
+  left over, and the kiosk gives the scene the whole stage width in a row of
+  its own instead of estimating head and foot. The question stands at one size,
+  and `--prompt-scale` is named where it is still read: in the children's
+  world. The points cell takes the width of its number again. The head of the
+  children's world is one row, and on a device it carries no size of its own.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.4
+
 ## 0.24.3
 
 ### Patch Changes

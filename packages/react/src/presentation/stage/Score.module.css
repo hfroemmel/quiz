@@ -95,23 +95,11 @@
   border-radius: var(--stage-radius);
 }
 /*
- * THE POINTS CELL RESERVES ITS DIGITS, and that is what keeps the head still.
- *
- * The cell used to be as wide as the number in it, so every score that grew a
- * digit widened the card - and with it moved the counter beside it and the
- * other player's card: a small, visible jump at exactly the moment everybody
- * is looking at the score. The reserve holds three digits, which is what a
- * round can produce (seven questions at a hundred points), and the digits are
- * tabular, so 111 and 999 are the same width.
- */
-/*
- * AND THE RESERVE SITS ON THE DIGITS, not on the cell around them. A floor
- * under the cell does not hold the card still: the two cells share the card's
- * width (`flex: 1 1 0`), and the card takes its width from what its content
- * asks for - so a third digit widened the card and pushed the cell beside it,
- * however wide the floor was. Three tabular digits always take `3ch`, so the
- * content of the points cell asks for the same width at nought as at seven
- * hundred.
+ * THE POINTS CELL TAKES THE WIDTH OF ITS NUMBER - no floor is reserved under
+ * it. The two cells share the card's width (`flex: 1 1 0`) and the card
+ * follows what its content asks for, so a score that grows a digit widens the
+ * card with it. The value stays a box of its own, which is what the digits
+ * are measured and animated as.
  */
 :global(.stage--default) .cellPoints .valuePoints {
   display: inline-block;
