@@ -127,7 +127,6 @@
 }
 :global(.stage--default) .answer {
   /* Letter and row belong together - the gap is just a seam. */
-  gap: 0.25cqw;
   border-radius: var(--stage-radius);
   /*
    * THE ROW BRINGS ITS OWN ENTRANCE. It used to take the duration and the
@@ -159,10 +158,12 @@
   backdrop-filter: var(--stage-glass);
   -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
   font-size: 1.75cqw;
   font-family: var(--font-heading);
+}
+:global(.stage--default) .chip + .surface {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 :global(.stage--default) .answer[data-state='selected'] .surface {
   background: var(--color-accent);
