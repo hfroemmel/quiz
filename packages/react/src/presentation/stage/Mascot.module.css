@@ -4,7 +4,7 @@
  */
 :global(.stage--kids.stage--scene-question[data-answers-shown='true']) .mascot,
 :global(.stage--kids.stage--scene-solution) .mascot {
-  position: fixed;
+  position: absolute;
   z-index: 1;
   right: -18cqw;
   bottom: 6.25cqw;
