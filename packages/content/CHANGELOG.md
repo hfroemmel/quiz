@@ -1,41 +1,6 @@
 # @hfroemmel/quiz-content
 
-## 0.23.2
-
-### Patch Changes
-
-- Round the score group, and let the kiosk head scale as one row
-  
-  The group that carries a player's card in the head takes the stage's button
-  corner and keeps its content inside it. In the kiosk arrangement the head scales
-  as one row again instead of each of its parts separately - the two scalings
-  stood on top of each other and pulled the row in twice at a smaller zoom.
-  
-  The button that ends a round in that arrangement is exactly as tall as it is
-  told rather than growing with its label, and it takes the ink of the chip it
-  sits on instead of naming its own. Counter and score read their number a little
-  smaller on the default stage.
-- Updated dependencies
-  - @hfroemmel/quiz-core@0.23.2
-
-## 0.23.1
-
-### Patch Changes
-
-- Scale the stage from its middle, and draw the buzzer larger
-  
-  Scene and head no longer shrink toward an edge but toward their centre, so a
-  device at a smaller zoom keeps its composition centred instead of drifting
-  to one side. The live stage drops the width cap that computed what was left for
-  the scene from an assumed head and foot; in the kiosk arrangement the scene
-  fills the width it is given and sits lower in the column.
-  
-  The drawn buzzer of the children's world is larger, and a score cell on the
-  default stage carries more air to its left and right.
-- Updated dependencies
-  - @hfroemmel/quiz-core@0.23.1
-
-## 0.23.0
+## 0.22.4
 
 ### Patch Changes
 
@@ -57,7 +22,7 @@
   strong grounds; a player who is locked out but not on turn no longer takes a
   colour of their own.
 - Updated dependencies [6b6de9d]
-  - @hfroemmel/quiz-core@0.23.0
+  - @hfroemmel/quiz-core@0.22.4
 
 ## 0.22.3
 

@@ -1,86 +1,6 @@
 # @hfroemmel/quiz-react
 
-## 0.23.2
-
-### Patch Changes
-
-- Round the score group, and let the kiosk head scale as one row
-  
-  The group that carries a player's card in the head takes the stage's button
-  corner and keeps its content inside it. In the kiosk arrangement the head scales
-  as one row again instead of each of its parts separately - the two scalings
-  stood on top of each other and pulled the row in twice at a smaller zoom.
-  
-  The button that ends a round in that arrangement is exactly as tall as it is
-  told rather than growing with its label, and it takes the ink of the chip it
-  sits on instead of naming its own. Counter and score read their number a little
-  smaller on the default stage.
-- Updated dependencies
-  - @hfroemmel/quiz-core@0.23.2
-  - @hfroemmel/quiz-themes@0.23.2
-
-## 0.23.1
-
-### Patch Changes
-
-- Scale the stage from its middle, and draw the buzzer larger
-  
-  Scene and head no longer shrink toward an edge but toward their centre, so a
-  device at a smaller zoom keeps its composition centred instead of drifting
-  to one side. The live stage drops the width cap that computed what was left for
-  the scene from an assumed head and foot; in the kiosk arrangement the scene
-  fills the width it is given and sits lower in the column.
-  
-  The drawn buzzer of the children's world is larger, and a score cell on the
-  default stage carries more air to its left and right.
-- Updated dependencies
-  - @hfroemmel/quiz-core@0.23.1
-  - @hfroemmel/quiz-themes@0.23.1
-
-## 0.23.0
-
-### Minor Changes
-
-- 7c837a5: A second arrangement for the touch device: `<QuizGame layout="kiosk">`.
-  
-  The device of a live event has an operator beside it. They call the round, they
-  see who buzzed first, and they say what happens next - so the screen can be
-  quiet: score card and buzzer sit together in the corner of the player they
-  belong to, and the head carries the word mark alone. A media table in a foyer
-  has none of that. Whoever steps up has never seen this quiz, and everything the
-  operator would say has to stand on the screen.
-  
-  So the same component draws a second arrangement, chosen by the host:
-  
-    layout?: 'live' | 'kiosk'   // default: 'live'
-  
-  In the kiosk arrangement the score cards and the counter stand together at the
-  top - `[Spieler|1][Punkte] [Frage|3/7] [Punkte][2|Spieler]`, and with one
-  player `[Frage|3/7][Punkte]` without a player cell, because a player alone is
-  not "player 1 of 1". The two buzzers become drawn push-buttons in the bottom
-  corners, and between them one field says what to do next: buzz now, whose turn
-  it is, or that a marked row is not yet an answer. The confirmation stands ON
-  the corner of the player it belongs to; with one player, where there is no
-  corner, it stands in the middle above the way out of the round, which sits at
-  the foot of that column instead of at the top of the screen.
-  
-  THE BUZZER IS A DRAWING AND STILL A BUTTON: full area, touch, keyboard, an
-  accessible name and four states (`data-buzzer-state`) - taken back before the
-  release, red once the answers are up, unchanged for the player who got the
-  buzz, grey and disabled for the one who did not. What says the buzz is theirs
-  is the other corner going grey and their score card turning blue; the button
-  they are about to be handed does not change.
-  
-  THE LIVE ARRANGEMENT IS UNTOUCHED, down to which events reach its buzzer, and
-  that is measured rather than asserted: `test/e2e/kiosk-layout.spec.ts` reads
-  both arrangements in the same harness, and the suite of the live device runs
-  unchanged beside it.
-  
-  Two smaller additions belong to it: the interface strings `kiosk.hintBuzz`,
-  `kiosk.hintChoose` and `kiosk.hintSubmit` in both languages the package speaks -
-  overridable like every other one, because a hint field that cannot be
-  translated is a hint field in the wrong language - and `Score`, which can now
-  render its points cell alone (`pointsOnly`).
+## 0.22.4
 
 ### Patch Changes
 
@@ -102,8 +22,8 @@
   strong grounds; a player who is locked out but not on turn no longer takes a
   colour of their own.
 - Updated dependencies [6b6de9d]
-  - @hfroemmel/quiz-core@0.23.0
-  - @hfroemmel/quiz-themes@0.23.0
+  - @hfroemmel/quiz-core@0.22.4
+  - @hfroemmel/quiz-themes@0.22.4
 
 ## 0.22.3
 
