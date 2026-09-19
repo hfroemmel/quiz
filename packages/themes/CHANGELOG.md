@@ -1,5 +1,18 @@
 # @hfroemmel/quiz-themes
 
+## 0.26.6
+
+### Patch Changes
+
+- The picture choice finds its rows
+  
+  The rule that holds head and answers to the width of the scene named `.scene`
+  as a step on the way there. That class belongs to another module and is
+  therefore hashed under another name: the selector matched nothing, and the
+  narrower width never applied. It addresses the two directly now.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.6
+
 ## 0.26.5
 
 ### Patch Changes
