@@ -117,20 +117,6 @@
 /* ------------------------------------------------------------------ *
  * Kids' world: everything sits in the row, in three columns
  * ------------------------------------------------------------------ */
-
-:global(.stage--kids) .header {
-  /*
-   * THREE COLUMNS, and the middle one is the middle of the screen: the word
-   * mark stands left, the counter right, and whatever the arrangement puts in
-   * the centre stays centred whether or not the third column carries
-   * anything. Without the grid the row becomes one flow and the word mark
-   * runs into the group beside it.
-   */
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: var(--kids-gap);
-  padding: var(--kids-pad) var(--kids-pad) 0;
-}
 :global(.stage--kids) .brand,
 :global(.stage--kids) .brandImage {
   width: 15cqw;
@@ -141,14 +127,13 @@
 :global(.stage--kids) .counterSlot {
   justify-self: end;
 }
-
 /*
  * The kids' world on a touch device follows the same rule as above: more
  * space at the top, and the corner stays the reference point when shrinking.
  */
 :global(.stage--kids.stage--touch) .header {
   padding: var(--kids-pad) var(--kids-pad) 0;
-  scale: var(--stage-zoom, 1);
+  scale: calc(var(--stage-zoom, 1) * 1.5);
   transform-origin: top center;
 }
 

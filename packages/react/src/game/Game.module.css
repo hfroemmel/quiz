@@ -212,7 +212,7 @@
 
 
 [data-skin='kids'] {
-  --kiosk-button-font-size: 1.33vw;
+  --kiosk-button-font-size: 1.75vw;
 }
 /*
  * In the kids' world this button is also a drawn card - the same one as "Let's
@@ -493,7 +493,9 @@
 }
 [data-skin='kids'] .start,
 [data-skin='kids'] .panel {
+  --kids-ink: var(--color-text);
   font-family: var(--kids-hand);
+  backdrop-filter: none;
 }
 
 /*
@@ -522,7 +524,7 @@
   isolation: isolate;
   border: 0;
   background: none;
-  font-family: var(--kids-hand);
+  font-family: var(--kids-hand) !important;
 }
 
 /*
@@ -1151,7 +1153,6 @@
 }
 
 .cardTitle {
-  font-family: var(--font-display);
   font-size: var(--kiosk-button-font-size);
   font-weight: 600;
   line-height: 1.15;
@@ -1226,7 +1227,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.125vw;
-  height: 5vw;
+  height: 4vw;
   padding: 0 1.5vw;
   border-radius: var(--stage-radius);
   border: none;
@@ -1281,7 +1282,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 5vw;
+  height: 4vw;
   padding: 0 1.9688vw;
   /* The same quiet area as an unselected card, and without an edge. */
   border: 0;
@@ -1432,6 +1433,7 @@
   border: 0.0694vw solid var(--start-line-strong);
   border-radius: calc(var(--stage-radius) * 1.5);
   background: var(--start-surface);
+  backdrop-filter: blur(0.6vw);
   color: var(--start-text);
   font-family: var(--font-ui);
   text-align: center;
@@ -1444,6 +1446,11 @@
   font-family: var(--font-heading);
   font-size: 1.8vw;
   font-weight: 400;
+}
+
+:global(.stage--kids) .panelTitle {
+  font-family: var(--kids-hand);
+  font-size: calc(1.8vw * 1.5);
 }
 
 /* One row per setting: on the left what it applies to, on the right the control. */
@@ -1822,8 +1829,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5cqw;
-  height: 3cqw;
-  padding: 0.5cqw 1.2cqw;
+  height: 4cqw;
+  padding: .5cqw 1.5cqw 0.7cqw;
   border: 0;
   border-radius: 0.6cqw;
   background: var(--stage-chip);

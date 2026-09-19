@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-content",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "type": "module",
   "description": "Quiz data pipeline: legacy import, normalisation, validation, versioned packages, hotfix overlay",
   "exports": {

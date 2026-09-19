@@ -113,12 +113,8 @@
  * content of the points cell asks for the same width at nought as at seven
  * hundred.
  */
-:global(.stage--default) .cellPoints {
-  min-width: 8cqw;
-}
 :global(.stage--default) .cellPoints .valuePoints {
   display: inline-block;
-  min-width: 3ch;
 }
 :global(.stage--default) .label {
   /* Labels in the sans-serif, values in the serif font. */
@@ -280,7 +276,8 @@
    * The board is drawn tall and carries wide corners, hence the deeper slice;
    * the stroke stays as narrow as the card's, so the chip keeps its size.
    */
-  border-image: url('../../assets/kinderquiz/boxes/panel-question.svg') 71 fill / 1.35cqw / 0 stretch;
+  border-image: url('../../assets/kinderquiz/boxes/panel-question.svg') 71 fill / 2.95cqw / 0 stretch;
+  border-width: 3.35cqw;
 }
 /*
  * Player on turn: its own artwork with a coloured field and a yellow

@@ -1,5 +1,26 @@
 # @hfroemmel/quiz-react
 
+## 0.24.2
+
+### Patch Changes
+
+- Give the children's world more room, and flatten the device's bars
+  
+  On the children's stage the scene and the head stand larger, the content beside
+  the mascot takes back part of the strip it was keeping clear, and the drawn
+  frame of the question board carries a deeper slice with a wider stroke. The
+  buttons of the device are set in a larger hand, the settings window writes its
+  title in the same hand, and the drawn cards drop the frosted pane they never
+  needed - on paper it only greyed the drawing.
+  
+  In the start menu the bars are flatter, and the window that asks a question
+  frosts the surface behind it. The button that ends a round is taller and sits
+  on more padding. The points cell of the default stage takes the width of the
+  number inside it again.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.2
+  - @hfroemmel/quiz-themes@0.24.2
+
 ## 0.24.1
 
 ### Patch Changes

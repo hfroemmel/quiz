@@ -215,6 +215,11 @@
   margin: 0;
 }
 
+:global(.stage--kids) .sceneArea {
+  scale: calc(var(--stage-zoom, 1) * 1.6);
+  transform-origin: center;
+}
+
 /* The scene box fills the area. */
 :global(.stage--touch) .sceneRoot {
   width: 100%;
