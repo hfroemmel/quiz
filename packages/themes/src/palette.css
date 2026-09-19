@@ -136,6 +136,10 @@
   --color-stageTop: #CA2F56;
   --color-stageBottom: #CA2F56;
   --color-controls: #CA2F56;
+  --color-tile: #a22644;
+  --color-tileDisabled: #CA2F56;
+  --color-tileQuiet: #CA2F56;
+  --color-option: #a22644;
 }
 
 /* Light version of the start selection in front of it - only what differs from the dark one. */
