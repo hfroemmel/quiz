@@ -619,7 +619,7 @@
 }
 
 [data-skin='kids'] .check[data-on='true'] {
-  color: var(--kids-ink);
+  color: var(--start-ink-on-selected);
 }
 
 [data-skin='kids'] .cardIcon::before {
@@ -1191,8 +1191,7 @@
   height: 70%;
 }
 [data-skin='kids'] .check {
-  width: 3vw;
-  height: 3vw;
+  display: none;
 }
 
 /*

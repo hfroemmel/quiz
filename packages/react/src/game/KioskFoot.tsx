@@ -164,7 +164,7 @@ export function KioskFoot({
           * moving.
           */}
         <div className={styles.kioskHint} data-notice="" data-hint="">
-          {text && <span className={styles.noticeText}>{text}</span>}
+          {!next && text && <span className={styles.noticeText}>{text}</span>}
         </div>
         {/*
           * THE CONFIRMATION STANDS IN THE MIDDLE, in both modes and always in
@@ -176,8 +176,7 @@ export function KioskFoot({
           * and down as the round goes on.
           */}
         <div className={styles.kioskAction}>
-          {submit && confirm}
-          {next ? (
+          {next && (
             <button
               type="button"
               className={`stage-button stage-button--primary ${styles.kioskConfirm}`}
@@ -186,9 +185,8 @@ export function KioskFoot({
             >
               {t('kiosk.continue')}
             </button>
-          ) : (
-            text && <span className={styles.noticeText}>{text}</span>
           )}
+          {submit && confirm}
         </div>
         {endRound}
       </div>

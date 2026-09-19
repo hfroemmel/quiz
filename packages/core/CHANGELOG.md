@@ -1,5 +1,11 @@
 # @hfroemmel/quiz-core
 
+## 0.24.8
+
+### Patch Changes
+
+- Adjustments on the stage
+
 ## 0.24.7
 
 ### Patch Changes
