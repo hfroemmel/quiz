@@ -202,7 +202,7 @@
   --scene-align: flex-start;
   --scene-text-align: left;
   /* The header brings its own top spacing. */
-  padding-top: 2cqw;
+  padding-top: 3cqw;
 }
 :global(.stage--kids) .solutionLabel {
   font-family: var(--kids-hand);

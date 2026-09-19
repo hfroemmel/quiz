@@ -10,6 +10,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  padding: 1cqw;
 }
 .scores {
   display: flex;
