@@ -509,6 +509,13 @@
   backdrop-filter: none;
 }
 
+[data-skin='kids'] .panelTitle,
+[data-skin='kids'] .action,
+[data-skin='kids'] .actionSecondary {
+  font-family: var(--kids-hand);
+  color: #000;
+}
+
 /*
  * ONE DRAWING, ONE STRUCTURE.
  *
@@ -847,14 +854,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 1cqw 0 0;
+  font-family: var(--font-heading);
+  font-size: 2.3625vw;
+  font-weight: 400;
+  line-height: 1.1;
 }
 
-.brandTitle {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: 2.9812vw;
-  font-weight: 400;
-  line-height: 1.05;
+.brandTextSubtitle {
+  margin: .45vw 0 0;
+  font-family: var(--font-ui);
+  font-size: 1.0406vw;
+  color: var(--start-text-muted);
 }
 
 /* ------------------------------------------------------------------ *
@@ -947,9 +958,6 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, box-shadow 120ms ease, scale 120ms ease, transform 120ms ease;
-}
-.card:hover {
-  background: var(--start-option-hover);
 }
 .card:active {
   transform: translateY(0.0694vw);
@@ -1250,9 +1258,6 @@
 }
 .setup .action {
   flex: 1 1 auto;
-}
-.action[data-start] {
-  font-size: 1.6vw;
 }
 /*
  * The arrow sits freely on the bar - without its own disc. It only repeats
