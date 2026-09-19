@@ -231,6 +231,10 @@
   /* The answers give up nothing; the question row above is the one that yields. */
   flex: 0 0 auto;
 }
+:global(.stage--kids)[data-presentation="image-choice"] .scene .head,
+:global(.stage--kids)[data-presentation="image-choice"] .scene .answers {
+  width: 80cqw;
+}
 :global(.stage--kids) .answer {
   align-items: center;
   gap: var(--kids-chip-gap);
