@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-core",
-  "version": "0.26.2",
+  "version": "0.26.3",
   "type": "module",
   "description": "Core of the quiz system: contracts, engine and runtime - without file system and native modules",
   "exports": {

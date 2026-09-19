@@ -1,5 +1,19 @@
 # @hfroemmel/quiz-content
 
+## 0.26.3
+
+### Patch Changes
+
+- The picture choice keeps the width of its scene
+  
+  In the children's world a question that is answered by picking a picture now
+  holds its head and its answer rows to the width the scene itself has (80 cqw).
+  They used to take the whole area, so question and pictures stood wider than
+  everything around them - the mascot, the board and the score cards all measure
+  against the same scene.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.3
+
 ## 0.26.2
 
 ### Patch Changes
