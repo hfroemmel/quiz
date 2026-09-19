@@ -13,6 +13,9 @@
   align-items: flex-start;
   gap: 2cqw;
 }
+:global(.stage--kids)[data-presentation='image-choice'] .head {
+  width: var(--kids-content-width);
+}
 /* Without an image the adult stage stays exactly as it is: the question
    board takes the full width anyway, being the only child. */
 .panel {
@@ -70,7 +73,7 @@
 :global(.stage--kids.stage--scene-question) .head,
 :global(.stage--kids.stage--scene-solution) .head {
   display: grid;
-  width: var(--kids-content-width);
+  width: 100%;
   /*
    * THE IMAGE COLUMN IS AS WIDE AS THE IMAGE - not a share of the row.
    *

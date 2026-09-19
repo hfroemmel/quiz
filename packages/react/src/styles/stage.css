@@ -336,7 +336,7 @@
    * over the last word of a question.
    */
   --kids-mascot-strip: 28.6cqw;
-  --kids-content-width: 100%;
+  --kids-content-width: 80cqw;
 
   /* Font sizes of the asset pack, in container units. */
   --kids-size-question: 2.8cqw;
