@@ -1,5 +1,22 @@
 # @hfroemmel/quiz-content
 
+## 0.26.4
+
+### Patch Changes
+
+- The answer row reads as one surface, and its type stays legible on colour
+  
+  Letter and row sit against each other without a seam now, and the row's left
+  corners are only squared off where a letter chip actually stands in front of
+  it - a row without one keeps its rounding on both sides instead of looking cut.
+  
+  A chosen and a correct answer state the ink that belongs on their strong
+  ground. They used to inherit the type colour of the row beneath, which held as
+  long as that ink and the stage's were the same; since the stage writes dark on
+  its strong areas, the two have to be named apart.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.4
+
 ## 0.26.3
 
 ### Patch Changes
