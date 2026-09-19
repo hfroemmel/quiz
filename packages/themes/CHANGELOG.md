@@ -1,5 +1,50 @@
 # @hfroemmel/quiz-themes
 
+## 0.24.0
+
+### Minor Changes
+
+- The clip before the question is gone, and the answers move in
+  
+  THE CLIP IS REMOVED - the feature, not just its button. A question could carry
+  a film that ran before it, and that one field pulled a whole section of the flow
+  behind it: a phase, two commands, an automatic start for the unattended device,
+  a scene, an audio authority to hand to whichever window played the file, a
+  lead-in time, an asset kind and a second build profile for applications that
+  could not ship the files. No round that ever ran carried one. Gone from the
+  surface: the `video` phase and scene, `START_VIDEO`,
+  `SHOW_QUESTION_AFTER_VIDEO`, `state.video`, `question.video`, `videoUrl`,
+  `hasVideo`, `videoLeadInMs`, the asset kind `video`, `videoAudioMaster`, the
+  rejection reasons around them and the content profiles. `manifest.profile`
+  stays readable, so older packages still load. The delivered animation clips are
+  untouched - the moving picture was never a question there.
+  
+  THE ANSWERS MOVE IN, and they never did. The entrance took the duration of the
+  scene transition, which is only set while one runs, and its keyframes lived in
+  the global stylesheet, which a CSS module cannot reach by name. The entrance is
+  the row's own now - 380 ms, 70 ms apart - and its keyframes live beside it. The
+  same two-line fault had silenced the arrival of the category on the interim
+  screen.
+  
+  NOTHING JUMPS. The points cell reserves three digits instead of taking the
+  width of the number in it, so the first correct answer of a round no longer
+  widens the card and pushes counter and second card sideways.
+  
+  A HOST'S SOUND SWITCH KEEPS APPLYING. `soundEnabled` was read once at the first
+  start; it is followed now whenever the host changes it, a running round
+  included, and the device carries `data-sound` so the state is visible from
+  outside.
+  
+  The hint between the buzzers fills its column again instead of collapsing to a
+  box of no width, where the sentence broke at every space. In the children's
+  world the head stands without its grid and with less padding, the head of the
+  reveal sits on its baseline, and the kiosk scene moves up a little.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.0
+
 ## 0.23.0
 
 ### Patch Changes
