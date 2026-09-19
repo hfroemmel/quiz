@@ -218,11 +218,12 @@ export function StartMenu({
             * none is provided does the board carry the bundled quiz motif.
             */}
           <img className={styles.brandVisual} src={brand?.visualUrl ?? quizMark} alt="" />
-          <h2 className={styles.brandText}>{t('kiosk.setupTitle')}</h2>
-          <p className={styles.brandTextSubtitle}>{t('kiosk.setupSubtitle')}</p>
         </aside>
 
         <section className={styles.setup}>
+          <h2 className={styles.setupTitle}>{t('kiosk.setupTitle')}</h2>
+          <p className={styles.setupSubtitle}>{t('kiosk.setupSubtitle')}</p>
+
           {showOffers && (
             <section className={styles.step}>
               <div className={styles.offers} role="group" aria-label={t('kiosk.quizChoice')} data-quiz-offers="">

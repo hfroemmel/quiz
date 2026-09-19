@@ -320,7 +320,7 @@
   border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-b.svg');
 }
 :global(.stage--kids) .answer[data-state='selected'] .text {
-  color: var(--stage-inkOnStrong);
+  color: #FFF;
 }
 :global(.stage--kids) .answer[data-state='correct'] .surface::before {
   border-image-source: url('../../assets/kinderquiz/boxes/answer-box-correct.svg');

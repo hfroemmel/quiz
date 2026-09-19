@@ -213,3 +213,7 @@
 [data-quiz-game][data-theme='kids'] {
   --stage-inkOnStrong: #fff;
 }
+
+[data-quiz-overview][data-theme='kids'] {
+  --start-ink-on-selected: #fff;
+}
