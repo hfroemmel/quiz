@@ -34,7 +34,6 @@
       <feMerge><feMergeNode in="shade"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <ellipse cx="180" cy="278" rx="106" ry="11" fill="#11181c" opacity=".23" filter="url(#shadow)"/>
   <g filter="url(#softShadow)">
   <circle cx="180" cy="150" r="137" fill="url(#housing)"/>
   <circle cx="180" cy="145" r="116" fill="#0c1215"/>

@@ -263,20 +263,24 @@
   border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player2.svg');
 }
 /*
- * ONE PLAYER, ONE FIELD.
+ * ONE PLAYER, ONE FIELD - AND THE BOARD OF THE WORLD BEHIND IT.
  *
- * The drawn score card has two: the coloured one carries the player's number,
- * the pale one their points. Alone at the device there is no number - the card
- * kept the empty half beside the points and read as a card someone forgot to
- * fill in. So it becomes the counter's card, which is drawn for a single
- * field, and the column beside it goes with it.
+ * The drawn score card has two fields: the coloured one carries the player's
+ * number, the pale one their points. Alone at the device there is no number,
+ * and the card kept the empty half beside the points - a card somebody forgot
+ * to fill in. So the column goes, and the ground becomes the same drawn board
+ * that carries the question and the panes of the menu.
  */
 :global(.stage--kids) .score[data-points-only] {
   grid-template-columns: 1fr;
   min-width: 9cqw;
 }
 :global(.stage--kids) .score[data-points-only]::before {
-  border-image-source: url('../../assets/kinderquiz/boxes/chip-question-counter.svg');
+  /*
+   * The board is drawn tall and carries wide corners, hence the deeper slice;
+   * the stroke stays as narrow as the card's, so the chip keeps its size.
+   */
+  border-image: url('../../assets/kinderquiz/boxes/panel-question.svg') 71 fill / 1.35cqw / 0 stretch;
 }
 /*
  * Player on turn: its own artwork with a coloured field and a yellow

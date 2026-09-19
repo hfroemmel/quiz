@@ -161,9 +161,29 @@
  * because nothing is taken out of the flow - which is also why the foot of
  * this layout does not sit fixed (see `Game.module.css`).
  */
+/*
+ * THREE ROWS, AND THE MIDDLE ONE IS WHAT IS LEFT. The stage is a column
+ * everywhere else, where the scene's height comes out of the flex - but a box
+ * with an aspect ratio and an automatic width resolves the width first and the
+ * height from it, so growing never reached it. A grid hands the row height
+ * down, which is the direction this layout needs.
+ */
+:global(.stage--touch[data-layout='kiosk']) {
+  display: grid;
+  /* One column, and it is the whole width: head and foot span the screen. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
 :global(.stage--touch[data-layout='kiosk']) .sceneArea {
-  flex: 1 1 auto;
   min-height: 0;
+  /*
+   * THE ROW IS THE HEIGHT, and the scene fills it. In the column the box took
+   * its width from its own content and derived the height from the ratio - a
+   * composition of narrow cards therefore got a small scene with half the
+   * screen empty around it. As the middle row of a grid its height is given
+   * from the outside, and the ratio turns that into the width.
+   */
+  height: 100%;
   /*
    * THE HEIGHT IS GIVEN, THE WIDTH FOLLOWS - and in that order, because every
    * size inside a scene is a share of its WIDTH (`cqw`). A box told to take
@@ -176,8 +196,23 @@
    */
   width: auto;
   max-width: 100%;
-  align-self: center;
+  justify-self: center;
   aspect-ratio: 16 / 9;
+  /*
+   * AND THE ZOOM SHRINKS IT TOWARD THE MIDDLE OF ITS ROW. The live device
+   * lets the box hang from its top edge, because there it is measured against
+   * the lower screen edge and the fixed corners stand under it. Here the row
+   * is the whole of what is left, so a top edge origin puts the entire loss
+   * of a zoom below the composition - a hand's width of empty ground between
+   * the last answer and the foot.
+   */
+  transform-origin: center;
+  /*
+   * AND NO RESERVED FOOT HERE: the live device keeps the height of its fixed
+   * corner row free as a bottom margin (see the rule above), because its foot
+   * stands outside the flow. This one's foot has a row of its own.
+   */
+  margin: 0;
 }
 
 /* The scene box fills the area. */

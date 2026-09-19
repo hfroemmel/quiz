@@ -145,8 +145,6 @@ export function KioskFoot({
         locked={Boolean(turn) && turn !== player.playerId}
         onBuzz={onBuzz}
       />
-      {/* The confirmation belongs to the hand that buzzed - so it stands on that corner. */}
-      {submit && turn === player.playerId && confirm}
     </div>
   )
 
@@ -180,12 +178,15 @@ export function KioskFoot({
           )}
         </div>
         {/*
-          * The confirmation's row exists ONLY where the confirmation can land
-          * in the middle - with one player. In a duel it stands on the buzzer
-          * of the player it belongs to, and a row kept empty for it here would
-          * push the way out of the round a button's height down for nothing.
+          * THE CONFIRMATION STANDS IN THE MIDDLE, in both modes and always in
+          * the same place. It used to sit on the corner of the player who had
+          * buzzed - which put a button under one hand and moved it across the
+          * screen whenever the other one got the buzz. The row is therefore
+          * always here and always as tall as the button, whether or not one is
+          * standing in it: the way out of the round below must not travel up
+          * and down as the round goes on.
           */}
-        {solo && <div className={styles.kioskAction}>{submit && confirm}</div>}
+        <div className={styles.kioskAction}>{submit && confirm}</div>
         {endRound}
       </div>
 

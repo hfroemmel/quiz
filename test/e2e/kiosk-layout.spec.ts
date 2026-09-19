@@ -165,7 +165,7 @@ test.describe('Kiosk layout, duel', () => {
     expect(await armed.evaluate((node) => getComputedStyle(node).opacity)).toBe('1')
   })
 
-  test('puts the confirmation on the buzzer of the player it belongs to', async ({ page }) => {
+  test('puts the confirmation in the middle, whichever corner buzzed', async ({ page }) => {
     await startGame(page, 'Zu zweit')
     await page.locator('[data-buzzer][data-side="right"]').click()
     await page.locator(openAnswer).first().click()
@@ -175,19 +175,46 @@ test.describe('Kiosk layout, duel', () => {
     await expect(confirm).toHaveText('Antwort abgeben')
 
     /*
-     * ON the buzzer, and on the RIGHT one: the hand that buzzed is already in
-     * that corner. It is the one overlap this layout has, and it is measured
-     * as one - the button's middle sits on the button underneath it.
+     * IN THE MIDDLE, NOT ON A CORNER. It used to stand on the buzzer of the
+     * player who had buzzed, which put the button under one hand and moved it
+     * across the screen whenever the other corner got the next question. Now
+     * it stands where the hint stands, under it, in both modes - and it covers
+     * neither drawing.
      */
-    expect(await overlap(confirm, page.locator('[data-buzzer][data-side="right"]'))).toBe(true)
+    const stage = await box(page.locator('.stage'))
+    const button = await box(confirm)
+    expect(Math.abs(button.x + button.width / 2 - (stage.x + stage.width / 2))).toBeLessThan(2)
+    expect(await overlap(confirm, page.locator('[data-buzzer][data-side="right"]'))).toBe(false)
     expect(await overlap(confirm, page.locator('[data-buzzer][data-side="left"]'))).toBe(false)
-    const [button, buzzer] = [await box(confirm), await box(page.locator('[data-buzzer][data-side="right"]'))]
-    expect(Math.abs(button.x + button.width / 2 - (buzzer.x + buzzer.width / 2))).toBeLessThan(2)
-    expect(Math.abs(button.y + button.height / 2 - (buzzer.y + buzzer.height / 2))).toBeLessThan(2)
 
-    // The other corner stays where it is, shut and visible.
+    // Under the hint and above the way out of the round.
+    const hint = await box(page.locator('[data-hint]'))
+    const end = await box(page.locator('[data-abort-game]'))
+    expect(button.y).toBeGreaterThanOrEqual(hint.y + hint.height - 1)
+    expect(end.y).toBeGreaterThanOrEqual(button.y + button.height - 1)
+
+    // Both corners stay where they are - one armed, one shut.
     await expect(page.locator('[data-buzzer][data-side="left"]')).toBeVisible()
     expect(await buzzers(page)).toEqual(['left:locked', 'right:armed'])
+  })
+
+  test('keeps the confirmation in the same place when the other corner buzzes', async ({ page }) => {
+    /*
+     * The reason it moved into the middle: a button that travels between the
+     * corners is a button somebody has to look for. Two rounds, two different
+     * corners, one place.
+     */
+    await startGame(page, 'Zu zweit')
+    await page.locator('[data-buzzer][data-side="left"]').click()
+    await page.locator(openAnswer).first().click()
+    const left = await box(page.locator('[data-confirm]'))
+
+    await page.reload()
+    await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+    await startGame(page, 'Zu zweit')
+    await page.locator('[data-buzzer][data-side="right"]').click()
+    await page.locator(openAnswer).first().click()
+    await expectSamePlace(page.locator('[data-confirm]'), left)
   })
 
   test('scores only once the answer is submitted', async ({ page }) => {
@@ -343,6 +370,40 @@ test('the head group stands still while a score grows to three digits', async ({
   await write('700')
   expect(await width()).toBe(narrow)
   await expectSamePlace(neighbour, place)
+})
+
+/*
+ * WHAT A HOST'S ZOOM DOES TO THIS ARRANGEMENT.
+ *
+ * A media table asks for a smaller composition so someone standing at it can
+ * take the whole screen in (`zoom`), and the scene shrinks with it. Where the
+ * loss goes is the question: on the live device the box hangs from its top
+ * edge, because it is measured against the lower screen edge and the fixed
+ * corners stand under it. Here head, scene and foot each have a row, so the
+ * whole of the loss would end up below the composition - a band of empty
+ * ground between the last answer and the foot.
+ */
+test('a smaller host zoom shrinks the scene toward the middle of its row', async ({ page }) => {
+  await startGame(page, 'Zu zweit', `${kiosk}&zoom=0.75`)
+
+  /*
+   * TWO BOXES OF THE SAME ELEMENT: the one the layout gave it (`offsetTop`,
+   * `offsetHeight` - a scale does not touch those) and the one on screen. Where
+   * the zoom shrank it toward tells the two apart: from the top edge both start
+   * in the same place, from the middle both have the same centre.
+   */
+  const room = await page.locator('[class*="sceneArea"]').evaluate((node) => {
+    const area = node as HTMLElement
+    const seen = area.getBoundingClientRect()
+    const anchor = (area.offsetParent as HTMLElement).getBoundingClientRect().top
+    return { laidOut: { top: anchor + area.offsetTop, height: area.offsetHeight }, seen: { top: seen.top, height: seen.height } }
+  })
+
+  // The zoom really did shrink it - otherwise this test asks nothing.
+  expect(room.seen.height).toBeLessThan(room.laidOut.height - 10)
+
+  const centre = (box: { top: number; height: number }) => box.top + box.height / 2
+  expect(Math.abs(centre(room.seen) - centre(room.laidOut))).toBeLessThan(1)
 })
 
 /*

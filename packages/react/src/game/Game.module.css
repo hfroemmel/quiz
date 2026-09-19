@@ -472,9 +472,24 @@
  * The dark gradient with the two coloured lights belongs to the adults'
  * selection; the bright paper world would nearly disappear on it, and the ink
  * on it would be unreadable.
+ *
+ * A HOST MAY PAINT A SCENE OVER IT - the media table puts the drawn house
+ * behind its children's menu - and that picture belongs to the house, not to
+ * this world: the quiz would otherwise carry a Reichstag into every foyer that
+ * embeds it.
  */
 [data-skin='kids'].startScreen {
   background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+}
+
+/*
+ * AND THE BOARD ON THE LEFT CARRIES ONLY THE DRAWING. The adults' board names
+ * the quiz under its motif; here the motif is a character who says what this
+ * is without a word, and the name stood under it twice - once in the drawing,
+ * once as a line of type.
+ */
+[data-skin='kids'] .brandText {
+  display: none;
 }
 [data-skin='kids'] .start,
 [data-skin='kids'] .panel {
@@ -499,6 +514,8 @@
 [data-skin='kids'] .action,
 [data-skin='kids'] .actionSecondary,
 [data-skin='kids'] .continue,
+[data-skin='kids'] .kioskConfirm,
+[data-skin='kids'] .kioskEndRound,
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
   position: relative;
@@ -518,6 +535,8 @@
 [data-skin='kids'] .action,
 [data-skin='kids'] .actionSecondary,
 [data-skin='kids'] .continue,
+[data-skin='kids'] .kioskConfirm,
+[data-skin='kids'] .kioskEndRound,
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
   color: var(--kids-ink);
@@ -531,6 +550,8 @@
 [data-skin='kids'] .action::before,
 [data-skin='kids'] .actionSecondary::before,
 [data-skin='kids'] .continue::before,
+[data-skin='kids'] .kioskConfirm::before,
+[data-skin='kids'] .kioskEndRound::before,
 [data-skin='kids'] .setup::before,
 [data-skin='kids'] .panel::before {
   content: '';
@@ -641,6 +662,29 @@
 /* The arrow carries the ink of the card it sits on. */
 [data-skin='kids'] .actionArrow {
   color: inherit;
+}
+
+/*
+ * THE FOOT OF THE KIOSK ROUND IS DRAWN LIKE THE MENU ABOVE IT.
+ *
+ * "Antwort abgeben" is the same statement as "Quiz starten" - the one thing to
+ * do next - so it carries the same card. The way out of the round is the
+ * quieter one beside it, the card the second button of a row has in the menu:
+ * both are hand-drawn, and which of the two a button is stays readable from
+ * across the table.
+ */
+[data-skin='kids'] .kioskConfirm {
+  --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-correct.svg');
+  --kids-frame-slice: 24;
+  --kids-frame-width: 1.25cqw;
+}
+[data-skin='kids'] .kioskEndRound {
+  --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-d.svg');
+  --kids-frame-slice: 24;
+  --kids-frame-width: 1.25cqw;
+  /* The drawn card brings its own ground; the chip's own fill would sit on it. */
+  background: none;
+  border: 0;
 }
 
 /* The second button of a row carries the quieter card. */
@@ -1754,9 +1798,9 @@
   right: 0;
 }
 /*
- * The slot of the middle button. It keeps its height while it is empty: in a
- * duel the confirmation stands on the buzzer instead, and the row underneath
- * must not travel upwards for it.
+ * The slot of the middle button. It keeps its height while it is empty, so
+ * that the way out of the round below it stands in the same place from the
+ * first question to the last.
  */
 .kioskAction {
   height: var(--stage-button-height);
@@ -1766,27 +1810,6 @@
 }
 .kioskConfirm {
   white-space: nowrap;
-}
-/*
- * IN A DUEL THE CONFIRMATION STANDS ON THE BUZZER of the player it belongs
- * to: their hand is already in that corner. It covers the drawing plainly
- * rather than sitting next to it - what is underneath is out of play in this
- * moment, and the button says what is.
- */
-.kioskCorner .kioskConfirm {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
-  z-index: 2;
-  /*
-   * Narrower than a button in the middle of the screen: it lies ON the drawn
-   * buzzer and covers its middle, and one that grew wider than the button
-   * underneath would look like a bar in the corner rather than a label on a
-   * button.
-   */
-  --stage-button-pad: 1.2cqw;
-  max-width: 12cqw;
 }
 
 /*

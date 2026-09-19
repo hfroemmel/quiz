@@ -58,15 +58,18 @@ function App() {
      *   ?layout=kiosk      the arrangement of a device standing on its own -
      *                      score cards in the head, drawn buzzers in the
      *                      corners. Without it, the live event's device.
+     *   ?zoom=0.75         the host's zoom level, as a media table sets it
      */
     case '/play': {
       const params = new URLSearchParams(window.location.search)
       const audience = params.get('audience') ?? 'adults'
       const idleSeconds = Number(params.get('idle'))
+      const zoom = Number(params.get('zoom'))
       return (
         <TouchDevice
           audience={audience}
           {...(params.get('layout') === 'kiosk' ? { layout: 'kiosk' as const } : {})}
+          {...(Number.isFinite(zoom) && zoom > 0 ? { zoom } : {})}
           {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
           {...(params.get('details') === null ? {} : { showDetailsAfterSolution: true })}
         />

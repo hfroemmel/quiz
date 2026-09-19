@@ -902,13 +902,13 @@ test('the language switch changes selection and game', async ({ page }) => {
   await page.locator('[data-locale="en-GB"]').click()
 
   await expect(page.locator('[data-locale="en-GB"]')).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.getByRole('button', { name: /^Alone/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Play alone/ })).toBeVisible()
   const englishPresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(englishPresets.map((entry) => entry.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
   await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()
 
   // And the game itself continues in the same language.
-  await page.getByRole('button', { name: 'Alone' }).click()
+  await page.getByRole('button', { name: /^Play alone/ }).click()
   await page.getByRole('button', { name: /^Easy/ }).click()
   await page.getByRole('button', { name: "Let's go" }).click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
