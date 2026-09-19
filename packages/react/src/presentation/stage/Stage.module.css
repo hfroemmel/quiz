@@ -181,15 +181,17 @@
    */
   grid-row: auto;
   /*
-   * THE DEVICE'S WHOLE HEIGHT IS THE FRAME, and the block sits in the middle
-   * of it - `align-self` for the box, `justify-content` inside the scene. The
-   * two say the same thing on purpose: a browser that stretches this box to
-   * the frame centres the block with the scene's own rule, one that leaves it
-   * at its content size centres the box itself. Both land in the middle, as
-   * long as nothing adds padding above or below (see `scenes.module.css`).
+   * THE DEVICE'S WHOLE HEIGHT IS THE FRAME, and the scene centres its block in
+   * it (`justify-content` in `scenes.module.css`). The box is STRETCHED to
+   * that frame and not centred in it: a centred box is only as tall as what it
+   * holds, and where a browser then puts it depends on how it reads the
+   * alignment of a box that is out of the flow of a grid - the same rule put
+   * the block in the middle in one host and fifteen pixels above it in the
+   * next. Stretched, the box IS the device, and the middle of it is the middle
+   * of the screen.
    */
   inset-block: 0;
-  align-self: center;
+  align-self: stretch;
   left: 50%;
   translate: -50% 0;
   aspect-ratio: auto;
