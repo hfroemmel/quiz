@@ -40,17 +40,26 @@
  *                                  no game is running. Its light set is the
  *                                  fallback level above, so only the two
  *                                  others need a rule of their own.
+ *   [data-theme='kids']            one value each for the start screen and the
+ *                                  overview of the children's world: the light
+ *                                  ink that goes on its strong areas. Both sit
+ *                                  outside the stage and have no theme yet -
+ *                                  see `kidsStartStage` in `palettes.ts`, which
+ *                                  also says why their prefixes do not follow
+ *                                  their selector.
  *
- * For the stage's dark variant and the kids world, DELIBERATELY no rule is
- * produced: their colours are supplied by the running quiz's theme. A rule here
- * would lock out a theme with its own colours. The overview is different - it
- * stands BEFORE the choice of a quiz and therefore carries no theme that could
- * be locked out.
+ * FOR THE STAGE of the dark variant and of the kids world, DELIBERATELY no
+ * rule is produced: their colours are supplied by the running quiz's theme. A
+ * rule here would lock out a theme with its own colours. The two screens above
+ * are different - they stand BEFORE the choice of a quiz and therefore carry no
+ * theme that could be locked out.
  */
 import {
   brightPalette,
   brightStartPalette,
   darkQuizSelectPalette,
+  kidsOverviewStart,
+  kidsStartStage,
   quizSelectPalette,
   redPalette,
   redQuizSelectPalette,
@@ -119,6 +128,10 @@ export function paletteStyleSheet(): string {
       "[data-quiz-overview][data-theme='red']",
       prefixed(redQuizSelectPalette as Record<string, string>, 'quiz-select-'),
     ),
+    '',
+    block("[data-quiz-game][data-theme='kids']", prefixed(kidsStartStage as Record<string, string>, 'stage-')),
+    '',
+    block("[data-quiz-overview][data-theme='kids']", prefixed(kidsOverviewStart as Record<string, string>, 'start-')),
     '',
   ].join('\n')
 }

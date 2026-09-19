@@ -362,7 +362,7 @@
   font-weight: 400;
   /* Illustrated scene, right-aligned, fills the format. */
   background:
-    url('../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
+    url('../assets/kinderquiz/backgrounds/background.png') right center / cover no-repeat,
     linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 

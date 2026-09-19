@@ -1,5 +1,34 @@
 # @hfroemmel/quiz-react
 
+## 0.26.1
+
+### Patch Changes
+
+- A new drawing behind the children's world
+  
+  The scene the children's quiz stands on is exchanged
+  (`assets/kinderquiz/backgrounds/background.png`). The start screen shows it
+  from the left, the stage from the right, and the preload list fetches it ahead
+  of the first question, so nothing loads while the show runs.
+  
+  IT IS A HEAVY FILE, AND IT SHIPS THREE TIMES. Two megabytes where the drawing
+  before it weighed one hundred and seventy kilobytes - and in library mode Vite
+  inlines every asset, whatever the inline limit says. So the file arrives as a
+  data URI in `quiz-react.css` (3.1 MB), a second time in `index.js` (4.3 MB,
+  because the preload list addresses it), and a third time as the file itself in
+  `dist/assets`. Whoever ships this to a device on a slow line should know that
+  before the first paint; a smaller or re-encoded drawing shrinks all three at
+  once.
+  
+  The palette gains two rules of its own: the start screen and the offer
+  overview of the children's world each name the light ink that goes on their
+  strong areas. Both screens stand before a quiz is chosen and therefore carry
+  no theme that could supply it - see `kidsStartStage` in `palettes.ts`, which
+  also says why their token prefixes do not follow their selector.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.1
+  - @hfroemmel/quiz-themes@0.26.1
+
 ## 0.26.0
 
 ### Minor Changes

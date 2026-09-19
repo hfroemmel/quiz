@@ -864,6 +864,24 @@ export const redStartPalette = {
 } as const
 
 /**
+ * The children's world names its own light ink - twice, and both times for a
+ * screen that stands OUTSIDE the stage.
+ *
+ * The stage's `inkOnStrong` is the dark one (the adults' world writes dark on
+ * its near-white primary). On the drawn paper the strong areas are the world's
+ * own reds and blues, and what stands on them is white. The stage itself gets
+ * that value from the running quiz's theme; these two screens have no theme
+ * yet, so they state it here.
+ *
+ * NOTE THE PREFIXES - they are deliberate and do not follow the selector. The
+ * start screen sets a STAGE token, because the components it shows read
+ * `--stage-inkOnStrong`; the offer overview sets a START token, for the card
+ * it marks as chosen. Each names the token its own content actually reads.
+ */
+export const kidsStartStage = { inkOnStrong: houseWhite } as const
+export const kidsOverviewStart = { 'ink-on-selected': houseWhite } as const
+
+/**
  * Complete the colours of a theme.
  *
  * A host theme only names what differs from its design world; the complete

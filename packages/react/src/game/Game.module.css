@@ -483,7 +483,7 @@
  */
 [data-skin='kids'].startScreen {
   background:
-    url('../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
+    url('../assets/kinderquiz/backgrounds/background.png') left center / cover no-repeat,
     linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
