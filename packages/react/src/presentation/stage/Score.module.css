@@ -105,12 +105,20 @@
  * tabular, so 111 and 999 are the same width.
  */
 /*
- * THE RESERVE FOLLOWS THE CELL'S PADDING. It was 7.5cqw while the cell had
- * 1.2cqw of air on each side; with 2cqw the three digits no longer fitted and
- * the card started growing again at the first hundred points.
+ * AND THE RESERVE SITS ON THE DIGITS, not on the cell around them. A floor
+ * under the cell does not hold the card still: the two cells share the card's
+ * width (`flex: 1 1 0`), and the card takes its width from what its content
+ * asks for - so a third digit widened the card and pushed the cell beside it,
+ * however wide the floor was. Three tabular digits always take `3ch`, so the
+ * content of the points cell asks for the same width at nought as at seven
+ * hundred.
  */
 :global(.stage--default) .cellPoints {
   min-width: 8cqw;
+}
+:global(.stage--default) .cellPoints .valuePoints {
+  display: inline-block;
+  min-width: 3ch;
 }
 :global(.stage--default) .label {
   /* Labels in the sans-serif, values in the serif font. */
