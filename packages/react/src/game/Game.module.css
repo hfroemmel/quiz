@@ -559,7 +559,7 @@
 [data-skin='kids'] .kioskEndRound,
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
-  color: var(--kids-ink);
+  color: #000;
 }
 
 [data-skin='kids'] .setup {
@@ -1450,9 +1450,9 @@
   font-weight: 400;
 }
 
-:global(.stage--kids) .panelTitle {
+[data-skin="kids"] .panelTitle {
   font-family: var(--kids-hand);
-  font-size: calc(1.8vw * 1.5);
+  font-size: 2.2vw;
 }
 
 /* One row per setting: on the left what it applies to, on the right the control. */
