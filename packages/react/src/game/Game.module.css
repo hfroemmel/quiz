@@ -70,7 +70,7 @@
 .waiting {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+  background: #eee;
 }
 
 .waiting {
