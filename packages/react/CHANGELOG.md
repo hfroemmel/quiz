@@ -1,5 +1,122 @@
 # @hfroemmel/quiz-react
 
+## 0.23.0
+
+### Minor Changes
+
+- df46f13: The answers move in - and the head stands still while a score grows.
+  
+  THE ENTRANCE NEVER RAN, for two reasons at once, and both of them are the kind
+  that leave no trace: the rule was there, the rows simply appeared.
+  
+    1. It took the duration and the easing of the SCENE transition, and the
+       answers are released in the MIDDLE of a question, where no transition
+       runs - the variables were unset and the declaration invalid. The entrance
+       is the row's own now: `presentationTiming.optionEnterMs` (380 ms), 70 ms
+       apart, with the stage's own easing.
+    2. Its keyframes lived in the global `styles/motion.css`, and a CSS module
+       cannot reach them by name - it scopes every animation name it sees, so the
+       rule asked for a keyframe called `_option-enter_<hash>` that nothing
+       defined. The keyframes of a component now live in that component's module
+       (`stage/AnswerList.module.css`), exactly where the answer mark's disc
+       already had its own; `motion.css` keeps what the transition registry
+       applies to the whole scene area and says so.
+  
+  The same two-line bug had silenced the arrival of the CATEGORY on the interim
+  screen: `pause-category-in` was referenced in a module and defined nowhere at
+  all, so the category stood there with the counter instead of following it by a
+  moment. It rises a line as it fades in now, like the answer rows and in the
+  same unit.
+  
+  A rise of 1.4 cqw and a fade, on the adults' stage and on the drawn cards of
+  the kids' world alike. With `prefers-reduced-motion` the rows stand there at
+  once - and without the stagger, which would otherwise leave the last row
+  waiting a quarter of a second for a movement that no longer happens.
+  
+  AND THE JUMP. The points cell was as wide as the number in it, so the first
+  correct answer of a round - nought becoming a hundred - widened the card and
+  pushed the counter and the other player's card sideways, measurably: eleven
+  pixels, at exactly the moment everybody is looking at the score. The cell
+  reserves three digits now, which is the most a round produces, and the digits
+  are tabular, so 111 and 999 are the same width.
+  
+  Measured rather than asserted: `test/e2e/steady-layout.spec.ts` reads the rows'
+  animation - its name, its duration, its stagger AND whether a keyframe of that
+  name is loaded at all, which is the only way to tell a working entrance from a
+  reference into nowhere - and `test/e2e/kiosk-layout.spec.ts` holds the head
+  group against a score growing to three digits.
+- df46f13: The clip before a question is gone - the whole feature, not just its button.
+  
+  WHAT IT WAS: any question could carry a film that ran before it. That one field
+  pulled a section of the flow behind it - a phase of its own (`video`), two
+  commands (`START_VIDEO`, `SHOW_QUESTION_AFTER_VIDEO`), an automatic start for
+  the unattended device, a scene, a request the server published to the
+  presentation clients, an audio authority that had to be handed to whichever
+  window actually played the file, a lead-in time, an asset kind, a question-slot
+  filter and a second build profile for the applications that could not ship the
+  files.
+  
+  WHY IT GOES: no round that ever ran carried one. The only clips that existed
+  were fixtures for the tests of the feature itself, and one of them stood in the
+  first slot of every preset of the show - so an evening opened with a Lorem
+  ipsum film. A section of the flow that carries nothing but its own test
+  material is not a feature; it is weight on every other one.
+  
+  WHAT IS GONE FROM THE SURFACE:
+  
+    - `PublicScene`/phase `video`, `state.video`, `PublicVideoRequest`
+    - commands `START_VIDEO` and `SHOW_QUESTION_AFTER_VIDEO`, the rejection
+      reasons `video-question-mismatch` and `video-source-missing`
+    - `question.video` and its translation field, `videoUrl` on the view model
+    - the slot filter `hasVideo`, the rule `videoLeadInMs`
+    - the asset kind `video` - `MediaAsset.kind` is `'image' | 'audio'`
+    - `videoAudioMaster` on the runtime status: there is one authority again
+    - content profiles: `applyContentProfile`, `BuildOptions.profile` and
+      `--profile` on `quiz-content build`/`validate`. One source builds one
+      package. `manifest.profile` stays READABLE so packages built before this
+      still load; nothing reads the value.
+  
+  WHAT STAYS: the moving picture where it was never a question - the delivered
+  animation clips (stars, trophy) play as before, and `.webm` is still served.
+  
+  The state machine, the scoring and the audio authority are otherwise
+  untouched, and the suites say so: the engine, the projection and the flow tests
+  run unchanged after the cut, and the fixture corpora were rebuilt without the
+  clips - with the same number of question slots, because a slot that only
+  allowed a film becomes an ordinary one.
+- df46f13: A host's sound switch keeps applying - and the device says whether it sounds.
+  
+  `soundEnabled` was read ONCE, at the start of the first round. An application
+  with a switch of its own - the media table keeps one in its bar - could
+  therefore silence itself and the quiz would go on sounding into a room that had
+  just asked for quiet. The value is followed now whenever the HOST changes it,
+  while a round is running as well; what is remembered is the last value taken
+  from the host, so a device's own toggle in the settings still works and is only
+  overruled when the host says something new.
+  
+  `[data-quiz-game]` carries `data-sound` for it. During a round the settings are
+  gone - that attribute is the one place the state is visible, which is what
+  makes the promise above testable from outside (`test/e2e/embedding.spec.ts`,
+  with the example host's switch thrown mid-round).
+
+### Patch Changes
+
+- 5e66371: The kiosk hint field gets its column back.
+  
+  The field between the two buzzers was a box of NO WIDTH: the middle column
+  centres its children, and this one's only child - the sentence - is positioned
+  absolutely inside it, so there was no content to take a width from. The
+  sentence then wrapped at the narrowest point it could find, one word per line,
+  in the middle of the screen: "Spieler / 1, / bitte / wähle / eine / Antwort."
+  
+  It stretches to the column now. The tests had measured where the field SITS and
+  what it SAYS, and both were right all along - so the case added with the fix
+  measures the field against its column and counts the lines of the sentence in
+  it, which is the part no position and no text content could see.
+- Updated dependencies [df46f13]
+  - @hfroemmel/quiz-core@0.23.0
+  - @hfroemmel/quiz-themes@0.23.0
+
 ## 0.22.4
 
 ### Patch Changes

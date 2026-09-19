@@ -1,5 +1,12 @@
 # @hfroemmel/quiz-themes
 
+## 0.23.0
+
+### Patch Changes
+
+- Updated dependencies [df46f13]
+  - @hfroemmel/quiz-core@0.23.0
+
 ## 0.22.4
 
 ### Patch Changes
