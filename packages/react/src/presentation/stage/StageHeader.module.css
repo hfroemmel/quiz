@@ -30,7 +30,6 @@
   display: flex;
   align-items: flex-start;
   border-radius: var(--stage-button-radius);
-  overflow: hidden;
 }
 /*
  * Wordmark. It sits as a mask over a colour area and thereby follows the
