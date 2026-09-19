@@ -132,6 +132,22 @@
   --scene-gap: 2.4cqw;
   --feedback-size: 14.2cqw;
 }
+/*
+ * AND ON THE DEVICE STANDING ON ITS OWN, NOTHING ABOVE OR BELOW THE BLOCK.
+ *
+ * These three screens are given the whole height of the device there
+ * (`Stage.module.css`) and centre their block in it. Any vertical padding is
+ * then a thumb on the scale: the scene's own top inset pushed the block two
+ * dozen pixels down, and the reserve the feedback keeps for the hall's header
+ * pushed it a hand's width up. The sides stay - they are what keeps a long
+ * category off the edge.
+ */
+:global(.stage--touch[data-layout='kiosk']) .feedback,
+:global(.stage--touch[data-layout='kiosk']) .pause,
+:global(.stage--touch[data-layout='kiosk']) .result {
+  padding-block: 0;
+}
+
 .feedbackSymbol {
   width: var(--feedback-size);
   aspect-ratio: 1;

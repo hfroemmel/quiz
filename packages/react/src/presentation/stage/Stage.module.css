@@ -124,10 +124,78 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
+/*
+ * AND EACH OF THE THREE NAMES ITS ROW, instead of being counted into it.
+ *
+ * Automatic placement counts what is IN the flow, so the moment the scene's
+ * area steps out of it - which it does on the three screens between the
+ * questions (see below) - the foot moved up into the row that had just become
+ * free and stood under the head. Named rows cannot slip.
+ */
+:global(.stage--touch[data-layout='kiosk']) > header {
+  grid-row: 1;
+}
+:global(.stage--touch[data-layout='kiosk']) .sceneArea {
+  grid-row: 2;
+}
+:global(.stage--touch[data-layout='kiosk']) > :global([data-kiosk-foot]) {
+  grid-row: 3;
+}
 :global(.stage--touch[data-layout='kiosk']) .sceneArea {
   justify-self: center;
   aspect-ratio: 4 / 3;
   margin: 0 auto;
+}
+
+/*
+ * THE THREE SCREENS BETWEEN THE QUESTIONS STAND IN THE MIDDLE OF THE DEVICE.
+ *
+ * Right/wrong, the counter with the next category, and the result are not
+ * compositions in a 16:9 box - they are one small block each, and a person
+ * standing at the table reads them in the middle of the screen. In the box
+ * they were centred in whatever the box happened to be: it takes its height
+ * from a ratio and hangs where head and foot leave it, so the block sat a
+ * hand's width too low.
+ *
+ * So for these three the area is the whole device: full height, its own width
+ * kept (the children's world is narrower), centred on the screen. The scene
+ * inside it centres as it always has - nothing about the blocks themselves
+ * changes.
+ *
+ * AND IT CATCHES NOTHING. The area now lies over head and foot, and the way
+ * out of the round stands in that foot: none of these three screens has
+ * anything to touch, so the layer is transparent to the pointer and the button
+ * under it stays a button.
+ *
+ * QUESTION AND SOLUTION ARE NOT IN THIS LIST, and that is the point of naming
+ * the scenes: their box is the composition, and it stays exactly as it is.
+ */
+:global(.stage--touch[data-layout='kiosk'].stage--scene-feedback) .sceneArea,
+:global(.stage--touch[data-layout='kiosk'].stage--scene-pause) .sceneArea,
+:global(.stage--touch[data-layout='kiosk'].stage--scene-result) .sceneArea {
+  position: absolute;
+  /*
+   * NO ROW, AND THAT IS WHAT MAKES THE WHOLE DEVICE THE FRAME: a box taken out
+   * of the flow that still names a row is measured against THAT row, and the
+   * row is what head and foot leave over.
+   */
+  grid-row: auto;
+  /*
+   * THE DEVICE'S WHOLE HEIGHT IS THE FRAME, and the block sits in the middle
+   * of it - `align-self` for the box, `justify-content` inside the scene. The
+   * two say the same thing on purpose: a browser that stretches this box to
+   * the frame centres the block with the scene's own rule, one that leaves it
+   * at its content size centres the box itself. Both land in the middle, as
+   * long as nothing adds padding above or below (see `scenes.module.css`).
+   */
+  inset-block: 0;
+  align-self: center;
+  left: 50%;
+  translate: -50% 0;
+  aspect-ratio: auto;
+  margin: 0;
+  transform-origin: center;
+  pointer-events: none;
 }
 
 /* The scene box fills the area. */

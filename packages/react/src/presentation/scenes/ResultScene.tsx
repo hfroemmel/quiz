@@ -72,8 +72,15 @@ function SoloResult({ result, view }: { result: PublicResult; view: SceneProps['
         </h2>
       )}
 
+      {/*
+        * ONE PERSON PLAYED, SO THERE IS NOBODY TO TELL APART. The card keeps
+        * its points - that is the number of the evening - and drops the
+        * player cell: "Spieler 1" beside a single score says nothing, and the
+        * headline above already says how the round went. The duel keeps both
+        * labels, because there the number is what tells the two cards apart.
+        */}
       <div className={styles.resultScores}>
-        {player && <Score label={player.label} score={player.score} size="result" />}
+        {player && <Score label={player.label} score={player.score} size="result" pointsOnly />}
       </div>
     </div>
   )

@@ -406,6 +406,165 @@ test('a smaller host zoom shrinks the scene toward the middle of its row', async
   expect(Math.abs(centre(room.seen) - centre(room.laidOut))).toBeLessThan(1)
 })
 
+/* ------------------------------------------------------------------ *
+ * The three screens between the questions
+ *
+ * Right/wrong, the counter with the next category, and the result are not
+ * compositions in a box - they are one block each, and at a device somebody
+ * stands in front of, that block belongs in the middle of the SCREEN. What is
+ * measured here is exactly that: the distance from the block's middle to the
+ * device's middle, whatever head and foot happen to be that moment.
+ *
+ * The question and the solution are deliberately not in this file's list:
+ * their box IS the composition, and `keeps head, question and foot clear of
+ * one another` above watches over it.
+ * ------------------------------------------------------------------ */
+
+/** The block a person reads: from the topmost to the lowest visible piece of the scene. */
+async function blockMiddle(page: Page): Promise<{ block: number; device: number }> {
+  return page.locator('[data-scene-root]').evaluate((root) => {
+    const scene = root.firstElementChild!
+    const pieces = [...scene.children].flatMap((child) => {
+      const style = getComputedStyle(child)
+      /* A frame set to `display: contents` is not a box - its children are. */
+      if (style.display === 'contents') return [...child.children]
+      /* The label for the screen reader is one pixel somewhere off-stage. */
+      if (style.position === 'absolute') return []
+      return [child]
+    })
+    const boxes = pieces.map((piece) => piece.getBoundingClientRect())
+    const top = Math.min(...boxes.map((box) => box.top))
+    const bottom = Math.max(...boxes.map((box) => box.bottom))
+    const device = root.closest('.stage')!.getBoundingClientRect()
+    return { block: (top + bottom) / 2, device: device.top + device.height / 2 }
+  })
+}
+
+/**
+ * Where a block STANDS is measured once it has arrived.
+ *
+ * These screens come in with a motion of their own - the category trails the
+ * counter by four tenths of a second - and a measurement taken during it reads
+ * the way there, not the place. So every running animation of the scene is
+ * awaited first; endless ones (the confetti of a won duel) are not waited for,
+ * because they never end.
+ */
+async function expectInTheMiddle(page: Page): Promise<void> {
+  await page.locator('[data-scene-root]').evaluate(async (root) => {
+    const running = root.getAnimations({ subtree: true }).filter((animation) => {
+      const timing = animation.effect?.getComputedTiming()
+      return timing !== undefined && timing.iterations !== Infinity && Number.isFinite(Number(timing.duration))
+    })
+    /*
+     * A cancelled animation rejects instead of resolving - it happens when a
+     * scene is replaced while it is still coming in. Either way it is over,
+     * which is all this wait asks about.
+     */
+    await Promise.all(running.map((animation) => animation.finished.catch(() => undefined)))
+  })
+  const { block, device } = await blockMiddle(page)
+  expect(Math.abs(block - device), 'block off the middle of the device').toBeLessThan(2)
+}
+
+/** Plays a round to its end - answering, confirming, and reading every solution. */
+async function playToTheEnd(page: Page): Promise<void> {
+  for (let step = 0; step < 240; step += 1) {
+    if (await page.locator('.stage[data-scene="result"]').count()) return
+    const buzzer = page.locator('[data-buzzer][data-enabled="true"]')
+    if (await buzzer.count()) await buzzer.first().click()
+    const answer = page.locator(openAnswer)
+    if (await answer.count()) {
+      await answer.first().click()
+      const confirm = page.locator('[data-confirm]')
+      if (await confirm.count()) await confirm.click()
+    }
+    const onward = page.getByRole('button', { name: /^Weiter/ })
+    if (await onward.count()) await onward.first().click()
+    await page.waitForTimeout(400)
+  }
+  await expect(page.locator('.stage[data-scene="result"]')).toBeVisible()
+}
+
+test.describe('The three screens between the questions', () => {
+  /*
+   * AT THE SIZE OF THE DEVICE. The rest of this file runs in the default
+   * window of the suite; these four play a round through to its end, and the
+   * arrangement they play it in is the one of a media table - a 16:9 screen
+   * of its own. Written at any other size the tests would be measuring a
+   * window nobody stands in front of.
+   */
+  test.use({ viewport: { width: 1920, height: 1080 } })
+
+  /*
+   * AND AT THE ZOOM A TABLE SETS. The host decides how small the composition
+   * stands (`zoom`), and the media table these screens were reported from
+   * shows it at three quarters - so that is what is played here.
+   */
+  const table = `${kiosk}&zoom=0.75`
+
+  test('right and wrong stand in the middle of the device, and the mark is white', async ({ page }) => {
+    await startGame(page, 'Allein', table)
+    await page.locator(openAnswer).first().click()
+    await page.locator('[data-confirm]').click()
+
+    await expect(page.locator('.stage[data-scene="feedback"]')).toBeVisible({ timeout: 15_000 })
+    await expectInTheMiddle(page)
+
+    /*
+     * The disc is the meaning colour, and the mark on it is white - on the green
+     * of a right answer as on the red of a wrong one.
+     */
+    const stroke = await page.locator('[data-answer-result] path').evaluate((path) => getComputedStyle(path).stroke)
+    expect(stroke).toBe('rgb(255, 255, 255)')
+  })
+
+  test('the counter and the next category stand in the middle of the device', async ({ page }) => {
+    await startGame(page, 'Allein', table)
+    await page.locator(openAnswer).first().click()
+    await page.locator('[data-confirm]').click()
+
+    /*
+     * The solution stands between the answer and the next question, and it
+     * waits to be read away - so the way to this screen leads through it.
+     */
+    await page.getByRole('button', { name: /^Weiter/ }).click({ timeout: 30_000 })
+
+    await expect(page.locator('.stage[data-scene="pause"]')).toBeVisible({ timeout: 30_000 })
+    await expect(page.locator('[data-pause-progress]')).toBeVisible()
+    await expectInTheMiddle(page)
+  })
+
+  test('a round played alone ends with its points and no player', async ({ page }) => {
+    test.setTimeout(240_000)
+    await startGame(page, 'Allein', table)
+    await playToTheEnd(page)
+
+    /*
+     * ONE PERSON PLAYED: the card keeps its points and drops the player cell -
+     * "Spieler 1" beside a single score says nothing that the headline above it
+     * does not already say.
+     */
+    const card = page.locator('[data-score]')
+    await expect(card).toHaveCount(1)
+    await expect(card).toHaveAttribute('data-points-only', '')
+    await expect(page.getByText('Spieler', { exact: true })).toHaveCount(0)
+    await expectInTheMiddle(page)
+  })
+
+  test('a duel ends with both players on their cards', async ({ page }) => {
+    test.setTimeout(240_000)
+    await startGame(page, 'Zu zweit', table)
+    await playToTheEnd(page)
+
+    const cards = page.locator('[data-score]')
+    await expect(cards).toHaveCount(2)
+    await expect(page.locator('[data-score][data-points-only]')).toHaveCount(0)
+    // Both names are on the stage - that is what tells the two cards apart.
+    await expect(page.getByText('Spieler', { exact: true })).toHaveCount(2)
+    await expectInTheMiddle(page)
+  })
+})
+
 /*
  * THE OTHER HALF OF THE STATEMENT.
  *
