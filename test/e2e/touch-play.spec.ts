@@ -174,8 +174,19 @@ test('chosen, open and the three states in between can be told apart', async ({ 
   })
   expect(state.area).not.toBe(openState.area)
   expect(state.font).not.toBe(openState.font)
-  // The selection mark carries exactly the selection colour - the same as the fill beneath it.
-  await expect(chosen.locator('[data-on="true"]')).toHaveCSS('background-color', color(selection))
+  /*
+   * The selection mark reads ON the selected card. It used to be a disc in the
+   * selection colour, from the days when the card itself stayed pale; the card
+   * is the coloured area now, so the mark is the ink that carries on it - a
+   * disc of the same colour inside it would be a second statement of the same
+   * thing.
+   */
+  const mark = chosen.locator('[data-on="true"]')
+  const ink = await page
+    .locator('[data-quiz-game]')
+    .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-ink-on-badge').trim())
+  await expect(mark).toHaveCSS('color', color(ink))
+  expect(state.area).toBe(color(selection))
 
   /*
    * Shows that the fill of the open card lifts without a line appearing. The
@@ -999,15 +1010,21 @@ test('same width means same size, even on windows of different height', async ({
   }
 
   /*
-   * Both heights leave room for the full-width scene above the fixed footer;
-   * the one exception to "width decides" is tested right after: a window too
-   * flat for that never lets the scene run under the footer.
+   * BOTH HEIGHTS LEAVE ROOM for the full-width scene above the fixed footer,
+   * and that is arithmetic, not taste: at 1280 the scene is 720 tall, the
+   * header takes about 77 and the footer about 218 - so from roughly 1030
+   * upwards the width decides alone. Below that the height constrains, which
+   * is the exception tested right after: a window too flat for the full width
+   * never lets the scene run under the footer.
+   *
+   * The numbers used to be 900 and 1000, from the days when the device showed
+   * the stage at 80 percent and a 1280-wide scene was only 576 tall.
    */
-  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.setViewportSize({ width: 1280, height: 1100 })
   await startGame(page, 'Zu zweit')
   const flat = await measures()
 
-  await page.setViewportSize({ width: 1280, height: 1000 })
+  await page.setViewportSize({ width: 1280, height: 1250 })
   await startGame(page, 'Zu zweit')
   const tall = await measures()
 

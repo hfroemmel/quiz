@@ -119,6 +119,16 @@
  * ------------------------------------------------------------------ */
 
 :global(.stage--kids) .header {
+  /*
+   * THREE COLUMNS, and the middle one is the middle of the screen: the word
+   * mark stands left, the counter right, and whatever the arrangement puts in
+   * the centre stays centred whether or not the third column carries
+   * anything. Without the grid the row becomes one flow and the word mark
+   * runs into the group beside it.
+   */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--kids-gap);
   padding: var(--kids-pad) var(--kids-pad) 0;
 }
 :global(.stage--kids) .brand,

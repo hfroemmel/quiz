@@ -117,16 +117,33 @@
   aspect-ratio: 16 / 9;
   /*
    * Full width, but never under the fixed footer: at zoom 1 the rendered
-   * height (0.8 * 9/16 of the width) must fit between the header (6cqw) and
-   * the footer (about 17cqw) with a small gap. On 4:3 screens the cap never
+   * height (9/16 of the width, i.e. 0.5625) must fit between the header
+   * (6cqw) and the footer (about 17cqw) with a small gap. The figure used to
+   * be 0.45 - the height of a stage shown at 80 percent - and the device
+   * shows it at full size, so the box was a quarter too wide and the answers
+   * ran into the buzzers. On 4:3 screens the cap never
    * applies; on 16:9 it keeps answers, score cards and the mascot clear of
    * the buzzers. The zoom is applied on top of this width, so a smaller zoom
    * always shrinks the scene instead of relaxing the cap.
+   *
+   * AND THE WIDTH HAS TO STAND HERE. The box is a size container, so it takes
+   * no width from its content, and nothing else gives it one - without this
+   * line it collapses to nothing and the device shows a header, a footer and
+   * an empty middle.
    */
-  /* The device shows the stage at 80 %; the host zoom scales that further. */
+  width: min(100%, calc((100cqh - 23cqw) / 0.5625));
+  /* The host zoom scales the whole area; the device itself shows it full size. */
   scale: var(--stage-zoom, 1);
-  /* Stay right under the header; the footer is fixed and out of flow. */
-  margin: 0 auto 5vw;
+  transform-origin: top center;
+  /*
+   * AND THE FOOT IS RESERVED AS A MARGIN, because the stage centres its column
+   * and the foot is fixed, i.e. out of it. Without this the box is centred
+   * between header and lower screen edge - as if the corners were not there -
+   * and the last answer ends up behind a buzzer. With the foot's own budget as
+   * a bottom margin, what gets centred is scene plus foot, and the slack above
+   * and below the scene stays even.
+   */
+  margin: 0 auto 17cqw;
 }
 /*
  * THE KIOSK LAYOUT DIVIDES THE HEIGHT INSTEAD OF ESTIMATING IT.
@@ -147,12 +164,20 @@
 :global(.stage--touch[data-layout='kiosk']) .sceneArea {
   flex: 1 1 auto;
   min-height: 0;
-  width: 100%;
+  /*
+   * THE HEIGHT IS GIVEN, THE WIDTH FOLLOWS - and in that order, because every
+   * size inside a scene is a share of its WIDTH (`cqw`). A box told to take
+   * the full width and to be 16:9 cannot have both when head and foot have
+   * already taken their share of the column: the browser keeps the width,
+   * flex shrinks the height, and the scene is no longer 16:9 - so a
+   * composition measured for 1080 draws into 630, and the question lands
+   * under the answers. Whoever wants a bigger scene has to take the height
+   * from the head or the foot; it cannot be borrowed from the aspect ratio.
+   */
+  width: auto;
   max-width: 100%;
   align-self: center;
   aspect-ratio: 16 / 9;
-  width: 100%;
-  padding-top: 10vw;
 }
 
 /* The scene box fills the area. */

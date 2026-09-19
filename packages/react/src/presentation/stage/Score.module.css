@@ -104,8 +104,13 @@
  * round can produce (seven questions at a hundred points), and the digits are
  * tabular, so 111 and 999 are the same width.
  */
+/*
+ * THE RESERVE FOLLOWS THE CELL'S PADDING. It was 7.5cqw while the cell had
+ * 1.2cqw of air on each side; with 2cqw the three digits no longer fitted and
+ * the card started growing again at the first hundred points.
+ */
 :global(.stage--default) .cellPoints {
-  min-width: 7.5cqw;
+  min-width: 8cqw;
 }
 :global(.stage--default) .label {
   /* Labels in the sans-serif, values in the serif font. */
@@ -248,6 +253,22 @@
 }
 :global(.stage--kids) .mirrored::before {
   border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player2.svg');
+}
+/*
+ * ONE PLAYER, ONE FIELD.
+ *
+ * The drawn score card has two: the coloured one carries the player's number,
+ * the pale one their points. Alone at the device there is no number - the card
+ * kept the empty half beside the points and read as a card someone forgot to
+ * fill in. So it becomes the counter's card, which is drawn for a single
+ * field, and the column beside it goes with it.
+ */
+:global(.stage--kids) .score[data-points-only] {
+  grid-template-columns: 1fr;
+  min-width: 9cqw;
+}
+:global(.stage--kids) .score[data-points-only]::before {
+  border-image-source: url('../../assets/kinderquiz/boxes/chip-question-counter.svg');
 }
 /*
  * Player on turn: its own artwork with a coloured field and a yellow
