@@ -190,12 +190,10 @@ describe('the federal colour spectrum', () => {
     '#CA2F56',
     '#A22644',
     '#00ACD3',
-    '#0084A1',
     '#8CD000',
     '#A8E063',
     '#B7F0A1',
     '#5A9E2B',
-    '#333333',
     '#003399',
     '#999999',
     /* The offer overview: ink, its quiet step, and the icon of a card. */
@@ -216,6 +214,9 @@ describe('the federal colour spectrum', () => {
     '#FFF',
     '#000',
     '#00CE9D',
+    /* The withdrawn steps of the accent - near-white on the stage, mid grey on paper. */
+    '#EEE',
+    '#666',
   ])
 
   /** Every colour token of a value - a gradient carries several. */

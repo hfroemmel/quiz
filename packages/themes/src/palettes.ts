@@ -60,9 +60,9 @@ const redTile = '#a22644'
  * steps of the spectrum.
  *
  * The signals, the grades of the start menu, the ink on a chip and the card
- * of the Europe quiz name values of their own: a cyan where the spectrum's
- * blue stood, one green in four grades where `Gruen` stood, near-black ink
- * and the European blue on its card. They are written out because there is
+ * of the Europe quiz name values of their own: a cyan the light start menu
+ * marks its selection with, one green in four grades where `Gruen` stood, and
+ * the European blue on its card. They are written out because there is
  * nothing to derive them from - no step lies close enough to call this a
  * rounding.
  *
@@ -73,13 +73,11 @@ const redTile = '#a22644'
  * still fails there.
  */
 const houseCyan = '#00acd3'
-const houseCyanDeep = '#0084a1'
 const houseGreen = '#8cd000'
 const houseGreenBright = '#a8e063'
 const houseGreenLight = '#b7f0a1'
 const houseGreenDeep = '#5a9e2b'
 const houseRed = '#ca2f56'
-const chipInk = '#333333'
 const europeBlue = '#003399'
 const brightInkMuted = '#999999'
 /*
@@ -98,6 +96,14 @@ const houseWhite = '#fff'
 const houseBlack = '#000'
 /* The action of the light start menu - a mint that is not the stage's green. */
 const houseMint = '#00ce9d'
+/*
+ * The withdrawn steps: a near-white on the dark stage, a mid grey on paper.
+ * They stand beside the accent they belong to - what marks the player on turn
+ * is a brightness here, not a hue, so the quiet step is the same colour with
+ * the light taken out.
+ */
+const houseInkFaint = '#eee'
+const houseInkMid = '#666'
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -142,8 +148,8 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
      * would drown in the background. The light variant takes the same
      * colours at 100 percent.
      */
-    accent: houseCyan,
-    accentQuiet: houseCyanDeep,
+    accent: houseWhite,
+    accentQuiet: houseInkFaint,
     primary: houseWhite,
     /* The primary is near-white here, so what stands on it is the dark ink. */
     primaryInk: houseBlack,
@@ -207,7 +213,7 @@ const brightInk = ciDark('dunkelgrau', 20)
  * stage currently use the same theme; should a mode ever get its own colour
  * world, its light variant belongs in that theme.
  */
-export const brightPalette: Partial<DesignColors> = {
+export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
   pageTop: weiss,
   /*
    * Paper, and two steps of `Hellgrau` on it. The spectrum's grey ladder is
@@ -219,7 +225,7 @@ export const brightPalette: Partial<DesignColors> = {
   stageBottom: ci('hellgrau', 40),
   controls: ci('hellgrau', 40),
   /* Not a meaning but a withdrawal: the locked-out player on paper. */
-  accentQuiet: ci('hellgrau', 60),
+  accentQuiet: houseInkMid,
   /* Frosted glass stays frosted glass - just made of ink instead of light. */
   tile: veil(brightInk, 0.06),
   tileDisabled: veil(brightInk, 0.04),
@@ -234,6 +240,16 @@ export const brightPalette: Partial<DesignColors> = {
   primary: schwarz,
   /* And on the black of the light variant, the light ink. */
   primaryInk: houseWhite,
+  /*
+   * THE INK ON A STRONG AREA, named by this variant itself.
+   *
+   * The stage's own value (`stageExtras.inkOnStrong`, emitted as
+   * `--stage-inkOnStrong`) is the dark one now, which is what the dark world
+   * needs. On paper the strong areas are black, so what stands on them is
+   * light - and only this variant knows that. It is therefore a colour of the
+   * light variant and not a second value in the stage's extras.
+   */
+  inkOnStrong: houseWhite,
   solution: houseGreen,
   solutionChip: houseGreen, // siehe oben
   correct: houseGreen,
@@ -312,7 +328,7 @@ export const redPalette: Partial<DesignColors> = {
  */
 export const stageExtras = {
   /** Text on accent, solution or player colour - always light there. */
-  inkOnStrong: schwarz,
+  inkOnStrong: houseBlack,
   /**
    * Shadow under a card lying ON the stage - the background step after a
    * solution.
@@ -346,7 +362,7 @@ export const stageExtras = {
    * grounds because the surface is opaque.
    */
   chip: houseChip,
-  inkOnChip: chipInk,
+  inkOnChip: houseBlack,
   /*
    * NO PLAYER COLOURS HERE ANYMORE.
    *

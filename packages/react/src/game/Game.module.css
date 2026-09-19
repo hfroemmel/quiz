@@ -959,17 +959,6 @@
  * the pointer would win on ordering and the card would fall back to the quiet
  * area for the moment of touch.
  */
-.cardOn,
-.cardOn:hover {
-  background: var(--start-surface-selected);
-  /*
-   * THE TYPE BELONGS TO THE AREA IT STANDS ON. In the dark variant, the
-   * selected card is the same dark box and the type stays as it was; in the
-   * light variant it is a full blue area, and only white is used on it. One
-   * token instead of two rules.
-   */
-  color: var(--start-ink-on-selected);
-}
 .cardOn .cardMeta {
   color: var(--start-meta-on-selected);
 }
@@ -1101,11 +1090,11 @@
   display: block;
   width: auto;
   max-width: 100%;
-  height: 2.4vw;
+  height: 2.4cqw;
   object-fit: contain;
 }
 .offer[data-emphasis='wide'] .offerArtwork {
-  height: 3.6vw;
+  height: 3.6cqw;
 }
 /*
  * The checkmark of a quiz card sits in its corner, not at the end of a row:
@@ -1113,8 +1102,8 @@
  */
 .offer .check {
   position: absolute;
-  top: calc(50% - 1.1vw);
-  right: 0.9vw;
+  top: calc(50% - 1cqw);
+  right: 1cqw;
   margin: 0;
 }
 
@@ -1186,14 +1175,14 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 1.8vw;
-  height: 1.8vw;
+  width: 2cqw;
+  height: 2cqw;
   margin-left: auto;
   color: var(--start-ink-on-badge);
 }
 .check > svg {
-  width: 70%;
-  height: 70%;
+  width: 2cqw;
+  height: 2cqw;
 }
 [data-skin='kids'] .check {
   display: none;
@@ -1241,7 +1230,7 @@
   padding: 0 1.5vw;
   border-radius: var(--stage-radius);
   border: none;
-  background: var(--color-accent);
+  background: var(--color-primary);
   /*
    * THE LABEL BELONGS ON THE GREEN, not on the area next to it: the bar is the
    * only full colour, and a token that names its type carries it correctly in

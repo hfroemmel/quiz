@@ -21,8 +21,8 @@
   --color-tileDisabled: rgb(255 255 255 / 0.05);
   --color-tileQuiet: rgb(255 255 255 / 0.06);
   --color-option: rgb(255 255 255 / 0.05);
-  --color-accent: #00acd3;
-  --color-accentQuiet: #0084a1;
+  --color-accent: #fff;
+  --color-accentQuiet: #eee;
   --color-primary: #fff;
   --color-primaryInk: #000;
   --color-solution: #8cd000;
@@ -31,12 +31,12 @@
   --color-incorrect: #ca2f56;
   --color-text: #FFFFFF;
   --color-textMuted: rgb(255 255 255 / 0.6);
-  --stage-inkOnStrong: #000000;
+  --stage-inkOnStrong: #000;
   --stage-cardShadow: rgb(0 0 0 / 0.2);
   --stage-edge: rgb(255 255 255 / 0.22);
   --stage-inkOutline: #000000;
   --stage-chip: #f2f2f2;
-  --stage-inkOnChip: #333333;
+  --stage-inkOnChip: #000;
   --ui-page: #111314;
   --ui-surface: #232728;
   --ui-surface-quiet: #111314;
@@ -115,7 +115,7 @@
   --color-stageTop: #FFFFFF;
   --color-stageBottom: #E5E8E9;
   --color-controls: #E5E8E9;
-  --color-accentQuiet: #D8DCDF;
+  --color-accentQuiet: #666;
   --color-tile: rgb(17 19 20 / 0.06);
   --color-tileDisabled: rgb(17 19 20 / 0.04);
   --color-tileQuiet: rgb(17 19 20 / 0.05);
@@ -123,6 +123,7 @@
   --color-accent: #000000;
   --color-primary: #000000;
   --color-primaryInk: #fff;
+  --color-inkOnStrong: #fff;
   --color-solution: #8cd000;
   --color-solutionChip: #8cd000;
   --color-correct: #8cd000;
