@@ -1,5 +1,7 @@
 # @hfroemmel/quiz-core
 
+## 0.24.1
+
 ## 0.24.0
 
 ### Minor Changes
