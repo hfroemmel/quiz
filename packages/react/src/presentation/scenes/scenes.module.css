@@ -36,6 +36,11 @@
   align-items: center;
 }
 
+:global(.stage--scene-reveal)[data-theme="kids"] .scene {
+  flex-direction: row-reverse;
+  gap: 3cqw;
+}
+
 .start {
   justify-content: center;
   --scene-gap: 0;

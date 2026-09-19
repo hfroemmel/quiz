@@ -63,6 +63,10 @@
   font-weight: 400;
 }
 
+:global(.stage--kids)[data-presentation="image-reveal"] .prompt {
+  font-size: 3.5cqw;
+}
+
 /*
  * The question row is the yielding part of the view: it grows into the free
  * space so the composition carries the full height as in the reference, and
