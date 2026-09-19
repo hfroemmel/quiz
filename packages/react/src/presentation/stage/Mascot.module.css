@@ -6,9 +6,16 @@
 :global(.stage--kids.stage--scene-solution) .mascot {
   position: fixed;
   z-index: 1;
-  right: -16cqw;
-  bottom: 11.25cqw;
-  height: 27.625cqw;
+  right: -18cqw;
+  bottom: 6.25cqw;
+  height: 33.625cqw;
   aspect-ratio: 927 / 1131;
   background: url('../../assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
+}
+
+:global(.stage--kids.stage--scene-question[data-answers-shown='true'][data-layout="live"]) .mascot,
+:global(.stage--kids.stage--scene-solution)[data-layout="live"] .mascot{
+  right: -18cqw;
+  bottom: 1cqw;
+  height: 30cqw;
 }

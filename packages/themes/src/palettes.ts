@@ -102,6 +102,13 @@ const houseBlack = '#000'
  */
 const houseInkFaint = '#eee'
 const houseInkMid = '#666'
+/*
+ * Two more plain steps: the line on the dark start menu, and the lower stop of
+ * the grey card gradient in the offer overview. Like the greys above they are
+ * written out, because no step of the spectrum is neutral.
+ */
+const houseInkLine = '#333'
+const houseChipEdge = '#ddd'
 
 /**
  * Cool, slightly bluish system for the adult stage.
@@ -211,16 +218,16 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
  * world, its light variant belongs in that theme.
  */
 export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
-  pageTop: weiss,
+  pageTop: houseWhite,
   /*
    * Paper, and two steps of `Hellgrau` on it. The spectrum's grey ladder is
    * what the light variant's near-whites were reaching for; at 20 and 40
    * percent it holds the same three levels the design had.
    */
-  pageBottom: ci('hellgrau', 20),
-  stageTop: weiss,
-  stageBottom: ci('hellgrau', 40),
-  controls: ci('hellgrau', 40),
+  pageBottom: houseChip,
+  stageTop: houseWhite,
+  stageBottom: houseInkFaint,
+  controls: houseInkFaint,
   /* Not a meaning but a withdrawal: the locked-out player on paper. */
   accentQuiet: houseInkMid,
   /* Frosted glass stays frosted glass - just made of ink instead of light. */
@@ -409,19 +416,18 @@ export const stageExtras = {
  * state that doesn't exist would be an invitation to add one anyway.
  */
 /*
- * The ink ON A CARD of the poster: `Dunkelblau` at its deepest step.
+ * THE PAGE AND THE CARD NOW NAME THE SAME INK.
  *
- * THE PAGE AND THE CARD NAME DIFFERENT INKS. The page carries the house black
- * and its grey step (`ink` and `ink-quiet` below); a light card is not the
- * page, and what stands on it keeps the spectrum's navy - that is also what
- * the Europe card's white ink is measured against.
+ * The poster used to write on a card in `Dunkelblau` at its deepest step,
+ * because a light card is not the page. Both carry the house black now, and
+ * the card keeps its own NAME for it (`ink-on-card`) - a variant that darkens
+ * the page still leaves the cards alone, which is what the two names are for.
  */
-const selectInk = ciDark('dunkelblau', 40)
 
 export const quizSelectPalette = {
-  page: weiss,
+  page: houseWhite,
   ink: '#000',
-  'ink-quiet': '#696969',
+  'ink-quiet': houseInkMid,
   /*
    * INK ON A CARD IS NOT INK ON THE PAGE.
    *
@@ -433,8 +439,8 @@ export const quizSelectPalette = {
    * the second pair, the variant would have to choose between an unreadable
    * heading and unreadable cards.
    */
-  'ink-on-card': selectInk,
-  'meta-on-card': '#696969',
+  'ink-on-card': houseBlack,
+  'meta-on-card': houseInkMid,
   /*
    * THE FIVE CARD SURFACES. Gradients, because a flat surface looks empty here.
    *
@@ -445,15 +451,15 @@ export const quizSelectPalette = {
    * blue Europe, gold the German Unity banner and red the Bremen coat of arms.
    * The motifs on top keep their own colours - a flag is content, not a token.
    */
-  'card-bundestag': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
+  'card-bundestag': `linear-gradient(135deg, ${houseChip} 0%, ${houseChipEdge} 100%)`,
   'card-kids': `linear-gradient(180deg, ${ci('hellblau', 60)} 0%, ${ci('hellblau', 40)} 50%, #cbc9f1 100%)`,
   'card-europe': europeBlue,
   /* The same grey paper as the Bundestag card - one value, written twice. */
-  'card-unity': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
+  'card-unity': `linear-gradient(135deg, ${houseChip} 0%, ${houseChipEdge} 100%)`,
   /* The same grey paper as the Bundestag card - one value, written once. */
-  'card-bremen': `linear-gradient(135deg, ${ci('hellgrau', 20)} 0%, ${ci('hellgrau', 60)} 100%)`,
+  'card-bremen': `linear-gradient(135deg, ${houseChip} 0%, ${houseChipEdge} 100%)`,
   /* On the deep blue, only white works - the style guide says so too. */
-  'ink-on-europe': weiss,
+  'ink-on-europe': houseWhite,
   /* The shadow is a hint - the cards rest, they don't float. */
   shadow: veil(schwarz, 0.055),
 } as const
@@ -564,26 +570,19 @@ export const uiPalette = {
  */
 export const startPalette = {
   /*
-   * Background: a gradient across the diagonal, plus two coloured lights.
-   *
-   * The lights are named after their PLACE, not their colour: one on the
-   * left, the other on the right. In the dark variant they are green and
-   * violet, in the light variant pink and lavender - a name that states the
-   * colour would be wrong in the other variant.
+   * NO GROUND AND NO LIGHTS ANY MORE. This menu used to carry a diagonal
+   * gradient with a green and a violet light on it; it stands on the plain
+   * dark ground now, and the two variants that do name a ground state it
+   * themselves (`brightStartPalette`, `redStartPalette`).
    */
-  'bg-top': ciDark('blau', 20),
-  'bg-mid': ciDark('dunkelblau', 20),
-  'bg-bottom': schwarz,
-  'ambient-left': ci('gruen', 80),
-  'ambient-right': ci('violett', 60),
 
   /* Cards and edges of the right-hand column. */
   surface: ciDark('hellblau', 20),
-  'surface-quiet': ciDark('blau', 20),
-  /* A selected card: the same box, just tinted green. */
-  'surface-selected': ciDark('dunkelgruen', 40),
-  line: ciDark('dunkelgrau', 60),
-  'line-strong': ciDark('dunkelgrau', 80),
+  'surface-quiet': houseBlack,
+  /* A selected card: the same box, just darker. */
+  'surface-selected': houseBlack,
+  line: houseInkLine,
+  'line-strong': houseInkLine,
 
   /*
    * THE SELECTION CARDS AND THE SECONDARY BUTTON HAVE THEIR OWN NAME.
@@ -595,9 +594,9 @@ export const startPalette = {
    * window keeps its frosted glass. Here the same values as before are kept,
    * so nothing changes in the dark variant.
    */
-  option: ciDark('hellblau', 20),
+  option: houseInk,
   /* A shade lighter under the pointer - the card lifts instead of flashing. */
-  'option-hover': ciDark('dunkelgrau', 60),
+  'option-hover': houseInkLine,
   /* The round surface under the icon of an unselected card. */
   'option-icon': veil(weiss, 0.045),
 
@@ -617,8 +616,8 @@ export const startPalette = {
    * changes in the dark variant.
    */
   selected: ci('gruen', 80),
-  /* Edge, icon and keyboard mark of a selected card. */
-  'selected-bright': ci('gruen', 60),
+  /* Edge, icon and keyboard mark of a selected card - the same green as above. */
+  'selected-bright': ci('gruen', 80),
   /* Text ON a selected card - and the quieter line below it. */
   'ink-on-selected': weiss,
   'meta-on-selected': ci('dunkelgrau', 60),
@@ -647,29 +646,27 @@ export const startPalette = {
    */
   'ink-on-badge': schwarz,
   /*
-   * The two other grades. They are order, not meaning - and the spectrum has
-   * the order: `Hellgrün` sits next to `Grün`, `Violett` at the far end of it.
-   * Violet appears at 60 percent, because the pure tone is a dark plum that
-   * would read as a shadow on this ground rather than as a light.
+   * THE BRAND PANEL IS BLACK - ground, line, type and shade alike.
+   *
+   * It used to be a green gradient with a lighter line and grey type on it,
+   * warmer than the control column beside it. The panel carries the drawing
+   * now, and a colour of its own would compete with it; what is left is the
+   * dark it stands on. The two grades `lime` and `violet` went with it: they
+   * ordered a difficulty this menu no longer shows.
    */
-  lime: ci('hellgruen'),
-  violet: ci('violett', 60),
-
-  /* The brand panel on the left: a warmer green than the control column on the right. */
-  'brand-top': ciDark('dunkelgruen', 40),
-  'brand-mid': ciDark('dunkelgruen', 60),
-  'brand-bottom': ci('dunkelgruen'),
-  'brand-line': ciDark('dunkelgruen', 80),
-  'brand-text': ci('hellgrau'),
-  /* Shadow and chip background INSIDE the panel - darker than its gradient. */
-  'brand-shade': schwarz,
+  'brand-top': houseBlack,
+  'brand-mid': houseBlack,
+  'brand-bottom': houseBlack,
+  'brand-line': houseBlack,
+  'brand-text': houseBlack,
+  'brand-shade': houseBlack,
 
   /* Icon of an unselected card and of the corner buttons. */
   icon: '#bbb',
   /* Lightening as frosted glass - the tone all veils are mixed from. */
-  glass: weiss,
+  glass: houseWhite,
   /* Darkening - shadow under the panels. */
-  shade: schwarz,
+  shade: houseBlack,
 } as const
 
 /**
@@ -743,9 +740,13 @@ export const brightStartPalette = {
    * Both lights are therefore switched off here, instead of extending the
    * stylesheet rule with a second variant.
    */
-  'bg-top': brightPalette.pageTop!,
-  'bg-mid': brightPalette.pageTop!,
-  'bg-bottom': brightPalette.pageTop!,
+  /*
+   * The paper of this screen is white in full - it states the value rather
+   * than following the stage's, which writes the short form.
+   */
+  'bg-top': weiss,
+  'bg-mid': weiss,
+  'bg-bottom': weiss,
   'ambient-left': 'transparent',
   'ambient-right': 'transparent',
 
@@ -825,9 +826,9 @@ export const brightStartPalette = {
   'ink-on-badge': weiss,
 
   /* The brand panel sits on the same paper as everything else. */
-  'brand-top': brightPalette.pageTop!,
-  'brand-mid': brightPalette.pageTop!,
-  'brand-bottom': brightPalette.pageTop!,
+  'brand-top': weiss,
+  'brand-mid': weiss,
+  'brand-bottom': weiss,
   'brand-line': veil(schwarz, 0.1),
   'brand-text': houseBlack,
   'brand-shade': veil(schwarz, 0.08),

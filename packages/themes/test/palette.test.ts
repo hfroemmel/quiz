@@ -198,7 +198,9 @@ describe('the federal colour spectrum', () => {
     '#999999',
     /* The offer overview: ink, its quiet step, and the icon of a card. */
     '#000',
-    '#696969',
+    /* The line of the dark start menu and the lower stop of a grey card. */
+    '#333',
+    '#DDD',
     '#BBB',
     /* The last stop of the children's card. */
     '#CBC9F1',

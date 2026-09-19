@@ -348,12 +348,13 @@ describe('the red variant', () => {
      */
     expect(darkOverview['--quiz-select-ink-on-card']).toBeUndefined()
     /*
-     * AND ON THE LIGHT PAGE THE TWO DIFFER TOO. The page names the house black
-     * for its heading; a card is not the page, and what stands on it keeps the
-     * spectrum's navy (`selectInk` in `palettes.ts`).
+     * ON THE LIGHT PAGE BOTH CARRY THE SAME INK - and keep separate names for
+     * it. That is the point of the second name: the dark and the red variant
+     * darken the page and leave the cards as they are, so a card's ink must
+     * not follow the page's even where the two values happen to match.
      */
     expect(fallback['--quiz-select-ink-on-card']).toBeDefined()
-    expect(fallback['--quiz-select-ink-on-card']).not.toBe(fallback['--quiz-select-ink'])
+    expect(fallback['--quiz-select-ink-on-card']).toBe(fallback['--quiz-select-ink'])
     expect(darkOverview['--quiz-select-ink']).not.toBe(fallback['--quiz-select-ink-on-card'])
     for (const card of ['bundestag', 'kids', 'europe', 'unity', 'bremen']) {
       expect(darkOverview[`--quiz-select-card-${card}`], card).toBeUndefined()
