@@ -46,7 +46,10 @@
  * them. In the reveal, the image carries the area - there the text stays
  * free on the background.
  * ------------------------------------------------------------------ */
-
+:global(.stage--kids.stage--scene-reveal) .head {
+  align-self: baseline;
+  padding-top: 5cqw;
+}
 :global(.stage--kids) .category {
   font-family: var(--kids-hand);
   font-weight: 400;
