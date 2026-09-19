@@ -324,7 +324,7 @@
   --kids-pad: 1.8cqw;
   --kids-gap: 1cqw;
   /* Visible gap between photo and question board - they must never touch. */
-  --kids-stage-gap: 2.5cqw;
+  --kids-stage-gap: 1.5cqw;
   /* Gap between letter chip and answer card. */
   --kids-chip-gap: 0.9cqw;
   /*
@@ -361,9 +361,7 @@
   font-family: var(--kids-hand);
   font-weight: 400;
   /* Illustrated scene, right-aligned, fills the format. */
-  background:
-    url('../assets/kinderquiz/backgrounds/background.png') right center / cover no-repeat,
-    linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
 /*

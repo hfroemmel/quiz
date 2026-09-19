@@ -234,9 +234,6 @@
   /* The answers give up nothing; the question row above is the one that yields. */
   flex: 0 0 auto;
 }
-:global(.stage--kids)[data-presentation='image-choice'] .answers {
-  width: var(--kids-content-width);
-}
 :global(.stage--kids) .answer {
   align-items: center;
   gap: var(--kids-chip-gap);
