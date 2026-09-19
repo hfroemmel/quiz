@@ -164,6 +164,19 @@ export function KioskFoot({
           * moving.
           */}
         <div className={styles.kioskHint} data-notice="" data-hint="">
+          {text && <span className={styles.noticeText}>{text}</span>}
+        </div>
+        {/*
+          * THE CONFIRMATION STANDS IN THE MIDDLE, in both modes and always in
+          * the same place. It used to sit on the corner of the player who had
+          * buzzed - which put a button under one hand and moved it across the
+          * screen whenever the other one got the buzz. The row is therefore
+          * always here and always as tall as the button, whether or not one is
+          * standing in it: the way out of the round below must not travel up
+          * and down as the round goes on.
+          */}
+        <div className={styles.kioskAction}>
+          {submit && confirm}
           {next ? (
             <button
               type="button"
@@ -177,16 +190,6 @@ export function KioskFoot({
             text && <span className={styles.noticeText}>{text}</span>
           )}
         </div>
-        {/*
-          * THE CONFIRMATION STANDS IN THE MIDDLE, in both modes and always in
-          * the same place. It used to sit on the corner of the player who had
-          * buzzed - which put a button under one hand and moved it across the
-          * screen whenever the other one got the buzz. The row is therefore
-          * always here and always as tall as the button, whether or not one is
-          * standing in it: the way out of the round below must not travel up
-          * and down as the round goes on.
-          */}
-        <div className={styles.kioskAction}>{submit && confirm}</div>
         {endRound}
       </div>
 

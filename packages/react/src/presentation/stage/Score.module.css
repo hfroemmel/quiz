@@ -184,6 +184,10 @@
   color: var(--color-text);
 }
 
+:global(.stage--default.stage--touch) .score[data-points-only] .cell {
+  border-radius: var(--stage-radius);
+}
+
 /* The card fills the width of its corner, so it lines up flush with the buzzer. */
 :global(.stage--touch) .score {
   width: 100%;

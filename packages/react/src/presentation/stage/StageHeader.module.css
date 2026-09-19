@@ -98,8 +98,8 @@
  * image's top-left corner, so the logo stays at the edge and only gets
  * smaller.
  */
-:global(.stage--default.stage--touch) .header {
-  justify-content: flex-start;
+:global(.stage--default.stage--touch) .header,
+:global(.stage--kids.stage--touch) .header {
   padding: 2.25cqw 4cqw 0;
   scale: var(--stage-zoom, 1);
   transform-origin: top center;
@@ -137,7 +137,6 @@
 :global(.stage--default.stage--touch[data-layout='kiosk']) .header {
   justify-content: center;
   padding: 2.25cqw 4cqw 0;
-  scale: var(--stage-zoom, 1);
 }
 :global(.stage--default.stage--touch[data-layout='kiosk']) .brand,
 :global(.stage--default.stage--touch[data-layout='kiosk']) .brandImage {
