@@ -1,5 +1,14 @@
 # @hfroemmel/quiz-react
 
+## 0.24.9
+
+### Patch Changes
+
+- Adjustments on the stage
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.9
+  - @hfroemmel/quiz-themes@0.24.9
+
 ## 0.24.8
 
 ### Patch Changes
