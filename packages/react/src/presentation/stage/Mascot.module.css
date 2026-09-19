@@ -15,7 +15,7 @@
 
 :global(.stage--kids.stage--scene-question[data-answers-shown='true'][data-layout="live"]) .mascot,
 :global(.stage--kids.stage--scene-solution)[data-layout="live"] .mascot{
-  right: -18cqw;
+  right: 0;
   bottom: 1cqw;
   height: 30cqw;
 }

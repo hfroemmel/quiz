@@ -144,7 +144,7 @@
  * transparent margin, which is cropped out.
  */
 :global(.stage--kids) .peek {
-  left: 8cqw;
+  left: calc(50% - 6.5cqw);
   bottom: calc(100% - 1.2937cqw);
   z-index: 2;
   width: 13cqw;
@@ -152,6 +152,3 @@
   background: url('../../assets/kinderquiz/characters/karlchen-mini.svg') no-repeat center / contain;
 }
 
-:global(.stage--kids)[data-presentation="image-reveal"] .peek {
-  left: 25cqw;
-}
