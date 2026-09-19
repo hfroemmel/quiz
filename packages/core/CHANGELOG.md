@@ -1,5 +1,24 @@
 # @hfroemmel/quiz-core
 
+## 0.26.7
+
+### Patch Changes
+
+- The reveal turns around, and the content width is said in one place
+  
+  While an image is being revealed, the children's scene runs the other way -
+  picture and text swap sides - and the question is set larger there. The stage
+  of that world drops the drawn background behind the running round and stands
+  on its plain gradient; the start screen keeps the drawing, which is also what
+  the preload list still fetches.
+  
+  The width of the content is now stated once, as `--kids-content-width` (four
+  fifths of the scene), and read where it applies: by the answer rows and by the
+  pause board. The rule that held head and answers to that measure for the
+  picture choice is gone with it, and the head takes the full width of what it
+  is given. Board and photo stand closer together, and the pause board may start
+  narrower than before.
+
 ## 0.26.6
 
 ### Patch Changes
