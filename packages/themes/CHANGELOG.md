@@ -1,5 +1,25 @@
 # @hfroemmel/quiz-themes
 
+## 0.24.3
+
+### Patch Changes
+
+- Let the scene take its width from the stage
+  
+  The scene box no longer measures itself. The computed width cap of the live
+  device, the foot it kept free as a bottom margin and its own size container are
+  gone; the box takes the width it is given and keeps its 16:9 - the whole stage
+  width in the kiosk arrangement, four fifths of it in the children's world,
+  which no longer reaches its size through a zoom factor of its own. The head of
+  the children's world drops that factor too, and its content spans the full
+  width again instead of sparing part of the mascot's strip.
+  
+  The question is set at one size instead of being scaled to fit. Stage buttons
+  carry a smaller measure, and the button that ends a round takes that measure
+  with a larger sign beside it.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.3
+
 ## 0.24.2
 
 ### Patch Changes
