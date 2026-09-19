@@ -1,5 +1,23 @@
 # @hfroemmel/quiz-react
 
+## 0.26.5
+
+### Patch Changes
+
+- The children's scene takes the width every scene takes
+  
+  Its area gave itself two widths of its own - four fifths normally, the whole
+  width while an image was being revealed - and both were forced through with
+  `!important`. They are gone: the area now measures like every other, and what
+  should be narrower says so where it stands, not from outside.
+  
+  The mascot sits flush with the right edge instead of hanging a hand's width
+  beyond it, and the peeking figure of the reveal stands in the middle of the
+  area rather than at a fixed distance from its left edge.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.5
+  - @hfroemmel/quiz-themes@0.26.5
+
 ## 0.26.4
 
 ### Patch Changes
