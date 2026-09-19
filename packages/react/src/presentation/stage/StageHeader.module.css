@@ -133,7 +133,6 @@
  */
 :global(.stage--kids.stage--touch) .header {
   padding: var(--kids-pad) var(--kids-pad) 0;
-  scale: calc(var(--stage-zoom, 1) * 1.5);
   transform-origin: top center;
 }
 

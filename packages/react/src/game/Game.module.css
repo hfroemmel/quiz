@@ -1835,13 +1835,15 @@
   border-radius: 0.6cqw;
   background: var(--stage-chip);
   font-family: var(--font-ui);
-  font-size: 1.1cqw;
+  font-size: var(--stage-button-size);
   font-weight: 600;
   cursor: pointer;
 }
 .kioskEndRoundIcon {
-  width: 1.2cqw;
-  height: 1.2cqw;
+  top: 0.1cqw;
+  position: relative;
+  width: 1.5cqw;
+  height: 1.5cqw;
   flex: none;
 }
 
