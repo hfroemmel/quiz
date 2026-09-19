@@ -467,19 +467,24 @@
 }
 
 /*
- * The background is the same paper the game stands on afterwards.
+ * THE MENU STANDS IN THE SAME SCENE THE GAME DOES.
  *
  * The dark gradient with the two coloured lights belongs to the adults'
  * selection; the bright paper world would nearly disappear on it, and the ink
- * on it would be unreadable.
+ * on it would be unreadable. What stands here instead is the drawn scene of
+ * this world (`.stage--kids` in `styles/stage.css`), so the choosing and the
+ * playing happen in one place - a host no longer has to paint a picture of
+ * its own behind the menu to get there.
  *
- * A HOST MAY PAINT A SCENE OVER IT - the media table puts the drawn house
- * behind its children's menu - and that picture belongs to the house, not to
- * this world: the quiz would otherwise carry a Reichstag into every foyer that
- * embeds it.
+ * It is the world's picture and not a house's: whoever gives the children's
+ * quiz a different scene exchanges this one asset, and both surfaces follow.
+ * The paper gradient stays underneath - it is what stands there while the
+ * drawing loads, and in any format the drawing does not reach into.
  */
 [data-skin='kids'].startScreen {
-  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+  background:
+    url('../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
+    linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
 /*
