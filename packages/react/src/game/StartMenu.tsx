@@ -218,10 +218,6 @@ export function StartMenu({
             * none is provided does the board carry the bundled quiz motif.
             */}
           <img className={styles.brandVisual} src={brand?.visualUrl ?? quizMark} alt="" />
-
-          <div className={styles.brandText}>
-            {brand?.title && <h1 className={styles.brandTitle}>{brand.title}</h1>}
-          </div>
         </aside>
 
         <section className={styles.setup}>

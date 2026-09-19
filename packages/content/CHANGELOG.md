@@ -1,5 +1,35 @@
 # @hfroemmel/quiz-content
 
+## 0.26.0
+
+### Minor Changes
+
+- The brand board shows its picture, and the start bar reads the menu's own rank
+  
+  THE TITLE IS NO LONGER DRAWN. The board on the left of the start menu carries
+  its picture and nothing else. `brand.title` stays in the signature and is
+  accepted as before, but nothing reads it any more - a host that passes one
+  will not see it, which is why this is a minor and not a patch.
+  
+  The start bar takes `--start-primary` and writes in `--start-primaryInk`, the
+  two names the light start menu now states itself, instead of borrowing the
+  stage's primary colour and the ink meant for its green. A chosen card paints
+  itself again: it carries the selected surface and the ink that goes on it.
+  
+  The colours follow the same line. On paper the veils are mixed from plain
+  black, the accent is the cyan again and a wrong answer the commissioned red.
+  The red variant gives all four of its tiles the same darker tone - a tile that
+  is switched off is still a tile. In the light start menu ink, lines and veils
+  come from black, the selection carries the cyan, the action the green with
+  dark type on it, and the dark offer overview stands on black with white type.
+  Two tones nobody reads any more are gone from the palette, and the guard lists
+  exactly the ones that are carried.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.0
+
 ## 0.25.1
 
 ### Patch Changes

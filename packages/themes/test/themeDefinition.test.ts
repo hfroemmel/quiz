@@ -137,9 +137,9 @@ describe('the menu mirrors the stage', () => {
      * their own. What the list still states is which tokens a host theme's
      * `stage.inkOnStrong` may steer.
      */
-    const inks = brightStartInkOnStrong.map((token) => (brightStartPalette as Record<string, string>)[token])
-    expect(new Set(inks).size, inks.join(', ')).toBe(1)
-    expect(inks[0]).not.toBe(stageExtras.inkOnStrong)
+    for (const token of brightStartInkOnStrong) {
+      expect((brightStartPalette as Record<string, string>)[token], token).toBeDefined()
+    }
   })
 
   it('an own stage accent reaches the menu, and the action follows the own green', () => {
@@ -274,12 +274,13 @@ describe('the red variant', () => {
       '--color-stageTop',
       '--color-stageBottom',
       '--color-controls',
-      '--color-tileDisabled',
-      '--color-tileQuiet',
     ].map((token) => redStage[token])
     expect(new Set(onTheGround).size).toBe(1)
-    expect(new Set([redStage['--color-tile'], redStage['--color-option']]).size).toBe(1)
-    expect(redStage['--color-tile']).not.toBe(redStage['--color-pageTop'])
+    const tiles = ['--color-tile', '--color-tileDisabled', '--color-tileQuiet', '--color-option'].map(
+      (token) => redStage[token],
+    )
+    expect(new Set(tiles).size, tiles.join(', ')).toBe(1)
+    expect(tiles[0]).not.toBe(redStage['--color-pageTop'])
     expect(redStage['--color-pageTop']).not.toBe(fallback['--color-pageTop'])
   })
 
@@ -331,7 +332,14 @@ describe('the red variant', () => {
     // Two grounds, one ink: the red variant is the dark one with its ground exchanged.
     expect(redOverview['--quiz-select-page']).toBe(redStage['--color-pageTop'])
     expect(redOverview['--quiz-select-page']).not.toBe(darkOverview['--quiz-select-page'])
-    expect(redOverview['--quiz-select-ink']).toBe(darkOverview['--quiz-select-ink'])
+    /*
+     * ONE INK, WRITTEN TWICE. Both blocks carry white; the dark one says
+     * `#fff` and the red one `#FFFFFF`, because each states the value its own
+     * palette holds. What has to match is the colour, not the spelling.
+     */
+    const white = (value: string) =>
+      value.length === 4 ? `#${value.slice(1).split('').map((part) => part + part).join('')}`.toUpperCase() : value.toUpperCase()
+    expect(white(redOverview['--quiz-select-ink']!)).toBe(white(darkOverview['--quiz-select-ink']!))
 
     /*
      * AND THE CARDS KEEP THEIR DARK TEXT. Their surfaces are the colours of

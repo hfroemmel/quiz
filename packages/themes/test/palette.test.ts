@@ -213,7 +213,6 @@ describe('the federal colour spectrum', () => {
     '#F2F2F2',
     '#FFF',
     '#000',
-    '#00CE9D',
     /* The withdrawn steps of the accent - near-white on the stage, mid grey on paper. */
     '#EEE',
     '#666',
@@ -283,8 +282,9 @@ describe('the federal colour spectrum', () => {
     /* The tile belongs to that ground - and to this variant alone. */
     expect(redPalette.tile).toBe('#a22644')
     expect(redPalette.option).toBe(redPalette.tile)
-    expect(redPalette.tileDisabled).toBe(redPalette.pageTop)
-    expect(redPalette.tileQuiet).toBe(redPalette.pageTop)
+    /* All four tiles carry that tone - a tile stays a surface here. */
+    expect(redPalette.tileDisabled).toBe(redPalette.tile)
+    expect(redPalette.tileQuiet).toBe(redPalette.tile)
     expect(legal.has('#A22644')).toBe(false)
 
     const outsiders = new Set<string>()

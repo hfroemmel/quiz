@@ -94,8 +94,6 @@ const houseInkLift = '#343434'
 const houseChip = '#f2f2f2'
 const houseWhite = '#fff'
 const houseBlack = '#000'
-/* The action of the light start menu - a mint that is not the stage's green. */
-const houseMint = '#00ce9d'
 /*
  * The withdrawn steps: a near-white on the dark stage, a mid grey on paper.
  * They stand beside the accent they belong to - what marks the player on turn
@@ -189,16 +187,15 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
   },
 }
 
-/**
- * THE INK OF THE LIGHT VARIANT - a near black, and a tone of the spectrum.
+/*
+ * THE INK OF THE LIGHT VARIANT IS PLAIN BLACK.
  *
- * The style guide labels its colours in white or black; on paper that is
- * black. A page of running text in pure black is harder to read than one in a
- * soft black, so `Dunkelgrau` at its deepest step stands here instead - it is
- * the spectrum's own near black, and every veil of the light variant is mixed
- * from it.
+ * It used to be `Dunkelgrau` at its deepest step - the spectrum's own near
+ * black, on the grounds that a page of running text reads better in a soft
+ * black than in a pure one. This variant names black itself now, and every
+ * veil on its paper is mixed from that (`veil(schwarz, …)`), so the greys of
+ * its lines, veils and quiet type all come from one value.
  */
-const brightInk = ciDark('dunkelgrau', 20)
 
 /**
  * Light variant of the adult stage - the toggle in the stage's header.
@@ -227,11 +224,11 @@ export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
   /* Not a meaning but a withdrawal: the locked-out player on paper. */
   accentQuiet: houseInkMid,
   /* Frosted glass stays frosted glass - just made of ink instead of light. */
-  tile: veil(brightInk, 0.06),
-  tileDisabled: veil(brightInk, 0.04),
-  tileQuiet: veil(brightInk, 0.05),
-  option: veil(brightInk, 0.05),
-  accent: schwarz,
+  tile: veil(schwarz, 0.06),
+  tileDisabled: veil(schwarz, 0.04),
+  tileQuiet: veil(schwarz, 0.05),
+  option: veil(schwarz, 0.05),
+  accent: houseCyan,
   /*
    * ON PAPER THE PRIMARY IS THE INK, not the green: the green of this system
    * carries the light stage, and on white it is a signal without a ground to
@@ -253,7 +250,7 @@ export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
   solution: houseGreen,
   solutionChip: houseGreen, // siehe oben
   correct: houseGreen,
-  incorrect: ci('dunkelrot'),
+  incorrect: redGround,
   text: schwarz,
   textMuted: brightInkMuted,
 }
@@ -305,16 +302,15 @@ export const redPalette: Partial<DesignColors> = {
   controls: redGround,
 
   /*
-   * THE TILES CARRY THEIR OWN TONES HERE. In the dark world they are white
+   * THE TILES CARRY THEIR OWN TONE HERE. In the dark world they are white
    * veils over an almost black ground; over this red the same veils turn
-   * milky, and a tile reads as a pale patch instead of a surface. The tile
-   * and the answer option therefore take the darker tone, while the two
-   * quiet ones stay on the ground itself - what is switched off or held back
-   * shows no surface at all.
+   * milky, and a tile reads as a pale patch instead of a surface. All four
+   * therefore take the darker tone - a tile that is switched off or held back
+   * is still a tile, and on this ground the surface is what says so.
    */
   tile: redTile,
-  tileDisabled: redGround,
-  tileQuiet: redGround,
+  tileDisabled: redTile,
+  tileQuiet: redTile,
   option: redTile,
 }
 
@@ -489,8 +485,8 @@ export const darkQuizSelectPalette = {
    * plainer grey now (`houseInk`); this surface is not the stage, and the
    * spectrum's deepest `Dunkelgrau` is what its cards were measured against.
    */
-  page: ciDark('dunkelgrau', 20),
-  ink: stagePalettes.default.text,
+  page: houseBlack,
+  ink: houseWhite,
   'ink-quiet': stagePalettes.default.textMuted,
   shadow: stageExtras.cardShadow,
 } as const
@@ -499,6 +495,8 @@ export const darkQuizSelectPalette = {
 export const redQuizSelectPalette = {
   ...darkQuizSelectPalette,
   page: redGround,
+  /* On the commissioned ground the type is white in full - not the short form. */
+  ink: weiss,
 } as const
 
 export const uiPalette = {
@@ -730,6 +728,13 @@ export const brightStartInkOnStrong = ['option-icon', 'ink-on-selected', 'ink-on
 
 export const brightStartPalette = {
   /*
+   * THE RANK AND THE INK ON IT, for the screen in front of the stage. The
+   * start bar reads these two, so a menu whose action is a black surface
+   * carries light type on it without the rule having to know the variant.
+   */
+  primary: schwarz,
+  primaryInk: houseWhite,
+  /*
    * WHITE, AND FULLY SO.
    *
    * The dark variant's background is a gradient with two coloured lights -
@@ -751,8 +756,8 @@ export const brightStartPalette = {
    */
   surface: veil(weiss, 0.75),
   'surface-quiet': veil(weiss, 0.45),
-  line: veil(brightInk, 0.1),
-  'line-strong': veil(brightInk, 0.16),
+  line: veil(schwarz, 0.1),
+  'line-strong': veil(schwarz, 0.16),
 
   /*
    * THE SELECTION CARD IS A SURFACE - THE SAME AS AN ANSWER IN THE GAME.
@@ -789,20 +794,20 @@ export const brightStartPalette = {
    */
   'surface-selected': houseCyan,
 
-  text: brightInk,
-  'text-muted': veil(brightInk, 0.6),
-  'text-quiet': veil(brightInk, 0.45),
+  text: houseBlack,
+  'text-muted': veil(schwarz, 0.6),
+  'text-quiet': veil(schwarz, 0.45),
 
   /* The selection carries the blue of the marked answer. */
-  selected: ci('blau'),
-  'selected-bright': ci('blau'),
+  selected: houseCyan,
+  'selected-bright': houseCyan,
   /*
    * On the full blue surface, only white works - title, line below it, icon
    * and checkmark. Previously the ink of the other cards was used here; that
    * was correct as long as the selected card was only tinted blue.
    */
-  'ink-on-selected': weiss,
-  'meta-on-selected': veil(weiss, 0.78),
+  'ink-on-selected': houseWhite,
+  'meta-on-selected': houseWhite,
 
   /*
    * The start button is the same button as "Submit answer and reveal": one
@@ -810,25 +815,26 @@ export const brightStartPalette = {
    * runs here between two identical tones - it disappears without the
    * stylesheet rule needing to know about it.
    */
-  green: houseMint,
-  'green-bright': houseMint,
-  'green-light': houseMint,
-  'green-deep': houseMint,
-  'green-edge': houseMint,
-  'ink-on-green': weiss,
+  green: houseGreen,
+  'green-bright': houseGreen,
+  'green-light': houseGreen,
+  'green-deep': houseGreen,
+  'green-edge': houseGreen,
+  /* The green is a bright one - what stands on it is the dark ink. */
+  'ink-on-green': houseBlack,
   'ink-on-badge': weiss,
 
   /* The brand panel sits on the same paper as everything else. */
   'brand-top': brightPalette.pageTop!,
   'brand-mid': brightPalette.pageTop!,
   'brand-bottom': brightPalette.pageTop!,
-  'brand-line': veil(brightInk, 0.1),
-  'brand-text': brightInk,
-  'brand-shade': veil(brightInk, 0.08),
+  'brand-line': veil(schwarz, 0.1),
+  'brand-text': houseBlack,
+  'brand-shade': veil(schwarz, 0.08),
 
-  icon: veil(brightInk, 0.6),
+  icon: veil(schwarz, 0.6),
   /* The veils are mixed from ink, not from light. */
-  glass: brightInk,
+  glass: houseBlack,
 } as const
 
 /**

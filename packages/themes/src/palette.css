@@ -116,18 +116,18 @@
   --color-stageBottom: #E5E8E9;
   --color-controls: #E5E8E9;
   --color-accentQuiet: #666;
-  --color-tile: rgb(17 19 20 / 0.06);
-  --color-tileDisabled: rgb(17 19 20 / 0.04);
-  --color-tileQuiet: rgb(17 19 20 / 0.05);
-  --color-option: rgb(17 19 20 / 0.05);
-  --color-accent: #000000;
+  --color-tile: rgb(0 0 0 / 0.06);
+  --color-tileDisabled: rgb(0 0 0 / 0.04);
+  --color-tileQuiet: rgb(0 0 0 / 0.05);
+  --color-option: rgb(0 0 0 / 0.05);
+  --color-accent: #00acd3;
   --color-primary: #000000;
   --color-primaryInk: #fff;
   --color-inkOnStrong: #fff;
   --color-solution: #8cd000;
   --color-solutionChip: #8cd000;
   --color-correct: #8cd000;
-  --color-incorrect: #780F2D;
+  --color-incorrect: #CA2F56;
   --color-text: #000000;
   --color-textMuted: #999999;
 }
@@ -140,13 +140,15 @@
   --color-stageBottom: #CA2F56;
   --color-controls: #CA2F56;
   --color-tile: #a22644;
-  --color-tileDisabled: #CA2F56;
-  --color-tileQuiet: #CA2F56;
+  --color-tileDisabled: #a22644;
+  --color-tileQuiet: #a22644;
   --color-option: #a22644;
 }
 
 /* Light version of the start selection in front of it - only what differs from the dark one. */
 [data-quiz-game][data-theme='bright'] {
+  --start-primary: #000000;
+  --start-primaryInk: #fff;
   --start-bg-top: #FFFFFF;
   --start-bg-mid: #FFFFFF;
   --start-bg-bottom: #FFFFFF;
@@ -154,34 +156,34 @@
   --start-ambient-right: transparent;
   --start-surface: rgb(255 255 255 / 0.75);
   --start-surface-quiet: rgb(255 255 255 / 0.45);
-  --start-line: rgb(17 19 20 / 0.1);
-  --start-line-strong: rgb(17 19 20 / 0.16);
-  --start-option: rgb(17 19 20 / 0.05);
+  --start-line: rgb(0 0 0 / 0.1);
+  --start-line-strong: rgb(0 0 0 / 0.16);
+  --start-option: rgb(0 0 0 / 0.05);
   --start-option-hover: #E5E8E9;
   --start-option-icon: #FFFFFF;
   --start-surface-selected: #00acd3;
-  --start-text: #111314;
-  --start-text-muted: rgb(17 19 20 / 0.6);
-  --start-text-quiet: rgb(17 19 20 / 0.45);
-  --start-selected: #0077B6;
-  --start-selected-bright: #0077B6;
-  --start-ink-on-selected: #FFFFFF;
-  --start-meta-on-selected: rgb(255 255 255 / 0.78);
-  --start-green: #00ce9d;
-  --start-green-bright: #00ce9d;
-  --start-green-light: #00ce9d;
-  --start-green-deep: #00ce9d;
-  --start-green-edge: #00ce9d;
-  --start-ink-on-green: #FFFFFF;
+  --start-text: #000;
+  --start-text-muted: rgb(0 0 0 / 0.6);
+  --start-text-quiet: rgb(0 0 0 / 0.45);
+  --start-selected: #00acd3;
+  --start-selected-bright: #00acd3;
+  --start-ink-on-selected: #fff;
+  --start-meta-on-selected: #fff;
+  --start-green: #8cd000;
+  --start-green-bright: #8cd000;
+  --start-green-light: #8cd000;
+  --start-green-deep: #8cd000;
+  --start-green-edge: #8cd000;
+  --start-ink-on-green: #000;
   --start-ink-on-badge: #FFFFFF;
   --start-brand-top: #FFFFFF;
   --start-brand-mid: #FFFFFF;
   --start-brand-bottom: #FFFFFF;
-  --start-brand-line: rgb(17 19 20 / 0.1);
-  --start-brand-text: #111314;
-  --start-brand-shade: rgb(17 19 20 / 0.08);
-  --start-icon: rgb(17 19 20 / 0.6);
-  --start-glass: #111314;
+  --start-brand-line: rgb(0 0 0 / 0.1);
+  --start-brand-text: #000;
+  --start-brand-shade: rgb(0 0 0 / 0.08);
+  --start-icon: rgb(0 0 0 / 0.6);
+  --start-glass: #000;
 }
 
 /* And its red version - the ground, and the two lights switched off. */
@@ -195,8 +197,8 @@
 
 /* The offer overview on a dark and on a red ground - the cards stay as they are. */
 [data-quiz-overview][data-theme='dark'] {
-  --quiz-select-page: #111314;
-  --quiz-select-ink: #FFFFFF;
+  --quiz-select-page: #000;
+  --quiz-select-ink: #fff;
   --quiz-select-ink-quiet: rgb(255 255 255 / 0.6);
   --quiz-select-shadow: rgb(0 0 0 / 0.2);
 }

@@ -954,6 +954,10 @@
 .card:active {
   transform: translateY(0.0694vw);
 }
+.cardOn {
+  background: var(--start-surface-selected);
+  color: var(--start-ink-on-selected);
+}
 /*
  * Selected stays selected, even under the pointer: without the second rule,
  * the pointer would win on ordering and the card would fall back to the quiet
@@ -1230,14 +1234,8 @@
   padding: 0 1.5vw;
   border-radius: var(--stage-radius);
   border: none;
-  background: var(--color-primary);
-  /*
-   * THE LABEL BELONGS ON THE GREEN, not on the area next to it: the bar is the
-   * only full colour, and a token that names its type carries it correctly in
-   * every variant - light on both greens, instead of inheriting the ink of the
-   * cards next to it in the light variant.
-   */
-  color: var(--start-ink-on-green);
+  background: var(--start-primary);
+  color: var(--start-primaryInk);
   font-family: var(--font-display);
   font-size: var(--kiosk-button-font-size);
   font-weight: 700;
