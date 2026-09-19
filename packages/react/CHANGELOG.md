@@ -1,5 +1,56 @@
 # @hfroemmel/quiz-react
 
+## 0.26.2
+
+### Patch Changes
+
+- The house colours reach the menu, and the mascot takes its place
+  
+  THE DARK START MENU STANDS ON BLACK. Its quiet surfaces, its selected card
+  and its lines carry plain black and two greys instead of the blue-tinted steps
+  they had, the brand panel on the left is black throughout - ground, line, type
+  and shade alike - and the frosted glass is mixed from white. In the offer
+  overview the quiet ink and the meta line take a mid grey, a card's ink the
+  same black as the page, and the three grey cards share one gradient. On paper
+  the stage's surfaces are the plain near-whites.
+  
+  SEVEN TOKENS ARE GONE, and none of them had a reader left: the menu's own
+  background gradient (`--start-bg-top`, `-mid`, `-bottom`), its two coloured
+  lights (`--start-ambient-left`, `-right`) and the two difficulty grades
+  (`--start-lime`, `--start-violet`). The light and the red variant name their
+  own ground as before, so only the dark menu loses these.
+  
+  THE MASCOT SITS IN THE SCENE, not on the screen: it is placed absolutely
+  inside its area instead of fixed to the window, stands larger and lower, and
+  carries its own measures for the question and the solution of the live
+  layout. While an image is being revealed it steps aside and the scene takes
+  the full width. The counter slot is no longer bound to the default stage.
+  
+  ON SIZE: the bundled stylesheet is back to 472 kB, but the drawing still
+  ships twice - the preload list addresses it with `new URL(...)`, and in
+  library mode Vite inlines that into `index.js` (4.3 MB). A smaller or
+  re-encoded file shrinks both the bundle and the copy in `dist/assets`.
+- 558b196: The children's menu keeps its scene in a host's build - the picture is named where it stays a file.
+  
+  The start selection carried the drawn scene from `Game.module.css`, and that
+  file is a CSS module: the library build bundles it and INLINES every asset a
+  rule names, whatever its size. The two megabyte drawing became nearly three
+  megabytes of base64 in `quiz-react.css` (3.2 MB in all), and a host's own
+  optimiser then dropped the declaration it could not handle - the media table
+  showed its children's menu on the dark ground of the adults' selection.
+  
+  The rule stands in `styles/stage.css` now, which the package COPIES beside
+  its assets, so the `url()` stays a file - the same route the stage's own
+  background has always taken. The bundled stylesheet is 472 kB again, with no
+  inlined picture in it at all.
+  
+  `[data-quiz-game][data-skin='kids']:has([data-quiz-start])` is what tells the
+  two screens apart: menu and running game are the same element with the same
+  attributes, and only the menu carries the selection inside it.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.2
+  - @hfroemmel/quiz-themes@0.26.2
+
 ## 0.26.1
 
 ### Patch Changes

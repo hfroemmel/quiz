@@ -1,5 +1,36 @@
 # @hfroemmel/quiz-core
 
+## 0.26.2
+
+### Patch Changes
+
+- The house colours reach the menu, and the mascot takes its place
+  
+  THE DARK START MENU STANDS ON BLACK. Its quiet surfaces, its selected card
+  and its lines carry plain black and two greys instead of the blue-tinted steps
+  they had, the brand panel on the left is black throughout - ground, line, type
+  and shade alike - and the frosted glass is mixed from white. In the offer
+  overview the quiet ink and the meta line take a mid grey, a card's ink the
+  same black as the page, and the three grey cards share one gradient. On paper
+  the stage's surfaces are the plain near-whites.
+  
+  SEVEN TOKENS ARE GONE, and none of them had a reader left: the menu's own
+  background gradient (`--start-bg-top`, `-mid`, `-bottom`), its two coloured
+  lights (`--start-ambient-left`, `-right`) and the two difficulty grades
+  (`--start-lime`, `--start-violet`). The light and the red variant name their
+  own ground as before, so only the dark menu loses these.
+  
+  THE MASCOT SITS IN THE SCENE, not on the screen: it is placed absolutely
+  inside its area instead of fixed to the window, stands larger and lower, and
+  carries its own measures for the question and the solution of the live
+  layout. While an image is being revealed it steps aside and the scene takes
+  the full width. The counter slot is no longer bound to the default stage.
+  
+  ON SIZE: the bundled stylesheet is back to 472 kB, but the drawing still
+  ships twice - the preload list addresses it with `new URL(...)`, and in
+  library mode Vite inlines that into `index.js` (4.3 MB). A smaller or
+  re-encoded file shrinks both the bundle and the copy in `dist/assets`.
+
 ## 0.26.1
 
 ### Patch Changes
