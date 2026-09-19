@@ -478,11 +478,18 @@
  *
  * It is the world's picture and not a house's: whoever gives the children's
  * quiz a different scene exchanges this one asset, and both surfaces follow.
- * The paper gradient stays underneath - it is what stands there while the
- * drawing loads, and in any format the drawing does not reach into.
+ *
+ * BUT THE PICTURE IS NAMED IN `styles/stage.css`, NOT HERE, and that is not a
+ * matter of taste. This file is a CSS module: the library build bundles it and
+ * inlines every asset a rule names, whatever its size - a two megabyte drawing
+ * becomes nearly three megabytes of base64 in `quiz-react.css`, and a host's
+ * own optimiser then drops the declaration it cannot handle. The stage
+ * stylesheet is COPIED into the package beside its assets, so a `url()` there
+ * stays a file. What stays here is the paper gradient: it is what the menu
+ * stands on while the drawing loads and in any format it does not reach into.
  */
 [data-skin='kids'].startScreen {
-  background: url('../assets/kinderquiz/backgrounds/background.png') left center / cover no-repeat;
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
 /*

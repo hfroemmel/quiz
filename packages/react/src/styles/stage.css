@@ -367,6 +367,26 @@
 }
 
 /*
+ * AND THE MENU STANDS IN THE SAME SCENE.
+ *
+ * The start selection is not the stage - it exists before there is a game, so
+ * it carries the world as a data attribute instead of the stage class
+ * (`QuizGame`). Its rules live in the component's module; only the picture
+ * cannot, because the library build inlines an asset a module names, and this
+ * one is two megabytes. Named from here it stays a file beside the stylesheet
+ * (see the note in `Game.module.css`).
+ *
+ * `:has([data-quiz-start])` IS WHAT TELLS THE TWO SCREENS APART: menu and
+ * running game are the same element with the same attributes, and only the
+ * menu carries the selection inside it.
+ */
+[data-quiz-game][data-skin='kids']:has([data-quiz-start]) {
+  background:
+    url('../assets/kinderquiz/backgrounds/background.png') left center / cover no-repeat,
+    linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+}
+
+/*
  * Fonts of the kids' world.
  *
  * Patrick Hand carries everything that is read, Melior the numbers and the
