@@ -78,7 +78,7 @@
 :global(.stage--bright) .brandImage {
   filter: invert(1);
 }
-:global(.stage--default) .counterSlot {
+.counterSlot {
   position: absolute;
   right: 3cqw;
   top: 2cqw;

@@ -151,3 +151,7 @@
   aspect-ratio: 1365 / 768;
   background: url('../../assets/kinderquiz/characters/karlchen-mini.svg') no-repeat center / contain;
 }
+
+:global(.stage--kids)[data-presentation="image-reveal"] .peek {
+  left: 25cqw;
+}

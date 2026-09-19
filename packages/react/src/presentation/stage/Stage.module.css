@@ -134,6 +134,10 @@
   width: 80cqw !important;
 }
 
+:global(.stage--kids)[data-presentation="image-reveal"] .sceneArea {
+  width: 100cqw !important;
+}
+
 /* The scene box fills the area. */
 :global(.stage--touch) .sceneRoot {
   width: 100%;
