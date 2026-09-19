@@ -1,5 +1,51 @@
 # @hfroemmel/quiz-react
 
+## 0.24.10
+
+### Patch Changes
+
+- f5621f5: One scene for the children's world - the menu now stands where the game does.
+  
+  THE DRAWING IS EXCHANGED (`assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp`):
+  the house stands further off, the meadow and the square in front of it are
+  open, and the crowd that used to fill the lower half is gone. Question board,
+  answers and the score cards lie over paper and sky now instead of over a
+  drawn crowd.
+  
+  AND THE START MENU CARRIES THE SAME PICTURE. It used to be the bare paper
+  gradient, on the grounds that a scene with a parliament in it belongs to the
+  house and not to this world - but the world's own background has always shown
+  that house, so the rule separated two things that were never apart. Choosing
+  and playing happen in one place now, and a host that painted a picture of its
+  own behind the menu to get there does not have to any more.
+  
+  The paper gradient stays underneath both: it is what stands there while the
+  drawing loads, and in any format the drawing does not reach into. Whoever
+  gives the children's quiz a different scene exchanges this one asset, and both
+  surfaces follow.
+- The house tones, and a start menu that keeps its own
+  
+  The adults' stage carries the colours this system was set to: a cyan where the
+  spectrum's blue stood, one green in four grades for solution, right answer and
+  start button, a near-black ink on a light chip, and the European blue on the
+  card of that quiz. The offer overview names its own black and grey for the
+  page, while a card keeps the spectrum's navy - a card is not the page.
+  
+  THE LIGHT START MENU NO LONGER FOLLOWS THE STAGE. Selection, text and action
+  used to be the stage's accent, ink and green under a second name. They are the
+  blue and green this screen was built with now, so a change made for the stage
+  does not recolour the menu by itself. A host theme still reaches it: the
+  mirror table is applied to what a theme NAMES ITSELF, so an own accent carries
+  into the menu while a theme that names nothing leaves the screen as it stands.
+  
+  The guard keeps working and lists the tones outside the Federal Government's
+  spectrum by name, together with the commissioned ground of the red variant and
+  its tile. A value that is neither a step nor one of those still fails there,
+  and a name dropped from the palette fails too.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.10
+  - @hfroemmel/quiz-themes@0.24.10
+
 ## 0.24.9
 
 ### Patch Changes

@@ -1,5 +1,31 @@
 # @hfroemmel/quiz-content
 
+## 0.24.10
+
+### Patch Changes
+
+- The house tones, and a start menu that keeps its own
+  
+  The adults' stage carries the colours this system was set to: a cyan where the
+  spectrum's blue stood, one green in four grades for solution, right answer and
+  start button, a near-black ink on a light chip, and the European blue on the
+  card of that quiz. The offer overview names its own black and grey for the
+  page, while a card keeps the spectrum's navy - a card is not the page.
+  
+  THE LIGHT START MENU NO LONGER FOLLOWS THE STAGE. Selection, text and action
+  used to be the stage's accent, ink and green under a second name. They are the
+  blue and green this screen was built with now, so a change made for the stage
+  does not recolour the menu by itself. A host theme still reaches it: the
+  mirror table is applied to what a theme NAMES ITSELF, so an own accent carries
+  into the menu while a theme that names nothing leaves the screen as it stands.
+  
+  The guard keeps working and lists the tones outside the Federal Government's
+  spectrum by name, together with the commissioned ground of the red variant and
+  its tile. A value that is neither a step nor one of those still fails there,
+  and a name dropped from the palette fails too.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.10
+
 ## 0.24.9
 
 ### Patch Changes
