@@ -51,6 +51,10 @@
  * wordmark, the height from the image.
  */
 .brandImage {
+  position: absolute;
+  left: 3cqw;
+  top: 2cqw;
+  width: 18cqw;
   height: auto;
   object-fit: contain;
   object-position: left center;
@@ -70,13 +74,6 @@
 }
 :global(.stage--default) .scores {
   gap: 1cqw;
-}
-:global(.stage--default) .brand,
-:global(.stage--default) .brandImage {
-  position: absolute;
-  left: 3cqw;
-  top: 2cqw;
-  width: 18cqw;
 }
 :global(.stage--bright) .brandImage {
   filter: invert(1);
@@ -107,19 +104,6 @@
   padding: 2.25cqw 4cqw 0;
   scale: var(--stage-zoom, 1);
   transform-origin: top center;
-}
-:global(.stage--default.stage--touch) .brand,
-:global(.stage--default.stage--touch) .brandImage {
-  position: static;
-  width: 13cqw;
-}
-
-/* ------------------------------------------------------------------ *
- * Kids' world: mark, cards and counter stand in one row
- * ------------------------------------------------------------------ */
-:global(.stage--kids) .brand,
-:global(.stage--kids) .brandImage {
-  width: 15cqw;
 }
 :global(.stage--kids) .scores {
   gap: 0.9cqw;
@@ -158,10 +142,6 @@
 }
 :global(.stage--default.stage--touch[data-layout='kiosk']) .brand,
 :global(.stage--default.stage--touch[data-layout='kiosk']) .brandImage {
-  position: absolute;
-  left: 4cqw;
-  top: 2.25cqw;
-  width: 13cqw;
   transform-origin: top left;
 }
 :global(.stage--default.stage--touch[data-layout='kiosk']) .scores {
