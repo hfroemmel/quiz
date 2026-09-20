@@ -408,6 +408,76 @@ describe('Next, result and abort', () => {
     expect(harness.state!.status).toBe('completed')
   })
 
+  /*
+   * THE RESULT GOES, THE GAME STAYS.
+   *
+   * Between two rounds the desk takes the result off the screen: the room gets
+   * its offer overview back, and the finished game keeps everything that makes
+   * it finished. What is measured here is exactly that difference to an abort -
+   * and that the step exists once, where it makes sense.
+   */
+  describe('Putting the start screen back up', () => {
+    /** Plays the running game to its end - the seven questions, unanswered. */
+    const playToResult = (harness: Harness) => {
+      for (let index = 0; index < 7; index += 1) {
+        harness.dispatch({ type: 'RESOLVE_WITHOUT_ANSWER' })
+        harness.dispatch({ type: 'CONTINUE' })
+        harness.settle()
+      }
+      expect(harness.state!.phase).toBe('result')
+    }
+
+    it('shows the offer overview again without ending the game', () => {
+      const harness = createHarness(sevenNormal())
+      startGame(harness)
+      playToResult(harness)
+      expect(harness.publicView().scene).toBe('result')
+
+      harness.dispatch({ type: 'SHOW_START_SCREEN' })
+
+      const view = harness.publicView()
+      expect(view.scene).toBe('start')
+      expect(view.quizOffers.length).toBeGreaterThan(0)
+      // The game is finished, not aborted - the difference the log lives on.
+      expect(harness.state!.status).toBe('completed')
+      expect(harness.state!.phase).toBe('result')
+      expect(harness.events.some((entry) => entry.message.includes('abgebrochen'))).toBe(false)
+    })
+
+    it('is offered on the result view and nowhere else', () => {
+      const harness = createHarness(sevenNormal())
+      startGame(harness)
+      expect(availableCommands(harness.state)).not.toContain('SHOW_START_SCREEN')
+      // While a game runs there is a result nobody has seen yet.
+      expect(harness.expectReject({ type: 'SHOW_START_SCREEN' }).reason).toBe('invalid-phase')
+
+      playToResult(harness)
+      expect(availableCommands(harness.state)).toContain('SHOW_START_SCREEN')
+
+      harness.dispatch({ type: 'SHOW_START_SCREEN' })
+      // Once the overview stands there is nothing left to put away.
+      expect(availableCommands(harness.state)).not.toContain('SHOW_START_SCREEN')
+      expect(harness.expectReject({ type: 'SHOW_START_SCREEN' }).reason).toBe('invalid-phase')
+    })
+
+    it('leaves the scores alone - they are the evening, not the screen', () => {
+      const harness = createHarness(sevenNormal())
+      startGame(harness)
+      playCorrect(harness, 'player-1')
+      harness.dispatch({ type: 'CONTINUE' })
+      harness.settle()
+      for (let index = 0; index < 6; index += 1) {
+        harness.dispatch({ type: 'RESOLVE_WITHOUT_ANSWER' })
+        harness.dispatch({ type: 'CONTINUE' })
+        harness.settle()
+      }
+      const before = harness.state!.players.map((player) => player.score)
+
+      harness.dispatch({ type: 'SHOW_START_SCREEN' })
+      expect(harness.state!.players.map((player) => player.score)).toEqual(before)
+    })
+  })
+
   it('rejects "next" outside the solution view', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)

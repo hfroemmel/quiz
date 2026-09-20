@@ -180,6 +180,17 @@ export interface GameState {
   eventDayId: string
   status: 'active' | 'completed' | 'aborted'
   phase: GamePhase
+  /**
+   * The result of this finished game has been taken off the screen
+   * (`SHOW_START_SCREEN`).
+   *
+   * IT SAYS NOTHING ABOUT THE GAME, only about what is being looked at: the
+   * game stays `completed` with its phase, its log and its statistics, and the
+   * stage shows the offer overview again. A flag and not a status, because a
+   * status would mean a fourth kind of game - and this is a finished one that
+   * nobody is reading any more.
+   */
+  resultClosed?: boolean
   /** Incremented on every accepted state change (optimistic concurrency). */
   revision: number
 

@@ -256,6 +256,80 @@ test.describe("Reveal: the grid follows the server's progress", () => {
   })
 })
 
+/* ------------------------------------------------------------------ *
+ * The licence line of a photo
+ *
+ * Every picture of the corpus names where it comes from, and wherever the
+ * picture is shown that line belongs on the screen. WHERE it stands is the
+ * one thing the two worlds answer differently - and that is what is measured
+ * here, against the photo's own box: outside it on the adults' stage, inside
+ * it in the children's world.
+ * ------------------------------------------------------------------ */
+
+test.describe('Image credit', () => {
+  /** The line and the photo, in one measurement. */
+  async function placement(page: Page) {
+    return page.locator('[data-media-credit]').evaluate((line) => {
+      const photo = line.closest('[data-media]')!.querySelector('[data-media-image]')!.getBoundingClientRect()
+      const box = line.getBoundingClientRect()
+      const style = getComputedStyle(line)
+      return {
+        text: line.textContent ?? '',
+        /* Sizes are container units - what matters is that it is the smallest type around. */
+        size: Number.parseFloat(style.fontSize),
+        promptSize: Number.parseFloat(getComputedStyle(document.querySelector('[data-prompt]')!).fontSize),
+        color: style.color,
+        shadow: style.textShadow,
+        insidePhoto: box.top >= photo.top && box.bottom <= photo.bottom + 1,
+        belowPhoto: box.top >= photo.bottom - 1,
+        /* At the left edge of the picture, not centred under it. */
+        fromLeft: box.left - photo.left,
+        photoWidth: photo.width,
+      }
+    })
+  }
+
+  test('stands under the photo on the stage, small and quiet', async ({ page }) => {
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'image-choice')
+
+    const line = await placement(page)
+    expect(line.text.length).toBeGreaterThan(0)
+    expect(line.belowPhoto, 'under the photo').toBe(true)
+    expect(line.insidePhoto, 'not in the photo').toBe(false)
+    // The smallest type in the scene - a duty, not a statement.
+    expect(line.size).toBeLessThan(line.promptSize / 2)
+    // At the picture's left edge, within a hair of it.
+    expect(Math.abs(line.fromLeft)).toBeLessThan(2)
+  })
+
+  test('stands in the photo in the children world, white with a shadow', async ({ page }) => {
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'image-choice')
+    await selectTheme(page, 'kids')
+
+    const line = await placement(page)
+    expect(line.insidePhoto, 'in the photo').toBe(true)
+    expect(line.belowPhoto, 'not under the photo').toBe(false)
+    expect(line.color, 'white').toBe('rgb(255, 255, 255)')
+    expect(line.shadow, 'with a shadow').not.toBe('none')
+    // In its lower left corner - close to the edge, and not out in the middle.
+    expect(line.fromLeft).toBeGreaterThan(0)
+    expect(line.fromLeft).toBeLessThan(line.photoWidth / 4)
+  })
+
+  test('is missing where the content names no origin', async ({ page }) => {
+    /*
+     * A question without a credit shows no line - not an empty one. The gap is
+     * reported where the content is built, not on the stage.
+     */
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'text-choice')
+    await expect(page.locator('[data-media]')).toHaveCount(0)
+    await expect(page.locator('[data-media-credit]')).toHaveCount(0)
+  })
+})
+
 test.describe('Reduced motion', () => {
   test('shortens the transition duration and hides confetti', async ({ page }) => {
     await selectScene(page, 'question')

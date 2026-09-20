@@ -21,16 +21,18 @@ interface QuestionHeadProps {
   question: PublicQuestion
   /** Image URL; if missing, the question board runs the full width. */
   imageUrl?: string
+  /** The picture's licence line - it travels with the url, not with the question. */
+  imageCredit?: string
   variant?: 'inline' | 'solution'
 }
 
-export function QuestionHead({ question, imageUrl, variant = 'inline' }: QuestionHeadProps) {
+export function QuestionHead({ question, imageUrl, imageCredit, variant = 'inline' }: QuestionHeadProps) {
   // Long questions are shrunk until nothing sticks out of the scene any more.
   const promptRef = useFittedPrompt(question.prompt)
 
   return (
     <div className={`${styles.head} ${imageUrl ? styles.withMedia : styles.wide}`}>
-      {imageUrl && <Media src={imageUrl} variant={variant} />}
+      {imageUrl && <Media src={imageUrl} {...(imageCredit ? { credit: imageCredit } : {})} variant={variant} />}
       <div className={styles.panel} data-panel="">
         {question.categoryLabel && <p className={styles.category} data-category="">
             {question.categoryLabel}

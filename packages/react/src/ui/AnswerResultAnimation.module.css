@@ -39,13 +39,13 @@
 .symbol {
   fill: none;
   /*
-   * WHITE, AND NOT THE SURFACE'S INK. The disc is the meaning colour - a
-   * strong green or a strong red - and on both of them the mark reads as a
-   * mark when it is white. The ink token follows the SURFACE of a variant, so
-   * on a bright stage it turned the checkmark black: legible, but a pencil
-   * line on a traffic light rather than the tick of the moment.
+   * THE INK OF TYPE ON A MOTIF, and not the surface's ink. The disc is the
+   * meaning colour - a strong green or a strong red - and on both of them the
+   * mark reads as a mark when it is light. `inkOnStrong` follows the SURFACE of
+   * a variant, so on the bright stage it turned the checkmark black: legible,
+   * but a pencil line on a traffic light rather than the tick of the moment.
    */
-  stroke: #fff;
+  stroke: var(--stage-inkOnMotif);
   stroke-width: 8;
   stroke-linecap: round;
   stroke-linejoin: round;

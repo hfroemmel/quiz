@@ -56,6 +56,27 @@
   height: 100%;
   object-fit: cover;
 }
+/*
+ * THE LICENCE LINE - small, at the lower left, and never in the way.
+ *
+ * It names where a photo comes from, which is a duty and not a statement: it
+ * is the smallest type on the stage, it wraps nowhere, and it is cut off
+ * rather than allowed to grow over the picture. Where exactly it stands is
+ * decided by the two worlds below - outside the photo on the adults' stage,
+ * inside it in the children's world.
+ */
+.credit {
+  position: absolute;
+  left: 0;
+  max-width: 100%;
+  font-size: 0.9cqw;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
 /* Room for a mascot peeking in - only the kids' world fills it. */
 .peek {
   position: absolute;
@@ -66,10 +87,22 @@
  * Adult stage: frosted-glass edge without an outline
  * ------------------------------------------------------------------ */
 
+/*
+ * THE CLIP SITS ON THE PHOTO, NOT ON THE FRAME.
+ *
+ * It used to clip the whole frame, which is where the rounded corners came
+ * from - and with them a box out of which nothing could stand. The licence
+ * line belongs UNDER the photo in this world, so the crop moved one layer in,
+ * onto the area that is the photo (`canvas`): same corners, and the frame can
+ * carry something beside the picture again.
+ */
 :global(.stage--default) .media {
-  overflow: hidden;
   border-radius: var(--stage-radius);
   background: var(--color-tile);
+}
+:global(.stage--default) .canvas {
+  overflow: hidden;
+  border-radius: inherit;
 }
 /*
  * The portrait is the heart of the view and is therefore the only media
@@ -78,6 +111,17 @@
  */
 :global(.stage--default) .portrait {
   border-radius: calc(var(--stage-radius) * 1.6);
+}
+/*
+ * UNDER THE PICTURE, NOT IN IT: this stage is dark and its photos are
+ * darkened, so a line in the image would sit on a motif; under it, it stands
+ * on the stage's own ground in the quiet ink the design keeps for secondary
+ * type.
+ */
+:global(.stage--default) .credit {
+  top: 100%;
+  padding-top: 0.4cqw;
+  color: var(--color-textMuted);
 }
 :global(.stage--default) .portrait .image {
   object-position: center 30%;
@@ -89,7 +133,14 @@
 
 :global(.stage--kids) .media {
   isolation: isolate;
-  padding: 0.9cqw;
+  /*
+   * How deep the photo sits in the drawn frame - as a token, because a second
+   * thing measures against it: the licence line stands in the photo, and the
+   * offsets of a box taken out of the flow are counted from the PADDING edge,
+   * not from the photo. Without this the line hung a hair outside the picture.
+   */
+  --media-frame-inset: 0.9cqw;
+  padding: var(--media-frame-inset);
 }
 :global(.stage--kids) .media::before {
   content: '';
@@ -114,9 +165,31 @@
   border-radius: 1cqw;
   clip-path: inset(0 round 1cqw);
 }
+/*
+ * IN THE PICTURE, AT ITS LOWER LEFT - white with a light shadow.
+ *
+ * This world's frame is a drawing with nothing under it to write on, and a
+ * line hung below it would sit on the paper between the frame and the answers.
+ * So it stands in the photo, where white carries over every motif and the
+ * shadow keeps it readable over a bright one. `0 0` is the corner of the photo
+ * itself: the offsets resolve against the frame's padding box, and that is
+ * where the drawn framing ends.
+ */
+:global(.stage--kids) .credit {
+  bottom: calc(var(--media-frame-inset) + 0.5cqw);
+  left: calc(var(--media-frame-inset) + 0.6cqw);
+  /*
+   * The two tokens of type that lies on a picture: the light ink, and the dark
+   * the world uses to outline it. The shadow is softened rather than named as
+   * a value of its own - what it is is the outline, just spread out.
+   */
+  color: var(--stage-inkOnMotif);
+  text-shadow: 0 0.08cqw 0.25cqw color-mix(in srgb, var(--stage-inkOutline) 60%, transparent);
+}
+
 /* For image guessing the photo sits deeper in the frame: the blur smears. */
 :global(.stage--kids) .reveal {
-  padding: 1.7cqw;
+  --media-frame-inset: 1.7cqw;
 }
 /*
  * In question and solution, the header zone's grid determines the size -

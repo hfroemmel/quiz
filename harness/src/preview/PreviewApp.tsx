@@ -338,6 +338,8 @@ function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
         presentationType: type,
         categoryLabel: 'Personen',
         imageUrl: previewPortrait,
+        /* Every photo of the corpus carries one - so the preview carries one too. */
+        imageCredit: 'Deutscher Bundestag / Beispielfoto',
       },
       answers: ['Bärbel Bas', 'Rita Süssmuth', 'Annemarie Renger', 'Hildegard Hamm-Brücher'],
     }
@@ -348,7 +350,9 @@ function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
       prompt: longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
       presentationType: type,
       categoryLabel: 'Erdkunde',
-      ...(type === 'image-choice' ? { imageUrl: previewImage } : {}),
+      ...(type === 'image-choice'
+        ? { imageUrl: previewImage, imageCredit: 'Deutscher Bundestag / Beispielfoto' }
+        : {}),
     },
     answers: ['Rhein', 'Elbe', 'Donau', 'Main'],
   }
@@ -454,6 +458,7 @@ function buildSampleView(input: {
           prompt: 'Welches Bauwerk ist hier zu sehen?',
           presentationType: 'image-reveal',
           imageUrl: previewImage,
+          imageCredit: 'Deutscher Bundestag / Beispielfoto',
           categoryLabel: 'Gebäude',
         },
         reveal: { status: 'paused', durationMs: gameTiming.imageRevealDurationMs, elapsedMs: input.revealElapsedMs },

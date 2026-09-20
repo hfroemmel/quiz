@@ -232,6 +232,26 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
       return work.commit()
     }
 
+    /*
+     * THE RESULT GOES, THE GAME STAYS. Only for a game that is actually
+     * finished: while one runs there is a result nobody has seen yet, and an
+     * aborted game never put one on the screen.
+     */
+    case 'SHOW_START_SCREEN': {
+      if (!work.state) return reject('no-active-game', 'Es liegt kein beendetes Spiel vor.')
+      if (work.state.status !== 'completed') {
+        return reject('invalid-phase', 'Die Startansicht kann erst nach dem Ergebnis eingeblendet werden.')
+      }
+      if (work.state.resultClosed) {
+        return reject('invalid-phase', 'Die Startansicht steht bereits.')
+      }
+      work.mutate((draft) => {
+        draft.resultClosed = true
+      })
+      work.log('game', 'Ergebnis ausgeblendet. Die Buehne zeigt wieder die Angebotsuebersicht.')
+      return work.commit()
+    }
+
     case 'OPEN_BUZZER': {
       const guard = work.requireActiveGame()
       if (guard) return guard
@@ -384,11 +404,18 @@ export function reduce(state: GameState | null, command: Command, ctx: EngineCon
     case 'ADVANCE_TIMED_PHASE':
       return advanceTimedPhase(work, command.transitionId)
 
+    case 'SELECT_QUIZ':
     case 'RESUME_GAME':
     case 'DISCARD_RESUMABLE_GAME':
     case 'START_NEW_EVENT_DAY':
     case 'RESET_GAME_STATISTICS':
     case 'APPLY_QUESTION_PATCH':
+      /*
+       * `SELECT_QUIZ` is in this list for the same reason as the rest: what the
+       * desk is setting up is not a move in a game. It is answered by the
+       * service, which keeps the choice between two games - the engine has no
+       * state for a game that has not started.
+       */
       // Operating and recovery commands are deliberately not game rules.
       // They are handled in the application layer (`@quiz/runtime`) because they
       // concern content, database and event day - not the game flow.

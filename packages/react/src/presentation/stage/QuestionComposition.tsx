@@ -28,6 +28,8 @@ interface QuestionCompositionProps {
   question: PublicQuestion
   /** Image URL; in the solution it can differ from the question's. */
   imageUrl?: string
+  /** Licence line of THAT picture - it travels with the url. */
+  imageCredit?: string
   mediaVariant?: 'inline' | 'solution'
   rows: AnswerRow[]
   /** Touch device only: turns the rows into buttons. */
@@ -39,6 +41,7 @@ interface QuestionCompositionProps {
 export function QuestionComposition({
   question,
   imageUrl,
+  imageCredit,
   mediaVariant = 'inline',
   rows,
   answering,
@@ -60,7 +63,7 @@ export function QuestionComposition({
   if (question.presentationType === 'person' && imageUrl) {
     return (
       <div className={styles.person}>
-        <Media src={imageUrl} variant="portrait" />
+        <Media src={imageUrl} {...(imageCredit ? { credit: imageCredit } : {})} variant="portrait" />
         <div className={styles.column}>
           <QuestionHead question={question} />
           {children}
@@ -72,7 +75,12 @@ export function QuestionComposition({
 
   return (
     <>
-      <QuestionHead question={question} imageUrl={imageUrl} variant={mediaVariant} />
+      <QuestionHead
+        question={question}
+        imageUrl={imageUrl}
+        {...(imageCredit ? { imageCredit } : {})}
+        variant={mediaVariant}
+      />
       {children}
       <AnswerList rows={rows} {...list} />
     </>

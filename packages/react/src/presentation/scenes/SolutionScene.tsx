@@ -40,6 +40,11 @@ export function SolutionScene({ view }: SceneProps) {
       <QuestionComposition
         question={question}
         imageUrl={solution.imageUrl ?? question.imageUrl}
+        {...(() => {
+          /* The line belongs to the picture that is actually shown. */
+          const credit = solution.imageUrl ? solution.imageCredit : (question.imageCredit ?? solution.imageCredit)
+          return credit ? { imageCredit: credit } : {}
+        })()}
         mediaVariant="solution"
         rows={rows}
       >

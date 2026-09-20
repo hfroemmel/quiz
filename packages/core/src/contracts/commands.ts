@@ -134,6 +134,30 @@ export const commandSchema = z.discriminatedUnion('type', [
   /** Next question, or after the last question the result view. */
   z.object({ type: z.literal('CONTINUE') }),
   z.object({ type: z.literal('ABORT_GAME') }),
+  /**
+   * Take the result of a finished game off the screen and put the offer
+   * overview back up.
+   *
+   * IT IS NOT A START AND NOT AN ABORT. The game stays finished - its result,
+   * its log and its statistics are untouched; what changes is what the room
+   * looks at. Between two rounds an evening needs that step: the operator
+   * talks, the audience changes, and the result of strangers should not stand
+   * over it until somebody starts the next game.
+   */
+  z.object({ type: z.literal('SHOW_START_SCREEN') }),
+  /**
+   * The quiz the console has chosen but not yet started.
+   *
+   * IT IS A DECISION, NOT A START. The choice used to live in the console's
+   * own window, so the room's offer overview knew nothing of it - the card the
+   * operator had picked was marked on their screen and nowhere else. It goes
+   * through the server now, and every client reads it from the same state.
+   *
+   * The level travels with it because the two belong together: a level always
+   * belongs TO a quiz, and a second field beside it could name the level of a
+   * quiz nobody chose.
+   */
+  z.object({ type: z.literal('SELECT_QUIZ'), quizId: z.string().min(1), presetId: z.string().min(1).optional() }),
   /** Discard the current question and draw a replacement from the same slot. */
   z.object({ type: z.literal('SKIP_QUESTION'), reason: z.string().optional() }),
   /** Global sound status. */
@@ -248,6 +272,13 @@ export const commandRoles: Record<CommandType, readonly ActorRole[]> = {
    */
   CONTINUE: ['operator', 'moderator', 'player'],
   ABORT_GAME: ['operator', 'player'],
+  /*
+   * BOTH BELONG TO THE DESK ALONE. Taking a finished result off the screen and
+   * choosing what comes next are decisions about the evening: the moderator
+   * stands beside the players and the room's own screens send nothing at all.
+   */
+  SHOW_START_SCREEN: ['operator'],
+  SELECT_QUIZ: ['operator'],
   SKIP_QUESTION: ['operator'],
   SET_SOUND_ENABLED: ['operator', 'player'],
   ADVANCE_TIMED_PHASE: ['system', 'operator'],

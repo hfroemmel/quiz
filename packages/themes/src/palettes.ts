@@ -344,6 +344,20 @@ export const stageExtras = {
   /** Hairline edge on the portrait, so it stands out from the background. */
   edge: veil(weiss, 0.22),
   /**
+   * LIGHT INK FOR TYPE THAT LIES ON A PICTURE OR ON A MEANING COLOUR.
+   *
+   * Two places need it, and both for the same reason: the mark on the
+   * right/wrong disc, and the licence line in the lower left of a photo in the
+   * children's world. What is under them is not a surface of the theme - it is
+   * a strong green, a strong red, or somebody's photograph - so the ink cannot
+   * follow the variant the way `inkOnStrong` does: that one turns with the
+   * SURFACE, and on the bright stage it made the checkmark black.
+   *
+   * White in every world, therefore, and only ever over something that carries
+   * it - never on the stage's own ground.
+   */
+  inkOnMotif: houseWhite,
+  /**
    * Outline around light text sitting on a busy background.
    *
    * In the kids world, the score and countdown sit over an illustration with

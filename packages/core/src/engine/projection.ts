@@ -102,6 +102,12 @@ export interface ProjectionContext {
   /** Locale of the device while no game runs. */
   locale?: string
   /**
+   * What the desk has set up but not yet started (`SELECT_QUIZ`). It lives in
+   * the service and not in the game state: between two games there is no game
+   * it could belong to.
+   */
+  quizSelection?: { quizId: string; presetId?: string }
+  /**
    * Raw numbers of the game log from the database, per audience. The mapping to
    * readable names happens here in the projection - the same rule as for
    * category lines: raw ids do not reach the interface.
@@ -159,12 +165,19 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
 
 export function projectPublic(state: GameState | null, ctx: ProjectionContext): PublicQuizViewModel {
   const theme = resolveTheme(state, ctx)
-  if (!state || state.status === 'aborted') {
+  /*
+   * THREE WAYS TO STAND ON THE START SCREEN: no game at all, an aborted one -
+   * and a finished one whose result the desk has taken off the screen
+   * (`SHOW_START_SCREEN`). The third is not a state of the game but of what is
+   * being looked at, which is why it is a flag and not a status.
+   */
+  if (!state || state.status === 'aborted' || state.resultClosed) {
     return {
       scene: 'start',
       phase: state?.phase ?? 'idle',
       theme,
       quizOffers: quizOffers(ctx, localeFor(state, ctx)),
+      ...(ctx.quizSelection ? { selectedQuizId: ctx.quizSelection.quizId } : {}),
       playerScores: [],
       progress: { current: 0, total: ctx.config.questionsPerGame },
       soundEnabled: state?.soundEnabled ?? ctx.soundEnabled ?? true,
@@ -194,6 +207,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           prompt: question.prompt,
           presentationType: question.questionType,
           imageUrl: ctx.mediaUrl(question.image?.filename),
+          ...(question.image?.credit ? { imageCredit: question.image.credit } : {}),
           categoryLabel: categoryLabel(question, ctx, locale),
         }
       : undefined
@@ -406,6 +420,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
     statistics: gameStatistics(ctx),
     resumable: ctx.resumable,
     catalog: buildCatalog(ctx, localeFor(state, ctx)),
+    ...(ctx.quizSelection ? { quizSelection: ctx.quizSelection } : {}),
   }
 }
 
@@ -662,6 +677,7 @@ function publicSolution(ctx: ProjectionContext, question: Question): PublicSolut
   return {
     answerText: correctAnswerText(question),
     imageUrl: ctx.mediaUrl(question.image?.filename),
+    ...(question.image?.credit ? { imageCredit: question.image.credit } : {}),
     ...(details ? { details } : {}),
   }
 }

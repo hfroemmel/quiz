@@ -44,7 +44,12 @@ export function RevealScene({ view, reveal }: SceneProps) {
       <QuestionHead question={question} />
 
       <div className={styles.revealStage}>
-        <Media src={question.imageUrl} reveal={{ grid: revealGrid, progress: reveal.progress }} variant="reveal" />
+        <Media
+          src={question.imageUrl}
+          {...(question.imageCredit ? { credit: question.imageCredit } : {})}
+          reveal={{ grid: revealGrid, progress: reveal.progress }}
+          variant="reveal"
+        />
       </div>
     </div>
   )

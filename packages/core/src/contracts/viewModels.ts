@@ -81,6 +81,17 @@ export interface PublicQuestion {
   presentationType: QuestionPresentationType
   imageUrl?: string
   /**
+   * The picture's licence line, as an editor wrote it.
+   *
+   * IT TRAVELS WITH THE PICTURE and not beside it: wherever a photo is shown,
+   * the line that names its origin belongs on the screen, and a client that
+   * had to look it up somewhere else would sooner or later show one without
+   * the other. Absent means the content names no origin - then nothing is
+   * shown; the gap is reported where the content is built
+   * (`uncreditedImages`), not on the stage.
+   */
+  imageCredit?: string
+  /**
    * Category line above the prompt: the label of the FIRST category of the
    * question (design addition). Pure display value - the client derives nothing
    * from it.
@@ -93,6 +104,8 @@ export interface PublicSolution {
   /** Text of the correct answer. */
   answerText: string
   imageUrl?: string
+  /** The licence line of THIS picture - see `PublicQuestion.imageCredit`. */
+  imageCredit?: string
   /**
    * Background of the question, where the installation asks to show it.
    *
@@ -205,6 +218,19 @@ export interface PublicQuizViewModel {
     artworkUrl?: string
     emphasis: 'wide' | 'regular'
   }[]
+  /**
+   * The offer the desk has chosen but not yet started.
+   *
+   * IT IS STILL NOT A CHOICE THE ROOM MAKES - it is what the room is told is
+   * coming. The console used to keep this in its own window, so the card was
+   * marked on the operator's screen and nowhere else; the id travels with the
+   * state now, and the announcement marks the same card as the desk.
+   *
+   * Absent means nothing has been chosen yet, and then no card is marked.
+   * Nothing else about the choice is public: the level and the audience are
+   * configuration, which the stage must not be able to derive.
+   */
+  selectedQuizId?: string
   question?: PublicQuestion
   /**
    * Category of the NEXT question - exclusively for the interstitial screen.
@@ -406,6 +432,16 @@ export interface OperatorQuizViewModel extends ModeratorQuizViewModel {
   catalog: CatalogViewModel
   /** Games played per audience. Lives in the database, not in the browser. */
   statistics: GameStatisticsViewModel
+  /**
+   * What is set up at the desk but not yet started - quiz and level.
+   *
+   * THE CONSOLE READS ITS OWN CHOICE HERE, and not from a state of its own:
+   * the room's announcement marks the same card (`selectedQuizId`), and a
+   * window that reloads mid-evening finds the choice again instead of standing
+   * empty next to a marked poster. The level is only in this view - the room is
+   * not told how hard it will be.
+   */
+  quizSelection?: { quizId: string; presetId?: string }
 }
 
 /**

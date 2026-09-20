@@ -34,12 +34,23 @@ export function availableCommands(state: GameState | null): CommandType[] {
 
   if (!state || state.status !== 'active') {
     list.add('START_GAME')
+    /*
+     * And what is to be played can be chosen - that is what the start view is
+     * for. It is allowed without a game as well as after one, and it is refused
+     * exactly where there is nothing to choose: while a game runs.
+     */
+    list.add('SELECT_QUIZ')
     if (state) {
       list.add('SET_SOUND_ENABLED')
       list.add('SET_LOCALE')
       // On the result view the manual score correction stays available;
       // the result is recomputed deterministically afterwards.
       if (state.status === 'completed') list.add('ADJUST_SCORE')
+      /*
+       * And the result can be taken off the screen - once. Afterwards the
+       * offer overview stands there, and there is nothing left to hide.
+       */
+      if (state.status === 'completed' && !state.resultClosed) list.add('SHOW_START_SCREEN')
     }
     return [...list]
   }
