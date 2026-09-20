@@ -30,7 +30,15 @@ export const designColorTokens = [
    */
   'primaryInk',
   'solution',
+  /*
+   * The ink ON the solution, and the one on the letter chip beside it. Same
+   * reason as `primaryInk`: what stands on a strong green is dark or light
+   * depending on that green, and the stage's own `inkOnStrong` follows the
+   * SURFACE of a variant rather than this one colour.
+   */
+  'solutionInk',
   'solutionChip',
+  'solutionChipInk',
   'correct',
   'incorrect',
   /* Type */

@@ -377,9 +377,16 @@
  * would be dark on a strong background there and thus poorly readable.
  */
 :global(.stage--bright) .answer[data-state='selected'] .surface,
-:global(.stage--bright) .answer[data-state='correct'] .surface,
 :global(.stage--bright) .answer[data-state='correct'] .chip {
   color: var(--stage-inkOnStrong);
+}
+
+:global(.stage--bright) .answer[data-state='correct'] .surface {
+  color: var(--color-solutionInk);
+}
+
+:global(.stage--bright) .answer[data-state='correct'] .chip {
+  color: var(--color-solutionChipInk);
 }
 
 /* Reduced motion: the rows appear immediately instead of running in one by one. */

@@ -1,5 +1,28 @@
 # @hfroemmel/quiz-core
 
+## 0.27.0
+
+### Minor Changes
+
+- The solution names the ink that stands on it
+  
+  `solutionInk` and `solutionChipInk` join the colour vocabulary. They are the
+  same kind of token as `primaryInk`: what stands on a strong green is dark or
+  light depending on that green, while the stage's own `inkOnStrong` follows the
+  SURFACE of a variant and therefore cannot answer the question. The answer row
+  and its letter chip read the two names now. As with `primaryInk`, a host that
+  builds a complete `DesignColors` object in TypeScript has two more tokens to
+  fill - everything the packages ship fills them already.
+  
+  WITH IT, `inkOnStrong` IS LIGHT AGAIN. It had turned dark so that a checkmark
+  on a near-white primary stayed readable; that job belongs to the inks named
+  above, and text on accent or player colour goes back to white.
+  
+  The light variant stands on one paper instead of three steps of it, its accent
+  is black, and it stops repeating the signals - solution, right, wrong and the
+  inks on them are the same values in both variants, so it lets them through
+  from the fallback layer rather than keeping a second copy that could drift.
+
 ## 0.26.11
 
 ### Patch Changes

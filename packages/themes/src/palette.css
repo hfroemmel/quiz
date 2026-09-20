@@ -26,12 +26,14 @@
   --color-primary: #fff;
   --color-primaryInk: #000;
   --color-solution: #8cd000;
+  --color-solutionInk: #000;
   --color-solutionChip: #8cd000;
+  --color-solutionChipInk: #000;
   --color-correct: #8cd000;
   --color-incorrect: #ca2f56;
   --color-text: #FFFFFF;
   --color-textMuted: rgb(255 255 255 / 0.6);
-  --stage-inkOnStrong: #000;
+  --stage-inkOnStrong: #fff;
   --stage-cardShadow: rgb(0 0 0 / 0.2);
   --stage-edge: rgb(255 255 255 / 0.22);
   --stage-inkOnMotif: #fff;
@@ -104,9 +106,9 @@
 
 /* Light version of the adults stage - only surfaces, edges and type. */
 .stage--default.stage--bright {
-  --color-pageTop: #fff;
-  --color-pageBottom: #f2f2f2;
-  --color-stageTop: #fff;
+  --color-pageTop: #eee;
+  --color-pageBottom: #eee;
+  --color-stageTop: #eee;
   --color-stageBottom: #eee;
   --color-controls: #eee;
   --color-accentQuiet: #666;
@@ -114,14 +116,8 @@
   --color-tileDisabled: rgb(0 0 0 / 0.04);
   --color-tileQuiet: rgb(0 0 0 / 0.05);
   --color-option: rgb(0 0 0 / 0.05);
-  --color-accent: #00acd3;
+  --color-accent: #000000;
   --color-primary: #000000;
-  --color-primaryInk: #fff;
-  --color-inkOnStrong: #fff;
-  --color-solution: #8cd000;
-  --color-solutionChip: #8cd000;
-  --color-correct: #8cd000;
-  --color-incorrect: #CA2F56;
   --color-text: #000000;
   --color-textMuted: #999999;
 }

@@ -160,12 +160,15 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
     /* The primary is near-white here, so what stands on it is the dark ink. */
     primaryInk: houseBlack,
     solution: houseGreen,
+    /* The green is a bright one - what stands on it is the dark ink. */
+    solutionInk: houseBlack,
     /*
      * Same tone as the bar: the letter and the answer are ONE surface, split
      * only by a seam. Two greens side by side read like two separate
      * statements - the darker chip looked like a second state.
      */
     solutionChip: houseGreen,
+    solutionChipInk: houseBlack,
     correct: houseGreen,
     incorrect: houseRed,
     text: weiss,
@@ -187,7 +190,10 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
     /* A strong red ground - the drawn world writes on it in white. */
     primaryInk: '#FFFFFF',
     solution: '#6FBE6B',
+    /* Drawn signal colours - the world writes on both of them in its own ink. */
+    solutionInk: '#0E090C',
     solutionChip: '#F9CD36',
+    solutionChipInk: '#0E090C',
     correct: '#6FBE6B',
     incorrect: '#D98B93',
     text: '#0E090C',
@@ -218,15 +224,15 @@ export const stagePalettes: Record<ThemeSkin, DesignColors> = {
  * stage currently use the same theme; should a mode ever get its own colour
  * world, its light variant belongs in that theme.
  */
-export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
-  pageTop: houseWhite,
+export const brightPalette: Partial<DesignColors> = {
   /*
-   * Paper, and two steps of `Hellgrau` on it. The spectrum's grey ladder is
-   * what the light variant's near-whites were reaching for; at 20 and 40
-   * percent it holds the same three levels the design had.
+   * ONE PAPER, NOT THREE STEPS OF IT. The light variant used to grade its
+   * ground from white down to a light grey; it stands on one tone now, and
+   * what separates the areas are the veils above it.
    */
-  pageBottom: houseChip,
-  stageTop: houseWhite,
+  pageTop: houseInkFaint,
+  pageBottom: houseInkFaint,
+  stageTop: houseInkFaint,
   stageBottom: houseInkFaint,
   controls: houseInkFaint,
   /* Not a meaning but a withdrawal: the locked-out player on paper. */
@@ -236,29 +242,19 @@ export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
   tileDisabled: veil(schwarz, 0.04),
   tileQuiet: veil(schwarz, 0.05),
   option: veil(schwarz, 0.05),
-  accent: houseCyan,
+  accent: schwarz,
   /*
    * ON PAPER THE PRIMARY IS THE INK, not the green: the green of this system
    * carries the light stage, and on white it is a signal without a ground to
    * sit on. What names the rank here is the text colour itself.
    */
   primary: schwarz,
-  /* And on the black of the light variant, the light ink. */
-  primaryInk: houseWhite,
   /*
-   * THE INK ON A STRONG AREA, named by this variant itself.
-   *
-   * The stage's own value (`stageExtras.inkOnStrong`, emitted as
-   * `--stage-inkOnStrong`) is the dark one now, which is what the dark world
-   * needs. On paper the strong areas are black, so what stands on them is
-   * light - and only this variant knows that. It is therefore a colour of the
-   * light variant and not a second value in the stage's extras.
+   * THE SIGNALS ARE NOT NAMED AGAIN HERE. Solution, right, wrong and the inks
+   * that go on them are the same values in both variants, so this one lets
+   * them through from the fallback layer instead of repeating them - a second
+   * copy is how the two would drift apart.
    */
-  inkOnStrong: houseWhite,
-  solution: houseGreen,
-  solutionChip: houseGreen, // siehe oben
-  correct: houseGreen,
-  incorrect: redGround,
   text: schwarz,
   textMuted: brightInkMuted,
 }
@@ -330,8 +326,8 @@ export const redPalette: Partial<DesignColors> = {
  * of the quiz package's token set.
  */
 export const stageExtras = {
-  /** Text on accent, solution or player colour - always light there. */
-  inkOnStrong: houseBlack,
+  /** Text on accent or player colour - light again, as it was. */
+  inkOnStrong: houseWhite,
   /**
    * Shadow under a card lying ON the stage - the background step after a
    * solution.
