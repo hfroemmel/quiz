@@ -6,9 +6,9 @@
 :global(.stage--kids.stage--scene-solution) .mascot {
   position: absolute;
   z-index: 1;
-  right: -18cqw;
-  bottom: 6.25cqw;
-  height: 33.625cqw;
+  right: -1cqw;
+  bottom: 28.25cqw;
+  height: 30.625cqw;
   aspect-ratio: 927 / 1131;
   background: url('../../assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
 }
