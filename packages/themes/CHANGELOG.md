@@ -1,5 +1,24 @@
 # @hfroemmel/quiz-themes
 
+## 0.26.10
+
+### Patch Changes
+
+- A new drawing behind the children's world, and a package a third of its weight
+  
+  The scene of the children's quiz is exchanged and now ships as WebP
+  (`assets/kinderquiz/backgrounds/background.webp`): the Reichstag on the left
+  over the meadow, the open square in front of it, and sky across the rest.
+  
+  IT WEIGHS 65 KILOBYTES where the file before it weighed two megabytes. That
+  number reaches the package three times over, because a library build inlines
+  every asset a stylesheet or the preload list addresses: `index.js` drops from
+  4.5 MB to 1.8 MB, and the copy in `dist/assets` shrinks with it. Nothing about
+  the arrangement changed - the start screen shows the drawing from the left,
+  and the preload list fetches it ahead of the first question.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.10
+
 ## 0.26.9
 
 ### Patch Changes
