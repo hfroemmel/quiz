@@ -491,7 +491,8 @@
 }
 [data-skin='kids'] .brandVisual {
   position: relative;
-  top: 20cqw;
+  width: 100%;
+  top: 11cqw;
 }
 [data-skin='kids'] .brandText {
   display: none;
@@ -557,6 +558,8 @@
 
 [data-skin='kids'] .setup {
   padding: var(--kids-frame-width);
+  left: -6cqw;
+  top: 6cqw;
 }
 
 [data-skin='kids'] .card::before,
