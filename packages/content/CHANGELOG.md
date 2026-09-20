@@ -1,5 +1,12 @@
 # @hfroemmel/quiz-content
 
+## 0.26.8
+
+### Patch Changes
+
+- Updated dependencies [94b2040]
+  - @hfroemmel/quiz-core@0.26.8
+
 ## 0.26.7
 
 ### Patch Changes

@@ -1,5 +1,76 @@
 # @hfroemmel/quiz-react
 
+## 0.26.8
+
+### Patch Changes
+
+- 94b2040: The room learns what the desk has chosen, the result can be taken off the screen, and every photo names where it comes from.
+  
+  THREE THINGS FOR THE EVENING WITH AN OPERATOR:
+  
+    1. `SELECT_QUIZ` - WHAT THE DESK HAS SET UP BUT NOT YET STARTED. The choice
+       used to live in the console's own window, so the offer overview in the
+       room knew nothing of it: the card the operator had picked was marked on
+       their screen and nowhere else. It travels with the state now
+       (`selectedQuizId` for the room, `quizSelection` with the level for the
+       desk), so both mark the same card - and a console that reloads
+       mid-evening finds its choice again. A start consumes it: the form says of
+       itself that nothing is pre-selected there, and the next group should not
+       find the last one's decision standing in it.
+  
+    2. `SHOW_START_SCREEN` - THE RESULT GOES, THE GAME STAYS. Between two rounds
+       the operator talks, the audience changes, and two strangers' scores hung
+       on the stage until somebody started the next game. The desk has a step of
+       its own for that now; the game keeps its status, its log and its
+       statistics, and only what the room is looking at changes
+       (`resultClosed`). It is offered on the result view and nowhere else, once.
+  
+    3. THE LICENCE LINE OF A PHOTO travels with the picture - in the question
+       and in the solution (`imageCredit`) - and the image frame shows it
+       wherever a photo is shown. It is the smallest type in the scene: on the
+       adults' stage under the picture in the quiet ink, in the children's world
+       in its lower left corner in white with a light shadow, because the frame
+       there is a drawing with nothing under it to write on. Where the content
+       names no origin, nothing stands there.
+  
+  AND A TOKEN FOR INK THAT LIES ON A MOTIF (`--stage-inkOnMotif`): white in
+  every world, for the mark on the right/wrong disc and for that licence line.
+  `inkOnStrong` follows the SURFACE of a variant, which on the bright stage
+  turned the checkmark black.
+- 0b9df2d: The three screens between the questions stand in the middle of the device - and the mark on the disc is white.
+  
+  Right/wrong, the counter with the next category, and the result are not
+  compositions in a box: they are one block each, and at a device somebody
+  stands in front of, that block belongs in the middle of the SCREEN. They were
+  centred in whatever the scene's box happened to be - a box that takes its
+  height from a ratio and hangs where head and foot leave it - so they sat a
+  hand's width too low, and the feedback additionally carried a reserve meant
+  for the hall's header.
+  
+  WHAT CHANGED, AND ONLY FOR THESE THREE: in the arrangement of a device
+  standing on its own, their area is the whole device - full height, its own
+  width kept, centred - and nothing adds padding above or below the block. The
+  question and the solution keep their box exactly as it is; the scenes are
+  named one by one, so nothing else can be caught by it.
+  
+  AND THE ROWS OF THAT ARRANGEMENT NAME THEMSELVES NOW. Automatic placement
+  counts what is in the flow, so the moment the scene's area stepped out of it
+  the foot moved up into the row that had just become free and stood under the
+  head.
+  
+  THE MARK IS WHITE. The disc is the meaning colour - a strong green or a strong
+  red - and on both of them a white checkmark reads as a mark; the ink token it
+  used follows the SURFACE of a variant, which on the bright stage turned it
+  black.
+  
+  AND A ROUND PLAYED ALONE NAMES NO PLAYER IN ITS RESULT: the card keeps its
+  points and drops the player cell - "Spieler 1" beside a single score says
+  nothing the headline above it does not already say. The duel keeps both
+  labels, because there the number is what tells the two cards apart.
+- Updated dependencies [94b2040]
+  - @hfroemmel/quiz-core@0.26.8
+  - @hfroemmel/quiz-themes@0.26.8
+
 ## 0.26.7
 
 ### Patch Changes
