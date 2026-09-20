@@ -90,8 +90,6 @@
   padding: 1cqw 2cqw 0.6cqw;
   /* Frosted glass: semi-transparent with blur, no border. */
   background: var(--color-tile);
-  backdrop-filter: var(--stage-glass);
-  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
 }
 /*

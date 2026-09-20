@@ -19,8 +19,6 @@
   width: 7cqw;
   padding: 1cqw 1.2cqw 0.6cqw;
   background: var(--color-tile);
-  backdrop-filter: var(--stage-glass);
-  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
 }
 :global(.stage--default) .label {

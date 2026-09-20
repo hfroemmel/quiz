@@ -142,8 +142,6 @@
   min-width: 3.4cqw;
   padding: 0.8cqw 0 0.4cqw;
   background: var(--color-tile);
-  backdrop-filter: var(--stage-glass);
-  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -152,14 +150,12 @@
   font-weight: 700;
 }
 :global(.stage--default) .surface {
-  justify-content: center;
-  padding: 1cqw 1.2cqw 0.8cqw;
+  justify-content: flex-start;
+  padding: 1cqw 1.5cqw;
   background: var(--color-option);
-  backdrop-filter: var(--stage-glass);
-  -webkit-backdrop-filter: var(--stage-glass);
   border-radius: var(--stage-radius);
-  font-size: 1.75cqw;
-  font-family: var(--font-heading);
+  font-size: 1.5cqw;
+  font-family: var(--font-display);
 }
 :global(.stage--default) .chip + .surface {
   border-top-left-radius: 0;

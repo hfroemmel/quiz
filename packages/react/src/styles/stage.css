@@ -45,7 +45,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
+  background: var(--color-stageTop);
   color: var(--color-text);
   font-family: var(--font-body);
 

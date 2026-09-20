@@ -326,18 +326,6 @@
 [data-skin='default'] .buzzer:disabled:not([data-armed='true']) {
   color: var(--color-textMuted);
   background: var(--color-tile);
-  /*
-   * The fallback is the measure itself: this corner sits in the device's
-   * footer and thus OUTSIDE the stage, where the stage's token does not
-   * reach. The red variant is the one that wants no glass, and it says so on
-   * the next rule - for the same reason as on the stage.
-   */
-  backdrop-filter: var(--stage-glass, blur(1.2cqw));
-  -webkit-backdrop-filter: var(--stage-glass, blur(1.2cqw));
-}
-[data-theme='red'] .buzzer:disabled:not([data-armed='true']) {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
 }
 /*
  * AND IN THIS WORLD THE AREA SAYS IT, NOT THE DIMMING.
@@ -511,7 +499,6 @@
 [data-skin='kids'] .panel {
   --kids-ink: var(--color-text);
   font-family: var(--kids-hand);
-  backdrop-filter: none;
 }
 
 [data-skin='kids'] .panelTitle,
@@ -820,7 +807,7 @@
    * The opacity takes the harshness out of the inverted white: on paper,
    * black turns into the dark anthracite the text next to it is also set in.
    */
-  filter: invert(1) opacity(0.82);
+  filter: invert(1);
 }
 
 .brandVisual {

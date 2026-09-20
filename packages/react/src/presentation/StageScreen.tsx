@@ -232,36 +232,6 @@ export function StageScreen({
         data-answers-shown={String((view.visibleOptions?.length ?? 0) > 0)}
         data-transition={transition?.id ?? 'none'}
       >
-        {/*
-          * Blurred question image as atmosphere behind the scene.
-          *
-          * FAIRNESS IN THE IMAGE REVEAL: the reveal runs there as its own
-          * progress variable; the background must not get ahead of it. It is
-          * therefore blurred noticeably more strongly and darkened more
-          * strongly during the reveal phases - what remains visible is mood,
-          * not a silhouette.
-          *
-          * `aria-hidden`: pure decoration, no content.
-          */}
-        {view.question?.imageUrl && (
-          <div
-            /*
-              * THE ADDRESS IS THE IDENTITY. A new question thereby inserts a
-              * new element instead of recolouring the old one: that way the
-              * background starts fresh with every question and the old one is
-              * gone in the same instant. A cross-fade would be wrong here -
-              * for a moment the previous question's image would stand on the
-              * new one.
-              */
-            key={view.question.imageUrl}
-            className={stage.backdrop}
-            data-backdrop=""
-            data-veiled={String(isRevealing(view))}
-            data-ready={String(baseImage === view.question.imageUrl)}
-            {...(baseImage ? { style: { backgroundImage: cssUrl(baseImage) } } : {})}
-            aria-hidden="true"
-          />
-        )}
 
         <StageHeader view={view} slots={headerSlots} variant={variant} layout={layout} />
 
