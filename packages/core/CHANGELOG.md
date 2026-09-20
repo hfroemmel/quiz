@@ -1,5 +1,20 @@
 # @hfroemmel/quiz-core
 
+## 0.26.11
+
+### Patch Changes
+
+- The children's board fills its column, and the choice moves with it
+  
+  In the start menu of the children's world the drawing takes the full width of
+  its board and sits higher than before, and the selection beside it moves a
+  little to the left and down - the two read as one composition instead of a
+  picture with a form parked next to it.
+  
+  The drawing itself is encoded once more and now weighs 45 kB instead of 65 -
+  which, in a library build, counts twice over: it ships inlined in the bundle
+  and as the file beside it.
+
 ## 0.26.10
 
 ### Patch Changes
