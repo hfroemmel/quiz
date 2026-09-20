@@ -7,15 +7,18 @@
  */
 
 /*
- * Blurred question image as background.
+ * THE BLURRED QUESTION IMAGE IS GONE - THESE RULES HAVE NO CARRIER LEFT.
  *
- * The frame deliberately extends past the edge (`inset: -8%`) and is
- * additionally enlarged: a blur otherwise pulls the transparent edges into
- * the image and creates a light fringe.
+ * A scene with a picture used to repeat that picture behind itself, blurred
+ * and veiled, as the atmosphere of the question. `StageScreen` no longer
+ * renders the element, so nothing below matches any more; the scene sits on
+ * the stage's own ground.
  *
- * A colour veil in the same area colours as the gradient lies on top. It
- * takes enough brightness off the image that question and answers stay
- * calmly readable on it - the image carries mood, not information.
+ * What the rules said while they applied: the frame reached past the edge
+ * (`inset: -8%`) and was enlarged, because a blur otherwise pulls the
+ * transparent edges into the image; a colour veil in the ground's own tones
+ * lay on top and took enough brightness off that question and answers stayed
+ * calmly readable.
  */
 .backdrop {
   position: absolute;
@@ -263,9 +266,11 @@
   opacity: 0.66;
 }
 /*
- * During the image reveal: much more heavily blurred and veiled. The task
- * is to recognise the motif - the background must not give away a
- * silhouette in the process.
+ * During the image reveal the background was blurred and veiled far more
+ * heavily: the task is to recognise the motif, and a silhouette behind it
+ * would have given the answer away. The reveal itself is untouched by the
+ * removal - only this backing layer is gone, so the rule below matches
+ * nothing.
  */
 :global(.stage--default) .backdrop[data-veiled='true'] {
   filter: blur(9cqw) saturate(0.9) brightness(0.5);
@@ -275,28 +280,25 @@
 }
 
 /*
- * THE RED VARIANT SHOWS NO PICTURE BEHIND THE SCENE.
+ * THE RED VARIANT SHOWED NO PICTURE BEHIND THE SCENE - and now no variant
+ * does.
  *
- * The other two variants are built on it - the ground darkens or lightens the
- * blurred question image and the panes let it through. Under a commissioned
- * ground that is the one thing that cannot stay: every photo pulled the room's
- * red somewhere else, and in the running game the specified tone was nowhere
- * on screen any more. So the layer stays out here, exactly as it does in the
- * children's world, and the stage's own gradient - one tone at both stops -
- * is the whole background.
+ * It was the exception: a commissioned ground cannot carry a photo behind it,
+ * because every picture pulls the tone somewhere else. The layer is gone from
+ * all of them now, so this rule switches off something that is not there.
  *
- * The question's picture itself is of course untouched: it stands framed in
- * the scene, where it is content and not atmosphere.
+ * The question's picture itself was never meant here: it stands framed in the
+ * scene, where it is content and not atmosphere - and it still does.
  */
 :global(.stage--default.stage--red) .backdrop {
   display: none;
 }
 
 /*
- * Light version: the blurred question image must LIGHTEN instead of
- * darken - otherwise a dark patch would sit in the middle of the paper. The
- * veil carries the same job as in the dark version and covers a bit more
- * strongly for it.
+ * Light version: where the dark one darkened the picture behind the scene,
+ * this one had to LIGHTEN it - otherwise a dark patch sat in the middle of
+ * the paper - and its veil covered a little more strongly for it. Without the
+ * layer these rules, too, match nothing.
  */
 :global(.stage--bright) .backdrop {
   filter: blur(3cqw) saturate(0.85) brightness(1.22);

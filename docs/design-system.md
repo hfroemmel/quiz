@@ -119,41 +119,36 @@ tones and the two rules, and a guard test measures every palette against them.
 The stage area runs lighter from top to bottom - three steps of one grey,
 against which the warm light of the question images works.
 
-**The area colors are semi-transparent.** This isn't a detail, it's the
-core of the design: behind the scene lies the blurred question image, and
-tiles, letters, and answer bars let it shimmer through like frosted glass,
-instead of covering it up. A token with an opaque color would immediately
-destroy the depth. (The red variant is the exception - see below: there the
-same veils sit on a flat ground, with nothing behind them.)
+**The area colors are semi-transparent.** Tiles, letters and answer bars are
+veils over the stage's own ground, not opaque boxes on it: that is what keeps
+the order of surfaces readable - a card lies on the stage, a letter on the
+card. They used to let a blurred question image shimmer through as well; that
+layer is gone, and the veils now composite over one flat ground in every
+variant.
 
-### Blurred Question Image as Background
+### No Picture Behind the Scene
 
-Behind every scene with an image lies the same image filling the frame,
-strongly blurred (`blur(3cqw)`), darkened (`brightness(0.72)`) and overlaid
-with a color veil made of `stageTop`/`stageBottom` at 66% opacity. Every
-question thus gets its own atmosphere without text losing calm.
+Every scene stands on the stage's own ground. A scene with an image used to
+repeat that image behind itself - filling the frame, strongly blurred,
+darkened and overlaid with a colour veil - so every question carried its own
+atmosphere, and during an image reveal the same layer was blurred far more
+strongly so that no silhouette gave the motif away.
 
-Darkening happens deliberately twice, both on the image AND on the veil: the
-question images range from night shots to a cloudless summer sky, and a
-bright sky would otherwise tip the stage into a milky look.
+That layer is gone, and with it the frosted panes above it. A question's
+picture is shown where it is content: framed in the scene. The red variant,
+which was the first to do without both, is no longer the exception.
 
-**During the image reveal**, the same background is much more strongly
-blurred (`blur(9cqw)`, `brightness(0.5)`, veil 84%). The task there is
-to recognize the subject; the background must not give away a silhouette -
-9 cqw is roughly 170 pixels of blur on a 1920-wide projector.
+**Where it started.** The red variant was the first world without that layer:
+it stands on a commissioned ground, and a picture behind the scene is what such
+a ground cannot survive - every photo pulls the tone somewhere else, and in the
+running game the specified colour was nowhere on screen any more. Its panes
+keep their white veils, which over one flat ground composite to flat, slightly
+lighter reds: the same order of surfaces, no second colour in the room. In the
+kids world the illustrated scene carries the background instead, and the
+question photo stays out for that reason.
 
-**Not in the red variant, and not in the kids world.** The red variant stands
-on a commissioned ground, and this layer is what a commissioned ground cannot
-survive: every photo pulls the tone somewhere else, and in the running game the
-specified colour is nowhere on screen any more. So the layer stays out
-(`.stage--default.stage--red .backdrop { display: none }`) and the frosted glass
-is switched off with it - `--stage-glass`, the one token score card, counter,
-letter chip and answer bar read, is `none` there. The panes keep their white
-veils, which over one flat ground composite to flat, slightly lighter reds: the
-same order of surfaces, no second colour in the room. The question's own
-picture is untouched - it stands framed in the scene, as content rather than
-atmosphere. In the kids world the illustrated scene carries the background
-instead, and the question photo stays out for that reason.
+`--stage-glass` is still declared in `styles/stage.css`, but nothing inside the
+package reads it any more.
 
 ### Radii and Shadows
 
@@ -344,7 +339,7 @@ right. Both are gone. A token that substitutes `var(--color-accent)` at the
 document root freezes the tone of the default world and keeps it in the light
 world and in the children's one - the device showed a colour its own accent did
 not have. Both buzzers now read `--color-accent` themselves and are told apart
-by their place; a corner that cannot act carries the stage's frosted tile.
+by their place; a corner that cannot act carries the stage's quiet tile.
 
 The offers of the start menu come from the configuration (`quizzes`, see
 `docs/quizpaket.md`). The emphasised one takes the whole row of the card block,
@@ -371,7 +366,7 @@ The `default` world additionally has **three versions**:
 |---|---|---|
 | light | `.stage--bright` | the eighteen tokens on a light panel |
 | dark | `.stage--dark` | the quiz mode's values, unchanged - the fallback layer of `palette.css` |
-| red | `.stage--red` | the commissioned `#CA2F56`, flat: no blurred image behind the scene, no frosted panes |
+| red | `.stage--red` | the commissioned `#CA2F56` on a flat ground - the way every variant stands now |
 
 The version changes **only colors, transparencies, outlines, and
 shadows**. Fonts, components, positions, and spacing are identical in all

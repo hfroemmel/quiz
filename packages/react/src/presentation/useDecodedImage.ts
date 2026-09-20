@@ -1,11 +1,15 @@
 /**
  * Has this image finished loading?
  *
- * WHAT FOR: the stage's blurred image background should appear once it is
- * ready - not before and not as a leftover from the previous question. A
- * `background-image` that is set directly leaves the old background standing
- * until the new one has decoded: for a moment the new question would then show
- * the old one's image.
+ * WHAT FOR - AND WHAT NO LONGER FOR: this was written for the image the stage
+ * used to repeat behind the scene. That layer is gone, and with it the only
+ * reader of this hook inside the package; `StageScreen` still asks it, but
+ * nothing uses the answer.
+ *
+ * The problem it solves is still real for whoever needs it: a
+ * `background-image` set directly leaves the old picture standing until the
+ * new one has decoded, so for a moment a new question would show the previous
+ * question's image.
  *
  * That is why the address is loaded here FIRST and only reported afterwards.
  * Play does not wait for it - the question stands immediately; only its

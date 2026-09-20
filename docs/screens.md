@@ -36,19 +36,16 @@ moderator view.
 
 ### Ground and Atmosphere
 
-The stage sits on a gradient of one grey (`#232728` to `#343A3C` - `Dunkelgrau`
-of the federal spectrum, darkened to 40 and 60 percent).
-Behind it lies the **question image itself**: filling the format, heavily
-blurred, darkened, and overlaid with a color veil. This way, every question
-gets its own atmosphere without the text losing any calm.
+The stage sits on its own ground and shows nothing behind the scene. The
+question image used to be repeated there - filling the format, heavily blurred
+and veiled - as the atmosphere of each question, and more heavily still during
+an image reveal, so that no silhouette gave the motif away. That layer is
+gone; what a question brings is shown where it is content: framed in the
+scene.
 
-During an image reveal, the same background is blurred and veiled much more
-strongly: there, the motif itself is the task, and the background must not
-give away any silhouette.
-
-Tiles, letter fields, and answer rows are semi-transparent frosted-glass
-surfaces with slight blur - no border, with a very soft shadow for spatial
-depth. The values are in [`docs/design-system.md`](design-system.md).
+Tiles, letter fields, and answer rows are semi-transparent surfaces over that
+ground - no blur, no border, with a very soft shadow for spatial depth. The
+values are in [`docs/design-system.md`](design-system.md).
 
 ### Wordmark
 

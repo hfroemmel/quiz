@@ -14,7 +14,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Adult stage: the same frosted-glass tile as the score card. */
+/* Adult stage: the same quiet tile as the score card. */
 :global(.stage--default) .counter {
   width: 7cqw;
   padding: 1cqw 1.2cqw 0.6cqw;

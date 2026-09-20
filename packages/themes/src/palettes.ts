@@ -113,9 +113,10 @@ const houseChipEdge = '#ddd'
 /**
  * Cool, slightly bluish system for the adult stage.
  *
- * The surface colours are semi-transparent: behind the scene sits the blurred
- * question image, and tiles, letters and answer bars are meant to let it
- * shine through like frosted glass rather than cover it. They are neutral
+ * The surface colours are semi-transparent: tiles, letters and answer bars
+ * are veils over the stage's own ground rather than opaque boxes on it, so
+ * the order of surfaces stays readable. They used to let a blurred question
+ * image shine through as well - that layer is gone. They are neutral
  * and come from the stage design; the meaning colours, on the other hand,
  * come from the federal colour spectrum (the Federal Government's style
  * guide, the same colour world as bundestag.de).
@@ -230,7 +231,7 @@ export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
   controls: houseInkFaint,
   /* Not a meaning but a withdrawal: the locked-out player on paper. */
   accentQuiet: houseInkMid,
-  /* Frosted glass stays frosted glass - just made of ink instead of light. */
+  /* A veil stays a veil - just made of ink instead of light. */
   tile: veil(schwarz, 0.06),
   tileDisabled: veil(schwarz, 0.04),
   tileQuiet: veil(schwarz, 0.05),
@@ -277,13 +278,12 @@ export const brightPalette: Partial<DesignColors> & { inkOnStrong?: string } = {
  * new value. That is also why no gradient is invented: all four ground tokens
  * carry the same tone, and what still separates the areas are the veils.
  *
- * AND IN THIS VARIANT THERE IS NOTHING BEHIND THEM. The other two are built on
- * the blurred question image, which the veils let through like frosted glass;
- * under a commissioned ground that is what pulled the room's tone somewhere
- * else with every photo. The stage keeps that layer out of this variant and
- * switches the blur off with it (`--stage-glass`, see the react package's
- * `stage.css`), so the veils composite over one flat surface - which is what
- * makes five values enough for a whole variant.
+ * AND THERE IS NOTHING BEHIND THEM - HERE OR ANYWHERE. This variant was the
+ * first without a picture behind the scene: the other two repeated the
+ * question image there and let it through the veils, and under a commissioned
+ * ground that pulled the room's tone somewhere else with every photo. The
+ * layer is gone from every variant now, so the veils composite over one flat
+ * surface - which is what makes five values enough for a whole variant.
  *
  * THE MEANING COLOURS STAY, and that is a decision, not an omission: blue
  * marks the selection and the player whose turn it is, green the right answer,

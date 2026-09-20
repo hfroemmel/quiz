@@ -1,5 +1,29 @@
 # @hfroemmel/quiz-react
 
+## 0.26.9
+
+### Patch Changes
+
+- The stage stands flat - no picture behind the scene, no frosted panes
+  
+  The question image is no longer repeated behind the scene as atmosphere, and
+  the panes above it stop blurring what they cover: score card, counter, letter
+  chip and answer bar are plain semi-transparent surfaces over the stage's own
+  ground. A question's picture is shown where it is content - framed in the
+  scene. The red variant was the first to do without both; it is no longer the
+  exception, it is the rule.
+  
+  The texts follow. Every comment and every passage of the design notes that
+  described frosted glass or the blurred ground says what is there now, and
+  where a rule keeps standing without a carrier - the `.backdrop` block, the
+  `--stage-glass` token, the decode hook that fed the old layer - the comment
+  states that instead of describing an appearance nobody sees. The image reveal
+  is untouched: the picture that is uncovered tile by tile is the task of the
+  question, not a layer behind it.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.9
+  - @hfroemmel/quiz-themes@0.26.9
+
 ## 0.26.8
 
 ### Patch Changes

@@ -119,7 +119,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Adult stage: frosted-glass bars
+ * Adult stage: semi-transparent bars
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .answers {

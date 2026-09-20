@@ -78,9 +78,9 @@
    *
    * Not the scene changes - those bring their duration and easing from the
    * transition registry (`transitions/`). This is about everything that
-   * appears and disappears within a scene: the blurred image backdrop, a
-   * layer the host inserts. Short enough that nobody waits for it, and long
-   * enough that nothing just flashes.
+   * appears and disappears within a scene - a layer the host inserts, say.
+   * Short enough that nobody waits for it, and long enough that nothing just
+   * flashes.
    *
    * These live on the stage and not in a module, so that even a host can
    * read them - their layer should not run on a different clock than the
@@ -90,13 +90,15 @@
   --stage-fade-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
 
   /*
-   * THE FROSTED GLASS - ONE MEASURE FOR EVERY PANE.
+   * THE FROSTED GLASS IS GONE, AND NOTHING READS THIS TOKEN ANY MORE.
    *
-   * Score card, question counter, the letter chip and the answer bar are
-   * semi-transparent and blur what lies behind them: the blurred question
-   * image. Four modules used to spell the same blur out, and a variant that
-   * wants no glass had to be given four exceptions. It is one token now, and
-   * the variant that wants none sets it to `none`.
+   * Score card, question counter, letter chip and answer bar used to blur
+   * what lay behind them - the question image that sat behind the scene.
+   * Neither is there now: the panes are plain semi-transparent surfaces over
+   * the stage's own ground, and no rule asks for a blur.
+   *
+   * The token stays declared so a host that reads it does not fall over an
+   * undefined value; it has no reader inside the package.
    */
   --stage-glass: blur(1.2cqw);
 
@@ -134,16 +136,14 @@
 }
 
 /*
- * THE RED VARIANT IS A FLAT SURFACE - NO GLASS, NO PICTURE BEHIND IT.
+ * THE RED VARIANT IS A FLAT SURFACE - AND SO IS EVERY OTHER ONE NOW.
  *
- * The two other variants are built on the blurred question image: the ground
- * darkens or lightens it, and the panes above let it through like frosted
- * glass. That is what makes the picture live, and it is exactly what a
- * commissioned ground cannot survive - every photo pulled the room's red
- * somewhere else, and in the running game the specified tone was nowhere on
- * screen any more. This variant therefore drops both: the panes stop blurring
- * (`--stage-glass`), the picture behind the scene stays out (see
- * `Stage.module.css`), and what remains is one surface in one tone.
+ * This world was once the exception: the two other variants were built on the
+ * blurred question image, the ground darkened or lightened it, and the panes
+ * above let it through like frosted glass. A commissioned ground could not
+ * survive that - every photo pulled the room's red somewhere else - so it
+ * dropped both. Since the picture behind the scene and the blur on the panes
+ * are gone everywhere, what stood here as an exception is simply the rule.
  *
  * WHAT STAYS IS THE DEPTH, but it is no longer made of veils. Everywhere else
  * a pane is white at five to nine percent and the ground decides what it

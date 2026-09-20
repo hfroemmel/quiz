@@ -41,9 +41,9 @@
    * transparent - for a thumb and for a screen reader alike.
    *
    * Duration and easing are the stage's own, so this step moves in the same
-   * time as the blurred question ground under it. The component reads the very
-   * same value to know when the way out is over, instead of keeping a number of
-   * its own in step by hand.
+   * time as everything else that appears and disappears within a scene. The
+   * component reads the very same value to know when the way out is over,
+   * instead of keeping a number of its own in step by hand.
    */
   opacity: 0;
   visibility: hidden;

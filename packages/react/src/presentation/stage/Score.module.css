@@ -82,13 +82,13 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Adult stage: two frosted-glass tiles butted together
+ * Adult stage: two semi-transparent tiles butted together
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .cell {
   width: 7cqw;
   padding: 1cqw 2cqw 0.6cqw;
-  /* Frosted glass: semi-transparent with blur, no border. */
+  /* A veil over the ground: semi-transparent, no blur, no border. */
   background: var(--color-tile);
   border-radius: var(--stage-radius);
 }
@@ -154,7 +154,7 @@
  *
  * THE PLAYER COLOUR IS NOW CARRIED BY THE BUZZER ALONE (see
  * `Game.module.css` in `@hfroemmel/quiz-kiosk`). The card stays the stage's
- * frosted-glass tile and sits on top like a label, not like a second sign.
+ * quiet tile and sits on top like a label, not like a second sign.
  *
  * THE ACCENT STAYS, THOUGH. The tile with the player number and the one with
  * the score carry it as long as that player is on turn - in the room and on
@@ -165,8 +165,8 @@
  * there is no second corner it could be confused with.
  *
  * What stays neutral is the CARD'S OWN GROUND: the two rules below keep the
- * frosted-glass tile underneath, so the card does not turn into a second
- * sign around its tiles.
+ * quiet tile underneath, so the card does not turn into a second sign around
+ * its tiles.
  */
 :global(.stage--default.stage--touch) .score[data-active='true'],
 :global(.stage--default.stage--touch) .score[data-locked='true'] {

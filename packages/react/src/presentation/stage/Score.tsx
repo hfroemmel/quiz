@@ -8,7 +8,7 @@
  *   Player 1   [Player|1][Score|100]
  *   Player 2   [Score|100][Player|2]
  *
- * Whether this becomes two adjoining frosted-glass tiles or a drawn paper
+ * Whether this becomes two adjoining semi-transparent tiles or a drawn paper
  * card is decided solely by `Score.module.css`, based on the class on the
  * stage.
  *

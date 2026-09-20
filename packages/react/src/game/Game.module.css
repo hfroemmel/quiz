@@ -312,7 +312,7 @@
  * colour in a corner always says the same thing in both places: this one is
  * playing.
  *
- * Everywhere else the corner goes to the stage's frosted tile - the very area
+ * Everywhere else the corner goes to the stage's quiet tile - the very area
  * the neutral score card carries - with the muted lettering that belongs on
  * it. Before the buzzer opens and after the solution, no corner is coloured,
  * and that is the point: the colour marks a turn, not an ownership.
@@ -490,7 +490,8 @@
   padding: 0;
 }
 [data-skin='kids'] .brandVisual {
-  display: none;
+  position: relative;
+  top: 20cqw;
 }
 [data-skin='kids'] .brandText {
   display: none;
