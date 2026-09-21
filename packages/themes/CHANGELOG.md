@@ -1,5 +1,18 @@
 # @hfroemmel/quiz-themes
 
+## 0.27.1
+
+### Patch Changes
+
+- An answer row measures the same in the room and at the device
+  
+  The touch device gave answer area and letter chip a padding of their own, so
+  the same row stood taller there than on the projector. It takes the stage's
+  measures now, and the letter sits a little lower in its field - what looked
+  centred at one size was reading high at the other.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.27.1
+
 ## 0.27.0
 
 ### Minor Changes
