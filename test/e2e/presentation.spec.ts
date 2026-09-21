@@ -236,6 +236,62 @@ test.describe("Reveal: the grid follows the server's progress", () => {
     expect(await open()).toBe(total)
   })
 
+  /**
+   * THE COVER IS A SURFACE, AND IN THE RED VARIANT IT HAS TO SAY SO ITSELF.
+   *
+   * Before the first tile opens this plate is the whole picture: a closed area
+   * where the photo will be. It carries the tone of the controls, which on the
+   * dark stage and on paper is a step away from the area it lies on - and in
+   * the red variant IS that area, because all four ground tokens of that world
+   * carry the commissioned tone. The room saw a red stage with a question next
+   * to it and no picture in sight.
+   *
+   * There the plate therefore takes the tone that world puts ON its ground -
+   * the one its tiles and answer bars carry, because a white veil over this red
+   * reads as a pale patch instead of an area. The two other variants keep the
+   * tone they had.
+   */
+  test('covers the photo with a surface that can be told from the ground', async ({ page }) => {
+    const plate = async (variant: string) => {
+      await page.addInitScript((value) => localStorage.setItem('quiz.stageTheme', value as string), variant)
+      await page.goto('/preview')
+      await expect(page.locator('[data-preview-stage]')).toBeVisible()
+      await selectScene(page, 'reveal')
+      await page.locator('[data-preview-panel] input[type="range"]').fill('0')
+      await expect(page.locator('[data-reveal-tile][data-open="true"]')).toHaveCount(0)
+      return page.locator('[data-reveal-tile]').first().evaluate((node) => {
+        const stage = node.closest('.stage')!
+        /* A token as the browser paints it, so a hex and an `rgb()` compare equal. */
+        const asColour = (entry: string) => {
+          const probe = document.createElement('span')
+          probe.style.color = getComputedStyle(stage).getPropertyValue(entry).trim()
+          stage.appendChild(probe)
+          const value = getComputedStyle(probe).color
+          probe.remove()
+          return value
+        }
+        return {
+          tile: getComputedStyle(node).backgroundColor,
+          ground: asColour('--color-pageTop'),
+          controls: asColour('--color-controls'),
+          surface: asColour('--color-tile'),
+        }
+      })
+    }
+
+    /* The two other variants keep the tone of the controls, as they always had. */
+    for (const variant of ['dark', 'bright'] as const) {
+      const measured = await plate(variant)
+      expect(measured.tile, variant).toBe(measured.controls)
+    }
+
+    const red = await plate('red')
+    expect(red.tile).toBe(red.surface)
+    // And that really is a step away from the ground - which the controls are not here.
+    expect(red.tile).not.toBe(red.ground)
+    expect(red.controls).toBe(red.ground)
+  })
+
   test('tiles once open stay open', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
