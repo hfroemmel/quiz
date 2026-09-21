@@ -140,7 +140,7 @@
 }
 :global(.stage--default) .chip {
   min-width: 3.4cqw;
-  padding: 0.8cqw 0 0.4cqw;
+  padding: 0.8cqw 0 0.7cqw;
   background: var(--color-tile);
   border-radius: var(--stage-radius);
   border-top-right-radius: 0;
@@ -352,11 +352,6 @@
  */
 :global(.stage--default.stage--touch) .answers {
   gap: 1.0687cqw;
-}
-:global(.stage--default.stage--touch) .surface,
-:global(.stage--default.stage--touch) .chip {
-  padding-top: 1cqw;
-  padding-bottom: 1cqw;
 }
 /*
  * The letter grows along in height and therefore also needs width -
