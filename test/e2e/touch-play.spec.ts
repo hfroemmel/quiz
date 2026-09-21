@@ -320,6 +320,93 @@ test('the primary button of the kids world is the same everywhere', async ({ pag
   expect(inGame).toBe(inSelection)
 })
 
+/**
+ * WHERE THE MOTIF STANDS IN THE CHILDREN'S SELECTION.
+ *
+ * The adults' selection is two columns: the board with the motif on the left,
+ * the choosing on the right. The children's motif is not a picture but three
+ * characters holding up a sign, and they belong with what is being chosen -
+ * over the card, in the middle of the drawn scene, standing behind it from the
+ * hip down as if the card were a counter they stand at.
+ *
+ * Four things are measured, and each of them is a way this can go wrong: the
+ * two are centred on each other and in the area (a nudge left over from the
+ * two-column form put the card off-centre), the drawing really does continue
+ * behind the card rather than ending above it, the card is IN FRONT (read off
+ * the pixel, not off a z-index), and nothing is cut off - not the drawing at
+ * the top, and above all not the button that starts the game.
+ */
+async function selectionBoxes(page: Page) {
+  return page.locator('[data-quiz-start-content]').evaluate((layout) => {
+    const box = (element: Element) => {
+      const rect = element.getBoundingClientRect()
+      return {
+        top: Math.round(rect.top),
+        bottom: Math.round(rect.bottom),
+        left: Math.round(rect.left),
+        right: Math.round(rect.right),
+        middle: Math.round(rect.left + rect.width / 2),
+      }
+    }
+    const motif = layout.querySelector('img')!
+    const card = layout.querySelector('section')!
+    const cardBox = card.getBoundingClientRect()
+    /* Who is painted where the two meet - the card's own upper edge. */
+    const atTheSeam = document.elementFromPoint(
+      Math.round(cardBox.left + cardBox.width / 2),
+      Math.round(cardBox.top + 4),
+    )
+    return {
+      area: box(layout),
+      motif: box(motif),
+      motifLoaded: motif.naturalWidth > 0,
+      card: box(card),
+      inFront: card === atTheSeam || card.contains(atTheSeam) ? 'card' : (atTheSeam?.tagName ?? 'nothing'),
+    }
+  })
+}
+
+test('the children selection stands in the middle, with the three of them behind it', async ({ page }) => {
+  await page.goto('/play?audience=kids')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'kids')
+
+  const kids = await selectionBoxes(page)
+  // Without a motif this test would measure an empty box and prove nothing.
+  expect(kids.motifLoaded).toBe(true)
+
+  // One above the other, both in the middle of the area.
+  expect(Math.abs(kids.card.middle - kids.area.middle)).toBeLessThanOrEqual(1)
+  expect(Math.abs(kids.motif.middle - kids.card.middle)).toBeLessThanOrEqual(1)
+
+  // The drawing goes on behind the card - and the card is what one sees there.
+  expect(kids.motif.bottom).toBeGreaterThan(kids.card.top)
+  expect(kids.motif.top).toBeLessThan(kids.card.top)
+  expect(kids.inFront).toBe('card')
+
+  /*
+   * AND NOTHING IS CUT OFF. The card keeps its height in every case, so what
+   * would have to give way is the drawing - the row it stands in is the elastic
+   * one.
+   */
+  expect(kids.motif.top).toBeGreaterThanOrEqual(kids.area.top)
+  expect(kids.card.bottom).toBeLessThanOrEqual(kids.area.bottom)
+})
+
+test('the adults selection keeps its two columns side by side', async ({ page }) => {
+  /*
+   * The arrangement above belongs to the children's world, and this is where
+   * that shows: here the motif hangs BESIDE the choosing, and the two stand in
+   * two places rather than one.
+   */
+  await openStartScreen(page)
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'default')
+
+  const adults = await selectionBoxes(page)
+  expect(adults.motif.right).toBeLessThanOrEqual(adults.card.left)
+  expect(adults.motif.middle).not.toBe(adults.card.middle)
+})
+
 test('the adults selection stays undrawn', async ({ page }) => {
   // The kids world must not touch the other one.
   await openStartScreen(page)

@@ -32,9 +32,16 @@ const MIME: Record<string, string> = {
  * live stage show.
  *
  * Two routes, no more needed: `/quiz-package/<file>` for manifest,
- * configuration and questions, `/media/<id>` for the media files. The
+ * configuration and questions, `/media/<name>` for the media files. The
  * second one is defined by the core itself - so it must be named exactly
  * that.
+ *
+ * AND IT ANSWERS TO BOTH NAMES A MEDIUM HAS. The core used to build that route
+ * from the asset's id and builds it from its FILE NAME now, because a
+ * question carries its file rather than an id (`mediaUrl`). A route that only
+ * knew ids answered 404 to every branding image - the motif of the start menu
+ * was simply missing in the preview, and a layout built around it could not be
+ * looked at.
  *
  * The file name ALWAYS comes from the manifest, never from the URL: this
  * way a request can never reach anything that isn't part of the quiz
@@ -48,7 +55,10 @@ function serveQuizPackage(): Plugin {
     if (!existsSync(file)) return
     const manifest = JSON.parse(readFileSync(file, 'utf8')) as { assets: { id: string; filename: string }[] }
     fileNames.clear()
-    for (const asset of manifest.assets) fileNames.set(asset.id, asset.filename)
+    for (const asset of manifest.assets) {
+      fileNames.set(asset.id, asset.filename)
+      fileNames.set(asset.filename, asset.filename)
+    }
   }
 
   const send = (response: import('node:http').ServerResponse, file: string) => {

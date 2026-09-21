@@ -481,18 +481,72 @@
 }
 
 /*
- * AND THE BOARD ON THE LEFT CARRIES ONLY THE DRAWING. The adults' board names
- * the quiz under its motif; here the motif is a character who says what this
- * is without a word, and the name stood under it twice - once in the drawing,
- * once as a line of type.
+ * AND THE BOARD CARRIES ONLY THE DRAWING. The adults' board names the quiz
+ * under its motif; here the motif is a character who says what this is without
+ * a word, and the name stood under it twice - once in the drawing, once as a
+ * line of type.
+ *
+ * THE THREE OF THEM STAND BEHIND THE MENU, IN THE MIDDLE OF THE SCENE.
+ *
+ * The adults' selection is two columns - the board on the left, the choosing on
+ * the right - and that is a form for a motif that is a picture: it hangs beside
+ * the form and waits. The children's motif is not a picture but three
+ * characters holding up a sign, and they belong WITH what is being chosen: over
+ * the card, greeting whoever steps up to the table, and standing behind it from
+ * the hip down as if the card were a counter they stand at.
+ *
+ * So this world makes one column of the two, centres it in the drawn scene and
+ * lets the card overlap the lower part of the drawing. The overlap is a
+ * NEGATIVE MARGIN and not an absolute position: both stay in the flow, so the
+ * pair is centred as one block and a card that grows - a setup with several
+ * quizzes to offer brings a list with it - pushes the drawing up instead of
+ * sliding under it.
+ *
+ * The widths are the design's, as a share of the area like every measure of
+ * this menu: the drawing a little narrower than the card, because what has to
+ * be read is the card.
  */
+[data-skin='kids'] .layout {
+  grid-template-columns: minmax(0, 1fr);
+  /*
+   * THE CARD TAKES WHAT IT NEEDS, THE DRAWING TAKES WHAT IS LEFT.
+   *
+   * A menu can grow: a setup with several quizzes brings a list with it, and a
+   * translation makes a button two lines tall. If both rows were content-sized,
+   * the pair would be taller than the area on such an evening and the last
+   * thing to go off the bottom would be the button that starts the game. So the
+   * drawing's row is the elastic one - it may shrink to nothing - and the card
+   * keeps its own height in every case.
+   */
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  /*
+   * And the two of them fill their rows: the adults' pair is centred in its
+   * row, which for a picture that is meant to shrink means it keeps its size
+   * and hangs out of the row instead.
+   */
+  align-items: stretch;
+  gap: 0;
+}
 [data-skin='kids'] .brand {
+  width: 36vw;
+  min-height: 0;
   padding: 0;
 }
 [data-skin='kids'] .brandVisual {
-  position: relative;
   width: 100%;
-  top: 11cqw;
+  /*
+   * The three of them stand ON the card's upper edge: the picture keeps its
+   * proportion inside a box that changes height, and what stays put while it
+   * does is its lower edge - the feet, which the card covers.
+   */
+  object-position: bottom center;
+}
+[data-skin='kids'] .setup {
+  width: 39vw;
+  /* The card stands in front of the drawing, not under it. */
+  margin-top: -9.5vw;
+  z-index: 1;
 }
 [data-skin='kids'] .brandText {
   display: none;
@@ -556,10 +610,18 @@
   color: #000;
 }
 
+/*
+ * The frame is drawn INTO the padding - the cardboard of this world is a
+ * border image, and what it takes is spacing, not a border.
+ *
+ * IT NO LONGER SITS OFF TO ONE SIDE. The card used to be nudged left and down
+ * from here, which was the pair's arrangement in the two-column form: the
+ * drawing hung on the left, and the card leaned towards it. Now that both
+ * stand in one column in the middle of the scene, a nudge of its own is
+ * exactly what pushes the card out of that middle.
+ */
 [data-skin='kids'] .setup {
   padding: var(--kids-frame-width);
-  left: -6cqw;
-  top: 6cqw;
 }
 
 [data-skin='kids'] .card::before,
