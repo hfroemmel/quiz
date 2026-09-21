@@ -25,9 +25,17 @@
  *                                  on the frame, and a declaration of its
  *                                  own beats an inherited value.
  *   .stage--default.stage--red     the red variant, for the same reason and in
- *                                  the same place. It names only the ground;
- *                                  everything else stays the dark variant's,
- *                                  which is where it comes from.
+ *                                  the same place. It names the ground and the
+ *                                  ink that goes on a strong area; everything
+ *                                  else stays the dark variant's, which is
+ *                                  where it comes from.
+ *
+ *                                  BOTH VARIANTS CARRY A `--stage-` VALUE in
+ *                                  their `--color-` rule, and that is the
+ *                                  point: `inkOnStrong` is emitted once, into
+ *                                  the fallback layer, so a variant that wants
+ *                                  another one has to say so where its own
+ *                                  declarations beat the inherited value.
  *   [data-quiz-game][data-theme]   the light and the red variant of the start
  *                                  screen. It sits ABOVE the stage and
  *                                  therefore cannot read its class; the
@@ -56,6 +64,7 @@
  */
 import {
   brightPalette,
+  brightStageExtras,
   brightStartPalette,
   darkQuizSelectPalette,
   kidsOverviewStart,
@@ -63,6 +72,7 @@ import {
   quizSelectPalette,
   redPalette,
   redQuizSelectPalette,
+  redStageExtras,
   redStartPalette,
   stageExtras,
   stagePalettes,
@@ -107,10 +117,16 @@ export function paletteStyleSheet(): string {
     }),
     '',
     '/* Light version of the adults stage - only surfaces, edges and type. */',
-    block('.stage--default.stage--bright', prefixed(brightPalette as Record<string, string>, 'color-')),
+    block('.stage--default.stage--bright', {
+      ...prefixed(brightPalette as Record<string, string>, 'color-'),
+      ...prefixed(brightStageExtras as Record<string, string>, 'stage-'),
+    }),
     '',
     '/* Red version of the adults stage - the dark one with its ground exchanged. */',
-    block('.stage--default.stage--red', prefixed(redPalette as Record<string, string>, 'color-')),
+    block('.stage--default.stage--red', {
+      ...prefixed(redPalette as Record<string, string>, 'color-'),
+      ...prefixed(redStageExtras as Record<string, string>, 'stage-'),
+    }),
     '',
     '/* Light version of the start selection in front of it - only what differs from the dark one. */',
     block("[data-quiz-game][data-theme='bright']", prefixed(brightStartPalette as Record<string, string>, 'start-')),

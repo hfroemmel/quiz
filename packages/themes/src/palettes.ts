@@ -333,8 +333,17 @@ export const redPalette: Partial<DesignColors> = {
  * of the quiz package's token set.
  */
 export const stageExtras = {
-  /** Text on accent or player colour - light again, as it was. */
-  inkOnStrong: houseWhite,
+  /**
+   * Text on accent or player colour - DARK on the dark stage.
+   *
+   * Its strong areas are the near-white primary and the white accent, and what
+   * stands on those has to be dark. The light and the red variant carry strong
+   * areas of their own and say so themselves (`brightStageExtras`,
+   * `redStageExtras`), because this token belongs to the stage and not to a
+   * colour set: it cannot be inherited away by a variant that names only
+   * `--color-` values.
+   */
+  inkOnStrong: houseBlack,
   /**
    * Shadow under a card lying ON the stage - the background step after a
    * solution.
@@ -897,6 +906,18 @@ export const redStartPalette = {
  * it marks as chosen. Each names the token its own content actually reads.
  */
 export const kidsStartStage = { inkOnStrong: houseWhite } as const
+
+/**
+ * The stage tokens the light and the red variant name for themselves.
+ *
+ * Both carry strong areas the dark stage does not have - black on paper, the
+ * commissioned red - and on those the type is light, while the dark stage
+ * writes dark on its near-white primary. `inkOnStrong` lives in `stageExtras`
+ * and is emitted once, into the fallback layer; a variant that wants another
+ * value has to state it in its own rule, which is what these two are for.
+ */
+export const brightStageExtras = { inkOnStrong: houseWhite } as const
+export const redStageExtras = { inkOnStrong: houseWhite } as const
 export const kidsOverviewStart = { 'ink-on-selected': houseWhite } as const
 
 /**

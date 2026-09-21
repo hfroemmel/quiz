@@ -1,5 +1,24 @@
 # @hfroemmel/quiz-themes
 
+## 0.27.3
+
+### Patch Changes
+
+- The ink on a strong area turns with the variant
+  
+  On the dark stage the strong areas are a near-white primary and a white
+  accent, so what stands on them is dark now. The light variant, whose primary
+  is black, and the red one, which stands on its commissioned ground, keep the
+  light ink and say so themselves.
+  
+  `inkOnStrong` belongs to the stage rather than to a colour set and is written
+  once, into the fallback layer - a variant that wants another value therefore
+  has to name it where its own declarations beat the inherited one. The
+  stylesheet now emits that `--stage-` line inside the `--color-` rule of both
+  variants, the same way the children's screens already carry theirs.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.27.3
+
 ## 0.27.2
 
 ### Patch Changes

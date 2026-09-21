@@ -259,6 +259,12 @@ describe('the red variant', () => {
       '--color-tile',
       '--color-tileDisabled',
       '--color-tileQuiet',
+      /*
+       * And one token that is not a colour set's: the ink on a strong area.
+       * It is emitted once into the fallback layer, so a variant that wants
+       * another value has to state it in its own rule (`redStageExtras`).
+       */
+      '--stage-inkOnStrong',
     ])
     /*
      * ONE GROUND, AND ONE TONE ON IT. The four areas and the two quiet tiles
