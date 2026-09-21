@@ -1,5 +1,16 @@
 # @hfroemmel/quiz-core
 
+## 0.27.2
+
+### Patch Changes
+
+- The light variant names the ink on its primary again
+  
+  Its primary is black where the dark stage has it near-white, so the two cannot
+  share what stands on them: white here, dark there. The light variant had given
+  the token up together with the signals it inherits from the fallback layer -
+  this one it has to keep, and that is the whole reason `primaryInk` exists.
+
 ## 0.27.1
 
 ### Patch Changes

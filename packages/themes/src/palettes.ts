@@ -250,6 +250,13 @@ export const brightPalette: Partial<DesignColors> = {
    */
   primary: schwarz,
   /*
+   * AND THE INK ON IT IS THE ONE EXCEPTION. The primary of this variant is
+   * black where the dark stage has it near-white, so the two cannot share the
+   * ink: white here, dark there. That is the whole reason `primaryInk` is a
+   * token of its own.
+   */
+  primaryInk: houseWhite,
+  /*
    * THE SIGNALS ARE NOT NAMED AGAIN HERE. Solution, right, wrong and the inks
    * that go on them are the same values in both variants, so this one lets
    * them through from the fallback layer instead of repeating them - a second

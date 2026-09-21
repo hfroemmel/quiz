@@ -1,6 +1,6 @@
 {
   "name": "@hfroemmel/quiz-themes",
-  "version": "0.27.1",
+  "version": "0.27.2",
   "type": "module",
   "description": "Presentation of the stage: colour palettes, fonts and theme objects for QuizScene",
   "exports": {
