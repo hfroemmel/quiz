@@ -33,7 +33,7 @@
   --color-incorrect: #ca2f56;
   --color-text: #FFFFFF;
   --color-textMuted: rgb(255 255 255 / 0.6);
-  --stage-inkOnStrong: #fff;
+  --stage-inkOnStrong: #000;
   --stage-cardShadow: rgb(0 0 0 / 0.2);
   --stage-edge: rgb(255 255 255 / 0.22);
   --stage-inkOnMotif: #fff;
@@ -121,6 +121,7 @@
   --color-primaryInk: #fff;
   --color-text: #000000;
   --color-textMuted: #999999;
+  --stage-inkOnStrong: #fff;
 }
 
 /* Red version of the adults stage - the dark one with its ground exchanged. */
@@ -134,6 +135,7 @@
   --color-tileDisabled: #a22644;
   --color-tileQuiet: #a22644;
   --color-option: #a22644;
+  --stage-inkOnStrong: #fff;
 }
 
 /* Light version of the start selection in front of it - only what differs from the dark one. */
