@@ -118,6 +118,7 @@
   --color-option: rgb(0 0 0 / 0.05);
   --color-accent: #000000;
   --color-primary: #000000;
+  --color-primaryInk: #fff;
   --color-text: #000000;
   --color-textMuted: #999999;
 }
