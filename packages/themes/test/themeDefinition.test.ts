@@ -243,6 +243,7 @@ describe('the schema of a theme', () => {
  */
 describe('the red variant', () => {
   const fallback = declarations(':root')
+  const brightStage = declarations('.stage--default.stage--bright')
   const redStage = declarations('.stage--default.stage--red')
   const redStart = declarations("[data-quiz-game][data-theme='red']")
   const darkOverview = declarations("[data-quiz-overview][data-theme='dark']")
@@ -288,6 +289,23 @@ describe('the red variant', () => {
     expect(new Set(tiles).size, tiles.join(', ')).toBe(1)
     expect(tiles[0]).not.toBe(redStage['--color-pageTop'])
     expect(redStage['--color-pageTop']).not.toBe(fallback['--color-pageTop'])
+  })
+
+  /*
+   * AND THE INK ON A STRONG AREA IS THE DARK STAGE'S, for the same reason the
+   * signals are: the strong areas of this variant ARE the dark stage's. It
+   * names the ground and the tile on it, so what a score card of the player on
+   * turn and a tapped answer carry is the white accent of the dark world - and
+   * on white, the light ink of the paper variant is nothing at all.
+   *
+   * It is stated in the variant's own rule all the same, which is what makes
+   * this case worth having: on the fallback layer alone the value would be
+   * whatever the document around the stage says.
+   */
+  it('writes the dark ink on a strong area, like the stage it comes from', () => {
+    expect(redStage['--stage-inkOnStrong']).toBe(fallback['--stage-inkOnStrong'])
+    // And the paper variant is the one that differs - otherwise this proves nothing.
+    expect(brightStage['--stage-inkOnStrong']).not.toBe(fallback['--stage-inkOnStrong'])
   })
 
   it('leaves the signals to the dark stage', () => {

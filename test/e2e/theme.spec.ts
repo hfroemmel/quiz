@@ -220,3 +220,60 @@ test('the red variant is the dark stage on a red ground', async ({ page }) => {
   await open('dark')
   expect(await token('[data-preview-stage] .stage', '--stage-glass', page)).toBe('blur(1.2cqw)')
 })
+
+/**
+ * THE INK ON A STRONG AREA - AND WHO GETS TO DECIDE IT.
+ *
+ * The score card of the player on turn and the bar of a tapped answer are near
+ * white on the dark stage, so what stands on them is dark ink
+ * (`--stage-inkOnStrong`). In the red variant it must be the same - the variant
+ * exchanges the ground, not what is readable on a bold area.
+ *
+ * WHERE IT USED TO COME FROM was the fallback layer of the generated
+ * stylesheet: one declaration on `:root`, the weakest place in a document, and
+ * handed down to the stage. So an app whose root carried an older edition of
+ * that layer decided the ink of the stage, and the red stage wrote white on a
+ * white card - the state this test guards against. The two named variants now
+ * say the value on the stage element itself, and that is what is measured here:
+ * the room is given a root that says something else, and the stage does not
+ * follow it.
+ */
+test('the red variant writes dark ink on its bold areas - whatever the page around it says', async ({ page }) => {
+  const open = async (variant: string) => {
+    await page.addInitScript((value) => localStorage.setItem('quiz.stageTheme', value as string), variant)
+    await page.goto('/preview')
+    await expect(page.locator('[data-preview-stage] .stage')).toBeVisible({ timeout: 15_000 })
+  }
+  const stage = '[data-preview-stage] .stage'
+  const onTurn = '[data-preview-stage] [data-player][data-active="true"] [data-score-value]'
+  const ink = () => page.locator(onTurn).first().evaluate((element) => getComputedStyle(element).color)
+  /* A root of its own - what an older edition of the fallback layer would be. */
+  const shadowRoot = () =>
+    page.evaluate(() => document.documentElement.style.setProperty('--stage-inkOnStrong', '#fff'))
+
+  await open('dark')
+  const darkInk = await token(stage, '--stage-inkOnStrong', page)
+  const painted = await ink()
+  expect(painted).toBe('rgb(0, 0, 0)')
+
+  await open('red')
+  await expect(page.locator(stage)).toHaveClass(/stage--red/)
+  expect(await token(stage, '--stage-inkOnStrong', page)).toBe(darkInk)
+  expect(await ink()).toBe(painted)
+
+  // And it stays that way when the page around the stage claims otherwise.
+  await shadowRoot()
+  expect(await token(stage, '--stage-inkOnStrong', page)).toBe(darkInk)
+  expect(await ink()).toBe(painted)
+
+  /*
+   * THE DARK STAGE DOES FOLLOW - and deliberately so: it carries no rule of its
+   * own in the stylesheet, because that is the channel through which a quiz's
+   * theme supplies its colours. Which is also why this case proves that the red
+   * stage has a declaration of its own, rather than that the browser cannot be
+   * talked over.
+   */
+  await open('dark')
+  await shadowRoot()
+  expect(await token(stage, '--stage-inkOnStrong', page)).not.toBe(darkInk)
+})

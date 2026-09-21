@@ -135,7 +135,7 @@
   --color-tileDisabled: #a22644;
   --color-tileQuiet: #a22644;
   --color-option: #a22644;
-  --stage-inkOnStrong: #fff;
+  --stage-inkOnStrong: #000;
 }
 
 /* Light version of the start selection in front of it - only what differs from the dark one. */

@@ -910,14 +910,29 @@ export const kidsStartStage = { inkOnStrong: houseWhite } as const
 /**
  * The stage tokens the light and the red variant name for themselves.
  *
- * Both carry strong areas the dark stage does not have - black on paper, the
- * commissioned red - and on those the type is light, while the dark stage
- * writes dark on its near-white primary. `inkOnStrong` lives in `stageExtras`
- * and is emitted once, into the fallback layer; a variant that wants another
- * value has to state it in its own rule, which is what these two are for.
+ * `inkOnStrong` lives in `stageExtras` and is emitted once, into the fallback
+ * layer, from where it is handed down to the stage. A variant that wants
+ * another value has to state it in its own rule, which is what these two are
+ * for: those rules sit on the stage element itself, and what an element says
+ * itself beats every inherited value.
+ *
+ * ON PAPER the strong areas are the black primary and the black accent, so
+ * what stands on them is light.
+ *
+ * AND IN THE RED VARIANT IT IS THE DARK INK - the same as on the dark stage,
+ * because the strong areas here ARE the dark stage's: this variant names the
+ * ground and the tile on it, and nothing else (`redPalette`). What a score
+ * card of the player on turn and a tapped answer carry is therefore the white
+ * accent of the dark world, and on white the light ink is nothing at all -
+ * that was a white card with white writing on it in the room, and a white
+ * answer bar with no letter and no answer on it.
+ *
+ * It is written out nonetheless rather than left to the fallback layer: the
+ * value would then be whatever the document around the stage says, and the
+ * variant would have no way of saying otherwise.
  */
 export const brightStageExtras = { inkOnStrong: houseWhite } as const
-export const redStageExtras = { inkOnStrong: houseWhite } as const
+export const redStageExtras = { inkOnStrong: houseBlack } as const
 export const kidsOverviewStart = { 'ink-on-selected': houseWhite } as const
 
 /**

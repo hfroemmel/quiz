@@ -35,7 +35,9 @@
  *                                  point: `inkOnStrong` is emitted once, into
  *                                  the fallback layer, so a variant that wants
  *                                  another one has to say so where its own
- *                                  declarations beat the inherited value.
+ *                                  declarations beat the inherited value. The
+ *                                  red one says the dark stage's, whose strong
+ *                                  areas it keeps - see `redStageExtras`.
  *   [data-quiz-game][data-theme]   the light and the red variant of the start
  *                                  screen. It sits ABOVE the stage and
  *                                  therefore cannot read its class; the
