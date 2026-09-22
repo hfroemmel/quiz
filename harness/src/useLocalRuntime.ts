@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from 'react'
 import { LocalQuizRuntime, type RulesConfig } from '@hfroemmel/quiz-core'
-import { harnessMedia, loadHarnessPackage } from './quizPackage'
+import { loadHarnessPackage } from './quizPackage'
 
 export interface RuntimeHandle {
   runtime: LocalQuizRuntime | null
@@ -44,7 +44,7 @@ export function useLocalRuntime(options: RuntimeOptions = {}): RuntimeHandle {
         const quizPackage = rules
           ? { ...loaded, config: { ...loaded.config, rules: { ...loaded.config.rules, ...rules } } }
           : loaded
-        built = new LocalQuizRuntime({ quizPackage, media: harnessMedia(quizPackage) })
+        built = new LocalQuizRuntime({ quizPackage })
         setHandle({ runtime: built, errors: null })
       })
       .catch((cause: unknown) => {

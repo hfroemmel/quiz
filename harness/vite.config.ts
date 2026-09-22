@@ -92,15 +92,7 @@ function serveQuizPackage(): Plugin {
         }
 
         if (path.startsWith('/media/')) {
-          const wanted = decodeURIComponent(path.slice('/media/'.length))
-          /*
-           * Two routes, one directory. `/media/<id>` is what a server
-           * answers during a live stage show; `/media/<filename>` is what
-           * the static build uses, where nobody can look an id up. Either
-           * way the name is checked against the manifest first, so a
-           * request can never reach anything outside the quiz package.
-           */
-          const fileName = fileNames.get(wanted)
+          const fileName = fileNames.get(decodeURIComponent(path.slice('/media/'.length)))
           if (!fileName) {
             response.statusCode = 404
             response.end('Unknown medium')
@@ -133,12 +125,10 @@ const ROUTES = ['/play', '/shell', '/pair']
  * have to lie IN the build:
  *
  *   /quiz-package/*.json   manifest, configuration, questions
- *   /media/<filename>      the media files, under their own names, so that
- *                          the host reads the content type off the extension
+ *   /media/<filename>      the media files, under their own names - the
+ *                          route the core itself builds (`mediaUrl`), and one
+ *                          a host can answer without looking anything up
  *   /_redirects            the routes above, for Cloudflare Pages
- *
- * The media resolver in `quizPackage.ts` is the other half of this: it turns
- * an asset id into the file name written here.
  */
 function bundleQuizPackage(): Plugin {
   let outDir = 'dist'

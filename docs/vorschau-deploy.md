@@ -17,12 +17,11 @@ legt der Build dieselben Dateien mit ins Verzeichnis:
 | `media/<dateiname>` | Die Mediendateien unter ihrem eigenen Namen |
 | `_redirects` | Die Routen `/play`, `/shell`, `/pair` für Cloudflare Pages |
 
-Die Medien liegen unter ihrem Dateinamen statt unter der Asset-ID, weil ein
-statischer Host den Inhaltstyp aus der Dateiendung liest und keine
-ID nachschlagen kann. Die Auflösung passiert deshalb im Browser, aus dem
-Manifest, das das Paket ohnehin mitbringt (`harnessMedia` in
-`harness/src/quizPackage.ts`). Der Entwicklungsserver bedient beide Routen,
-damit sich die Vorschau an beiden Orten gleich verhält.
+Die Medien liegen unter ihrem Dateinamen, nicht unter der Asset-ID: den
+Inhaltstyp liest ein statischer Host aus der Dateiendung, und nachschlagen
+kann er nichts. Das ist auch die Route, die der Kern selbst baut
+(`mediaUrl` in `packages/core/src/runtime/contentService.ts`) — der
+Testaufbau muss dafür nichts tun.
 
 Die Szenenvorschau auf `/` ist Entwicklungswerkzeug und bleibt im Build
 hinter `import.meta.env.DEV` verschlossen. Damit die Wurzel dort keine
