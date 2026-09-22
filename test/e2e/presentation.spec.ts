@@ -21,6 +21,23 @@ async function selectTheme(page: Page, theme: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(1).selectOption(theme)
 }
 
+/**
+ * The fill of the feedback disc, next to the stage token it is supposed to
+ * carry - both as the browser resolves them, so a hex value and an `rgb()` of
+ * the same tone compare equal.
+ */
+async function discAgainstToken(page: Page, name: string): Promise<[string, string]> {
+  return page.locator('[data-answer-result] circle').evaluate((disc, entry) => {
+    const stage = disc.closest('.stage')!
+    const probe = document.createElement('span')
+    probe.style.color = getComputedStyle(stage).getPropertyValue(entry).trim()
+    stage.appendChild(probe)
+    const expected = getComputedStyle(probe).color
+    probe.remove()
+    return [getComputedStyle(disc).fill, expected]
+  }, name)
+}
+
 /** Only present in the question and solution scenes; there the selector sits in third place. */
 async function selectQuestionType(page: Page, type: string): Promise<void> {
   await page.locator('[data-preview-panel] select').nth(2).selectOption(type)
@@ -124,19 +141,24 @@ test.describe('Visual smoke tests of all scenes', () => {
     await expect(page.locator('[data-seconds]')).toHaveCount(0)
   })
 
-  test('video scene shows the video area', async ({ page }) => {
-    await selectScene(page, 'video')
-    await expect(page.locator('.stage[data-scene="video"]')).toBeVisible()
-  })
-
   test('feedback scene shows correct and wrong differently', async ({ page }) => {
     await selectScene(page, 'feedback')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="correct"]')).toBeVisible()
-    await expect(page.locator('[data-clip="correct"]')).toBeVisible()
+    /*
+     * The mark is drawn from the palette's tokens, so the check is not that a
+     * file is there but that the disc carries the meaning colour of the running
+     * stage - a mark with a colour of its own would be the old clip's mistake
+     * in a new form.
+     */
+    await expect(page.locator('[data-answer-result="correct"]')).toBeVisible()
+    const [correctFill, correctToken] = await discAgainstToken(page, '--color-correct')
+    expect(correctFill).toBe(correctToken)
 
     await page.locator('[data-preview-panel] select').nth(2).selectOption('incorrect')
     await expect(page.locator('.stage[data-scene="feedback"] [data-outcome="incorrect"]')).toBeVisible()
-    await expect(page.locator('[data-clip="wrong"]')).toBeVisible()
+    await expect(page.locator('[data-answer-result="wrong"]')).toBeVisible()
+    const [wrongFill, wrongToken] = await discAgainstToken(page, '--color-incorrect')
+    expect(wrongFill).toBe(wrongToken)
     // The wrong-answer animation must not give away the solution early.
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
@@ -214,6 +236,62 @@ test.describe("Reveal: the grid follows the server's progress", () => {
     expect(await open()).toBe(total)
   })
 
+  /**
+   * THE COVER IS A SURFACE, AND IN THE RED VARIANT IT HAS TO SAY SO ITSELF.
+   *
+   * Before the first tile opens this plate is the whole picture: a closed area
+   * where the photo will be. It carries the tone of the controls, which on the
+   * dark stage and on paper is a step away from the area it lies on - and in
+   * the red variant IS that area, because all four ground tokens of that world
+   * carry the commissioned tone. The room saw a red stage with a question next
+   * to it and no picture in sight.
+   *
+   * There the plate therefore takes the tone that world puts ON its ground -
+   * the one its tiles and answer bars carry, because a white veil over this red
+   * reads as a pale patch instead of an area. The two other variants keep the
+   * tone they had.
+   */
+  test('covers the photo with a surface that can be told from the ground', async ({ page }) => {
+    const plate = async (variant: string) => {
+      await page.addInitScript((value) => localStorage.setItem('quiz.stageTheme', value as string), variant)
+      await page.goto('/preview')
+      await expect(page.locator('[data-preview-stage]')).toBeVisible()
+      await selectScene(page, 'reveal')
+      await page.locator('[data-preview-panel] input[type="range"]').fill('0')
+      await expect(page.locator('[data-reveal-tile][data-open="true"]')).toHaveCount(0)
+      return page.locator('[data-reveal-tile]').first().evaluate((node) => {
+        const stage = node.closest('.stage')!
+        /* A token as the browser paints it, so a hex and an `rgb()` compare equal. */
+        const asColour = (entry: string) => {
+          const probe = document.createElement('span')
+          probe.style.color = getComputedStyle(stage).getPropertyValue(entry).trim()
+          stage.appendChild(probe)
+          const value = getComputedStyle(probe).color
+          probe.remove()
+          return value
+        }
+        return {
+          tile: getComputedStyle(node).backgroundColor,
+          ground: asColour('--color-pageTop'),
+          controls: asColour('--color-controls'),
+          surface: asColour('--color-tile'),
+        }
+      })
+    }
+
+    /* The two other variants keep the tone of the controls, as they always had. */
+    for (const variant of ['dark', 'bright'] as const) {
+      const measured = await plate(variant)
+      expect(measured.tile, variant).toBe(measured.controls)
+    }
+
+    const red = await plate('red')
+    expect(red.tile).toBe(red.surface)
+    // And that really is a step away from the ground - which the controls are not here.
+    expect(red.tile).not.toBe(red.ground)
+    expect(red.controls).toBe(red.ground)
+  })
+
   test('tiles once open stay open', async ({ page }) => {
     await selectScene(page, 'reveal')
     const slider = page.locator('[data-preview-panel] input[type="range"]')
@@ -231,6 +309,80 @@ test.describe("Reveal: the grid follows the server's progress", () => {
     expect(late.length).toBeGreaterThan(early.length)
     // No tile may close again: the pool only ever grows.
     expect(late).toEqual(expect.arrayContaining(early))
+  })
+})
+
+/* ------------------------------------------------------------------ *
+ * The licence line of a photo
+ *
+ * Every picture of the corpus names where it comes from, and wherever the
+ * picture is shown that line belongs on the screen. WHERE it stands is the
+ * one thing the two worlds answer differently - and that is what is measured
+ * here, against the photo's own box: outside it on the adults' stage, inside
+ * it in the children's world.
+ * ------------------------------------------------------------------ */
+
+test.describe('Image credit', () => {
+  /** The line and the photo, in one measurement. */
+  async function placement(page: Page) {
+    return page.locator('[data-media-credit]').evaluate((line) => {
+      const photo = line.closest('[data-media]')!.querySelector('[data-media-image]')!.getBoundingClientRect()
+      const box = line.getBoundingClientRect()
+      const style = getComputedStyle(line)
+      return {
+        text: line.textContent ?? '',
+        /* Sizes are container units - what matters is that it is the smallest type around. */
+        size: Number.parseFloat(style.fontSize),
+        promptSize: Number.parseFloat(getComputedStyle(document.querySelector('[data-prompt]')!).fontSize),
+        color: style.color,
+        shadow: style.textShadow,
+        insidePhoto: box.top >= photo.top && box.bottom <= photo.bottom + 1,
+        belowPhoto: box.top >= photo.bottom - 1,
+        /* At the left edge of the picture, not centred under it. */
+        fromLeft: box.left - photo.left,
+        photoWidth: photo.width,
+      }
+    })
+  }
+
+  test('stands under the photo on the stage, small and quiet', async ({ page }) => {
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'image-choice')
+
+    const line = await placement(page)
+    expect(line.text.length).toBeGreaterThan(0)
+    expect(line.belowPhoto, 'under the photo').toBe(true)
+    expect(line.insidePhoto, 'not in the photo').toBe(false)
+    // The smallest type in the scene - a duty, not a statement.
+    expect(line.size).toBeLessThan(line.promptSize / 2)
+    // At the picture's left edge, within a hair of it.
+    expect(Math.abs(line.fromLeft)).toBeLessThan(2)
+  })
+
+  test('stands in the photo in the children world, white with a shadow', async ({ page }) => {
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'image-choice')
+    await selectTheme(page, 'kids')
+
+    const line = await placement(page)
+    expect(line.insidePhoto, 'in the photo').toBe(true)
+    expect(line.belowPhoto, 'not under the photo').toBe(false)
+    expect(line.color, 'white').toBe('rgb(255, 255, 255)')
+    expect(line.shadow, 'with a shadow').not.toBe('none')
+    // In its lower left corner - close to the edge, and not out in the middle.
+    expect(line.fromLeft).toBeGreaterThan(0)
+    expect(line.fromLeft).toBeLessThan(line.photoWidth / 4)
+  })
+
+  test('is missing where the content names no origin', async ({ page }) => {
+    /*
+     * A question without a credit shows no line - not an empty one. The gap is
+     * reported where the content is built, not on the stage.
+     */
+    await selectScene(page, 'question')
+    await selectQuestionType(page, 'text-choice')
+    await expect(page.locator('[data-media]')).toHaveCount(0)
+    await expect(page.locator('[data-media-credit]')).toHaveCount(0)
   })
 })
 
@@ -478,43 +630,5 @@ test.describe('Screenshot regression of central states', () => {
       maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
-  })
-})
-
-/* ------------------------------------------------------------------ *
- * Video scene
- * ------------------------------------------------------------------ */
-
-test.describe('Video', () => {
-  /*
-   * In the operator's preview no second piece of media is playing - and it
-   * tells them nothing about the playback either. There is nothing to see
-   * there except the area by which they recognise the composition.
-   */
-  test('the operator preview plays nothing and shows no state', async ({ page }) => {
-    await page.goto('/preview')
-    await selectScene(page, 'video')
-    await page.locator('[data-preview-variant]').selectOption('preview')
-
-    await expect(page.locator('[data-video-placeholder]')).toBeVisible()
-    await expect(page.locator('video')).toHaveCount(0)
-    /*
-     * No "ready", no "running", no "finished": the operator needs nothing from
-     * the stage in order to start the video or to move on afterwards.
-     */
-    await expect(page.locator('[data-video-status]')).toHaveCount(0)
-  })
-
-  test('on the stage the image stands, preloaded and unstarted', async ({ page }) => {
-    await page.goto('/preview')
-    await selectScene(page, 'video')
-    await expect(page.locator('[data-video-placeholder]')).toBeVisible()
-
-    const medium = page.locator('video')
-    await expect(medium).toHaveCount(1)
-    await expect(medium).toHaveAttribute('preload', 'auto')
-    // The area stays visible - it no longer fades out after the video.
-    await expect(page.locator('[data-video-placeholder]')).toHaveCSS('opacity', '1')
-    await expect(page.locator('[data-video-status]')).toHaveCount(0)
   })
 })

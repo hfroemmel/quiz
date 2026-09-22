@@ -184,7 +184,12 @@ export class RemoteQuizRuntime<TView extends PublicQuizViewModel> implements Qui
         this.clockOffset = message.serverTimeMs - Date.now()
         break
       case 'client-info':
-        this.update({ connection: { ...this.snapshot.connection, audioMaster: message.audioMaster } })
+        this.update({
+          connection: {
+            ...this.snapshot.connection,
+            audioMaster: message.audioMaster,
+          },
+        })
         break
       case 'snapshot': {
         const view = message.view as TView

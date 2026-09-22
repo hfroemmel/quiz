@@ -4,7 +4,6 @@
 import { describe, expect, it } from 'vitest'
 import type { MediaAsset, Question } from '@hfroemmel/quiz-core'
 import { validateContent } from '../src/validate'
-import { applyContentProfile } from '../src/package'
 
 const asset: MediaAsset = { id: 'img-1', kind: 'image', filename: 'images/a.svg', mimeType: 'image/svg+xml', credit: 'Eigene' }
 
@@ -81,7 +80,7 @@ const revealQuestion = question({
   options: undefined,
   correctOptionId: undefined,
   acceptedAnswerText: ['Antwort'],
-  media: { imageAssetId: 'img-1' },
+  image: { filename: 'images/a.svg', credit: 'Eigene' },
 })
 
 function validate(questions: Question[], overrides: Partial<typeof baseConfig> = {}, fileExists = true) {
@@ -89,7 +88,7 @@ function validate(questions: Question[], overrides: Partial<typeof baseConfig> =
     config: { ...baseConfig, ...overrides },
     questions,
     assets: [asset],
-    assetFileExists: () => fileExists,
+    mediaFileExists: () => fileExists,
   })
 }
 
@@ -158,7 +157,7 @@ describe('Schema errors abort the build', () => {
   })
 
   it('detects a missing mandatory medium', () => {
-    const result = validate([question({ id: 'q1' }), { ...revealQuestion, media: undefined }])
+    const result = validate([question({ id: 'q1' }), { ...revealQuestion, image: undefined }])
     expect(result.errors.some((issue) => issue.code === 'missing-media')).toBe(true)
   })
 
@@ -199,7 +198,7 @@ describe('Schema errors abort the build', () => {
       config: baseConfig,
       questions: [question({ id: 'q1' }), revealQuestion],
       assets: [asset],
-      assetFileExists: () => true,
+      mediaFileExists: () => true,
       contentVersion: 'kaputt',
     })
     expect(result.errors.some((issue) => issue.code === 'version-unparsable')).toBe(true)
@@ -270,7 +269,7 @@ describe('Missing media files', () => {
       config: baseConfig,
       questions,
       assets: [asset],
-      assetFileExists: () => false,
+      mediaFileExists: () => false,
       missingMediaSeverity: 'warning',
     })
     expect(result.ok).toBe(true)
@@ -384,63 +383,3 @@ describe('Quiz modes', () => {
   })
 })
 
-describe('Content profiles', () => {
-  const videoQuestion = question({
-    id: 'v1',
-    questionType: 'video-then-question',
-    media: { videoAssetId: 'vid-1' },
-  })
-  const videoAsset: MediaAsset = {
-    id: 'vid-1',
-    kind: 'video',
-    filename: 'video/test.mp4',
-    mimeType: 'video/mp4',
-    credit: 'Eigene',
-  }
-  const source = {
-    config: {
-      ...baseConfig,
-      presets: [
-        {
-          id: 'standard',
-          label: 'Standard',
-          slots: [
-            { id: 'text', filters: { questionTypes: ['video-then-question', 'text-choice'] } },
-            { id: 'nur-video', filters: { questionTypes: ['video-then-question'] } },
-          ],
-        },
-      ],
-    },
-    questions: [question({ id: 'q1' }), videoQuestion],
-    assets: [asset, videoAsset],
-    rootDir: '/tmp',
-  }
-
-  it('leaves the "full" profile unchanged', () => {
-    expect(applyContentProfile(source, 'full')).toBe(source)
-  })
-
-  it('removes questions, media and slot filters for "no-video"', () => {
-    const reduced = applyContentProfile(source, 'no-video')
-
-    expect((reduced.questions as Question[]).map((entry) => entry.id)).toEqual(['q1'])
-    expect(reduced.assets.map((entry) => entry.id)).toEqual(['img-1'])
-
-    /*
-     * The NUMBER of question slots stays - otherwise the preset would no
-     * longer match `questionsPerGame`. A slot that admitted ONLY video
-     * questions becomes a free slot; with a mixed filter only the video type
-     * is dropped.
-     */
-    const slots = (reduced.config as typeof source.config).presets[0]!.slots
-    expect(slots).toHaveLength(2)
-    expect(slots[0]!.filters).toEqual({ questionTypes: ['text-choice'] })
-    expect(slots[1]!.filters).toEqual({})
-  })
-
-  it('leaves the source of the full profile untouched', () => {
-    applyContentProfile(source, 'no-video')
-    expect((source.questions as Question[]).map((entry) => entry.id)).toEqual(['q1', 'v1'])
-    expect(source.config.presets[0]!.slots[1]!.filters.questionTypes).toEqual(['video-then-question'])
-  })
-})

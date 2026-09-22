@@ -24,14 +24,14 @@ const question: Question = {
     { id: 'b', text: 'Sechshundert' },
   ],
   correctOptionId: 'b',
-  media: { imageAssetId: 'bild-de' },
+  image: { filename: 'questions/bild-de.jpg' },
   explanation: { summary: 'Stand 2021.', source: 'Bundestag' },
   enabled: true,
   translations: {
     'en-GB': {
       prompt: 'How many members?',
       options: [{ id: 'b', text: 'Six hundred' }],
-      media: { imageAssetId: 'bild-en' },
+      image: { filename: 'questions/bild-en.jpg' },
       explanation: { summary: 'As of 2021.' },
     },
   },
@@ -56,7 +56,7 @@ describe('questionTextFor', () => {
   it('replaces text, medium and explanation', () => {
     const english = questionTextFor(question, 'en-GB')
     expect(english.prompt).toBe('How many members?')
-    expect(english.media?.imageAssetId).toBe('bild-en')
+    expect(english.image?.filename).toBe('questions/bild-en.jpg')
     expect(english.explanation).toEqual({ summary: 'As of 2021.', source: 'Bundestag' })
   })
 

@@ -29,25 +29,23 @@ all transitions in [`docs/animationskatalog.md`](animationskatalog.md).
 | 1 | `result` | `result` | Confetti, result tiles, `Spiel beenden` ("End game") |
 
 Not included in the templates and therefore designed below: `pause-screen`,
-`video`, `second-chance`, `aborted`, connection loss, resumption after
-restart, moderator view.
+`second-chance`, `aborted`, connection loss, resumption after restart,
+moderator view.
 
 ## Shared Frame
 
 ### Ground and Atmosphere
 
-The stage sits on a cool, slightly bluish gradient (`#171C21` to `#293139`).
-Behind it lies the **question image itself**: filling the format, heavily
-blurred, darkened, and overlaid with a color veil. This way, every question
-gets its own atmosphere without the text losing any calm.
+The stage sits on its own ground and shows nothing behind the scene. The
+question image used to be repeated there - filling the format, heavily blurred
+and veiled - as the atmosphere of each question, and more heavily still during
+an image reveal, so that no silhouette gave the motif away. That layer is
+gone; what a question brings is shown where it is content: framed in the
+scene.
 
-During an image reveal, the same background is blurred and veiled much more
-strongly: there, the motif itself is the task, and the background must not
-give away any silhouette.
-
-Tiles, letter fields, and answer rows are semi-transparent frosted-glass
-surfaces with slight blur - no border, with a very soft shadow for spatial
-depth. The values are in [`docs/design-system.md`](design-system.md).
+Tiles, letter fields, and answer rows are semi-transparent surfaces over that
+ground - no blur, no border, with a very soft shadow for spatial depth. The
+values are in [`docs/design-system.md`](design-system.md).
 
 ### Wordmark
 
@@ -237,8 +235,8 @@ there.
   second.
 - Only the category is transmitted (`upcomingCategoryLabel`). Question
   text, options, and image stay on the server until the question scene.
-- The screen stands for `gameTiming.pauseScreenMs` (3 s) - short enough not
-  to slow things down, long enough to read the category.
+- The screen stands for `gameTiming.pauseScreenMs` (1.5 s) - it was three
+  seconds; the pace of the round was asked to be twice as quick.
 
 ## Start View (`idle`, Scene `start`)
 
@@ -422,22 +420,6 @@ Time-driven interim state per specification 6.2.
   interesting right now.
 - Control bar: everything locked; the server advances on its own after
   `gameTiming.pauseScreenMs`.
-
-## Video Question (`video`) - Implemented
-
-- The video sits centered in 16:9 on the stage area. One phase, one
-  picture: whether it's paused, playing, or finished is shown by the
-  picture itself.
-- NO display of playback status, no progress bar, no play icon - neither on
-  the stage nor at the console. None of that reaches the server, so nothing
-  can display it either (see `docs/zustandsmaschine.md`).
-- Nothing fades out at the end: the last frame stays on screen until the
-  operator brings in the question.
-- Control bar: `Video starten` ("Start video", plays from the beginning,
-  any number of times) and `Frage einblenden` ("Show question"). If the
-  file cannot be played, the area stays empty - `Frage einblenden` and
-  `Frage ueberspringen` ("Skip question") are unaffected by this, so the
-  flow can never get stuck on a file.
 
 ## Abort (`aborted`) - Designed
 

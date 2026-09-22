@@ -97,13 +97,8 @@
       "label": "Leicht",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -171,13 +166,8 @@
       "label": "Mittel",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -252,13 +242,8 @@
       "label": "Schwer",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -334,13 +319,8 @@
       "label": "Gemischt",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -405,13 +385,8 @@
       "label": "Saarbrücken",
       "slots": [
         {
-          "id": "test-video",
-          "label": "Test: Videofrage",
-          "filters": {
-            "questionTypes": [
-              "video-then-question"
-            ]
-          }
+          "id": "auftakt",
+          "label": "Auftakt"
         },
         {
           "id": "test-person",
@@ -970,29 +945,5 @@
       "id": "en-GB",
       "label": "English"
     }
-  ],
-  "interfaceStrings": {
-    "en-GB": {
-      "stage.player": "Player",
-      "stage.points": "Points",
-      "stage.question": "Question",
-      "stage.questionOf": "Question {current} of {total}",
-      "feedback.correct": "Correct!",
-      "feedback.incorrect": "Wrong!",
-      "result.winner": "Winner",
-      "result.draw": "Draw",
-      "kiosk.playerCount": "How many are playing?",
-      "kiosk.difficulty": "How hard?",
-      "kiosk.solo": "Alone",
-      "kiosk.duo": "In pairs",
-      "kiosk.questionCount": "{count} questions",
-      "kiosk.start": "Let's go",
-      "kiosk.settings": "Settings",
-      "kiosk.endGame": "End game",
-      "kiosk.setupTitle": "Start a game",
-      "kiosk.setupSubtitle": "Choose mode and difficulty.",
-      "kiosk.soloHint": "One person",
-      "kiosk.duoHint": "Buzzer duel"
-    }
-  }
+  ]
 }

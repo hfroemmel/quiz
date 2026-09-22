@@ -2,7 +2,6 @@
   "_hinweis": "Vorlage. Kopieren nach content.lock.json und Tag samt Pruefsumme des gewuenschten Inhaltsstands eintragen; danach 'pnpm content:pull'. Die Pruefsumme steht in checksums.txt des Releases.",
   "repository": "hfroemmel/quiz-content-data",
   "tag": "content-v2.0.0",
-  "profile": "full",
   "checksum": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
   "target": "content/dist"
 }

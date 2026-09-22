@@ -34,12 +34,23 @@ export function availableCommands(state: GameState | null): CommandType[] {
 
   if (!state || state.status !== 'active') {
     list.add('START_GAME')
+    /*
+     * And what is to be played can be chosen - that is what the start view is
+     * for. It is allowed without a game as well as after one, and it is refused
+     * exactly where there is nothing to choose: while a game runs.
+     */
+    list.add('SELECT_QUIZ')
     if (state) {
       list.add('SET_SOUND_ENABLED')
       list.add('SET_LOCALE')
       // On the result view the manual score correction stays available;
       // the result is recomputed deterministically afterwards.
       if (state.status === 'completed') list.add('ADJUST_SCORE')
+      /*
+       * And the result can be taken off the screen - once. Afterwards the
+       * offer overview stands there, and there is nothing left to hide.
+       */
+      if (state.status === 'completed' && !state.resultClosed) list.add('SHOW_START_SCREEN')
     }
     return [...list]
   }
@@ -128,18 +139,6 @@ export function availableCommands(state: GameState | null): CommandType[] {
       list.add('RESET_IMAGE_REVEAL')
       list.add('RESET_BUZZER')
       list.add('RESOLVE_WITHOUT_ANSWER')
-      list.add('SKIP_QUESTION')
-      break
-
-    /*
-     * The video has exactly one button, and it stays available for the whole
-     * phase: the server does not know whether it is playing right now, and a
-     * second click is simply a new request from the start. "Show question"
-     * next to it is no video control but the next step of the flow.
-     */
-    case 'video':
-      list.add('START_VIDEO')
-      list.add('SHOW_QUESTION_AFTER_VIDEO')
       list.add('SKIP_QUESTION')
       break
 

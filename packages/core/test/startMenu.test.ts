@@ -26,6 +26,7 @@ function catalogOf(config: QuizConfig, locale = 'de-DE') {
     nowMs: 0,
     config,
     assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+    mediaUrl: (filename: string | undefined) => (filename ? `/media/${filename}` : undefined),
     contentVersion: 'test',
     eventDayId: 'event-day-test',
     locale,
@@ -80,7 +81,6 @@ describe('rules of the package', () => {
   it('splits the timing block into the two groups the engine reads', () => {
     const rules = resolveRules({ timing: { questionLeadInMs: 0, imageRevealDurationMs: 5_000 } })
     expect(rules.selfServiceTiming.questionLeadInMs).toBe(0)
-    expect(rules.selfServiceTiming.videoLeadInMs).toBe(selfServiceTiming.videoLeadInMs)
     expect(rules.timing.imageRevealDurationMs).toBe(5_000)
     expect(rules.timing).not.toHaveProperty('questionLeadInMs')
   })
@@ -89,15 +89,23 @@ describe('rules of the package', () => {
     expect(resolveRules({ jokers: { enabled: false } }).jokersEnabled).toBe(false)
   })
 
-  it('carries the two rules a client needs into the catalogue', () => {
+  it('carries the three rules a client needs into the catalogue', () => {
     const plain = catalogOf(testConfig)
-    expect(plain.rules).toEqual({ showDetailsAfterSolution: false })
+    expect(plain.rules).toEqual({ showDetailsAfterSolution: false, manualAdjustmentStep: 50 })
 
     const configured = catalogOf({
       ...testConfig,
-      rules: { idleTimeoutMs: 90_000, showDetailsAfterSolution: true },
+      rules: {
+        idleTimeoutMs: 90_000,
+        showDetailsAfterSolution: true,
+        scoring: { manualAdjustmentStep: 10 },
+      },
     })
-    expect(configured.rules).toEqual({ idleTimeoutMs: 90_000, showDetailsAfterSolution: true })
+    expect(configured.rules).toEqual({
+      idleTimeoutMs: 90_000,
+      showDetailsAfterSolution: true,
+      manualAdjustmentStep: 10,
+    })
   })
 })
 
@@ -120,6 +128,7 @@ describe('the offers of the hall', () => {
       nowMs: 0,
       config,
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+      mediaUrl: (filename: string | undefined) => (filename ? `/media/${filename}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',
     })
@@ -258,6 +267,7 @@ describe('deriveStartMenu', () => {
       nowMs: 0,
       config: testConfig,
       assetUrl: () => undefined,
+      mediaUrl: () => undefined,
       contentVersion: 'test',
       eventDayId: 'event-day-test',
       quizAvailability: { kids: 'no-questions' },

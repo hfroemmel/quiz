@@ -14,13 +14,11 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Adult stage: the same frosted-glass tile as the score card. */
+/* Adult stage: the same quiet tile as the score card. */
 :global(.stage--default) .counter {
   width: 7cqw;
   padding: 1cqw 1.2cqw 0.6cqw;
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
 }
 :global(.stage--default) .label {
@@ -30,7 +28,7 @@
   margin-bottom: 0.3cqw;
 }
 :global(.stage--default) .value {
-  font-size: 3cqw;
+  font-size: 2.7cqw;
   font-family: var(--font-heading);
 }
 

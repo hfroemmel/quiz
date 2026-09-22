@@ -34,6 +34,8 @@ export interface QuizSceneProps<TView extends PublicQuizViewModel> {
   onEvent?: (event: QuizEvent) => void
   /** The same composition in a different area - stage, preview, touch device. */
   variant?: 'stage' | 'preview' | 'touch'
+  /** Which arrangement a touch device draws around the scene - see `StageScreen`. */
+  layout?: 'live' | 'kiosk'
   /**
    * Allow sound, even though sound authority lies with the runtime. A hidden
    * host (quiz in a background tab) switches to muted through this.
@@ -51,6 +53,7 @@ export function QuizScene<TView extends PublicQuizViewModel>({
   theme,
   onEvent,
   variant = 'stage',
+  layout = 'live',
   audible = true,
   headerSlots,
   pads,
@@ -92,6 +95,7 @@ export function QuizScene<TView extends PublicQuizViewModel>({
         isAudioMaster={snapshot.connection.audioMaster && audible}
         onCommand={command}
         variant={variant}
+        layout={layout}
         {...(headerSlots ? { headerSlots } : {})}
         {...(pads ? { pads } : {})}
         {...(answering ? { answering } : {})}

@@ -6,6 +6,13 @@
  * The correct answer, explanations, directing notes and selection rationales are
  * filtered out here and never transmitted before they may be public. Hiding by
  * CSS would not be enough.
+ *
+ * ONE EXCEPTION, AND IT IS CONFIGURED: the detail text of an explanation goes
+ * out with the solution where `rules.showDetailsAfterSolution` says so. In a
+ * hall the background is TOLD - so it stays here; at a device there is nobody
+ * to tell it, and the two people at the table read it themselves. The short
+ * version, the source and the directing notes stay editorial in either case,
+ * and nothing travels before the solution scene.
  */
 import {
   isChoiceQuestion,
@@ -61,8 +68,17 @@ import { drawableJokerTypes, evaluateJokerDraw, gameHasJokers, questionStillOpen
 export interface ProjectionContext {
   nowMs: number
   config: QuizConfig
-  /** Resolution of an asset id into a servable URL. */
+  /**
+   * Resolution of an asset id into a servable URL - for the house's own media,
+   * which are declared in `assets.json` and referenced by id from the
+   * configuration: word marks, start visuals, quiz motifs.
+   */
   assetUrl: (assetId: string | undefined) => string | undefined
+  /**
+   * Resolution of a FILE NAME into a servable URL - for the media of a
+   * question, which carry their file themselves and have no id.
+   */
+  mediaUrl: (filename: string | undefined) => string | undefined
   contentVersion: string
   eventDayId: string
   /** Rationale of the current question selection - for operator diagnostics only. */
@@ -85,6 +101,12 @@ export interface ProjectionContext {
   soundEnabled?: boolean
   /** Locale of the device while no game runs. */
   locale?: string
+  /**
+   * What the desk has set up but not yet started (`SELECT_QUIZ`). It lives in
+   * the service and not in the game state: between two games there is no game
+   * it could belong to.
+   */
+  quizSelection?: { quizId: string; presetId?: string }
   /**
    * Raw numbers of the game log from the database, per audience. The mapping to
    * readable names happens here in the projection - the same rule as for
@@ -128,8 +150,6 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
     case 'answer-locked':
     case 'second-chance':
       return 'question'
-    case 'video':
-      return 'video'
     case 'reveal-ready':
     case 'reveal-running':
     case 'reveal-paused':
@@ -145,12 +165,19 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
 
 export function projectPublic(state: GameState | null, ctx: ProjectionContext): PublicQuizViewModel {
   const theme = resolveTheme(state, ctx)
-  if (!state || state.status === 'aborted') {
+  /*
+   * THREE WAYS TO STAND ON THE START SCREEN: no game at all, an aborted one -
+   * and a finished one whose result the desk has taken off the screen
+   * (`SHOW_START_SCREEN`). The third is not a state of the game but of what is
+   * being looked at, which is why it is a flag and not a status.
+   */
+  if (!state || state.status === 'aborted' || state.resultClosed) {
     return {
       scene: 'start',
       phase: state?.phase ?? 'idle',
       theme,
       quizOffers: quizOffers(ctx, localeFor(state, ctx)),
+      ...(ctx.quizSelection ? { selectedQuizId: ctx.quizSelection.quizId } : {}),
       playerScores: [],
       progress: { current: 0, total: ctx.config.questionsPerGame },
       soundEnabled: state?.soundEnabled ?? ctx.soundEnabled ?? true,
@@ -171,7 +198,7 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
    */
   const question = runtime ? questionTextFor(runtime.question, locale) : undefined
   const active = activePlayerId(state)
-  const showsQuestion = scene === 'question' || scene === 'feedback' || scene === 'solution' || scene === 'reveal' || scene === 'video'
+  const showsQuestion = scene === 'question' || scene === 'feedback' || scene === 'solution' || scene === 'reveal'
 
   const publicQuestion: PublicQuestion | undefined =
     showsQuestion && question
@@ -179,8 +206,8 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
           id: question.id,
           prompt: question.prompt,
           presentationType: question.questionType,
-          imageUrl: ctx.assetUrl(question.media?.imageAssetId),
-          videoUrl: scene === 'video' ? ctx.assetUrl(question.media?.videoAssetId) : undefined,
+          imageUrl: ctx.mediaUrl(question.image?.filename),
+          ...(question.image?.credit ? { imageCredit: question.image.credit } : {}),
           categoryLabel: categoryLabel(question, ctx, locale),
         }
       : undefined
@@ -240,7 +267,6 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
      * already. The timestamp stays in the server state: it belongs to the log,
      * and the stage decides on the id alone.
      */
-    video: state.video ? { questionId: state.video.questionId, requestId: state.video.requestId } : undefined,
     result:
       scene === 'result'
         ? { ...determineResult(state), scores }
@@ -265,9 +291,11 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
  * View of the players at the touch device.
  *
  * SECURITY RULE as for the stage screen: it is the public view. The solution is
- * only transmitted in the solution scene, explanations and directing notes
- * never. Added to it is solely the list of the commands possible now, so that
- * the touch client does not derive its controls itself.
+ * only transmitted in the solution scene, directing notes never, and of an
+ * explanation at most the detail text - in the solution scene, and only where
+ * the configuration asks for it (`publicSolution`). Added to that is solely the
+ * list of the commands possible now, so that the touch client does not derive
+ * its controls itself.
  */
 export function projectPlayer(state: GameState | null, ctx: ProjectionContext): PlayerQuizViewModel {
   return {
@@ -392,6 +420,7 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
     statistics: gameStatistics(ctx),
     resumable: ctx.resumable,
     catalog: buildCatalog(ctx, localeFor(state, ctx)),
+    ...(ctx.quizSelection ? { quizSelection: ctx.quizSelection } : {}),
   }
 }
 
@@ -624,13 +653,32 @@ function textsFor(state: GameState | null, ctx: ProjectionContext): { texts?: Re
 
 function publicSolution(ctx: ProjectionContext, question: Question): PublicSolution {
   /*
-   * The solution view shows the answer - nothing more. The explanation stays
-   * reserved for operator and moderator; on the stage it is told, not read. So
-   * it is not transmitted publicly in the first place.
+   * The solution view shows the answer - and, where the installation asks for
+   * it, the background of the question.
+   *
+   * ON A STAGE IT DOES NOT. There the explanation belongs to the moderator, who
+   * tells it; a screen that also wrote it out would compete with the person
+   * speaking. That is why nothing of it used to be transmitted publicly at all.
+   *
+   * At a device nobody tells it. The two people at the table read it
+   * themselves, so a quiz meant for that place says
+   * `rules.showDetailsAfterSolution`, and then the detail text travels with the
+   * solution - in the language of the question, because it comes from the same
+   * translated version as prompt and options.
+   *
+   * ONLY `details`. The short version is written for the moderator's lead-in,
+   * the source is an editorial note, and the directing notes are stage
+   * directions; none of the three is meant to be read by a player.
    */
+  const details = resolveRules(ctx.config.rules).showDetailsAfterSolution
+    ? question.explanation?.details
+    : undefined
+
   return {
     answerText: correctAnswerText(question),
-    imageUrl: ctx.assetUrl(question.media?.imageAssetId),
+    imageUrl: ctx.mediaUrl(question.image?.filename),
+    ...(question.image?.credit ? { imageCredit: question.image.credit } : {}),
+    ...(details ? { details } : {}),
   }
 }
 
@@ -651,7 +699,24 @@ function publicFeedback(state: GameState): PublicQuizViewModel['feedback'] {
 
 function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTheme {
   const locale = localeFor(state, ctx)
-  const audienceId = state?.audience ?? ctx.previewAudienceId
+  /*
+   * A GAME THAT IS OVER NO LONGER DECIDES THE LOOK.
+   *
+   * The state of an ended game stays around - it carries the log, the language
+   * and the sound switch - but its quiz and its audience are history. As long
+   * as they still counted here, the start view wore the look of the quiz played
+   * last: after the children's quiz the room's poster kept writing in its
+   * handwriting until the next game of the show was started. The start view is
+   * the same announcement before the first game and between two games, so it
+   * gets the same answer here - the audience's look, chosen by the device
+   * (`previewAudienceId`) or the first one in the configuration.
+   *
+   * The language is deliberately NOT part of this: whoever switched the device
+   * to another language keeps it after the game, and a poster in the wrong
+   * language would be an error the room can read.
+   */
+  const running = state && state.status !== 'aborted' ? state : null
+  const audienceId = running?.audience ?? ctx.previewAudienceId
   const audienceConfig =
     ctx.config.audiences.find((entry) => entry.id === audienceId) ?? ctx.config.audiences[0]!
   /*
@@ -662,7 +727,7 @@ function resolveTheme(state: GameState | null, ctx: ProjectionContext): PublicTh
    * type carries the audience's. No condition on a mode name stands here - the
    * id comes from the configuration.
    */
-  const quiz = state?.quizId ? ctx.config.quizzes?.find((entry) => entry.id === state.quizId) : undefined
+  const quiz = running?.quizId ? ctx.config.quizzes?.find((entry) => entry.id === running.quizId) : undefined
   const themeId = quiz?.themeId ?? audienceConfig.themeId
   const theme = ctx.config.themes.find((entry) => entry.id === themeId) ?? ctx.config.themes[0]!
   // Colours and fonts are deliberately not in the view model - presentation is
@@ -711,6 +776,7 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
     rules: {
       ...(rules.idleTimeoutMs === undefined ? {} : { idleTimeoutMs: rules.idleTimeoutMs }),
       showDetailsAfterSolution: rules.showDetailsAfterSolution,
+      manualAdjustmentStep: rules.scoring.manualAdjustmentStep,
     },
     audiences: ctx.config.audiences.map((audienceConfig) => {
       const theme = ctx.config.themes.find((entry) => entry.id === audienceConfig.themeId)
@@ -928,8 +994,6 @@ function nextStepHint(state: GameState | null): string {
       return 'Frage steht. Vorlesen, dann "Antworten einblenden".'
     case 'reveal-ready':
       return 'Bild steht unscharf. Vorlesen, dann "Enthüllung starten".'
-    case 'video':
-      return 'Videofrage: "Video starten" spielt es auf der Bühne ab, "Frage einblenden" geht weiter. Buzzern ist erst nach dem Video möglich.'
     case 'buzzer-open':
       return 'Buzzer offen. Wer zuerst drückt, antwortet.'
     case 'reveal-running':

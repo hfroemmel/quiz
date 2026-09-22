@@ -1,0 +1,104 @@
+/*
+ * The right/wrong mark: a disc that springs in, a symbol that draws itself.
+ *
+ * NO COLOUR VALUE HERE. The disc takes the meaning colour of the running
+ * theme - `--color-correct` and `--color-incorrect`, the same tokens the answer
+ * rows carry - and the symbol the light ink that goes on a strong area. That is
+ * why this mark is red on a red stage's wrong answer and green in the
+ * children's world without a second file: it asks the palette, not a renderer.
+ *
+ * IT FILLS ITS PARENT, exactly as the delivered clips did before it: the scene
+ * decides the size, so one drawing sits in the hall and in a small preview
+ * without a second variant of itself.
+ */
+
+.mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.disc {
+  /* The box the disc scales in is the disc, not the whole drawing. */
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: disc-in 480ms cubic-bezier(0.16, 1.35, 0.32, 1) both;
+}
+.mark[data-answer-result='correct'] .disc {
+  fill: var(--color-correct);
+}
+.mark[data-answer-result='wrong'] .disc {
+  fill: var(--color-incorrect);
+}
+
+/*
+ * The symbol is drawn, not faded in: `pathLength: 1` normalises the path, so
+ * one dash of length 1 covers it whatever its real length is - the checkmark
+ * and the cross therefore need no timing of their own.
+ */
+.symbol {
+  fill: none;
+  /*
+   * THE INK OF TYPE ON A MOTIF, and not the surface's ink. The disc is the
+   * meaning colour - a strong green or a strong red - and on both of them the
+   * mark reads as a mark when it is light. `inkOnStrong` follows the SURFACE of
+   * a variant, so on the bright stage it turned the checkmark black: legible,
+   * but a pencil line on a traffic light rather than the tick of the moment.
+   */
+  stroke: var(--stage-inkOnMotif);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: symbol-in 360ms cubic-bezier(0.3, 0, 0.2, 1) 250ms both;
+}
+
+@keyframes disc-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.04);
+  }
+  /*
+   * The overshoot is what makes it land instead of stop - it is the reason the
+   * element is allowed to draw outside its box.
+   */
+  68% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes symbol-in {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+  /* Visible from the first drawn dot onwards, not before it. */
+  1% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/*
+ * REDUCED MOTION KEEPS THE STATEMENT, only without the movement - the same
+ * rule the clips followed, which jumped to their final frame. The mark stands
+ * there complete.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .disc,
+  .symbol {
+    animation: none;
+  }
+  .symbol {
+    stroke-dashoffset: 0;
+  }
+}

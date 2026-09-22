@@ -306,17 +306,16 @@ on the far left and rotated slightly counter-clockwise, for player 2 on the
 far right, mirrored and rotated the other way. Side, rotation, and mirroring are
 entirely in the CSS and depend on `data-player`.
 
-In front of the tile and not behind it, because the tile is frosted glass:
-behind it, it would swallow half the card and let it shimmer through as a
-smudge.
+In front of the tile and not behind it, because the tile is semi-transparent:
+behind it, it would swallow half the card and show through as a smudge.
 
 It is deliberately **smaller than the score card**: 3.6cqw wide, 4.6cqw
 tall via the aspect ratio, rotated about 5cqw - and thus stays within
 the roughly 6cqw-tall tile instead of pushing out of the top of the header.
 Just under half of it shows (1.9cqw out of 3.6cqw); the rest disappears behind
-the tile. Going further in isn't possible, because the tile is frosted glass -
-what lies behind it shimmers through and lays a smudge over the caption and
-number. The E2E test measures both.
+the tile. Going further in isn't possible, because the tile is
+semi-transparent - what lies behind it shows through and lays a smudge over
+the caption and number. The E2E test measures both.
 
 It shifts nothing: the header places a relatively
 positioned frame around the score card for each player

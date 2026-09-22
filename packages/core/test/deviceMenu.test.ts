@@ -66,6 +66,7 @@ function deviceCatalog(config: QuizConfig = deviceConfig): CatalogViewModel {
     nowMs: 0,
     config,
     assetUrl: () => undefined,
+    mediaUrl: () => undefined,
     contentVersion: 'test',
     eventDayId: 'event-day-test',
     locale: 'de-DE',

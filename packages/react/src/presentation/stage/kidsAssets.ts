@@ -13,7 +13,7 @@
  */
 
 export const kidsPreloadImages: readonly string[] = [
-  new URL('../../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp', import.meta.url).href,
+  new URL('../../assets/kinderquiz/backgrounds/background.webp', import.meta.url).href,
   new URL('../../assets/kinderquiz/backgrounds/paper-grain.svg', import.meta.url).href,
   new URL('../../assets/kinderquiz/characters/karlchen-presenter.svg', import.meta.url).href,
   new URL('../../assets/kinderquiz/characters/karlchen-mini.svg', import.meta.url).href,

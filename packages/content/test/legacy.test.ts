@@ -169,9 +169,10 @@ describe('Field names of the delivered catalogue', () => {
   it('recognises the image file in "img_filename" and the credit in "img_credit"', () => {
     const result = migrateLegacy({ questionsSource: delivered })
     expect(result.skipped).toHaveLength(0)
-    const asset = result.assets.find((entry) => entry.id === 'img-0')
-    expect(asset?.filename).toBe('questions/europe.jpg')
-    expect(asset?.credit).toBe('Pixabay/Greg Montani')
+    // The picture goes ON the question now, file and credit together.
+    const question = result.questions.find((entry) => entry.id === '0')
+    expect(question?.image?.filename).toBe('questions/europe.jpg')
+    expect(question?.image?.credit).toBe('Pixabay/Greg Montani')
     expect(result.notes.some((note) => note.code === 'missing-image-credit' && note.questionId === '13')).toBe(true)
   })
 
@@ -183,5 +184,41 @@ describe('Field names of the delivered catalogue', () => {
     expect(reveal?.options).toBeUndefined()
     expect(reveal?.correctOptionId).toBeUndefined()
     expect(reveal?.acceptedAnswerText).toEqual(['Deutschland'])
+  })
+})
+
+describe('the background of a question', () => {
+  it('puts `info` where it is read and reports a remark instead of shipping it', () => {
+    const source = `const questions = [
+      {
+        id: 1,
+        mode: "adults",
+        level: "easy",
+        type: "multiple_choice",
+        category: "Institution",
+        question: "Wer waehlt den Bundeskanzler?",
+        option_1: "Der Bundestag",
+        option_2: "Der Bundesrat",
+        info: "Die Kanzlerwahl steht in Artikel 63 des Grundgesetzes.",
+        Anmerkung: "Frage vor der Veranstaltung noch mit der Pressestelle klaeren.",
+        source_reference: "Grundgesetz"
+      }
+    ]`
+
+    const { questions, notes } = migrateLegacy({ questionsSource: source })
+
+    /*
+     * `info` is the paragraph an audience reads after the solution, so it is
+     * the background. `summary` stays empty: that field is the moderator's
+     * lead-in, and a lead-in of six lines is none.
+     */
+    expect(questions[0]!.explanation?.details).toBe('Die Kanzlerwahl steht in Artikel 63 des Grundgesetzes.')
+    expect(questions[0]!.explanation?.summary).toBeUndefined()
+    expect(questions[0]!.explanation?.source).toBe('Grundgesetz')
+
+    // The remark is one editor writing to another - it belongs in the report.
+    const remark = notes.find((note) => note.code === 'editorial-remark')
+    expect(remark?.message).toContain('Pressestelle')
+    expect(JSON.stringify(questions[0])).not.toContain('Pressestelle')
   })
 })

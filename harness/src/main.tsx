@@ -31,7 +31,8 @@ import { TouchDevice } from './TouchDevice'
  *
  * Here they come from the packages' SOURCE; a host that includes the
  * published packages additionally fetches the component styles via
- * `@hfroemmel/quiz-react/styles.css` and `@hfroemmel/quiz-kiosk/styles.css`.
+ * `@hfroemmel/quiz-react/styles.css` - one file since the playable quiz moved
+ * into that package.
  */
 import '@hfroemmel/quiz-themes/palette.css'
 import '@hfroemmel/quiz-themes/fonts.css'
@@ -75,19 +76,31 @@ function App() {
 /**
  * The touch device with the operating settings from the query string.
  *
- * Two of them, so that a device can set up its window without a build of
- * its own:
+ * They arrive as query parameters, so a device can set up its window
+ * without a build of its own:
  *   ?audience=adults   audience of the device
  *   ?idle=120          idle supervision in seconds
+ *   ?details=1         read the background of a question at the device
+ *                      (`rules.showDetailsAfterSolution`) - a rule of the
+ *                      content, switchable here so that one suite can see
+ *                      the step without all of them getting it
+ *   ?layout=kiosk      the arrangement of a device standing on its own -
+ *                      score cards in the head, drawn buzzers in the
+ *                      corners. Without it, the live event's device.
+ *   ?zoom=0.75         the host's zoom level, as a media table sets it
  */
 function touchDevice() {
   const params = new URLSearchParams(window.location.search)
   const audience = params.get('audience') ?? 'adults'
   const idleSeconds = Number(params.get('idle'))
+  const zoom = Number(params.get('zoom'))
   return (
     <TouchDevice
       audience={audience}
+      {...(params.get('layout') === 'kiosk' ? { layout: 'kiosk' as const } : {})}
+      {...(Number.isFinite(zoom) && zoom > 0 ? { zoom } : {})}
       {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
+      {...(params.get('details') === null ? {} : { showDetailsAfterSolution: true })}
     />
   )
 }

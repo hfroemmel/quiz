@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a Quiz App</title>
+<meta name="description" content="Step-by-step manual: from an empty directory to a running, themed quiz application built on the @hfroemmel/quiz-* packages.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/*
+ * This file is opened from a checkout, sometimes over file:// and sometimes
+ * without a network. The web fonts are therefore a bonus, not a requirement:
+ * every family names a system fallback, and nothing else is loaded from
+ * outside - no scripts, no images, no stylesheets.
+ */
+:root{
+  --paper:#F1F3F0; --surface:#FFFFFF; --surface-2:#E9ECE8; --sunk:#E3E7E2;
+  --ink:#171C19; --muted:#556056; --faint:#79837A;
+  --rule:#CBD2CB; --rule-soft:#DEE4DD;
+  --accent:#1E5C43; --accent-ink:#164733; --accent-soft:#D9E8E0;
+  --brass:#87681C; --brass-soft:#F0E8D3;
+  --stop:#8B3326; --stop-soft:#F1DDD9;
+  --measure:74ch;
+  --display:'Chivo',ui-sans-serif,system-ui,'Segoe UI',sans-serif;
+  --body:'Literata',Georgia,'Times New Roman',serif;
+  --mono:'JetBrains Mono',ui-monospace,'SFMono-Regular','Cascadia Code',Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1312; --surface:#161B18; --surface-2:#1C2320; --sunk:#111614;
+    --ink:#E3E9E4; --muted:#96A198; --faint:#78837B;
+    --rule:#2A332E; --rule-soft:#222A26;
+    --accent:#6CBE96; --accent-ink:#9AD6B8; --accent-soft:#17301F;
+    --brass:#D2AB5A; --brass-soft:#2F2612;
+    --stop:#DB8879; --stop-soft:#341C18;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1312; --surface:#161B18; --surface-2:#1C2320; --sunk:#111614;
+  --ink:#E3E9E4; --muted:#96A198; --faint:#78837B;
+  --rule:#2A332E; --rule-soft:#222A26;
+  --accent:#6CBE96; --accent-ink:#9AD6B8; --accent-soft:#17301F;
+  --brass:#D2AB5A; --brass-soft:#2F2612;
+  --stop:#DB8879; --stop-soft:#341C18;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto} *{animation:none!important; transition:none!important}}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:17px; line-height:1.65;
+}
+h1,h2,h3,h4,.eyebrow,.chip,th,.step-n,.bar strong,nav.toc,.lead-in,caption,.tag{font-family:var(--display)}
+code,pre,.mono,.path{font-family:var(--mono)}
+
+.bar{
+  position:sticky; top:0; z-index:30; display:flex; align-items:baseline; gap:.9rem; flex-wrap:wrap;
+  padding:.65rem 16px; background:var(--surface); border-bottom:1px solid var(--rule);
+}
+.bar strong{font-size:.9rem; font-weight:700}
+.bar span{font-size:.79rem; color:var(--muted); font-family:var(--display)}
+.bar .sp{flex:1 1 auto}
+.bar button{
+  font-family:var(--display); font-size:.72rem; letter-spacing:.07em; text-transform:uppercase;
+  background:transparent; color:var(--muted); border:1px solid var(--rule); border-radius:2px;
+  padding:.3rem .6rem; cursor:pointer;
+}
+.bar button:hover{color:var(--ink); border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.shell{max-width:1200px; margin:0 auto; padding:0 16px 5rem}
+.grid{display:grid; gap:2.4rem}
+@media (min-width:1020px){.grid{grid-template-columns:15.5rem minmax(0,1fr); gap:3.2rem; align-items:start}}
+main{max-width:var(--measure); min-width:0}
+
+header.mast{padding:3rem 0 1.4rem; max-width:var(--measure)}
+.eyebrow{font-size:.71rem; letter-spacing:.17em; text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 .9rem}
+h1{font-size:clamp(2.1rem,5.6vw,3.3rem); line-height:1.04; margin:0 0 .75rem; font-weight:700; letter-spacing:-.022em; text-wrap:balance}
+.standfirst{font-size:1.14rem; color:var(--muted); margin:0 0 1.5rem; text-wrap:pretty}
+.byline{font-family:var(--display); font-size:.77rem; color:var(--faint); border-top:1px solid var(--rule);
+  padding-top:.65rem; display:flex; flex-wrap:wrap; gap:.35rem 1.3rem}
+
+.route{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr)); gap:1px;
+  background:var(--rule-soft); border:1px solid var(--rule); margin:0 0 3rem;
+}
+.route div{background:var(--surface); padding:.85rem .95rem}
+.route b{display:block; font-family:var(--display); font-size:.82rem; font-weight:600; line-height:1.3}
+.route small{display:block; font-family:var(--mono); font-size:.69rem; color:var(--faint); margin-top:.35rem}
+
+nav.toc{position:sticky; top:3.9rem; font-size:.82rem; line-height:1.4}
+nav.toc p{font-size:.69rem; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);
+  margin:0 0 .6rem; padding-bottom:.45rem; border-bottom:1px solid var(--rule)}
+nav.toc ol{list-style:none; margin:0; padding:0; counter-reset:c}
+nav.toc li{counter-increment:c; margin:0 0 .2rem}
+nav.toc a{display:grid; grid-template-columns:1.6rem 1fr; gap:.25rem; color:var(--muted); text-decoration:none; padding:.1rem 0}
+nav.toc a::before{content:counter(c); color:var(--faint); font-size:.73rem; font-variant-numeric:tabular-nums}
+nav.toc a:hover{color:var(--accent-ink)}
+nav.toc ol.plain li{counter-increment:none}
+nav.toc ol.plain a::before{content:'\2013'}
+@media (max-width:1019px){nav.toc{position:static; border:1px solid var(--rule); background:var(--surface); padding:1rem}}
+
+section{padding:2.3rem 0 .7rem; border-top:1px solid var(--rule); scroll-margin-top:4.5rem}
+.head{display:flex; gap:.85rem; align-items:baseline; margin:0 0 1rem}
+.step-n{flex:0 0 auto; font-size:.74rem; font-weight:700; color:var(--accent); letter-spacing:.07em; padding-top:.45rem}
+h2{font-size:clamp(1.28rem,3.1vw,1.68rem); line-height:1.2; margin:0; letter-spacing:-.014em; text-wrap:balance}
+h3{font-size:1rem; margin:1.9rem 0 .5rem; letter-spacing:-.004em}
+h4{font-family:var(--display); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin:1.5rem 0 .5rem}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1rem; padding-left:1.35rem}
+li{margin:0 0 .35rem}
+a{color:var(--accent-ink)}
+.lead-in{font-size:.95rem; color:var(--muted); margin:-.4rem 0 1.2rem}
+
+code{font-size:.85em; background:var(--surface-2); padding:.08em .32em; border-radius:2px; word-break:break-word}
+pre{
+  margin:0 0 1.2rem; padding:.95rem 1.05rem; background:var(--sunk);
+  border:1px solid var(--rule-soft); border-left:2px solid var(--accent);
+  overflow-x:auto; font-size:.785rem; line-height:1.62;
+}
+pre code{background:none; padding:0; font-size:1em}
+pre.shell-block{border-left-color:var(--brass)}
+.filename{
+  font-family:var(--mono); font-size:.71rem; color:var(--faint); background:var(--surface-2);
+  border:1px solid var(--rule-soft); border-bottom:0; border-left:2px solid var(--accent);
+  padding:.3rem .7rem; display:inline-block; margin:0;
+}
+.filename + pre{margin-top:0}
+
+.scroll{overflow-x:auto; margin:0 0 1.3rem; border:1px solid var(--rule); background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.82rem; min-width:32rem; font-variant-numeric:tabular-nums}
+th,td{text-align:left; padding:.48rem .7rem; border-bottom:1px solid var(--rule-soft); vertical-align:top}
+th{font-size:.67rem; letter-spacing:.09em; text-transform:uppercase; font-weight:600; color:var(--faint);
+  background:var(--surface-2); border-bottom:1px solid var(--rule); position:sticky; top:0}
+tr:last-child td{border-bottom:0}
+td:first-child{min-width:8.5rem}
+td.mono{font-family:var(--mono); font-size:.75rem}
+caption{caption-side:bottom; text-align:left; padding:.5rem .7rem; font-size:.74rem; color:var(--faint); border-top:1px solid var(--rule-soft)}
+
+.note{border-left:2px solid var(--accent); background:var(--surface); padding:.8rem 1rem; margin:0 0 1.3rem; font-size:.92rem}
+.note.warn{border-left-color:var(--brass); background:var(--brass-soft)}
+.note.stop{border-left-color:var(--stop); background:var(--stop-soft)}
+.note h4{margin:0 0 .35rem; color:inherit; opacity:.72}
+.note p:last-child{margin:0}
+
+.chip{display:inline-block; font-size:.65rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  padding:.14rem .45rem; border-radius:2px; color:var(--muted); background:var(--surface-2); white-space:nowrap}
+.chip.req{color:var(--stop); background:var(--stop-soft)}
+.chip.opt{color:var(--muted); background:var(--surface-2)}
+.tag{font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--faint)}
+
+ol.steps{list-style:none; counter-reset:s; padding:0}
+ol.steps>li{counter-increment:s; position:relative; padding-left:2.3rem; margin:0 0 .8rem}
+ol.steps>li::before{content:counter(s); position:absolute; left:0; top:.1rem; font-family:var(--display);
+  font-size:.7rem; font-weight:600; color:var(--accent); border:1px solid var(--rule); background:var(--surface);
+  width:1.6rem; height:1.6rem; display:grid; place-items:center; border-radius:50%}
+
+footer{max-width:var(--measure); margin:3rem auto 0; padding-top:1.2rem; border-top:1px solid var(--rule);
+  font-family:var(--display); font-size:.77rem; color:var(--faint)}
+footer p{margin:0 0 .4rem}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <strong>Build a Quiz App</strong>
+  <span>Manual for <code>@hfroemmel/quiz-*</code> 0.19.0</span>
+  <span class="sp"></span>
+  <button type="button" id="theme">Theme</button>
+</div>
+
+<div class="shell">
+<header class="mast">
+  <p class="eyebrow">docs/manual &middot; start here</p>
+  <h1>Build a Quiz App</h1>
+  <p class="standfirst">From an empty directory to a playable, themed quiz &mdash; in fourteen steps, with
+  every file you have to write shown in full. No prior knowledge of this system is assumed.</p>
+  <p class="byline">
+    <span>Target: a browser application (Vite + React)</span>
+    <span>Packages: 0.19.0</span>
+    <span>Working time: about an hour</span>
+  </p>
+</header>
+
+<div class="route">
+  <div><b>Install</b><small>steps 1&ndash;3</small></div>
+  <div><b>Content</b><small>steps 4&ndash;7</small></div>
+  <div><b>Build</b><small>step 8</small></div>
+  <div><b>Run</b><small>steps 9&ndash;10</small></div>
+  <div><b>Theme</b><small>steps 11&ndash;12</small></div>
+  <div><b>Finish</b><small>steps 13&ndash;14</small></div>
+</div>
+
+<div class="grid">
+<nav class="toc" aria-label="Contents">
+  <p>Fourteen steps</p>
+  <ol>
+    <li><a href="#s1"><span>What you are building</span></a></li>
+    <li><a href="#s2"><span>Access to the packages</span></a></li>
+    <li><a href="#s3"><span>Create the project</span></a></li>
+    <li><a href="#s4"><span>The content directory</span></a></li>
+    <li><a href="#s5"><span>Write the configuration</span></a></li>
+    <li><a href="#s6"><span>Write the questions</span></a></li>
+    <li><a href="#s7"><span>Add assets</span></a></li>
+    <li><a href="#s8"><span>Build the package</span></a></li>
+    <li><a href="#s9"><span>Load it in the browser</span></a></li>
+    <li><a href="#s10"><span>Render the quiz</span></a></li>
+    <li><a href="#s11"><span>Theming</span></a></li>
+    <li><a href="#s12"><span>Texts and languages</span></a></li>
+    <li><a href="#s13"><span>Rules of the house</span></a></li>
+    <li><a href="#s14"><span>Embedding and the stage</span></a></li>
+  </ol>
+  <p style="margin-top:1.1rem">Reference</p>
+  <ol class="plain">
+    <li><a href="#trouble"><span>Troubleshooting</span></a></li>
+    <li><a href="#checklist"><span>Checklist</span></a></li>
+    <li><a href="#further"><span>Further reading</span></a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="s1">
+  <div class="head"><span class="step-n">01</span><h2>What you are building</h2></div>
+
+  <p>A quiz application has two halves, and keeping them apart is the whole idea of this system.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Half</th><th>Who owns it</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><b>The system</b></td><td>These packages</td><td>The rules of the game, the state machine, the scoring, the screens, the sounds, the start menu, the colours</td></tr>
+      <tr><td><b>The content</b></td><td><b>Your application</b></td><td>The questions, the pictures, which quizzes exist, how a round is dramatised, which language it is played in</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>You will never write a state machine, a scoring rule or a scene. You write a
+  <b>quiz package</b> &mdash; three JSON files and a directory of media &mdash; and hand it to a runtime.
+  Everything you can change without touching code is content, and that is deliberate: a new quiz, a new
+  language or a new picture must never need a new program version.</p>
+
+  <h3>The four libraries</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Package</th><th>You use it for</th><th>Do you need it?</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">@hfroemmel/quiz-core</td><td>Loading a package, running a game, the types</td><td><span class="chip req">required</span></td></tr>
+      <tr><td class="mono">@hfroemmel/quiz-react</td><td>The playable quiz as one React component</td><td><span class="chip req">required</span></td></tr>
+      <tr><td class="mono">@hfroemmel/quiz-themes</td><td>Palettes, fonts, your own look</td><td><span class="chip req">required</span></td></tr>
+      <tr><td class="mono">@hfroemmel/quiz-content</td><td>The <code>quiz-content</code> command line tool: validate, build, import</td><td><span class="chip req">required</span> (build time)</td></tr>
+    </tbody>
+    <caption>All four carry the same version number and are released together. A fifth, <code>@hfroemmel/quiz-kiosk</code>, existed up to 0.19.0 and pointed at <code>quiz-react</code>; it is gone. Whatever it exported, <code>quiz-react</code> exports.</caption>
+  </table>
+  </div>
+
+  <h3>Prerequisites</h3>
+  <ul>
+    <li>Node.js 20 or newer, and <code>pnpm</code> or <code>npm</code>.</li>
+    <li>A GitHub account with read access to the <code>@hfroemmel</code> packages (step&nbsp;2).</li>
+    <li>React 18 and TypeScript. The examples are TypeScript; plain JavaScript works too, you just lose
+    the type checking that catches a misspelt configuration key.</li>
+  </ul>
+
+  <div class="note">
+    <h4>The shortest possible summary</h4>
+    <p>Write <code>content/source/{config.json, questions.json, assets.json}</code>. Run
+    <code>quiz-content build</code>. Load the three files it produces with <code>loadQuizPackage</code>,
+    give them to a <code>LocalQuizRuntime</code>, and render <code>&lt;QuizGame runtime={runtime} /&gt;</code>.
+    That is a complete quiz application. The other twelve steps are detail.</p>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="head"><span class="step-n">02</span><h2>Access to the packages</h2></div>
+
+  <p>The libraries are <b>private packages on GitHub Packages</b>, not on the public npm registry. Two
+  things are needed: a line telling your package manager where the <code>@hfroemmel</code> scope lives,
+  and a token proving you may read it.</p>
+
+  <h4>In the project</h4>
+  <p class="filename">.npmrc</p>
+<pre><code>@hfroemmel:registry=https://npm.pkg.github.com</code></pre>
+  <p>This file belongs in the repository. It contains no secret.</p>
+
+  <h4>On your machine, once</h4>
+  <p>Create a <b>classic personal access token</b> with the <code>read:packages</code> scope
+  (GitHub &rarr; Settings &rarr; Developer settings &rarr; Tokens (classic)) and put it in your
+  <b>personal</b> <code>~/.npmrc</code>:</p>
+  <p class="filename">~/.npmrc</p>
+<pre><code>//npm.pkg.github.com/:_authToken=ghp_your_token_here</code></pre>
+
+  <div class="note stop">
+    <h4>Never commit the token</h4>
+    <p>It goes in <code>~/.npmrc</code>, never in the project's <code>.npmrc</code>. In CI you do not need
+    a token at all: grant the workflow <code>permissions: packages: read</code> and write
+    <code>//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}</code> into the runner's
+    <code>.npmrc</code> as a step.</p>
+  </div>
+
+  <h4>Pin the version</h4>
+  <p>Use a tilde range, not a caret and not <code>0.x</code>. Below 1.0 a minor version may break the
+  view model, and a caret range would pick it up silently:</p>
+<pre><code>"@hfroemmel/quiz-core": "~0.19.0"</code></pre>
+</section>
+
+<section id="s3">
+  <div class="head"><span class="step-n">03</span><h2>Create the project</h2></div>
+
+<pre class="shell-block"><code>pnpm create vite my-quiz --template react-ts
+cd my-quiz
+printf '@hfroemmel:registry=https://npm.pkg.github.com\n' &gt; .npmrc
+pnpm add @hfroemmel/quiz-core@~0.19.0 \
+         @hfroemmel/quiz-react@~0.19.0 \
+         @hfroemmel/quiz-themes@~0.19.0
+pnpm add -D @hfroemmel/quiz-content@~0.19.0</code></pre>
+
+  <p><code>quiz-content</code> is a development dependency: it is the command line tool that turns your
+  source files into a package. It never runs in the browser.</p>
+
+  <h4>Add the two content scripts</h4>
+  <p class="filename">package.json</p>
+<pre><code>{
+  "scripts": {
+    "content:validate": "quiz-content validate",
+    "content:build": "quiz-content build",
+    "dev": "pnpm content:build &amp;&amp; vite",
+    "build": "pnpm content:build &amp;&amp; vite build"
+  }
+}</code></pre>
+
+  <p>Wiring the content build in front of <code>dev</code> and <code>build</code> is worth doing on day
+  one. It is the difference between &ldquo;the quiz is stale because someone forgot a command&rdquo; and a
+  project that cannot be built with broken content.</p>
+
+  <h4>The shape you are aiming at</h4>
+<pre><code>my-quiz/
+  .npmrc
+  package.json
+  content/
+    source/                 &lt;- YOU WRITE THIS
+      config.json
+      questions.json
+      assets.json
+      assets/
+        questions/bundestag-building.jpg
+        branding/start-adults.svg
+    dist/                   &lt;- generated, do not edit
+    reports/                &lt;- generated build report
+  public/
+    quiz/                   &lt;- content/dist copied here (step 9)
+  src/
+    main.tsx
+    App.tsx
+    quizPackage.ts
+    theme.ts</code></pre>
+
+  <div class="note">
+    <h4>Why <code>content/source</code> and not <code>src/content</code></h4>
+    <p>The <code>quiz-content</code> tool has one convention: it looks for <code>content/source</code>,
+    <code>content/dist</code> and <code>content/reports</code> under the current working directory. You can
+    override each with <code>--source</code>, <code>--out</code> and <code>--report</code>, but following
+    the convention means every command works with no flags.</p>
+  </div>
+</section>
+
+<section id="s4">
+  <div class="head"><span class="step-n">04</span><h2>The content directory</h2></div>
+
+  <p>Three files, and each one answers a different question.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>File</th><th>Answers</th><th>Shape</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">config.json</td><td>Which quizzes exist, how a round runs, what things are called</td><td>one object</td></tr>
+      <tr><td class="mono">questions.json</td><td>What is asked</td><td>an array of questions</td></tr>
+      <tr><td class="mono">assets.json</td><td>Which media files exist and who they belong to</td><td>an array of assets</td></tr>
+      <tr><td class="mono">assets/</td><td>&mdash;</td><td>the actual files</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Everything is referenced <b>by id</b>. A question names a difficulty id, a category id, a pool id and
+  an asset id; the configuration defines what those ids mean. Nothing is matched by label, so renaming a
+  label is always safe and renaming an id never is.</p>
+
+  <div class="note warn">
+    <h4>Ids have a format</h4>
+    <p>Lower case only: <code>a-z</code>, <code>0-9</code>, dot, hyphen and underscore, starting with a
+    letter or digit. <code>Bundestag_Quiz</code> is rejected; <code>bundestag-quiz</code> is fine. The rule
+    exists so that ids cannot fall apart over capitalisation between a spreadsheet and a file name.</p>
+  </div>
+</section>
+
+<section id="s5">
+  <div class="head"><span class="step-n">05</span><h2>Write the configuration</h2></div>
+  <p class="lead-in">This is the longest step and the only one worth reading twice. Everything else follows from it.</p>
+
+  <p>Here is a complete, minimal <code>config.json</code> for one quiz. Each section is explained
+  underneath.</p>
+
+  <p class="filename">content/source/config.json</p>
+<pre><code>{
+  "questionsPerGame": 5,
+
+  "difficulties": [
+    { "id": "easy",   "label": "Leicht" },
+    { "id": "medium", "label": "Mittel" }
+  ],
+
+  "categories": [
+    { "id": "institution", "label": "Institution" },
+    { "id": "geschichte",  "label": "Geschichte" }
+  ],
+
+  "pools": [
+    { "id": "bundestag", "label": "Bundestag" }
+  ],
+
+  "themes": [
+    { "id": "default", "label": "Erwachsene", "presentationAnimationSetId": "standard" }
+  ],
+
+  "audiences": [
+    {
+      "id": "adults",
+      "label": "Erwachsene",
+      "themeId": "default",
+      "startTitle": "Bundestags-Quiz",
+      "startDescription": "Teste dein Wissen über Politik und den Bundestag.",
+      "startVisualAssetId": "start-adults",
+      "allowedPresetIds": ["touch-easy"]
+    }
+  ],
+
+  "presets": [
+    {
+      "id": "touch-easy",
+      "label": "Leicht",
+      "slots": [
+        { "id": "opener",    "label": "Auftakt",    "filters": { "difficultyIds": ["easy"],   "evaluationModes": ["option-comparison"] } },
+        { "id": "picture",   "label": "Bild",       "filters": { "questionTypes": ["image-choice"], "evaluationModes": ["option-comparison"] } },
+        { "id": "middle-1",  "label": "Mitte 1",    "filters": { "evaluationModes": ["option-comparison"] } },
+        { "id": "middle-2",  "label": "Mitte 2",    "filters": { "evaluationModes": ["option-comparison"] } },
+        { "id": "finale",    "label": "Finale",     "filters": { "difficultyIds": ["medium"], "evaluationModes": ["option-comparison"] } }
+      ]
+    }
+  ],
+
+  "quizzes": [
+    {
+      "id": "bundestag",
+      "label": "Bundestagsquiz",
+      "audienceId": "adults",
+      "themeId": "default",
+      "presetIds": ["touch-easy"],
+      "defaultPresetId": "touch-easy",
+      "playerCounts": [1, 2],
+      "emphasis": "wide",
+      "order": 10
+    }
+  ]
+}</code></pre>
+
+  <h3>Section by section</h3>
+
+  <h4><code>questionsPerGame</code></h4>
+  <p>How many questions a round has by default. A preset with a different number of slots wins &mdash; the
+  slots are the truth about the length of a round.</p>
+
+  <h4><code>difficulties</code>, <code>categories</code>, <code>pools</code></h4>
+  <p>Three independent vocabularies your questions draw on.</p>
+  <ul>
+    <li><b>Difficulty</b> is exactly one per question.</li>
+    <li><b>Categories</b> are a list per question &mdash; subject matter, used by slot filters.</li>
+    <li><b>A pool is a body of content</b>, not a mode and not a category. &ldquo;Bundestag&rdquo; and
+    &ldquo;Saarbr&uuml;cken&rdquo; are pools. Which pools a game draws from is decided when a game starts.</li>
+  </ul>
+
+  <h4><code>themes</code></h4>
+  <p>A theme in the content chooses a <b>design world</b>, not colours. Two worlds exist:
+  <code>skin: "default"</code> (the dark stage) and <code>skin: "kids"</code> (the illustrated,
+  drawn world). Leaving <code>skin</code> out means <code>default</code>. Colours come from
+  step&nbsp;11 and are the host's business, not the content's.</p>
+
+  <h4><code>audiences</code></h4>
+  <p>Who is playing &mdash; adults, children. An audience carries the start screen's title, description and
+  background image, points at a theme, and limits which presets may be used
+  (<code>allowedPresetIds</code>). Every question declares the audiences it suits.</p>
+
+  <h4><code>presets</code> &mdash; the dramaturgy</h4>
+  <p>This is the part that is unlike other quiz systems, and the part worth understanding. A preset is
+  <b>a list of slots</b>, and each slot is a filter describing what kind of question may stand in that
+  position. The engine then picks a question per slot, avoiding repeats.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Filter</th><th>Restricts to</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">difficultyIds</td><td>Questions of these difficulties</td></tr>
+      <tr><td class="mono">questionTypes</td><td><code>text-choice</code>, <code>image-choice</code>, <code>person</code>, <code>image-reveal</code></td></tr>
+      <tr><td class="mono">evaluationModes</td><td><code>option-comparison</code> (machine-checked) or <code>manual-correct-incorrect</code> (a human decides)</td></tr>
+      <tr><td class="mono">categoryIds</td><td>Questions in these categories</td></tr>
+      <tr><td class="mono">tags</td><td>Questions carrying these tags</td></tr>
+    </tbody>
+    <caption>A missing filter means &ldquo;anything&rdquo;. There is no <code>random</code> keyword, because an empty filter already is one.</caption>
+  </table>
+  </div>
+
+  <div class="note warn">
+    <h4>The single most common mistake</h4>
+    <p>If your quiz is played <b>without an operator</b> &mdash; a kiosk, a touch table, a web page &mdash;
+    then <b>every slot</b> must filter <code>"evaluationModes": ["option-comparison"]</code>. A question
+    that has to be marked right or wrong by a person is unplayable when there is no person, and a preset
+    with even one such slot is not offered for self-service play. The engine derives this from the
+    filters; there is no second flag to set.</p>
+  </div>
+
+  <h4><code>quizzes</code> &mdash; what the start menu offers</h4>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">id, label</td><td>Identity and the name on the card</td></tr>
+      <tr><td class="mono">labels</td><td>The name in other languages: <code>{ "en-GB": "Bundestag Quiz" }</code></td></tr>
+      <tr><td class="mono">audienceId</td><td>Which audience this offer belongs to</td></tr>
+      <tr><td class="mono">themeId</td><td>Which design world it is played in</td></tr>
+      <tr><td class="mono">presetIds</td><td>The difficulties offered for it, in order</td></tr>
+      <tr><td class="mono">defaultPresetId</td><td>Pre-selected in the menu</td></tr>
+      <tr><td class="mono">playerCounts</td><td><code>[1]</code> solo only, <code>[1, 2]</code> also a buzzer duel</td></tr>
+      <tr><td class="mono">emphasis</td><td><code>wide</code> gives the card a whole row, <code>regular</code> shares one</td></tr>
+      <tr><td class="mono">order</td><td>Sort order in the menu. Leave gaps: 10, 20, 30</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Three optional top-level sections complete the picture and are covered later:
+  <code>locales</code> and <code>interfaceStrings</code> in step&nbsp;12,
+  <code>rules</code> in step&nbsp;13.</p>
+</section>
+
+<section id="s6">
+  <div class="head"><span class="step-n">06</span><h2>Write the questions</h2></div>
+
+  <p><code>questions.json</code> is a flat array. Here is one question of each important kind.</p>
+
+  <p class="filename">content/source/questions.json</p>
+<pre><code>[
+  {
+    "id": "bt-seats",
+    "poolIds": ["bundestag"],
+    "audiences": ["adults"],
+    "difficulty": "easy",
+    "categories": ["institution"],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Wie viele Abgeordnete hat der Bundestag mindestens?",
+    "questionType": "text-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      { "id": "o1", "text": "598" },
+      { "id": "o2", "text": "400" },
+      { "id": "o3", "text": "736" },
+      { "id": "o4", "text": "1000" }
+    ],
+    "correctOptionId": "o1",
+    "explanation": {
+      "summary": "Die gesetzliche Mindestzahl liegt bei 598 Sitzen.",
+      "details": "Durch Überhang- und Ausgleichsmandate konnte der Bundestag früher deutlich größer werden."
+    },
+    "enabled": true
+  },
+  {
+    "id": "bt-building",
+    "poolIds": ["bundestag"],
+    "audiences": ["adults"],
+    "difficulty": "medium",
+    "categories": ["geschichte"],
+    "tags": [],
+    "locale": "de-DE",
+    "prompt": "Welches Gebäude ist hier zu sehen?",
+    "questionType": "image-choice",
+    "evaluationMode": "option-comparison",
+    "options": [
+      { "id": "o1", "text": "Reichstagsgebäude" },
+      { "id": "o2", "text": "Bundesrat" },
+      { "id": "o3", "text": "Kanzleramt" }
+    ],
+    "correctOptionId": "o1",
+    "image": { "filename": "questions/reichstag.jpg", "credit": "Foto: Deutscher Bundestag / Julia Nowak" },
+    "enabled": true
+  }
+]</code></pre>
+
+  <div class="note warn">
+    <h4>Two questions are not a quiz</h4>
+    <p>The preset in step&nbsp;5 has five slots, so a round needs five questions that satisfy five
+    different filters. The two above satisfy two of them. Validation will tell you exactly that, and the
+    start menu will refuse the quiz with a reason rather than starting a round it cannot finish. Write
+    enough questions per slot that three rounds in a row do not repeat &mdash; for a five-slot preset
+    that means roughly four to five candidates per slot, not five questions in total.</p>
+  </div>
+
+  <h3>The fields</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Field</th><th>Required</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">id</td><td><span class="chip req">yes</span></td><td>Unique across the whole set</td></tr>
+      <tr><td class="mono">poolIds</td><td><span class="chip req">yes</span></td><td>At least one; a question may sit in several pools</td></tr>
+      <tr><td class="mono">audiences</td><td><span class="chip req">yes</span></td><td>At least one</td></tr>
+      <tr><td class="mono">difficulty</td><td><span class="chip req">yes</span></td><td>Exactly one</td></tr>
+      <tr><td class="mono">categories, tags</td><td><span class="chip req">yes</span></td><td>May be empty arrays, but must be present</td></tr>
+      <tr><td class="mono">locale</td><td><span class="chip req">yes</span></td><td>BCP-47, e.g. <code>de-DE</code></td></tr>
+      <tr><td class="mono">prompt</td><td><span class="chip req">yes</span></td><td>The question itself</td></tr>
+      <tr><td class="mono">questionType</td><td><span class="chip req">yes</span></td><td>How it is presented &mdash; see below</td></tr>
+      <tr><td class="mono">evaluationMode</td><td><span class="chip req">yes</span></td><td>How it is judged</td></tr>
+      <tr><td class="mono">enabled</td><td><span class="chip req">yes</span></td><td><code>false</code> parks a question without deleting it</td></tr>
+      <tr><td class="mono">options, correctOptionId</td><td><span class="chip opt">by type</span></td><td>Needed by the choice types. <b>At least two options</b>, or it is not a choice</td></tr>
+      <tr><td class="mono">acceptedAnswerText</td><td><span class="chip opt">optional</span></td><td>Expected wordings, as help for a human evaluator</td></tr>
+      <tr><td class="mono">image</td><td><span class="chip opt">by type</span></td><td><code>{ filename, credit }</code> &mdash; the file under <code>assets/</code> and whose work it is. No entry in <code>assets.json</code></td></tr>
+      <tr><td class="mono">explanation</td><td><span class="chip opt">optional</span></td><td><code>summary</code> for the operator, <code>details</code> for the background step</td></tr>
+      <tr><td class="mono">repetitionGroupId</td><td><span class="chip opt">optional</span></td><td>Variants of one question; repeat avoidance treats the group as one</td></tr>
+      <tr><td class="mono">translations</td><td><span class="chip opt">optional</span></td><td>Other languages &mdash; see step&nbsp;12</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>The four question types</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Type</th><th>What the player sees</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">text-choice</td><td>Question and answer rows</td><td>options</td></tr>
+      <tr><td class="mono">image-choice</td><td>A picture, then answer rows</td><td>options + <code>image</code></td></tr>
+      <tr><td class="mono">person</td><td>A portrait, asked about a person</td><td>options + image</td></tr>
+      <tr><td class="mono">image-reveal</td><td>A picture that sharpens over time &mdash; buzz early, score more</td><td>image; options optional</td></tr>
+      
+    </tbody>
+    <caption>A question with fewer than two options is never treated as a choice, whatever its type says: one row would be the solution itself.</caption>
+  </table>
+  </div>
+
+  <div class="note">
+    <h4><code>summary</code> versus <code>details</code></h4>
+    <p><code>explanation.summary</code> is for whoever runs the game &mdash; it appears at the operator's
+    desk and is never projected. <code>explanation.details</code> is for the <b>player</b>: with the rule
+    <code>showDetailsAfterSolution</code> (step&nbsp;13) it becomes a step of its own after the solution,
+    with its own way onward. In a hall you leave that rule off, because the moderator tells the background
+    out loud.</p>
+  </div>
+</section>
+
+<section id="s7">
+  <div class="head"><span class="step-n">07</span><h2>Add assets</h2></div>
+
+  <p>Every medium is declared once in <code>assets.json</code> and referenced by id from the questions.
+  A question never names a file path.</p>
+
+  <p class="filename">content/source/assets.json</p>
+<pre><code>[
+  {
+    "id": "img-reichstag",
+    "kind": "image",
+    "filename": "questions/reichstag.jpg",
+    "mimeType": "image/jpeg",
+    "credit": "Foto: Deutscher Bundestag / Julia Nowak"
+  },
+  {
+    "id": "start-adults",
+    "kind": "image",
+    "filename": "branding/start-adults.svg",
+    "mimeType": "image/svg+xml",
+    "credit": "Eigene Grafik"
+  }
+]</code></pre>
+
+  <p><code>filename</code> is relative to <code>content/source/assets/</code>. So the first entry means
+  the file at <code>content/source/assets/questions/reichstag.jpg</code>.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Field</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">id</td><td>What a question or an audience references</td></tr>
+      <tr><td class="mono">kind</td><td><code>image</code> or <code>audio</code></td></tr>
+      <tr><td class="mono">filename</td><td>Path under <code>assets/</code>, subdirectories allowed and encouraged</td></tr>
+      <tr><td class="mono">mimeType</td><td>Served as-is; get it right or a browser will refuse the file</td></tr>
+      <tr><td class="mono">credit</td><td>The licence line. Optional in the schema, <b>never optional in practice</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note warn">
+    <h4>Fill in <code>credit</code> from the start</h4>
+    <p>A missing credit is reported as a <em>warning</em>, so a build with unattributed pictures succeeds.
+    That is how an existing corpus in this project ended up with uncredited images. The import names them
+    per question the moment it reads a table, which is where the gap is cheapest to close.</p>
+  </div>
+
+  <h4>Working without the real pictures</h4>
+  <p>Two helpers make an early start possible. <code>--placeholder-media</code> turns a missing file from
+  an error into a warning and lets the build finish; <code>quiz-content demo-assets</code> generates
+  placeholder graphics for every declared asset, so the screens have something to show.</p>
+</section>
+
+<section id="s8">
+  <div class="head"><span class="step-n">08</span><h2>Build the package</h2></div>
+
+  <p>Check first, build second:</p>
+<pre class="shell-block"><code>pnpm content:validate
+pnpm content:build</code></pre>
+
+  <p>Validation reads your three files and reports two kinds of finding.
+  <b>Errors</b> stop the build and write no package at all &mdash; a broken schema, an id that points at
+  nothing, a duplicate id, a missing media file. <b>Warnings</b> let the build through: an unused pool, a
+  question no slot can reach, a missing credit, a prompt longer than the board can hold.</p>
+
+  <p>The build writes four things into <code>content/dist</code> and a readable report into
+  <code>content/reports/build.md</code>:</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>File</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">manifest.json</td><td>Version, checksum, the asset list &mdash; the package's identity card</td></tr>
+      <tr><td class="mono">config.json</td><td>Your configuration, normalised</td></tr>
+      <tr><td class="mono">questions.json</td><td>Your questions, normalised</td></tr>
+      <tr><td class="mono">assets/</td><td>The media files, copied</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>The version number rises by itself: the first build is <code>1.0.0</code>, each later one increments
+  the patch. Set <code>CONTENT_VERSION</code> in the environment to choose your own. The checksum covers
+  configuration, questions and assets together, so a package cannot be half-updated without being noticed.</p>
+
+  <div class="note">
+    <h4>Do not edit <code>content/dist</code></h4>
+    <p>It is generated, and the next build overwrites it. Commit it or don't &mdash; both are defensible.
+    Committing means a clone can run without a build step; not committing keeps the repository small.
+    Whichever you choose, the report under <code>content/reports</code> is worth reading after every build:
+    it lists the coverage of every slot of every preset, which is how you find out that the
+    &ldquo;finale&rdquo; slot has exactly one candidate question.</p>
+  </div>
+
+  <p>The slot coverage table in that report is the single most useful output of this system. A slot with
+  too few candidates will repeat the same question every round; a slot with none makes the quiz
+  unstartable, and the start menu will say so instead of failing.</p>
+</section>
+
+<section id="s9">
+  <div class="head"><span class="step-n">09</span><h2>Load it in the browser</h2></div>
+
+  <p>The built package is three JSON files and a directory of media. A browser application serves them
+  as static files. The simplest route with Vite is to copy <code>content/dist</code> into
+  <code>public/quiz</code>:</p>
+
+  <p class="filename">package.json</p>
+<pre><code>{
+  "scripts": {
+    "content:build": "quiz-content build &amp;&amp; node -e \"require('fs').cpSync('content/dist','public/quiz',{recursive:true})\""
+  }
+}</code></pre>
+
+  <p>Now write the loader. This is the only code in your application that knows where the files are.</p>
+
+  <p class="filename">src/quizPackage.ts</p>
+<pre><code>import { loadQuizPackage, type QuizPackage } from '@hfroemmel/quiz-core'
+
+/** Where the built package is served from - see the content:build script. */
+const base = '/quiz'
+
+export async function loadPackage(): Promise&lt;QuizPackage&gt; {
+  const read = async (name: string): Promise&lt;unknown&gt; =&gt; {
+    const response = await fetch(`${base}/${name}`)
+    if (!response.ok) {
+      throw new Error(`${name} could not be loaded (${response.status}) - run "pnpm content:build" first.`)
+    }
+    return response.json()
+  }
+
+  const [manifest, config, questions] = await Promise.all([
+    read('manifest.json'),
+    read('config.json'),
+    read('questions.json'),
+  ])
+
+  // Reading AND checking is the package's job - it parses every schema and
+  // throws on the first thing that does not fit.
+  return loadQuizPackage({ manifest, config, questions })
+}
+
+/**
+ * Asset id -> URL.
+ *
+ * Without this the core builds `/media/&lt;id&gt;`, which is the route a quiz
+ * SERVER serves. A static site has no such route, so it says here where its
+ * files are: the manifest carries the file name for every id.
+ */
+export function mediaUrl(quizPackage: QuizPackage) {
+  return (assetId: string): string | undefined =&gt; {
+    const asset = quizPackage.assetsById.get(assetId)
+    return asset ? `${base}/assets/${asset.filename}` : undefined
+  }
+}</code></pre>
+
+  <div class="note warn">
+    <h4>If pictures do not appear, this is why</h4>
+    <p>Asset ids are resolved to URLs by the host, not the core. Leave the <code>media</code> option out
+    and every image request goes to <code>/media/&lt;asset-id&gt;</code> &mdash; correct behind a quiz
+    server, a 404 on a static site.</p>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="head"><span class="step-n">10</span><h2>Render the quiz</h2></div>
+
+  <p>Two files and you are playing.</p>
+
+  <p class="filename">src/main.tsx</p>
+<pre><code>import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { App } from './App'
+
+/*
+ * The four global stylesheets, in this order. They are deliberately not CSS
+ * modules: the transition registry names its keyframes as strings, so those
+ * names must not be hashed.
+ *
+ *   palette  every colour value, generated from quiz-themes
+ *   fonts    the @font-face rules
+ *   motion   keyframes and transition classes
+ *   stage    the stage's root classes, which every component reaches into
+ */
+import '@hfroemmel/quiz-themes/palette.css'
+import '@hfroemmel/quiz-themes/fonts.css'
+import '@hfroemmel/quiz-react/styles/motion.css'
+import '@hfroemmel/quiz-react/styles/stage.css'
+
+createRoot(document.getElementById('root')!).render(
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;,
+)</code></pre>
+
+  <p class="filename">src/App.tsx</p>
+<pre><code>import { useEffect, useState } from 'react'
+import { LocalQuizRuntime } from '@hfroemmel/quiz-core'
+import { QuizGame } from '@hfroemmel/quiz-react'
+import { loadPackage, mediaUrl } from './quizPackage'
+
+export function App() {
+  const [runtime, setRuntime] = useState&lt;LocalQuizRuntime | null&gt;(null)
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  useEffect(() =&gt; {
+    // Whoever creates the runtime disposes of it. A load that is abandoned
+    // half way must not leave a running game behind.
+    let discarded = false
+    let built: LocalQuizRuntime | null = null
+
+    void loadPackage()
+      .then((quizPackage) =&gt; {
+        if (discarded) return
+        built = new LocalQuizRuntime({ quizPackage, media: mediaUrl(quizPackage) })
+        setRuntime(built)
+      })
+      .catch((cause: unknown) =&gt; {
+        if (!discarded) setError(cause instanceof Error ? cause.message : String(cause))
+      })
+
+    return () =&gt; {
+      discarded = true
+      built?.dispose()
+      setRuntime(null)
+    }
+  }, [])
+
+  if (error) return &lt;p&gt;The quiz could not be loaded: {error}&lt;/p&gt;
+  if (!runtime) return &lt;p&gt;Loading&hellip;&lt;/p&gt;
+
+  return &lt;QuizGame runtime={runtime} audience="adults" /&gt;
+}</code></pre>
+
+<pre class="shell-block"><code>pnpm dev</code></pre>
+
+  <p>You get a start menu &mdash; which quiz, how many players, how hard &mdash; and a playable round. The
+  menu, the buzzer, the scoreboard, the sounds, the solution and the result screen all come from that one
+  component.</p>
+
+  <h3>What <code>QuizGame</code> takes</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Prop</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">runtime</td><td>The game to play. Leave it out and the component connects as a player to the server that delivered it &mdash; that is the stage-night case, not yours</td></tr>
+      <tr><td class="mono">audience</td><td>Which audience this device plays in. Without one, the first in the configuration</td></tr>
+      <tr><td class="mono">playerCounts</td><td>Narrows what the configuration offers. <code>[1]</code> removes the &ldquo;how many are playing&rdquo; question entirely</td></tr>
+      <tr><td class="mono">soundEnabled</td><td>Sound at startup. Without it, whatever was last set on the device</td></tr>
+      <tr><td class="mono">zoom</td><td>0.6 to 1. Shrinks the scene toward the centre for very large touch tables</td></tr>
+      <tr><td class="mono">locale</td><td>Language at startup &mdash; see step&nbsp;12</td></tr>
+      <tr><td class="mono">idleTimeoutMs</td><td>Return to the start screen after this long untouched</td></tr>
+      <tr><td class="mono">onFinished</td><td>Called with the result &mdash; for your own leaderboard</td></tr>
+      <tr><td class="mono">onExit</td><td>A way back into your application. Omitted, there is no way back &mdash; the kiosk case</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <h4>When the menu refuses to start a quiz</h4>
+    <p>A quiz with no questions, or whose pool is missing, is shown with its reason and a disabled button
+    rather than failing on the attempt. That is the system telling you your content does not cover your
+    configuration &mdash; go back to the build report and look at the slot coverage.</p>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="head"><span class="step-n">11</span><h2>Theming</h2></div>
+
+  <p>Out of the box the quiz looks like the quiz. Three levels of change are available, and they are not
+  interchangeable.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Level</th><th>What it changes</th><th>Where it is stated</th></tr></thead>
+    <tbody>
+      <tr><td><b>World</b> (<code>skin</code>)</td><td>The layout &mdash; the dark stage or the illustrated children's world</td><td>Content: <code>themes[].skin</code></td></tr>
+      <tr><td><b>Look</b> (theme)</td><td>Colours, fonts, word mark, start visual</td><td>Your code: a <code>ThemeDefinition</code></td></tr>
+      <tr><td><b>Frame</b> (chrome)</td><td>Which parts of the frame the quiz draws at all</td><td>Your code: <code>QuizProvider</code></td></tr>
+    </tbody>
+    <caption>A different arrangement is a new world, not a theme. <code>skin</code> chooses a world; it does not configure one.</caption>
+  </table>
+  </div>
+
+  <h3>Your own look</h3>
+  <p>A <code>ThemeDefinition</code> is one object that says everything: which built-in set it starts from,
+  what it overrides, which fonts it brings, which drawings.</p>
+
+  <p class="filename">src/theme.ts</p>
+<pre><code>import type { ThemeDefinition } from '@hfroemmel/quiz-themes'
+
+export const houseTheme: ThemeDefinition = {
+  /** Matches a themes[].id of the content, so the package can ask for it. */
+  id: 'default',
+  /** Which built-in token set it starts from. */
+  base: 'dark',
+  tokens: {
+    /* The stage: surfaces, tiles, meaning colours, type (--color-*). */
+    colors: {
+      accent: '#1e5c43',
+      accentQuiet: '#14402f',
+      primary: '#2f8a63',
+    },
+    /* What sits on the stage without belonging to a scene (--stage-*). */
+    stage: { '--stage-radius': '10px', '--stage-button-radius': '999px' },
+    /* The start menu in front of it (--start-*). */
+    start: { '--start-bg-top': '#0d1a14', '--start-bg-bottom': '#05100b' },
+  },
+  typography: {
+    display: "'Chivo', system-ui, sans-serif",
+    body: "'Literata', Georgia, serif",
+    fonts: [
+      {
+        family: 'Chivo',
+        src: "url('/fonts/chivo.woff2') format('woff2')",
+        weight: 600,
+      },
+    ],
+  },
+  assets: {
+    wordmark: '/brand/wordmark.svg',
+    startVisual: '/brand/start.svg',
+  },
+}</code></pre>
+
+  <h4>The colour tokens</h4>
+  <p>An override names only what differs from the built-in set; everything you leave out stays as it
+  is. These are the eighteen names <code>tokens.colors</code> accepts:</p>
+<pre><code>Surfaces  pageTop  pageBottom  stageTop  stageBottom  controls
+Tiles     tile  tileDisabled  tileQuiet  option
+Meaning   accent  accentQuiet  primary  solution  solutionChip  correct  incorrect
+Type      text  textMuted</code></pre>
+  <p><code>tokens.stage</code> and <code>tokens.start</code> take raw CSS custom properties instead
+  &mdash; <code>--stage-radius</code>, <code>--stage-button-radius</code>,
+  <code>--stage-fade-duration</code> for the stage; the <code>--start-*</code> family for the menu in
+  front of it. Read them off the built-in stylesheets rather than guessing: an unknown property name is
+  not an error, it simply has no effect.</p>
+
+  <div class="note">
+    <h4>Light, dark, red &mdash; and who decides</h4>
+    <p>The adults' stage ships in three colour variants. <b>Hell</b> is paper, <b>dunkel</b> the
+    darkened hall, and <b>rot</b> is that dark set with one thing exchanged: the ground becomes
+    <code>#CA2F56</code> (the tone the variant was commissioned with). The surfaces stay white veils at
+    five to nine percent and become lighter red over it by themselves, and the three signals keep their
+    meaning in every variant (blue for the selection and the player on turn, green for the right answer,
+    red for the wrong one). What this variant does NOT carry is the atmosphere of the other two: the
+    blurred question image behind the scene stays out and the frosted panes stop blurring
+    (<code>--stage-glass: none</code>), so the ground stands in one tone across the whole area. The
+    question's own picture is untouched.</p>
+    <p>Which one is on show is a preference <b>of the window</b>, not game state: it lives in
+    <code>localStorage</code> under <code>quiz.stageTheme</code>, reaches every window of the same
+    origin, and the server never learns about it. <code>useStageTheme()</code> reads and sets it, and
+    <code>stageThemes</code> is the list of variants that exist &mdash; build your own switch from that
+    list rather than from three literals.</p>
+    <p>A host theme overrules it: <code>base</code> says which set yours is designed for, and for that
+    world the window's preference no longer applies. Whoever designs a dark stage has designed it dark.
+    The children's world has no variants at all &mdash; it brings its own paper.</p>
+  </div>
+
+  <p>Wrap the quiz in a <code>QuizProvider</code> and it applies:</p>
+
+<pre><code>import { QuizProvider, QuizGame } from '@hfroemmel/quiz-react'
+import { houseTheme } from './theme'
+
+&lt;QuizProvider theme={houseTheme}&gt;
+  &lt;QuizGame runtime={runtime} audience="adults" /&gt;
+&lt;/QuizProvider&gt;</code></pre>
+
+  <div class="note">
+    <h4>Why a provider and not a stylesheet</h4>
+    <p>The package's <code>palette.css</code> declares its values on <code>:root</code> &mdash; the
+    fallback layer for a page showing one quiz. Overriding them on the document works until there are
+    <b>two</b> quizzes on one page, and then whichever declaration came last wins for both.
+    <code>QuizProvider</code> puts the variables on its own element instead, and CSS custom properties
+    only inherit downwards. Two providers side by side cannot recolour each other.</p>
+    <p>It uses <code>display: contents</code>, so it carries values without adding a box to your layout.</p>
+  </div>
+
+  <div class="note warn">
+    <h4>A host theme does not repaint the other world</h4>
+    <p>Your theme states the design of <b>its</b> world, identified by <code>id</code> and
+    <code>skin</code>. If your package also has a children's quiz, that world keeps the drawing that
+    belongs to it &mdash; otherwise an adult stage theme would paint the children's paper in its colours.
+    To theme both, provide two definitions, one per world.</p>
+  </div>
+
+  <h3>When your application draws part of the frame</h3>
+  <p>If your app already has a header with your logo, a way back and a settings button, you do not hide
+  the quiz's with CSS. You say what you supply, and those parts are not rendered at all:</p>
+
+<pre><code>&lt;QuizProvider theme={houseTheme} chrome={{ brand: false, abort: false }}&gt;
+  &lt;QuizGame runtime={runtime} audience="adults" onExit={backToMenu} /&gt;
+&lt;/QuizProvider&gt;</code></pre>
+
+  <p><code>brand</code> is the word mark in the header, <code>abort</code> the chip that ends a running
+  round, <code>settings</code> the gear. Anything you do not name stays as it is.</p>
+
+  <div class="note">
+    <h4>Ending a round is not the way out of your application</h4>
+    <p><code>abort</code> is the quiz's own control: a compact chip at the top centre of a running
+    round &mdash; <em>Runde beenden</em>, with a cross &mdash; which asks for confirmation and then ends
+    the round, resets the state and hands back the quiz's start menu. It appears only while a round
+    runs: not in the start menu, not in the result view, and never on a stage, which is a different
+    component altogether.</p>
+    <p><code>onExit</code> is the other thing: it leaves the quiz and returns to <em>your</em>
+    application. If your own frame carries a way home, keep it &mdash; but do not switch
+    <code>abort</code> off for it. They are two different promises, and a round left standing behind a
+    way home is a round the next visitor walks into mid-question.</p>
+    <p>The chip looks the same in every variant, light grey with dark blue on it, because whoever wants
+    out of a round should not have to look for a different button on a dark stage than on paper.</p>
+  </div>
+
+  <h3>What theming deliberately cannot touch</h3>
+  <ul>
+    <li><b>The geometry of the scenes.</b> A different arrangement is a new world.</li>
+    <li><b>Timings that carry game meaning</b> &mdash; the reveal grid, the feedback durations. They are
+    fairness, not taste. (Adjustable as <em>rules</em>, in step&nbsp;13, where they belong.)</li>
+    <li><b>The operator's chrome</b> (<code>--ui-*</code>). It is a tool seen for hours at a desk, and it
+    is not part of what a room sees.</li>
+  </ul>
+
+  <p>For buttons and form fields your application draws <em>outside</em> the stage, and which should match
+  it, import <code>@hfroemmel/quiz-themes/controls.css</code>.</p>
+</section>
+
+<section id="s12">
+  <div class="head"><span class="step-n">12</span><h2>Texts and languages</h2></div>
+
+  <p>There are two kinds of visible text, and they live in different places.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Kind</th><th>Examples</th><th>Comes from</th></tr></thead>
+    <tbody>
+      <tr><td><b>The words of the program</b></td><td>&ldquo;Punkte&rdquo;, &ldquo;Richtig!&rdquo;, &ldquo;Los geht's&rdquo;, &ldquo;Spiel beenden&rdquo;</td><td><code>@hfroemmel/quiz-react</code> &mdash; 52 keys, German and English</td></tr>
+      <tr><td><b>The words of the content</b></td><td>Questions, answers, category and quiz names, the start screen's title</td><td>Your <code>config.json</code> and <code>questions.json</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>This split is why a quiz runs correctly with no language configuration at all: the package speaks
+  German and English by itself. You only state what you word differently.</p>
+
+  <h4>Offering a second language</h4>
+  <p class="filename">content/source/config.json</p>
+<pre><code>{
+  "locales": [
+    { "id": "de-DE", "label": "Deutsch" },
+    { "id": "en-GB", "label": "English" }
+  ]
+}</code></pre>
+  <p>The label is written <b>in that language</b> &mdash; &ldquo;Deutsch&rdquo;, not &ldquo;German&rdquo;
+  &mdash; because it is read by somebody looking for their own. The first entry is the base language. With
+  one entry or none there is nothing to choose and no switch appears.</p>
+
+  <h4>Translating the content</h4>
+  <p>Every label in the configuration has a plural sibling that takes a locale map:</p>
+<pre><code>{ "id": "bundestag", "label": "Bundestagsquiz", "labels": { "en-GB": "Bundestag Quiz" } }</code></pre>
+  <p>The same pattern applies to <code>subtitles</code>, <code>startTitles</code> and
+  <code>startDescriptions</code>. Questions carry a <code>translations</code> map:</p>
+<pre><code>{
+  "id": "bt-seats",
+  "prompt": "Wie viele Abgeordnete hat der Bundestag mindestens?",
+  "options": [{ "id": "o1", "text": "598" }, { "id": "o2", "text": "400" }],
+  "correctOptionId": "o1",
+  "translations": {
+    "en-GB": {
+      "prompt": "What is the minimum number of members of the Bundestag?",
+      "options": [{ "id": "o1", "text": "598" }, { "id": "o2", "text": "400" }]
+    }
+  }
+}</code></pre>
+
+  <div class="note stop">
+    <h4>Option ids must not move</h4>
+    <p>A translated option keeps the id of the original. Scoring compares against
+    <code>correctOptionId</code>, so a translation that renumbers its options changes which answer is
+    right. Translate the <code>text</code>, never the <code>id</code>.</p>
+  </div>
+
+  <h4>Rewording the program's own words</h4>
+  <p>If &ldquo;Allein&rdquo; should read &ldquo;Einzelspieler&rdquo;, you do not fork the package. State
+  the deviation in <code>interfaceStrings</code>, keyed by locale and then by text key:</p>
+<pre><code>{
+  "interfaceStrings": {
+    "de-DE": {
+      "kiosk.solo": "Einzelspieler",
+      "kiosk.duo": "Duell",
+      "kiosk.setupTitle": "Willkommen zum Quiz."
+    }
+  }
+}</code></pre>
+
+  <div class="note warn">
+    <h4>State deviations, not translations</h4>
+    <p>The package already ships all 52 keys in German and English. An <code>interfaceStrings</code> block
+    that restates every English key is a translation nobody reviews, and it will drift from the package's
+    own wording with the next release. List only what your installation genuinely words differently.
+    A third language is the exception: there, every key has to be stated, and no new program version is
+    needed for it.</p>
+  </div>
+
+  <p>The key names are stable and grouped by where they appear: <code>stage.*</code> on the stage,
+  <code>feedback.*</code> for right and wrong, <code>result.*</code> on the result screen,
+  <code>kiosk.*</code> at the device, <code>start.rejected.*</code> for an offer that cannot start.
+  Placeholders in braces are filled by the quiz: <code>{player}</code>, <code>{current}</code>,
+  <code>{total}</code>, <code>{count}</code>, <code>{correct}</code>, <code>{joker}</code>. Keep them.</p>
+</section>
+
+<section id="s13">
+  <div class="head"><span class="step-n">13</span><h2>Rules of the house</h2></div>
+
+  <p>Scoring, timings, jokers and the idle watch are configuration, not code. Every value has the
+  system's own constant as its default, so a package with no <code>rules</code> block plays exactly as
+  the quiz always has.</p>
+
+  <p class="filename">content/source/config.json</p>
+<pre><code>{
+  "rules": {
+    "scoring": {
+      "firstAnswerPoints": 100,
+      "secondChancePoints": 50,
+      "manualAdjustmentStep": 10,
+      "minimumScore": 0
+    },
+    "timing": {
+      "correctFeedbackMs": 2500,
+      "incorrectFeedbackMs": 2500,
+      "solutionDelayMs": 500,
+      "imageRevealDurationMs": 20000,
+      "pauseScreenMs": 3000,
+      "questionLeadInMs": 4000
+    },
+    "jokers": { "enabled": false },
+    "idleTimeoutMs": 120000,
+    "showDetailsAfterSolution": true
+  }
+}</code></pre>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Rule</th><th>Range</th><th>What it decides</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">firstAnswerPoints</td><td>0&ndash;1000</td><td>Points for answering correctly first</td></tr>
+      <tr><td class="mono">secondChancePoints</td><td>0&ndash;1000</td><td>Points for the other player's second chance</td></tr>
+      <tr><td class="mono">manualAdjustmentStep</td><td>1&ndash;500</td><td>Step size when an operator corrects a score</td></tr>
+      <tr><td class="mono">minimumScore</td><td>-1000&ndash;0</td><td>The floor a score cannot fall below</td></tr>
+      <tr><td class="mono">correctFeedbackMs</td><td>500&ndash;10000</td><td>How long the green feedback stands</td></tr>
+      <tr><td class="mono">imageRevealDurationMs</td><td>3000&ndash;60000</td><td>How long a picture takes to sharpen fully</td></tr>
+      <tr><td class="mono">questionLeadInMs</td><td>0&ndash;15000</td><td>Self-service only: the question alone before the answers appear</td></tr>
+      <tr><td class="mono">jokers.enabled</td><td>boolean</td><td><code>false</code> starts games with no joker supply, and no view offers one</td></tr>
+      <tr><td class="mono">idleTimeoutMs</td><td>0&ndash;3600000</td><td>Back to the start screen after this long untouched. <code>0</code> switches the watch off</td></tr>
+      <tr><td class="mono">showDetailsAfterSolution</td><td>boolean</td><td>Turns <code>explanation.details</code> into a step of its own after the solution</td></tr>
+    </tbody>
+    <caption>A self-service game never has jokers regardless of the rule: nobody is standing at a desk to draw one.</caption>
+  </table>
+  </div>
+
+  <div class="note">
+    <h4>Choosing an idle timeout</h4>
+    <p>An unattended kiosk wants one &mdash; two minutes is a reasonable start &mdash; so a half-played
+    round does not block the machine for the next visitor. An attended installation with somebody
+    explaining the quiz wants <code>0</code>, because the watch would interrupt the explanation.</p>
+  </div>
+</section>
+
+<section id="s14">
+  <div class="head"><span class="step-n">14</span><h2>Embedding, and the stage variant</h2></div>
+
+  <p><code>QuizGame</code> is the whole quiz including its start menu. Two other shapes exist.</p>
+
+  <h3>Inside an existing application</h3>
+  <p>A menu, a launcher, a collection of games: keep your own frame, hand over a way back, and say which
+  parts of the frame you supply yourself.</p>
+
+<pre><code>function QuizCard({ onBack }: { onBack: () =&gt; void }) {
+  const runtime = useQuizRuntime()   // your own hook around LocalQuizRuntime
+
+  if (!runtime) return null
+  return (
+    &lt;QuizProvider theme={houseTheme} chrome={{ brand: false }}&gt;
+      &lt;QuizGame
+        runtime={runtime}
+        audience="adults"
+        onExit={onBack}
+        onFinished={(result) =&gt; save(result)}
+        idleTimeoutMs={0}
+      /&gt;
+    &lt;/QuizProvider&gt;
+  )
+}</code></pre>
+
+  <p>Because the theme sits on the provider's element and not on the document, two such cards can appear
+  on one page with two different looks.</p>
+
+  <h3>The stage on its own</h3>
+  <p><code>QuizScene</code> is the screen without the device's menu and footer &mdash; the projection in a
+  hall, or a preview. It takes the runtime and gives you the stage: scene selection, transitions, sounds,
+  scoreboard.</p>
+
+<pre><code>import { QuizScene } from '@hfroemmel/quiz-react'
+
+&lt;QuizScene
+  runtime={runtime}
+  variant="stage"            /* 'stage' | 'preview' | 'touch' */
+  audible={documentVisible}  /* a quiz in a background tab goes quiet */
+  onEvent={(event) =&gt; console.log(event)}
+  pads={{ bottom: &lt;MyFooter /&gt;, overlay: &lt;MyBanner /&gt; }}
+  headerSlots={{ /* your own header content */ }}
+/&gt;</code></pre>
+
+  <p><code>onEvent</code> is how your application learns what happened &mdash; a game started, an answer
+  was right, a round finished &mdash; without polling the runtime. The events are derived from the
+  snapshot sequence, so nothing is missed and nothing arrives twice.</p>
+
+  <h3>With a server</h3>
+  <p>Everything above is <code>LocalQuizRuntime</code>: one window, no network, no server. Swap it for
+  <code>RemoteQuizRuntime</code> and the same components play against a quiz server over a WebSocket,
+  with several screens in one game &mdash; an operator's desk, the projection, the players' buzzers. Nothing
+  in your content or your theme changes; only the runtime does. That is a different manual, and the
+  reference implementation is the <code>quiz-live</code> repository.</p>
+</section>
+
+<section id="trouble">
+  <div class="head"><span class="step-n">&mdash;</span><h2>Troubleshooting</h2></div>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td><code>401 Unauthorized</code> on install</td><td>No token, or one without <code>read:packages</code></td><td>Step&nbsp;2. Check <code>~/.npmrc</code>, and that the token is a <em>classic</em> one</td></tr>
+      <tr><td>Pictures do not appear, <code>404 /media/&hellip;</code></td><td>No <code>media</code> resolver on the runtime</td><td>Step&nbsp;9. Pass <code>media: mediaUrl(quizPackage)</code></td></tr>
+      <tr><td><code>manifest.json could not be loaded (404)</code></td><td>The package was never built or never copied</td><td><code>pnpm content:build</code></td></tr>
+      <tr><td>The quiz appears but every card is disabled</td><td>No question satisfies the slots of any offered preset</td><td>Read the slot coverage table in <code>content/reports/build.md</code></td></tr>
+      <tr><td>&ldquo;This quiz has no question pool yet&rdquo;</td><td>A quiz whose preset filters match nothing in the configured pools</td><td>Check <code>poolIds</code> on the questions against <code>pools</code> in the configuration</td></tr>
+      <tr><td>The quiz cannot be played without an operator</td><td>A slot does not filter <code>evaluationModes</code></td><td>Step&nbsp;5. Every slot needs <code>["option-comparison"]</code> for self-service</td></tr>
+      <tr><td>The same question every round</td><td>A slot has one or two candidates</td><td>Write more questions matching that filter, or widen the filter</td></tr>
+      <tr><td>The build fails with a schema error</td><td>A missing required field, or an id with a capital letter</td><td>The report names the question and the field</td></tr>
+      <tr><td>Fonts fall back to a serif default</td><td>The theme brings a font but not its file</td><td><code>typography.fonts[].src</code> must resolve from the served page</td></tr>
+      <tr><td>Transitions do not run</td><td><code>motion.css</code> not imported, or imported as a CSS module</td><td>Step&nbsp;10. It must be a global import</td></tr>
+      <tr><td>Two quizzes on a page share one look</td><td>The theme was written onto <code>:root</code></td><td>Use a <code>QuizProvider</code> per quiz</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="checklist">
+  <div class="head"><span class="step-n">&mdash;</span><h2>Checklist before you ship</h2></div>
+
+  <ol class="steps">
+    <li><code>quiz-content validate</code> reports <b>zero errors</b>, and you have read every warning and
+    decided about it.</li>
+    <li>Every asset has a <code>credit</code>. All of them, not most.</li>
+    <li>The slot coverage in the build report shows enough candidates per slot that a visitor playing
+    three rounds does not meet the same question twice.</li>
+    <li>If the installation is unattended: <code>idleTimeoutMs</code> is set, and every slot of every
+    offered preset filters <code>option-comparison</code>.</li>
+    <li>If a second language is offered: every quiz, preset, audience and category has its
+    <code>labels</code>, and every question its <code>translations</code>. A half-translated round is worse
+    than a monolingual one.</li>
+    <li>The package version is pinned with a tilde range, and the lockfile is committed.</li>
+    <li><code>content:build</code> runs in CI before <code>build</code>, so broken content cannot ship.</li>
+    <li>The quiz has been played through once on the real screen, in the real size, with sound on.</li>
+  </ol>
+</section>
+
+<section id="further">
+  <div class="head"><span class="step-n">&mdash;</span><h2>Further reading</h2></div>
+
+  <p>This manual is the entry point. The reference documents live one directory up.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Document</th><th>What it answers</th></tr></thead>
+    <tbody>
+      <tr><td class="mono"><a href="../quizpaket.md">docs/quizpaket.md</a></td><td>The quiz package in depth: every field, every rule, the build</td></tr>
+      <tr><td class="mono"><a href="../inhalte-import.md">docs/inhalte-import.md</a></td><td>Importing questions from a spreadsheet instead of writing JSON</td></tr>
+      <tr><td class="mono"><a href="../zustandsmaschine.md">docs/zustandsmaschine.md</a></td><td>The state machine: every phase and every transition</td></tr>
+      <tr><td class="mono"><a href="../befehle.md">docs/befehle.md</a></td><td>The commands, and which role may send which</td></tr>
+      <tr><td class="mono"><a href="../design-system.md">docs/design-system.md</a></td><td>Colours, type, spacing &mdash; the design system behind the themes</td></tr>
+      <tr><td class="mono"><a href="../screens.md">docs/screens.md</a></td><td>Every screen, scene by scene</td></tr>
+      <tr><td class="mono"><a href="../joker.md">docs/joker.md</a></td><td>How the jokers work in an operated game</td></tr>
+      <tr><td class="mono"><a href="../veroeffentlichung.md">docs/veroeffentlichung.md</a></td><td>How the packages are versioned and published</td></tr>
+      <tr><td class="mono"><a href="../bekannte-einschraenkungen.md">docs/bekannte-einschraenkungen.md</a></td><td>Known limitations, before you discover one yourself</td></tr>
+      <tr><td class="mono"><a href="../refactoring/">docs/refactoring/</a></td><td>Where this architecture is going next</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>Working examples in this organisation</h4>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Repository</th><th>Read it for</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">quiz &rarr; harness/</td><td>The smallest possible host: a local runtime in a browser, no server, no Electron</td></tr>
+      <tr><td class="mono">quiz-standalone</td><td>A kiosk: one window, fully offline, Electron around the same components</td></tr>
+      <tr><td class="mono">app-collection</td><td>An embedded quiz inside a bigger application</td></tr>
+      <tr><td class="mono">quiz-live</td><td>The full stage: server, operator desk, projection, buzzer devices</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<footer>
+  <p>Written against <code>@hfroemmel/quiz-*</code> 0.19.0. Every file path, field name and option in this
+  manual was taken from the packages at that version.</p>
+  <p>If something here disagrees with the code, the code is right &mdash; and this file is a bug.</p>
+</footer>
+</main>
+</div>
+</div>
+
+<script>
+(function () {
+  var button = document.getElementById('theme')
+  if (!button) return
+  var stored = null
+  try { stored = localStorage.getItem('manual-theme') } catch (error) {}
+  if (stored === 'dark' || stored === 'light') document.documentElement.setAttribute('data-theme', stored)
+  button.addEventListener('click', function () {
+    var root = document.documentElement
+    var current = root.getAttribute('data-theme')
+    if (!current) {
+      var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      current = dark ? 'dark' : 'light'
+    }
+    var next = current === 'dark' ? 'light' : 'dark'
+    root.setAttribute('data-theme', next)
+    try { localStorage.setItem('manual-theme', next) } catch (error) {}
+  })
+})()
+</script>
+</body>
+</html>

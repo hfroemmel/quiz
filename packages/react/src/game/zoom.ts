@@ -22,7 +22,3 @@ export function clampZoom(value: number | undefined): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) return maxZoom
   return Math.min(maxZoom, Math.max(minZoom, value))
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `clampZoom`. */
-export const klemmeZoom = clampZoom

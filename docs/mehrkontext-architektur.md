@@ -118,7 +118,6 @@ identical.
 | Question visible | Operator opens the buzzer | the question stands alone for `questionLeadInMs`, then the server opens the answers |
 | Answer | Operator logs it in, resolves it | Player taps: one command, immediate evaluation |
 | After the solution | Operator presses `Weiter` ("Continue") | a PLAYER presses `Weiter` - the server schedules nothing here |
-| Video question | Operator starts it and switches over | runs automatically, then the question - it too stands alone at first |
 | Image recognition | Operator can pause | runs through, tapping freezes it just like a buzzer |
 
 Technically, this needs **no new mechanism**: the existing `pendingTransition`
@@ -195,8 +194,7 @@ additionally checks, per preset, whether enough self-service-suitable
 candidates remain - the same warning threshold as today for small pools.
 
 Recommended order: the kiosk starts with `text-choice` and `image-choice`;
-`image-reveal` follows in stage 5 (works very well on touch),
-`video-then-question` last.
+`image-reveal` follows in stage 5 (works very well on touch).
 
 ## 5. The Three Shells
 

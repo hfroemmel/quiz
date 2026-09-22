@@ -19,7 +19,8 @@
  * without an icon and smaller: both are this device's controls, and both are
  * seen by the same person.
  */
-import { playCue, textsFor } from '@hfroemmel/quiz-react'
+import { playCue } from '../presentation/soundCues'
+import { textsFor } from '../presentation/texts'
 import type { PlayerQuizViewModel } from '@hfroemmel/quiz-core'
 import { maxZoom, minZoom, zoomStep } from './zoom'
 import styles from './Game.module.css'

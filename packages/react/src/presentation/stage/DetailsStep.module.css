@@ -1,0 +1,206 @@
+/**
+ * The background of a question, between the solution and the next one.
+ *
+ * WHERE IT SITS is the stage's decision: it goes into `pads.overlay`, which
+ * spans scene, foot bar and grain. Only there does it get the stage's colours,
+ * its container units and its display size - outside it, the card would keep
+ * its full size while everything beneath it shrank with the zoom.
+ */
+
+.step {
+  /*
+   * How long the solution stands alone before the background arrives.
+   *
+   * Right and wrong are already told in the feedback scene; what is left to
+   * read is which answer was the correct one - and the card would cover exactly
+   * that if it came up in the same instant.
+   *
+   * IT IS A TIME, SO IT STANDS WITH THE OTHER TIMES OF THE STAGE. The component
+   * reads it from here, which is also what lets a host give its own room a
+   * longer moment without touching the package.
+   */
+  --stage-details-delay: 2000ms;
+
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.375cqw 4cqw;
+  background: color-mix(in srgb, var(--color-stageBottom) 88%, transparent);
+
+  /*
+   * IT FADES IN BOTH DIRECTIONS.
+   *
+   * The step is mounted before it is open - the round is already held then, so
+   * nobody can skip it - and it stays mounted while it leaves, or there would
+   * be nothing to see going. Closed it catches nothing: the answers behind it
+   * stay reachable.
+   *
+   * `visibility` transitions along on purpose: it flips at the START of the way
+   * in and at the END of the way out, so the panel is out of reach while it is
+   * transparent - for a thumb and for a screen reader alike.
+   *
+   * Duration and easing are the stage's own, so this step moves in the same
+   * time as everything else that appears and disappears within a scene. The
+   * component reads the very same value to know when the way out is over,
+   * instead of keeping a number of its own in step by hand.
+   */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--stage-fade-duration) var(--stage-fade-easing),
+    visibility var(--stage-fade-duration) var(--stage-fade-easing);
+}
+
+.step[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/*
+ * An OPAQUE card, not a translucent veil. Behind it stands the solution with
+ * its question and four answer rows; a card one can read through would put two
+ * texts on top of each other, and the one that matters here is this one.
+ *
+ * The card scales with the display size, the veil does not - the veil has to
+ * reach the edges at every zoom level. The last two per cent of that scale are
+ * the entrance: barely a move, just enough that the card arrives instead of
+ * appearing.
+ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqw;
+  width: 58cqw;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 3cqw;
+  border-radius: calc(var(--stage-radius) * 1.5);
+  background: var(--color-stageBottom);
+  box-shadow: 0 1cqw 6cqw var(--stage-cardShadow);
+  /*
+   * EVERYTHING ON THIS CARD READS FROM THE LEFT. It used to be centred, which
+   * is a form for one short line; what stands here is a rubric, a question and
+   * a paragraph, and three centred blocks of different lengths give a reader
+   * three different places to start.
+   */
+  text-align: left;
+  overflow-y: auto;
+  scale: calc(var(--stage-zoom, 1) * 0.98);
+  transition: scale var(--stage-fade-duration) var(--stage-fade-easing);
+}
+
+.step[data-open='true'] .panel {
+  scale: var(--stage-zoom, 1);
+}
+
+/*
+ * THE QUESTION THIS BACKGROUND BELONGS TO - in the voice of the board the card
+ * covers.
+ *
+ * The rubric and the question carry the sizes of the question board itself
+ * (`QuestionHead.module.css`): the small bold line above, the serif below it.
+ * That is the point of them being here - the card hides the board, and what it
+ * puts in its place should be the same thing, not a second design for the same
+ * two lines.
+ *
+ * They are ONE GROUP with a gap of their own: the rubric belongs to the
+ * question under it, closer than the card's own spacing between blocks.
+ */
+.asked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4cqw;
+}
+.category {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 1.5cqw;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.prompt {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 2.5cqw;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.text {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 1.25cqw;
+  line-height: 1.45;
+}
+
+/*
+ * The children's world writes both lines by hand, exactly as its question
+ * board does - the sans of the rubric would be the only printed type in a drawn
+ * room.
+ */
+:global(.stage--kids) .category,
+:global(.stage--kids) .prompt {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+}
+
+/*
+ * One button, large enough for a thumb. It IS the way onward here -
+ * `stage-button stage-button--primary` is the shared button of the stage, the
+ * same one the footer's "Weiter" is built from. Only its place in the card
+ * belongs here.
+ *
+ * IT LOOKS SMALLER THAN IT IS. The painted box is flatter than the stage
+ * default - a card of text does not need a bar across it. What a thumb hits is
+ * unchanged: `::after` carries the difference back out beyond the visible edge,
+ * and a pseudo-element of the button is part of the button.
+ */
+.continue {
+  --stage-button-pad: 3.6cqw;
+  --stage-button-height: 3.9375cqw;
+
+  position: relative;
+  /*
+   * AT THE END OF THE READING, NOT UNDER ITS MIDDLE. The way onward stands
+   * where a reader arrives - the right end of the last line - and it is a
+   * little wider than the stage's smallest button, so that one word does not
+   * sit in a box the size of the word.
+   */
+  align-self: flex-end;
+  margin-top: 1cqw;
+  /*
+   * AND IT NAMES ITS OWN INK.
+   *
+   * `stage-button--primary` carries `--color-primaryInk`, but it says so in a
+   * `:where()` - specificity zero, so that a component can refine the button in
+   * its own module without depending on the order in which a host includes the
+   * stylesheets. A HOST'S OWN RESET WINS OVER ZERO: `button { color: inherit }`
+   * is an element selector, and with it the label inherits the ink of the card
+   * and stands black on the black box - invisible, and only in some hosts,
+   * which is the worst kind of invisible. The card is a component and says it.
+   */
+  color: var(--color-primaryInk);
+}
+.continue::after {
+  content: '';
+  position: absolute;
+  inset: -0.5625cqw -1.6cqw;
+}
+
+/*
+ * Whoever asks for no motion gets none: the step is the same step, it just
+ * stands there instead of arriving.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .step[data-open='true'] .panel {
+    scale: var(--stage-zoom, 1);
+    transition: none;
+  }
+}

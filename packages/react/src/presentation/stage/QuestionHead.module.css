@@ -21,31 +21,22 @@
 }
 .category {
   margin: 0 0 1cqw;
-  font-family: 'Noto Sans', sans-serif;
-  font-size: 1.25vw;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 1.5cqw;
+  font-weight: 700;
 }
 /*
- * `useFittedPrompt` sets `--prompt-scale` on the element when a long
- * question would otherwise push the answer rows out of the image. Without
- * adjustment the factor is 1 and the base size applies.
+ * ONE SIZE, WHATEVER THE QUESTION IS LONG. `useFittedPrompt` still sets
+ * `--prompt-scale` on the element, but only the children's world reads it
+ * (see below) - here the size stands, and a long question keeps the measure
+ * of a short one.
  */
 .prompt {
   margin: 0;
-  font-size: calc(2.8cqw * var(--prompt-scale, 1));
+  font-size: 2.5cqw;
   font-weight: 400;
   line-height: 1.25;
   font-family: var(--font-heading);
-}
-
-/*
- * Portrait question: the category sits as a small capitalised line above
- * the question. There it has no image column beside it to align against -
- * the capitals give it back its edge.
- */
-:global(.stage[data-presentation='person']) .category {
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
 /* ------------------------------------------------------------------ *
@@ -56,7 +47,10 @@
  * them. In the reveal, the image carries the area - there the text stays
  * free on the background.
  * ------------------------------------------------------------------ */
-
+:global(.stage--kids.stage--scene-reveal) .head {
+  align-self: baseline;
+  padding-top: 5cqw;
+}
 :global(.stage--kids) .category {
   font-family: var(--kids-hand);
   font-weight: 400;
@@ -64,6 +58,10 @@
 :global(.stage--kids) .prompt {
   font-family: var(--kids-hand);
   font-weight: 400;
+}
+
+:global(.stage--kids)[data-presentation="image-reveal"] .prompt {
+  font-size: 3.5cqw;
 }
 
 /*
@@ -76,7 +74,7 @@
 :global(.stage--kids.stage--scene-question) .head,
 :global(.stage--kids.stage--scene-solution) .head {
   display: grid;
-  width: var(--kids-content-width);
+  width: 100%;
   /*
    * THE IMAGE COLUMN IS AS WIDE AS THE IMAGE - not a share of the row.
    *

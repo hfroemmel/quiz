@@ -26,9 +26,8 @@ How animations are technically set up and changed is described in
 |---|---|---|---|---|---|---|
 | `scene-fade` | any → `pause` | 400 ms | 120 ms | standard | cross-fade of the whole area | `scene-change` |
 | `question-enter` | `pause`/`start` → `question` | 420 ms | 120 ms | emphasized | media and text rise 12 px and fade in | `question-appear` |
-| `options-stagger` | within `question` | 70 ms offset per row | 0 ms | standard | answer bars slide in one after another from the left, 16 px | - |
+| `options-stagger` | within `question` | 380 ms per row (`optionEnterMs`), 70 ms offset (`optionStaggerMs`) | 0 ms | standard | answer rows rise 1.4 cqw and fade in, one after another | - |
 | `reveal-enter` | `question` → `reveal` | 420 ms | 120 ms | emphasized | the covered image area fades in | `question-appear` |
-| `video-enter` | any → `video` | 640 ms | 120 ms | emphasized | video area grows from the center (90% → 100%), rises slightly, and fades in | - |
 | `solution-reveal` | `feedback` → `solution` | 520 ms | 150 ms | emphasized | solution bar grows from the center to full width, text fades in 120 ms later | `solution` |
 | `result-celebration` | `solution` → `result` | 6000 ms | 0 ms | standard | confetti falls, result tiles rise 20 px | `result` |
 | `start-return` | any → `start` | 400 ms | 120 ms | standard | cross-fade to the start image | `scene-change` |
@@ -46,7 +45,6 @@ the answer zone. It also runs when the options only appear after `Starten`
 | `option-choose` | answer logged in | 200 ms | 80 ms | chosen bar colors to `--accent` | - |
 | `option-clear` | `Zurücksetzen` ("Reset") | 200 ms | 80 ms | coloring falls back to neutral | - |
 | `options-appear` | `Starten` ("Start") | 420 ms | 120 ms | answer zone expands, then `options-stagger` | `question-appear` |
-| `video-exit` | video finished playing (`video.status = ended`) | 700 ms (`videoExitMs`) | 1 ms | video area fades out and recedes slightly; the element only stops afterward | - |
 | `score-count-up` | score changes | 600 ms | n/a | digits count up from the old to the new snapshot value | `score` |
 | `score-stars` | score **increases** | 1000 ms | n/a | delivered graphic `stars.webm` plays over the score tile | - |
 
@@ -62,36 +60,44 @@ stars are omitted.
 `score-count-up` deliberately runs **during** the correct-answer animation, so
 the point gain and the checkmark are read together (confirmed).
 
-## C - Feedback (delivered motion graphics)
+## C - Feedback (drawn, not delivered)
 
-Correct and incorrect are **not** drawn in code, but delivered as files. They
-are VP9 WebM with an alpha channel, 500 x 500 pixels, 30 frames per second,
-without an audio track, and are registered centrally via
-`apps/web/src/presentation/animationAssets.ts`.
+Correct and incorrect are drawn in code: a disc that springs in, then a symbol
+drawn along its own path (`AnswerResultAnimation` in quiz-react). They used to
+be delivered files - VP9 WebM with an alpha channel, 500 x 500 pixels - and that
+was the one statement on the stage that could not follow the theme: the clip's
+turquoise and its red were baked in, whatever palette the running stage carried.
 
-| File | Length | Statement complete after | Sequence |
+| Mark | Sequence | Statement complete after | Colours |
 |---|---|---|---|
-| `correct.webm` | 4.0 s | 1.4 s | circle grows from 0.6 s, confetti bursts out, checkmark draws until 1.2 s, confetti fades out until 1.9 s, then still frame |
-| `wrong.webm` | 2.0 s | 1.4 s | circle grows with a ring pulse, two strokes start at 0.9 s and rotate into a cross until 1.2 s, pulse fades out until 2.0 s |
+| Checkmark | disc scales in over 480 ms with a short overshoot, checkmark draws from 250 ms over 360 ms | 0.61 s | disc `--color-correct`, symbol `--stage-inkOnStrong` |
+| Cross | the same motion, two strokes as one path | 0.61 s | disc `--color-incorrect`, symbol `--stage-inkOnStrong` |
 
 This resolves the previously open point "the incorrect circle is missing a
-cross": the cross is part of the delivered graphic.
+cross": the cross is drawn on the disc.
+
+The disc measures 92 percent of `--feedback-size` (14.2 cqw), which puts it on
+the stage at the size the two clips had - they carried a lot of transparent
+margin, so their frames were 34 and 16 cqw for discs of the same size. Reduced
+motion keeps the mark and drops the movement, as the clips' still frame did.
 
 ### Consequence for the phase durations
 
-A phase must run at least until the statement is complete, otherwise the
-state transition cuts into the movement. That's why the values in
-`gameTiming` were adjusted to the files:
+A phase must run at least until the statement is complete, otherwise the state
+transition cuts into the movement. The numbers in `gameTiming` were once matched
+to the files:
 
-| Value | Before | Now | Reason |
-|---|---|---|---|
-| `correctFeedbackMs` | 1400 ms | **2000 ms** | checkmark done at 1.4 s, confetti faded out afterward |
-| `incorrectFeedbackMs` | 1200 ms | **1800 ms** | cross done at 1.4 s, ring pulse fading out |
+| Value | Value | Reason |
+|---|---|---|
+| `correctFeedbackMs` | **2000 ms** | matched to the old clip; the mark now stands complete after 0.61 s and rests for the remainder |
+| `incorrectFeedbackMs` | **1800 ms** | the same |
 
-The specification explicitly names these two numbers as example values to be
-set during visual fine-tuning; only the ten seconds of the image reveal are
-binding. Both transitions remain `locked`: the server ends the phase after
-exactly this time.
+They are **kept** as the pacing of the moment, not as a constraint from a file:
+the room needs a beat to read the mark, and the score counts up underneath it
+meanwhile. The specification explicitly names these two numbers as example
+values to be set during visual fine-tuning; only the ten seconds of the image
+reveal are binding. Both transitions remain `locked`: the server ends the phase
+after exactly this time.
 
 | ID | Duration | Reduced | Sound | Binding |
 |---|---|---|---|---|
@@ -123,7 +129,8 @@ number, then the topic.
 |---|---|---|---|---|
 | `pause-category-in` | 600 ms, 400 ms delay | no movement, instantly visible | - | free |
 
-The screen itself stands for `gameTiming.pauseScreenMs` = 3000 ms.
+The screen itself stands for `gameTiming.pauseScreenMs` = 1500 ms. The fade of
+the category (600 ms, after 400 ms) therefore finishes halfway through it.
 
 ## D - Reveal (fairness)
 

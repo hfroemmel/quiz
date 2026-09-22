@@ -10,6 +10,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  padding: 1cqw;
 }
 .scores {
   display: flex;
@@ -29,6 +30,7 @@
   position: relative;
   display: flex;
   align-items: flex-start;
+  border-radius: var(--stage-button-radius);
 }
 /*
  * Wordmark. It sits as a mask over a colour area and thereby follows the
@@ -49,6 +51,10 @@
  * wordmark, the height from the image.
  */
 .brandImage {
+  position: absolute;
+  left: 3cqw;
+  top: 2cqw;
+  width: 18cqw;
   height: auto;
   object-fit: contain;
   object-position: left center;
@@ -69,17 +75,10 @@
 :global(.stage--default) .scores {
   gap: 1cqw;
 }
-:global(.stage--default) .brand,
-:global(.stage--default) .brandImage {
-  position: absolute;
-  left: 3cqw;
-  top: 2cqw;
-  width: 18cqw;
-}
 :global(.stage--bright) .brandImage {
   filter: invert(1);
 }
-:global(.stage--default) .counterSlot {
+.counterSlot {
   position: absolute;
   right: 3cqw;
   top: 2cqw;
@@ -100,31 +99,11 @@
  * image's top-left corner, so the logo stays at the edge and only gets
  * smaller.
  */
-:global(.stage--default.stage--touch) .header {
-  justify-content: flex-start;
+:global(.stage--default.stage--touch) .header,
+:global(.stage--kids.stage--touch) .header {
   padding: 2.25cqw 4cqw 0;
   scale: var(--stage-zoom, 1);
-  transform-origin: top left;
-}
-:global(.stage--default.stage--touch) .brand,
-:global(.stage--default.stage--touch) .brandImage {
-  position: static;
-  width: 13cqw;
-}
-
-/* ------------------------------------------------------------------ *
- * Kids' world: everything sits in the row, in three columns
- * ------------------------------------------------------------------ */
-
-:global(.stage--kids) .header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: var(--kids-gap);
-  padding: var(--kids-pad) var(--kids-pad) 0;
-}
-:global(.stage--kids) .brand,
-:global(.stage--kids) .brandImage {
-  width: 15cqw;
+  transform-origin: top center;
 }
 :global(.stage--kids) .scores {
   gap: 0.9cqw;
@@ -132,13 +111,54 @@
 :global(.stage--kids) .counterSlot {
   justify-self: end;
 }
-
 /*
- * The kids' world on a touch device follows the same rule as above: more
- * space at the top, and the corner stays the reference point when shrinking.
+ * The kids' world on a touch device keeps the padding it has in the room -
+ * the head carries no size of its own here. What it does keep is the
+ * reference point: a host zoom pulls the row toward the top centre.
  */
 :global(.stage--kids.stage--touch) .header {
-  padding: calc(var(--kids-pad) * 2) var(--kids-pad) 0;
-  scale: var(--stage-zoom, 1);
+  padding: var(--kids-pad) var(--kids-pad) 0;
+  transform-origin: top center;
+}
+
+/* ------------------------------------------------------------------ *
+ * KIOSK LAYOUT: the head carries the round
+ *
+ *   [Spieler|1][Punkte|0]   [Frage|3/7]   [Punkte|0][2|Spieler]
+ *
+ * At a table you look DOWN at the screen: the top edge is the calm zone and
+ * the hands belong at the bottom, where the buzzers are. So the cards come
+ * back up here, and the counter stands between them - the group then reads as
+ * one line about this round instead of three things in three corners.
+ *
+ * With one player the group is the counter and their points; there is no card
+ * with a number on it and no gap where a second one would be.
+ * ------------------------------------------------------------------ */
+
+:global(.stage--default.stage--touch[data-layout='kiosk']) .header {
+  justify-content: center;
+  padding: 2.25cqw 4cqw 0;
+}
+:global(.stage--default.stage--touch[data-layout='kiosk']) .brand,
+:global(.stage--default.stage--touch[data-layout='kiosk']) .brandImage {
   transform-origin: top left;
 }
+:global(.stage--default.stage--touch[data-layout='kiosk']) .scores {
+  align-items: center;
+  gap: 1.5cqw;
+  transform-origin: top center;
+}
+/*
+ * In the room the counter hangs in the header's right corner; here it stands
+ * inside the group, so it keeps its place in the row instead.
+ */
+:global(.stage--touch[data-layout='kiosk']) .counterSlot {
+  position: static;
+}
+
+/*
+ * The children's world needs no rule of its own here: its head is a grid of
+ * three columns (`1fr auto 1fr`), and the middle one stays in the middle of
+ * the row whether or not anything stands in the third. The counter has simply
+ * moved into the group in the middle column.
+ */

@@ -1,5 +1,12 @@
 /*
- * Sizes, fonts and durations - shared across all roles.
+ * Sizes and durations - shared across all roles.
+ *
+ * NO FONT LIVES HERE EITHER. The families are tokens of the themes package
+ * and stand next to the `@font-face` rules that load them
+ * (`packages/themes/src/fonts.css`) - only there does a published package
+ * carry them too. Here they would apply to the harness alone, and every
+ * `var(--font-ui)` in the package stylesheets would fall back to the
+ * browser's default in an application.
  *
  * NO COLOUR LIVES HERE. All colour values come from
  * `packages/contracts/src/theme.ts` and appear as a generated stylesheet in
@@ -15,11 +22,6 @@
  */
 
 :root {
-  --font-heading: 'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
-  --font-body: var(--font-heading);
-  /* Only the operator's control frame - none of this lives on the stage. */
-  --font-ui: 'Noto Sans Display', 'Segoe UI', system-ui, sans-serif;
-
   /* Fallbacks in case a scene is rendered without a registered transition. */
   --transition-duration: 400ms;
   --transition-delay: 0ms;

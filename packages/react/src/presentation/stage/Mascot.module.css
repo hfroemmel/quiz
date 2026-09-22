@@ -2,38 +2,20 @@
  * Mascot layer. In the adult stage it stays empty; the kids' world places
  * Karlchen at the right edge.
  */
-
-.mascot {
-  position: absolute;
-  pointer-events: none;
-}
-
-/*
- * IT APPEARS WHEREVER THE KIDS' WORLD RUNS - in the room, in the standalone
- * app and in the embedded one. The condition is the world, not the host; a
- * `.stage--touch` in this rule would be exactly the coupling that must not
- * exist here. What differs on the device is only the reference: the mascot
- * sits in the scene's area (`.sceneArea`), and there that is the
- * shrunk-down stage in the centre.
- *
- * Karlchen stands at the bottom right edge of the scene, not in the
- * question row: in the reference, the mascot stands on the ground next to
- * the answers, presenting with the outstretched wing across toward them,
- * reaching well past half the image height in the process.
- *
- * In the wide formats it never touches the text anyway.
- *
- * It belongs to the composition of question and solution - but only once
- * the answers are in place. As long as the question stands alone, it is
- * being read aloud; a mascot already presenting at that point would be
- * pointing at an empty area.
- */
 :global(.stage--kids.stage--scene-question[data-answers-shown='true']) .mascot,
 :global(.stage--kids.stage--scene-solution) .mascot {
+  position: absolute;
   z-index: 1;
-  right: 1.8cqw;
-  bottom: 2.25cqw;
-  height: 32.625cqw;
+  right: -1cqw;
+  bottom: 28.25cqw;
+  height: 30.625cqw;
   aspect-ratio: 927 / 1131;
   background: url('../../assets/kinderquiz/characters/karlchen-presenter.svg') no-repeat bottom right / contain;
+}
+
+:global(.stage--kids.stage--scene-question[data-answers-shown='true'][data-layout="live"]) .mascot,
+:global(.stage--kids.stage--scene-solution)[data-layout="live"] .mascot{
+  right: 0;
+  bottom: 1cqw;
+  height: 30cqw;
 }

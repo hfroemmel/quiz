@@ -28,9 +28,10 @@
  * counting up, the kids' world's drawn card - comes unchanged from there.
  */
 import type { PlayerId, PlayerQuizViewModel } from '@hfroemmel/quiz-core'
-import { Counter, Score } from '@hfroemmel/quiz-react'
+import { Counter } from '../presentation/stage/Counter'
+import { Score } from '../presentation/stage/Score'
 import { Buzzer } from './Buzzer'
-import { textsFor } from '@hfroemmel/quiz-react'
+import { textsFor } from '../presentation/texts'
 import styles from './Game.module.css'
 
 interface PlayerFootProps {
@@ -44,6 +45,15 @@ interface PlayerFootProps {
   onResolve(): void
   /** Request the next question - only possible after the solution. */
   onContinue(): void
+  /**
+   * The way onward is somewhere else in this round - then there is none here.
+   *
+   * It is the details step: where a question carries a background, that card
+   * carries the only way on, and from the moment the solution stands - not only
+   * once the card is there, or a fast thumb would skip the step in the seconds
+   * in between.
+   */
+  continueElsewhere?: boolean
 }
 
 /**
@@ -60,7 +70,7 @@ function hint(view: PlayerQuizViewModel): string | null {
   return opponent ? textsFor(view)('kiosk.secondChance', { player: opponent.label }) : null
 }
 
-export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue }: PlayerFootProps) {
+export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue, continueElsewhere }: PlayerFootProps) {
   const t = textsFor(view)
   const [playerOne, playerTwo] = view.playerScores
   if (!playerOne) return null
@@ -97,7 +107,7 @@ export function PlayerFoot({ view, turn, canBuzz, onBuzz, onResolve, onContinue 
   )
 
   const text = hint(view)
-  const next = view.allowedCommands.includes('CONTINUE')
+  const next = view.allowedCommands.includes('CONTINUE') && !continueElsewhere
   /*
    * Submitting is only possible once an answer is logged. Whether one is
    * marked is reported by the view model - the same state everyone else

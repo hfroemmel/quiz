@@ -3,7 +3,7 @@
  *
  * This holds what ALL scenes have in common and what makes up the
  * individual scenes that need no component file of their own (start, pause,
- * feedback, reveal, video, results).
+ * feedback, reveal, results).
  *
  * The question and solution scenes consist almost entirely of components;
  * their rules therefore live with the components and not here.
@@ -34,6 +34,11 @@
 :global(.stage--scene-reveal) .scene {
   flex-direction: row;
   align-items: center;
+}
+
+:global(.stage--scene-reveal)[data-theme="kids"] .scene {
+  flex-direction: row-reverse;
+  gap: 3cqw;
 }
 
 .start {
@@ -101,160 +106,55 @@
   min-height: 0;
 }
 
-/* Video */
-.video {
-  justify-content: center;
-}
-/*
- * Placeholder and video area are THE SAME rectangle.
- *
- * It sits the same way in the operator preview and on the stage - only on
- * the stage does it have media in it. That is why the placeholder
- * determines the size and not the video: otherwise the preview would have a
- * different composition than the room, and the area would jump during
- * loading.
- *
- * The box around it carries the SIZE, not the area itself: the area fades
- * out at the end and steps back in the process, but the state in the
- * operator preview must stay in its place.
- *
- * `aspect-ratio` gives it the usual widescreen shape, into which every
- * aspect ratio fits.
- */
-.videoBox {
-  position: relative;
-  /*
-   * `flex: 0 0 auto` is mandatory, not taste. The scene is a column, so its
-   * main axis is the height: a shrinkable element would give up height here
-   * without taking the width along with it - the rectangle would be flatter
-   * than 16:9, while the video inside it kept its own ratio. Exactly this
-   * discrepancy is what the end-to-end test checks.
-   */
-  flex: 0 0 auto;
-  align-self: center;
-  width: 65cqw;
-  aspect-ratio: 16 / 9;
-}
-.videoFrame {
-  position: absolute;
-  inset: 0;
-  border-radius: 1.4cqw;
-  background: var(--color-tile);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/*
- * NO EXIT AFTER THE VIDEO. The last frame stays put until the operator
- * brings in the question - the server does not even know when the video is
- * done, and an area that disappears on its own would be a claim about that.
- */
-/*
- * `contain` instead of `cover`: a video is not cropped. Whatever stays free
- * at the sides shows the placeholder - that is intentional and looks like a
- * frame.
- */
-.videoPlayer {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.videoMissing {
-  margin: 0;
-  color: var(--color-textMuted);
-  font-family: var(--font-heading);
-  font-size: 1.8cqw;
-}
-.videoError {
-  color: var(--color-textMuted);
-  font-size: 1.6cqw;
-}
-
-/*
- * The state in the operator preview.
- *
- * It sits in the middle of the area, right where the image is in the room:
- * the operator looks into the room during a video, not at their screen -
- * the glance back must find the one word in a single pass. The dot in front
- * of it carries the accent colour only while the video is running; it does
- * not blink.
- */
-.videoStatus {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.6cqw;
-  font-family: var(--font-heading);
-  font-size: 4.2cqw;
-  line-height: 1;
-  color: var(--color-text);
-}
-.videoStatusDot {
-  flex: 0 0 auto;
-  width: 2.2cqw;
-  height: 2.2cqw;
-  border-radius: 50%;
-  background: var(--color-textMuted);
-}
-.videoStatus[data-video-status='playing'] .videoStatusDot {
-  background: var(--color-accent);
-}
-.videoStatus[data-video-status='ended'] {
-  color: var(--color-textMuted);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .videoFrame {
-    transition-duration: 1ms;
-  }
-}
-
 /* Feedback */
 .feedback {
   justify-content: center;
-  --scene-gap: 0;
   /*
    * Centred in the ENTIRE stage area, not only in the remainder below the
    * header. The header is around 8 cqw tall; extra padding at the bottom
    * shifts the centred block up by half of that.
    */
   padding-bottom: 11cqw;
-  /* Edge length of the motion graphic - everything else follows from it. */
-  --feedback-size: 16cqw;
   /*
-   * Share of the edge length by which the word moves in toward the graphic.
-   * The two delivered graphics have different amounts of transparent
-   * margin: the checkmark swings out wide with sparks, the cross sits
-   * tightly in the frame and therefore needs extra distance the other
-   * way - hence the value is negative.
+   * ONE SIZE FOR BOTH OUTCOMES, and one distance to the word.
+   *
+   * There used to be two of each, plus a share by which the word moved in
+   * toward the graphic: the delivered clips carried different amounts of
+   * transparent margin - the checkmark swung out wide with sparks, the cross
+   * sat tightly in its frame - so two frames of 34 and 16 cqw were needed to
+   * put two discs of the same size on the stage. The mark is drawn now
+   * (`AnswerResultAnimation`) and its disc fills its box but for the overshoot,
+   * so the box is the disc and the distance is an ordinary gap.
+   *
+   * The disc measures 92 percent of this, which is what the two clips put on
+   * the stage before it - the moment keeps its size.
    */
-  --feedback-pull: -0.04;
+  --scene-gap: 2.4cqw;
+  --feedback-size: 14.2cqw;
 }
 /*
- * Correct is allowed to celebrate bigger than wrong. The checkmark is the
- * moment the room is waiting for; the cross deliberately stays restrained.
+ * AND ON THE DEVICE STANDING ON ITS OWN, NOTHING ABOVE OR BELOW THE BLOCK.
+ *
+ * These three screens are given the whole height of the device there
+ * (`Stage.module.css`) and centre their block in it. Any vertical padding is
+ * then a thumb on the scale: the scene's own top inset pushed the block two
+ * dozen pixels down, and the reserve the feedback keeps for the hall's header
+ * pushed it a hand's width up. The sides stay - they are what keeps a long
+ * category off the edge.
  */
-.feedback[data-outcome='correct'] {
-  --feedback-size: 34cqw;
-  --feedback-pull: 0.22;
+:global(.stage--touch[data-layout='kiosk']) .feedback,
+:global(.stage--touch[data-layout='kiosk']) .pause,
+:global(.stage--touch[data-layout='kiosk']) .result {
+  padding-block: 0;
 }
+
 .feedbackSymbol {
   width: var(--feedback-size);
   aspect-ratio: 1;
   line-height: 1;
 }
-/*
- * The delivered motion graphics have transparent margin all around - it
- * belongs to the animation's follow-through. The offset must therefore
- * scale with the graphic, or the word would cling to the small graphic and
- * float away from the large one.
- */
 .feedbackLabel {
-  margin: calc(var(--feedback-size) * var(--feedback-pull) * -1) 0 0;
+  margin: 0;
   font-size: 3.8cqw;
   font-family: var(--font-heading);
 }
@@ -323,7 +223,7 @@
   --scene-align: flex-start;
   --scene-text-align: left;
   /* The header brings its own top spacing. */
-  padding-top: 2cqw;
+  padding-top: 3cqw;
 }
 :global(.stage--kids) .solutionLabel {
   font-family: var(--kids-hand);
@@ -342,10 +242,7 @@
 :global(.stage--kids) .pauseProgress,
 :global(.stage--kids) .pauseCategory,
 :global(.stage--kids) .startTitle,
-:global(.stage--kids) .pausePlaceholder,
-:global(.stage--kids) .videoStatus,
-:global(.stage--kids) .videoError,
-:global(.stage--kids) .videoMissing {
+:global(.stage--kids) .pausePlaceholder {
   font-family: var(--kids-hand);
   font-weight: 400;
 }
@@ -369,7 +266,7 @@
    * its content width. A long translated category thereby wraps instead of
    * running out of the scene or getting cropped.
    */
-  min-width: 34cqw;
+  min-width: 24cqw;
   max-width: var(--kids-content-width);
   padding: 3.2cqw 4cqw;
   text-align: center;
@@ -398,17 +295,37 @@
  * the other way round - the category was the largest type on the screen.
  */
 :global(.stage--kids) .pauseProgress {
-  font-size: 7cqw;
+  font-size: 2.5cqw;
   line-height: 1.05;
 }
 :global(.stage--kids) .pauseCategory {
   margin-top: 1cqw;
-  font-size: 5cqw;
+  font-size: 3.5cqw;
   font-weight: 400;
   line-height: 1.1;
   color: var(--kids-red);
   /* Long categories wrap and stay fully readable. */
   text-wrap: balance;
+}
+
+/*
+ * THE ARRIVAL OF THE CATEGORY, and it never ran: the name pointed at a
+ * keyframe that this module cannot see - it scopes every animation name, and
+ * the definition was expected in the global stylesheet. So the category, which
+ * is meant to follow the counter by a moment, simply stood there with it.
+ *
+ * It rises by a line as it fades in, the same small distance the answer rows
+ * travel, and in `cqw` for the same reason.
+ */
+@keyframes pause-category-in {
+  from {
+    opacity: 0;
+    transform: translateY(1cqw);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Reduced motion: the category appears without a follow-through. */

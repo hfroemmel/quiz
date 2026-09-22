@@ -12,9 +12,8 @@
  * time, and a comparison view of two is exactly what nobody builds - which is
  * why the leak went unnoticed for so long.
  */
-import { QuizProvider, type QuizChrome } from '@hfroemmel/quiz-react'
+import { type QuizChrome, QuizGame, QuizProvider } from '@hfroemmel/quiz-react'
 import type { ThemeDefinition } from '@hfroemmel/quiz-themes'
-import { QuizGame } from '@hfroemmel/quiz-kiosk'
 import { foyerTheme, hallTheme } from './hostThemes'
 import { useLocalRuntime } from './useLocalRuntime'
 

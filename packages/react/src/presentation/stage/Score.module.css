@@ -58,8 +58,8 @@
  */
 .groupMark {
   height: 1em;
-  font-size: 3cqw;
-  color: var(--color-text);
+  font-size: 2cqw;
+  color: var(--stage-inkOnStrong);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -82,20 +82,25 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Adult stage: two frosted-glass tiles butted together
+ * Adult stage: two semi-transparent tiles butted together
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .cell {
   width: 7cqw;
-  padding: 1cqw 1.2cqw 0.6cqw;
-  /* Frosted glass: semi-transparent with blur, no border. */
+  padding: 1cqw 2cqw 0.6cqw;
+  /* A veil over the ground: semi-transparent, no blur, no border. */
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
 }
-:global(.stage--default) .cellPoints {
-  min-width: 7cqw;
+/*
+ * THE POINTS CELL TAKES THE WIDTH OF ITS NUMBER - no floor is reserved under
+ * it. The two cells share the card's width (`flex: 1 1 0`) and the card
+ * follows what its content asks for, so a score that grows a digit widens the
+ * card with it. The value stays a box of its own, which is what the digits
+ * are measured and animated as.
+ */
+:global(.stage--default) .cellPoints .valuePoints {
+  display: inline-block;
 }
 :global(.stage--default) .label {
   /* Labels in the sans-serif, values in the serif font. */
@@ -105,17 +110,13 @@
   margin-bottom: 0.3cqw;
 }
 :global(.stage--default) .value {
-  font-size: 3cqw;
+  font-size: 2.7cqw;
   font-family: var(--font-heading);
 }
 /* The player whose turn it is carries the accent colour, a locked one the calm one. */
 :global(.stage--default) .score[data-active='true'] .cellPlayer,
 :global(.stage--default) .score[data-active='true'] .cellPoints {
   background: var(--color-accent);
-}
-:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPlayer,
-:global(.stage--default) .score[data-active='false'][data-locked='true'] .cellPoints {
-  background: var(--color-accentQuiet);
 }
 /* Butted together on the inside, rounded on the outside - the card reads as one block. */
 :global(.stage--default) .cell:first-child {
@@ -153,7 +154,7 @@
  *
  * THE PLAYER COLOUR IS NOW CARRIED BY THE BUZZER ALONE (see
  * `Game.module.css` in `@hfroemmel/quiz-kiosk`). The card stays the stage's
- * frosted-glass tile and sits on top like a label, not like a second sign.
+ * quiet tile and sits on top like a label, not like a second sign.
  *
  * THE ACCENT STAYS, THOUGH. The tile with the player number and the one with
  * the score carry it as long as that player is on turn - in the room and on
@@ -164,8 +165,8 @@
  * there is no second corner it could be confused with.
  *
  * What stays neutral is the CARD'S OWN GROUND: the two rules below keep the
- * frosted-glass tile underneath, so the card does not turn into a second
- * sign around its tiles.
+ * quiet tile underneath, so the card does not turn into a second sign around
+ * its tiles.
  */
 :global(.stage--default.stage--touch) .score[data-active='true'],
 :global(.stage--default.stage--touch) .score[data-locked='true'] {
@@ -181,6 +182,10 @@
   color: var(--color-text);
 }
 
+:global(.stage--default.stage--touch) .score[data-points-only] .cell {
+  border-radius: var(--stage-radius);
+}
+
 /* The card fills the width of its corner, so it lines up flush with the buzzer. */
 :global(.stage--touch) .score {
   width: 100%;
@@ -188,6 +193,10 @@
 :global(.stage--default.stage--touch) .cell {
   flex: 1;
   width: auto;
+}
+
+:global(.stage--touch) .scoreGroup[data-head-group="solo"] .score .cellPoints {
+  border-radius: var(--stage-radius);
 }
 
 /* ------------------------------------------------------------------ *
@@ -218,7 +227,7 @@
  * spots of the drawn field.
  */
 :global(.stage--kids) .score[data-active='true'] .cellPlayer .value {
-  color: var(--stage-inkOnStrong);
+  color: #fff;
   text-shadow:
     -0.1cqw 0 var(--stage-inkOutline),
     0.1cqw 0 var(--stage-inkOutline),
@@ -242,6 +251,27 @@
 }
 :global(.stage--kids) .mirrored::before {
   border-image-source: url('../../assets/kinderquiz/boxes/chip-score-player2.svg');
+}
+/*
+ * ONE PLAYER, ONE FIELD - AND THE BOARD OF THE WORLD BEHIND IT.
+ *
+ * The drawn score card has two fields: the coloured one carries the player's
+ * number, the pale one their points. Alone at the device there is no number,
+ * and the card kept the empty half beside the points - a card somebody forgot
+ * to fill in. So the column goes, and the ground becomes the same drawn board
+ * that carries the question and the panes of the menu.
+ */
+:global(.stage--kids) .score[data-points-only] {
+  grid-template-columns: 1fr;
+  min-width: 9cqw;
+}
+:global(.stage--kids) .score[data-points-only]::before {
+  /*
+   * The board is drawn tall and carries wide corners, hence the deeper slice;
+   * the stroke stays as narrow as the card's, so the chip keeps its size.
+   */
+  border-image: url('../../assets/kinderquiz/boxes/panel-question.svg') 71 fill / 2.95cqw / 0 stretch;
+  border-width: 3.35cqw;
 }
 /*
  * Player on turn: its own artwork with a coloured field and a yellow
@@ -275,10 +305,17 @@
   font-size: var(--kids-size-score);
 }
 
-/* Light version: the player on turn carries their colour strongly - text light. */
-:global(.stage--dark) .score[data-active='true'] .value,
-:global(.stage--dark) .score[data-active='true'] .label,
-:global(.stage--bright) .score[data-active='true'] .value,
-:global(.stage--bright) .score[data-active='true'] .label {
+/*
+ * The adults' stage: the player on turn carries their colour strongly, so the
+ * text on it goes light.
+ *
+ * IT ASKS FOR THE WORLD, NOT FOR THE VARIANT. This used to name the two
+ * variants there were - dark and light - and adding the red one would have
+ * meant a third selector saying the same thing. What the rule is about is the
+ * adults' stage: there the active card is a filled surface in every variant,
+ * while in the children's world it is a drawn chip that brings its own ink.
+ */
+:global(.stage--default) .score[data-active='true'] .value,
+:global(.stage--default) .score[data-active='true'] .label {
   color: var(--stage-inkOnStrong);
 }

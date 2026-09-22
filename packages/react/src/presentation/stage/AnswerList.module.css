@@ -87,7 +87,7 @@
   min-width: 0;
   display: flex;
   align-items: stretch;
-  gap: inherit;
+  gap: 0;
   margin: 0;
   padding: 0;
   border: 0;
@@ -119,7 +119,7 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Adult stage: frosted-glass bars
+ * Adult stage: semi-transparent bars
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .answers {
@@ -127,16 +127,21 @@
 }
 :global(.stage--default) .answer {
   /* Letter and row belong together - the gap is just a seam. */
-  gap: 0.25cqw;
   border-radius: var(--stage-radius);
-  animation: option-enter var(--transition-duration) var(--transition-easing) backwards;
+  /*
+   * THE ROW BRINGS ITS OWN ENTRANCE. It used to take the duration and the
+   * easing of the SCENE transition, and the rows are released in the middle of
+   * a question, where no transition runs: the variables were unset, the whole
+   * declaration invalid, and four answers appeared from one frame to the next.
+   * The duration comes from the component (`optionEnterMs`), the easing is the
+   * stage's own.
+   */
+  animation: option-enter var(--option-enter-duration, 380ms) var(--stage-fade-easing) backwards;
 }
 :global(.stage--default) .chip {
   min-width: 3.4cqw;
-  padding: 0.8cqw 0 0.4cqw;
+  padding: 0.8cqw 0 0.7cqw;
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -145,19 +150,20 @@
   font-weight: 700;
 }
 :global(.stage--default) .surface {
-  justify-content: center;
-  padding: 1cqw 1.2cqw 0.8cqw;
+  justify-content: flex-start;
+  padding: 1cqw 1.5cqw;
   background: var(--color-option);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
   border-radius: var(--stage-radius);
+  font-size: 1.5cqw;
+  font-family: var(--font-display);
+}
+:global(.stage--default) .chip + .surface {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  font-size: 1.75cqw;
-  font-family: var(--font-heading);
 }
 :global(.stage--default) .answer[data-state='selected'] .surface {
   background: var(--color-accent);
+  color: var(--stage-inkOnStrong);
 }
 :global(.stage--default) .answer[data-state='selected'] .chip {
   background: var(--color-accent);
@@ -165,6 +171,7 @@
 }
 :global(.stage--default) .answer[data-state='correct'] .surface {
   background: var(--color-solution);
+  color: var(--stage-inkOnStrong);
 }
 :global(.stage--default) .answer[data-state='correct'] .chip {
   background: var(--color-solutionChip);
@@ -178,8 +185,7 @@
 :global(.stage--default) .answer[data-state='incorrect'] .chip,
 :global(.stage--default) .answer[data-state='disabled'] .surface,
 :global(.stage--default) .answer[data-state='disabled'] .chip {
-  color: var(--color-textMuted);
-  background: color-mix(in srgb, var(--color-option) 55%, transparent);
+  opacity: 0.33;
 }
 
 /*
@@ -197,11 +203,10 @@
   padding-left: 1.6cqw;
 }
 :global(.stage--default[data-presentation='person']) .answers {
-  gap: 1.7438cqw;
+  gap: 1.3cqw;
 }
 :global(.stage--default[data-presentation='person']) .answer {
   min-height: 4.8937cqw;
-  gap: 0.9cqw;
 }
 /*
  * The letter sits in an almost square field. The width is set explicitly
@@ -229,6 +234,8 @@
   align-items: center;
   gap: var(--kids-chip-gap);
   color: var(--kids-ink);
+  /* The drawn cards move in exactly like the bars of the adults' stage. */
+  animation: option-enter var(--option-enter-duration, 380ms) var(--kids-motion-easing) backwards;
   transition:
     color var(--kids-motion-normal) var(--kids-motion-easing),
     opacity var(--kids-motion-normal) var(--kids-motion-easing);
@@ -312,7 +319,7 @@
   border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-b.svg');
 }
 :global(.stage--kids) .answer[data-state='selected'] .text {
-  color: var(--stage-inkOnStrong);
+  color: #FFF;
 }
 :global(.stage--kids) .answer[data-state='correct'] .surface::before {
   border-image-source: url('../../assets/kinderquiz/boxes/answer-box-correct.svg');
@@ -346,11 +353,6 @@
 :global(.stage--default.stage--touch) .answers {
   gap: 1.0687cqw;
 }
-:global(.stage--default.stage--touch) .surface,
-:global(.stage--default.stage--touch) .chip {
-  padding-top: 1cqw;
-  padding-bottom: 1cqw;
-}
 /*
  * The letter grows along in height and therefore also needs width -
  * otherwise it would sit as a narrow stripe next to a wide tile. The width
@@ -370,9 +372,16 @@
  * would be dark on a strong background there and thus poorly readable.
  */
 :global(.stage--bright) .answer[data-state='selected'] .surface,
-:global(.stage--bright) .answer[data-state='correct'] .surface,
 :global(.stage--bright) .answer[data-state='correct'] .chip {
   color: var(--stage-inkOnStrong);
+}
+
+:global(.stage--bright) .answer[data-state='correct'] .surface {
+  color: var(--color-solutionInk);
+}
+
+:global(.stage--bright) .answer[data-state='correct'] .chip {
+  color: var(--color-solutionChipInk);
 }
 
 /* Reduced motion: the rows appear immediately instead of running in one by one. */
@@ -380,5 +389,40 @@
   .answer {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
+    /*
+     * And without the stagger, which the component sets ON the row: without
+     * this line the last row would still wait a quarter of a second for an
+     * entrance that no longer takes place.
+     */
+    animation-delay: 0ms !important;
+  }
+}
+
+/*
+ * THE ENTRANCE OF A ROW - and it is declared HERE, in the row's own module.
+ *
+ * It used to stand in the global `styles/motion.css` next to the scene
+ * transitions, and from a module the name of a keyframe there cannot be
+ * reached: the module scopes every animation name it sees, so the rule asked
+ * for a keyframe called `_option-enter_<hash>` that nothing defined, and
+ * nothing moved. The movement belongs to this component anyway, exactly like
+ * the disc of the answer mark belongs to its own module.
+ *
+ * SUBTLE ON PURPOSE. Four rows arrive one after another
+ * (`optionStaggerMs`), so a large movement would turn the release of the
+ * answers into a piece of choreography - what it should be is a calm arrival.
+ * A row and a half of travel is enough to read as movement rather than as a
+ * jump, and it is measured in `cqw` like every other distance on the stage: a
+ * distance in pixels would be half a line in the small operator preview and a
+ * blink of an eye on the projector.
+ */
+@keyframes option-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1.4cqw);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

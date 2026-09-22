@@ -90,6 +90,26 @@ export function ArrowIcon(props: IconProps) {
   )
 }
 
+/**
+ * The cross that ends a round.
+ *
+ * Two strokes, and deliberately not a "back" arrow: this does not go one step
+ * back, it closes what is running.
+ */
+export function CloseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path
+        d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+    </Icon>
+  )
+}
+
 export function SlidersIcon(props: IconProps) {
   return (
     <Icon {...props}>

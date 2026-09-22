@@ -26,8 +26,6 @@
     "content:validate:dev": "tsx packages/content/src/cli/validate.ts --placeholder-media",
     "content:build": "tsx packages/content/src/cli/build.ts",
     "content:build:dev": "tsx packages/content/src/cli/build.ts --placeholder-media",
-    "content:build:no-video": "tsx packages/content/src/cli/build.ts --profile no-video --out content/dist-no-video",
-    "content:validate:no-video": "tsx packages/content/src/cli/validate.ts --profile no-video",
     "palette:build": "pnpm --filter @hfroemmel/quiz-themes run palette:build",
     "harness": "pnpm --filter @quiz/harness dev",
     "preview:build": "pnpm content:assets && pnpm content:build:dev && pnpm --filter @quiz/harness build",

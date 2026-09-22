@@ -198,6 +198,7 @@ export function createHarness(
       nowMs: harness.now,
       config: options.rules ? { ...testConfig, rules: options.rules } : testConfig,
       assetUrl: (assetId: string | undefined) => (assetId ? `/media/${assetId}` : undefined),
+      mediaUrl: (filename: string | undefined) => (filename ? `/media/${filename}` : undefined),
       contentVersion: 'test',
       eventDayId: 'event-day-test',
     }
@@ -275,8 +276,7 @@ export function startGame(
   /*
    * In self-service only the question stands at first afterwards. The tests
    * below almost all begin at the open answer; whoever wants to check the
-   * deadline itself starts without this helper. A video question stays
-   * untouched - there the deadline only comes after the video.
+   * deadline itself starts without this helper.
    */
   if (harness.state?.phase === 'question-presented') harness.advance(selfServiceTiming.questionLeadInMs)
   return harness.state!

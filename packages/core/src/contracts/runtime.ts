@@ -21,7 +21,7 @@ export interface QuizRuntimeConnection {
   connected: boolean
   /** Only one context plays sounds; the runtime carries the decision. */
   audioMaster: boolean
-}
+  }
 
 export interface QuizSnapshot<TView> {
   /** Role-specific view model, projected unchanged. */

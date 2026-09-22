@@ -45,7 +45,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(180deg, var(--color-stageTop), var(--color-stageBottom));
+  background: var(--color-stageTop);
   color: var(--color-text);
   font-family: var(--font-body);
 
@@ -78,9 +78,9 @@
    *
    * Not the scene changes - those bring their duration and easing from the
    * transition registry (`transitions/`). This is about everything that
-   * appears and disappears within a scene: the blurred image backdrop, a
-   * layer the host inserts. Short enough that nobody waits for it, and long
-   * enough that nothing just flashes.
+   * appears and disappears within a scene - a layer the host inserts, say.
+   * Short enough that nobody waits for it, and long enough that nothing just
+   * flashes.
    *
    * These live on the stage and not in a module, so that even a host can
    * read them - their layer should not run on a different clock than the
@@ -88,6 +88,19 @@
    */
   --stage-fade-duration: 220ms;
   --stage-fade-easing: cubic-bezier(0.22, 0.8, 0.28, 1);
+
+  /*
+   * THE FROSTED GLASS IS GONE, AND NOTHING READS THIS TOKEN ANY MORE.
+   *
+   * Score card, question counter, letter chip and answer bar used to blur
+   * what lay behind them - the question image that sat behind the scene.
+   * Neither is there now: the panes are plain semi-transparent surfaces over
+   * the stage's own ground, and no rule asks for a blur.
+   *
+   * The token stays declared so a host that reads it does not fall over an
+   * undefined value; it has no reader inside the package.
+   */
+  --stage-glass: blur(1.2cqw);
 
   /* Spacing and alignment of the scenes - the scenes read them as tokens. */
   --scene-gap: 2cqw;
@@ -113,13 +126,37 @@
    * and that has to fit on one line without the button blowing out the
    * middle of the footer.
    */
-  --stage-button-height: 5.0625cqw;
+  --stage-button-height: 4cqw;
   --stage-button-pad: 4cqw;
   --stage-button-radius: var(--stage-radius);
   --stage-button-font: var(--font-heading);
-  --stage-button-size: 1.5cqw;
+  --stage-button-size: 1.25cqw;
   --stage-button-weight: 700;
   --stage-button-gap: 1cqw;
+}
+
+/*
+ * THE RED VARIANT IS A FLAT SURFACE - AND SO IS EVERY OTHER ONE NOW.
+ *
+ * This world was once the exception: the two other variants were built on the
+ * blurred question image, the ground darkened or lightened it, and the panes
+ * above let it through like frosted glass. A commissioned ground could not
+ * survive that - every photo pulled the room's red somewhere else - so it
+ * dropped both. Since the picture behind the scene and the blur on the panes
+ * are gone everywhere, what stood here as an exception is simply the rule.
+ *
+ * WHAT STAYS IS THE DEPTH, but it is no longer made of veils. Everywhere else
+ * a pane is white at five to nine percent and the ground decides what it
+ * becomes; over this red such a veil reads as a pale patch instead of a
+ * surface. The tile and the answer option therefore name a darker red of
+ * their own (`redTile` in `palettes.ts`), and what is switched off or held
+ * back stays on the ground itself. That is the second tone this world
+ * carries, and the guard in `palette.test.ts` names both by hand. Nothing
+ * shines through any more, because behind them there is nothing but the
+ * ground.
+ */
+.stage--red {
+  --stage-glass: none;
 }
 
 /*
@@ -168,7 +205,7 @@
 /* Action colour: the one button that moves the view forward. */
 :where(.stage-button--primary) {
   background: var(--color-primary);
-  color: var(--stage-inkOnStrong);
+  color: var(--color-primaryInk);
 }
 
 /* Immediate feedback on the press - ahead of any server response. */
@@ -231,7 +268,7 @@
  * the scene takes the remaining space itself (`flex: 1`).
  */
 .stage--touch {
-  justify-content: space-between;
+  justify-content: center;
 }
 
 /* ------------------------------------------------------------------ *
@@ -287,10 +324,19 @@
   --kids-pad: 1.8cqw;
   --kids-gap: 1cqw;
   /* Visible gap between photo and question board - they must never touch. */
-  --kids-stage-gap: 2.5cqw;
+  --kids-stage-gap: 1.5cqw;
   /* Gap between letter chip and answer card. */
   --kids-chip-gap: 0.9cqw;
-  --kids-content-width: 75%;
+  /*
+   * THE STRIP KARLCHEN STANDS IN - his drawing plus the distance it keeps from
+   * the edge (`Mascot.module.css`: 32.625cqw tall at 927/1131, 1.8cqw from the
+   * right). Everything he must not cover takes its width from this one number,
+   * so the two cannot drift apart: the content used to be given a share of its
+   * own, and where that share reached into his strip the outstretched wing lay
+   * over the last word of a question.
+   */
+  --kids-mascot-strip: 28.6cqw;
+  --kids-content-width: 80cqw;
 
   /* Font sizes of the asset pack, in container units. */
   --kids-size-question: 2.8cqw;
@@ -315,8 +361,26 @@
   font-family: var(--kids-hand);
   font-weight: 400;
   /* Illustrated scene, right-aligned, fills the format. */
+  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+}
+
+/*
+ * AND THE MENU STANDS IN THE SAME SCENE.
+ *
+ * The start selection is not the stage - it exists before there is a game, so
+ * it carries the world as a data attribute instead of the stage class
+ * (`QuizGame`). Its rules live in the component's module; only the picture
+ * cannot, because the library build inlines an asset a module names, and this
+ * one is two megabytes. Named from here it stays a file beside the stylesheet
+ * (see the note in `Game.module.css`).
+ *
+ * `:has([data-quiz-start])` IS WHAT TELLS THE TWO SCREENS APART: menu and
+ * running game are the same element with the same attributes, and only the
+ * menu carries the selection inside it.
+ */
+[data-quiz-game][data-skin='kids']:has([data-quiz-start]) {
   background:
-    url('../assets/kinderquiz/backgrounds/karlchen-quiz-scene-16x9.webp') right center / cover no-repeat,
+    url('../assets/kinderquiz/backgrounds/background.webp') left center / cover no-repeat,
     linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
 
@@ -356,7 +420,12 @@
  */
 @container stage (max-width: 1099px) {
   .stage--kids {
-    --kids-content-width: 86%;
+    /*
+     * On the narrow format the motif moves, and the content may come closer to
+     * the figure - but not under him: what it gains is the outer padding, not
+     * his strip.
+     */
+    --kids-content-width: calc(100% - var(--kids-mascot-strip) + var(--kids-pad) * 2);
     background-position: 72% center;
   }
 }

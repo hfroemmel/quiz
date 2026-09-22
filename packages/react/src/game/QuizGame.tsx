@@ -15,22 +15,21 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Command, PlayerCount, PlayerQuizViewModel, QuizRuntime } from '@hfroemmel/quiz-core'
 import { deriveQuizEvents, type QuizGameResult } from '@hfroemmel/quiz-core'
-import {
-  QuizScene,
-  releaseAudio,
-  textsFor,
-  themeForSkin,
-  useAudioUnlock,
-  useQuizChrome,
-  useQuizRuntime,
-  useQuizSnapshot,
-  useQuizTheme,
-  useStageTheme,
-} from '@hfroemmel/quiz-react'
+import { DetailsStep } from '../presentation/stage/DetailsStep'
+import { QuizScene } from '../presentation/QuizScene'
+import { releaseAudio } from '../presentation/soundCues'
+import { textsFor } from '../presentation/texts'
+import { themeForSkin, useQuizChrome, useQuizTheme } from '../presentation/QuizProvider'
+import { useAudioUnlock } from '../presentation/useAudioUnlock'
+import { useStageTheme } from '../presentation/stageTheme'
+import { useQuizRuntime } from '../client/useQuizRuntime'
+import { useQuizSnapshot } from '../client/useQuizSnapshot'
 import { themeVariables } from '@hfroemmel/quiz-themes'
 import { StartMenu, type StartMenuChoice } from './StartMenu'
 import { deviceStartMenu } from './startMenuModel'
 import { GameSettings } from './GameSettings'
+import { CloseIcon } from './icons'
+import { KioskFoot } from './KioskFoot'
 import { PlayerFoot } from './PlayerFoot'
 import { clampZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
@@ -121,6 +120,40 @@ export interface QuizGameProps {
    * up to the host; the shared button is available to it as `stage-button`.
    */
   overlay?: ReactNode
+  /**
+   * The details step in the host's own words.
+   *
+   * The step itself belongs to the package: whether there is one is a question
+   * of the content (`rules.showDetailsAfterSolution` and a question with a
+   * background), when it appears is a question of the stage's timing, and that
+   * it holds the round is a rule. What it may not know is a host whose room
+   * wants a different card - a museum with its own typography, a device that
+   * also shows a QR code next to the text.
+   *
+   * Such a host gets the text and the way onward and draws the rest. Everything
+   * around it stays as it is: the round is held, the device's own way onward
+   * stays out, and this function is called only where there is something to
+   * read.
+   */
+  renderAfterSolution?: (step: { details: string; onContinue: () => void }) => ReactNode
+  /**
+   * WHICH ARRANGEMENT THIS DEVICE DRAWS AROUND THE GAME.
+   *
+   *   live    the device of a live event: score card and buzzer sit together
+   *           at the bottom in the corner of the player they belong to, and
+   *           the way out of the round sits top centre. An operator runs that
+   *           evening; the device is one seat at their table.
+   *   kiosk   a device standing on its own - the media table, the game
+   *           collection, the standalone application. Score cards and counter
+   *           move into the head as one group, the two buzzers become the
+   *           drawn push-buttons in the bottom corners, and between them a
+   *           fixed field says what to do next.
+   *
+   * IT IS A DECISION OF THE HOST, not of the content or of a screen size: the
+   * same quiz, the same engine and the same scenes run in both. Whoever says
+   * nothing gets `live`, which is what every host got before this existed.
+   */
+  layout?: 'live' | 'kiosk'
 }
 
 export function QuizGame({
@@ -134,6 +167,8 @@ export function QuizGame({
   onExit,
   idleTimeoutMs,
   overlay,
+  renderAfterSolution,
+  layout = 'live',
 }: QuizGameProps) {
   // Without a host runtime, its own connection; with one, none.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
@@ -203,16 +238,22 @@ export function QuizGame({
   const [askExit, setAskExit] = useState(false)
 
   /*
-   * The default from the config file applies on every start - but only once:
-   * after that, the toggle belongs to whoever stands in front of the device,
-   * until the next start.
+   * THE HOST'S SWITCH IS FOLLOWED, AND IT KEEPS BEING FOLLOWED.
+   *
+   * It applies on every start - and again whenever the host CHANGES it, which
+   * is the case this ref exists for: an application with a sound button of its
+   * own (the media table has one in its bar) switches it while the quiz is
+   * open, and a quiz that had only read the value once went on sounding into a
+   * room that had just asked for quiet. What is remembered is the last value
+   * TAKEN FROM THE HOST, so a device's own toggle in between still works and is
+   * only overruled when the host says something new.
    */
-  const soundSetRef = useRef(false)
+  const soundFromHost = useRef<boolean | undefined>(undefined)
   useEffect(() => {
-    if (soundDefault === undefined || soundSetRef.current) return
+    if (soundDefault === undefined || soundFromHost.current === soundDefault) return
     const state = snapshot?.view
     if (!state) return
-    soundSetRef.current = true
+    soundFromHost.current = soundDefault
     if (state.soundEnabled !== soundDefault) send({ type: 'SET_SOUND_ENABLED', enabled: soundDefault })
   }, [soundDefault, snapshot, send])
 
@@ -312,6 +353,58 @@ export function QuizGame({
   // Without a running or finished game, the server shows the start scene.
   const hasGame = view.scene !== 'start'
   const finished = view.scene === 'result'
+
+  /*
+   * THE DETAILS STEP - where the content asks for it.
+   *
+   * `rules.showDetailsAfterSolution` says whether this installation reads the
+   * background itself instead of having it told, and only then does the
+   * solution carry it (`visibleSolution.details`, see the projection). So the
+   * device decides nothing here: it shows what it is given, and a package that
+   * asks for no step gets no layer over its stage either.
+   *
+   * THE ROUND IS HELD FROM THE MOMENT THE SOLUTION STANDS, not only once the
+   * card is there. The card needs a moment - the solution is to be read first -
+   * and in those seconds the device's own way onward would still be sitting
+   * there, one thumb away from skipping the step.
+   */
+  const stepPossible = view.catalog.rules.showDetailsAfterSolution
+  const details = view.visibleSolution?.details
+  const continueRound = () => send({ type: 'CONTINUE' })
+  /**
+   * The question the card belongs to - its rubric and its prompt.
+   *
+   * They are read here and not in the card: what the stage knows about the
+   * question stands in the view model, and the card is handed what it shows
+   * (it freezes the pair while it fades, see `DetailsStep`).
+   */
+  const askedPrompt = view.question?.prompt
+  const askedCategory = view.question?.categoryLabel
+
+  /**
+   * The card: the package's own, or the host's where it brings one.
+   *
+   * `DetailsStep` keeps the last text while it is leaving, so it stays in the
+   * tree for the whole game and draws nothing between two questions. A host's
+   * own card is asked for only where there is something to read - it knows
+   * nothing of fading, and it should not have to.
+   */
+  function detailsStep(): ReactNode {
+    if (!stepPossible) return null
+    if (!renderAfterSolution) {
+      return (
+        <DetailsStep
+          details={details}
+          category={askedCategory}
+          prompt={askedPrompt}
+          continueLabel={t('kiosk.continue')}
+          label={askedPrompt}
+          onContinue={continueRound}
+        />
+      )
+    }
+    return details === undefined ? null : renderAfterSolution({ details, onContinue: continueRound })
+  }
 
   /*
    * THE MENU HANDS IN WHAT IT ASKED, AND NOTHING ELSE.
@@ -424,6 +517,20 @@ export function QuizGame({
    * window applies where no host says otherwise.
    */
   const variant = skin === 'kids' ? 'kids' : (ownTheme?.base ?? stageTheme)
+  /*
+   * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own control
+   * bar around the quiz needs to know whether it stands on paper or in the
+   * dark, and `data-theme` names a world instead (the children's paper is light
+   * too). One attribute, two values, readable from CSS without knowing the
+   * package's worlds.
+   *
+   * THE QUESTION IS ABOUT THE INK, NOT ABOUT THE HUE. This used to ask for the
+   * one dark variant there was; the red one is dark in exactly the sense that
+   * matters here - it carries the dark screen's light text - so the light side
+   * is named instead, and a new strong ground lands on the right side by
+   * itself.
+   */
+  const surface = variant === 'bright' || variant === 'kids' ? 'light' : 'dark'
 
   const settings = settingsOpen && ownDevice && (
     <GameSettings
@@ -444,14 +551,15 @@ export function QuizGame({
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
+        data-surface={surface}
         /*
-         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
-         * control bar around the quiz needs to know whether it stands on paper
-         * or in the dark, and `data-theme` names a world instead (the
-         * children's paper is light too). One attribute, two values, readable
-         * from CSS without knowing the package's worlds.
+         * WHETHER THIS DEVICE SOUNDS, readable from outside. The switch of the
+         * settings and the one a host brings along write the same game state,
+         * and this is the one place where its value is visible - during a round
+         * the settings are gone, so without it nobody could tell a silent
+         * device from a loud one.
          */
-        data-surface={variant === 'dark' ? 'dark' : 'light'}
+        data-sound={String(view.soundEnabled)}
       >
         <StartMenu
           model={deviceStartMenu(view, audienceId, playerCounts)}
@@ -476,14 +584,7 @@ export function QuizGame({
         data-quiz-game=""
         data-skin={skin}
         data-theme={variant}
-        /*
-         * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own
-         * control bar around the quiz needs to know whether it stands on paper
-         * or in the dark, and `data-theme` names a world instead (the
-         * children's paper is light too). One attribute, two values, readable
-         * from CSS without knowing the package's worlds.
-         */
-        data-surface={variant === 'dark' ? 'dark' : 'light'}
+        data-surface={surface}
       >
         <p>{t('kiosk.preparing')}</p>
       </div>
@@ -525,39 +626,86 @@ export function QuizGame({
 
 
 
+  /*
+   * THE WAY OUT OF THE ROUND - one button, two places.
+   *
+   * At a live event it sits top centre: the corners of that screen belong to
+   * the players - buzzers below, the way out of the application above - and a
+   * control that ends the round for BOTH of them does not belong in either
+   * hand. In the kiosk layout the corners carry the drawn buzzers instead, and
+   * the middle column under the hint field is the one column that belongs to
+   * nobody; the button stands at its foot, always in the same place, above
+   * nothing and below everything.
+   *
+   * WITH A CONFIRMATION in both, and not out of caution about data loss: an
+   * accidental hit would otherwise end the round for two people standing in
+   * front of it in the middle of a question.
+   *
+   * IT APPEARS ONLY WHILE A ROUND RUNS. This branch is the running game - the
+   * start menu and the waiting screen are their own returns above - and
+   * `finished` takes it off the result view, where "play again" and the way
+   * out are the offer instead. On the stage there is no such button at all:
+   * that screen is `StageScreen`, and an operator's game is not ended from the
+   * room. Whether the host draws its own instead is its word (`chrome.abort`).
+   */
+  const kiosk = layout === 'kiosk'
+  const endRound = chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
+    <button
+      type="button"
+      className={kiosk ? styles.kioskEndRound : styles.abort}
+      data-abort-game=""
+      aria-haspopup="dialog"
+      onClick={() => setAskExit(true)}
+    >
+      <CloseIcon className={kiosk ? styles.kioskEndRoundIcon : styles.abortIcon} />
+      {t('kiosk.endRound')}
+    </button>
+  )
+
   return (
-    <div className={styles.game} style={area} data-quiz-game=""
+    <div
+      className={styles.game}
+      style={area}
+      data-quiz-game=""
       data-skin={skin}
       data-theme={variant}
-      onPointerDown={idle.notice}>
+      data-layout={layout}
+      data-sound={String(view.soundEnabled)}
+      onPointerDown={idle.notice}
+    >
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 
-      {/*
-        * Exiting a running game.
-        *
-        * WITH A CONFIRMATION DIALOG, and not out of caution about data loss:
-        * the button sits at the edge of an area that is being tapped the
-        * whole time, and an accidental hit would otherwise end the game for
-        * both players standing in front of it in the middle of a question.
-        *
-        * Whether it exists is decided by the server state: in a game run by
-        * an operator, nobody may abort it from the device.
-        */}
-      {chrome.abort && !finished && view.allowedCommands.includes('ABORT_GAME') && (
-        <button type="button" className={styles.abort} data-abort-game="" onClick={() => setAskExit(true)}>
-          {t('kiosk.endGame')}
-        </button>
-      )}
+      {/* Top centre at a live event; the kiosk layout carries it in its foot. */}
+      {!kiosk && endRound}
 
       {askExit && (
         <div className={styles.overlay} data-abort-dialog="">
-          <div className={styles.panel} role="dialog" aria-label={t('kiosk.endGame')}>
-            <h2 className={styles.panelTitle}>{t('kiosk.endGameQuestion')}</h2>
+          {/*
+            * ESCAPE IS THE CANCEL. A dialog that can only be left by aiming at
+            * one of two buttons is a dialog somebody has to reach across the
+            * table for; the key that closes things closes this too.
+            */}
+          <div
+            className={styles.panel}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('kiosk.endRound')}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setAskExit(false)
+            }}
+          >
+            <h2 className={styles.panelTitle}>{t('kiosk.endRoundQuestion')}</h2>
             <div className={styles.actions}>
               <button
                 type="button"
                 className={styles.action}
                 data-abort-confirm=""
+                /*
+                 * The keyboard lands on the dialog, not behind it - and on the
+                 * answer that needs the deliberate press. Escape and the
+                 * second button are the way on from here.
+                 */
+                autoFocus
                 onClick={abort}
               >
                 {t('kiosk.end')}
@@ -583,9 +731,19 @@ export function QuizGame({
          */
         audible={hostVisible}
         variant="touch"
+        layout={layout}
         {...(answering ? { answering } : {})}
         pads={{
-          ...(overlay ? { overlay } : {}),
+          ...(overlay || stepPossible
+            ? {
+                overlay: (
+                  <>
+                    {overlay}
+                    {detailsStep()}
+                  </>
+                ),
+              }
+            : {}),
           bottom: finished ? (
             <div className={styles.footer}>
               <button
@@ -601,6 +759,17 @@ export function QuizGame({
                 </button>
               )}
             </div>
+          ) : kiosk ? (
+            <KioskFoot
+              view={view}
+              turn={turn}
+              canBuzz={(playerId) => canBuzz(view, playerId)}
+              onBuzz={(playerId) => send({ type: 'BUZZ', playerId })}
+              onResolve={() => send({ type: 'RESOLVE_ATTEMPT' })}
+              onContinue={continueRound}
+              continueElsewhere={details !== undefined}
+              endRound={endRound}
+            />
           ) : (
             <PlayerFoot
               view={view}
@@ -608,7 +777,8 @@ export function QuizGame({
               canBuzz={(playerId) => canBuzz(view, playerId)}
               onBuzz={(playerId) => send({ type: 'BUZZ', playerId })}
               onResolve={() => send({ type: 'RESOLVE_ATTEMPT' })}
-              onContinue={() => send({ type: 'CONTINUE' })}
+              onContinue={continueRound}
+              continueElsewhere={details !== undefined}
             />
           ),
         }}

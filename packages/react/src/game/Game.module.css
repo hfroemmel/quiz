@@ -48,7 +48,21 @@
    * NOT PART OF THIS are the two corner buttons, language and gear: they do
    * not stand in the row but at the edge, and are deliberately smaller.
    */
-  --kiosk-button-font-size: 1.3219vw;
+  --kiosk-button-font-size: 1.2vw;
+
+  /*
+   * THE SAME CORNER AS ON THE STAGE, for the screens that stand without one.
+   *
+   * `.stage` declares this token for everything inside it (`stage.css`); the
+   * start and waiting screens are siblings of the stage, not children, and
+   * therefore never inherited it - their cards and bars came out square.
+   * The value is repeated rather than moved, because inside the stage it must
+   * keep measuring against the stage: there `cqw` refers to the stage as the
+   * container, here - where no container is declared - to the window. In the
+   * full-screen kiosk both come out the same; in a stage boxed into a corner
+   * of a host, the stage keeps its own smaller corner.
+   */
+  --stage-radius: 0.7cqw;
 }
 
 /* The start and waiting screens stand without a stage and bring their own background. */
@@ -56,7 +70,7 @@
 .waiting {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
+  background: #eee;
 }
 
 .waiting {
@@ -198,7 +212,7 @@
 
 
 [data-skin='kids'] {
-  --kiosk-button-font-size: 1.5469vw;
+  --kiosk-button-font-size: 1.75vw;
 }
 /*
  * In the kids' world this button is also a drawn card - the same one as "Let's
@@ -298,7 +312,7 @@
  * colour in a corner always says the same thing in both places: this one is
  * playing.
  *
- * Everywhere else the corner goes to the stage's frosted tile - the very area
+ * Everywhere else the corner goes to the stage's quiet tile - the very area
  * the neutral score card carries - with the muted lettering that belongs on
  * it. Before the buzzer opens and after the solution, no corner is coloured,
  * and that is the point: the colour marks a turn, not an ownership.
@@ -312,8 +326,6 @@
 [data-skin='default'] .buzzer:disabled:not([data-armed='true']) {
   color: var(--color-textMuted);
   background: var(--color-tile);
-  backdrop-filter: blur(1.2cqw);
-  -webkit-backdrop-filter: blur(1.2cqw);
 }
 /*
  * AND IN THIS WORLD THE AREA SAYS IT, NOT THE DIMMING.
@@ -443,18 +455,113 @@
 }
 
 /*
- * The background is the same paper the game stands on afterwards.
+ * THE MENU STANDS IN THE SAME SCENE THE GAME DOES.
  *
  * The dark gradient with the two coloured lights belongs to the adults'
  * selection; the bright paper world would nearly disappear on it, and the ink
- * on it would be unreadable.
+ * on it would be unreadable. What stands here instead is the drawn scene of
+ * this world (`.stage--kids` in `styles/stage.css`), so the choosing and the
+ * playing happen in one place - a host no longer has to paint a picture of
+ * its own behind the menu to get there.
+ *
+ * It is the world's picture and not a house's: whoever gives the children's
+ * quiz a different scene exchanges this one asset, and both surfaces follow.
+ *
+ * BUT THE PICTURE IS NAMED IN `styles/stage.css`, NOT HERE, and that is not a
+ * matter of taste. This file is a CSS module: the library build bundles it and
+ * inlines every asset a rule names, whatever its size - a two megabyte drawing
+ * becomes nearly three megabytes of base64 in `quiz-react.css`, and a host's
+ * own optimiser then drops the declaration it cannot handle. The stage
+ * stylesheet is COPIED into the package beside its assets, so a `url()` there
+ * stays a file. What stays here is the paper gradient: it is what the menu
+ * stands on while the drawing loads and in any format it does not reach into.
  */
 [data-skin='kids'].startScreen {
   background: linear-gradient(180deg, var(--color-pageTop), var(--color-pageBottom));
 }
+
+/*
+ * AND THE BOARD CARRIES ONLY THE DRAWING. The adults' board names the quiz
+ * under its motif; here the motif is a character who says what this is without
+ * a word, and the name stood under it twice - once in the drawing, once as a
+ * line of type.
+ *
+ * THE THREE OF THEM STAND BEHIND THE MENU, IN THE MIDDLE OF THE SCENE.
+ *
+ * The adults' selection is two columns - the board on the left, the choosing on
+ * the right - and that is a form for a motif that is a picture: it hangs beside
+ * the form and waits. The children's motif is not a picture but three
+ * characters holding up a sign, and they belong WITH what is being chosen: over
+ * the card, greeting whoever steps up to the table, and standing behind it from
+ * the hip down as if the card were a counter they stand at.
+ *
+ * So this world makes one column of the two, centres it in the drawn scene and
+ * lets the card overlap the lower part of the drawing. The overlap is a
+ * NEGATIVE MARGIN and not an absolute position: both stay in the flow, so the
+ * pair is centred as one block and a card that grows - a setup with several
+ * quizzes to offer brings a list with it - pushes the drawing up instead of
+ * sliding under it.
+ *
+ * The widths are the design's, as a share of the area like every measure of
+ * this menu: the drawing a little narrower than the card, because what has to
+ * be read is the card.
+ */
+[data-skin='kids'] .layout {
+  grid-template-columns: minmax(0, 1fr);
+  /*
+   * THE CARD TAKES WHAT IT NEEDS, THE DRAWING TAKES WHAT IS LEFT.
+   *
+   * A menu can grow: a setup with several quizzes brings a list with it, and a
+   * translation makes a button two lines tall. If both rows were content-sized,
+   * the pair would be taller than the area on such an evening and the last
+   * thing to go off the bottom would be the button that starts the game. So the
+   * drawing's row is the elastic one - it may shrink to nothing - and the card
+   * keeps its own height in every case.
+   */
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  /*
+   * And the two of them fill their rows: the adults' pair is centred in its
+   * row, which for a picture that is meant to shrink means it keeps its size
+   * and hangs out of the row instead.
+   */
+  align-items: stretch;
+  gap: 0;
+}
+[data-skin='kids'] .brand {
+  width: 49vw;
+  height: 32vw;
+  top: -3vw;
+}
+[data-skin='kids'] .brandVisual {
+  width: 100%;
+  /*
+   * The three of them stand ON the card's upper edge: the picture keeps its
+   * proportion inside a box that changes height, and what stays put while it
+   * does is its lower edge - the feet, which the card covers.
+   */
+  object-position: bottom center;
+}
+[data-skin='kids'] .setup {
+  width: 48vw;
+  /* The card stands in front of the drawing, not under it. */
+  margin-top: -9.5vw;
+  z-index: 1;
+}
+[data-skin='kids'] .brandText {
+  display: none;
+}
 [data-skin='kids'] .start,
 [data-skin='kids'] .panel {
+  --kids-ink: var(--color-text);
   font-family: var(--kids-hand);
+}
+
+[data-skin='kids'] .panelTitle,
+[data-skin='kids'] .action,
+[data-skin='kids'] .actionSecondary {
+  font-family: var(--kids-hand);
+  color: #000;
 }
 
 /*
@@ -475,13 +582,15 @@
 [data-skin='kids'] .action,
 [data-skin='kids'] .actionSecondary,
 [data-skin='kids'] .continue,
+[data-skin='kids'] .kioskConfirm,
+[data-skin='kids'] .kioskEndRound,
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
   position: relative;
   isolation: isolate;
   border: 0;
   background: none;
-  font-family: var(--kids-hand);
+  font-family: var(--kids-hand) !important;
 }
 
 /*
@@ -494,11 +603,23 @@
 [data-skin='kids'] .action,
 [data-skin='kids'] .actionSecondary,
 [data-skin='kids'] .continue,
+[data-skin='kids'] .kioskConfirm,
+[data-skin='kids'] .kioskEndRound,
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
-  color: var(--kids-ink);
+  color: #000;
 }
 
+/*
+ * The frame is drawn INTO the padding - the cardboard of this world is a
+ * border image, and what it takes is spacing, not a border.
+ *
+ * IT NO LONGER SITS OFF TO ONE SIDE. The card used to be nudged left and down
+ * from here, which was the pair's arrangement in the two-column form: the
+ * drawing hung on the left, and the card leaned towards it. Now that both
+ * stand in one column in the middle of the scene, a nudge of its own is
+ * exactly what pushes the card out of that middle.
+ */
 [data-skin='kids'] .setup {
   padding: var(--kids-frame-width);
 }
@@ -507,6 +628,8 @@
 [data-skin='kids'] .action::before,
 [data-skin='kids'] .actionSecondary::before,
 [data-skin='kids'] .continue::before,
+[data-skin='kids'] .kioskConfirm::before,
+[data-skin='kids'] .kioskEndRound::before,
 [data-skin='kids'] .setup::before,
 [data-skin='kids'] .panel::before {
   content: '';
@@ -566,7 +689,7 @@
 }
 
 [data-skin='kids'] .check[data-on='true'] {
-  color: var(--kids-ink);
+  color: var(--start-ink-on-selected);
 }
 
 [data-skin='kids'] .cardIcon::before {
@@ -619,6 +742,29 @@
   color: inherit;
 }
 
+/*
+ * THE FOOT OF THE KIOSK ROUND IS DRAWN LIKE THE MENU ABOVE IT.
+ *
+ * "Antwort abgeben" is the same statement as "Quiz starten" - the one thing to
+ * do next - so it carries the same card. The way out of the round is the
+ * quieter one beside it, the card the second button of a row has in the menu:
+ * both are hand-drawn, and which of the two a button is stays readable from
+ * across the table.
+ */
+[data-skin='kids'] .kioskConfirm {
+  --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-correct.svg');
+  --kids-frame-slice: 24;
+  --kids-frame-width: 1.25cqw;
+}
+[data-skin='kids'] .kioskEndRound {
+  --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-d.svg');
+  --kids-frame-slice: 24;
+  --kids-frame-width: 1.25cqw;
+  /* The drawn card brings its own ground; the chip's own fill would sit on it. */
+  background: none;
+  border: 0;
+}
+
 /* The second button of a row carries the quieter card. */
 [data-skin='kids'] .actionSecondary {
   --kids-frame: url('@hfroemmel/quiz-react/assets/kinderquiz/boxes/answer-box-d.svg');
@@ -667,28 +813,6 @@
 }
 
 /*
- * The background: a gradient across the diagonal and two coloured lights -
- * green behind the brand mark on the left, violet behind the selection on the
- * right. They are the only touch of colour in an otherwise nearly black area
- * and give it depth without creating an edge anywhere.
- */
-.startScreen {
-  background:
-    radial-gradient(
-      59% 100% at 21% 50%,
-      color-mix(in srgb, var(--start-ambient-left) 16%, transparent) 0%,
-      color-mix(in srgb, var(--start-ambient-left) 4%, transparent) 58%,
-      transparent 100%
-    ),
-    radial-gradient(
-      54% 89% at 85% 35%,
-      color-mix(in srgb, var(--start-ambient-right) 11%, transparent) 0%,
-      transparent 100%
-    ),
-    linear-gradient(135deg, var(--start-bg-top) 0%, var(--start-bg-mid) 55%, var(--start-bg-bottom) 100%);
-}
-
-/*
  * Two columns in the design's ratio (535 to 646), with its gutter between
  * them. `minmax(0, ...)` instead of plain fractions: without it, a long
  * heading would stretch the column instead of wrapping.
@@ -700,7 +824,7 @@
   align-items: center;
   align-content: center;
   gap: 4.8375vw;
-  width: min(100%, 87.1875vw);
+  width: 100%;
   min-height: 0;
   margin: 0 auto;
 }
@@ -713,7 +837,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.125vw;
+  gap: 3vw;
   /*
    * THE BOARD IS AS TALL AS THE SELECTION NEXT TO IT - that is the design, and
    * it is a RELATIONSHIP, not a number. This used to say `min(70.1vh, 100%)`,
@@ -726,7 +850,6 @@
    * Its height is in `vw` like everything here - the window height never
    * comes into it.
    */
-  align-self: stretch;
   padding: 2.1938vw;
 }
 
@@ -750,7 +873,7 @@
    * The opacity takes the harshness out of the inverted white: on paper,
    * black turns into the dark anthracite the text next to it is also set in.
    */
-  filter: invert(1) opacity(0.82);
+  filter: invert(1);
 }
 
 .brandVisual {
@@ -767,14 +890,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 1cqw 0 0;
+  font-family: var(--font-heading);
+  font-size: 2.3625vw;
+  font-weight: 400;
+  line-height: 1.1;
 }
 
-.brandTitle {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: 2.9812vw;
-  font-weight: 400;
-  line-height: 1.05;
+.brandTextSubtitle {
+  margin: .45vw 0 0;
+  font-family: var(--font-ui);
+  font-size: 1.0406vw;
+  color: var(--start-text-muted);
 }
 
 /* ------------------------------------------------------------------ *
@@ -860,36 +987,26 @@
    * combined certainly cannot either.
    */
   border: 0;
-  border-radius: 1.125vw;
+  border-radius: var(--stage-radius);
   background: var(--start-option);
   color: var(--start-text);
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, box-shadow 120ms ease, scale 120ms ease, transform 120ms ease;
 }
-.card:hover {
-  background: var(--start-option-hover);
-}
 .card:active {
   transform: translateY(0.0694vw);
+}
+.cardOn {
+  background: var(--start-surface-selected);
+  color: var(--start-ink-on-selected);
 }
 /*
  * Selected stays selected, even under the pointer: without the second rule,
  * the pointer would win on ordering and the card would fall back to the quiet
  * area for the moment of touch.
  */
-.cardOn,
-.cardOn:hover {
-  background: var(--start-surface-selected);
-  /*
-   * THE TYPE BELONGS TO THE AREA IT STANDS ON. In the dark variant, the
-   * selected card is the same dark box and the type stays as it was; in the
-   * light variant it is a full blue area, and only white is used on it. One
-   * token instead of two rules.
-   */
-  color: var(--start-ink-on-selected);
-}
 .cardOn .cardMeta {
   color: var(--start-meta-on-selected);
 }
@@ -934,19 +1051,24 @@
  *
  * The kids' world is untouched by either - it sets `border: 0` itself and
  * places its painted outline behind the content (see above).
+ *
+ * THE RED VARIANT IS ONE OF THE DARK ONES HERE. It is the dark screen with its
+ * ground exchanged: the cards stay the same almost-black boxes, so they need
+ * the same edge. `:is()` says that once instead of doubling four rules, and it
+ * keeps the specificity of the single selector it replaces.
  */
-[data-theme='dark'] .card {
+:is([data-theme='dark'], [data-theme='red']) .card {
   border: 0.0694vw solid var(--start-line-strong);
 }
-[data-theme='dark'] .card:hover {
+:is([data-theme='dark'], [data-theme='red']) .card:hover {
   border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
 }
-[data-theme='dark'] .cardOn,
-[data-theme='dark'] .cardOn:hover {
+:is([data-theme='dark'], [data-theme='red']) .cardOn,
+:is([data-theme='dark'], [data-theme='red']) .cardOn:hover {
   border-color: var(--start-selected);
   border-width: 0.1389vw;
 }
-[data-theme='dark'] .actionSecondary {
+:is([data-theme='dark'], [data-theme='red']) .actionSecondary {
   border: 0.0694vw solid var(--start-line-strong);
 }
 /*
@@ -954,7 +1076,7 @@
  * second area on an area; in the dark, the selected card is only tipped
  * toward green, and the disc is what sets the icon apart from the box at all.
  */
-[data-theme='dark'] .cardOn .cardIcon {
+:is([data-theme='dark'], [data-theme='red']) .cardOn .cardIcon {
   background: color-mix(in srgb, var(--start-selected) 12%, transparent);
   color: var(--start-selected-bright);
 }
@@ -995,12 +1117,10 @@
  */
 .offer {
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   gap: 0.45vw;
-  min-height: 5.4vw;
-  padding: 0.8438vw 1.2375vw;
-  text-align: center;
+  min-height: 4vw;
+  padding: 1vw 1.5vw;
 }
 /*
  * THE EMPHASISED QUIZ TAKES THE WHOLE ROW. `grid-column: 1 / -1` instead of
@@ -1018,15 +1138,11 @@
   display: block;
   width: auto;
   max-width: 100%;
-  height: 2.4vw;
+  height: 2.4cqw;
   object-fit: contain;
 }
 .offer[data-emphasis='wide'] .offerArtwork {
-  height: 3.6vw;
-}
-/* On the card the text sits under the motif, so it is centred like it. */
-.offer .cardBody {
-  align-items: center;
+  height: 3.6cqw;
 }
 /*
  * The checkmark of a quiz card sits in its corner, not at the end of a row:
@@ -1034,8 +1150,8 @@
  */
 .offer .check {
   position: absolute;
-  top: 0.9vw;
-  right: 0.9vw;
+  top: calc(50% - 1cqw);
+  right: 1cqw;
   margin: 0;
 }
 
@@ -1107,22 +1223,17 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 1.8vw;
-  height: 1.8vw;
+  width: 2cqw;
+  height: 2cqw;
   margin-left: auto;
-  border-radius: 50%;
   color: var(--start-ink-on-badge);
 }
-.check[data-on='true'] {
-  background: var(--start-selected);
-}
 .check > svg {
-  width: 70%;
-  height: 70%;
+  width: 2cqw;
+  height: 2cqw;
 }
 [data-skin='kids'] .check {
-  width: 3vw;
-  height: 3vw;
+  display: none;
 }
 
 /*
@@ -1163,19 +1274,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.125vw;
-  min-height: 5.2875vw;
-  padding: 0 1.5188vw 0 3.0375vw;
-  border: 0.0694vw solid color-mix(in srgb, var(--start-green-edge) 42%, transparent);
-  border-radius: 1.1813vw;
-  background: linear-gradient(135deg, var(--start-green-light), var(--start-green-deep));
-  /*
-   * THE LABEL BELONGS ON THE GREEN, not on the area next to it: the bar is the
-   * only full colour, and a token that names its type carries it correctly in
-   * every variant - light on both greens, instead of inheriting the ink of the
-   * cards next to it in the light variant.
-   */
-  color: var(--start-ink-on-green);
-  font-family: var(--font-ui);
+  height: 4vw;
+  padding: 0 1.5vw;
+  border-radius: var(--stage-radius);
+  border: none;
+  background: var(--start-primary);
+  color: var(--start-primaryInk);
+  font-family: var(--font-display);
   font-size: var(--kiosk-button-font-size);
   font-weight: 700;
   cursor: pointer;
@@ -1189,9 +1294,6 @@
 }
 .setup .action {
   flex: 1 1 auto;
-}
-.action[data-start] {
-  font-size: 1.8731vw;
 }
 /*
  * The arrow sits freely on the bar - without its own disc. It only repeats
@@ -1218,7 +1320,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 5.2875vw;
+  height: 4vw;
   padding: 0 1.9688vw;
   /* The same quiet area as an unselected card, and without an edge. */
   border: 0;
@@ -1365,10 +1467,11 @@
   gap: 1.4625vw;
   min-width: 43.0556vw;
   max-width: 92%;
-  padding: 2.1938vw;
+  padding: 3vw;
   border: 0.0694vw solid var(--start-line-strong);
-  border-radius: 2.25vw;
+  border-radius: calc(var(--stage-radius) * 1.5);
   background: var(--start-surface);
+  backdrop-filter: blur(0.6vw);
   color: var(--start-text);
   font-family: var(--font-ui);
   text-align: center;
@@ -1381,6 +1484,11 @@
   font-family: var(--font-heading);
   font-size: 1.8vw;
   font-weight: 400;
+}
+
+[data-skin="kids"] .panelTitle {
+  font-family: var(--kids-hand);
+  font-size: 2.2vw;
 }
 
 /* One row per setting: on the left what it applies to, on the right the control. */
@@ -1468,26 +1576,68 @@
  * does not belong to the game shown there, but to the box it is running in -
  * and therefore looks like the other controls, not like a buzzer.
  */
+/*
+ * THE CHIP THAT ENDS A ROUND, top centre of the running game.
+ *
+ * IT LOOKS THE SAME IN EVERY WORLD. The tokens are `--stage-chip` and
+ * `--stage-inkOnChip`, which belong to no theme: a light surface with dark
+ * blue on it, opaque, so it reads on paper, on the dark stage, on the red one
+ * and over the children's drawing. It used to carry the START MENU's colours
+ * while sitting on the game, which made it the least visible thing on the
+ * darkest screen.
+ *
+ * IT SCALES WITH THE STAGE like the corners do (`--stage-zoom`), from its top
+ * centre - so it stays centred while it shrinks.
+ */
 .abort {
   position: absolute;
-  top: 0.9vw;
-  right: 1.5278vw;
+  /*
+   * The row of the header: level with the word mark of the standalone device,
+   * and level with the host's own bar where one sits above the quiz (the media
+   * table keeps its bar between 1 and 4.75 vw and lets the middle through).
+   */
+  top: 1.9vw;
+  left: 50%;
+  translate: -50%;
   z-index: 11;
-  padding: 0.6188vw 1.0687vw;
-  border: 0.0694vw solid var(--start-line-strong);
-  border-radius: 0.7875vw;
-  background: var(--start-surface);
-  color: var(--start-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5vw;
+  /*
+   * A FINGER'S TARGET, not a word's box: the padding is what makes this
+   * comfortably tappable on a table, and the minimum height holds that even
+   * where the label is short.
+   */
+  min-height: 2.5vw;
+  padding: 0.5vw 1.1vw;
+  border: 0;
+  border-radius: 0.6vw;
+  background: var(--stage-chip);
+  color: var(--stage-inkOnChip);
   font-family: var(--font-ui);
-  font-size: 0.9vw;
+  font-size: 0.95vw;
   font-weight: 600;
   cursor: pointer;
   scale: var(--stage-zoom, 1);
-  transform-origin: top right;
+  transform-origin: top center;
+}
+.abortIcon {
+  /* The cross leads the label and is as tall as its capitals. */
+  width: 1.1vw;
+  height: 1.1vw;
+  flex: none;
 }
 .abort:hover {
-  border-color: color-mix(in srgb, var(--start-selected) 55%, transparent);
-  color: var(--start-text);
+  /* The only state it has: a touch darker, so the surface answers a pointer. */
+  background: color-mix(in srgb, var(--stage-chip) 92%, var(--stage-inkOnChip));
+}
+/*
+ * The keyboard gets a ring, and it is drawn OUTSIDE the chip: inside it would
+ * sit on the ink and be read as part of the label.
+ */
+.abort:focus-visible {
+  outline: 0.2vw solid var(--stage-inkOnChip);
+  outline-offset: 0.2vw;
 }
 
 /*
@@ -1497,5 +1647,252 @@
 @media (prefers-reduced-motion: reduce) {
   .buzzer:active:not(:disabled) {
     filter: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * KIOSK LAYOUT
+ *
+ * The lower half of a device that stands on its own (see `KioskFoot`): a
+ * drawn buzzer in each bottom corner, and between them one column that says
+ * what to do and how to stop.
+ *
+ * It sits INSIDE the stage area (`StageScreen.pads`) and therefore computes
+ * in container units, like everything there - the same arrangement holds from
+ * the tablet up to the large touch table, and nothing here is measured
+ * against a window height.
+ * ------------------------------------------------------------------ */
+
+.kioskFoot {
+  /*
+   * IN THE FLOW, unlike the live device's foot. There the bar is fixed to the
+   * bottom edge and the scene above it keeps clear by a computed width; here
+   * head, scene and foot share the column, so an overlap cannot happen at any
+   * window size (see `Stage.module.css`).
+   */
+  flex: 0 0 auto;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2cqw;
+  /*
+   * The distance to the screen edge shrinks with the zoom level, exactly as in
+   * the live device's foot: otherwise the corners would drift away from the
+   * edge at a small display size.
+   */
+  padding: 0 0 2cqw;
+  height: 11cqw;
+}
+/*
+ * ONE PLAYER HAS NO CORNERS, so the column has to centre itself rather than
+ * be held in the middle by two neighbours. `space-between` with a single
+ * child would push it to the left edge.
+ */
+.kioskFoot[data-mode='solo'] {
+  justify-content: center;
+}
+/*
+ * ZOOM: EACH COLUMN TOWARD ITS OWN EDGE - the same rule as in the live foot.
+ * The buzzers belong at the screen's corners, the middle column at its
+ * bottom centre, and the space they occupy in the layout stays unchanged.
+ */
+.kioskFoot > * {
+  scale: var(--stage-zoom, 1);
+}
+.kioskCorner[data-corner='left'] {
+  transform-origin: bottom left;
+}
+.kioskCorner[data-corner='right'] {
+  transform-origin: bottom right;
+}
+.kioskMiddle {
+  transform-origin: bottom center;
+}
+
+/*
+ * The corner is the frame the confirmation hangs in: it takes the buzzer's
+ * size, and the button that appears on it is positioned against THIS box.
+ */
+.kioskCorner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/*
+ * THE BUZZER IS A DRAWING, AND STILL A BUTTON.
+ *
+ * No box of its own, no border, no background: the graphic is the whole
+ * visible button, and the element around it contributes the hit area, the
+ * keyboard and the states. Everything that says "button" in this package
+ * (`.stage-button`) is deliberately NOT used here - it would put a second
+ * rectangle around a drawing that already has its own shape.
+ */
+.buzzerGraphic {
+  width: 18cqw;
+  aspect-ratio: 360 / 300;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* No waiting for the double-tap and no blue veil on a touch device. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter 160ms ease, opacity 160ms ease, scale 120ms ease;
+}
+.buzzerImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+/*
+ * FOUR STATES, AND THEY SAY FOUR DIFFERENT THINGS.
+ *
+ *   waiting  the question is still being read - the drawing is there, taken
+ *            back, so nobody reaches for it yet
+ *   ready    the answers are up: full colour, this is the moment
+ *   armed    this corner got the buzz - it stays lit and gains a ring in the
+ *            stage's own accent, the same colour the score card above it
+ *            carries while it is this player's turn
+ *   locked   the other corner was faster, or this player has used up their
+ *            attempt: grey, and the button is disabled with it
+ */
+.buzzerGraphic[data-buzzer-state='waiting'] {
+  filter: grayscale(0.55) brightness(0.85);
+  opacity: 0.6;
+}
+.buzzerGraphic[data-buzzer-state='locked'] {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+/*
+ * The player who got the buzz keeps their button exactly as it was: red and
+ * whole. What says it is theirs is the other corner going grey and their score
+ * card in the head turning blue - two changes for one event are enough, and a
+ * third on the button they are about to be handed would be noise.
+ */
+.buzzerGraphic:disabled {
+  cursor: default;
+}
+.buzzerGraphic:active:not(:disabled) {
+  scale: 0.96;
+}
+.buzzerGraphic:focus-visible {
+  outline: 0.25cqw solid var(--color-accent);
+  outline-offset: 0.3cqw;
+  border-radius: 50%;
+}
+
+/*
+ * The middle column: hint field, the one button that belongs to both players,
+ * and the way out of the round. Each row keeps its height through every state
+ * of a question, so nothing above shifts while a finger is on its way.
+ */
+.kioskMiddle {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1cqw;
+  min-width: 0;
+  /*
+   * A width the sentences wrap inside instead of pushing the corners apart.
+   * Wide enough for the longest of them on one line, narrow enough that two
+   * lines still stand between the buzzers.
+   */
+  width: 34cqw;
+}
+/*
+ * THE HINT FIELD HAS A HEIGHT, NOT A MINIMUM.
+ *
+ * It is exactly as tall as a stage button, because one of the two things it
+ * holds IS a button ("Weiter"). The height is fixed rather than minimal so a
+ * longer sentence - a translation, a long player name - cannot make the field
+ * grow: this foot is in the flow, and anything that grows here takes its space
+ * from the scene above, which would move the question while somebody is
+ * reading it.
+ *
+ * A sentence that does not fit is not cut off either. It is anchored to the
+ * BOTTOM of the field and grows upward, into the empty space between the
+ * answers and the foot - the one direction where there is nothing to push.
+ */
+.kioskHint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /*
+   * THE FIELD IS AS WIDE AS THE COLUMN, and it has to say so: the column
+   * centres its children, and the only child of this one is positioned
+   * absolutely - so the box had no content to take its width from and
+   * collapsed to nothing. The sentence inside it then wrapped at the narrowest
+   * point it could find, one word per line, in the middle of the screen.
+   */
+  align-self: stretch;
+}
+.kioskHint .noticeText {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+/*
+ * The slot of the middle button. It keeps its height while it is empty, so
+ * that the way out of the round below it stands in the same place from the
+ * first question to the last.
+ */
+.kioskAction {
+  height: var(--stage-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kioskConfirm {
+  white-space: nowrap;
+}
+
+/*
+ * THE WAY OUT OF THE ROUND, at the foot of the middle column.
+ *
+ * The same chip as on the live device (`.abort`), in container units: here it
+ * stands inside the stage, where every size is a share of the area.
+ */
+.kioskEndRound {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5cqw;
+  height: 4cqw;
+  padding: .5cqw 1.5cqw 0.7cqw;
+  border: 0;
+  border-radius: 0.6cqw;
+  background: var(--stage-chip);
+  font-family: var(--font-ui);
+  font-size: var(--stage-button-size);
+  font-weight: 600;
+  cursor: pointer;
+}
+.kioskEndRoundIcon {
+  top: 0.1cqw;
+  position: relative;
+  width: 1.5cqw;
+  height: 1.5cqw;
+  flex: none;
+}
+
+/*
+ * Reduced motion: the buzzer's states stay, the movement between them goes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .buzzerGraphic {
+    transition: none;
+  }
+  .buzzerGraphic:active:not(:disabled) {
+    scale: 1;
   }
 }

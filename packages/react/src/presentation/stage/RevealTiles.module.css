@@ -35,6 +35,20 @@
 :global(.stage--default) .tile {
   background: var(--color-controls);
 }
+/*
+ * AND IN THE RED VARIANT THE PLATE TAKES THE TONE THAT LIES ON THE GROUND.
+ *
+ * The tone of the controls is a step away from the stage everywhere else; in
+ * this variant it IS the stage, because all four ground tokens carry the
+ * commissioned red. The cover was therefore invisible: a question with an
+ * empty red area beside it, where the room was waiting for a picture. What it
+ * carries here is the tone this world puts on its ground - the same one its
+ * tiles and answer bars have, and for the same reason: a veil over this red
+ * reads as a pale patch instead of an area.
+ */
+:global(.stage--default.stage--red) .tile {
+  background: var(--color-tile);
+}
 
 /* ------------------------------------------------------------------ *
  * Kids' world: paper with a drawn seam

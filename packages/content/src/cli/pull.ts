@@ -13,7 +13,6 @@
  * {
  *   "repository": "hfroemmel/quiz-content-data",
  *   "tag": "content-v2.0.0",
- *   "profile": "no-video",
  *   "checksum": "sha256:…",
  *   "target": "content/dist"
  * }
@@ -33,7 +32,13 @@ import { flagValue } from './dirs'
 const lockSchema = z.object({
   repository: z.string().min(1),
   tag: z.string().min(1),
-  profile: z.enum(['full', 'no-video']).default('full'),
+  /**
+   * Name of the release asset. The pipeline builds ONE package, so the
+   * default is the only archive a current release carries; older releases,
+   * from the days when the same source was built in two variants, name that
+   * variant in the file name and are reached by giving it here.
+   */
+  asset: z.string().min(1).default('content.tar.zst'),
   /** `sha256:<hex>` of the archive. Without a checksum nothing is unpacked. */
   checksum: z.string().regex(/^sha256:[0-9a-f]{64}$/, 'checksum muss "sha256:<64 Hexzeichen>" sein'),
   /** Target directory relative to the working directory. */
@@ -44,12 +49,12 @@ const args = process.argv.slice(2)
 const lockPath = resolve(flagValue(args, 'lock') ?? join(process.cwd(), 'content.lock.json'))
 if (!existsSync(lockPath)) {
   console.error(`Keine Sperrdatei gefunden: ${lockPath}`)
-  console.error('Sie nennt Repository, Tag, Profil und Pruefsumme des gewuenschten Inhaltsstands.')
+  console.error('Sie nennt Repository, Tag und Pruefsumme des gewuenschten Inhaltsstands.')
   process.exit(1)
 }
 
 const lock = lockSchema.parse(JSON.parse(readFileSync(lockPath, 'utf8')))
-const archive = `content-${lock.profile}.tar.zst`
+const archive = lock.asset
 const target = resolve(join(process.cwd(), lock.target))
 const storage = mkdtempSync(join(tmpdir(), 'quiz-content-'))
 
@@ -73,7 +78,7 @@ try {
   mkdirSync(target, { recursive: true })
   execFileSync('tar', ['--zstd', '-xf', file, '-C', target], { stdio: 'inherit' })
 
-  console.log(`Quizpaket entpackt nach ${target} (Profil ${lock.profile}, ${lock.tag}).`)
+  console.log(`Quizpaket entpackt nach ${target} (${lock.tag}).`)
 } finally {
   rmSync(storage, { recursive: true, force: true })
 }

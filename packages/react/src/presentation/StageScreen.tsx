@@ -24,7 +24,6 @@ import { effectiveDurationMs, transitionFor, transitionStyle } from './transitio
 import { PauseScene } from './scenes/PauseScene'
 import { QuestionScene } from './scenes/QuestionScene'
 import { RevealScene } from './scenes/RevealScene'
-import { VideoScene } from './scenes/VideoScene'
 import { FeedbackScene } from './scenes/FeedbackScene'
 import { SolutionScene } from './scenes/SolutionScene'
 import { ResultScene } from './scenes/ResultScene'
@@ -41,7 +40,7 @@ import type { SceneAnswering, SceneProps } from './scenes/sceneProps'
 export interface StageScreenProps {
   view: PublicQuizViewModel
   serverNow: () => number
-  /** Only the audio master plays sounds and video audio. */
+  /** Only the audio master plays sounds. */
   isAudioMaster: boolean
   /** The stage client may only report media status back. */
   onCommand?: (command: Command) => void
@@ -50,6 +49,14 @@ export interface StageScreenProps {
    * between the buzzers on the touch device.
    */
   variant?: 'stage' | 'preview' | 'touch'
+  /**
+   * Which arrangement a touch device uses around the scene (see `QuizGame`).
+   *
+   * The scene itself is the same composition in both - what differs is where
+   * the score cards, the counter and the players' hands sit. The stage does
+   * not know the question at all: `live` is what it has always been.
+   */
+  layout?: 'live' | 'kiosk'
   /**
    * Operator controls that sit over the area in the design.
    *
@@ -84,6 +91,7 @@ export function StageScreen({
   isAudioMaster,
   onCommand,
   variant = 'stage',
+  layout = 'live',
   headerSlots,
   pads,
   answering,
@@ -199,9 +207,22 @@ export function StageScreen({
         data-presentation={view.question?.presentationType}
         data-skin={skin}
         data-theme={theme ?? skin}
-        /* Paper or dark - for a host that recolours its own frame around it. */
-        data-surface={theme === 'dark' ? 'dark' : 'light'}
+        /*
+         * Paper or dark - for a host that recolours its own frame around it.
+         *
+         * The question is about the INK, not about the hue: the light side is
+         * named, so a strong new ground - the red variant - counts as dark,
+         * which is what it is here. It carries the dark stage's white text.
+         */
+        data-surface={theme === 'bright' || theme === null ? 'light' : 'dark'}
         data-phase={view.phase}
+        /*
+         * The device's arrangement, for the rules that differ between them.
+         * It stands on the stage rather than on the frame around it because
+         * head and foot are drawn inside here, and a stylesheet that has to
+         * reach both of them from one attribute needs it at their root.
+         */
+        data-layout={layout}
         /*
          * Are the answers already on stage? The children's world hangs
          * Karlchen on that: he only appears once there is something to choose -
@@ -211,38 +232,8 @@ export function StageScreen({
         data-answers-shown={String((view.visibleOptions?.length ?? 0) > 0)}
         data-transition={transition?.id ?? 'none'}
       >
-        {/*
-          * Blurred question image as atmosphere behind the scene.
-          *
-          * FAIRNESS IN THE IMAGE REVEAL: the reveal runs there as its own
-          * progress variable; the background must not get ahead of it. It is
-          * therefore blurred noticeably more strongly and darkened more
-          * strongly during the reveal phases - what remains visible is mood,
-          * not a silhouette.
-          *
-          * `aria-hidden`: pure decoration, no content.
-          */}
-        {view.question?.imageUrl && (
-          <div
-            /*
-              * THE ADDRESS IS THE IDENTITY. A new question thereby inserts a
-              * new element instead of recolouring the old one: that way the
-              * background starts fresh with every question and the old one is
-              * gone in the same instant. A cross-fade would be wrong here -
-              * for a moment the previous question's image would stand on the
-              * new one.
-              */
-            key={view.question.imageUrl}
-            className={stage.backdrop}
-            data-backdrop=""
-            data-veiled={String(isRevealing(view))}
-            data-ready={String(baseImage === view.question.imageUrl)}
-            {...(baseImage ? { style: { backgroundImage: cssUrl(baseImage) } } : {})}
-            aria-hidden="true"
-          />
-        )}
 
-        <StageHeader view={view} slots={headerSlots} variant={variant} />
+        <StageHeader view={view} slots={headerSlots} variant={variant} layout={layout} />
 
         {/*
           * THE SCENE AND ITS FIGURE ARE ONE AREA.
@@ -264,7 +255,7 @@ export function StageScreen({
             className={`${stage.sceneRoot} ${activeClass} ${transition?.classNames?.to ?? ''}`}
             data-scene-root=""
           >
-            {renderScene(view, sceneProps, isAudioMaster, onCommand)}
+            {renderScene(view, sceneProps, onCommand)}
           </div>
           <Mascot />
         </div>
@@ -302,7 +293,6 @@ function isRevealing(view: PublicQuizViewModel): boolean {
 function renderScene(
   view: PublicQuizViewModel,
   props: SceneProps,
-  isAudioMaster: boolean,
   onCommand?: (command: Command) => void,
 ) {
   switch (view.scene) {
@@ -314,8 +304,6 @@ function renderScene(
       return <QuestionScene {...props} />
     case 'reveal':
       return <RevealScene {...props} />
-    case 'video':
-      return <VideoScene {...props} isAudioMaster={isAudioMaster} onCommand={onCommand} />
     case 'feedback':
       return <FeedbackScene {...props} />
     case 'solution':

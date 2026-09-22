@@ -33,6 +33,7 @@ export function QuestionScene({ view, answering }: SceneProps) {
       <QuestionComposition
         question={question}
         imageUrl={question.imageUrl}
+        {...(question.imageCredit ? { imageCredit: question.imageCredit } : {})}
         rows={answerRows(view.visibleOptions ?? [], view.scene)}
         {...(answering ? { answering } : {})}
       />

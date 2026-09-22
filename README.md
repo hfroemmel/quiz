@@ -1,6 +1,6 @@
 # Live Quiz - the libraries
 
-This repository ships the five libraries of the Live Quiz. The applications
+This repository ships the four libraries of the Live Quiz. The applications
 live in their own repositories and pull them in as packages.
 
 | Package | Contents |
@@ -8,15 +8,14 @@ live in their own repositories and pull them in as packages.
 | `@hfroemmel/quiz-core` | Contracts, engine, runtime (`QuizService`, `LocalQuizRuntime`, `RemoteQuizRuntime`) |
 | `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
 | `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, `palette.css` / `fonts.css` |
-| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks |
-| `@hfroemmel/quiz-kiosk` | The playable quiz as a single component (`QuizGame`) |
+| `@hfroemmel/quiz-react` | `QuizScene`, `StageScreen`, scenes, sounds, connection hooks - and the playable quiz as a single component (`QuizGame`) |
 
 | Application | Repository | What it is |
 |---|---|---|
 | Stage operation | `hfroemmel/quiz-live` | Server, operator desk, stage screen, host, buzzer device |
 | Kiosk | `hfroemmel/quiz-standalone` | A single window in the foyer, no server, no network |
 | Game collection | `hfroemmel/app-collection` | Menu with an embedded quiz |
-| Content | `hfroemmel/quiz-content-data` | The editorial questions and media |
+| Content | `hfroemmel/quiz-live` | The editorial questions and media live with the application that plays them |
 
 ## The test harness
 
@@ -43,7 +42,7 @@ pnpm harness         # test harness at http://localhost:5180
 
 The test fixtures are GENERATED (`pnpm content:fixtures`): 29 synthetic
 questions and placeholder media, just enough to fill every question slot of
-every preset. The real content lives in `quiz-content-data`.
+every preset. The real content lives in `quiz-live`.
 
 ## The customer preview
 
@@ -56,8 +55,8 @@ preview on a free static host. Details in
 
 ```bash
 pnpm typecheck        # TypeScript across packages and the test harness
-pnpm test             # core, content pipeline, palette guard (342 tests)
-pnpm test:e2e         # Playwright against the harness (116 runs, screenshot baselines)
+pnpm test             # core, content pipeline, palette guard (366 tests)
+pnpm test:e2e         # Playwright against the harness (121 runs, screenshot baselines)
 pnpm packages:build   # dist per package
 pnpm packages:verify  # publint + attw on the packed tarball
 ```
@@ -76,19 +75,24 @@ Stage operation - server, SQLite, WebSocket, resumption - is verified in
 `quiz-live`, offline operation in `quiz-standalone`, and the embedding
 contract additionally in `app-collection`.
 
-Baseline of the refactoring (branch `refactor`, 2026-09-15): typecheck clean,
-342 unit tests and 116 end-to-end runs green. Every phase of
+Baseline of the refactoring (branch `refactor`, 2026-09-16): typecheck clean,
+366 unit tests and 121 end-to-end runs green. Every phase of
 `docs/refactoring/H-migration-plan.md` has to reproduce these numbers before
 it is merged.
 
 ## Publishing
 
-Changesets with fixed versioning across all five packages; a push to `main`
+Changesets with fixed versioning across all four packages; a push to `main`
 with open changesets creates the "Version Packages" PR, and merging it
 publishes to GitHub Packages. Details in
 [docs/veroeffentlichung.md](docs/veroeffentlichung.md).
 
 ## Documentation
+
+START HERE IF YOU ARE BUILDING AN APPLICATION:
+[docs/manual/index.html](docs/manual/index.html) - a step-by-step manual from an
+empty directory to a running, themed quiz. It assumes no knowledge of this
+system and shows every file a consuming application has to write.
 
 `docs/` describes the system as a whole - specification, state machine,
 design system, content format. Some documents belong topically to stage

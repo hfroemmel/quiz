@@ -7,6 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { sceneForPhase } from '../src/engine/projection'
+import { createHarness, makeQuestion, startGame } from './helpers'
 
 describe('sceneForPhase', () => {
   it('follows the phase when the question type demands nothing else', () => {
@@ -23,5 +24,42 @@ describe('sceneForPhase', () => {
   it('leaves the reveal as soon as it is resolved', () => {
     expect(sceneForPhase('solution', 'image-reveal')).toBe('solution')
     expect(sceneForPhase('attempt-feedback', 'image-reveal')).toBe('feedback')
+  })
+})
+
+/*
+ * THE LICENCE LINE TRAVELS WITH THE PICTURE.
+ *
+ * Wherever a photo is shown, the line that names its origin belongs on the
+ * screen - so it is part of the same view model as the url, in the question as
+ * in the solution. A client that had to look it up elsewhere would sooner or
+ * later show one without the other.
+ */
+describe('The licence line of a picture', () => {
+  const withImage = (credit?: string) =>
+    makeQuestion({
+      id: 'q1',
+      image: credit === undefined ? { filename: 'questions/img-1.jpg' } : { filename: 'questions/img-1.jpg', credit },
+    })
+  const rest = Array.from({ length: 6 }, (_, index) => makeQuestion({ id: `q${index + 2}` }))
+
+  it('stands beside the url of the question and of the solution', () => {
+    const harness = createHarness([withImage('Foto: Deutscher Bundestag'), ...rest])
+    startGame(harness)
+
+    expect(harness.publicView().question?.imageCredit).toBe('Foto: Deutscher Bundestag')
+
+    harness.dispatch({ type: 'RESOLVE_WITHOUT_ANSWER' })
+    expect(harness.publicView().visibleSolution?.imageCredit).toBe('Foto: Deutscher Bundestag')
+  })
+
+  it('is absent where the content names no origin', () => {
+    const harness = createHarness([withImage(), ...rest])
+    startGame(harness)
+
+    const question = harness.publicView().question
+    // The picture is there, the line is not - and the field is not an empty string.
+    expect(question?.imageUrl).toBeDefined()
+    expect(question?.imageCredit).toBeUndefined()
   })
 })

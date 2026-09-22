@@ -34,6 +34,19 @@ export const presentationTiming = {
   sceneFadeMs: 400,
   /** Delay with which answer options run in one after another. */
   optionStaggerMs: 70,
+  /**
+   * How long ONE answer row takes to move in.
+   *
+   * It used to borrow the duration of the scene transition, and that was the
+   * bug: the rows appear when the desk releases them, in the MIDDLE of the
+   * question scene, where no transition is running - so the variable was not
+   * set, the declaration was invalid and the rows simply popped up. Their
+   * entrance is their own now and needs nothing around it.
+   *
+   * Short enough that nobody waits for the answers, long enough to be a
+   * movement rather than a flicker.
+   */
+  optionEnterMs: 380,
   /** How long confetti runs on the result view. */
   resultConfettiMs: 6_000,
   /** Duration of the score count-up animation. */

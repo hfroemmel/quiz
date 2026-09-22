@@ -94,6 +94,17 @@ export class QuizService {
   /** Locale of the device - like the sound a setting, not game state. */
   private locale: string | undefined
   private selectionRationale: string | undefined
+  /**
+   * What the desk has set up but not yet started (`SELECT_QUIZ`).
+   *
+   * IT BELONGS TO THE SERVER AND NOT TO THE CONSOLE'S WINDOW, because a second
+   * screen reads it: the room's offer overview marks the card that is coming.
+   * It lives HERE and not in the game state - between two games there is no
+   * game it could belong to - and it is deliberately not persisted: a restart
+   * during an evening should not put a choice on the poster that nobody made
+   * since.
+   */
+  private quizSelection: { quizId: string; presetId?: string } | undefined
   private readonly listeners = new Set<() => void>()
   private readonly connectedClients = new Map<string, { role: ActorRole; clientId: string }>()
   private readonly warnings: string[] = []
@@ -133,9 +144,9 @@ export class QuizService {
    *
    * Deterministic strategy for running clocks (chosen this way for live
    * safety): a reveal running at the crash is restored as PAUSED - frozen at
-   * the last persisted state. A running video is no longer requested after the
-   * restart. A timed transition (feedback, pause screen) is completed at once
-   * on resume instead of waiting out an already expired deadline again.
+   * the last persisted state. A timed transition (feedback, pause screen) is
+   * completed at once on resume instead of waiting out an already expired
+   * deadline again.
    */
   private restore(): void {
     const found = this.store.loadResumableGame(this.eventDay.id)
@@ -151,18 +162,6 @@ export class QuizService {
       // `reveal-paused`. The buzzer deliberately stays open.
       if (prepared.phase === 'reveal-running') prepared.phase = 'reveal-paused'
     }
-    /*
-     * A PLAYBACK REQUEST DOES NOT SURVIVE THE RESTART.
-     *
-     * A stage executes every request it does not know yet - after a restart
-     * this one too, and the video would start over in the hall without anyone
-     * asking for it. After a crash the operator decides: the button is ready,
-     * the phase is right, and a click creates a new request.
-     *
-     * A RECONNECT of the stage is something else - there the request stays and
-     * is caught up exactly once.
-     */
-    prepared.video = undefined
     if (prepared.pendingTransition) {
       prepared.pendingTransition = { ...prepared.pendingTransition, endsAtMs: 0 }
     }
@@ -173,7 +172,7 @@ export class QuizService {
       atMs: this.now(),
       actorRole: 'system',
       category: 'system',
-      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Die Enthüllung wurde pausiert wiederhergestellt; ein Video startet erst wieder auf Befehl.`,
+      message: `Unvollständiges Spiel gefunden (Frage ${prepared.currentSlotIndex + 1}/${prepared.totalQuestions}). Die Enthüllung wurde pausiert wiederhergestellt.`,
     })
   }
 
@@ -272,6 +271,23 @@ export class QuizService {
     }
 
     /*
+     * THE CHOICE BEFORE THE START never reaches the engine: it is not a move in
+     * a game but what the desk is setting up, and it is made precisely when no
+     * game is running - or when a finished one's result has been taken off the
+     * screen. A game in progress has nothing to choose, so the command is
+     * refused there instead of quietly changing what the room announces.
+     */
+    if (envelope.command.type === 'SELECT_QUIZ') {
+      if (this.state?.status === 'active') {
+        return this.reject('invalid-phase', 'Waehrend eines laufenden Spiels kann kein Quiz gewaehlt werden.')
+      }
+      const { quizId, presetId } = envelope.command
+      this.quizSelection = presetId === undefined ? { quizId } : { quizId, presetId }
+      this.notify()
+      return { ok: true, revision: this.currentRevision }
+    }
+
+    /*
      * The same for the locale, and for the same reason: at the kiosk device the
      * switch sits on the start screen, where no game runs. If one runs, the
      * command goes through the engine and ends up in the game log.
@@ -334,6 +350,13 @@ export class QuizService {
     }
 
     this.state = result.state
+    /*
+     * THE START CONSUMES THE CHOICE. What the desk had set up is now a running
+     * game, and the form it was set up in says of itself that nothing is
+     * pre-selected there - a quiz still marked afterwards would be the last
+     * group's decision standing in front of the next one.
+     */
+    if (command.type === 'START_GAME') this.quizSelection = undefined
     if (command.type === 'SET_SOUND_ENABLED') {
       this.soundEnabled = command.enabled
       this.store.setSetting(SETTING_SOUND, String(command.enabled))
@@ -583,6 +606,7 @@ export class QuizService {
       nowMs: this.now(),
       config: this.content.config,
       assetUrl: (assetId) => this.content.assetUrl(assetId),
+      mediaUrl: (filename) => this.content.mediaUrl(filename),
       quizAvailability: this.content.quizAvailability(),
       contentVersion: this.content.contentVersion,
       eventDayId: this.eventDay.id,
@@ -594,6 +618,7 @@ export class QuizService {
       warnings: this.warnings,
       soundEnabled: this.soundEnabled,
       locale: this.locale,
+      quizSelection: this.quizSelection,
       gameCounts: this.store.gameCountsByAudience(statisticsSince),
       statisticsSinceIso: statisticsSince ?? undefined,
       additionalOperatorCommands: additional,

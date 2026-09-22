@@ -18,6 +18,11 @@ import styles from './Media.module.css'
 interface MediaProps {
   src?: string
   /**
+   * The picture's licence line. Absent means the content names no origin -
+   * then nothing stands under the photo.
+   */
+  credit?: string
+  /**
    * Image guessing only: grid and progress of the reveal.
    *
    * If this value is missing, no cover lies over the image - every other
@@ -27,7 +32,7 @@ interface MediaProps {
   variant?: 'inline' | 'reveal' | 'solution' | 'portrait'
 }
 
-export function Media({ src, reveal, variant = 'inline' }: MediaProps) {
+export function Media({ src, credit, reveal, variant = 'inline' }: MediaProps) {
   if (!src) return null
   return (
     <div className={`${styles.media} ${styles[variant]}`} data-media="" data-variant={variant}>
@@ -41,6 +46,21 @@ export function Media({ src, reveal, variant = 'inline' }: MediaProps) {
         <img className={styles.image} data-media-image="" src={src} alt="" />
         {reveal && <RevealTiles grid={reveal.grid} progress={reveal.progress} seedSource={src} />}
       </div>
+      {/*
+        * THE LICENCE LINE BELONGS TO THE PICTURE, so it stands in the frame's
+        * markup and not in whatever composition happens to hold the frame -
+        * a photo cannot then appear anywhere without it.
+        *
+        * WHERE it stands is the design world's business, and the two answer
+        * differently: on the adults' stage under the picture, in the
+        * children's world in its lower left corner. The markup says nothing
+        * about that (see stylesheet).
+        */}
+      {credit && (
+        <span className={styles.credit} data-media-credit="">
+          {credit}
+        </span>
+      )}
       {/*
         * Space for a mascot peeking over the top edge of the image. Purely
         * decorative: whether anything is visible there is decided by the

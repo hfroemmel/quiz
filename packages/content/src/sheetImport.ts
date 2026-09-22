@@ -16,7 +16,7 @@
  * compared to placing a mapping file next to it.
  */
 import { questionSchema, type Question } from '@hfroemmel/quiz-core'
-import { csvToRows } from './csv'
+import { csvToRows, gridToRows } from './csv'
 
 /** Letters of the answer options - the same order as on stage. */
 const OPTION_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'] as const
@@ -42,13 +42,34 @@ export interface SheetMapping {
     /** The correct answer - as a letter (`B`), as a number (`2`) or as text. */
     correct?: string
     acceptedAnswerText?: string
-    imageAssetId?: string
-    videoAssetId?: string
+    /**
+     * The question's picture and its licence line - two columns, one medium.
+     *
+     * A FILE NAME, NOT AN ASSET ID. The question carries its file itself
+     * (`image: { filename, credit }`), so the editorial table names the file
+     * and whose work it is, and nothing has to be declared a second time in
+     * `assets.json`.
+     */
+    image?: string
+    imageCredit?: string
+    /** A clip that runs before the question - whatever type the question is. */
     explanation?: string
     source?: string
     tags?: string
     enabled?: string
   }
+  /**
+   * The answer that is always the right one, as a 1-based position.
+   *
+   * SOME TABLES DO NOT MARK THE ANSWER, THEY ORDER IT: the first option is the
+   * correct one in every row, and the stage shuffles anyway. Stating that here
+   * beats naming the answer column and matching its text - a question whose
+   * answer is "B" or "2" reads as a letter or a position and lands on the
+   * wrong option, which is a mistake no report shows because the row passes.
+   *
+   * It wins over `columns.correct` where both are given.
+   */
+  correctOption?: number
   /** What applies where the sheet says nothing. */
   defaults?: {
     poolIds?: string[]
@@ -57,6 +78,14 @@ export interface SheetMapping {
     difficulty?: string
     questionType?: Question['questionType']
     tags?: string[]
+    /**
+     * Directory in front of a file name from the table, e.g. `questions`.
+     *
+     * An editorial table names the file, not its place: `reichstag.jpg`, not
+     * `questions/reichstag.jpg`. Where the media lie is a property of the
+     * package, so it is stated once here instead of in every row.
+     */
+    imageDirectory?: string
   }
   /**
    * Translation of cell values to identifiers - one table per field.
@@ -66,6 +95,35 @@ export interface SheetMapping {
    * that are only noticed when building.
    */
   values?: Partial<Record<'difficulty' | 'questionType' | 'categories' | 'pools' | 'audiences', Record<string, string>>>
+  /**
+   * Further languages, as column groups of the same row.
+   *
+   * An editorial team that works in two languages writes them side by side:
+   * `question` and `question_en`, `A` and `A_en`. The alternative is two
+   * sheets, and then nothing says which German question the English one
+   * belongs to - the pairing lives in the row, so it is read from the row.
+   *
+   * Only what a translation may change is named here. Everything that decides
+   * the GAME - difficulty, pool, audience, type, which option is correct -
+   * stays with the question itself: a translated row is the same question in
+   * other words, not another question.
+   *
+   * A group whose cells are empty produces no translation. That is the normal
+   * case at the edges of a corpus: not every question exists in both
+   * languages, and a half-filled translation would show a German question with
+   * English answers.
+   */
+  translations?: Record<
+    string,
+    {
+      prompt?: string
+      options?: string[]
+      acceptedAnswerText?: string
+      explanation?: string
+      image?: string
+      imageCredit?: string
+    }
+  >
 }
 
 export interface ImportFinding {
@@ -88,22 +146,49 @@ export const defaultMapping: SheetMapping = {
     options: ['A', 'B', 'C', 'D'],
     correct: 'Richtig',
     acceptedAnswerText: 'Antwort',
-    imageAssetId: 'Bild',
-    videoAssetId: 'Video',
+    image: 'Bild',
+    imageCredit: 'Bildnachweis',
     explanation: 'Erklärung',
     source: 'Quelle',
   },
   defaults: { poolIds: ['bundestag'], audiences: ['adults'], locale: 'de-DE', difficulty: 'medium' },
   values: {
     difficulty: { leicht: 'easy', mittel: 'medium', schwer: 'hard' },
+    /* THE TYPE IS THE PRESENTATION, AND NOTHING ELSE. */
     questionType: {
       text: 'text-choice',
+      multiple_choice: 'text-choice',
       bild: 'image-choice',
       person: 'person',
+      image: 'image-reveal',
       bilderkennen: 'image-reveal',
-      video: 'video-then-question',
     },
   },
+}
+
+/**
+ * A medium from two cells: the file, and whose work it is.
+ *
+ * An empty file name means there is no medium - a credit without a file is an
+ * editorial note about a picture nobody attached, and it would arrive as a
+ * medium with an empty name that no build could copy.
+ *
+ * A missing credit, by contrast, IS taken over: the question keeps its
+ * picture, and `uncreditedImages` reports the gap at the end of the import
+ * where somebody can still close it.
+ */
+function medium(
+  filename: string | undefined,
+  credit: string | undefined,
+  directory?: string,
+): { filename: string; credit?: string } | undefined {
+  const file = (filename ?? '').trim()
+  if (file === '') return undefined
+  const place = (directory ?? '').replace(/^\/+|\/+$/g, '')
+  // A name that already carries its directory keeps it - the table wins.
+  const path = place === '' || file.includes('/') ? file : `${place}/${file}`
+  const line = (credit ?? '').trim()
+  return { filename: path, ...(line === '' ? {} : { credit: line }) }
 }
 
 function identifier(value: string): string {
@@ -160,6 +245,52 @@ function findCorrect(value: string, options: { id: string; text: string }[]): st
 }
 
 /**
+ * The further languages of one row.
+ *
+ * A group is only taken over where it says something. An empty group means
+ * "this question does not exist in that language" - the normal case at the
+ * edges of a corpus - and a group with only a prompt filled means the answers
+ * are the ones of the base language, which is what a translation of a picture
+ * question often is.
+ *
+ * Options are translated INDIVIDUALLY and by their id: a group that forgets
+ * one leaves that one in the base language instead of dropping it, and the
+ * option that is compared against can never go missing that way.
+ */
+function translationsOf(
+  row: Record<string, string>,
+  groups: SheetMapping['translations'],
+): { translations: Record<string, Record<string, unknown>> } | undefined {
+  if (!groups) return undefined
+  const translations: Record<string, Record<string, unknown>> = {}
+
+  for (const [locale, group] of Object.entries(groups)) {
+    const at = (name: string | undefined): string => (name ? (row[name] ?? '').trim() : '')
+    const prompt = at(group.prompt)
+    const options = (group.options ?? [])
+      .map((name, position) => ({ id: OPTION_LETTERS[position] ?? `o${position + 1}`, text: at(name) }))
+      .filter((option) => option.text !== '')
+    const expected = at(group.acceptedAnswerText)
+      .split(/\r?\n|;/)
+      .map((entry) => entry.trim())
+      .filter((entry) => entry !== '')
+    const explanation = at(group.explanation)
+    const image = medium(at(group.image), at(group.imageCredit))
+
+    const entry = {
+      ...(prompt ? { prompt } : {}),
+      ...(options.length > 0 ? { options } : {}),
+      ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
+      ...(explanation ? { explanation: { summary: explanation } } : {}),
+      ...(image ? { image } : {}),
+    }
+    if (Object.keys(entry).length > 0) translations[locale] = entry
+  }
+
+  return Object.keys(translations).length > 0 ? { translations } : undefined
+}
+
+/**
  * Translate a sheet into questions.
  *
  * A row that does not pass does NOT stop the import: it is reported with row
@@ -168,7 +299,23 @@ function findCorrect(value: string, options: { id: string; text: string }[]): st
  * expensive answer for the editors - the report says what is missing.
  */
 export function importSheet(csv: string, mapping: SheetMapping = defaultMapping): ImportFinding {
-  const { columns, rows } = csvToRows(csv)
+  return importRows(csvToRows(csv), mapping)
+}
+
+/**
+ * The same import from a workbook's grid - see `readWorkbook`.
+ *
+ * A sheet in a file and a sheet exported as CSV are the same table; only the
+ * way in differs, and it ends here.
+ */
+export function importGrid(grid: string[][], mapping: SheetMapping = defaultMapping): ImportFinding {
+  return importRows(gridToRows(grid), mapping)
+}
+
+function importRows(
+  { columns, rows }: { columns: string[]; rows: Record<string, string>[] },
+  mapping: SheetMapping,
+): ImportFinding {
   const to = mapping.columns
   const preset = mapping.defaults ?? {}
   const values = mapping.values ?? {}
@@ -197,7 +344,13 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
       preset.questionType ??
       (options.length >= 2 ? 'text-choice' : 'image-reveal')
 
-    const correctOptionId = options.length >= 2 ? findCorrect(cell(to.correct) ?? '', options) : undefined
+    const fixedCorrect = mapping.correctOption
+    const correctOptionId =
+      options.length < 2
+        ? undefined
+        : fixedCorrect !== undefined
+          ? options[fixedCorrect - 1]?.id
+          : findCorrect(cell(to.correct) ?? '', options)
     if (options.length >= 2 && !correctOptionId) {
       skippedRows.push({ row: rowNumber, reason: 'Die richtige Antwort ist nicht zuzuordnen.' })
       return
@@ -211,8 +364,7 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
       .map((entry) => entry.trim())
       .filter((entry) => entry !== '')
 
-    const image = cell(to.imageAssetId)?.trim()
-    const film = cell(to.videoAssetId)?.trim()
+    const image = medium(cell(to.image), cell(to.imageCredit), preset.imageDirectory)
     const explanation = cell(to.explanation)?.trim()
     const source = cell(to.source)?.trim()
 
@@ -233,12 +385,11 @@ export function importSheet(csv: string, mapping: SheetMapping = defaultMapping)
       evaluationMode: correctOptionId ? ('option-comparison' as const) : ('manual-correct-incorrect' as const),
       ...(options.length >= 2 ? { options: options, correctOptionId } : {}),
       ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
-      ...(image || film
-        ? { media: { ...(image ? { imageAssetId: image } : {}), ...(film ? { videoAssetId: film } : {}) } }
-        : {}),
+      ...(image ? { image } : {}),
       ...(explanation || source
         ? { explanation: { ...(explanation ? { summary: explanation } : {}), ...(source ? { source: source } : {}) } }
         : {}),
+      ...(translationsOf(row, mapping.translations) ?? {}),
       enabled: yesNo(cell(to.enabled)) ?? true,
     }
 
@@ -272,11 +423,3 @@ export function csvUrl(sheet: string): string {
   const address = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`
   return gid ? `${address}&gid=${gid}` : address
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `ImportFinding`. */
-export type ImportBefund = ImportFinding
-/** @deprecated Renamed to `defaultMapping`. */
-export const standardMapping = defaultMapping
-/** @deprecated Renamed to `importSheet`. */
-export const importiereTabelle = importSheet

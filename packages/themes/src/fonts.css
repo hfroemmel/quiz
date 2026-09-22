@@ -56,3 +56,26 @@
   font-style: normal;
   font-display: block;
 }
+
+/* ------------------------------------------------------------------ *
+ * The families as tokens
+ *
+ * THEY BELONG NEXT TO THE `@font-face` RULES, because only a host that
+ * loads this file has the files behind them. They used to live in the
+ * harness alone (`harness/src/styles/tokens.css`), and the package
+ * stylesheets pointed at values no published package carried: in an
+ * application every `var(--font-ui)` and `var(--font-display)` fell back
+ * to the browser's default, although the file was loaded.
+ *
+ * `--font-heading` and `--font-body` are a FALLBACK here. In operation a
+ * theme sets them as an inline style on the frame (`themeVariables` in
+ * `sceneTheme.ts`), and that beats what stands here - a stage without a
+ * theme still reads in Melior.
+ * ------------------------------------------------------------------ */
+
+:root {
+  --font-heading: 'Melior', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-heading);
+  --font-display: 'Noto Sans Display', 'Segoe UI', system-ui, sans-serif;
+  --font-ui: var(--font-display);
+}

@@ -25,7 +25,6 @@ export const questionPresentationTypes = [
   'image-choice',
   'person',
   'image-reveal',
-  'video-then-question',
 ] as const
 export type QuestionPresentationType = (typeof questionPresentationTypes)[number]
 
@@ -73,11 +72,27 @@ export const questionExplanationSchema = z.object({
 })
 export type QuestionExplanation = z.infer<typeof questionExplanationSchema>
 
-export const questionMediaSchema = z.object({
-  imageAssetId: idSchema.optional(),
-  videoAssetId: idSchema.optional(),
+/**
+ * A medium of a question - the file, and whose work it is.
+ *
+ * NO ASSET ID AND NO ENTRY IN `assets.json`. A question's picture is not a
+ * shared, named thing that several places point at: it belongs to this one
+ * question, and the id in between was a key that existed only to find the file
+ * name behind it. The licence line travels with it, where an editor writes it -
+ * in the editorial table next to the file name, and it arrives here through the
+ * import.
+ *
+ * `assets.json` keeps what the HOUSE brings: word marks, start visuals, quiz
+ * motifs. Those are few, they are referenced by id from the configuration, and
+ * they are reused - that is what a directory is for.
+ */
+export const questionAssetSchema = z.object({
+  /** Path under the package's `assets/`, e.g. `questions/reichstag.jpg`. */
+  filename: z.string().min(1),
+  /** The licence line. Missing is reported, not refused - see `uncreditedImages`. */
+  credit: z.string().optional(),
 })
-export type QuestionMedia = z.infer<typeof questionMediaSchema>
+export type QuestionAsset = z.infer<typeof questionAssetSchema>
 
 /* ------------------------------------------------------------------ *
  * Multiple languages
@@ -119,12 +134,8 @@ export const questionTranslationSchema = z.object({
   options: z.array(answerOptionSchema).optional(),
   acceptedAnswerText: z.array(z.string().min(1)).optional(),
   explanation: questionExplanationSchema.optional(),
-  media: z
-    .object({
-      imageAssetId: idSchema.optional(),
-      videoAssetId: idSchema.optional(),
-    })
-    .optional(),
+  /** A picture with words in it is a different picture in another language. */
+  image: questionAssetSchema.optional(),
 })
 export type QuestionTranslation = z.infer<typeof questionTranslationSchema>
 
@@ -158,7 +169,12 @@ export const questionSchema = z.object({
   /** For oral answers: expected wordings as help for the moderator. */
   acceptedAnswerText: z.array(z.string().min(1)).optional(),
 
-  media: questionMediaSchema.optional(),
+  /**
+   * The question's picture, with the file and its licence line.
+   *
+   * Which types need one is decided by `presentationNeedsImage`.
+   */
+  image: questionAssetSchema.optional(),
   explanation: questionExplanationSchema.optional(),
   /** Versions in other locales, by locale tag. Anything missing falls back. */
   translations: z.record(z.string().min(2), questionTranslationSchema).optional(),
@@ -200,7 +216,14 @@ export function isSelfServiceAnswerable(question: Question): boolean {
 
 export const mediaAssetSchema = z.object({
   id: idSchema,
-  kind: z.enum(['image', 'video', 'audio']),
+  /*
+   * A picture or a sound. The moving picture is gone: a clip before the
+   * question was its own section of the flow, its own scene, its own audio
+   * authority and its own two commands, and it earned none of that - the
+   * rounds that shipped carried no video, and the only ones that ever existed
+   * were fixtures for the tests of the feature itself.
+   */
+  kind: z.enum(['image', 'audio']),
   /** Path relative to the asset root of the package. Never absolute, never with "..". */
   filename: z
     .string()
@@ -518,15 +541,19 @@ export type QuizConfig = z.infer<typeof quizConfigSchema>
  * Package (section 24.3)
  * ------------------------------------------------------------------ */
 
-/** Content profiles of the pipeline. `no-video` serves the offline apps. */
-export const contentProfiles = ['full', 'no-video'] as const
-export type ContentProfile = (typeof contentProfiles)[number]
-
 export const quizPackageManifestSchema = z.object({
   schemaVersion: z.string().min(1),
   contentVersion: z.string().min(1),
-  /** Content profile of the build. If missing (older packages), `full` applies. */
-  profile: z.enum(contentProfiles).optional(),
+  /**
+   * The profile a package was built with.
+   *
+   * THE PIPELINE NO LONGER HAS ONE. It had two - `full` and `no-video`, the
+   * second one for the offline applications, which could not ship the clips -
+   * and with the video feature gone the distinction is gone with it. The field
+   * stays readable so packages built before that still load; nothing reads the
+   * value.
+   */
+  profile: z.string().optional(),
   createdAt: z.string().min(1),
   sourceRevision: z.string().optional(),
   questionsFile: z.string().min(1),
@@ -561,7 +588,7 @@ export const patchableQuestionFieldsSchema = questionSchema
     correctOptionId: true,
     acceptedAnswerText: true,
     explanation: true,
-    media: true,
+    image: true,
     enabled: true,
   })
   .partial()
@@ -583,7 +610,3 @@ export const questionPatchSchema = z.object({
   applyMode: z.enum(['next-use', 'immediate-confirmed']),
 })
 export type QuestionPatch = z.infer<typeof questionPatchSchema>
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `translatedLabels`. */
-export const uebersetzteBeschriftung = translatedLabels

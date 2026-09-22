@@ -188,21 +188,26 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       }
     }
 
-    let mediaAssetId: string | undefined
-    if (imageFile) {
-      mediaAssetId = `img-${id}`
-      assets.set(mediaAssetId, {
-        id: mediaAssetId,
-        kind: 'image',
-        filename: `${imageDirectory}/${imageFile}`,
-        mimeType: mimeTypeForFile(imageFile),
-        // Image credit and content source are two different things:
-        // the credit belongs to the medium, the source to the explanation.
-        credit: asString(pick(record, ['img_credit', 'imgCredit', 'bildnachweis', 'credit'])),
-        sourceUrl: asString(pick(record, ['source_url', 'sourceUrl', 'quelle'])),
-      })
-    }
-    if (mediaAssetId && !assets.get(mediaAssetId)?.credit) {
+    /*
+     * The picture goes ON the question, not into a medium directory.
+     *
+     * It used to become an asset of its own with a generated id (`img-<id>`),
+     * and the id existed for nothing but finding the file name behind it. The
+     * question carries file and credit now, which is also the shape the
+     * editorial table has (`img_filename`, `img_credit`).
+     */
+    const image = imageFile
+      ? {
+          filename: `${imageDirectory}/${imageFile}`,
+          // Image credit and content source are two different things:
+          // the credit belongs to the medium, the source to the explanation.
+          ...(() => {
+            const credit = asString(pick(record, ['img_credit', 'imgCredit', 'bildnachweis', 'credit']))
+            return credit ? { credit } : {}
+          })(),
+        }
+      : undefined
+    if (image && image.credit === undefined) {
       notes.push({
         severity: 'needs-review',
         code: 'missing-image-credit',
@@ -210,16 +215,38 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
         message: 'Bild ohne Bildnachweis. Vor der Veroeffentlichung klaeren.',
       })
     }
-    if ((presentationType === 'image-choice' || presentationType === 'image-reveal') && !mediaAssetId) {
+    if ((presentationType === 'image-choice' || presentationType === 'image-reveal') && !image) {
       skipped.push({ legacyId, reason: 'Bildfrage ohne hinterlegtes Bild.' })
       continue
     }
 
+    /*
+     * `info` IS THE BACKGROUND, not a short version of it.
+     *
+     * It is the paragraph an audience reads after the solution where nobody
+     * tells it (`rules.showDetailsAfterSolution`), so it becomes
+     * `explanation.details`. It used to land in `summary`, which is the
+     * moderator's lead-in - and a lead-in of six lines is none.
+     *
+     * `Anmerkung` is not content at all: it is what one editor wrote to
+     * another about a question. It therefore becomes a note of the report
+     * instead of a field of the product - dropping it silently would lose a
+     * remark somebody meant to be read, and shipping it would put it on a
+     * screen.
+     */
     const info = asString(pick(record, ['info', 'zusatzinfo', 'explanation']))
     const remark = asString(pick(record, ['Anmerkung', 'anmerkung', 'note', 'hinweis']))
     const sourceReference = asString(pick(record, ['source_reference', 'sourceReference', 'quellenangabe']))
-    if (!info && !remark) {
+    if (!info) {
       notes.push({ severity: 'needs-review', code: 'missing-info', questionId: id, message: 'Kein Zusatzinformationstext.' })
+    }
+    if (remark) {
+      notes.push({
+        severity: 'needs-review',
+        code: 'editorial-remark',
+        questionId: id,
+        message: `Redaktionelle Anmerkung, nicht uebernommen: ${remark}`,
+      })
     }
 
     // `playCount` is runtime data and is deliberately not adopted; usages
@@ -251,10 +278,9 @@ export function migrateLegacy(options: MigrationOptions): MigrationResult {
       options: selectableOptions.length ? selectableOptions : undefined,
       correctOptionId: selectableOptions.length ? selectableOptions[0]!.id : undefined,
       acceptedAnswerText: expectedAnswers.length ? expectedAnswers : undefined,
-      media: mediaAssetId ? { imageAssetId: mediaAssetId } : undefined,
+      image,
       explanation: {
-        summary: info,
-        details: remark,
+        details: info,
         source: sourceReference,
       },
       enabled: true,
@@ -444,8 +470,6 @@ function mimeTypeForFile(filename: string): string {
     webp: 'image/webp',
     gif: 'image/gif',
     svg: 'image/svg+xml',
-    mp4: 'video/mp4',
-    webm: 'video/webm',
   }
   return map[extension] ?? 'application/octet-stream'
 }

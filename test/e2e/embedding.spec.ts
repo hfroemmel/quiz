@@ -154,3 +154,41 @@ test("the host's own layer sits inside the stage and carries its dimensions", as
   await page.locator('[data-shell-layer-close]').click()
   await expect(layer).toHaveCount(0)
 })
+
+test("the host's sound switch applies before a round and during one", async ({ page }) => {
+  /*
+   * WHY THIS IS CHECKED IN THE HOST AND NOT AT THE DEVICE: the switch of the
+   * settings belongs to whoever stands in front of the device, and it is gone
+   * while a round runs. An application that embeds the quiz has a switch of
+   * its own - the media table keeps one in its bar - and that one keeps
+   * applying: a quiz that read the value once would go on sounding into a room
+   * that has just asked for quiet.
+   */
+  await page.goto('/shell')
+
+  // The collection starts loud, so the device does too.
+  await page.locator('[data-shell-sound]').click()
+  await expect(page.locator('[data-shell-sound]')).toHaveAttribute('aria-pressed', 'false')
+
+  await intoQuiz(page)
+  const device = page.locator('[data-quiz-game]')
+  await expect(device).toHaveAttribute('data-sound', 'false')
+
+  // The settings say the same thing - it is one state, not two.
+  await page.locator('[data-settings-open]').click()
+  await expect(page.locator('[data-sound-off]')).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('[data-settings-close]').click()
+
+  await page.getByRole('button', { name: /^Zu zweit/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+  await expect(device).toHaveAttribute('data-sound', 'false')
+
+  // And thrown in the middle of the round, it reaches the running game.
+  await page.locator('[data-shell-sound]').click()
+  await expect(device).toHaveAttribute('data-sound', 'true')
+
+  await page.locator('[data-shell-sound]').click()
+  await expect(device).toHaveAttribute('data-sound', 'false')
+})

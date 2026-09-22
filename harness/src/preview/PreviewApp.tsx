@@ -39,12 +39,12 @@ import styles from './PreviewApp.module.css'
  */
 const SKINS: Record<string, ThemeSkin> = { default: 'default', kids: 'kids' }
 
-const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'video', 'feedback', 'solution', 'result']
+const SCENES: PublicScene[] = ['start', 'pause', 'question', 'reveal', 'feedback', 'solution', 'result']
 
 /**
  * Question types with their own layout that can be checked in the question
- * and solution scenes. `image-reveal` and `video-then-question` have their
- * own scenes and are therefore not offered as a choice.
+ * and solution scenes. `image-reveal` has a scene of its own and is
+ * therefore not offered as a choice.
  */
 const QUESTION_TYPES: QuestionPresentationType[] = ['image-choice', 'text-choice', 'person']
 
@@ -74,10 +74,6 @@ export function PreviewApp() {
    * without a server. The joker card itself lives in the live quiz.
    */
   const [fiftyFifty, setFiftyFifty] = useState(false)
-  /*
-   * The video's current state. The operator preview announces exactly that,
-   * and the stage fades the area out as soon as it has ended.
-   */
   // Remount to replay the same transition.
   const [runId, setRunId] = useState(0)
 
@@ -194,9 +190,8 @@ export function PreviewApp() {
           *
           * WHERE THE SCENE RUNS is part of the package's surface and
           * therefore belongs in the harness. The operator's preview is not
-          * the same view as the projector: it may carry direction cues -
-          * whether a video is currently playing, for instance - that have no
-          * business being in the hall.
+          * the same view as the projector: it may carry direction cues that
+          * have no business being in the hall.
           */}
         <label className="field">
           <span>Ansicht</span>
@@ -343,6 +338,8 @@ function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
         presentationType: type,
         categoryLabel: 'Personen',
         imageUrl: previewPortrait,
+        /* Every photo of the corpus carries one - so the preview carries one too. */
+        imageCredit: 'Deutscher Bundestag / Beispielfoto',
       },
       answers: ['Bärbel Bas', 'Rita Süssmuth', 'Annemarie Renger', 'Hildegard Hamm-Brücher'],
     }
@@ -353,7 +350,9 @@ function sampleQuestion(type: QuestionPresentationType, longText: boolean) {
       prompt: longText ? LONG_PROMPT : 'Welcher Fluss fließt durch Köln?',
       presentationType: type,
       categoryLabel: 'Erdkunde',
-      ...(type === 'image-choice' ? { imageUrl: previewImage } : {}),
+      ...(type === 'image-choice'
+        ? { imageUrl: previewImage, imageCredit: 'Deutscher Bundestag / Beispielfoto' }
+        : {}),
     },
     answers: ['Rhein', 'Elbe', 'Donau', 'Main'],
   }
@@ -459,27 +458,10 @@ function buildSampleView(input: {
           prompt: 'Welches Bauwerk ist hier zu sehen?',
           presentationType: 'image-reveal',
           imageUrl: previewImage,
+          imageCredit: 'Deutscher Bundestag / Beispielfoto',
           categoryLabel: 'Gebäude',
         },
         reveal: { status: 'paused', durationMs: gameTiming.imageRevealDurationMs, elapsedMs: input.revealElapsedMs },
-      }
-    case 'video':
-      /*
-       * There is exactly ONE state: the video area is present, a job is
-       * queued. How far playback has progressed is as unknown to the preview
-       * as to the server. The URL deliberately points nowhere - what's being
-       * checked is the composition.
-       */
-      return {
-        ...base,
-        phase: 'video',
-        question: {
-          id: 'video-1',
-          prompt: 'Videofrage',
-          presentationType: 'video-then-question',
-          videoUrl: '/media/beispielvideo',
-        },
-        video: { questionId: 'video-1', requestId: 'vorschau' },
       }
     case 'feedback':
       return {

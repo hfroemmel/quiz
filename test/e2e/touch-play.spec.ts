@@ -140,8 +140,8 @@ test('the start selection is in the same version as the stage afterwards', async
     const value = (name: string) => measured.getPropertyValue(name).trim()
     return { ground: value('--start-bg-top'), selection: value('--start-selected'), green: value('--start-green') }
   })
-  // Paper, not night.
-  expect(colors.ground).toBe('#fff')
+  // Paper, not night - `Weiß` of the federal spectrum, as the palette writes it.
+  expect(colors.ground).toBe('#FFFFFF')
   /*
    * THE SELECTION IS NOT THE ACTION. Both used to be the same green; on paper
    * the selection carries the blue of the marked answer, and green belongs
@@ -174,8 +174,19 @@ test('chosen, open and the three states in between can be told apart', async ({ 
   })
   expect(state.area).not.toBe(openState.area)
   expect(state.font).not.toBe(openState.font)
-  // The selection mark carries exactly the selection colour - the same as the fill beneath it.
-  await expect(chosen.locator('[data-on="true"]')).toHaveCSS('background-color', color(selection))
+  /*
+   * The selection mark reads ON the selected card. It used to be a disc in the
+   * selection colour, from the days when the card itself stayed pale; the card
+   * is the coloured area now, so the mark is the ink that carries on it - a
+   * disc of the same colour inside it would be a second statement of the same
+   * thing.
+   */
+  const mark = chosen.locator('[data-on="true"]')
+  const ink = await page
+    .locator('[data-quiz-game]')
+    .evaluate((node) => getComputedStyle(node).getPropertyValue('--start-ink-on-badge').trim())
+  await expect(mark).toHaveCSS('color', color(ink))
+  expect(state.area).toBe(color(selection))
 
   /*
    * Shows that the fill of the open card lifts without a line appearing. The
@@ -307,6 +318,100 @@ test('the primary button of the kids world is the same everywhere', async ({ pag
   const inGame = await drawing(page, '[data-confirm]')
 
   expect(inGame).toBe(inSelection)
+})
+
+/**
+ * WHERE THE MOTIF STANDS IN THE CHILDREN'S SELECTION.
+ *
+ * The adults' selection is two columns: the board with the motif on the left,
+ * the choosing on the right. The children's motif is not a picture but three
+ * characters holding up a sign, and they belong with what is being chosen -
+ * over the card, in the middle of the drawn scene, standing behind it from the
+ * hip down as if the card were a counter they stand at.
+ *
+ * Four things are measured, and each of them is a way this can go wrong: the
+ * two are centred on each other and in the area (a nudge left over from the
+ * two-column form put the card off-centre), the drawing really does continue
+ * behind the card rather than ending above it, the card is IN FRONT (read off
+ * the pixel, not off a z-index), and nothing is cut off - not the drawing at
+ * the top, and above all not the button that starts the game.
+ */
+async function selectionBoxes(page: Page) {
+  return page.locator('[data-quiz-start-content]').evaluate((layout) => {
+    const box = (element: Element) => {
+      const rect = element.getBoundingClientRect()
+      return {
+        top: Math.round(rect.top),
+        bottom: Math.round(rect.bottom),
+        left: Math.round(rect.left),
+        right: Math.round(rect.right),
+        middle: Math.round(rect.left + rect.width / 2),
+      }
+    }
+    const motif = layout.querySelector('img')!
+    const card = layout.querySelector('section')!
+    const cardBox = card.getBoundingClientRect()
+    /* Who is painted where the two meet - the card's own upper edge. */
+    const atTheSeam = document.elementFromPoint(
+      Math.round(cardBox.left + cardBox.width / 2),
+      Math.round(cardBox.top + 4),
+    )
+    return {
+      /* The menu is the screen the arrangement stands on; the area is its row. */
+      menu: box(layout.closest('[data-quiz-start]')!),
+      area: box(layout),
+      motif: box(motif),
+      motifLoaded: motif.naturalWidth > 0,
+      card: box(card),
+      inFront: card === atTheSeam || card.contains(atTheSeam) ? 'card' : (atTheSeam?.tagName ?? 'nothing'),
+    }
+  })
+}
+
+test('the children selection stands in the middle, with the three of them behind it', async ({ page }) => {
+  await page.goto('/play?audience=kids')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'kids')
+
+  const kids = await selectionBoxes(page)
+  // Without a motif this test would measure an empty box and prove nothing.
+  expect(kids.motifLoaded).toBe(true)
+
+  // One above the other, both in the middle of the area.
+  expect(Math.abs(kids.card.middle - kids.area.middle)).toBeLessThanOrEqual(1)
+  expect(Math.abs(kids.motif.middle - kids.card.middle)).toBeLessThanOrEqual(1)
+
+  // The drawing goes on behind the card - and the card is what one sees there.
+  expect(kids.motif.bottom).toBeGreaterThan(kids.card.top)
+  expect(kids.motif.top).toBeLessThan(kids.card.top)
+  expect(kids.inFront).toBe('card')
+
+  /*
+   * AND NOTHING LEAVES THE SCREEN. The card keeps its height in every case, so
+   * what has to give way is the drawing.
+   *
+   * THE DRAWING IS MEASURED AGAINST THE MENU, NOT AGAINST THE ROW IT STANDS IN:
+   * it may well reach into the menu's own padding - a head that peeks over the
+   * edge of the arrangement is exactly what makes these three stand behind the
+   * card rather than in a frame. What must not happen is that it leaves the
+   * screen, and that is the boundary this checks.
+   */
+  expect(kids.motif.top).toBeGreaterThanOrEqual(kids.menu.top)
+  expect(kids.card.bottom).toBeLessThanOrEqual(kids.area.bottom)
+})
+
+test('the adults selection keeps its two columns side by side', async ({ page }) => {
+  /*
+   * The arrangement above belongs to the children's world, and this is where
+   * that shows: here the motif hangs BESIDE the choosing, and the two stand in
+   * two places rather than one.
+   */
+  await openStartScreen(page)
+  await expect(page.locator('[data-quiz-game]')).toHaveAttribute('data-skin', 'default')
+
+  const adults = await selectionBoxes(page)
+  expect(adults.motif.right).toBeLessThanOrEqual(adults.card.left)
+  expect(adults.motif.middle).not.toBe(adults.card.middle)
 })
 
 test('the adults selection stays undrawn', async ({ page }) => {
@@ -557,8 +662,8 @@ test('the idle watch releases the device again', async ({ page }) => {
   /*
    * Eight seconds instead of two minutes - the supervision limit comes in as
    * an operating setting. It must not be any shorter here: the countdown runs
-   * from the start of the game, and the lead-in of video and interstitial
-   * screen still counts towards it.
+   * from the start of the game, and the lead-in of the interstitial screen
+   * still counts towards it.
    */
   await page.goto('/play?idle=8')
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
@@ -614,6 +719,11 @@ test('a solo game runs to the result without a single operator command', async (
   // Solo result: no winner, just your own number of correct answers.
   await expect(page.locator('[data-result-label]')).toHaveText('Ergebnis')
   await expect(page.getByRole('button', { name: 'Nochmal spielen' })).toBeVisible()
+  /*
+   * And no way to end a round that is over: the result view offers another
+   * round and the way out instead.
+   */
+  await expect(page.locator('[data-abort-game]')).toHaveCount(0)
 })
 
 /* ------------------------------------------------------------------ *
@@ -734,7 +844,15 @@ test('the scene appears immediately in the set size, not only after the transiti
   expect(Math.max(...measured) - Math.min(...measured)).toBeLessThan(2)
 })
 
-test('"end game" asks first and leads back to the selection', async ({ page }) => {
+/* ------------------------------------------------------------------ *
+ * Ending a running round
+ *
+ * The one control that sits ON the game. What is checked is where it is, when
+ * it exists, that it asks before it acts, and that what comes back is a menu
+ * and not the remains of a round.
+ * ------------------------------------------------------------------ */
+
+test('"end round" asks first and leads back to the selection', async ({ page }) => {
   await startGame(page, 'Allein')
 
   await page.locator('[data-abort-game]').click()
@@ -748,6 +866,110 @@ test('"end game" asks first and leads back to the selection', async ({ page }) =
   await page.locator('[data-abort-game]').click()
   await page.locator('[data-abort-confirm]').click()
   await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+})
+
+test('it exists only while a round runs, and sits in the middle of its head', async ({ page }) => {
+  await openStartScreen(page)
+  // Not in the menu: there is nothing running to end.
+  await expect(page.locator('[data-abort-game]')).toHaveCount(0)
+
+  await page.getByRole('button', { name: /^Allein/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+
+  const chip = page.locator('[data-abort-game]')
+  await expect(chip).toBeVisible()
+  /*
+   * CENTRED, and that is the point of its place: the corners belong to the
+   * players - buzzers below, the host's own bar above - and a control that
+   * ends the round for both of them sits in neither hand.
+   */
+  const placed = await chip.evaluate((node) => {
+    const box = node.getBoundingClientRect()
+    return { offset: Math.round(box.left + box.width / 2 - window.innerWidth / 2), top: Math.round(box.top) }
+  })
+  expect(Math.abs(placed.offset), 'distance from the middle').toBeLessThan(2)
+  expect(placed.top, 'in the head of the screen').toBeLessThan(80)
+  // A finger's target, not a word's box.
+  const size = (await chip.boundingBox())!
+  expect(size.height).toBeGreaterThanOrEqual(30)
+})
+
+test('it looks the same in every version of the stage', async ({ page }) => {
+  /*
+   * One look everywhere, by decision: whoever wants out of a round should not
+   * have to find a different button on the dark stage than on paper. The chip
+   * therefore reads its two colours from tokens that belong to no theme
+   * (`--stage-chip`, `--stage-inkOnChip`) - this measures that they really do
+   * not move with the version.
+   */
+  const colours = async (variant: string) => {
+    await page.addInitScript((value) => localStorage.setItem('quiz.stageTheme', value as string), variant)
+    await startGame(page, 'Allein')
+    return page.locator('[data-abort-game]').evaluate((node) => {
+      const measured = getComputedStyle(node)
+      return { area: measured.backgroundColor, ink: measured.color }
+    })
+  }
+  const bright = await colours('bright')
+  const dark = await colours('dark')
+  const red = await colours('red')
+  expect(dark).toEqual(bright)
+  expect(red).toEqual(bright)
+  // And it is a light surface with dark ink on it, not the other way round.
+  expect(bright.area).toBe('rgb(242, 243, 244)')
+  expect(bright.ink).toBe('rgb(0, 75, 118)')
+})
+
+test('the round can be ended with the keyboard alone', async ({ page }) => {
+  await startGame(page, 'Allein')
+
+  /*
+   * The chip is a button and reachable by tabbing; the dialog puts the
+   * keyboard on its confirming answer, and Escape is the way back out of it.
+   */
+  await page.locator('[data-abort-game]').focus()
+  await expect(page.locator('[data-abort-game]')).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-abort-dialog]')).toBeVisible()
+  await expect(page.locator('[data-abort-confirm]')).toBeFocused()
+
+  await page.keyboard.press('Escape')
+  await expect(page.locator('[data-abort-dialog]')).toHaveCount(0)
+  await expect(page.locator('[data-answers]')).toBeVisible()
+
+  await page.locator('[data-abort-game]').focus()
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+})
+
+test('a duel ends the same way, and what comes back is a fresh round', async ({ page }) => {
+  await startGame(page, 'Zu zweit')
+  // Play into the round, so there is something to reset.
+  await page.locator(freeBuzzer).first().click()
+  await page.locator(openAnswer).first().click()
+  await page.locator('[data-confirm]').click()
+
+  await page.locator('[data-abort-game]').click()
+  await page.locator('[data-abort-confirm]').click()
+  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
+  // The menu, not the remains of a round: nothing of the game is left on screen.
+  await expect(page.locator('[data-answers]')).toHaveCount(0)
+  await expect(page.locator('[data-abort-game]')).toHaveCount(0)
+
+  /*
+   * AND THE NEXT ROUND STARTS AT THE BEGINNING. The state is reset, not
+   * paused: first question, no points - in the mode chosen anew.
+   */
+  await page.getByRole('button', { name: /^Zu zweit/ }).click()
+  await page.getByRole('button', { name: /^Leicht/ }).click()
+  await page.getByRole('button', { name: "Los geht's" }).click()
+  await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('[data-counter]')).toContainText('1/')
+  const points = await page.locator('[data-score-value="points"]').allInnerTexts()
+  expect(points).toEqual(['0', '0'])
 })
 
 /* ------------------------------------------------------------------ *
@@ -774,13 +996,13 @@ test('the language switch changes selection and game', async ({ page }) => {
   await page.locator('[data-locale="en-GB"]').click()
 
   await expect(page.locator('[data-locale="en-GB"]')).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.getByRole('button', { name: /^Alone/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Play alone/ })).toBeVisible()
   const englishPresets = await page.locator('[data-preset-options] button').allInnerTexts()
   expect(englishPresets.map((entry) => entry.split('\n')[0])).toEqual(['Easy', 'Medium', 'Hard'])
   await expect(page.getByRole('button', { name: "Let's go" })).toBeVisible()
 
   // And the game itself continues in the same language.
-  await page.getByRole('button', { name: 'Alone' }).click()
+  await page.getByRole('button', { name: /^Play alone/ }).click()
   await page.getByRole('button', { name: /^Easy/ }).click()
   await page.getByRole('button', { name: "Let's go" }).click()
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
@@ -789,6 +1011,40 @@ test('the language switch changes selection and game', async ({ page }) => {
   const answers = await page.locator('[data-answer]').allInnerTexts()
   expect(answers.join(' ')).toMatch(/Correct answer|Wrong answer/)
   await expect(page.locator('[data-score-label]').first()).toHaveText('Player')
+})
+
+test('the English screen comes from the package, not from the content', async ({ page }) => {
+  /*
+   * THE FIXTURE CONTENT OVERRIDES NOTHING ANY MORE. It used to carry twenty
+   * English strings, because the package spoke German only - and a set of
+   * overrides in a config file is a translation nobody reviews. Both languages
+   * live in the package now; the content is where a host words a screen its own
+   * way, and where a third language would arrive.
+   *
+   * So this test reads the package's own English on the screen, and checks in
+   * the same breath that the content really says nothing: a leftover override
+   * would make the assertion above pass for the wrong reason.
+   */
+  await openStartScreen(page)
+  const overrides = await page.evaluate(async () => {
+    const answer = await fetch('/quiz-package/config.json')
+    const config = (await answer.json()) as { interfaceStrings?: Record<string, unknown> }
+    return Object.keys(config.interfaceStrings ?? {})
+  })
+  expect(overrides, 'locales the fixture content overrides texts for').toEqual([])
+
+  await page.locator('[data-locale="en-GB"]').click()
+  // Words that stand nowhere but in `englishTexts`.
+  await expect(page.getByRole('button', { name: 'Settings' })).toBeVisible()
+  await expect(page.locator('[data-quiz-start-content]')).toContainText('Start a game')
+  await expect(page.locator('[data-quiz-start-content]')).toContainText('Choose mode and difficulty.')
+  /*
+   * And the step names, which are no headlines on the screen: they are what a
+   * screen reader announces before the cards of a group, so they are read
+   * where they live.
+   */
+  await expect(page.getByRole('group', { name: 'How many are playing?' })).toBeVisible()
+  await expect(page.getByRole('group', { name: 'Which quiz?' })).toBeVisible()
 })
 
 test('without a second language there is nothing to switch', async ({ page }) => {
@@ -848,15 +1104,21 @@ test('same width means same size, even on windows of different height', async ({
   }
 
   /*
-   * Both heights leave room for the full-width scene above the fixed footer;
-   * the one exception to "width decides" is tested right after: a window too
-   * flat for that never lets the scene run under the footer.
+   * BOTH HEIGHTS LEAVE ROOM for the full-width scene above the fixed footer,
+   * and that is arithmetic, not taste: at 1280 the scene is 720 tall, the
+   * header takes about 77 and the footer about 218 - so from roughly 1030
+   * upwards the width decides alone. Below that the height constrains, which
+   * is the exception tested right after: a window too flat for the full width
+   * never lets the scene run under the footer.
+   *
+   * The numbers used to be 900 and 1000, from the days when the device showed
+   * the stage at 80 percent and a 1280-wide scene was only 576 tall.
    */
-  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.setViewportSize({ width: 1280, height: 1100 })
   await startGame(page, 'Zu zweit')
   const flat = await measures()
 
-  await page.setViewportSize({ width: 1280, height: 1000 })
+  await page.setViewportSize({ width: 1280, height: 1250 })
   await startGame(page, 'Zu zweit')
   const tall = await measures()
 

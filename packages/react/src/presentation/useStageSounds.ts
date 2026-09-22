@@ -70,11 +70,3 @@ export function useStageSounds(view: PublicQuizViewModel, play: (cueId: SoundCue
     previous.current = now
   }, [optionCount, chosenOptionId, phase, player, play])
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `SoundState`. */
-export type Klangstand = SoundState
-/** @deprecated Renamed to `soundState`. */
-export const klangstand = soundState
-/** @deprecated Renamed to `soundsFor`. */
-export const klaengeFuer = soundsFor

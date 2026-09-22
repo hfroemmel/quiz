@@ -8,16 +8,14 @@
  * everything here, a share of its WIDTH.
  * ------------------------------------------------------------------ */
 
-@keyframes option-enter {
-  from {
-    opacity: 0;
-    transform: translateY(0.9722cqw);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/*
+ * WHAT IS NOT HERE: the entrance of an answer row and the arrival of the
+ * category on the interim screen. Both belong to one component each and are
+ * declared in ITS module (`stage/AnswerList.module.css`,
+ * `scenes/scenes.module.css`) - a module cannot reach a keyframe of this file
+ * by name, because it scopes every animation name it sees. This file holds
+ * what the transition registry applies to the whole scene area.
+ */
 
 @keyframes scene-fade-in {
   from {
@@ -92,32 +90,9 @@
 }
 
 
-/*
- * Entrance of the video area: it grows out from the centre and fades in.
- */
-@keyframes video-rise {
-  from {
-    opacity: 0;
-    transform: translateY(2.5cqw) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-
 /* Classes that the transition registry sets. */
 .scene-fade {
   animation: scene-fade-in var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
-}
-/*
- * What moves is the video area, not the whole scene: the frame is the
- * entrance. A window that only joins after the video would show no entrance
- * of an area that is about to be hidden again anyway.
- */
-.video-enter [data-video-placeholder] {
-  animation: video-rise var(--transition-duration) var(--transition-easing) var(--transition-delay) backwards;
 }
 .question-enter,
 .reveal-enter {
@@ -146,7 +121,6 @@
  */
 @media (prefers-reduced-motion: reduce) {
   .scene-fade,
-  .video-enter [data-video-placeholder],
   .question-enter,
   .reveal-enter,
   .feedback-correct,

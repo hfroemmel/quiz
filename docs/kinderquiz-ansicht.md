@@ -41,6 +41,16 @@ same components as on the adult stage. Each component brings both worlds
 along in its own CSS module (`:global(.stage--kids)`). A further mode gets
 the kids world without any code change.
 
+**The world ends with the game.** The theme in the view model belongs to the
+running game; for the `start` scene the projection answers with the audience's
+theme - the one the device names (`previewAudienceId`) or the first in the
+configuration - and never with the theme of the game that has just ended. This
+matters because a host puts the theme's fonts and colours on the frame that
+holds the start view as well: as long as the finished game still decided, the
+room's poster kept writing in the children's handwriting after their quiz. The
+self-service menu of `<QuizGame>` reads the world out of the catalogue for the
+same reason.
+
 ## 3. Files
 
 ```text
@@ -231,7 +241,7 @@ texts") toggle; it inserts the test texts from `ASSET_INTEGRATION.md`.
 ## 9. Open points
 
 1. **Question and solution have their own components.** Pause screen,
-   feedback, reveal, video, start, and result keep their shared composition
+   feedback, reveal, start, and result keep their shared composition
    but are redrawn for the kids world (`kids.css`, section "Header of the
    shared scenes"): player groups and question counter carry the card
    drawings via `border-image`, the reveal photo sits in the drawn portrait

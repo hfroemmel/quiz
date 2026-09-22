@@ -1,5 +1,960 @@
 # @hfroemmel/quiz-content
 
+## 0.27.5
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.27.5
+
+## 0.27.4
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.27.4
+
+## 0.27.3
+
+### Patch Changes
+
+- The ink on a strong area turns with the variant
+  
+  On the dark stage the strong areas are a near-white primary and a white
+  accent, so what stands on them is dark now. The light variant, whose primary
+  is black, and the red one, which stands on its commissioned ground, keep the
+  light ink and say so themselves.
+  
+  `inkOnStrong` belongs to the stage rather than to a colour set and is written
+  once, into the fallback layer - a variant that wants another value therefore
+  has to name it where its own declarations beat the inherited one. The
+  stylesheet now emits that `--stage-` line inside the `--color-` rule of both
+  variants, the same way the children's screens already carry theirs.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.27.3
+
+## 0.27.2
+
+### Patch Changes
+
+- The light variant names the ink on its primary again
+  
+  Its primary is black where the dark stage has it near-white, so the two cannot
+  share what stands on them: white here, dark there. The light variant had given
+  the token up together with the signals it inherits from the fallback layer -
+  this one it has to keep, and that is the whole reason `primaryInk` exists.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.27.2
+
+## 0.27.1
+
+### Patch Changes
+
+- An answer row measures the same in the room and at the device
+  
+  The touch device gave answer area and letter chip a padding of their own, so
+  the same row stood taller there than on the projector. It takes the stage's
+  measures now, and the letter sits a little lower in its field - what looked
+  centred at one size was reading high at the other.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.27.1
+
+## 0.27.0
+
+### Minor Changes
+
+- The solution names the ink that stands on it
+  
+  `solutionInk` and `solutionChipInk` join the colour vocabulary. They are the
+  same kind of token as `primaryInk`: what stands on a strong green is dark or
+  light depending on that green, while the stage's own `inkOnStrong` follows the
+  SURFACE of a variant and therefore cannot answer the question. The answer row
+  and its letter chip read the two names now. As with `primaryInk`, a host that
+  builds a complete `DesignColors` object in TypeScript has two more tokens to
+  fill - everything the packages ship fills them already.
+  
+  WITH IT, `inkOnStrong` IS LIGHT AGAIN. It had turned dark so that a checkmark
+  on a near-white primary stayed readable; that job belongs to the inks named
+  above, and text on accent or player colour goes back to white.
+  
+  The light variant stands on one paper instead of three steps of it, its accent
+  is black, and it stops repeating the signals - solution, right, wrong and the
+  inks on them are the same values in both variants, so it lets them through
+  from the fallback layer rather than keeping a second copy that could drift.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.27.0
+
+## 0.26.11
+
+### Patch Changes
+
+- The children's board fills its column, and the choice moves with it
+  
+  In the start menu of the children's world the drawing takes the full width of
+  its board and sits higher than before, and the selection beside it moves a
+  little to the left and down - the two read as one composition instead of a
+  picture with a form parked next to it.
+  
+  The drawing itself is encoded once more and now weighs 45 kB instead of 65 -
+  which, in a library build, counts twice over: it ships inlined in the bundle
+  and as the file beside it.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.11
+
+## 0.26.10
+
+### Patch Changes
+
+- A new drawing behind the children's world, and a package a third of its weight
+  
+  The scene of the children's quiz is exchanged and now ships as WebP
+  (`assets/kinderquiz/backgrounds/background.webp`): the Reichstag on the left
+  over the meadow, the open square in front of it, and sky across the rest.
+  
+  IT WEIGHS 65 KILOBYTES where the file before it weighed two megabytes. That
+  number reaches the package three times over, because a library build inlines
+  every asset a stylesheet or the preload list addresses: `index.js` drops from
+  4.5 MB to 1.8 MB, and the copy in `dist/assets` shrinks with it. Nothing about
+  the arrangement changed - the start screen shows the drawing from the left,
+  and the preload list fetches it ahead of the first question.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.10
+
+## 0.26.9
+
+### Patch Changes
+
+- The stage stands flat - no picture behind the scene, no frosted panes
+  
+  The question image is no longer repeated behind the scene as atmosphere, and
+  the panes above it stop blurring what they cover: score card, counter, letter
+  chip and answer bar are plain semi-transparent surfaces over the stage's own
+  ground. A question's picture is shown where it is content - framed in the
+  scene. The red variant was the first to do without both; it is no longer the
+  exception, it is the rule.
+  
+  The texts follow. Every comment and every passage of the design notes that
+  described frosted glass or the blurred ground says what is there now, and
+  where a rule keeps standing without a carrier - the `.backdrop` block, the
+  `--stage-glass` token, the decode hook that fed the old layer - the comment
+  states that instead of describing an appearance nobody sees. The image reveal
+  is untouched: the picture that is uncovered tile by tile is the task of the
+  question, not a layer behind it.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.9
+
+## 0.26.8
+
+### Patch Changes
+
+- Updated dependencies [94b2040]
+  - @hfroemmel/quiz-core@0.26.8
+
+## 0.26.7
+
+### Patch Changes
+
+- The reveal turns around, and the content width is said in one place
+  
+  While an image is being revealed, the children's scene runs the other way -
+  picture and text swap sides - and the question is set larger there. The stage
+  of that world drops the drawn background behind the running round and stands
+  on its plain gradient; the start screen keeps the drawing, which is also what
+  the preload list still fetches.
+  
+  The width of the content is now stated once, as `--kids-content-width` (four
+  fifths of the scene), and read where it applies: by the answer rows and by the
+  pause board. The rule that held head and answers to that measure for the
+  picture choice is gone with it, and the head takes the full width of what it
+  is given. Board and photo stand closer together, and the pause board may start
+  narrower than before.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.7
+
+## 0.26.6
+
+### Patch Changes
+
+- The picture choice finds its rows
+  
+  The rule that holds head and answers to the width of the scene named `.scene`
+  as a step on the way there. That class belongs to another module and is
+  therefore hashed under another name: the selector matched nothing, and the
+  narrower width never applied. It addresses the two directly now.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.6
+
+## 0.26.5
+
+### Patch Changes
+
+- The children's scene takes the width every scene takes
+  
+  Its area gave itself two widths of its own - four fifths normally, the whole
+  width while an image was being revealed - and both were forced through with
+  `!important`. They are gone: the area now measures like every other, and what
+  should be narrower says so where it stands, not from outside.
+  
+  The mascot sits flush with the right edge instead of hanging a hand's width
+  beyond it, and the peeking figure of the reveal stands in the middle of the
+  area rather than at a fixed distance from its left edge.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.5
+
+## 0.26.4
+
+### Patch Changes
+
+- The answer row reads as one surface, and its type stays legible on colour
+  
+  Letter and row sit against each other without a seam now, and the row's left
+  corners are only squared off where a letter chip actually stands in front of
+  it - a row without one keeps its rounding on both sides instead of looking cut.
+  
+  A chosen and a correct answer state the ink that belongs on their strong
+  ground. They used to inherit the type colour of the row beneath, which held as
+  long as that ink and the stage's were the same; since the stage writes dark on
+  its strong areas, the two have to be named apart.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.4
+
+## 0.26.3
+
+### Patch Changes
+
+- The picture choice keeps the width of its scene
+  
+  In the children's world a question that is answered by picking a picture now
+  holds its head and its answer rows to the width the scene itself has (80 cqw).
+  They used to take the whole area, so question and pictures stood wider than
+  everything around them - the mascot, the board and the score cards all measure
+  against the same scene.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.3
+
+## 0.26.2
+
+### Patch Changes
+
+- The house colours reach the menu, and the mascot takes its place
+  
+  THE DARK START MENU STANDS ON BLACK. Its quiet surfaces, its selected card
+  and its lines carry plain black and two greys instead of the blue-tinted steps
+  they had, the brand panel on the left is black throughout - ground, line, type
+  and shade alike - and the frosted glass is mixed from white. In the offer
+  overview the quiet ink and the meta line take a mid grey, a card's ink the
+  same black as the page, and the three grey cards share one gradient. On paper
+  the stage's surfaces are the plain near-whites.
+  
+  SEVEN TOKENS ARE GONE, and none of them had a reader left: the menu's own
+  background gradient (`--start-bg-top`, `-mid`, `-bottom`), its two coloured
+  lights (`--start-ambient-left`, `-right`) and the two difficulty grades
+  (`--start-lime`, `--start-violet`). The light and the red variant name their
+  own ground as before, so only the dark menu loses these.
+  
+  THE MASCOT SITS IN THE SCENE, not on the screen: it is placed absolutely
+  inside its area instead of fixed to the window, stands larger and lower, and
+  carries its own measures for the question and the solution of the live
+  layout. While an image is being revealed it steps aside and the scene takes
+  the full width. The counter slot is no longer bound to the default stage.
+  
+  ON SIZE: the bundled stylesheet is back to 472 kB, but the drawing still
+  ships twice - the preload list addresses it with `new URL(...)`, and in
+  library mode Vite inlines that into `index.js` (4.3 MB). A smaller or
+  re-encoded file shrinks both the bundle and the copy in `dist/assets`.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.2
+
+## 0.26.1
+
+### Patch Changes
+
+- A new drawing behind the children's world
+  
+  The scene the children's quiz stands on is exchanged
+  (`assets/kinderquiz/backgrounds/background.png`). The start screen shows it
+  from the left, the stage from the right, and the preload list fetches it ahead
+  of the first question, so nothing loads while the show runs.
+  
+  IT IS A HEAVY FILE, AND IT SHIPS THREE TIMES. Two megabytes where the drawing
+  before it weighed one hundred and seventy kilobytes - and in library mode Vite
+  inlines every asset, whatever the inline limit says. So the file arrives as a
+  data URI in `quiz-react.css` (3.1 MB), a second time in `index.js` (4.3 MB,
+  because the preload list addresses it), and a third time as the file itself in
+  `dist/assets`. Whoever ships this to a device on a slow line should know that
+  before the first paint; a smaller or re-encoded drawing shrinks all three at
+  once.
+  
+  The palette gains two rules of its own: the start screen and the offer
+  overview of the children's world each name the light ink that goes on their
+  strong areas. Both screens stand before a quiz is chosen and therefore carry
+  no theme that could supply it - see `kidsStartStage` in `palettes.ts`, which
+  also says why their token prefixes do not follow their selector.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.1
+
+## 0.26.0
+
+### Minor Changes
+
+- The brand board shows its picture, and the start bar reads the menu's own rank
+  
+  THE TITLE IS NO LONGER DRAWN. The board on the left of the start menu carries
+  its picture and nothing else. `brand.title` stays in the signature and is
+  accepted as before, but nothing reads it any more - a host that passes one
+  will not see it, which is why this is a minor and not a patch.
+  
+  The start bar takes `--start-primary` and writes in `--start-primaryInk`, the
+  two names the light start menu now states itself, instead of borrowing the
+  stage's primary colour and the ink meant for its green. A chosen card paints
+  itself again: it carries the selected surface and the ink that goes on it.
+  
+  The colours follow the same line. On paper the veils are mixed from plain
+  black, the accent is the cyan again and a wrong answer the commissioned red.
+  The red variant gives all four of its tiles the same darker tone - a tile that
+  is switched off is still a tile. In the light start menu ink, lines and veils
+  come from black, the selection carries the cyan, the action the green with
+  dark type on it, and the dark offer overview stands on black with white type.
+  Two tones nobody reads any more are gone from the palette, and the guard lists
+  exactly the ones that are carried.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.26.0
+
+## 0.25.1
+
+### Patch Changes
+
+- The start menu measures against itself, and the accent turns to light
+  
+  Artwork, checkmark and its sign are shares of the area now instead of shares
+  of the window: the same card holds up in a boxed stage as it does full screen.
+  A chosen card no longer paints itself - it keeps the surface it has and says
+  its state through the mark in its corner - and the start bar takes the primary
+  colour instead of a gradient between two greens.
+  
+  On the dark stage the accent is white and its withdrawn step a near-white, so
+  the player on turn is marked by brightness rather than by hue; on paper that
+  step is a mid grey. What stands on a strong area is dark there and dark on a
+  chip, while the light variant names the light ink it needs for its own black
+  surfaces. Two tones nobody reads any more are gone from the palette, and the
+  guard lists exactly the ones that are carried.
+  
+  An answer row no longer inherits the gap of its list, so letter and text sit
+  against each other as one surface.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.25.1
+
+## 0.25.0
+
+### Minor Changes
+
+- The ink on the primary colour becomes a token of its own
+  
+  `primaryInk` joins the colour vocabulary (`designColorTokens`). It is a break
+  in the small way that matters: a host building a complete `DesignColors`
+  object in TypeScript now has one more token to name. Everything the packages
+  ship fills it already - the dark stage writes dark on its near-white primary,
+  the light variant light on its black, and the children's world white on its
+  red.
+  
+  WHY A TOKEN AND NOT A RULE. The button that moves the view forward used to
+  write in the ink meant for strong coloured areas. That held as long as the
+  primary colour was one, and it stopped holding the moment a world made its
+  primary near-white: the two do not move together, and only the theme that
+  names the one knows the other.
+  
+  The colours of the adults' world follow the same change. The stage stands on
+  three plain greys, its primary is near-white, what sits on a light chip is
+  dark, and the control frame takes the same greys. On paper the accent is
+  black. In the light start menu the selection carries the cyan of the stage and
+  the action a mint of its own, while the four inks on its filled surfaces stay
+  light - a deep card needs white on it, whatever the stage does. The offer
+  overview keeps the ground it was drawn on.
+  
+  The guard over the colour spectrum keeps working and names every tone outside
+  it, the commissioned ground of the red variant included.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.25.0
+
+## 0.24.10
+
+### Patch Changes
+
+- The house tones, and a start menu that keeps its own
+  
+  The adults' stage carries the colours this system was set to: a cyan where the
+  spectrum's blue stood, one green in four grades for solution, right answer and
+  start button, a near-black ink on a light chip, and the European blue on the
+  card of that quiz. The offer overview names its own black and grey for the
+  page, while a card keeps the spectrum's navy - a card is not the page.
+  
+  THE LIGHT START MENU NO LONGER FOLLOWS THE STAGE. Selection, text and action
+  used to be the stage's accent, ink and green under a second name. They are the
+  blue and green this screen was built with now, so a change made for the stage
+  does not recolour the menu by itself. A host theme still reaches it: the
+  mirror table is applied to what a theme NAMES ITSELF, so an own accent carries
+  into the menu while a theme that names nothing leaves the screen as it stands.
+  
+  The guard keeps working and lists the tones outside the Federal Government's
+  spectrum by name, together with the commissioned ground of the red variant and
+  its tile. A value that is neither a step nor one of those still fails there,
+  and a name dropped from the palette fails too.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.10
+
+## 0.24.9
+
+### Patch Changes
+
+- Adjustments on the stage
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.9
+
+## 0.24.8
+
+### Patch Changes
+
+- Adjustments on the stage
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.8
+
+## 0.24.7
+
+### Patch Changes
+
+- Adjustments on the stage
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.7
+
+## 0.24.6
+
+### Patch Changes
+
+- Adjustments on the stage
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.6
+
+## 0.24.5
+
+### Patch Changes
+
+- Adjustments on the stage
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.5
+
+## 0.24.4
+
+### Patch Changes
+
+- Say in the stylesheets what they now do
+  
+  Nothing renders differently here. Several comments on the stage still
+  described rules that have since been rewritten, which is worse than no
+  comment at all: whoever reads them takes a measure that no longer exists for
+  the reason behind the one that does.
+  
+  The scene's area no longer declares a container of its own, so what a
+  component computes inside it measures against the stage - the text says that
+  now instead of explaining the reference the area used to be. The touch stage
+  takes its width from the arrangement around it rather than from the space
+  left over, and the kiosk gives the scene the whole stage width in a row of
+  its own instead of estimating head and foot. The question stands at one size,
+  and `--prompt-scale` is named where it is still read: in the children's
+  world. The points cell takes the width of its number again. The head of the
+  children's world is one row, and on a device it carries no size of its own.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.4
+
+## 0.24.3
+
+### Patch Changes
+
+- Let the scene take its width from the stage
+  
+  The scene box no longer measures itself. The computed width cap of the live
+  device, the foot it kept free as a bottom margin and its own size container are
+  gone; the box takes the width it is given and keeps its 16:9 - the whole stage
+  width in the kiosk arrangement, four fifths of it in the children's world,
+  which no longer reaches its size through a zoom factor of its own. The head of
+  the children's world drops that factor too, and its content spans the full
+  width again instead of sparing part of the mascot's strip.
+  
+  The question is set at one size instead of being scaled to fit. Stage buttons
+  carry a smaller measure, and the button that ends a round takes that measure
+  with a larger sign beside it.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.3
+
+## 0.24.2
+
+### Patch Changes
+
+- Give the children's world more room, and flatten the device's bars
+  
+  On the children's stage the scene and the head stand larger, the content beside
+  the mascot takes back part of the strip it was keeping clear, and the drawn
+  frame of the question board carries a deeper slice with a wider stroke. The
+  buttons of the device are set in a larger hand, the settings window writes its
+  title in the same hand, and the drawn cards drop the frosted pane they never
+  needed - on paper it only greyed the drawing.
+  
+  In the start menu the bars are flatter, and the window that asks a question
+  frosts the surface behind it. The button that ends a round is taller and sits
+  on more padding. The points cell of the default stage takes the width of the
+  number inside it again.
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.2
+
+## 0.24.1
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.24.1
+
+## 0.24.0
+
+### Minor Changes
+
+- The clip before the question is gone, and the answers move in
+  
+  THE CLIP IS REMOVED - the feature, not just its button. A question could carry
+  a film that ran before it, and that one field pulled a whole section of the flow
+  behind it: a phase, two commands, an automatic start for the unattended device,
+  a scene, an audio authority to hand to whichever window played the file, a
+  lead-in time, an asset kind and a second build profile for applications that
+  could not ship the files. No round that ever ran carried one. Gone from the
+  surface: the `video` phase and scene, `START_VIDEO`,
+  `SHOW_QUESTION_AFTER_VIDEO`, `state.video`, `question.video`, `videoUrl`,
+  `hasVideo`, `videoLeadInMs`, the asset kind `video`, `videoAudioMaster`, the
+  rejection reasons around them and the content profiles. `manifest.profile`
+  stays readable, so older packages still load. The delivered animation clips are
+  untouched - the moving picture was never a question there.
+  
+  THE ANSWERS MOVE IN, and they never did. The entrance took the duration of the
+  scene transition, which is only set while one runs, and its keyframes lived in
+  the global stylesheet, which a CSS module cannot reach by name. The entrance is
+  the row's own now - 380 ms, 70 ms apart - and its keyframes live beside it. The
+  same two-line fault had silenced the arrival of the category on the interim
+  screen.
+  
+  NOTHING JUMPS. The points cell reserves three digits instead of taking the
+  width of the number in it, so the first correct answer of a round no longer
+  widens the card and pushes counter and second card sideways.
+  
+  A HOST'S SOUND SWITCH KEEPS APPLYING. `soundEnabled` was read once at the first
+  start; it is followed now whenever the host changes it, a running round
+  included, and the device carries `data-sound` so the state is visible from
+  outside.
+  
+  The hint between the buzzers fills its column again instead of collapsing to a
+  box of no width, where the sentence broke at every space. In the children's
+  world the head stands without its grid and with less padding, the head of the
+  reveal sits on its baseline, and the kiosk scene moves up a little.
+
+### Patch Changes
+
+- Updated dependencies
+  - @hfroemmel/quiz-core@0.24.0
+
+## 0.23.0
+
+### Minor Changes
+
+- df46f13: The clip before a question is gone - the whole feature, not just its button.
+  
+  WHAT IT WAS: any question could carry a film that ran before it. That one field
+  pulled a section of the flow behind it - a phase of its own (`video`), two
+  commands (`START_VIDEO`, `SHOW_QUESTION_AFTER_VIDEO`), an automatic start for
+  the unattended device, a scene, a request the server published to the
+  presentation clients, an audio authority that had to be handed to whichever
+  window actually played the file, a lead-in time, an asset kind, a question-slot
+  filter and a second build profile for the applications that could not ship the
+  files.
+  
+  WHY IT GOES: no round that ever ran carried one. The only clips that existed
+  were fixtures for the tests of the feature itself, and one of them stood in the
+  first slot of every preset of the show - so an evening opened with a Lorem
+  ipsum film. A section of the flow that carries nothing but its own test
+  material is not a feature; it is weight on every other one.
+  
+  WHAT IS GONE FROM THE SURFACE:
+  
+    - `PublicScene`/phase `video`, `state.video`, `PublicVideoRequest`
+    - commands `START_VIDEO` and `SHOW_QUESTION_AFTER_VIDEO`, the rejection
+      reasons `video-question-mismatch` and `video-source-missing`
+    - `question.video` and its translation field, `videoUrl` on the view model
+    - the slot filter `hasVideo`, the rule `videoLeadInMs`
+    - the asset kind `video` - `MediaAsset.kind` is `'image' | 'audio'`
+    - `videoAudioMaster` on the runtime status: there is one authority again
+    - content profiles: `applyContentProfile`, `BuildOptions.profile` and
+      `--profile` on `quiz-content build`/`validate`. One source builds one
+      package. `manifest.profile` stays READABLE so packages built before this
+      still load; nothing reads the value.
+  
+  WHAT STAYS: the moving picture where it was never a question - the delivered
+  animation clips (stars, trophy) play as before, and `.webm` is still served.
+  
+  The state machine, the scoring and the audio authority are otherwise
+  untouched, and the suites say so: the engine, the projection and the flow tests
+  run unchanged after the cut, and the fixture corpora were rebuilt without the
+  clips - with the same number of question slots, because a slot that only
+  allowed a film becomes an ordinary one.
+
+### Patch Changes
+
+- Updated dependencies [df46f13]
+  - @hfroemmel/quiz-core@0.23.0
+
+## 0.22.4
+
+### Patch Changes
+
+- 6b6de9d: Let spent answers fade, and give the start bars one height
+  
+  An answer that is wrong or no longer available used to be repainted: quiet ink
+  on a thinned ground. It now simply steps back as a whole, at a third of its
+  strength - one value instead of two, and it reads the same on every ground the
+  stage can stand on.
+  
+  The start bar and the way back are exactly as tall as each other and no longer
+  grow with their label, and the bar drops the edge it did not need. The window
+  that asks before ending a round sits on more air and takes its corner from the
+  stage's radius instead of a number of its own. On paper the surface behind that
+  window is more opaque, so the text on it stays legible where a card shows
+  through.
+  
+  On the score card the group mark is smaller and carries the ink meant for
+  strong grounds; a player who is locked out but not on turn no longer takes a
+  colour of their own.
+- Updated dependencies [6b6de9d]
+  - @hfroemmel/quiz-core@0.22.4
+
+## 0.22.3
+
+### Patch Changes
+
+- bcdd5ad: Center the scene on the stage
+  
+  A scene no longer hangs from the top edge of its box: it sits in the middle of
+  the space between header and footer. The touch stage centers its content for the
+  same reason instead of pushing header and scene apart, and the scene box keeps a
+  hand's width of air below it so it does not run up against the fixed footer.
+  
+  In the person composition this only works once the picture column stops
+  stretching over the whole height; the answers underneath move closer together to
+  match, and an answer row no longer parts letter and text by a gap of its own.
+- e9566da: Ship the font families as tokens, and set the kiosk buttons in the display face
+  
+  The families were declared in the harness alone. Every package stylesheet asked
+  for `--font-ui` and `--font-display`, but no published package carried them: in
+  an application both fell back to the browser's default face, although
+  `fonts.css` had loaded the files. They now stand in that same file, next to the
+  `@font-face` rules that load them, and the harness reads them from there like
+  any other host. `--font-ui` points at `--font-display`, so the one family is
+  named once and the control frame keeps a name of its own to be changed by.
+  `--font-heading` and `--font-body` are a fallback there - in operation a theme
+  still sets them on the frame.
+  
+  On top of that the start menu's buttons and titles, the submit button and the
+  end-of-round button ask for the display face instead of the stage serif, and the
+  start menu's cards, bars and labels are set a little tighter: smaller type for
+  the buttons of both worlds, shorter cards, a checkmark without its disc sitting
+  in the middle of the card edge, and more air between brand board and title.
+  
+  Cards and the start bar take the corner of the stage, which the screens without
+  a stage can now name too: they stand beside the stage rather than inside it and
+  so never inherited its radius. On the stage itself the button bar that submits
+  an answer stands lower.
+- Updated dependencies [bcdd5ad]
+- Updated dependencies [e9566da]
+  - @hfroemmel/quiz-core@0.22.3
+
+## 0.22.2
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.22.2
+
+## 0.22.1
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.22.1
+
+## 0.22.0
+
+### Patch Changes
+
+- Updated dependencies [be04fe9]
+- Updated dependencies [c51bbb9]
+- Updated dependencies [99f87e4]
+- Updated dependencies [b768fb3]
+  - @hfroemmel/quiz-core@0.22.0
+
+## 0.21.1
+
+### Patch Changes
+
+- Updated dependencies [ee78c50]
+  - @hfroemmel/quiz-core@0.21.1
+
+## 0.21.0
+
+### Minor Changes
+
+- 25e4857: A question carries its own picture, and a video is a step in front of it.
+  
+  TWO CHANGES, AND THEY ARE THE SAME CHANGE: both take something off the type
+  system that was never a type.
+  
+  **The medium goes on the question.** `media: { imageAssetId, videoAssetId }` is
+  replaced by `image?: { filename, credit }` and `video?: { filename, credit }`.
+  The asset id in between existed only to find a file name behind it, and it
+  forced every editorial picture into `assets.json` as a second declaration -
+  with a generated key nobody reads and a licence line far from the file it
+  belongs to. The editorial table already has both columns next to each other
+  (`img_filename`, `img_credit`), and the import carries them straight through.
+  
+  `assets.json` stays, for what the HOUSE brings: word marks, start visuals, quiz
+  motifs. Those are few, the configuration points at them by id, and they are
+  reused - which is what a directory is for. Two findings disappear with the
+  question's id: `asset-reference` (an id nothing declares) and `asset-kind` (an
+  id declared as the wrong kind). A question names a file, and the only question
+  left about it is whether it is there.
+  
+  **A video is no longer a presentation type.** `video-then-question` is gone
+  from `questionPresentationTypes`. It made the clip the presentation: a question
+  with a video in front of it was a text choice afterwards, and a video before an
+  image reveal was a sentence nobody could write. Now any question may bring a
+  `video`, the clip runs first, and the question follows in its own form. A slot
+  that wants one asks for one: `filters.hasVideo` - `true` demands, `false`
+  excludes, absent means it does not matter, the same as every other filter here.
+  
+  WHAT AN APPLICATION CHANGES:
+  
+      - question.media.imageAssetId  ->  question.image.filename
+      - question.media.videoAssetId  ->  question.video.filename
+      - questionType: 'video-then-question'  ->  any type, plus a video
+      - filters.questionTypes: ['video-then-question']  ->  filters.hasVideo: true
+  
+  And its media resolver is handed a FILE NAME instead of an asset id:
+  `new LocalQuizRuntime({ media: (filename) => url })`. The package route follows
+  (`/media/questions/reichstag.jpg`), which is what a server resolved the id to
+  anyway - one indirection fewer on the same path, with the same guard against
+  reaching outside the asset directory.
+  
+  The sheet mapping gains what the table actually has: `image`, `imageCredit`,
+  `video`, `videoCredit`, the directories the files live in
+  (`defaults.imageDirectory`), and `correctOption` for a table that does not mark
+  its answer but orders it - the first option is the right one, which beats
+  matching the answer's text and landing on the wrong option when the answer
+  happens to read "B" or "2".
+
+### Patch Changes
+
+- Updated dependencies [25e4857]
+  - @hfroemmel/quiz-core@0.21.0
+
+## 0.20.0
+
+### Minor Changes
+
+- 8e8e468: `@hfroemmel/quiz-kiosk` is gone. There are four packages.
+  
+  IT WAS A POINTER FOR ONE RELEASE, and that was the promise. In 0.19.0 the
+  playable quiz moved into `@hfroemmel/quiz-react` and the kiosk package stayed
+  behind as a re-export with an empty stylesheet, so that an unchanged
+  application kept building while it took the release at its own pace. That
+  release has happened. The pointer is now deleted rather than kept, because a
+  package that only names another place is a place people keep arriving at.
+  
+  WHAT AN APPLICATION CHANGES, and it is two lines:
+  
+      - import { QuizGame, StartMenu, deviceStartMenu } from '@hfroemmel/quiz-kiosk'
+      + import { QuizGame, StartMenu, deviceStartMenu } from '@hfroemmel/quiz-react'
+  
+      - import '@hfroemmel/quiz-kiosk/styles.css'
+  
+  The second import is not replaced by anything: since 0.19.0 the game's own
+  rules travel in `@hfroemmel/quiz-react/styles.css`, which every application
+  showing a quiz already imports. Nothing else moves - the components, their
+  props and their behaviour are the ones from 0.19.0, byte for byte. Remove the
+  dependency from `package.json` and the swap is complete.
+  
+  THE FOUR PACKAGES ARE NOW FOUR EVERYWHERE, not four plus a leftover: the
+  fixed-version set of the changeset configuration, the tarball verification,
+  the tag script and the typecheck each name exactly the packages that exist. The
+  two scripts behind the release gave up their German identifiers on the way,
+  which was the last of them outside a user-visible label.
+- daf199c: The import says whose pictures are still unclear.
+  
+  A question's image is somebody's work and the licence line belongs with it.
+  Validation has warned about a missing one for a while, but at the end of a
+  build report it is a research job; at the import it is a question whoever just
+  read the workbook can still answer, with the mail the picture came in still
+  open.
+  
+  `uncreditedImages(questions, assets)` is the rule, and it is now the only place
+  it lives - the validation asks the same function, so the two cannot drift.
+  `quiz-content import-sheet` reports what it finds, per question, and says which
+  of the two problems it is: a medium declared without a credit, or one that is
+  not in `assets.json` at all.
+  
+  Only the IMAGES OF QUESTIONS. A word mark and a quiz motif come from the house
+  itself and nobody researches those; a rule that fires on every asset without a
+  credit is a rule people switch off.
+
+### Patch Changes
+
+- Updated dependencies [8e8e468]
+- Updated dependencies [8e8e468]
+  - @hfroemmel/quiz-core@0.20.0
+
+## 0.19.0
+
+### Minor Changes
+
+- 6d35e6a: The playable quiz lives in quiz-react, and the old names are gone
+  
+  **One package fewer.** `QuizGame`, `StartMenu` and `deviceStartMenu` are
+  exported by `@hfroemmel/quiz-react` now. The split never drew a line: the
+  device's screen is built from the same scenes, the same sounds and the same
+  texts as the stage's, and every host that showed a quiz installed both halves
+  anyway. What remained of the difference was a component name.
+  
+  `@hfroemmel/quiz-kiosk` still points at the new place, so an installation can
+  follow at its own pace - the same one release of grace every renamed export in
+  these libraries got:
+  
+  ```diff
+  - import { QuizGame } from '@hfroemmel/quiz-kiosk'
+  + import { QuizGame } from '@hfroemmel/quiz-react'
+  - import '@hfroemmel/quiz-kiosk/styles.css'
+  ```
+  
+  The stylesheet line simply goes: those rules travel in
+  `@hfroemmel/quiz-react/styles.css`, which a host showing a quiz already
+  imports. `@hfroemmel/quiz-kiosk/styles.css` is an empty file for this release
+  so that an unchanged import resolves instead of breaking a build.
+  
+  **And the former names are gone** - twenty aliases that were kept "for one
+  release" when the identifiers were translated: `standardTexte`, `textFuer`,
+  `texteFuer`, `importiereTabelle`, `standardMapping`, `csvZuZeilen`,
+  `gueltigeSprache`, `fragenTextFuer`, `oberflaechenTexte`,
+  `uebersetzteBeschriftung`, `klemmeZoom`, the sound and image state types, and
+  `GameStart`, the start screen that `StartMenu` replaced. Nothing in the four
+  applications used any of them.
+  
+  WHAT STAYS, against the plan's own list: `audience`, `playerCounts` and
+  `idleTimeoutMs` on `QuizGame`, and `brandWordmarkUrl`. The first three are
+  properties of an INSTALLATION, not of the content - which audience a device
+  plays in, how many people stand at it, how long it waits before it ends a game
+  nobody is playing. The content answers them where it can
+  (`quizzes[].playerCounts`, `rules.idleTimeoutMs`), and the props narrow that
+  per device; removing them would move a table's setting into the question set it
+  shares with the hall. And the word mark as a file is what a host needs when it
+  shows the mark OUTSIDE the stage - the stage overview of the live quiz does
+  exactly that.
+
+### Patch Changes
+
+- Updated dependencies [6d35e6a]
+  - @hfroemmel/quiz-core@0.19.0
+
+## 0.18.0
+
+### Minor Changes
+
+- 0f2d613: The background of a question, read where nobody tells it
+  
+  An explanation is written for the moderator. They tell it, in their own words,
+  while the hall listens - which is why nothing of it ever left the server
+  publicly: a screen writing it out would compete with the person speaking.
+  
+  At a device there is nobody to tell it. The two people at the table read it
+  themselves, and a quiz set up for that place now says so:
+  `rules.showDetailsAfterSolution` - the flag has been in the configuration since
+  the last release, and no component read it. With it on, the detail text travels
+  with the solution (`visibleSolution.details`), in the language of the question,
+  and the device gives it its own step.
+  
+  `DetailsStep` (`@hfroemmel/quiz-react`, put in place by `QuizGame`) is that
+  step: the card covers the stage, carries the only way onward, and the round
+  waits until somebody has read it. Where a question brings no background there is
+  no step at all - an empty in-between screen would be worse than none. The round
+  is held from the moment the solution stands, not only once the card is there: in
+  those seconds the device's own way onward would be one thumb away from skipping
+  the step.
+  
+  Of the explanation only `details` travels, and only in the solution scene. The
+  short version is the moderator's lead-in, the source is an editorial note, the
+  directing notes are stage directions - none of the three is meant for a player,
+  and the projection keeps them where they were.
+  
+  Two smaller things came with it. The times of the step stand in its stylesheet
+  (`--stage-details-delay` beside `--stage-fade-duration`), so the component reads
+  how long its way out lasts instead of keeping a number of its own in step with
+  the CSS by hand - the host this step comes from carried a 220 and a comment
+  asking whoever changed one to remember the other. And a card lying on the stage
+  has a shadow of its own now (`--stage-cardShadow`): the distance to the ground
+  is a physical situation, the same in the dark world and in the bright one.
+  
+  A host whose room wants a different card passes `renderAfterSolution` and draws
+  its own body. It is handed the text and the way onward; the holding of the round
+  and the withdrawn footer button stay with the package.
+- 5877d0a: The editorial sheet is read where it lies
+  
+  An editorial team works in a Google table or in a workbook that arrives as a
+  file, and for the second case the way in was "export it as CSV first". That is
+  a manual step in front of an automated one: it loses the other sheets of the
+  workbook, and whoever forgets it imports the previous export.
+  
+  `quiz-content import-sheet --xlsx <file> [--sheet <name>]` reads the file
+  directly, and `readWorkbook` is the reader behind it - the zip container, enough
+  XML to find the cells, and nothing else. No dependency: the libraries for this
+  format bring styles, number formats, formulas and a date epoch, none of which a
+  question sheet uses. A cell arrives as the text the sheet stored, a formula as
+  its last computed value, and a workbook in zip64 format stops the run with that
+  as the reason instead of reading the wrong bytes.
+  
+  One bug of that reader is worth naming, because it is the kind that looks like
+  data: a styled but empty cell is written `<c r="F2" s="11"/>`, and a pattern
+  that takes its attributes greedily swallows the slash, reads the cell as an
+  opening tag and eats the cell behind it - the next column's raw value then
+  arrives under the empty column, unresolved, and the whole row is shifted by one.
+  The comparison against a hand-made export of the same workbook found it; the
+  test holds it.
+  
+  **Two languages in one sheet.** `translations` in the mapping names the column
+  groups of the further locales: `question` and `question_en`, `A` and `A_en`. Two
+  sheets would be the alternative, and then nothing says which German question the
+  English one belongs to - the pairing lives in the row, so it is read from the
+  row. Only what a translation may change can be named; difficulty, pool,
+  audience, type and the correct option stay with the question, because a
+  translated row is the same question in other words. An empty group produces no
+  translation, and a group that forgets one option leaves that one in the base
+  language instead of dropping it.
+  
+  **The legacy migration puts the background where it is read.** `info` of the
+  old files becomes `explanation.details` - the paragraph an audience reads after
+  the solution where nobody tells it. It used to land in `summary`, which is the
+  moderator's lead-in, and a lead-in of six lines is none. `Anmerkung` is not
+  content at all but one editor writing to another, and it becomes a note of the
+  migration report instead of a field of the product: on a screen it would be a
+  mistake, dropped in silence it would lose something somebody meant to be read.
+
+### Patch Changes
+
+- Updated dependencies [0f2d613]
+  - @hfroemmel/quiz-core@0.18.0
+
 ## 0.17.0
 
 ### Minor Changes

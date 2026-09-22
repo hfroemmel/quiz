@@ -76,7 +76,7 @@ export function questionTextFor(question: Question, locale: string | undefined):
     ...(options ? { options: options } : {}),
     ...(translation.acceptedAnswerText ? { acceptedAnswerText: translation.acceptedAnswerText } : {}),
     ...(translation.explanation ? { explanation: { ...question.explanation, ...translation.explanation } } : {}),
-    ...(translation.media ? { media: { ...question.media, ...translation.media } } : {}),
+    ...(translation.image ? { image: translation.image } : {}),
   }
 }
 
@@ -94,17 +94,3 @@ export function interfaceTexts(
   const chosen = locale ? (config.interfaceStrings?.[locale] ?? {}) : {}
   return { ...reason, ...chosen }
 }
-
-/* Former names, kept for one release so that hosts can migrate. */
-/** @deprecated Renamed to `baseLocale`. */
-export const grundsprache = baseLocale
-/** @deprecated Renamed to `validLocale`. */
-export const gueltigeSprache = validLocale
-/** @deprecated Renamed to `labelFor`. */
-export const beschriftung = labelFor
-/** @deprecated Renamed to `subtitleFor`. */
-export const untertitel = subtitleFor
-/** @deprecated Renamed to `questionTextFor`. */
-export const fragenTextFuer = questionTextFor
-/** @deprecated Renamed to `interfaceTexts`. */
-export const oberflaechenTexte = interfaceTexts

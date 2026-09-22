@@ -9,7 +9,6 @@ All phase transitions happen exclusively in `packages/domain/src/engine.ts`.
 | `idle` | no game active | locked |
 | `pause-screen` | pause/logo screen between two questions (timed) | locked |
 | `question-presented` | question visible, answers still hidden | locked |
-| `video` | video part of a video question; only the client knows whether the video is currently playing | locked |
 | `buzzer-open` | normal question, buzzer open | **open** |
 | `answer-locked` | a player has claimed the turn | locked |
 | `attempt-feedback` | correct/incorrect animation (timed) | locked |
@@ -22,8 +21,8 @@ All phase transitions happen exclusively in `packages/domain/src/engine.ts`.
 | `aborted` | game aborted, no result | locked |
 
 The buzzer column is not a second source of truth: it follows from
-`buzzablePhases` in `packages/domain/src/buzzer.ts`. This means `video` can
-structurally never have an open buzzer.
+`buzzablePhases` in `packages/domain/src/buzzer.ts`. This means
+`question-presented` can structurally never have an open buzzer.
 
 ## Normal multiple-choice question
 
@@ -76,7 +75,6 @@ transition:
 | Image recognition | operator starts the reveal | starts directly in `reveal-running` |
 | Answer | operator logs in and resolves | the same sequence performed by the players themselves: `BUZZ` locks out the other player, `LOG_OPTION_ANSWER` marks it (still changeable), `RESOLVE_ATTEMPT` submits and evaluates it |
 | after the solution | operator presses `Weiter` ("Continue") | a PLAYER presses `Weiter` (`CONTINUE`); nothing is timed here |
-| Video question | operator starts it; at the end the video fades out and the flow holds until the operator shows the question | starts after `videoLeadInMs`, the question follows from the reported playback duration |
 
 All automatic transitions use the same mechanism as feedback and the pause
 screen: a `pendingTransition` with a server-side fallback time. A missing
@@ -140,54 +138,6 @@ After a failed attempt, it goes back to `reveal-running`, not to
 Unlimited failed attempts; after each one, the reveal continues from the same
 point and **both** players may buzz again. `PAUSE_IMAGE_REVEAL` and
 `RESUME_IMAGE_REVEAL` switch between `reveal-running` and `reveal-paused`.
-
-## Video question
-
-```text
-pause-screen ──(time)───> video ──SHOW_QUESTION_AFTER_VIDEO──> question-presented
-                           │ ▲                                        │
-                           └─┘ START_VIDEO                            └──> normal flow
-                          (an instruction, not a phase change)
-```
-
-Video and question are two phases of the **same** question, not two
-questions.
-
-**The flow moves in one direction.** `START_VIDEO` (with the `questionId` of
-the running question) writes a playback request into the state:
-
-```ts
-interface VideoPlaybackRequest {
-  questionId: string
-  requestId: string   // new on every accepted click
-  requestedAt: string
-}
-```
-
-The stage locally remembers the last executed ID and starts from zero on any
-other one. Nothing more happens: the server knows neither the loading state
-nor the playback duration nor the end, schedules no transition based on a
-video's length, and waits for no confirmation. The video's end is **not** a
-state transition - the last frame stays on screen until the operator presses
-`Frage einblenden` ("Show question"). A second click on `Video starten`
-("Start video") creates a new request and plays from the start again;
-`SKIP_QUESTION` remains possible.
-
-A command is rejected if it names a question other than the running one
-(`video-question-mismatch`), one for a question with no video attached
-(`video-source-missing`), and any command outside the video phase
-(`invalid-phase`).
-
-The request is dropped once the question is shown, and it does not survive a
-**server restart** - otherwise the video would start playing again on its own
-in the room. A **stage reconnect** is different: there, it remains pending
-and is replayed exactly once.
-
-On the device (`self-service`) there is no podium: there, the server issues
-the request itself after `videoLeadInMs`, and the device shows the question
-itself after the video ends - or if the file cannot be played. This is the
-only place where a client sends anything after the video, and there it is its
-own operator.
 
 ## Timed phases
 

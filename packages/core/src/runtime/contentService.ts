@@ -32,7 +32,7 @@ import type { UsageRow } from '../engine/storePort'
  * It receives the id from the question data and answers with an address its own
  * window can load - or with nothing, if it has no medium for it.
  */
-export type AssetResolver = (assetId: string) => string | undefined
+export type AssetResolver = (filename: string) => string | undefined
 
 export class ContentService {
   private quizPackage: QuizPackage
@@ -104,10 +104,6 @@ export class ContentService {
     return this.effectiveQuestions.find((question) => question.id === questionId)
   }
 
-  assetFilename(assetId: string): string | undefined {
-    return this.quizPackage.assetsById.get(assetId)?.filename
-  }
-
   /**
    * Directories in which a media file is looked for - in this order.
    *
@@ -129,16 +125,32 @@ export class ContentService {
    * WHERE A HOST BRINGS ITS OWN RESOLUTION, IT DECIDES. An application that has
    * its media in its own bundle - imported by a bundler, addressed by a
    * protocol of its own - cannot use this route, and it used to replace this
-   * method from outside. It is a parameter now (`media` on the runtime).
+   * method from outside. It is a parameter now (`media` on the runtime), and it
+   * is handed a FILE NAME.
    *
-   * A resolver that answers with nothing means: there is no medium for this id.
-   * The question then runs without an image instead of with a broken frame.
+   * A resolver that answers with nothing means: there is no medium for this
+   * file. The question then runs without an image instead of with a broken
+   * frame.
    */
   assetUrl(assetId: string | undefined): string | undefined {
     if (!assetId) return undefined
-    if (this.media) return this.media(assetId)
-    if (!this.quizPackage.assetsById.has(assetId)) return undefined
-    return `/media/${encodeURIComponent(assetId)}`
+    const filename = this.quizPackage.assetsById.get(assetId)?.filename
+    if (filename === undefined) return undefined
+    return this.mediaUrl(filename)
+  }
+
+  /**
+   * URL under which a FILE is served - the route of a question's medium.
+   *
+   * A question carries its file name itself, so there is no id to look up. The
+   * name still never reaches a file system from here: whoever serves resolves
+   * it against `mediaRoots` and checks the path (`resolveAssetPath`), which is
+   * the same guard the id route always relied on.
+   */
+  mediaUrl(filename: string | undefined): string | undefined {
+    if (!filename) return undefined
+    if (this.media) return this.media(filename)
+    return `/media/${filename.split('/').map(encodeURIComponent).join('/')}`
   }
 
   /**

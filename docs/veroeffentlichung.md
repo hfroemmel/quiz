@@ -1,6 +1,6 @@
 # Publishing the packages
 
-The five libraries of the quiz system appear as PRIVATE packages on GitHub
+The four libraries of the quiz system appear as PRIVATE packages on GitHub
 Packages under the scope `@hfroemmel`:
 
 | Package | Contents |
@@ -9,14 +9,13 @@ Packages under the scope `@hfroemmel`:
 | `@hfroemmel/quiz-content` | Content pipeline: validation, package build, legacy import, CLI |
 | `@hfroemmel/quiz-themes` | Color palettes, fonts, theme objects, palette.css/fonts.css |
 | `@hfroemmel/quiz-react` | QuizScene, StageScreen, scenes, sounds, connection hooks |
-| `@hfroemmel/quiz-kiosk` | The playable quiz as a single component (QuizGame) |
 
 Nothing else is shipped: the test harness under `harness/` is excluded from
 versioning, and the applications live in their own repositories.
 
 ## Versioning
 
-Changesets with **fixed versioning**: all five packages always carry the
+Changesets with **fixed versioning**: all four packages always carry the
 same version and are released in lockstep. A change gets a changeset
 (`pnpm changeset`) before the merge; SemVer applies strictly from 1.0
 onward (view model, command, and schema breaks are major).
@@ -63,7 +62,7 @@ git push origin --tags
 
 **Why `--no-git-tag`.** The built-in tag step asks the server, for every
 package whose tag is missing locally, whether it already exists there
-(`git ls-remote --tags origin`). That's five network round trips, and they
+(`git ls-remote --tags origin`). That's four network round trips, and they
 sit behind a spinner: if the network asks for credentials, the prompt is
 invisible and the run appears to hang at "Creating git tags...". Everything
 is already published by that point - aborting with Ctrl+C only costs the
@@ -78,7 +77,7 @@ time git ls-remote --tags origin
 to see whether it's the network or an invisible password prompt.
 
 **In the app repositories, `pnpm install` is enough.** quiz-standalone,
-app-collection, and quiz-live pin the five packages as **`0.x`** - they pick
+app-collection, and quiz-live pin the four packages as **`0.x`** - they pick
 up every new release of the zero series without anyone bumping a number.
 
 The caret doesn't work for this: on a 0.x version, `^0.6.0` means
@@ -88,13 +87,13 @@ the zero series. Every publish therefore fell outside the pinned range, and
 resolution was in fact correct. This has cost half a day, twice.
 
 THE PRICE IS PAID DELIBERATELY: an application now also picks up a breaking
-change without anyone approving it. This holds up as long as the five
+change without anyone approving it. This holds up as long as the four
 packages and the three applications stay in one hand and run in lockstep -
 and as long as breaks in the zero series are documented as `minor` with a
 changeset. From 1.0 on, real ranges belong here again.
 
 **WRITE BACK the version state.** `changeset version` changes the
-`package.json` of the five packages and consumes the changesets; this state
+`package.json` of the four packages and consumes the changesets; this state
 needs to be committed and pushed. If it stays on the machine, the
 repository keeps reporting the old number, and the next run proposes a
 version that is already taken in the registry.
@@ -122,7 +121,7 @@ In every consuming repository (`quiz-live`, `quiz-standalone`,
 
 A private package initially belongs ONLY to the repository it was published
 from. Every consuming repository therefore needs a one-time authorization:
-for each of the five packages, under *Package settings -> Manage Actions
+for each of the four packages, under *Package settings -> Manage Actions
 access -> Add repository*, add the repository with `Read`. Without this
 entry, the registry answers with `403`, even though the token is valid and
 the job has `packages: read`.
@@ -145,5 +144,5 @@ For local development, each person needs a one-time classic PAT with
 ```
 
 The apps pin `0.x` and thus pick up every new release of the zero series;
-fixed versioning guarantees the five packages fit together within it. Why
+fixed versioning guarantees the four packages fit together within it. Why
 not a caret: see "In the app repositories, `pnpm install` is enough" above.

@@ -98,42 +98,57 @@ All colors are CSS variables. No component writes a color value directly.
 
 ### Base (application's base tone)
 
-| Token | Value | Use |
-|---|---|---|
-| `pageTop` | `#12161A` | page background, top |
-| `pageBottom` | `#171C21` | page background, bottom (linear gradient) |
-| `stageTop` | `#171C21` | stage area, top |
-| `stageBottom` | `#293139` | stage area, bottom |
-| `controls` | `#12161A` | control bar |
-| `tile` | `rgb(255 255 255 / 0.09)` | tiles, letter chips |
-| `tileDisabled` | `rgb(255 255 255 / 0.05)` | locked area |
-| `tileQuiet` | `rgb(255 255 255 / 0.06)` | stepped-back tile |
-| `option` | `rgb(255 255 255 / 0.05)` | answer bar, neutral |
+Every colour outside the children's world is a tone of the Federal
+Government's colour spectrum at one of its steps - lightened towards white or
+darkened with black, in the steps 100, 80, 60, 40 and 20 percent. Nothing is
+mixed freely; `packages/themes/src/federalSpectrum.ts` holds the seventeen
+tones and the two rules, and a guard test measures every palette against them.
 
-The stage area runs lighter from top to bottom and slightly toward blue - a
-cool background against which the warm light of the question images works.
+| Token | Value | Spectrum | Use |
+|---|---|---|---|
+| `pageTop` | `#111314` | Dunkelgrau 20 % abgedunkelt | page background, top |
+| `pageBottom` | `#232728` | Dunkelgrau 40 % abgedunkelt | page background, bottom (linear gradient) |
+| `stageTop` | `#232728` | Dunkelgrau 40 % abgedunkelt | stage area, top |
+| `stageBottom` | `#343A3C` | Dunkelgrau 60 % abgedunkelt | stage area, bottom |
+| `controls` | `#111314` | Dunkelgrau 20 % abgedunkelt | control bar |
+| `tile` | `rgb(255 255 255 / 0.09)` | Weiß, veiled | tiles, letter chips |
+| `tileDisabled` | `rgb(255 255 255 / 0.05)` | Weiß, veiled | locked area |
+| `tileQuiet` | `rgb(255 255 255 / 0.06)` | Weiß, veiled | stepped-back tile |
+| `option` | `rgb(255 255 255 / 0.05)` | Weiß, veiled | answer bar, neutral |
 
-**The area colors are semi-transparent.** This isn't a detail, it's the
-core of the design: behind the scene lies the blurred question image, and
-tiles, letters, and answer bars let it shimmer through like frosted glass,
-instead of covering it up. A token with an opaque color would immediately
-destroy the depth.
+The stage area runs lighter from top to bottom - three steps of one grey,
+against which the warm light of the question images works.
 
-### Blurred Question Image as Background
+**The area colors are semi-transparent.** Tiles, letters and answer bars are
+veils over the stage's own ground, not opaque boxes on it: that is what keeps
+the order of surfaces readable - a card lies on the stage, a letter on the
+card. They used to let a blurred question image shimmer through as well; that
+layer is gone, and the veils now composite over one flat ground in every
+variant.
 
-Behind every scene with an image lies the same image filling the frame,
-strongly blurred (`blur(3cqw)`), darkened (`brightness(0.72)`) and overlaid
-with a color veil made of `stageTop`/`stageBottom` at 66% opacity. Every
-question thus gets its own atmosphere without text losing calm.
+### No Picture Behind the Scene
 
-Darkening happens deliberately twice, both on the image AND on the veil: the
-question images range from night shots to a cloudless summer sky, and a
-bright sky would otherwise tip the stage into a milky look.
+Every scene stands on the stage's own ground. A scene with an image used to
+repeat that image behind itself - filling the frame, strongly blurred,
+darkened and overlaid with a colour veil - so every question carried its own
+atmosphere, and during an image reveal the same layer was blurred far more
+strongly so that no silhouette gave the motif away.
 
-**During the image reveal**, the same background is much more strongly
-blurred (`blur(9cqw)`, `brightness(0.5)`, veil 84%). The task there is
-to recognize the subject; the background must not give away a silhouette -
-9 cqw is roughly 170 pixels of blur on a 1920-wide projector.
+That layer is gone, and with it the frosted panes above it. A question's
+picture is shown where it is content: framed in the scene. The red variant,
+which was the first to do without both, is no longer the exception.
+
+**Where it started.** The red variant was the first world without that layer:
+it stands on a commissioned ground, and a picture behind the scene is what such
+a ground cannot survive - every photo pulls the tone somewhere else, and in the
+running game the specified colour was nowhere on screen any more. Its panes
+keep their white veils, which over one flat ground composite to flat, slightly
+lighter reds: the same order of surfaces, no second colour in the room. In the
+kids world the illustrated scene carries the background instead, and the
+question photo stays out for that reason.
+
+`--stage-glass` is still declared in `styles/stage.css`, but nothing inside the
+package reads it any more.
 
 ### Radii and Shadows
 
@@ -190,6 +205,11 @@ not here:
 | `--ui-incorrect` | `Antwort war falsch` ("Answer was wrong"), warnings |
 | `--ui-warning-soft`, `--ui-error-soft` | highlighted messages in the connection banner |
 
+The frame's greys are four steps of the spectrum's `Dunkelgrau`, darkened, and
+its two signals are the stage's: the same green for a correct answer, the same
+red for a wrong one. They used to be tones of their own, which meant the room
+and the desk disagreed about the colour of the same statement.
+
 The reason for the separation is practical, not aesthetic: the room should see
 the color of the quiz mode, while the operator always sees the same
 surface - otherwise they'd have to relocate their buttons on every mode
@@ -209,7 +229,8 @@ image while still carrying official values. The dark version takes
 the lightened shades of the tint scale - the pure tone would drown
 on a dark background - the light version uses the same colors at 100 percent.
 
-The values are **not here**, but in `packages/contracts/src/theme.ts`.
+The values are **not here**, but in `packages/themes/src/palettes.ts`, where
+they are written as tone and step (`ci('blau', 80)`) rather than as numbers.
 A copy in this file would go stale at the next color change, without
 anyone noticing.
 
@@ -318,7 +339,7 @@ right. Both are gone. A token that substitutes `var(--color-accent)` at the
 document root freezes the tone of the default world and keeps it in the light
 world and in the children's one - the device showed a colour its own accent did
 not have. Both buzzers now read `--color-accent` themselves and are told apart
-by their place; a corner that cannot act carries the stage's frosted tile.
+by their place; a corner that cannot act carries the stage's quiet tile.
 
 The offers of the start menu come from the configuration (`quizzes`, see
 `docs/quizpaket.md`). The emphasised one takes the whole row of the card block,
@@ -339,20 +360,34 @@ the stage area; every component brings both worlds along in its own CSS
 module (`:global(.stage--default)` / `:global(.stage--kids)`). There are no
 mode-dependent components or class names - `Score`, not `KidsScore`.
 
-The `default` world additionally has **two versions**:
+The `default` world additionally has **three versions**:
 
 | Version | Class | Effect |
 |---|---|---|
-| dark | `.stage--dark` | the quiz mode's values, unchanged |
-| light | `.stage--bright` | the same eighteen tokens on a light panel |
+| light | `.stage--bright` | the eighteen tokens on a light panel |
+| dark | `.stage--dark` | the quiz mode's values, unchanged - the fallback layer of `palette.css` |
+| red | `.stage--red` | the commissioned `#CA2F56` on a flat ground - the way every variant stands now |
 
 The version changes **only colors, transparencies, outlines, and
-shadows**. Fonts, components, positions, and spacing are identical in both.
-It is a matter of the operator's own preference - it lives in
+shadows**. Fonts, components, positions, and spacing are identical in all
+three. It is a matter of the operator's own preference - it lives in
 `localStorage`, not in the snapshot, and the server knows nothing about it.
-It is toggled in the header of the operator view, to the left of the
-fullscreen switch; in kids mode the switch is dropped, because that world
+It is chosen in the header of the operator view, in a select box to the left of
+the fullscreen switch; in kids mode the box is dropped, because that world
 brings its own paper along.
+
+**The data flow, end to end.** `stageThemes` in `@hfroemmel/quiz-react` is the
+list of versions that exist, in the order a box shows them, and a host builds
+its choice from that list rather than from a list of its own. `useStageTheme`
+writes the name into `localStorage` under `quiz.stageTheme` and fires
+`quiz:stage-theme`; the `storage` event carries it to every other window of the
+origin, so the projector follows the desk without a command and a window that
+opens later reads it straight out of the storage. `stageThemeFrom` is the rule
+on the way back in: a name this build does not know gives the light version.
+That last point is what makes a version mismatch visible rather than puzzling -
+a box built from a newer list than the package's would otherwise offer a choice
+that silently snaps back, which is exactly what an application newer than its
+installed package once did with `red`.
 
 **Why the theme values sit on the frame and not on the stage:** `themeVariables`
 delivers the eighteen tokens as an inline style, and an inline style beats every
@@ -426,11 +461,14 @@ in the design. Separation arises solely through brightness.
 |---|---|---|
 | Fullscreen | top right | four corner angles, 2 px stroke, white |
 | Sound off | top right, below | speaker with a diagonal slash |
-| Checkmark | correct feedback | delivered motion graphic `correct.webm` |
-| Cross | incorrect feedback | delivered motion graphic `wrong.webm` |
+| Checkmark | correct feedback | drawn as SVG on a disc in `--color-correct` (`AnswerResultAnimation`) |
+| Cross | incorrect feedback | drawn as SVG on a disc in `--color-incorrect` (`AnswerResultAnimation`) |
 
-This clarifies the cross missing from the templates: it is part of the
-delivered incorrect graphic.
+This clarifies the cross missing from the templates: it is drawn on the disc.
+Both marks used to be delivered WebM clips; they are vectors now, so the disc
+carries the meaning colour of the running theme instead of a tone baked into a
+file - which is what lets the same mark work on the light, the dark and the red
+stage and in the children's world.
 
 Fullscreen and sound are drawn as inline SVG with `currentColor`. There is
 no icon font and no external symbol files.
@@ -441,7 +479,7 @@ no icon font and no external symbol files.
 |---|---|---|
 | `quiz-adults.svg` | `content/source/assets/branding/start-adults.svg` | adult start screen: eagle at 8% opacity, with the `?` on top. The title is application text, not part of the graphic |
 | `quiz-kids.png` | `content/source/assets/branding/start-kids.png` | kids start screen, 1024 x 828, edge-to-edge |
-| `correct.webm`, `wrong.webm`, `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
+| `trophy.webm`, `stars.webm`, `question-marks.webm` | `apps/web/src/assets/animations/` | motion graphics, VP9 with alpha channel, 500 x 500, 30 fps, no sound |
 | `confetti.svg` | `apps/web/src/assets/animations/` | animated SVG for the results view |
 
 The start screens are content of the quiz package and are assigned via
@@ -496,8 +534,9 @@ Only six stylesheets are global, and each for a reason:
 | `RevealTiles` | tile cover for image recognition | - |
 | `AnswerList` | answer rows with letter chip | `idle`, `selected`, `correct`, `incorrect`, `disabled` |
 | `Mascot` | character layer | visible only in the kids world |
-| `Buzzer` | a player's buzz area on the touch device | left, right; free, on turn, withdrawn |
-| `PlayerFoot` | touch device footer: both player corners and the counter | - |
+| `Buzzer` | a player's buzz area on the touch device | left, right; the word on an area (`live`) or the drawn push-button (`kiosk`); `waiting`, `ready`, `armed`, `locked` |
+| `PlayerFoot` | touch device footer of the LIVE arrangement: both player corners and the counter | - |
+| `KioskFoot` | touch device footer of the KIOSK arrangement: the drawn buzzers, the hint field and the way out of the round | single player, duel |
 
 On the touch device, the rows of `AnswerList` are buttons - the same list,
 just with `onSelect`. There is deliberately no second row component for the
@@ -511,6 +550,60 @@ height, so a two-line answer grows with it instead of overflowing its tile. The
 letter is widened accordingly, otherwise it would stand as a narrow strip
 next to a wide tile. In the kids world this doesn't apply: the drawn
 card is thumb-sized anyway and brings its own height.
+
+### Two Arrangements of the Same Device
+
+The playable quiz has ONE component (`<QuizGame>`), and a host says which
+arrangement it draws around the game:
+
+```ts
+layout?: 'live' | 'kiosk'   // default: 'live'
+```
+
+**`live`** is the seat at an operator's table. Score card and buzzer sit
+together at the bottom in the corner of the player they belong to, the head
+carries the word mark alone, and the way out of the round sits top centre.
+Someone runs that evening; the device is one place at their table.
+
+**`kiosk`** is a device standing on its own - the media table, the game
+collection, the standalone application. Nobody explains it, so the screen has
+to: the score cards and the counter stand together in the head
+(`[Spieler|1][Punkte] [Frage|3/7] [Punkte][2|Spieler]`, and with one player
+just `[Frage|3/7][Punkte]`, without a player cell), the two buzzers are the
+drawn push-buttons in the bottom corners, and between them a field states what
+to do next. The way out of the round stands under that field, in the middle.
+
+The switch travels as a prop through `QuizScene` to `StageScreen`, which writes
+it onto the stage as `data-layout`; head and foot read it from there. The scene
+in between - image, question, answers - is the same composition in both, and
+the stage and the operator's preview never see the attribute at anything other
+than `live`.
+
+**What the hint field says** follows the state of the question, one sentence at
+a time, and the order is the priority (`KioskFoot`):
+
+| State | Text (`interfaceStrings`) |
+|---|---|
+| an answer is marked, submitting is possible | `kiosk.hintSubmit` |
+| the second chance has passed the turn on | `kiosk.secondChance` |
+| this player may answer | `kiosk.hintChoose` |
+| the answers are up and nobody has buzzed | `kiosk.hintBuzz` |
+| after the solution | the field carries "Weiter" instead |
+
+**The buzzers** carry their state as `data-buzzer-state`: `waiting` before the
+release (taken back), `ready` once the answers are up (full colour, operable),
+`armed` for the player who got the buzz (unchanged - what says it is theirs is
+the other corner and their score card), `locked` for the other one (grey and
+translucent, and disabled with it). The confirmation "Antwort abgeben" appears
+ON the armed corner, covering the middle of the drawing; with one player there
+is no corner, so it stands in the middle above the way out of the round.
+
+**The heights divide the column.** The live arrangement computes what is left
+for the scene from an assumed head and foot and fixes its footer to the bottom
+edge; the kiosk arrangement lets head, scene and foot share the column (the
+scene takes what is left and derives its width from its 16:9). Nothing can
+overlap there, at any window size - which is what `test/e2e/kiosk-layout.spec.ts`
+measures, in both modes.
 
 ### The Scene on the Touch Device
 

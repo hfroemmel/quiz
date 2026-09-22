@@ -113,19 +113,32 @@ describe('the built-in themes carry the values of the stylesheet', () => {
 })
 
 describe('the menu mirrors the stage', () => {
-  it('the table says the same as the light start palette', () => {
+  it('the table names start tokens the light menu actually has', () => {
     /*
-     * `brightStartPalette` states the relationship as a reference taken once;
-     * the table states it as data, so it can be applied after a host's
-     * overrides. Whoever changes one of the two has to change the other.
+     * THE TABLE IS NO LONGER A COPY OF THE DEFAULTS. It used to state that
+     * each of these start tokens holds the same value as its stage token;
+     * since the stage carries the house tones and this screen keeps the
+     * spectrum's blue and green, the two sets differ on purpose.
+     *
+     * What the table states now is the RELATIONSHIP a host theme may steer:
+     * name a stage token, and these start tokens follow it (`mirrored` in
+     * `themeDefinition.ts`). So what has to hold is that both sides name
+     * tokens this menu really has - a typo on either side would otherwise
+     * silently steer nothing.
      */
     for (const [startToken, stageToken] of Object.entries(brightStartMirrors)) {
-      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(
-        (brightPalette as Record<string, string>)[stageToken],
-      )
+      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBeDefined()
+      expect((brightPalette as Record<string, string>)[stageToken], stageToken).toBeDefined()
     }
-    for (const startToken of brightStartInkOnStrong) {
-      expect((brightStartPalette as Record<string, string>)[startToken], startToken).toBe(stageExtras.inkOnStrong)
+    /*
+     * AND THE FOUR LIGHT INKS ARE NO LONGER THE STAGE'S. The stage writes
+     * dark on its strong areas; a filled card, the start bar and the badge of
+     * this screen are deep colours, so all four carry the same light ink of
+     * their own. What the list still states is which tokens a host theme's
+     * `stage.inkOnStrong` may steer.
+     */
+    for (const token of brightStartInkOnStrong) {
+      expect((brightStartPalette as Record<string, string>)[token], token).toBeDefined()
     }
   })
 
@@ -216,5 +229,159 @@ describe('the schema of a theme', () => {
 
   it('refuses a base it cannot start from', () => {
     expect(() => themeDefinitionSchema.parse({ id: 'x', base: 'paper' })).toThrow()
+  })
+})
+
+/**
+ * THE RED VARIANT - the one it is easiest to break without noticing.
+ *
+ * It is the dark stage with its ground exchanged, and it says that by naming
+ * almost nothing. Exactly that is what is checked here: a value that creeps
+ * into this rule would be a colour the dark stage does not have, and the three
+ * signals - blue for the selection and the player on turn, green for the right
+ * answer, red for the wrong one - are the ones that must not move.
+ */
+describe('the red variant', () => {
+  const fallback = declarations(':root')
+  const brightStage = declarations('.stage--default.stage--bright')
+  const redStage = declarations('.stage--default.stage--red')
+  const redStart = declarations("[data-quiz-game][data-theme='red']")
+  const darkOverview = declarations("[data-quiz-overview][data-theme='dark']")
+  const redOverview = declarations("[data-quiz-overview][data-theme='red']")
+
+  it('names the ground of the stage and the tone that sits on it', () => {
+    expect(Object.keys(redStage).sort()).toEqual([
+      '--color-controls',
+      '--color-option',
+      '--color-pageBottom',
+      '--color-pageTop',
+      '--color-stageBottom',
+      '--color-stageTop',
+      '--color-tile',
+      '--color-tileDisabled',
+      '--color-tileQuiet',
+      /*
+       * And one token that is not a colour set's: the ink on a strong area.
+       * It is emitted once into the fallback layer, so a variant that wants
+       * another value has to state it in its own rule (`redStageExtras`).
+       */
+      '--stage-inkOnStrong',
+    ])
+    /*
+     * ONE GROUND, AND ONE TONE ON IT. The four areas and the two quiet tiles
+     * carry the commissioned ground; the tile and the answer option carry the
+     * darker tone that took the place of the white veils in this variant - a
+     * veil over the red read as a pale patch instead of a surface. What is
+     * switched off or held back shows no surface at all and stays on the
+     * ground.
+     */
+    const onTheGround = [
+      '--color-pageTop',
+      '--color-pageBottom',
+      '--color-stageTop',
+      '--color-stageBottom',
+      '--color-controls',
+    ].map((token) => redStage[token])
+    expect(new Set(onTheGround).size).toBe(1)
+    const tiles = ['--color-tile', '--color-tileDisabled', '--color-tileQuiet', '--color-option'].map(
+      (token) => redStage[token],
+    )
+    expect(new Set(tiles).size, tiles.join(', ')).toBe(1)
+    expect(tiles[0]).not.toBe(redStage['--color-pageTop'])
+    expect(redStage['--color-pageTop']).not.toBe(fallback['--color-pageTop'])
+  })
+
+  /*
+   * AND THE INK ON A STRONG AREA IS THE DARK STAGE'S, for the same reason the
+   * signals are: the strong areas of this variant ARE the dark stage's. It
+   * names the ground and the tile on it, so what a score card of the player on
+   * turn and a tapped answer carry is the white accent of the dark world - and
+   * on white, the light ink of the paper variant is nothing at all.
+   *
+   * It is stated in the variant's own rule all the same, which is what makes
+   * this case worth having: on the fallback layer alone the value would be
+   * whatever the document around the stage says.
+   */
+  it('writes the dark ink on a strong area, like the stage it comes from', () => {
+    expect(redStage['--stage-inkOnStrong']).toBe(fallback['--stage-inkOnStrong'])
+    // And the paper variant is the one that differs - otherwise this proves nothing.
+    expect(brightStage['--stage-inkOnStrong']).not.toBe(fallback['--stage-inkOnStrong'])
+  })
+
+  it('leaves the signals to the dark stage', () => {
+    /*
+     * THE VEILS ARE NO LONGER AMONG THEM - tile and option name a tone of
+     * their own here (see the test above). THE SIGNALS STAY: blue marks the
+     * turn, green the right answer, red the wrong one, and they mean the same
+     * thing in every variant, so this world may not re-book them.
+     */
+    for (const token of [
+      '--color-accent',
+      '--color-primary',
+      '--color-solution',
+      '--color-correct',
+      '--color-incorrect',
+      '--color-text',
+    ]) {
+      expect(redStage[token], token).toBeUndefined()
+      expect(fallback[token], token).toBeDefined()
+    }
+  })
+
+  it('gives the device start screen the same ground and switches its lights off', () => {
+    expect(Object.keys(redStart).sort()).toEqual([
+      '--start-ambient-left',
+      '--start-ambient-right',
+      '--start-bg-bottom',
+      '--start-bg-mid',
+      '--start-bg-top',
+    ])
+    expect(redStart['--start-bg-top']).toBe(redStage['--color-pageTop'])
+    expect(redStart['--start-ambient-left']).toBe(redStart['--start-ambient-right'])
+    expect(redStart['--start-ambient-left']).not.toBe(fallback['--start-ambient-left'])
+  })
+
+  it('turns the offer overview ground and ink, and keeps the cards as they are', () => {
+    for (const [name, rule] of [
+      ['dark', darkOverview],
+      ['red', redOverview],
+    ] as const) {
+      expect(Object.keys(rule).sort(), name).toEqual([
+        '--quiz-select-ink',
+        '--quiz-select-ink-quiet',
+        '--quiz-select-page',
+        '--quiz-select-shadow',
+      ])
+    }
+    // Two grounds, one ink: the red variant is the dark one with its ground exchanged.
+    expect(redOverview['--quiz-select-page']).toBe(redStage['--color-pageTop'])
+    expect(redOverview['--quiz-select-page']).not.toBe(darkOverview['--quiz-select-page'])
+    /*
+     * ONE INK, WRITTEN TWICE. Both blocks carry white; the dark one says
+     * `#fff` and the red one `#FFFFFF`, because each states the value its own
+     * palette holds. What has to match is the colour, not the spelling.
+     */
+    const white = (value: string) =>
+      value.length === 4 ? `#${value.slice(1).split('').map((part) => part + part).join('')}`.toUpperCase() : value.toUpperCase()
+    expect(white(redOverview['--quiz-select-ink']!)).toBe(white(darkOverview['--quiz-select-ink']!))
+
+    /*
+     * AND THE CARDS KEEP THEIR DARK TEXT. Their surfaces are the colours of
+     * their quizzes and stay light in every variant, so the ink on them may not
+     * follow the page's - that is what the second pair of names is for.
+     */
+    expect(darkOverview['--quiz-select-ink-on-card']).toBeUndefined()
+    /*
+     * ON THE LIGHT PAGE BOTH CARRY THE SAME INK - and keep separate names for
+     * it. That is the point of the second name: the dark and the red variant
+     * darken the page and leave the cards as they are, so a card's ink must
+     * not follow the page's even where the two values happen to match.
+     */
+    expect(fallback['--quiz-select-ink-on-card']).toBeDefined()
+    expect(fallback['--quiz-select-ink-on-card']).toBe(fallback['--quiz-select-ink'])
+    expect(darkOverview['--quiz-select-ink']).not.toBe(fallback['--quiz-select-ink-on-card'])
+    for (const card of ['bundestag', 'kids', 'europe', 'unity', 'bremen']) {
+      expect(darkOverview[`--quiz-select-card-${card}`], card).toBeUndefined()
+    }
   })
 })
