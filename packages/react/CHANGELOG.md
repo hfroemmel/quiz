@@ -1,5 +1,50 @@
 # @hfroemmel/quiz-react
 
+## 0.27.4
+
+### Patch Changes
+
+- 5499e01: The children's selection stands in the middle of the scene, with the three of them behind it.
+  
+  The adults' selection is two columns - the board with the motif on the left, the
+  choosing on the right - and that is a form for a motif that is a picture: it
+  hangs beside the form and waits. The children's motif is not a picture but three
+  characters holding up a sign, and they belong WITH what is being chosen: over the
+  card, greeting whoever steps up to the table, and standing behind it from the hip
+  down as if the card were a counter they stand at.
+  
+  So this world makes one column of the two, centres it in the drawn scene and lets
+  the card overlap the lower part of the drawing - a negative margin, so both stay
+  in the flow and the pair is centred as one block. The nudge the card carried from
+  the two-column form goes with it; it was exactly what pushed the card out of the
+  middle.
+  
+  WHAT GIVES WAY WHEN IT GETS TIGHT IS THE DRAWING. A menu can grow - a setup with
+  several quizzes brings a list, a translation makes a button two lines tall - so
+  the drawing's row is the elastic one and the card keeps its height in every case.
+  The last thing to go off the bottom of a device must not be the button that
+  starts the game.
+  
+  And the drawn scene behind all of it is a new one: the same view, with the
+  parliament and the Paul-Löbe-Haus both in the picture and the people on the lawn.
+- 0d7742c: The cover of an image-guessing question is a surface in the red variant too.
+  
+  Before the first tile opens, that plate IS the picture: a closed area where the
+  photo will appear. It carries the tone of the controls, which on the dark stage
+  and on paper is a step away from the area it lies on - and in the red variant is
+  that area itself, because all four ground tokens of that world carry the
+  commissioned tone. The room was shown a red stage with a question beside it and
+  no picture in sight.
+  
+  In this variant the plate therefore takes the tone that world puts ON its
+  ground, the one its tiles and answer bars already have: a white veil over this
+  red reads as a pale patch instead of an area. The other two variants and the
+  children's world keep what they had, and the reveal itself - the order of the
+  tiles and their fade - is untouched.
+- Updated dependencies [9022993]
+  - @hfroemmel/quiz-themes@0.27.4
+  - @hfroemmel/quiz-core@0.27.4
+
 ## 0.27.3
 
 ### Patch Changes
