@@ -357,6 +357,8 @@ async function selectionBoxes(page: Page) {
       Math.round(cardBox.top + 4),
     )
     return {
+      /* The menu is the screen the arrangement stands on; the area is its row. */
+      menu: box(layout.closest('[data-quiz-start]')!),
       area: box(layout),
       motif: box(motif),
       motifLoaded: motif.naturalWidth > 0,
@@ -385,11 +387,16 @@ test('the children selection stands in the middle, with the three of them behind
   expect(kids.inFront).toBe('card')
 
   /*
-   * AND NOTHING IS CUT OFF. The card keeps its height in every case, so what
-   * would have to give way is the drawing - the row it stands in is the elastic
-   * one.
+   * AND NOTHING LEAVES THE SCREEN. The card keeps its height in every case, so
+   * what has to give way is the drawing.
+   *
+   * THE DRAWING IS MEASURED AGAINST THE MENU, NOT AGAINST THE ROW IT STANDS IN:
+   * it may well reach into the menu's own padding - a head that peeks over the
+   * edge of the arrangement is exactly what makes these three stand behind the
+   * card rather than in a frame. What must not happen is that it leaves the
+   * screen, and that is the boundary this checks.
    */
-  expect(kids.motif.top).toBeGreaterThanOrEqual(kids.area.top)
+  expect(kids.motif.top).toBeGreaterThanOrEqual(kids.menu.top)
   expect(kids.card.bottom).toBeLessThanOrEqual(kids.area.bottom)
 })
 
