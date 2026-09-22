@@ -371,8 +371,15 @@ export function QuizGame({
   const stepPossible = view.catalog.rules.showDetailsAfterSolution
   const details = view.visibleSolution?.details
   const continueRound = () => send({ type: 'CONTINUE' })
-  /** The card is announced by the question it belongs to. */
+  /**
+   * The question the card belongs to - its rubric and its prompt.
+   *
+   * They are read here and not in the card: what the stage knows about the
+   * question stands in the view model, and the card is handed what it shows
+   * (it freezes the pair while it fades, see `DetailsStep`).
+   */
   const askedPrompt = view.question?.prompt
+  const askedCategory = view.question?.categoryLabel
 
   /**
    * The card: the package's own, or the host's where it brings one.
@@ -388,6 +395,8 @@ export function QuizGame({
       return (
         <DetailsStep
           details={details}
+          category={askedCategory}
+          prompt={askedPrompt}
           continueLabel={t('kiosk.continue')}
           label={askedPrompt}
           onContinue={continueRound}

@@ -80,7 +80,13 @@
   border-radius: calc(var(--stage-radius) * 1.5);
   background: var(--color-stageBottom);
   box-shadow: 0 1cqw 6cqw var(--stage-cardShadow);
-  text-align: center;
+  /*
+   * EVERYTHING ON THIS CARD READS FROM THE LEFT. It used to be centred, which
+   * is a form for one short line; what stands here is a rubric, a question and
+   * a paragraph, and three centred blocks of different lengths give a reader
+   * three different places to start.
+   */
+  text-align: left;
   overflow-y: auto;
   scale: calc(var(--stage-zoom, 1) * 0.98);
   transition: scale var(--stage-fade-duration) var(--stage-fade-easing);
@@ -88,6 +94,41 @@
 
 .step[data-open='true'] .panel {
   scale: var(--stage-zoom, 1);
+}
+
+/*
+ * THE QUESTION THIS BACKGROUND BELONGS TO - in the voice of the board the card
+ * covers.
+ *
+ * The rubric and the question carry the sizes of the question board itself
+ * (`QuestionHead.module.css`): the small bold line above, the serif below it.
+ * That is the point of them being here - the card hides the board, and what it
+ * puts in its place should be the same thing, not a second design for the same
+ * two lines.
+ *
+ * They are ONE GROUP with a gap of their own: the rubric belongs to the
+ * question under it, closer than the card's own spacing between blocks.
+ */
+.asked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4cqw;
+}
+.category {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 1.5cqw;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.prompt {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 2.5cqw;
+  font-weight: 400;
+  line-height: 1.25;
 }
 
 .text {
@@ -99,24 +140,52 @@
 }
 
 /*
+ * The children's world writes both lines by hand, exactly as its question
+ * board does - the sans of the rubric would be the only printed type in a drawn
+ * room.
+ */
+:global(.stage--kids) .category,
+:global(.stage--kids) .prompt {
+  font-family: var(--kids-hand);
+  font-weight: 400;
+}
+
+/*
  * One button, large enough for a thumb. It IS the way onward here -
  * `stage-button stage-button--primary` is the shared button of the stage, the
  * same one the footer's "Weiter" is built from. Only its place in the card
  * belongs here.
  *
- * IT LOOKS SMALLER THAN IT IS. The painted box is narrower and flatter than the
- * stage default - one sentence of background does not need a bar across the
- * card. What a thumb hits is unchanged: `::after` carries the difference back
- * out beyond the visible edge, and a pseudo-element of the button is part of
- * the button.
+ * IT LOOKS SMALLER THAN IT IS. The painted box is flatter than the stage
+ * default - a card of text does not need a bar across it. What a thumb hits is
+ * unchanged: `::after` carries the difference back out beyond the visible edge,
+ * and a pseudo-element of the button is part of the button.
  */
 .continue {
-  --stage-button-pad: 2.4cqw;
+  --stage-button-pad: 3.6cqw;
   --stage-button-height: 3.9375cqw;
 
   position: relative;
-  align-self: center;
+  /*
+   * AT THE END OF THE READING, NOT UNDER ITS MIDDLE. The way onward stands
+   * where a reader arrives - the right end of the last line - and it is a
+   * little wider than the stage's smallest button, so that one word does not
+   * sit in a box the size of the word.
+   */
+  align-self: flex-end;
   margin-top: 1cqw;
+  /*
+   * AND IT NAMES ITS OWN INK.
+   *
+   * `stage-button--primary` carries `--color-primaryInk`, but it says so in a
+   * `:where()` - specificity zero, so that a component can refine the button in
+   * its own module without depending on the order in which a host includes the
+   * stylesheets. A HOST'S OWN RESET WINS OVER ZERO: `button { color: inherit }`
+   * is an element selector, and with it the label inherits the ink of the card
+   * and stands black on the black box - invisible, and only in some hosts,
+   * which is the worst kind of invisible. The card is a component and says it.
+   */
+  color: var(--color-primaryInk);
 }
 .continue::after {
   content: '';
