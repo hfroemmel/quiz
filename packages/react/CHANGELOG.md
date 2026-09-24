@@ -1,5 +1,35 @@
 # @hfroemmel/quiz-react
 
+## 0.27.9
+
+### Patch Changes
+
+- 3c1b6be: Only the colours of a world travel to the frame - the type belongs to the stage.
+  
+  The line that gave the running game its world (0.27.8) was one word too wide:
+  it handed down the world's colours AND its type. The type then reached the
+  frame around the stage, where the head above the answers is measured against
+  the area it may take - and a different heading font is different metrics, so in
+  the kiosk layout the head grew over the first answer and swallowed the tap on
+  it.
+  
+  With a game running, the type of the world sits on the stage, which states it
+  itself, and the surfaces around it stay the host's frame. Only the `--color-*`
+  set travels now, which is all the confirmation dialog needed to be readable.
+  
+  **Anyone on 0.27.8 should take this one too**: the ink of the children's dialog
+  is right there, but a kiosk layout can lose the first answer to its own head.
+- d261f52: The second chance may draw its own joker. A player who buzzed, spent their joker
+  and answered wrong no longer takes the control with them: the other player can
+  draw their own on the same question. What a 50:50 struck out now lives on the
+  question instead of on the draw, so a second draw neither counts those answers as
+  open nor removes them twice, and a question worn down below three open answers
+  still carries the audience joker. The desk names the player who would be drawing
+  now rather than the owner of the card still on screen.
+- Updated dependencies [d261f52]
+  - @hfroemmel/quiz-core@0.27.9
+  - @hfroemmel/quiz-themes@0.27.9
+
 ## 0.27.8
 
 ### Patch Changes
