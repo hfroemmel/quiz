@@ -1,5 +1,30 @@
 # @hfroemmel/quiz-react
 
+## 0.27.6
+
+### Patch Changes
+
+- A row taken by the 50:50 steps further back - and keeps its colour.
+  
+  It used to be drained as well as dimmed: `grayscale(1)` on top of an opacity of
+  0.45. That is two statements for one fact. The grey turned the letter chip and
+  the answer area into something the world does not otherwise contain - a grey
+  tile in the children's room, a grey bar on the stage - and a row that changes
+  its material reads as a row that has been REPLACED, not as one that has fallen
+  away.
+  
+  So the colour stays and only the weight goes: 0.33 instead of 0.45. That is far
+  enough for the room to see at a glance which two answers are still standing, and
+  near enough that the fallen ones remain readable - a projector turns the last
+  few per cent into a hole where the eye expects a line. Everything else about the
+  step back is unchanged: the row keeps its place, its height and its letter, it
+  carries no strikethrough, and it becomes unreachable in the component
+  (`disabled`, `aria-hidden`) rather than by its looks.
+  
+  `docs/joker.md` described the old values and now describes these.
+- @hfroemmel/quiz-core@0.27.6
+  - @hfroemmel/quiz-themes@0.27.6
+
 ## 0.27.5
 
 ### Patch Changes

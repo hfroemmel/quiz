@@ -219,7 +219,7 @@ No answer is selected for the player.
 
 This only becomes visible with `CONTINUE_JOKER`. The eliminated answers then
 keep their place, their height, and their letter and only **step back**:
-opacity 0.45 and without color, over 250 ms, staggered by
+opacity 0.33, in their own colours, over 250 ms, staggered by
 110 ms for multiple answers. No strikethrough - the row stays readable, and a
 line would be a second statement on top of the first. They become unreachable
 in the component (`disabled`, `aria-hidden`), never only visually. When the
