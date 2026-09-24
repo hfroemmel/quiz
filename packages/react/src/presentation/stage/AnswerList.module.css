@@ -50,8 +50,7 @@
    * component; several answers thereby step back one after another instead
    * of jumping all at once.
    */
-  opacity: 0.45;
-  filter: grayscale(1);
+  opacity: 0.33;
   pointer-events: none;
   transition:
     opacity var(--joker-eliminate-duration, var(--stage-fade-duration)) ease
