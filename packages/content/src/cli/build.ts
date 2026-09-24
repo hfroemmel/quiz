@@ -74,3 +74,26 @@ if (result.missingAssetFiles.length) {
 }
 console.log(`Quizpaket ${contentVersion} geschrieben nach ${result.outDir}`)
 console.log(`Pruefsumme: ${result.manifest.checksum.slice(0, 16)}...`)
+
+/*
+ * AND WHAT IS IN IT - the quiz types, by name.
+ *
+ * THE VERSION SAYS NOTHING ABOUT THE CONTENT. It is a counter of the builds in
+ * this directory: a fresh `content/dist` starts at 1.0.0 and every build adds
+ * one, so the same corpus has a different number on two machines and two
+ * different corpora can carry the same. What an operator actually needs to
+ * know is whether THIS package is the one the evening was prepared with - and
+ * the answer is the offer it holds.
+ *
+ * It is the line that ends the commonest confusion there is around this
+ * pipeline: the source is versioned, the package is not, so a build that was
+ * forgotten shows itself as a room full of the previous offer. Whoever reads
+ * this line sees the old names and knows where to look.
+ */
+const built = readJson(join(result.outDir, 'config.json')) as {
+  quizzes?: { id: string; label: string }[]
+}
+const offered = built.quizzes ?? []
+if (offered.length > 0) {
+  console.log(`Quizarten (${offered.length}): ${offered.map((quiz) => `${quiz.id} "${quiz.label}"`).join(', ')}`)
+}
