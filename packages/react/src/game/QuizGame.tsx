@@ -665,10 +665,26 @@ export function QuizGame({
   return (
     <div
       className={styles.game}
-      style={area}
+      /*
+       * THE WORLD'S OWN COLOURS, ON THE RUNNING GAME TOO.
+       *
+       * Everything outside the stage belongs to this element: the confirmation
+       * before a round is ended, the settings window, the foot of the kiosk
+       * layout. The stage declares the world's tokens on ITSELF
+       * (`.stage--kids` in `palette.css`), so it was themed either way - and
+       * this root was not: while a game ran it handed down whatever
+       * `--color-*` the HOST has, and in the children's world that put white
+       * ink on the drawn cream paper of the dialog. A title and a button
+       * nobody can read, in the one moment somebody wants out of a round.
+       *
+       * The start and the waiting screen have carried the world's variables
+       * all along; this is the third of the three, and the same line.
+       */
+      style={{ ...worldVariables, ...area }}
       data-quiz-game=""
       data-skin={skin}
       data-theme={variant}
+      data-surface={surface}
       data-layout={layout}
       data-sound={String(view.soundEnabled)}
       onPointerDown={idle.notice}
