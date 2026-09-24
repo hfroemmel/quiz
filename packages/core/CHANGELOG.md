@@ -1,5 +1,7 @@
 # @hfroemmel/quiz-core
 
+## 0.27.8
+
 ## 0.27.7
 
 ### Patch Changes
