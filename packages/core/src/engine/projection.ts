@@ -547,9 +547,9 @@ function operatorJoker(state: GameState | null): { joker: OperatorJokerControl }
 
 function publicOptions(state: GameState, scene: PublicScene, question: Question | undefined): PublicOption[] | undefined {
   /*
-   * Hidden by the 50:50 - but only while it belongs to the question on screen.
-   * The sequence is set back to `idle` on every question change; this second
-   * check is the belt to that braces, and it costs one comparison.
+   * Hidden by the 50:50 - and only ever for the question on screen. The ids
+   * hang on that question, so they cannot outlive it: the next one arrives
+   * without them, and no comparison is needed to keep them apart.
    */
   const eliminated = new Set(eliminatedOptionIds(state))
   const runtime = state.currentQuestion
