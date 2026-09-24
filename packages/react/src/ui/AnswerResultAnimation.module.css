@@ -1,7 +1,8 @@
 /*
  * The right/wrong mark: a disc that springs in, a symbol that draws itself.
  *
- * NO COLOUR VALUE HERE. The disc takes the meaning colour of the running
+ * THE COLOURS COME FROM THE THEME, with two exceptions for the wrong mark
+ * named further down. The disc takes the meaning colour of the running
  * theme - `--color-correct` and `--color-incorrect`, the same tokens the answer
  * rows carry - and the symbol the light ink that goes on a strong area. That is
  * why this mark is red on a red stage's wrong answer and green in the
@@ -28,7 +29,27 @@
   fill: var(--color-correct);
 }
 .mark[data-answer-result='wrong'] .disc {
-  fill: var(--color-incorrect);
+  fill: var(--mark-wrong-disc, var(--color-incorrect));
+}
+
+/*
+ * THE TWO WORLDS WHERE THE WRONG MARK NAMES ITS OWN TONES, and only the mark:
+ * the answer rows keep `--color-incorrect`.
+ *
+ * The children's world: its `incorrect` is the drawn frames' pale rose, which
+ * on the sky-blue stage read as a washed-out disc - the mark takes the world's
+ * strong red instead, the cross stays white.
+ *
+ * The red stage: its ground IS the wrong-answer red, so the disc vanished and
+ * only the cross was left. There the disc turns white and the cross carries
+ * the red.
+ */
+:global(.stage--kids) .mark[data-answer-result='wrong'] {
+  --mark-wrong-disc: #d51f1e;
+}
+:global(.stage--default.stage--red) .mark[data-answer-result='wrong'] {
+  --mark-wrong-disc: #fff;
+  --mark-wrong-symbol: #ca2e56;
 }
 
 /*
@@ -45,7 +66,7 @@
    * a variant, so on the bright stage it turned the checkmark black: legible,
    * but a pencil line on a traffic light rather than the tick of the moment.
    */
-  stroke: var(--stage-inkOnMotif);
+  stroke: var(--mark-wrong-symbol, var(--stage-inkOnMotif));
   stroke-width: 8;
   stroke-linecap: round;
   stroke-linejoin: round;
