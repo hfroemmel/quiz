@@ -216,6 +216,12 @@ export interface PublicQuizViewModel {
     label: string
     subtitle?: string
     artworkUrl?: string
+    /**
+     * A second mark beside the motif - a region's coat of arms on the card of
+     * its children's quiz, for instance. It stands NEXT to the motif and does
+     * not replace it: the card says two things, and the second one is smaller.
+     */
+    badgeUrl?: string
     emphasis: 'wide' | 'regular'
   }[]
   /**
@@ -511,6 +517,12 @@ export interface CatalogViewModel {
     emphasis: 'wide' | 'regular'
     /** Artwork of the offer card, already resolved into a URL. */
     artworkUrl?: string
+    /**
+     * A second mark beside the motif - a region's coat of arms on the card of
+     * its children's quiz, for instance. It stands NEXT to the motif and does
+     * not replace it: the card says two things, and the second one is smaller.
+     */
+    badgeUrl?: string
     /**
      * Can this quiz be started right now?
      *

@@ -252,6 +252,22 @@ export const questionSlotRuleSchema = z.object({
    */
   filters: z
     .object({
+      /**
+       * THE QUESTIONS THIS PLACE ADMITS, BY NAME - the strictest filter there
+       * is, and what makes a fixed programme possible.
+       *
+       * A round that is rehearsed for an evening is not a draw: the questions
+       * are agreed, and they are asked in the agreed order. Named here, one id
+       * per place, the seven places of a preset ARE that order - the engine
+       * walks them in order, and the draw among the candidates has nothing
+       * left to decide.
+       *
+       * It stays a FILTER rather than a second mechanism beside the places:
+       * repetition history, validation and the operator's report keep speaking
+       * about places, and a place with several ids is a small choice inside a
+       * fixed programme.
+       */
+      questionIds: z.array(idSchema).optional(),
       difficultyIds: z.array(idSchema).optional(),
       questionTypes: z.array(z.enum(questionPresentationTypes)).optional(),
       /**
@@ -421,6 +437,19 @@ export const quizModeSchema = z.object({
   playerCounts: z.array(playerCountSchema).min(1).optional(),
   /** Artwork of the offer card. Must exist in `assets`. */
   artworkAssetId: idSchema.optional(),
+  /**
+   * A SECOND MARK BESIDE THE MOTIF - where a quiz is a variant of another.
+   *
+   * The children's quiz of a region carries the same drawing as the general
+   * children's quiz, and the coat of arms of that region next to it: the card
+   * says "for children" and "here" in one glance, and both statements are
+   * pictures the content already has. Naming a second one beats a third file
+   * that is a copy of the two - a new drawing for the children's world would
+   * otherwise have to be drawn twice.
+   *
+   * Must exist in `assets`, like the motif.
+   */
+  badgeAssetId: idSchema.optional(),
   /**
    * Weight of the card in the menu. `wide` takes two columns - for the offer a
    * house leads with.

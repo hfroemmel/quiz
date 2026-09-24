@@ -89,6 +89,37 @@ describe('Slot filter', () => {
     expect(matchesSlot(oral, slot())).toBe(true)
   })
 
+  /*
+   * A PLACE THAT NAMES ITS QUESTIONS - the fixed programme of a rehearsed
+   * round. Whoever names them says everything about that place: nothing else
+   * can be drawn there, and the seven places of such a preset are the order
+   * they are asked in.
+   */
+  it('admits only the questions a place names', () => {
+    const wanted = makeQuestion({ id: 'q-291' })
+    const other = makeQuestion({ id: 'q-292' })
+    const rule = slot({ filters: { questionIds: ['q-291'] } })
+
+    expect(matchesSlot(wanted, rule)).toBe(true)
+    expect(matchesSlot(other, rule)).toBe(false)
+    // And the draw has nothing left to decide: one candidate, one answer.
+    const drawn = select({ questions: [other, wanted], rule })
+    expect(drawn.ok).toBe(true)
+    expect(drawn.ok && drawn.question.id).toBe('q-291')
+  })
+
+  it('narrows a named place further, it never widens it', () => {
+    /*
+     * The other filters keep applying: a place that names a question of the
+     * wrong grade stands empty rather than quietly dropping the grade - which
+     * is what a configuration error in a fixed round looks like, and the
+     * validation of the content names it before an evening does.
+     */
+    const question = makeQuestion({ id: 'q-291', difficulty: 'easy' })
+    const rule = slot({ filters: { questionIds: ['q-291'], difficultyIds: ['hard'] } })
+    expect(matchesSlot(question, rule)).toBe(false)
+  })
+
   it('treats missing filters as "any" - no special value "random" needed', () => {
     const question = makeQuestion({ id: 'q1' })
     expect(matchesSlot(question, slot({ filters: {} }))).toBe(true)

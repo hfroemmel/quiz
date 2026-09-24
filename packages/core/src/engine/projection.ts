@@ -616,17 +616,24 @@ function correctAnswerText(question: Question | undefined): string {
 }
 
 /**
- * Category line above the prompt: label of the FIRST category of the question.
+ * Category line above the prompt: the rubric of the question, in order.
  *
- * The order of the categories is set editorially; the first one leads. If it
- * is not in the configuration, the line stays empty instead of bringing a raw
- * id onto the stage.
+ * A QUESTION MAY BE GRADED, and then the line says both: "Bremen - Geschichte"
+ * - the broad subject first, the finer one behind it. The editors write them
+ * in two columns of their table, and that order is the order here; the line is
+ * assembled once, in the projection, so every surface that shows the rubric
+ * shows the same string.
+ *
+ * A rubric that is not in the configuration is LEFT OUT instead of bringing a
+ * raw id onto the stage - and where nothing at all remains, the line stays
+ * empty rather than showing a lone dash.
  */
 function categoryLabel(question: Question, ctx: ProjectionContext, locale: string): string | undefined {
-  const first = question.categories[0]
-  if (!first) return undefined
-  const category = ctx.config.categories.find((category) => category.id === first)
-  return category ? labelFor(category, locale) : undefined
+  const labels = question.categories
+    .map((id) => ctx.config.categories.find((category) => category.id === id))
+    .filter((category): category is NonNullable<typeof category> => category !== undefined)
+    .map((category) => labelFor(category, locale))
+  return labels.length > 0 ? labels.join(' - ') : undefined
 }
 
 /**
@@ -759,11 +766,13 @@ function quizOffers(ctx: ProjectionContext, locale: string): PublicQuizViewModel
   return orderedQuizzes(ctx.config.quizzes).map((quiz) => {
     const subtitle = subtitleFor(quiz, locale)
     const artworkUrl = ctx.assetUrl(quiz.artworkAssetId)
+    const badgeUrl = ctx.assetUrl(quiz.badgeAssetId)
     return {
       id: quiz.id,
       label: labelFor(quiz, locale),
       ...(subtitle === undefined ? {} : { subtitle }),
       ...(artworkUrl === undefined ? {} : { artworkUrl }),
+      ...(badgeUrl === undefined ? {} : { badgeUrl }),
       emphasis: quiz.emphasis ?? 'regular',
     }
   })
@@ -797,6 +806,7 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
     quizzes: orderedQuizzes(ctx.config.quizzes).map((quiz) => {
       const subtitle = subtitleFor(quiz, locale)
       const artworkUrl = ctx.assetUrl(quiz.artworkAssetId)
+      const badgeUrl = ctx.assetUrl(quiz.badgeAssetId)
       const unavailable = quizUnavailableReason(quiz, ctx)
       return {
         id: quiz.id,
@@ -811,6 +821,7 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
         playerCounts: playerCountsOf(quiz),
         emphasis: quiz.emphasis ?? 'regular',
         ...(artworkUrl === undefined ? {} : { artworkUrl }),
+        ...(badgeUrl === undefined ? {} : { badgeUrl }),
         available: unavailable === undefined,
         ...(unavailable === undefined ? {} : { unavailableReason: unavailable }),
       }
@@ -928,6 +939,7 @@ function quizOffersOf(catalog: CatalogViewModel, quizzes: CatalogViewModel['quiz
     label: quiz.label,
     ...(quiz.subtitle === undefined ? {} : { subtitle: quiz.subtitle }),
     ...(quiz.artworkUrl === undefined ? {} : { artworkUrl: quiz.artworkUrl }),
+    ...(quiz.badgeUrl === undefined ? {} : { badgeUrl: quiz.badgeUrl }),
     emphasis: quiz.emphasis,
     playerCounts: quiz.playerCounts,
     ...(quiz.supportsDifficulty

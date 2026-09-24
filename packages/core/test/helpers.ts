@@ -218,7 +218,14 @@ export function createHarness(
 export const testConfig: QuizConfig = {
   questionsPerGame: 7,
   difficulties: [{ id: 'medium', label: 'Mittel' }],
-  categories: [{ id: 'general', label: 'Allgemein' }],
+  /*
+   * TWO RUBRICS, because a question may be graded: the broad subject and the
+   * finer one under it (see the category line of the projection).
+   */
+  categories: [
+    { id: 'general', label: 'Allgemein' },
+    { id: 'geschichte', label: 'Geschichte' },
+  ],
   pools: [
     { id: 'bundestag', label: 'Bundestag' },
     { id: 'bremen', label: 'Bremen' },

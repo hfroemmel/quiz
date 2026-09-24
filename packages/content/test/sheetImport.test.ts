@@ -182,6 +182,77 @@ describe('importSheet', () => {
     expect(questions[0]!.correctOptionId).toBe('b')
   })
 
+  /*
+   * TWO RUBRIC COLUMNS, ONE FIELD. An editorial table that grades its rubric
+   * writes the broad subject in one column and the finer one beside it; the
+   * question carries them as its categories, in the order the mapping names
+   * the columns, because that order is what the stage reads out.
+   */
+  it('reads the rubric out of as many columns as the mapping names', () => {
+    const csv =
+      'id,frage,kategorie,kategorie_2,A,B\n' +
+      '1,Wie heisst der Beiname Bremens?,Bremen,Geschichte,Hansestadt,Freie Stadt\n' +
+      '2,Woran erinnert der 3. Oktober?,Deutsche Einheit,,Wiedervereinigung,Mauerbau\n'
+    const { questions } = importSheet(csv, {
+      columns: {
+        id: 'id',
+        prompt: 'frage',
+        categories: ['kategorie', 'kategorie_2'],
+        options: ['A', 'B'],
+      },
+      correctOption: 1,
+    })
+
+    expect(questions[0]!.categories).toEqual(['bremen', 'geschichte'])
+    // An empty cell adds nothing - the question keeps the one rubric it has.
+    expect(questions[1]!.categories).toEqual(['deutsche-einheit'])
+  })
+
+  /*
+   * ONE OPTION IS THE ANSWER, NOT A CHOICE. A picture question is answered out
+   * loud and the table keeps that answer in the first option column; read as
+   * "too few options" it used to be dropped, and the solution of every picture
+   * question stood empty on the stage.
+   */
+  it('takes a lone option as the answer that is expected', () => {
+    const csv = 'id,frage,typ,A,B,C,D\n1,Welches Gebaeude ist zu sehen?,image,Reichstagsgebaeude,,,\n'
+    const { questions } = importSheet(csv, {
+      columns: { id: 'id', prompt: 'frage', questionType: 'typ', options: ['A', 'B', 'C', 'D'] },
+      correctOption: 1,
+      /* The vocabulary of the table - the CLI merges the built-in one in. */
+      values: { questionType: { image: 'image-reveal' } },
+    })
+
+    expect(questions[0]).toMatchObject({
+      questionType: 'image-reveal',
+      evaluationMode: 'manual-correct-incorrect',
+      acceptedAnswerText: ['Reichstagsgebaeude'],
+    })
+    // And it is not offered as something to choose from.
+    expect(questions[0]!.options).toBeUndefined()
+  })
+
+  /*
+   * THE SAME QUESTION TWICE IS ONE QUESTION. A corpus carries the same question
+   * for the adults and in the children's wording; without a common repetition
+   * group the day's history counts them as two and an evening asks the same
+   * thing twice.
+   */
+  it('ties identical questions into one repetition group', () => {
+    const csv =
+      'id,frage,mode,A,B\n' +
+      '1,Wann fiel die Berliner Mauer?,adults,9. November 1989,3. Oktober 1990\n' +
+      '2,Wann fiel die Berliner Mauer?,kids,9. November 1989,3. Oktober 1990\n' +
+      '3,Wie heisst das Parlament?,adults,Bundestag,Bundesrat\n'
+    const { questions } = importSheet(csv, {
+      columns: { id: 'id', prompt: 'frage', audiences: 'mode', options: ['A', 'B'] },
+      correctOption: 1,
+    })
+
+    expect(questions[0]!.repetitionGroupId).toBe(questions[1]!.repetitionGroupId)
+    expect(questions[2]!.repetitionGroupId).not.toBe(questions[0]!.repetitionGroupId)
+  })
+
   it('names the columns it read so that a wrong mapping can be found', () => {
     expect(importSheet('Nr,Question\n', { columns: {} }).columns).toEqual(['Nr', 'Question'])
   })

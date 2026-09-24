@@ -108,7 +108,13 @@ export function poolForGame(
 /** Does the question satisfy every filter of the slot? A missing filter = any. */
 export function matchesSlot(question: Question, slot: QuestionSlotRule): boolean {
   if (!question.enabled) return false
-  const { difficultyIds, questionTypes, evaluationModes, categoryIds, tags } = slot.filters
+  const { questionIds, difficultyIds, questionTypes, evaluationModes, categoryIds, tags } = slot.filters
+  /*
+   * The named questions come first, because they answer the whole question:
+   * where a place names its questions, nothing else about it can widen that
+   * set - the other filters may only narrow it further.
+   */
+  if (questionIds?.length && !questionIds.includes(question.id)) return false
   if (difficultyIds?.length && !difficultyIds.includes(question.difficulty)) return false
   if (questionTypes?.length && !questionTypes.includes(question.questionType)) return false
   if (evaluationModes?.length && !evaluationModes.includes(question.evaluationMode)) return false

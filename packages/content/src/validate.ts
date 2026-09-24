@@ -276,6 +276,11 @@ export function validateContent(input: ValidationInput): ValidationResult {
       add('error', 'asset-reference', `Logo "${theme.logoAssetId}" von Theme "${theme.id}" fehlt.`, theme.id)
     }
   }
+  /*
+   * The questions by id - a place that names its question is checked against
+   * them (see below), and the map is built once instead of per place.
+   */
+  const questionsById = new Map(questions.map((question) => [question.id, question]))
   for (const preset of config.presets) {
     if (preset.slots.length !== config.questionsPerGame) {
       add(
@@ -294,6 +299,56 @@ export function validateContent(input: ValidationInput): ValidationResult {
       for (const categoryId of slot.filters.categoryIds ?? []) {
         if (!knownCategories.has(categoryId)) {
           add('error', 'category-reference', `Fragenplatz "${slot.id}" filtert auf unbekannte Kategorie "${categoryId}".`, preset.id)
+        }
+      }
+      /*
+       * A PLACE THAT NAMES ITS QUESTION HAS TO FIND IT.
+       *
+       * A fixed programme is exchanged by hand - seven ids per round, replaced
+       * when the editors deliver their final order - and a typo in one of them
+       * is a round that stops in the middle of the evening with "no candidate
+       * for this place". It is caught here instead, with the round and the
+       * place named, and the quizzes the place cannot serve are named too: a
+       * question outside the quiz's pool is the more frequent of the two
+       * mistakes and the harder one to see in a list of numbers.
+       */
+      for (const questionId of slot.filters.questionIds ?? []) {
+        const question = questionsById.get(questionId)
+        if (!question) {
+          add(
+            'error',
+            'question-reference',
+            `Fragenplatz "${slot.id}" von Preset "${preset.id}" nennt die Frage "${questionId}", die es nicht gibt.`,
+            preset.id,
+          )
+          continue
+        }
+        if (!question.enabled) {
+          add(
+            'error',
+            'question-reference',
+            `Fragenplatz "${slot.id}" von Preset "${preset.id}" nennt die abgeschaltete Frage "${questionId}".`,
+            preset.id,
+          )
+        }
+        const hosts = config.quizzes?.filter((quiz) => quiz.presetIds?.includes(preset.id)) ?? []
+        for (const quiz of hosts) {
+          if (quiz.poolIds?.length && !quiz.poolIds.some((poolId) => question.poolIds.includes(poolId))) {
+            add(
+              'error',
+              'question-reference',
+              `Die Frage "${questionId}" steht auf Fragenplatz "${slot.id}" von "${preset.id}", gehoert aber nicht zu den Pools der Quizart "${quiz.id}" (${quiz.poolIds.join(', ')}).`,
+              preset.id,
+            )
+          }
+          if (!question.audiences.includes(quiz.audienceId)) {
+            add(
+              'error',
+              'question-reference',
+              `Die Frage "${questionId}" steht auf Fragenplatz "${slot.id}" von "${preset.id}", ist aber nicht fuer die Zielgruppe "${quiz.audienceId}" der Quizart "${quiz.id}" freigegeben.`,
+              preset.id,
+            )
+          }
         }
       }
     }
@@ -620,6 +675,16 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
         const signature = JSON.stringify(slot.filters)
         const competing = (signatureToSlotIds.get(signature) ?? []).filter((id) => id !== slot.id)
 
+        /*
+         * A PLACE THAT NAMES ITS QUESTIONS IS MEANT TO BE NARROW.
+         *
+         * A fixed programme - a rehearsed round with seven agreed questions -
+         * has exactly one candidate per place, and that is the point of it.
+         * Reported as a thin pool it would bury the warnings that mean
+         * something under one per place and round.
+         */
+        const pinned = (slot.filters.questionIds?.length ?? 0) > 0
+
         if (candidates.length === 0) {
           // An unsatisfiable question slot is a hard error.
           add(
@@ -628,7 +693,7 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
             `Zielgruppe "${audienceConfig.id}" / Preset "${preset.id}": Fragenplatz ${slotIndex + 1} ("${slot.id}") hat keinen einzigen Kandidaten.`,
             `${audienceConfig.id}/${preset.id}/${slot.id}`,
           )
-        } else if (candidates.length < contentThresholds.smallPoolWarning) {
+        } else if (!pinned && candidates.length < contentThresholds.smallPoolWarning) {
           add(
             'warning',
             'small-pool',
@@ -657,7 +722,13 @@ function analyseCoverage(config: QuizConfig, questions: Question[], add: AddIssu
       }
       if (!Number.isFinite(gamesWithoutRepetition)) gamesWithoutRepetition = 0
 
-      if (gamesWithoutRepetition < contentThresholds.minGamesWithoutRepetition) {
+      /*
+       * And a preset whose places are all named plays ONE game, by
+       * construction: the same seven questions in the same order, as often as
+       * the evening asks for them. That is not a shortage of questions.
+       */
+      const fixedProgramme = preset.slots.every((slot) => (slot.filters.questionIds?.length ?? 0) > 0)
+      if (!fixedProgramme && gamesWithoutRepetition < contentThresholds.minGamesWithoutRepetition) {
         add(
           'warning',
           'few-games-without-repetition',

@@ -205,6 +205,85 @@ describe('Schema errors abort the build', () => {
   })
 })
 
+/*
+ * A ROUND WITH A FIXED PROGRAMME is exchanged by hand: seven ids per round,
+ * replaced when the editors deliver their final order. A typo in one of them is
+ * a round that stops in the middle of an evening with "no candidate for this
+ * place" - so it is caught here, with the round, the place and the reason.
+ */
+describe('A place that names its question', () => {
+  const fixed = (questionIds: string[]) => ({
+    presets: [
+      {
+        id: 'runde-1',
+        label: 'Runde 1',
+        slots: questionIds.map((id, index) => ({
+          id: `frage-${index + 1}`,
+          filters: { questionIds: [id] },
+        })) as TestSlot[],
+      },
+    ],
+    audiences: [
+      { id: 'adults', label: 'Erwachsene', themeId: 'default', allowedPresetIds: ['runde-1'] },
+    ],
+  })
+
+  it('passes where the questions exist', () => {
+    const report = validate([question({ id: 'q1' }), question({ id: 'q2' })], fixed(['q1', 'q2']))
+    expect(report.issues.filter((issue) => issue.code === 'question-reference')).toEqual([])
+    expect(report.errors).toEqual([])
+  })
+
+  it('names a question that does not exist', () => {
+    const report = validate([question({ id: 'q1' }), question({ id: 'q2' })], fixed(['q1', 'q17']))
+    const named = report.issues.filter((issue) => issue.code === 'question-reference')
+    expect(named).toHaveLength(1)
+    expect(named[0]!.severity).toBe('error')
+    expect(named[0]!.message).toContain('"q17"')
+  })
+
+  it('names a question the quiz cannot reach at all', () => {
+    /*
+     * The more frequent of the two mistakes and the harder one to see in a list
+     * of numbers: the id exists, but not in the pool of the quiz that offers
+     * this round.
+     */
+    const outside = question({ id: 'q3', poolIds: ['bremen'] })
+    const report = validate([question({ id: 'q1' }), outside], {
+      ...fixed(['q1', 'q3']),
+      pools: [
+        { id: 'bundestag', label: 'Bundestag' },
+        { id: 'bremen', label: 'Bremen' },
+      ],
+      quizzes: [
+        {
+          id: 'sed',
+          label: 'Grenzen ueberwinden',
+          audienceId: 'adults',
+          themeId: 'default',
+          poolIds: ['bundestag'],
+          presetIds: ['runde-1'],
+        },
+      ] as TestQuiz[],
+    })
+    const named = report.issues.filter((issue) => issue.code === 'question-reference')
+    expect(named).toHaveLength(1)
+    expect(named[0]!.message).toContain('"q3"')
+    expect(named[0]!.message).toContain('sed')
+  })
+
+  /*
+   * AND A NARROW PLACE IS NOT A THIN POOL. One candidate per place is what a
+   * fixed programme IS; reported as a shortage it would bury the warnings that
+   * mean something under one per place and round.
+   */
+  it('is not reported as a small pool', () => {
+    const report = validate([question({ id: 'q1' }), question({ id: 'q2' })], fixed(['q1', 'q2']))
+    expect(report.issues.filter((issue) => issue.code === 'small-pool')).toEqual([])
+    expect(report.issues.filter((issue) => issue.code === 'few-games-without-repetition')).toEqual([])
+  })
+})
+
 describe('Content warnings', () => {
   it('warns on a missing explanation and a small pool', () => {
     const result = validate([question({ id: 'q1', explanation: undefined }), revealQuestion])

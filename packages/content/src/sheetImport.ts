@@ -33,7 +33,16 @@ export interface SheetMapping {
     id?: string
     prompt?: string
     difficulty?: string
-    categories?: string
+    /**
+     * The rubric of a question - ONE column, or several.
+     *
+     * An editorial table that grades its rubric writes a second column beside
+     * the first (`category`, `category_2`): the broad subject and the finer
+     * one under it. They are one field of the question, in the order the
+     * columns are named here, because that order is what the stage reads out
+     * ("Bremen - Geschichte"). A cell left empty simply adds nothing.
+     */
+    categories?: string | string[]
     pools?: string
     audiences?: string
     locale?: string
@@ -182,7 +191,17 @@ function medium(
   credit: string | undefined,
   directory?: string,
 ): { filename: string; credit?: string } | undefined {
-  const file = (filename ?? '').trim()
+  /*
+   * THE NAME IS COMPOSED, WHATEVER THE TABLE CARRIES.
+   *
+   * A file name copied out of a Finder window brings its umlaut DECOMPOSED -
+   * "a" plus a combining diaeresis - while the same file lies in the
+   * repository with the composed character. The two strings look identical in
+   * every editor and in every report, and the build then says the picture of
+   * "Praesentation5.jpg" is missing while it is plainly there. So every name
+   * is brought into the composed form here, once, where it enters the corpus.
+   */
+  const file = (filename ?? '').trim().normalize('NFC')
   if (file === '') return undefined
   const place = (directory ?? '').replace(/^\/+|\/+$/g, '')
   // A name that already carries its directory keeps it - the table wins.
@@ -312,6 +331,25 @@ export function importGrid(grid: string[][], mapping: SheetMapping = defaultMapp
   return importRows(gridToRows(grid), mapping)
 }
 
+/**
+ * The repetition group of a question that exists more than once.
+ *
+ * THE SAME QUESTION IS OFTEN IN THE TABLE TWICE: once for the adults and once
+ * in the children's wording, or in two pools with two pictures. Without a
+ * common group the day's history counts them as two, and an evening can ask
+ * the same thing twice - in the worst case inside one round of seven.
+ *
+ * The group is therefore derived from the QUESTION ITSELF: identical prompts
+ * belong together, whoever wrote them. That is what the validator asks for
+ * ("almost identical text without a common repetition group"), and it is the
+ * only thing a table can be relied on for - an editorial group column would
+ * have to be filled by hand for three hundred rows.
+ */
+function repetitionGroupOf(prompt: string): string {
+  const key = identifier(prompt).slice(0, 48)
+  return key === '' ? 'frage' : key
+}
+
 function importRows(
   { columns, rows }: { columns: string[]; rows: Record<string, string>[] },
   mapping: SheetMapping,
@@ -356,10 +394,28 @@ function importRows(
       return
     }
 
-    const categories = list(cell(to.categories), values.categories)
+    /*
+     * The rubric, from as many columns as the mapping names - in that order.
+     * Each cell may itself be a list, so a table that writes "Bremen, Kultur"
+     * in one column and one that keeps two columns arrive the same way.
+     */
+    const categories = (Array.isArray(to.categories) ? to.categories : [to.categories])
+      .flatMap((name) => list(cell(name), values.categories))
+      .filter((id, position, all) => all.indexOf(id) === position)
     const pools = list(cell(to.pools), values.pools)
     const audiences = list(cell(to.audiences), values.audiences)
-    const expected = (cell(to.acceptedAnswerText) ?? '')
+    /*
+     * WHAT THE ANSWER IS WHERE THERE IS NOTHING TO CHOOSE.
+     *
+     * A row with four options is a choice question; a row with ONE filled
+     * option is a question that is answered out loud - and that one cell is
+     * the answer the desk compares against, not a choice of one. Without this
+     * the cell was read as "too few options to choose from" and dropped, and
+     * the solution of every picture question stood empty on the stage.
+     *
+     * An explicit answer column wins, where a table has one.
+     */
+    const expected = (cell(to.acceptedAnswerText) ?? (options.length === 1 ? options[0]!.text : ''))
       .split(/\r?\n|;/)
       .map((entry) => entry.trim())
       .filter((entry) => entry !== '')
@@ -370,6 +426,7 @@ function importRows(
 
     const raw = {
       id: identifier(cell(to.id)?.trim() || `frage-${rowNumber}`),
+      repetitionGroupId: repetitionGroupOf(prompt),
       poolIds: pools.length > 0 ? pools : (preset.poolIds ?? ['default']),
       audiences: audiences.length > 0 ? audiences : (preset.audiences ?? ['adults']),
       difficulty:

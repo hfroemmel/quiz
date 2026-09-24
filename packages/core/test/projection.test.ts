@@ -28,6 +28,42 @@ describe('sceneForPhase', () => {
 })
 
 /*
+ * THE RUBRIC OF A QUESTION - one line, whether it is graded or not.
+ *
+ * The editors write the rubric in two columns: the broad subject and the finer
+ * one under it. The stage shows one line, and it is assembled here so that
+ * every surface that names the rubric names the same string - the board above
+ * the answers, the interstitial before the question and the card between two
+ * questions.
+ */
+describe('The rubric line', () => {
+  const rest = Array.from({ length: 6 }, (_, index) => makeQuestion({ id: `q${index + 2}` }))
+  const lineOf = (categories: string[]) => {
+    const harness = createHarness([makeQuestion({ id: 'q1', categories }), ...rest])
+    startGame(harness)
+    return harness.publicView().question?.categoryLabel
+  }
+
+  it('names both rubrics, the broad one first', () => {
+    expect(lineOf(['general', 'geschichte'])).toBe('Allgemein - Geschichte')
+  })
+
+  it('names one where there is one', () => {
+    expect(lineOf(['general'])).toBe('Allgemein')
+  })
+
+  /*
+   * A rubric the configuration does not know is LEFT OUT rather than shown as
+   * an id: a raw "erinnerungsorte" on the stage is worse than the one rubric
+   * that is properly labelled.
+   */
+  it('leaves out what the configuration does not know', () => {
+    expect(lineOf(['general', 'nicht-konfiguriert'])).toBe('Allgemein')
+    expect(lineOf(['nicht-konfiguriert'])).toBeUndefined()
+  })
+})
+
+/*
  * THE LICENCE LINE TRAVELS WITH THE PICTURE.
  *
  * Wherever a photo is shown, the line that names its origin belongs on the
