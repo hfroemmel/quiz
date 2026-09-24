@@ -55,6 +55,40 @@ describe('importSheet', () => {
     expect(questions[0]!.explanation).toEqual({ summary: 'Stand 2021.' })
   })
 
+  /*
+   * THE SAME CELL, A DIFFERENT READER.
+   *
+   * An explanation on a stage belongs to the moderator - the room hears it,
+   * and the public view never carries it. At a table there is nobody to read
+   * it out: the two people sitting there read it off the screen, which is a
+   * different field of the same question (`details`). Which of the two a
+   * corpus is written for is something only its mapping knows, so the mapping
+   * says it - and a table that means both can name both columns.
+   */
+  it('puts the background where the corpus is read - beside the moderator or on the screen', () => {
+    const csv = `id,frage,a,b,info\n1,Frage?,Alpha,Beta,Hintergrund.\n`
+    const mapping = {
+      columns: { id: 'id', prompt: 'frage', options: ['a', 'b'], details: 'info' },
+      correctOption: 1,
+    }
+    const forTheTable = importSheet(csv, mapping)
+    expect(forTheTable.skippedRows).toEqual([])
+    expect(forTheTable.questions[0]!.explanation).toEqual({ details: 'Hintergrund.' })
+
+    // The stage's column is unchanged, and naming both fills both.
+    const forTheStage = importSheet(csv, {
+      ...mapping,
+      columns: { ...mapping.columns, details: undefined, explanation: 'info' },
+    })
+    expect(forTheStage.questions[0]!.explanation).toEqual({ summary: 'Hintergrund.' })
+
+    const both = importSheet(csv, {
+      ...mapping,
+      columns: { ...mapping.columns, explanation: 'info' },
+    })
+    expect(both.questions[0]!.explanation).toEqual({ summary: 'Hintergrund.', details: 'Hintergrund.' })
+  })
+
   it('reads the correct answer as a letter, as a number and as text', () => {
     const row = (correct: string) => `${head}1,Frage?,leicht,Recht,Alpha,Beta,Gamma,Delta,${correct},\n`
     for (const [value, expected] of [

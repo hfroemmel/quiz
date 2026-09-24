@@ -61,8 +61,25 @@ export interface SheetMapping {
      */
     image?: string
     imageCredit?: string
-    /** A clip that runs before the question - whatever type the question is. */
+    /**
+     * The background of the solution - for whoever reads it out.
+     *
+     * On a stage the explanation belongs to the MODERATOR: the room hears it,
+     * nobody reads it, and the projection therefore keeps it out of the public
+     * view. That is what this column fills (`explanation.summary`).
+     */
     explanation?: string
+    /**
+     * The background of the solution - for whoever reads it THEMSELVES.
+     *
+     * At a table there is no moderator: the two people sitting there read the
+     * background off the screen, and the stage shows it where the content asks
+     * for it (`rules.showDetailsAfterSolution`, `explanation.details`). A table
+     * whose editorial column means that text therefore names it here instead
+     * of under `explanation` - the same cell, a different reader, and only the
+     * mapping can know which of the two a corpus is written for.
+     */
+    details?: string
     source?: string
     tags?: string
     enabled?: string
@@ -422,6 +439,7 @@ function importRows(
 
     const image = medium(cell(to.image), cell(to.imageCredit), preset.imageDirectory)
     const explanation = cell(to.explanation)?.trim()
+    const details = cell(to.details)?.trim()
     const source = cell(to.source)?.trim()
 
     const raw = {
@@ -443,8 +461,14 @@ function importRows(
       ...(options.length >= 2 ? { options: options, correctOptionId } : {}),
       ...(expected.length > 0 ? { acceptedAnswerText: expected } : {}),
       ...(image ? { image } : {}),
-      ...(explanation || source
-        ? { explanation: { ...(explanation ? { summary: explanation } : {}), ...(source ? { source: source } : {}) } }
+      ...(explanation || details || source
+        ? {
+            explanation: {
+              ...(explanation ? { summary: explanation } : {}),
+              ...(details ? { details: details } : {}),
+              ...(source ? { source: source } : {}),
+            },
+          }
         : {}),
       ...(translationsOf(row, mapping.translations) ?? {}),
       enabled: yesNo(cell(to.enabled)) ?? true,
