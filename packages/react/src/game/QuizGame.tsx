@@ -512,6 +512,13 @@ export function QuizGame({
   const ownTheme = hostTheme && hostTheme.skin === skin ? hostTheme : null
   const worldVariables = ownTheme ? ownTheme.variables : themeVariables(worldTheme)
   /*
+   * The colours of that set alone - for the root of a RUNNING game, where the
+   * type belongs to the stage and not to the frame around it (see below).
+   */
+  const worldColours = Object.fromEntries(
+    Object.entries(worldVariables).filter(([name]) => name.startsWith('--color-')),
+  )
+  /*
    * And the variant follows the host theme where there is one: whoever designs
    * a dark device has designed it dark, and the light-or-dark preference of a
    * window applies where no host says otherwise.
@@ -677,10 +684,16 @@ export function QuizGame({
        * ink on the drawn cream paper of the dialog. A title and a button
        * nobody can read, in the one moment somebody wants out of a round.
        *
-       * The start and the waiting screen have carried the world's variables
-       * all along; this is the third of the three, and the same line.
+       * ONLY THE COLOURS, AND THAT IS THE DIFFERENCE TO THE OTHER TWO. The
+       * start and the waiting screen also take the world's TYPE from here -
+       * they are its screens and carry its heading. With a game running, the
+       * type of the world sits where it belongs, on the stage
+       * (`view.theme` in `QuizScene`), and the frame around it stays the
+       * host's: a heading font handed down to this root changes the metrics of
+       * the head above the answers, and the head is measured against the area
+       * it may take.
        */
-      style={{ ...worldVariables, ...area }}
+      style={{ ...worldColours, ...area }}
       data-quiz-game=""
       data-skin={skin}
       data-theme={variant}
