@@ -65,12 +65,22 @@
   --stage-radius: 0.7cqw;
 }
 
-/* The start and waiting screens stand without a stage and bring their own background. */
+/*
+ * The start and waiting screens stand without a stage and bring their own
+ * background - AND IT COMES FROM THE PALETTE like every other surface.
+ *
+ * `--start-bg-top` is the paper of this menu, and the two variants that name a
+ * ground say so there (white in the light one, the commissioned red in the
+ * other). The dark variant names none, because this menu stands on the plain
+ * dark ground of the stage - which is what the fallback reaches for. A grey
+ * written out here stood on all three of them: nearly the paper in the light
+ * world, and a light grey plate under a dark menu in the other two.
+ */
 .startScreen,
 .waiting {
   display: flex;
   flex-direction: column;
-  background: #eee;
+  background: var(--start-bg-top, var(--color-pageTop));
 }
 
 .waiting {
@@ -561,7 +571,8 @@
 [data-skin='kids'] .action,
 [data-skin='kids'] .actionSecondary {
   font-family: var(--kids-hand);
-  color: #000;
+  /* The ink of this world, which its palette names - it writes dark on paper. */
+  color: var(--color-text);
 }
 
 /*
@@ -607,7 +618,7 @@
 [data-skin='kids'] .kioskEndRound,
 [data-skin='kids'] .setup,
 [data-skin='kids'] .panel {
-  color: #000;
+  color: var(--color-text);
 }
 
 /*

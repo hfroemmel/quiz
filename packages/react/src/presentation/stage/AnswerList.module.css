@@ -318,7 +318,12 @@
   border-image-source: url('../../assets/kinderquiz/boxes/badge-letter-b.svg');
 }
 :global(.stage--kids) .answer[data-state='selected'] .text {
-  color: #FFF;
+  /*
+   * The selected row of this world is a drawn box in a strong colour, so what
+   * stands on it is the light ink the stage keeps for type on a picture or on
+   * a meaning colour - not a value written out here.
+   */
+  color: var(--stage-inkOnMotif);
 }
 :global(.stage--kids) .answer[data-state='correct'] .surface::before {
   border-image-source: url('../../assets/kinderquiz/boxes/answer-box-correct.svg');

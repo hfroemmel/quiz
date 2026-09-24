@@ -227,7 +227,7 @@
  * spots of the drawn field.
  */
 :global(.stage--kids) .score[data-active='true'] .cellPlayer .value {
-  color: #fff;
+  color: var(--stage-inkOnMotif);
   text-shadow:
     -0.1cqw 0 var(--stage-inkOutline),
     0.1cqw 0 var(--stage-inkOutline),

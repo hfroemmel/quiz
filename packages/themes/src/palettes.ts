@@ -358,12 +358,14 @@ export const stageExtras = {
   /**
    * LIGHT INK FOR TYPE THAT LIES ON A PICTURE OR ON A MEANING COLOUR.
    *
-   * Two places need it, and both for the same reason: the mark on the
-   * right/wrong disc, and the licence line in the lower left of a photo in the
-   * children's world. What is under them is not a surface of the theme - it is
-   * a strong green, a strong red, or somebody's photograph - so the ink cannot
-   * follow the variant the way `inkOnStrong` does: that one turns with the
-   * SURFACE, and on the bright stage it made the checkmark black.
+   * Every place that needs it needs it for the same reason: the mark on the
+   * right/wrong disc, the licence line in the lower left of a photo, and in the
+   * drawn world the selected answer row and the number of the player on turn -
+   * both of them type on an illustration. What is under them is not a surface
+   * of the theme - it is a strong green, a strong red, a drawing or somebody's
+   * photograph - so the ink cannot follow the variant the way `inkOnStrong`
+   * does: that one turns with the SURFACE, and on the bright stage it made the
+   * checkmark black.
    *
    * White in every world, therefore, and only ever over something that carries
    * it - never on the stage's own ground.
