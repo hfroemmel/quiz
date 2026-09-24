@@ -95,6 +95,7 @@
   --quiz-select-ink-quiet: #666;
   --quiz-select-ink-on-card: #000;
   --quiz-select-meta-on-card: #666;
+  --quiz-select-card-quiet: linear-gradient(135deg, #f2f2f2 0%, #ddd 100%);
   --quiz-select-card-bundestag: linear-gradient(135deg, #f2f2f2 0%, #ddd 100%);
   --quiz-select-card-kids: linear-gradient(180deg, #B3E1F4 0%, #CCEBF7 50%, #cbc9f1 100%);
   --quiz-select-card-europe: #003399;

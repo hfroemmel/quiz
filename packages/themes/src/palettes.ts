@@ -470,7 +470,7 @@ export const quizSelectPalette = {
   'ink-on-card': houseBlack,
   'meta-on-card': houseInkMid,
   /*
-   * THE FIVE CARD SURFACES. Gradients, because a flat surface looks empty here.
+   * THE CARD SURFACES. Gradients, because a flat surface looks empty here.
    *
    * Each card is a step of the tone its quiz is recognised by, and that is
    * where the role beats the distance: two of the five were near-whites told
@@ -479,6 +479,18 @@ export const quizSelectPalette = {
    * blue Europe, gold the German Unity banner and red the Bremen coat of arms.
    * The motifs on top keep their own colours - a flag is content, not a token.
    */
+  /*
+   * THE SURFACE OF A CARD THE HOST HAS NO RULE FOR - and it is the same grey
+   * paper three of the quizzes carry.
+   *
+   * A card is a card: the colour tells the quizzes apart, and where a host
+   * says nothing about one, what must NOT happen is a card without a surface.
+   * That is not a theoretical case - a poster showing a package whose quiz ids
+   * the host's stylesheet does not know stood there with transparent cards,
+   * text floating on the page, and nothing on screen said which of the two
+   * was out of step.
+   */
+  'card-quiet': `linear-gradient(135deg, ${houseChip} 0%, ${houseChipEdge} 100%)`,
   'card-bundestag': `linear-gradient(135deg, ${houseChip} 0%, ${houseChipEdge} 100%)`,
   'card-kids': `linear-gradient(180deg, ${ci('hellblau', 60)} 0%, ${ci('hellblau', 40)} 50%, #cbc9f1 100%)`,
   'card-europe': europeBlue,
