@@ -427,16 +427,16 @@ export function projectOperator(state: GameState | null, ctx: ProjectionContext)
 /**
  * The answers a 50:50 has taken out of play - and WHEN they may be known.
  *
- * Only from `applied`. The ids are decided at the draw and sit in the state
- * from that moment, but transmitting them earlier would put the outcome on the
- * wire while the card is still turning: a client could read what is coming, and
- * a stage that repaints mid-flight would strike answers out before the reveal.
+ * THE QUESTION CARRIES THEM, NOT THE DRAW, and that answers the "when" by
+ * itself: the ids are decided with the draw and kept in the sequence, and they
+ * only reach the question when the operator applies it. Nothing can therefore
+ * put the outcome on the wire while the card is still turning - a client
+ * cannot read what is coming, and a stage that repaints mid-flight strikes
+ * nothing out early. It also survives a second draw on the same question,
+ * which replaces the sequence but not the question.
  */
-function eliminatedOptionIds(state: GameState, questionId: string | undefined): string[] {
-  const sequence = state.jokerSequence
-  if (!sequence || sequence.phase !== 'applied') return []
-  if (sequence.questionId !== questionId) return []
-  return sequence.eliminatedOptionIds ?? []
+function eliminatedOptionIds(state: GameState): string[] {
+  return state.currentQuestion?.eliminatedOptionIds ?? []
 }
 
 /**
@@ -496,7 +496,16 @@ function operatorJoker(state: GameState | null): { joker: OperatorJokerControl }
   const draw = evaluateJokerDraw(state)
   const sequence = state.jokerSequence
   const active = sequence && sequence.phase !== 'idle' ? sequence : undefined
-  const playerId = draw.playerId ?? active?.playerId ?? activePlayerId(state)
+  /*
+   * WHOSE JOKER THE DESK IS TALKING ABOUT. The player who is answering comes
+   * first, then the owner of a sequence that is still on screen. The order
+   * matters in the second chance: the first player's applied draw is still in
+   * the state, and reading it first made the desk name that player while the
+   * button was about to draw for the other one - and, where the other player
+   * had already spent theirs, it reported the wrong player as spent next to the
+   * sentence that named the right one.
+   */
+  const playerId = draw.playerId ?? activePlayerId(state) ?? active?.playerId
   const player = state.players.find((entry) => entry.id === playerId)
 
   return {
@@ -542,7 +551,7 @@ function publicOptions(state: GameState, scene: PublicScene, question: Question 
    * The sequence is set back to `idle` on every question change; this second
    * check is the belt to that braces, and it costs one comparison.
    */
-  const eliminated = new Set(eliminatedOptionIds(state, question?.id))
+  const eliminated = new Set(eliminatedOptionIds(state))
   const runtime = state.currentQuestion
   /*
    * Without a real choice there are no answer rows. A single option would be

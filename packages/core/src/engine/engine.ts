@@ -724,6 +724,21 @@ function continueJoker(work: Draft, sequenceId: string): EngineResult {
 
   work.mutate((draft) => {
     draft.jokerSequence = { ...sequence, phase: 'applied' }
+    /*
+     * THE STRUCK ANSWERS MOVE TO THE QUESTION, and this is the moment: from
+     * here they are on screen, and from here they have to survive a SECOND
+     * draw on the same question - the second chance of a wrong answer is the
+     * everyday case, and the next card replaces this sequence. On the question
+     * they die with it and nothing has to clear them.
+     */
+    const struck = sequence.eliminatedOptionIds ?? []
+    if (struck.length > 0 && draft.currentQuestion) {
+      const known = draft.currentQuestion.eliminatedOptionIds ?? []
+      draft.currentQuestion = {
+        ...draft.currentQuestion,
+        eliminatedOptionIds: [...known, ...struck.filter((id) => !known.includes(id))],
+      }
+    }
   })
   work.log('game', `${jokerTypeLabel(sequence.type)} wird angewendet.`, {
     event: 'jokerApplied',

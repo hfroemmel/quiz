@@ -156,6 +156,21 @@ export interface RuntimeQuestion {
    * evaluation because the comparison is always against `correctOptionId`.
    */
   optionOrder: string[]
+  /**
+   * The answers a 50:50 has taken out of play on THIS question.
+   *
+   * WHY HERE AND NOT IN THE DRAW. The ids are decided with the draw and live
+   * in the sequence until it is applied - and the sequence is ONE, replaced by
+   * the next draw. Two players can draw on one question (the second chance of
+   * a wrong answer is the everyday case), so a struck answer kept in the
+   * sequence would come back on screen the moment the other player's card
+   * takes its place. It belongs to the question, and this is the object that
+   * dies with the question: a new question is a new `currentQuestion`, and
+   * nothing has to remember to clear anything.
+   *
+   * Absent until a 50:50 has been applied.
+   */
+  eliminatedOptionIds?: string[]
 }
 
 /** Timed phase transition with a defined fallback time. */

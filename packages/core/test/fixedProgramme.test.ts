@@ -23,7 +23,7 @@ const questions = [...round, 'q-298', 'q-299', 'q-300'].map((id) => makeQuestion
 function packageWith(config: QuizConfig): QuizPackage {
   return {
     manifest: {
-      schemaVersion: 2,
+      schemaVersion: '2.0.0',
       contentVersion: '1.0.0',
       createdAt: new Date(0).toISOString(),
       questionsFile: 'questions.json',

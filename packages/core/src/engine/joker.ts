@@ -142,11 +142,18 @@ export function gameHasJokers(state: GameState | null): boolean {
 export function drawableOptionIds(state: GameState): string[] {
   const runtime = state.currentQuestion
   if (!runtime) return []
-  const spent = new Set(
-    attemptsForCurrentQuestion(state)
+  const spent = new Set([
+    ...attemptsForCurrentQuestion(state)
       .filter((attempt) => attempt.outcome === 'incorrect' && attempt.loggedOptionId)
       .map((attempt) => attempt.loggedOptionId!),
-  )
+    /*
+     * AND WHAT A 50:50 HAS ALREADY STRUCK OUT. Those answers are gone from the
+     * screen, so a second draw on the same question must neither count them as
+     * open nor remove them twice - it would otherwise leave the correct answer
+     * standing alone, which is the solution and not a hint.
+     */
+    ...(runtime.eliminatedOptionIds ?? []),
+  ])
   return runtime.optionOrder.filter((optionId) => !spent.has(optionId))
 }
 
@@ -170,10 +177,20 @@ export function evaluateJokerDraw(
   }
 
   /*
-   * ONE SCREEN, ONE DRAW. A second card in the air while the first one is
-   * still turning would be two cards in the middle of the same screen.
+   * ONE SCREEN, ONE DRAW - WHILE ONE IS RUNNING. A second card in the air
+   * while the first is still turning would be two cards in the middle of the
+   * same screen.
+   *
+   * AN APPLIED DRAW IS NOT RUNNING, and that distinction is the whole point of
+   * this check. The sequence stays in the state until the next question (its
+   * effect is on screen), so asking for anything but `idle` locked the control
+   * for the REST OF THE QUESTION: the player who buzzed drew their joker,
+   * answered wrong, and the second chance then found a dark button - the other
+   * player could not spend their own joker, with a sentence about a draw that
+   * had long since finished. `jokerSequenceHoldsQuestion` is the same predicate
+   * the engine blocks its commands with, so both say the same thing.
    */
-  if (state.jokerSequence && state.jokerSequence.phase !== 'idle') {
+  if (jokerSequenceHoldsQuestion(state)) {
     return deny('joker-sequence-active', 'Es läuft bereits eine Jokerziehung.')
   }
 
@@ -248,7 +265,23 @@ export function drawableJokerTypes(state: GameState): JokerType[] {
   const question = state.currentQuestion?.question
   if (!question) return []
   if (!isChoiceQuestion(question)) return ['audience']
-  return evaluateFiftyFiftySuitability(state).allowed ? [...jokerTypes] : []
+  if (evaluateFiftyFiftySuitability(state).allowed) return [...jokerTypes]
+  /*
+   * A QUESTION THAT HAS BEEN WORN DOWN STILL CARRIES THE AUDIENCE JOKER.
+   *
+   * The paragraph above is about a question that was never long enough - there
+   * the draw stays shut, because a player must not get the lesser help by the
+   * accident of a short question. A question that STARTED long enough and lost
+   * its answers during play is a different situation: a 50:50 was applied, a
+   * wrong answer was logged, and the player in the second chance would
+   * otherwise get nothing at all. Nothing is worse than the audience joker,
+   * and the desk says beforehand what will come (`onlyType`), exactly as it
+   * does on a picture question.
+   *
+   * The count of the question decides which of the two cases this is - not the
+   * open answers, which are what the play has made of them.
+   */
+  return (question.options ?? []).length >= jokerRules.fiftyFiftyMinOptionCount ? ['audience'] : []
 }
 
 /**
