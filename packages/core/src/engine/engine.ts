@@ -815,21 +815,48 @@ function logAnswer(work: Draft, input: { optionId?: string; verdict?: 'correct' 
     }
   }
 
+  /*
+   * THE SAME KEY AGAIN TAKES THE ANSWER BACK OUT.
+   *
+   * Logging in is a note, not a decision - the decision is `RESOLVE_ATTEMPT`.
+   * A mis-hit at the desk had no way back before: the operator could move the
+   * note to another answer, but not remove it, and a question where nothing
+   * was meant to be logged had to be resolved with something in it. The key
+   * that set the note therefore clears it, which is also what the pressed
+   * button at the desk looks like it would do.
+   *
+   * WHAT THAT GIVES BACK is everything that hangs on "nothing is committed
+   * yet": the resolve button goes dark again, and the joker can be drawn -
+   * `evaluateJokerDraw` asks the same field ("Antwort eingeloggt. Joker kommt
+   * davor.").
+   */
+  const undo =
+    input.optionId !== undefined
+      ? attempt.loggedOptionId === input.optionId
+      : attempt.loggedManualVerdict === input.verdict
+
   work.mutate((draft) => {
     const target = draft.attempts.find((entry) => entry.id === attempt.id)!
     if (input.optionId !== undefined) {
-      target.loggedOptionId = input.optionId
+      target.loggedOptionId = undo ? undefined : input.optionId
       target.loggedManualVerdict = undefined
     }
     if (input.verdict !== undefined) {
-      target.loggedManualVerdict = input.verdict
+      target.loggedManualVerdict = undo ? undefined : input.verdict
       target.loggedOptionId = undefined
     }
   })
+  const optionText = () =>
+    question.options?.find((option) => option.id === input.optionId)?.text ?? input.optionId
+  const verdictText = () => (input.verdict === 'correct' ? 'richtig' : 'falsch')
   const description =
     input.optionId !== undefined
-      ? `Option "${question.options?.find((option) => option.id === input.optionId)?.text ?? input.optionId}" eingeloggt.`
-      : `Manuelle Bewertung "${input.verdict === 'correct' ? 'richtig' : 'falsch'}" vorgemerkt.`
+      ? undo
+        ? `Option "${optionText()}" wieder ausgeloggt.`
+        : `Option "${optionText()}" eingeloggt.`
+      : undo
+        ? `Manuelle Bewertung "${verdictText()}" zurückgenommen.`
+        : `Manuelle Bewertung "${verdictText()}" vorgemerkt.`
   work.log('answer', description)
   return work.commit()
 }

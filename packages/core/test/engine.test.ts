@@ -164,6 +164,66 @@ describe('Normal multiple-choice question', () => {
     expect(options.some((option) => option.state === 'correct')).toBe(false)
   })
 
+  it('logs the answer out again when the same option is pressed twice', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'c' })
+    expect(pendingAttempt(harness.state!)!.loggedOptionId).toBe('c')
+    expect(harness.operatorView().answering?.loggedOptionId).toBe('c')
+
+    /*
+     * THE SAME KEY TAKES IT BACK OUT. Logging in is a note, not a decision -
+     * a mis-hit at the desk had no way back before, and the operator had to
+     * resolve something they never meant to log.
+     */
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'c' })
+    expect(pendingAttempt(harness.state!)!.loggedOptionId).toBeUndefined()
+    expect(harness.operatorView().answering?.loggedOptionId).toBeUndefined()
+    // Nothing is marked on the stage either.
+    expect((harness.publicView().visibleOptions ?? []).some((option) => option.state === 'chosen')).toBe(false)
+    // And there is nothing to evaluate - the same sentence as before any answer.
+    expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('answer-not-logged')
+
+    // It is a switch and not a lock: the same option goes back in.
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'c' })
+    expect(pendingAttempt(harness.state!)!.loggedOptionId).toBe('c')
+  })
+
+  it('moves the note to another option instead of clearing it', () => {
+    const harness = createHarness(sevenNormal())
+    startGame(harness)
+    buzzIn(harness, 'player-1')
+
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'c' })
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    expect(pendingAttempt(harness.state!)!.loggedOptionId).toBe('b')
+  })
+
+  it('takes a manual verdict back the same way', () => {
+    /*
+     * The two verdict buttons are the same note in another form - a question
+     * whose answer is spoken. What the letter keys can do, they can do too.
+     */
+    const harness = createHarness([revealQuestion('q1'), ...sevenNormal().slice(1)])
+    startGame(harness)
+    releaseRound(harness)
+    buzzIn(harness, 'player-1')
+
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
+    expect(pendingAttempt(harness.state!)!.loggedManualVerdict).toBe('correct')
+
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
+    expect(pendingAttempt(harness.state!)!.loggedManualVerdict).toBeUndefined()
+    expect(harness.expectReject({ type: 'RESOLVE_ATTEMPT' }).reason).toBe('answer-not-logged')
+
+    // The other verdict replaces it, as an answer key replaces an answer key.
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'correct' })
+    harness.dispatch({ type: 'MARK_MANUAL_ANSWER', verdict: 'incorrect' })
+    expect(pendingAttempt(harness.state!)!.loggedManualVerdict).toBe('incorrect')
+  })
+
   it('correct second chance gives exactly 50 points', () => {
     const harness = createHarness(sevenNormal())
     startGame(harness)

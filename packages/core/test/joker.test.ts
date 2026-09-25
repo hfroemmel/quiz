@@ -563,6 +563,16 @@ describe('the 50:50', () => {
 
     expect(harness.expectReject({ type: 'DRAW_JOKER' }).reason).toBe('answer-not-logged')
     expect(isUsed(harness, 'player-1')).toBe(false)
+
+    /*
+     * AND IT COMES BACK WHEN THE ANSWER IS LOGGED OUT AGAIN. The door is shut
+     * by the committed answer, not by the key that was pressed once - the same
+     * key takes the note back out, and then nothing is committed any more.
+     */
+    harness.dispatch({ type: 'LOG_OPTION_ANSWER', optionId: 'b' })
+    expect(harness.operatorView().joker!.canDraw).toBe(true)
+    drawJoker(harness)
+    expect(isUsed(harness, 'player-1')).toBe(true)
   })
 })
 
