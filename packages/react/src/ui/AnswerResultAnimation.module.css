@@ -45,11 +45,22 @@
  * the red.
  */
 :global(.stage--kids) .mark[data-answer-result='wrong'] {
-  --mark-wrong-disc: #d51f1e;
+  /*
+   * The drawn world's strong red is the one it writes on in white - the same
+   * ground its buzzer and its primary areas carry. Its `incorrect` is the pale
+   * rose of the drawn frames, which is why the disc needs this one instead.
+   */
+  --mark-wrong-disc: var(--color-primary);
 }
 :global(.stage--default.stage--red) .mark[data-answer-result='wrong'] {
-  --mark-wrong-disc: #fff;
-  --mark-wrong-symbol: #ca2e56;
+  /*
+   * On the red stage the two swap roles: the disc takes the light ink that type
+   * on a motif uses anyway, and the cross carries the house red - the very
+   * value this variant's ground is made of, which is why the disc vanished
+   * into it.
+   */
+  --mark-wrong-disc: var(--stage-inkOnMotif);
+  --mark-wrong-symbol: var(--color-incorrect);
 }
 
 /*

@@ -163,6 +163,29 @@ test.describe('Visual smoke tests of all scenes', () => {
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
+  test('takes the wrong mark of the drawn world from that world', async ({ page }) => {
+    /*
+     * THE CHILDREN'S WORLD MARKS WRONG WITH ITS STRONG RED - the tone its
+     * buzzer and its primary areas carry, and the one it writes on in white.
+     * Its `incorrect` is the pale rose of the drawn frames: a disc of that on
+     * the sky-blue paper reads as washed out, not as a verdict. So the mark
+     * names another token of the SAME world - and no colour of its own.
+     */
+    await selectScene(page, 'feedback')
+    await selectTheme(page, 'kids')
+    await page.locator('[data-preview-panel] select').nth(2).selectOption('incorrect')
+    await expect(page.locator('[data-answer-result="wrong"]')).toBeVisible()
+
+    const [fill, primary] = await discAgainstToken(page, '--color-primary')
+    expect(fill).toBe(primary)
+    // And the cross stays the light ink of type on a drawing.
+    const cross = await page
+      .locator('[data-answer-result] path')
+      .first()
+      .evaluate((path) => getComputedStyle(path).stroke)
+    expect(cross).toBe('rgb(255, 255, 255)')
+  })
+
   test('solution scene colours only the correct answer', async ({ page }) => {
     await selectScene(page, 'solution')
     await expect(page.locator('[data-answer][data-state="correct"]')).toBeVisible()

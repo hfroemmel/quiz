@@ -277,3 +277,49 @@ test('the red variant writes dark ink on its bold areas - whatever the page arou
   await shadowRoot()
   expect(await token(stage, '--stage-inkOnStrong', page)).not.toBe(darkInk)
 })
+
+/**
+ * THE WRONG MARK ON THE RED GROUND.
+ *
+ * This variant's ground IS the wrong-answer red - `--color-incorrect` and
+ * `--color-pageTop` are the same commissioned tone - so a disc in that colour
+ * disappeared into it and left the cross floating. The two therefore swap: the
+ * disc takes the light ink that type on a motif uses, the cross carries the
+ * red. Both are tokens of this variant; a value of its own in the mark's
+ * stylesheet would be a second copy of the palette.
+ */
+test('the red variant turns the wrong mark inside out - white disc, red cross', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('quiz.stageTheme', 'red'))
+  await page.goto('/preview')
+  const stage = '[data-preview-stage] .stage'
+  await expect(page.locator(stage)).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator(stage)).toHaveClass(/stage--red/)
+
+  await page.locator('[data-preview-panel] select').first().selectOption('feedback')
+  await page.locator('[data-preview-panel] select').nth(2).selectOption('incorrect')
+  await expect(page.locator('[data-answer-result="wrong"]')).toBeVisible()
+
+  const mark = await page.locator('[data-answer-result] circle').evaluate((disc) => {
+    const element = disc.closest('.stage')!
+    const resolved = (name: string) => {
+      const probe = document.createElement('span')
+      probe.style.color = getComputedStyle(element).getPropertyValue(name).trim()
+      element.appendChild(probe)
+      const value = getComputedStyle(probe).color
+      probe.remove()
+      return value
+    }
+    return {
+      disc: getComputedStyle(disc).fill,
+      cross: getComputedStyle(disc.parentElement!.querySelector('path')!).stroke,
+      ink: resolved('--stage-inkOnMotif'),
+      incorrect: resolved('--color-incorrect'),
+      ground: resolved('--color-pageTop'),
+    }
+  })
+
+  // The ground and the meaning colour are the same tone - that is the situation.
+  expect(mark.incorrect).toBe(mark.ground)
+  expect(mark.disc).toBe(mark.ink)
+  expect(mark.cross).toBe(mark.incorrect)
+})
