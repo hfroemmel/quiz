@@ -1,5 +1,26 @@
 # @hfroemmel/quiz-react
 
+## 0.27.10
+
+### Patch Changes
+
+- 1bd68f3: The same answer key logs the answer back out. Logging in is a note and not a
+  decision - the decision is "Auflösen und bewerten" - so the key that set the
+  note now clears it, which is what the pressed button at the desk looks like it
+  would do anyway. A manual verdict behaves the same. Everything that hangs on
+  "nothing is committed yet" comes back with it: the resolve button goes dark, and
+  the joker can be drawn again.
+- 5281627: The wrong-answer mark takes its two exceptions from the palette instead of
+  naming colours itself: the drawn world's disc is that world's strong red
+  (`--color-primary`), and on the red stage the disc takes the light ink of type
+  on a motif while the cross carries `--color-incorrect` - the very tone this
+  variant's ground is made of. Both were written out as values, which the palette
+  guard refuses, and both were one hex step off the commissioned colours.
+- Updated dependencies [1bd68f3]
+- Updated dependencies [5281627]
+  - @hfroemmel/quiz-core@0.27.10
+  - @hfroemmel/quiz-themes@0.27.10
+
 ## 0.27.9
 
 ### Patch Changes
