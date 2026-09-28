@@ -163,6 +163,73 @@ test.describe('Visual smoke tests of all scenes', () => {
     await expect(page.locator('[data-answer][data-state="correct"]')).toHaveCount(0)
   })
 
+  test('reads every answer from the left edge, whatever the scene does with its text', async ({ page }) => {
+    /*
+     * ONE LEFT EDGE FOR THE WHOLE LIST.
+     *
+     * The scene hands its alignment down (`--scene-text-align`), and on the
+     * adults' stage that is centred - right for the question board, wrong for a
+     * list. On a one-line answer it never showed: as a flex item the text is
+     * only as wide as itself, so there was nothing to centre it in. An answer
+     * that WRAPPED took the full width of its row, and its lines then stood in
+     * the middle between neighbours that started behind their letter.
+     *
+     * Two things are therefore checked: that the scene still centres what it is
+     * supposed to centre, and that the answer text says otherwise for itself.
+     */
+    await selectScene(page, 'question')
+    await expect(page.locator('[data-answer]').first()).toBeVisible()
+
+    const sceneAlign = await page
+      .locator('.stage [data-answers]')
+      .evaluate((list) => getComputedStyle(list.parentElement!).textAlign)
+    expect(sceneAlign).toBe('center')
+    const texts = await page
+      .locator('[data-answer-text]')
+      .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).textAlign))
+    expect(texts).toEqual(['left', 'left', 'left', 'left'])
+
+    /*
+     * And measured where the answers really do wrap: the drawn world's cards
+     * are narrower than the bars of the adults' stage, so the sample's long
+     * answers run over two lines there. Both lines of a card start at the same
+     * x, and so does every card.
+     */
+    await selectTheme(page, 'kids')
+    await page.getByRole('checkbox', { name: /Lange Texte/ }).check()
+    await expect(page.locator('[data-answer]').first()).toBeVisible()
+
+    const starts = await page.locator('[data-answer-text]').evaluateAll((elements) =>
+      elements.map((element) => {
+        /*
+         * A line box has no box of its own in the DOM: a `Range` over one
+         * character at a time is what gives the left edge of each line - the
+         * element's own rectangle would only ever be the block's.
+         */
+        const node = element.firstChild!
+        const text = node.textContent ?? ''
+        const range = document.createRange()
+        const lines: number[] = []
+        let top = Number.NaN
+        for (let index = 0; index < text.length; index += 1) {
+          range.setStart(node, index)
+          range.setEnd(node, index + 1)
+          const box = range.getBoundingClientRect()
+          if (box.width === 0) continue
+          if (Math.round(box.top) !== top) {
+            top = Math.round(box.top)
+            lines.push(Math.round(box.left))
+          }
+        }
+        return lines
+      }),
+    )
+
+    // At least one of the cards really does wrap - otherwise this proves nothing.
+    expect(starts.some((lines) => lines.length > 1)).toBe(true)
+    expect(new Set(starts.flat()).size, JSON.stringify(starts)).toBe(1)
+  })
+
   test('takes the wrong mark of the drawn world from that world', async ({ page }) => {
     /*
      * THE CHILDREN'S WORLD MARKS WRONG WITH ITS STRONG RED - the tone its

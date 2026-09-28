@@ -115,6 +115,22 @@
 }
 .text {
   min-width: 0;
+  /*
+   * ANSWERS ALWAYS READ FROM THE LEFT EDGE.
+   *
+   * The scene hands its text alignment down (`--scene-text-align`), and on the
+   * adults' stage that is centred - which is right for the question board and
+   * wrong for a list. It did not show on a one-line answer: as a flex item the
+   * text is only as wide as itself, so there was nothing to centre it in. An
+   * answer that wrapped got the full width of the row, and its two lines then
+   * stood in the middle while its neighbours started behind their letter - one
+   * row out of four reading differently from the rest.
+   *
+   * It is stated on the text itself and for every world, because it is a
+   * property of a LIST and not of a variant: the eye goes down the left edge
+   * from letter to letter.
+   */
+  text-align: left;
 }
 
 /* ------------------------------------------------------------------ *
