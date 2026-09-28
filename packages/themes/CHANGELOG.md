@@ -1,5 +1,32 @@
 # @hfroemmel/quiz-themes
 
+## 0.27.10
+
+### Patch Changes
+
+- 9362637: An answer row reads from its left edge in every world. The scene hands its text
+  alignment down and centres it on the adults' stage, which a one-line answer
+  never showed - as a flex item the text is only as wide as itself. An answer that
+  wrapped took the full width of its row and stood centred between neighbours that
+  started behind their letter. The answer text now states its alignment itself,
+  because that is a property of a list and not of a variant.
+- 1bd68f3: The same answer key logs the answer back out. Logging in is a note and not a
+  decision - the decision is "Auflösen und bewerten" - so the key that set the
+  note now clears it, which is what the pressed button at the desk looks like it
+  would do anyway. A manual verdict behaves the same. Everything that hangs on
+  "nothing is committed yet" comes back with it: the resolve button goes dark, and
+  the joker can be drawn again.
+- 5281627: The wrong-answer mark takes its two exceptions from the palette instead of
+  naming colours itself: the drawn world's disc is that world's strong red
+  (`--color-primary`), and on the red stage the disc takes the light ink of type
+  on a motif while the cross carries `--color-incorrect` - the very tone this
+  variant's ground is made of. Both were written out as values, which the palette
+  guard refuses, and both were one hex step off the commissioned colours.
+- Updated dependencies [9362637]
+- Updated dependencies [1bd68f3]
+- Updated dependencies [5281627]
+  - @hfroemmel/quiz-core@0.27.10
+
 ## 0.27.9
 
 ### Patch Changes
