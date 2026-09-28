@@ -1335,7 +1335,7 @@
   padding: 0 1.9688vw;
   /* The same quiet area as an unselected card, and without an edge. */
   border: 0;
-  border-radius: 1.1813vw;
+  border-radius: var(--stage-radius);
   background: var(--start-option);
   color: var(--start-text);
   font-family: var(--font-ui);
