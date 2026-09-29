@@ -1,5 +1,11 @@
 # @hfroemmel/quiz-themes
 
+## 0.29.2
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.29.2
+
 ## 0.29.1
 
 ### Patch Changes

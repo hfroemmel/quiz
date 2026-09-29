@@ -1,5 +1,41 @@
 # @hfroemmel/quiz-react
 
+## 0.29.2
+
+### Patch Changes
+
+- The picture names its source, the score card grows with the name, and the
+  winner is congratulated.
+  
+  THE CREDIT SAYS WHAT IT IS. A line of small type under a photo could be a
+  caption, a title or a name - now it opens with "Quelle:", and a credit that is
+  not recognised as one does not discharge the duty it exists for. Everything
+  else about that line is unchanged: smallest type on the stage, one line, cut
+  off rather than allowed to grow over the picture.
+  
+  The word stands in the stylesheet rather than in `texts.ts`, which is where
+  every other word of the stage lives - so it is the one string that does not
+  follow the room's language, and an English set gets a German "Quelle:" under
+  its pictures. That is now written where the rule is, so nobody goes looking
+  for it among the texts.
+  
+  THE SCORE CARD NO LONGER CUTS THE NAME OFF. Its width was fixed at seven
+  container units, which is a size chosen for two-digit scores and short names;
+  it is a minimum now, so a card grows with what stands in it and stays exactly
+  as it was wherever the name already fitted.
+  
+  AND THE RESULT CARD SITS ON ITS FEET. Its padding was heavier at the bottom
+  than at the top, which pushed the number up against the card's upper edge; the
+  two are swapped, so the score stands in the middle of the space it was given.
+  
+  THE WINNER IS CONGRATULATED - to a screen reader. `result.winner` is the
+  hidden label in front of the result heading, read aloud and never shown. It
+  said "Gewinner", a word that names a category rather than addressing anyone;
+  it says "Herzlichen Glückwunsch." now, and "Congratulations!" in English,
+  which is what the room says out loud at that moment anyway.
+- @hfroemmel/quiz-core@0.29.2
+  - @hfroemmel/quiz-themes@0.29.2
+
 ## 0.29.1
 
 ### Patch Changes

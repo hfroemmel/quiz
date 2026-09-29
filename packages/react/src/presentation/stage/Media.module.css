@@ -77,6 +77,20 @@
   pointer-events: none;
 }
 
+/*
+ * AND IT SAYS WHAT IT IS. A line of small type under a photo could be a
+ * caption, a title or a name; the word in front of it settles that, and a
+ * credit that is not recognised as a credit does not discharge the duty it
+ * exists for.
+ *
+ * IT STANDS IN THE STYLESHEET AND NOT IN `texts.ts`, which is where every
+ * other word of the stage lives - so it is the one string that does NOT follow
+ * the room's language. Whoever gives this stage an English set gets an English
+ * quiz with a German "Quelle:" under its pictures. It is written here because
+ * the credit itself comes from the content as one finished line and the
+ * component never touches it; a host that needs the word translated overrides
+ * this rule rather than passing a text.
+ */
 .credit::before {
   content: "Quelle: ";
 }
