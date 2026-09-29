@@ -80,15 +80,37 @@ const houseGreenDeep = '#5a9e2b'
 const houseRed = '#ca2f56'
 const europeBlue = '#003399'
 /*
+ * The same blue carried into the dark - the surface tone of that variant.
+ *
+ * A white veil over this blue turns milky and reads as a pale patch rather
+ * than a surface, the same thing that made the red variant name a tile tone of
+ * its own. So this one does too, and for tiles it is the WHOLE picture: the
+ * ground, the tile, the answer bar. What tells them apart is the step between
+ * two blues, not a veil.
+ */
+const europeBlueDeep = '#002673'
+/*
  * And the gold that goes ON that blue - the second colour of the same flag.
  *
- * It exists because the Europe variant needs an ink for its strong areas, and
- * on this blue neither of the two inks the house owns will do: black sinks
- * into it, white is the card's ink and would make the marked answer look like
- * every other line. The flag names the pair, so the pair is what the variant
- * uses.
+ * It is the ACCENT of that variant: what marks the player on turn and the
+ * answer a hand is on. The flag names the pair, so the pair is what the
+ * variant is made of - the house's own accent is a cyan that has nothing to
+ * do with either.
  */
 const europeGold = '#FFCC00'
+/*
+ * A TONE HELD BACK - as an eight-digit hex and not as a veil.
+ *
+ * `veil()` mixes a colour into whatever lies beneath it, which is right for
+ * the white veils of the dark stage: they are meant to take on the ground.
+ * These two are not. A disabled tile and a withdrawn accent keep their own
+ * blue and their own gold and only lose some of their force, so the alpha
+ * belongs to the colour rather than to the surface under it.
+ *
+ * The alpha is no more a colour here than it is in a veil - the guard test
+ * reads both the same way, through the tone underneath.
+ */
+const heldBack = (colour: string) => `${colour.toLowerCase()}a7`
 const brightInkMuted = '#999999'
 /*
  * THE GROUND OF THE DARK STAGE, in three plain greys, and the tones that sit
@@ -335,25 +357,36 @@ export const redPalette: Partial<DesignColors> = {
 }
 
 /**
- * THE EUROPE VARIANT - the dark stage on the blue of the flag.
+ * THE EUROPE VARIANT - the dark stage in the two colours of the flag.
  *
- * It is built the way the red one is: the dark world with its ground
- * exchanged, and nothing else. Everything the stage needs beyond these few
- * values - the meaning colours, the type, the quiet steps - stays the dark
- * variant's, because that is what this one is a version of.
+ * It starts where the red one does, as the dark world with its ground
+ * exchanged, and then goes one step further: this variant names its signals
+ * too. The meaning colours - right, wrong, the solution - stay the dark
+ * variant's, because what they say does not change with the room. Everything
+ * else here is the flag.
  *
- * AND HERE THE TILES CARRY THE GROUND ITSELF. The red variant had to darken
- * its tiles: white veils over that red turn milky, so a tile read as a pale
- * patch instead of a surface. This blue is dark enough that the veils do what
- * they were drawn to do, but the design asks for one flat blue across the
- * whole picture - a screen that is the flag, not a screen with tiles on it.
- * All four therefore take the ground, and what tells a tile from the page is
- * the edge and the type on it.
+ * THE GROUND AND THE SURFACES ARE TWO STEPS OF ONE BLUE. Page, stage and
+ * control frame carry the flag's blue; tiles, the answer bar and the letter
+ * chip carry the same blue taken into the dark. That step is what tells a
+ * surface from the page - not a white veil, which over this blue turns milky
+ * and reads as a pale patch, exactly as it did over the red.
  *
- * It is one value in ten places rather than one value and a rule, because
- * that is what the generated stylesheet has to say: every token a variant
- * does not name is inherited from the dark stage, and an unnamed tile would
- * be a white veil on blue.
+ * THE ACCENT IS THE GOLD, and that is the second half of this variant. In the
+ * dark world the accent is a white and the primary a near-white; here the
+ * score card of the player on turn and the answer a hand is on go gold, and
+ * the way onward is a plain white button with black writing. A room that sees
+ * this stage for a second knows which quiz is running, without a word on it.
+ *
+ * AND THE TWO HELD-BACK STEPS KEEP THEIR COLOUR. A tile that is switched off
+ * is still a blue tile, an accent that is withdrawn is still gold - both lose
+ * force and nothing else (`heldBack`). The dark stage does that with white
+ * veils, which take on whatever lies beneath them; on a ground that IS a
+ * colour, a veil would wash the flag out.
+ *
+ * Every value stands written out rather than derived, because that is what the
+ * generated stylesheet has to say: a token this variant does not name is
+ * inherited from the dark stage, and an unnamed tile would be a white veil on
+ * blue.
  */
 export const europePalette: Partial<DesignColors> = {
   pageTop: europeBlue,
@@ -362,10 +395,21 @@ export const europePalette: Partial<DesignColors> = {
   stageBottom: europeBlue,
   controls: europeBlue,
 
-  tile: europeBlue,
-  tileDisabled: europeBlue,
-  tileQuiet: europeBlue,
-  option: europeBlue,
+  tile: europeBlueDeep,
+  tileDisabled: heldBack(europeBlueDeep),
+  tileQuiet: heldBack(europeBlueDeep),
+  option: europeBlueDeep,
+
+  accent: europeGold,
+  accentQuiet: heldBack(europeGold),
+  /*
+   * THE WAY ONWARD IS WHITE WITH BLACK WRITING - the third colour of this
+   * picture, and the only one that is not the flag. It has to be: a gold
+   * button beside the gold score card would be two marks of the same weight,
+   * and the room would not know which of them it is meant to look at.
+   */
+  primary: houseWhite,
+  primaryInk: houseBlack,
 }
 
 /**
@@ -1015,15 +1059,18 @@ export const kidsStartStage = { inkOnStrong: houseWhite } as const
 export const brightStageExtras = { inkOnStrong: houseWhite } as const
 export const redStageExtras = { inkOnStrong: houseBlack } as const
 /*
- * AND IN THE EUROPE VARIANT IT IS THE GOLD OF THE FLAG. Its strong areas are
- * the dark world's - the near-white primary and the white accent - so by the
- * red variant's reasoning the dark ink would belong here. The flag decides
- * otherwise: the second colour of this variant exists, it has to be somewhere,
- * and the score card of the player on turn is where the room actually looks.
- * Gold on near-white carries far enough to read at the back of a hall, and it
- * says which quiz is running without a word.
+ * AND IN THE EUROPE VARIANT IT IS THE DEEP BLUE - because there the strong
+ * areas are the gold.
+ *
+ * This variant names its own accent (`europePalette`), so its strong areas are
+ * not the dark world's near-white ones: what carries text here is the gold
+ * score card of the player on turn, the gold of a chosen answer, and a white
+ * button. Black on gold is a warning sign and white on gold is illegible, so
+ * the ink is the variant's own deep blue - the same tone its tiles are cut
+ * from, which is why the writing belongs to this picture instead of sitting
+ * on top of it.
  */
-export const europeStageExtras = { inkOnStrong: europeGold } as const
+export const europeStageExtras = { inkOnStrong: europeBlueDeep } as const
 export const kidsOverviewStart = { 'ink-on-selected': houseWhite } as const
 
 /**

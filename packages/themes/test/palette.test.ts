@@ -186,9 +186,10 @@ describe('the federal colour spectrum', () => {
    *            its grades in the start menu.
    *   #333333  the ink on a light chip, #999999 the muted text on paper.
    *   #003399  the card of the Europe quiz and the ground of its variant, in
-   *            the blue that quiz is about.
+   *            the blue that quiz is about, with #002673 as the step of it the
+   *            tiles and the answer bars are cut from.
    *   #FFCC00  the gold that goes on that blue - the second colour of the same
-   *            flag, and the ink of that variant's strong areas.
+   *            flag, and the accent of that variant.
    *
    * THE LIST IS THE POINT. Each value is here by name, so a colour that
    * nobody chose deliberately still cannot enter - and dropping one of these
@@ -203,6 +204,7 @@ describe('the federal colour spectrum', () => {
     '#B7F0A1',
     '#5A9E2B',
     '#003399',
+    '#002673',
     '#FFCC00',
     '#999999',
     /* The offer overview: ink, its quiet step, and the icon of a card. */
@@ -237,6 +239,15 @@ describe('the federal colour spectrum', () => {
 
   /** A veil reduced to the colour under it; anything else stays as it is. */
   function tone(colour: string): string | null {
+    /*
+     * AND AN EIGHT-DIGIT HEX IS A VEIL TOO. `#002673a7` is that blue held
+     * back, not a second blue, and the rule above - the alpha is not a colour -
+     * does not care how the alpha was written. Without this the same tone would
+     * count twice, once whole and once dimmed, and the house list would have to
+     * name a value nobody chose.
+     */
+    const dimmed = colour.match(/^#([0-9a-fA-F]{6})[0-9a-fA-F]{2}$/)
+    if (dimmed) return `#${dimmed[1]!.toUpperCase()}`
     const veiled = colour.match(/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/)
     if (!veiled) return colour.toUpperCase()
     const [red, green, blue] = veiled.slice(1, 4).map(Number) as [number, number, number]
@@ -318,14 +329,33 @@ describe('the federal colour spectrum', () => {
     expect(europeStartPalette['bg-top']).toBe('#003399')
     expect(quizSelectPalette['card-europe']).toBe('#003399')
     expect(legal.has('#003399')).toBe(false)
-    /* Its tiles ARE the ground - this variant is one flat blue, not a blue with surfaces on it. */
-    expect(europePalette.tile).toBe(europePalette.pageTop)
-    expect(europePalette.tileDisabled).toBe(europePalette.tile)
-    expect(europePalette.tileQuiet).toBe(europePalette.tile)
+    /*
+     * ITS SURFACES ARE A SECOND STEP OF THAT BLUE, not a veil over it: a white
+     * veil on this ground turns milky, the same thing that made the red variant
+     * name a tile tone of its own.
+     */
+    expect(europePalette.tile).toBe('#002673')
     expect(europePalette.option).toBe(europePalette.tile)
-    /* And the ink on its strong areas is the gold of the same flag. */
-    expect(europeStageExtras.inkOnStrong).toBe('#FFCC00')
+    expect(legal.has('#002673')).toBe(false)
+    /*
+     * And the two held-back steps keep their own colour and only lose force -
+     * the same tone with an alpha, which is why the guard reads them as that
+     * tone and not as two more values.
+     */
+    expect(europePalette.tileDisabled).toBe('#002673a7')
+    expect(europePalette.tileQuiet).toBe(europePalette.tileDisabled)
+    expect(europePalette.accentQuiet).toBe('#ffcc00a7')
+    expect(tone(europePalette.tileDisabled!)).toBe(tone(europePalette.tile!))
+    expect(tone(europePalette.accentQuiet!)).toBe(tone(europePalette.accent!))
+
+    /*
+     * THE ACCENT IS THE GOLD, AND THE INK ON IT IS THE DEEP BLUE. Black on gold
+     * is a warning sign, white on gold is illegible - so what writes on this
+     * variant's strong areas is the tone its own surfaces are cut from.
+     */
+    expect(europePalette.accent).toBe('#FFCC00')
     expect(legal.has('#FFCC00')).toBe(false)
+    expect(europeStageExtras.inkOnStrong).toBe(europePalette.tile)
 
     const outsiders = new Set<string>()
     for (const palette of Object.values(surfaces)) {

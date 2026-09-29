@@ -146,11 +146,15 @@
   --color-stageTop: #003399;
   --color-stageBottom: #003399;
   --color-controls: #003399;
-  --color-tile: #003399;
-  --color-tileDisabled: #003399;
-  --color-tileQuiet: #003399;
-  --color-option: #003399;
-  --stage-inkOnStrong: #FFCC00;
+  --color-tile: #002673;
+  --color-tileDisabled: #002673a7;
+  --color-tileQuiet: #002673a7;
+  --color-option: #002673;
+  --color-accent: #FFCC00;
+  --color-accentQuiet: #ffcc00a7;
+  --color-primary: #fff;
+  --color-primaryInk: #000;
+  --stage-inkOnStrong: #002673;
 }
 
 [data-quiz-game][data-theme='europe'] {
