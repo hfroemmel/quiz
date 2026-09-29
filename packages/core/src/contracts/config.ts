@@ -236,11 +236,6 @@ export const rulesConfigSchema = z
      */
     jokers: z.object({ enabled: z.boolean() }).optional(),
     /**
-     * After this idle time the device returns to the start screen. Up to an
-     * hour; `0` switches the watch off for an attended installation.
-     */
-    idleTimeoutMs: z.number().int().min(0).max(3_600_000).optional(),
-    /**
      * Show the detail text of the explanation after the solution.
      *
      * The text is in the content (`explanation.details`); whether it gets its
@@ -257,7 +252,6 @@ export interface ResolvedRules {
   timing: GameTiming
   selfServiceTiming: SelfServiceTiming
   jokersEnabled: boolean
-  idleTimeoutMs?: number
   showDetailsAfterSolution: boolean
 }
 
@@ -274,7 +268,6 @@ export function resolveRules(rules: RulesConfig | undefined): ResolvedRules {
     timing: { ...gameTiming, ...pick(timing, Object.keys(gameTiming)) },
     selfServiceTiming: { ...selfServiceTiming, ...pick(timing, Object.keys(selfServiceTiming)) },
     jokersEnabled: rules?.jokers?.enabled ?? true,
-    ...(rules?.idleTimeoutMs === undefined ? {} : { idleTimeoutMs: rules.idleTimeoutMs }),
     showDetailsAfterSolution: rules?.showDetailsAfterSolution ?? false,
   }
 }

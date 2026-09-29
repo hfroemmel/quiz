@@ -212,11 +212,13 @@ regression net for all stages.
 - Renderer shows: attract screen -> selection "1 player / 2 players" (and, if
   desired, quiz mode) -> `<QuizGame/>` -> result -> back to the attract
   screen.
-- **Idle supervision** (belongs in the shell, not in the game core): if
-  nothing happens for longer than `idleTimeoutMs`, the game is aborted and
-  the attract screen returns. Without this, a kiosk device would get stuck on
-  an open question, because the chosen single-player mode deliberately has no
-  time pressure.
+- **No idle supervision.** The device used to abort a game after
+  `idleTimeoutMs` without a touch and bring the attract screen back; the watch
+  is gone, in the game and in every shell. A question has no time pressure on
+  purpose, and the watch was the one thing that gave it some - at an attended
+  table it ended games in the middle of a conversation about the question. A
+  game ends when a person ends it (`ABORT_GAME` from the exit button), and a
+  device left standing keeps the question on screen.
 - Event day: the existing automatic day change (`ensureEventDay` with
   rollover) is sufficient; repeat avoidance thus works per device and day.
 
@@ -232,7 +234,6 @@ const backend = await startQuizBackend({ databaseFile, packageDir })
 <QuizGame
   endpoint={backend.endpoint}          // ws://127.0.0.1:<port>
   match={{ playerCount: 1 | 2, quizModeId?, presetId? }}
-  idleTimeoutMs={120_000}
   onFinished={(result) => shell.showScore(result)}   // points, duration, hit count
   onExit={() => shell.backToMenu()}                  // exit by the players
 />

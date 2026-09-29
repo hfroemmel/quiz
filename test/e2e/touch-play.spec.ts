@@ -658,22 +658,26 @@ test('points and counter sit at the bottom by the buzzers, not in the header', a
   }
 })
 
-test('the idle watch releases the device again', async ({ page }) => {
+test('the open question waits as long as it takes - nothing ends the game but a person', async ({ page }) => {
   /*
-   * Eight seconds instead of two minutes - the supervision limit comes in as
-   * an operating setting. It must not be any shorter here: the countdown runs
-   * from the start of the game, and the lead-in of the interstitial screen
-   * still counts towards it.
+   * THERE IS NO IDLE WATCH ANY MORE, and this is what that means at the table:
+   * a question carries no time pressure, and now nothing else does either. The
+   * device used to abort the game after two minutes without a touch and put the
+   * selection back up - in the middle of a group that was still reading, and on
+   * an attended table in the middle of a conversation about the question.
+   *
+   * Fifteen seconds are enough to catch a watch coming back: the shortest one
+   * that was ever configured ran at eight (`?idle=8` in the old test), and the
+   * watch checked itself every five.
    */
-  await page.goto('/play?idle=8')
-  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 15_000 })
-  await page.getByRole('button', { name: /^Allein/ }).click()
-  await page.getByRole('button', { name: /^Leicht/ }).click()
-  await page.getByRole('button', { name: "Los geht's" }).click()
+  await startGame(page, 'Allein')
   await expect(page.locator('[data-answers]')).toBeVisible({ timeout: 30_000 })
 
-  // Nobody is tapping anymore: the game is aborted and the selection returns.
-  await expect(page.locator('[data-game-start]')).toBeVisible({ timeout: 25_000 })
+  await page.waitForTimeout(15_000)
+
+  // Still the same question, and the selection has not come back.
+  await expect(page.locator('[data-answers]')).toBeVisible()
+  await expect(page.locator('[data-game-start]')).toHaveCount(0)
 })
 
 test('a solo game runs to the result without a single operator command', async ({ page }) => {

@@ -90,7 +90,6 @@ function Game({
        */
       audience={audienceFromLocation()}
       soundEnabled={soundEnabled}
-      idleTimeoutMs={120_000}
       onFinished={onFinished}
       onExit={onExit}
       {...(overlay ? { overlay } : {})}

@@ -792,7 +792,6 @@ function buildCatalog(ctx: ProjectionContext, locale: string): CatalogViewModel 
   return {
     questionsPerGame: ctx.config.questionsPerGame,
     rules: {
-      ...(rules.idleTimeoutMs === undefined ? {} : { idleTimeoutMs: rules.idleTimeoutMs }),
       showDetailsAfterSolution: rules.showDetailsAfterSolution,
       manualAdjustmentStep: rules.scoring.manualAdjustmentStep,
     },

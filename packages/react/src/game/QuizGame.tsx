@@ -34,7 +34,6 @@ import { PlayerFoot } from './PlayerFoot'
 import { clampZoom } from './zoom'
 import { assignedPlayer, canAnswer, canBuzz } from './answering'
 import { useHostVisible } from './useHostVisible'
-import { useIdleWatch } from './useIdleWatch'
 import styles from './Game.module.css'
 
 // The result shape comes from the domain's event derivation - it is only
@@ -101,16 +100,6 @@ export interface QuizGameProps {
    */
   onExit?: () => void
   /**
-   * Idle watch: if nothing is touched for long enough during a running game,
-   * it is aborted and the selection returns.
-   *
-   * Without this value there is no watch. On an unattended device it is
-   * needed because there is deliberately no time pressure on a question:
-   * without it, a device would sit with an open question until someone comes
-   * along.
-   */
-  idleTimeoutMs?: number
-  /**
    * A host's own layer ON TOP OF the stage - for example an extra
    * information step between the solution and the next question.
    *
@@ -165,7 +154,6 @@ export function QuizGame({
   locale: localeDefault,
   onFinished,
   onExit,
-  idleTimeoutMs,
   overlay,
   renderAfterSolution,
   layout = 'live',
@@ -321,25 +309,6 @@ export function QuizGame({
       if (event.type === 'game-finished') onFinished?.(event.result)
     }
   }, [view, onFinished])
-
-  /*
-   * THE CONFIGURATION DECIDES, THE PROPERTY NARROWS.
-   *
-   * Idle time and player counts belong to the installation, and they live in
-   * the quiz package (`rules.idleTimeoutMs`, `quizzes[].playerCounts`). A host
-   * that still passes them as properties wins, so nothing changes for it from
-   * one version to the next; a host that passes nothing gets what the package
-   * says.
-   */
-  const effectiveIdleTimeoutMs = idleTimeoutMs ?? view?.catalog.rules.idleTimeoutMs
-  const idle = useIdleWatch({
-    ...(effectiveIdleTimeoutMs === undefined ? {} : { timeoutMs: effectiveIdleTimeoutMs }),
-    active: Boolean(view && view.scene !== 'start'),
-    onIdle: () => {
-      send({ type: 'ABORT_GAME' })
-      setShowChoice(false)
-    },
-  })
 
   if (!view || !runtime) {
     return (
@@ -700,7 +669,6 @@ export function QuizGame({
       data-surface={surface}
       data-layout={layout}
       data-sound={String(view.soundEnabled)}
-      onPointerDown={idle.notice}
     >
       {!connected && <span className={styles.offline} title="Keine Verbindung" aria-hidden="true" />}
 

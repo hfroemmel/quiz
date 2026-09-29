@@ -162,7 +162,6 @@ local files.
     "scoring": { "firstAnswerPoints": 100, "secondChancePoints": 50, "manualAdjustmentStep": 50 },
     "timing":  { "pauseScreenMs": 1500, "imageRevealDurationMs": 10000, "questionLeadInMs": 2500 },
     "jokers":  { "enabled": true },
-    "idleTimeoutMs": 120000,             // 0 switches the idle watch off
     "showDetailsAfterSolution": false
   }
 }
@@ -181,8 +180,13 @@ setting but a broken evening. The reveal grid, the parameters of the selection
 algorithm and the question count stay in code and in `questionsPerGame` - they
 are fairness, not taste.
 
-The idle watch and `showDetailsAfterSolution` reach the clients through
-`catalog.rules`; everything else is read by the engine on the server.
+`showDetailsAfterSolution` reaches the clients through `catalog.rules`;
+everything else is read by the engine on the server.
+
+There is no idle watch. A device used to carry `rules.idleTimeoutMs` and put the
+selection back up after that long without a touch; a question deliberately has
+no time pressure, and that watch was the one thing that gave it some. A game now
+ends when a person ends it.
 
 ### The words of the interface
 

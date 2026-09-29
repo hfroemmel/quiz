@@ -79,7 +79,6 @@ function App() {
  * They arrive as query parameters, so a device can set up its window
  * without a build of its own:
  *   ?audience=adults   audience of the device
- *   ?idle=120          idle supervision in seconds
  *   ?details=1         read the background of a question at the device
  *                      (`rules.showDetailsAfterSolution`) - a rule of the
  *                      content, switchable here so that one suite can see
@@ -92,14 +91,12 @@ function App() {
 function touchDevice() {
   const params = new URLSearchParams(window.location.search)
   const audience = params.get('audience') ?? 'adults'
-  const idleSeconds = Number(params.get('idle'))
   const zoom = Number(params.get('zoom'))
   return (
     <TouchDevice
       audience={audience}
       {...(params.get('layout') === 'kiosk' ? { layout: 'kiosk' as const } : {})}
       {...(Number.isFinite(zoom) && zoom > 0 ? { zoom } : {})}
-      {...(Number.isFinite(idleSeconds) && idleSeconds > 0 ? { idleTimeoutMs: idleSeconds * 1_000 } : {})}
       {...(params.get('details') === null ? {} : { showDetailsAfterSolution: true })}
     />
   )

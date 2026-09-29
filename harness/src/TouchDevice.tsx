@@ -10,13 +10,11 @@ import { useLocalRuntime } from './useLocalRuntime'
 
 export function TouchDevice({
   audience,
-  idleTimeoutMs,
   showDetailsAfterSolution,
   layout,
   zoom,
 }: {
   audience: string
-  idleTimeoutMs?: number
   /**
    * How small the host wants the composition - the setting a media table
    * makes so a person standing at it can take the whole screen in. It is the
@@ -53,7 +51,6 @@ export function TouchDevice({
       audience={audience}
       {...(layout === undefined ? {} : { layout })}
       {...(zoom === undefined ? {} : { zoom })}
-      {...(idleTimeoutMs === undefined ? {} : { idleTimeoutMs })}
     />
   )
 }

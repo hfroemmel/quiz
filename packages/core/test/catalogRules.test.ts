@@ -8,9 +8,8 @@
  * desk announce the constant. A screen reader then read out a number nothing
  * in the room used.
  *
- * The other two values were already here and stay: the idle watch runs in the
- * device, and whether the background gets its own step after the solution is a
- * question of the interface.
+ * The other value was already here and stays: whether the background gets its
+ * own step after the solution is a question of the interface.
  */
 import { describe, expect, it } from 'vitest'
 import { LocalQuizRuntime, loadQuizPackage, scoringRules } from '../src'

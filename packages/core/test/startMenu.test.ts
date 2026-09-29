@@ -66,7 +66,6 @@ describe('rules of the package', () => {
     expect(rules.timing).toEqual(gameTiming)
     expect(rules.selfServiceTiming).toEqual(selfServiceTiming)
     expect(rules.jokersEnabled).toBe(true)
-    expect(rules.idleTimeoutMs).toBeUndefined()
     expect(rules.showDetailsAfterSolution).toBe(false)
   })
 
@@ -89,20 +88,18 @@ describe('rules of the package', () => {
     expect(resolveRules({ jokers: { enabled: false } }).jokersEnabled).toBe(false)
   })
 
-  it('carries the three rules a client needs into the catalogue', () => {
+  it('carries the two rules a client needs into the catalogue', () => {
     const plain = catalogOf(testConfig)
     expect(plain.rules).toEqual({ showDetailsAfterSolution: false, manualAdjustmentStep: 50 })
 
     const configured = catalogOf({
       ...testConfig,
       rules: {
-        idleTimeoutMs: 90_000,
         showDetailsAfterSolution: true,
         scoring: { manualAdjustmentStep: 10 },
       },
     })
     expect(configured.rules).toEqual({
-      idleTimeoutMs: 90_000,
       showDetailsAfterSolution: true,
       manualAdjustmentStep: 10,
     })
