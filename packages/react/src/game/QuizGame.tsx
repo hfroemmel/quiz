@@ -21,7 +21,7 @@ import { releaseAudio } from '../presentation/soundCues'
 import { textsFor } from '../presentation/texts'
 import { themeForSkin, useQuizChrome, useQuizTheme } from '../presentation/QuizProvider'
 import { useAudioUnlock } from '../presentation/useAudioUnlock'
-import { useStageTheme } from '../presentation/stageTheme'
+import { useStageTheme, type StageTheme } from '../presentation/stageTheme'
 import { useQuizRuntime } from '../client/useQuizRuntime'
 import { useQuizSnapshot } from '../client/useQuizSnapshot'
 import { themeVariables } from '@hfroemmel/quiz-themes'
@@ -126,6 +126,20 @@ export interface QuizGameProps {
    */
   renderAfterSolution?: (step: { details: string; onContinue: () => void }) => ReactNode
   /**
+   * WHICH OF THE HOUSE'S QUIZZES ARE PLAYED IN WHICH COLOUR VARIANT - keyed by
+   * quiz id, exactly as `StageScreen` takes it, and for the same reason.
+   *
+   * This device picks its quiz itself, which is why it gets the whole table
+   * rather than one variant: a host renders it once for the evening and cannot
+   * know at that moment which quiz the players will start.
+   *
+   * IT APPLIES TO THE RUNNING GAME, not to the selection in front of it - the
+   * same rule the design world follows here. The menu belongs to the audience
+   * this device stands in, and a menu that had already turned blue would
+   * promise a quiz nobody has started yet.
+   */
+  quizThemes?: Readonly<Record<string, StageTheme>>
+  /**
    * WHICH ARRANGEMENT THIS DEVICE DRAWS AROUND THE GAME.
    *
    *   live    the device of a live event: score card and buzzer sit together
@@ -157,6 +171,7 @@ export function QuizGame({
   overlay,
   renderAfterSolution,
   layout = 'live',
+  quizThemes,
 }: QuizGameProps) {
   // Without a host runtime, its own connection; with one, none.
   const own = useQuizRuntime<PlayerQuizViewModel>(hostRuntime ? null : 'player')
@@ -492,7 +507,8 @@ export function QuizGame({
    * a dark device has designed it dark, and the light-or-dark preference of a
    * window applies where no host says otherwise.
    */
-  const variant = skin === 'kids' ? 'kids' : (ownTheme?.base ?? stageTheme)
+  const quizTheme = hasGame && !showChoice && view.quizId ? quizThemes?.[view.quizId] : undefined
+  const variant = skin === 'kids' ? 'kids' : (quizTheme ?? ownTheme?.base ?? stageTheme)
   /*
    * WHAT THE ROOM IS LIKE, in one word: a host that recolours its own control
    * bar around the quiz needs to know whether it stands on paper or in the

@@ -1,5 +1,57 @@
 # @hfroemmel/quiz-themes
 
+## 0.28.0
+
+### Minor Changes
+
+- The Europe variant of the stage - and a quiz may bring its own colour.
+  
+  THE VARIANT. Beside light, dark and red there is now a fourth: the adults'
+  stage on the deep blue of the European flag. It is built the way the red one
+  is, as the dark world with its ground exchanged, and it names nothing beyond
+  that - the meaning colours, the type and the quiet steps stay the dark
+  variant's, because that is what this is a version of.
+  
+  Two things are its own. The tiles carry the GROUND rather than a tone of their
+  own: the red variant had to darken its tiles because white veils over that red
+  turn milky, this blue is dark enough that they do not, and the design asks for
+  one flat blue across the whole picture. And the ink on its strong areas is the
+  GOLD of the same flag - by the red variant's reasoning the dark ink would
+  belong there, but the second colour of this variant has to be somewhere, and
+  the score card of the player on turn is where the room actually looks.
+  
+  AND A QUIZ MAY NAME IT. `StageScreen` and `QuizGame` take a `quizThemes` table
+  now, keyed by quiz id: while one of those quizzes runs, the stage carries the
+  variant the table gives it, and every other quiz keeps the variant the window
+  is set to. Nothing is written to storage, so the preference stands untouched
+  and applies again the moment that quiz ends.
+  
+  That is what this is for. The Europe quiz is played on the blue of its flag,
+  and nobody at the desk should have to remember to switch the box before
+  starting it - or, worse, to switch it back afterwards on an evening where the
+  next quiz is a different one. The host writes the table because the variant
+  belongs to a quiz of a particular house; this package reads `view.quizId` and
+  still derives nothing from it on its own. On the device the table applies to
+  the running game and not to the selection in front of it, the same rule the
+  design world already follows there.
+  
+  THE VARIANT LIST GREW BY ONE, and a host that names its variants in a complete
+  record (`Record<StageTheme, string>`, as the select box at the desk does) will
+  see a compile error until it gives the new one a name. That is the point of
+  that record - a box built from a list of its own once offered a variant the
+  installed package did not know, and the choice did nothing.
+  
+  AND THE OFFER OVERVIEW STANDS ON A GREY. In the dark variant its ground was
+  pure black, on the grounds that the poster is not the stage. In the room the
+  two are seen one after the other, though, and a black poster in front of a
+  stage whose page is `#111` read as the projector switching off between them.
+  It is the next step of the same grey ladder now - light enough to be a surface,
+  dark enough that the cards keep every bit of their contrast.
+
+### Patch Changes
+
+- @hfroemmel/quiz-core@0.28.0
+
 ## 0.27.10
 
 ### Patch Changes

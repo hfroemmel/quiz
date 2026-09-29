@@ -15,11 +15,16 @@ import { describe, expect, it } from 'vitest'
 import { federalValues } from '../src/federalSpectrum'
 import {
   brightPalette,
+  brightStageExtras,
   brightStartPalette,
   darkQuizSelectPalette,
+  europePalette,
+  europeStageExtras,
+  europeStartPalette,
   quizSelectPalette,
   redPalette,
   redQuizSelectPalette,
+  redStageExtras,
   redStartPalette,
   stageExtras,
   stagePalettes,
@@ -180,7 +185,10 @@ describe('the federal colour spectrum', () => {
    *            and the start button - with #A8E063, #B7F0A1 and #5A9E2B as
    *            its grades in the start menu.
    *   #333333  the ink on a light chip, #999999 the muted text on paper.
-   *   #003399  the card of the Europe quiz, in the blue that quiz is about.
+   *   #003399  the card of the Europe quiz and the ground of its variant, in
+   *            the blue that quiz is about.
+   *   #FFCC00  the gold that goes on that blue - the second colour of the same
+   *            flag, and the ink of that variant's strong areas.
    *
    * THE LIST IS THE POINT. Each value is here by name, so a colour that
    * nobody chose deliberately still cannot enter - and dropping one of these
@@ -195,6 +203,7 @@ describe('the federal colour spectrum', () => {
     '#B7F0A1',
     '#5A9E2B',
     '#003399',
+    '#FFCC00',
     '#999999',
     /* The offer overview: ink, its quiet step, and the icon of a card. */
     '#000',
@@ -238,7 +247,16 @@ describe('the federal colour spectrum', () => {
     'stage, dark': stagePalettes.default,
     'stage, light': brightPalette as Record<string, string>,
     'stage, red': redPalette as Record<string, string>,
+    'stage, Europe': europePalette as Record<string, string>,
     'stage extras': stageExtras as unknown as Record<string, string>,
+    /*
+     * The three variants name a stage token of their own, and the ink of the
+     * Europe one is a colour nothing else in the house carries. They are
+     * surfaces like any other here - a variant is not a place the rule stops.
+     */
+    'stage extras, light': brightStageExtras as unknown as Record<string, string>,
+    'stage extras, red': redStageExtras as unknown as Record<string, string>,
+    'stage extras, Europe': europeStageExtras as unknown as Record<string, string>,
     'offer overview': quizSelectPalette as unknown as Record<string, string>,
     'offer overview, dark': darkQuizSelectPalette as unknown as Record<string, string>,
     'offer overview, red': redQuizSelectPalette as unknown as Record<string, string>,
@@ -246,6 +264,7 @@ describe('the federal colour spectrum', () => {
     'start menu': startPalette as unknown as Record<string, string>,
     'start menu, light': brightStartPalette as unknown as Record<string, string>,
     'start menu, red': redStartPalette as unknown as Record<string, string>,
+    'start menu, Europe': europeStartPalette as unknown as Record<string, string>,
   }
 
   for (const [name, palette] of Object.entries(surfaces)) {
@@ -265,7 +284,7 @@ describe('the federal colour spectrum', () => {
     })
   }
 
-  it('carries the commissioned ground and its tile - the two tones the spectrum does not have', () => {
+  it('carries the commissioned ground, its tile and the flag pair - the tones the spectrum does not have', () => {
     /*
      * The counter-test to the exception. It reads the ground from all three
      * palettes that show it, because they read one constant and a copy in one
@@ -288,6 +307,25 @@ describe('the federal colour spectrum', () => {
     expect(redPalette.tileDisabled).toBe(redPalette.tile)
     expect(redPalette.tileQuiet).toBe(redPalette.tile)
     expect(legal.has('#A22644')).toBe(false)
+
+    /*
+     * AND THE SAME FOR THE EUROPE VARIANT, for the same reason: its blue is
+     * read by a card in the overview, by the stage's ground and by the start
+     * screen in front of it, and the day those three stop being one constant
+     * is the day the poster and the stage show two different blues.
+     */
+    expect(europePalette.pageTop).toBe('#003399')
+    expect(europeStartPalette['bg-top']).toBe('#003399')
+    expect(quizSelectPalette['card-europe']).toBe('#003399')
+    expect(legal.has('#003399')).toBe(false)
+    /* Its tiles ARE the ground - this variant is one flat blue, not a blue with surfaces on it. */
+    expect(europePalette.tile).toBe(europePalette.pageTop)
+    expect(europePalette.tileDisabled).toBe(europePalette.tile)
+    expect(europePalette.tileQuiet).toBe(europePalette.tile)
+    expect(europePalette.option).toBe(europePalette.tile)
+    /* And the ink on its strong areas is the gold of the same flag. */
+    expect(europeStageExtras.inkOnStrong).toBe('#FFCC00')
+    expect(legal.has('#FFCC00')).toBe(false)
 
     const outsiders = new Set<string>()
     for (const palette of Object.values(surfaces)) {

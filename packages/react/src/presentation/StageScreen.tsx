@@ -32,7 +32,7 @@ import { StageHeader, type StageHeaderSlots } from './stage/StageHeader'
 import { Mascot } from './stage/Mascot'
 import { kidsPreloadImages } from './stage/kidsAssets'
 import { useQuizTheme } from './QuizProvider'
-import { useStageTheme } from './stageTheme'
+import { useStageTheme, type StageTheme } from './stageTheme'
 import { useDecodedImage } from './useDecodedImage'
 import stage from './stage/Stage.module.css'
 import type { SceneAnswering, SceneProps } from './scenes/sceneProps'
@@ -83,6 +83,32 @@ export interface StageScreenProps {
   pads?: { bottom?: ReactNode; overlay?: ReactNode }
   /** Only on the touch device: turns the scene's answer rows into buttons. */
   answering?: SceneAnswering
+  /**
+   * WHICH OF THE HOUSE'S QUIZZES ARE PLAYED IN WHICH COLOUR VARIANT.
+   *
+   * Keyed by quiz id, and only the quizzes that have a colour of their own need
+   * to stand in it. While one of them runs, the stage carries that variant; for
+   * every other quiz, and whenever this table is left out, the variant the
+   * window is set to applies (`useStageTheme`) - a viewing preference of
+   * whoever operates it.
+   *
+   * WHAT IT IS FOR. The Europe quiz is played on the blue of its flag, and
+   * nobody at the desk should have to remember to switch the box before
+   * starting it - or, worse, to switch it back afterwards, on an evening where
+   * the next quiz is a different one.
+   *
+   * WHY THE HOST WRITES THE TABLE AND THIS PACKAGE ONLY READS IT. The variant
+   * belongs to a quiz of a particular house, and this package does not know
+   * that house's quizzes; `view.quizId` is a name it carries and derives
+   * nothing from on its own. The host already says a quiz's colour in its own
+   * stylesheet, on the card in the offer overview - this is the same statement
+   * for the stage, in the same shape.
+   *
+   * IT IS NOT REMEMBERED. Nothing is written to the window's storage, so the
+   * preference stands untouched and applies again the moment this quiz ends -
+   * which is the whole reason this is a table and not a call to the setter.
+   */
+  quizThemes?: Readonly<Record<string, StageTheme>>
 }
 
 export function StageScreen({
@@ -95,6 +121,7 @@ export function StageScreen({
   headerSlots,
   pads,
   answering,
+  quizThemes,
 }: StageScreenProps) {
   const reveal = useRevealClock(view.reveal, view.serverTimeMs, serverNow)
   /*
@@ -172,8 +199,14 @@ export function StageScreen({
    */
   const hostTheme = useQuizTheme()
   const ownTheme = hostTheme && hostTheme.skin === skin ? hostTheme : null
-  // The children's world brings its own paper - there is nothing to choose there.
-  const theme = kids ? null : (ownTheme?.base ?? stageTheme)
+  /*
+   * The children's world brings its own paper - there is nothing to choose
+   * there. Otherwise the most specific statement wins: what the host says about
+   * THIS quiz, then what a host theme says about this world, then the window's
+   * own preference.
+   */
+  const quizTheme = view.quizId ? quizThemes?.[view.quizId] : undefined
+  const theme = kids ? null : (quizTheme ?? ownTheme?.base ?? stageTheme)
 
   /*
    * Preload the children's world's drawings into the browser cache once.

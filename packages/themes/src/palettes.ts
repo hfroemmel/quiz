@@ -62,9 +62,9 @@ const redTile = '#a22644'
  * The signals, the grades of the start menu, the ink on a chip and the card
  * of the Europe quiz name values of their own: a cyan the light start menu
  * marks its selection with, one green in four grades where `Gruen` stood, and
- * the European blue on its card. They are written out because there is
- * nothing to derive them from - no step lies close enough to call this a
- * rounding.
+ * the European blue with the gold that goes on it. They are written out
+ * because there is nothing to derive them from - no step lies close enough to
+ * call this a rounding.
  *
  * THEY STAND HERE AND NOWHERE ELSE. Six of them are read by more than one
  * palette (the stage, its light variant, the start menu), and a copy in one
@@ -79,6 +79,16 @@ const houseGreenLight = '#b7f0a1'
 const houseGreenDeep = '#5a9e2b'
 const houseRed = '#ca2f56'
 const europeBlue = '#003399'
+/*
+ * And the gold that goes ON that blue - the second colour of the same flag.
+ *
+ * It exists because the Europe variant needs an ink for its strong areas, and
+ * on this blue neither of the two inks the house owns will do: black sinks
+ * into it, white is the card's ink and would make the marked answer look like
+ * every other line. The flag names the pair, so the pair is what the variant
+ * uses.
+ */
+const europeGold = '#FFCC00'
 const brightInkMuted = '#999999'
 /*
  * THE GROUND OF THE DARK STAGE, in three plain greys, and the tones that sit
@@ -325,6 +335,40 @@ export const redPalette: Partial<DesignColors> = {
 }
 
 /**
+ * THE EUROPE VARIANT - the dark stage on the blue of the flag.
+ *
+ * It is built the way the red one is: the dark world with its ground
+ * exchanged, and nothing else. Everything the stage needs beyond these few
+ * values - the meaning colours, the type, the quiet steps - stays the dark
+ * variant's, because that is what this one is a version of.
+ *
+ * AND HERE THE TILES CARRY THE GROUND ITSELF. The red variant had to darken
+ * its tiles: white veils over that red turn milky, so a tile read as a pale
+ * patch instead of a surface. This blue is dark enough that the veils do what
+ * they were drawn to do, but the design asks for one flat blue across the
+ * whole picture - a screen that is the flag, not a screen with tiles on it.
+ * All four therefore take the ground, and what tells a tile from the page is
+ * the edge and the type on it.
+ *
+ * It is one value in ten places rather than one value and a rule, because
+ * that is what the generated stylesheet has to say: every token a variant
+ * does not name is inherited from the dark stage, and an unnamed tile would
+ * be a white veil on blue.
+ */
+export const europePalette: Partial<DesignColors> = {
+  pageTop: europeBlue,
+  pageBottom: europeBlue,
+  stageTop: europeBlue,
+  stageBottom: europeBlue,
+  controls: europeBlue,
+
+  tile: europeBlue,
+  tileDisabled: europeBlue,
+  tileQuiet: europeBlue,
+  option: europeBlue,
+}
+
+/**
  * Stage colours that belong to no theme.
  *
  * They don't describe a theme but a physical situation: text sitting on a
@@ -527,11 +571,17 @@ export const quizSelectPalette = {
  */
 export const darkQuizSelectPalette = {
   /*
-   * The poster keeps the ground it was drawn on. The stage's own page is a
-   * plainer grey now (`houseInk`); this surface is not the stage, and the
-   * spectrum's deepest `Dunkelgrau` is what its cards were measured against.
+   * THE POSTER STANDS ON A GREY, NOT ON BLACK.
+   *
+   * It was the pure black it had been drawn on, on the grounds that this
+   * surface is not the stage. In the room the two are seen one after the
+   * other, though - the offer for as long as no game runs, the stage the
+   * moment one starts - and a black poster in front of a stage whose page is
+   * `houseInk` read as the projector switching off between them. This is the
+   * next step up of the same grey ladder: light enough to be a surface, dark
+   * enough that the cards on it keep every bit of their contrast.
    */
-  page: houseBlack,
+  page: houseInkSoft,
   ink: houseWhite,
   'ink-quiet': stagePalettes.default.textMuted,
   shadow: stageExtras.cardShadow,
@@ -905,6 +955,23 @@ export const redStartPalette = {
 } as const
 
 /**
+ * And the Europe version of it, for the same reason and in the same shape.
+ *
+ * The screen in front of the stage carries the ground of the variant behind
+ * it, or the room sees two different blues in the same second - one on the
+ * board and one around it. The two lights go out here as well: they give an
+ * almost black surface its depth, and a flat flag blue is not a surface that
+ * wants depth.
+ */
+export const europeStartPalette = {
+  'bg-top': europeBlue,
+  'bg-mid': europeBlue,
+  'bg-bottom': europeBlue,
+  'ambient-left': 'transparent',
+  'ambient-right': 'transparent',
+} as const
+
+/**
  * The children's world names its own light ink - twice, and both times for a
  * screen that stands OUTSIDE the stage.
  *
@@ -947,6 +1014,16 @@ export const kidsStartStage = { inkOnStrong: houseWhite } as const
  */
 export const brightStageExtras = { inkOnStrong: houseWhite } as const
 export const redStageExtras = { inkOnStrong: houseBlack } as const
+/*
+ * AND IN THE EUROPE VARIANT IT IS THE GOLD OF THE FLAG. Its strong areas are
+ * the dark world's - the near-white primary and the white accent - so by the
+ * red variant's reasoning the dark ink would belong here. The flag decides
+ * otherwise: the second colour of this variant exists, it has to be somewhere,
+ * and the score card of the player on turn is where the room actually looks.
+ * Gold on near-white carries far enough to read at the back of a hall, and it
+ * says which quiz is running without a word.
+ */
+export const europeStageExtras = { inkOnStrong: europeGold } as const
 export const kidsOverviewStart = { 'ink-on-selected': houseWhite } as const
 
 /**

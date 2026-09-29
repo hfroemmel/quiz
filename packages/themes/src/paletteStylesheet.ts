@@ -25,21 +25,23 @@
  *                                  on the frame, and a declaration of its
  *                                  own beats an inherited value.
  *   .stage--default.stage--red     the red variant, for the same reason and in
- *                                  the same place. It names the ground and the
- *                                  ink that goes on a strong area; everything
- *                                  else stays the dark variant's, which is
- *                                  where it comes from.
+ *   .stage--default.stage--europe  the same place. Each names the ground and
+ *                                  the ink that goes on a strong area;
+ *                                  everything else stays the dark variant's,
+ *                                  which is where both come from.
  *
- *                                  BOTH VARIANTS CARRY A `--stage-` VALUE in
- *                                  their `--color-` rule, and that is the
+ *                                  EVERY VARIANT CARRIES A `--stage-` VALUE in
+ *                                  its `--color-` rule, and that is the
  *                                  point: `inkOnStrong` is emitted once, into
  *                                  the fallback layer, so a variant that wants
  *                                  another one has to say so where its own
  *                                  declarations beat the inherited value. The
  *                                  red one says the dark stage's, whose strong
- *                                  areas it keeps - see `redStageExtras`.
- *   [data-quiz-game][data-theme]   the light and the red variant of the start
- *                                  screen. It sits ABOVE the stage and
+ *                                  areas it keeps; the Europe one says the gold
+ *                                  of its flag - see `redStageExtras` and
+ *                                  `europeStageExtras`.
+ *   [data-quiz-game][data-theme]   the light, the red and the Europe variant of
+ *                                  the start screen. It sits ABOVE the stage and
  *                                  therefore cannot read its class; the
  *                                  variant sits on the device's root element
  *                                  as an attribute. A data attribute and not a
@@ -69,6 +71,9 @@ import {
   brightStageExtras,
   brightStartPalette,
   darkQuizSelectPalette,
+  europePalette,
+  europeStageExtras,
+  europeStartPalette,
   kidsOverviewStart,
   kidsStartStage,
   quizSelectPalette,
@@ -129,6 +134,14 @@ export function paletteStyleSheet(): string {
       ...prefixed(redPalette as Record<string, string>, 'color-'),
       ...prefixed(redStageExtras as Record<string, string>, 'stage-'),
     }),
+    '',
+    '/* Europe version of the adults stage - the dark one with its ground exchanged. */',
+    block('.stage--default.stage--europe', {
+      ...prefixed(europePalette as Record<string, string>, 'color-'),
+      ...prefixed(europeStageExtras as Record<string, string>, 'stage-'),
+    }),
+    '',
+    block("[data-quiz-game][data-theme='europe']", prefixed(europeStartPalette as Record<string, string>, 'start-')),
     '',
     '/* Light version of the start selection in front of it - only what differs from the dark one. */',
     block("[data-quiz-game][data-theme='bright']", prefixed(brightStartPalette as Record<string, string>, 'start-')),

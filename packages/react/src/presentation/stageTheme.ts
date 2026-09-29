@@ -1,5 +1,5 @@
 /**
- * Which colour variant of the stage is on show - light, dark or red.
+ * Which colour variant of the stage is on show - light, dark, Europe or red.
  *
  * WHAT THIS IS AND WHAT IT IS NOT: it is a viewing preference of the person
  * operating it, not game state. The server knows nothing about it, it is not
@@ -10,6 +10,13 @@
  * ONLY THE ADULTS' STAGE knows these versions. The children's world is its own
  * design world with its own paper and its own drawings; it is not touched by
  * the choice.
+ *
+ * AND A QUIZ MAY BRING ITS OWN. A host that names a variant for one of its
+ * quizzes (`quizThemes` on `StageScreen` and `QuizGame`) overrides this
+ * preference while that quiz runs, and only while it runs: nothing here is
+ * written, so what the window was set to stands again afterwards. The Europe
+ * quiz is the case this exists for - it is played on the blue of its flag,
+ * whatever the box at the desk says.
  *
  * THE LIST IS THE OFFER, AND IN THIS ORDER. Whoever adds a variant adds it
  * here, and every place that shows the choice grows by one option on its own -
@@ -23,7 +30,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 
-export const stageThemes = ['bright', 'dark', 'red'] as const
+export const stageThemes = ['bright', 'dark', 'europe', 'red'] as const
 export type StageTheme = (typeof stageThemes)[number]
 
 const STORAGE_KEY = 'quiz.stageTheme'

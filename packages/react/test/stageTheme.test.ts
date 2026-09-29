@@ -14,8 +14,8 @@ import { describe, expect, it } from 'vitest'
 import { stageThemeFrom, stageThemes, type StageTheme } from '../src/presentation/stageTheme'
 
 describe('Colour variant of the stage', () => {
-  it('offers light, dark and red - in the order a box shows them', () => {
-    expect(stageThemes).toEqual(['bright', 'dark', 'red'])
+  it('offers light, dark, Europe and red - in the order a box shows them', () => {
+    expect(stageThemes).toEqual(['bright', 'dark', 'europe', 'red'])
   })
 
   it('gives every name of the offer back as itself', () => {
