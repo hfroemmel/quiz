@@ -155,7 +155,7 @@
 }
 :global(.stage--default) .chip {
   min-width: 3.4cqw;
-  padding: 0.8cqw 0 0.7cqw;
+  padding: 0.8cqw 0 0.4cqw 0;
   background: var(--color-tile);
   border-radius: var(--stage-radius);
   border-top-right-radius: 0;
