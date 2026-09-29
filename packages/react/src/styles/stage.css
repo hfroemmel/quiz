@@ -106,7 +106,7 @@
   --scene-gap: 2cqw;
   --scene-pad: 3cqw;
   --scene-align: center;
-  --scene-text-align: center;
+  --scene-text-align: left;
 
   /*
    * STAGE BUTTONS - ONE MEASURE FOR ALL.

@@ -139,6 +139,28 @@
   --stage-inkOnStrong: #000;
 }
 
+/* Europe version of the adults stage - the dark one with its ground exchanged. */
+.stage--default.stage--europe {
+  --color-pageTop: #003399;
+  --color-pageBottom: #003399;
+  --color-stageTop: #003399;
+  --color-stageBottom: #003399;
+  --color-controls: #003399;
+  --color-tile: #003399;
+  --color-tileDisabled: #003399;
+  --color-tileQuiet: #003399;
+  --color-option: #003399;
+  --stage-inkOnStrong: #FFCC00;
+}
+
+[data-quiz-game][data-theme='europe'] {
+  --start-bg-top: #003399;
+  --start-bg-mid: #003399;
+  --start-bg-bottom: #003399;
+  --start-ambient-left: transparent;
+  --start-ambient-right: transparent;
+}
+
 /* Light version of the start selection in front of it - only what differs from the dark one. */
 [data-quiz-game][data-theme='bright'] {
   --start-primary: #000000;
@@ -191,7 +213,7 @@
 
 /* The offer overview on a dark and on a red ground - the cards stay as they are. */
 [data-quiz-overview][data-theme='dark'] {
-  --quiz-select-page: #000;
+  --quiz-select-page: #232323;
   --quiz-select-ink: #fff;
   --quiz-select-ink-quiet: rgb(255 255 255 / 0.6);
   --quiz-select-shadow: rgb(0 0 0 / 0.2);
