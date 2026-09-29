@@ -1,5 +1,33 @@
 # @hfroemmel/quiz-react
 
+## 0.29.3
+
+### Patch Changes
+
+- The congratulation steps onto the stage.
+  
+  `result.winner` was the hidden label in front of the result heading - one
+  clipped pixel, read aloud and never seen. On a win it now stands where it was
+  always written: the small line above, the name of whoever won below, in the
+  same two voices the question board and the in-between card already use - the
+  sans of the stage over its serif, and the children's world in its own hand.
+  
+  ON A DRAW IT STAYS HIDDEN, and that is the point of doing this per state
+  rather than per element. The draw's label and its heading are the same word
+  twice ("Unentschieden" over "Unentschieden!"), and a room reads a line
+  repeated under itself as a fault, not as emphasis. The single-player round is
+  the same case ("Ergebnis" over "X von Y richtig").
+  
+  Hidden never means gone: in both of those cases the element keeps its place in
+  the markup and its text, is still announced, and still carries the handle the
+  tests hold it by (`data-result-label`). What the state switches is only
+  whether it also weighs on the stage.
+  
+  WHOEVER RE-RECORDS THE REFERENCE IMAGES will find the result scene one line
+  taller than its baseline. That is this change and not a regression.
+- @hfroemmel/quiz-core@0.29.3
+  - @hfroemmel/quiz-themes@0.29.3
+
 ## 0.29.2
 
 ### Patch Changes
