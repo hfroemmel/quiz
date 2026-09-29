@@ -86,7 +86,7 @@
  * ------------------------------------------------------------------ */
 
 :global(.stage--default) .cell {
-  width: 7cqw;
+  min-width: 7cqw;
   padding: 1cqw 2cqw 0.6cqw;
   /* A veil over the ground: semi-transparent, no blur, no border. */
   background: var(--color-tile);
@@ -130,7 +130,7 @@
 /* Results view: the same card, bigger. */
 :global(.stage--default) .result .cell {
   min-width: 9cqw;
-  padding: 1cqw 2cqw 1.4cqw;
+  padding: 1.4cqw 2cqw 1cqw;
 }
 :global(.stage--default) .result .label {
   font-size: 1.2cqw;

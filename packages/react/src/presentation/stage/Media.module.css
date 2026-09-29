@@ -77,6 +77,10 @@
   pointer-events: none;
 }
 
+.credit::before {
+  content: "Quelle: ";
+}
+
 /* Room for a mascot peeking in - only the kids' world fills it. */
 .peek {
   position: absolute;
