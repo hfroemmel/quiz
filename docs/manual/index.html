@@ -903,7 +903,6 @@ export function App() {
       <tr><td class="mono">soundEnabled</td><td>Sound at startup. Without it, whatever was last set on the device</td></tr>
       <tr><td class="mono">zoom</td><td>0.6 to 1. Shrinks the scene toward the centre for very large touch tables</td></tr>
       <tr><td class="mono">locale</td><td>Language at startup &mdash; see step&nbsp;12</td></tr>
-      <tr><td class="mono">idleTimeoutMs</td><td>Return to the start screen after this long untouched</td></tr>
       <tr><td class="mono">onFinished</td><td>Called with the result &mdash; for your own leaderboard</td></tr>
       <tr><td class="mono">onExit</td><td>A way back into your application. Omitted, there is no way back &mdash; the kiosk case</td></tr>
     </tbody>
@@ -1186,7 +1185,6 @@ import { houseTheme } from './theme'
       "questionLeadInMs": 4000
     },
     "jokers": { "enabled": false },
-    "idleTimeoutMs": 120000,
     "showDetailsAfterSolution": true
   }
 }</code></pre>
@@ -1203,7 +1201,6 @@ import { houseTheme } from './theme'
       <tr><td class="mono">imageRevealDurationMs</td><td>3000&ndash;60000</td><td>How long a picture takes to sharpen fully</td></tr>
       <tr><td class="mono">questionLeadInMs</td><td>0&ndash;15000</td><td>Self-service only: the question alone before the answers appear</td></tr>
       <tr><td class="mono">jokers.enabled</td><td>boolean</td><td><code>false</code> starts games with no joker supply, and no view offers one</td></tr>
-      <tr><td class="mono">idleTimeoutMs</td><td>0&ndash;3600000</td><td>Back to the start screen after this long untouched. <code>0</code> switches the watch off</td></tr>
       <tr><td class="mono">showDetailsAfterSolution</td><td>boolean</td><td>Turns <code>explanation.details</code> into a step of its own after the solution</td></tr>
     </tbody>
     <caption>A self-service game never has jokers regardless of the rule: nobody is standing at a desk to draw one.</caption>
@@ -1238,7 +1235,6 @@ import { houseTheme } from './theme'
         audience="adults"
         onExit={onBack}
         onFinished={(result) =&gt; save(result)}
-        idleTimeoutMs={0}
       /&gt;
     &lt;/QuizProvider&gt;
   )
@@ -1307,8 +1303,9 @@ import { houseTheme } from './theme'
     <li>Every asset has a <code>credit</code>. All of them, not most.</li>
     <li>The slot coverage in the build report shows enough candidates per slot that a visitor playing
     three rounds does not meet the same question twice.</li>
-    <li>If the installation is unattended: <code>idleTimeoutMs</code> is set, and every slot of every
-    offered preset filters <code>option-comparison</code>.</li>
+    <li>If the installation is unattended: every slot of every offered preset filters
+    <code>option-comparison</code> &mdash; there is nobody to judge a spoken answer, and nothing
+    ends a round on its own either.</li>
     <li>If a second language is offered: every quiz, preset, audience and category has its
     <code>labels</code>, and every question its <code>translations</code>. A half-translated round is worse
     than a monolingual one.</li>
