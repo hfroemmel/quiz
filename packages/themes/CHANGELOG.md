@@ -1,5 +1,38 @@
 # @hfroemmel/quiz-themes
 
+## 0.29.1
+
+### Patch Changes
+
+- The Europe variant gets its second colour - and a step between ground and surface.
+  
+  It went out as one flat blue: page, stage, tiles and answer bars all on
+  `#003399`, with the gold used as the ink on the dark world's strong areas.
+  That was a screen that IS the flag and not much else - a surface was told from
+  the page by its edge alone, and the gold appeared only where a near-white
+  score card happened to be.
+  
+  THE SURFACES ARE A SECOND STEP OF THE BLUE NOW (`#002673`): tiles, the answer
+  bar and the letter chip are cut from it, the ground keeps the flag's own blue.
+  Not a white veil over it - over this blue a veil turns milky and reads as a
+  pale patch, the same thing that made the red variant name a tile tone of its
+  own.
+  
+  AND THE GOLD IS THE ACCENT. What marks the player on turn and the answer a
+  hand is on is gold, the way onward is a plain white button with black writing,
+  and what writes on all of that is the deep blue the surfaces are cut from -
+  black on gold is a warning sign, white on gold is illegible. A room that sees
+  this stage for a second knows which quiz is running.
+  
+  The two held-back steps keep their colour and lose only force (`#002673a7`,
+  `#ffcc00a7`). They are written as an eight-digit hex rather than through
+  `veil()`, because a veil takes on whatever lies beneath it: that is right for
+  the white veils of the dark stage and wrong on a ground that IS a colour. The
+  guard test reads such a value through the tone underneath it now - the alpha is
+  no more a colour written this way than it is in a veil - so the house list
+  names the blue once instead of naming it twice, whole and dimmed.
+- @hfroemmel/quiz-core@0.29.1
+
 ## 0.29.0
 
 ### Minor Changes
