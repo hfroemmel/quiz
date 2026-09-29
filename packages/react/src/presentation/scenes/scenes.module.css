@@ -172,16 +172,48 @@
   justify-content: center;
   --scene-gap: 1.2cqw;
 }
+/*
+ * THE LABEL OVER THE RESULT - hidden by default, shown where it has something
+ * of its own to say.
+ *
+ * WHY HIDDEN IS THE DEFAULT. On a draw and after a single-player round the
+ * label repeats its own headline ("Unentschieden" over "Unentschieden!"), and
+ * a line that says the same thing twice reads as a fault. It stays in the
+ * markup nonetheless: it is read aloud, and the tests hold on to it. The one
+ * pixel is not a size but the smallest that is still announced - it scales
+ * with nothing.
+ */
 .resultLabel {
-  /* The statement sits in the heading; the label is kept for tests and
-     screen readers, without weighing on the stage. The one pixel is not a
-     size but the smallest that is still read aloud - it scales with
-     nothing. */
   position: absolute;
   width: 1px;
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+}
+/*
+ * AND ON A WIN IT STANDS THERE. The congratulation above, the name of whoever
+ * won below - the same pairing the question board and the in-between card use,
+ * and therefore the same two voices: the small line in the sans of the stage,
+ * the statement under it in its serif.
+ *
+ * Every property of the hidden state is undone explicitly rather than by
+ * dropping the rule above. The two states are one element, and an element that
+ * is still absolutely positioned would sit over the headline instead of above
+ * it - which is exactly the kind of leftover that only shows up on the evening
+ * somebody wins.
+ */
+.resultLabel[data-shown='true'] {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 1.5cqw;
+  font-weight: 700;
+  line-height: 1.2;
 }
 .resultWinner {
   margin: 0;
@@ -239,6 +271,9 @@
 :global(.stage--kids) .scene,
 :global(.stage--kids) .feedbackLabel,
 :global(.stage--kids) .resultWinner,
+/* The congratulation is written by hand here too - printed sans in a drawn room
+   would be the only typeset line on the paper. */
+:global(.stage--kids) .resultLabel,
 :global(.stage--kids) .pauseProgress,
 :global(.stage--kids) .pauseCategory,
 :global(.stage--kids) .startTitle,

@@ -263,12 +263,28 @@ test.describe('Visual smoke tests of all scenes', () => {
 
   test('result scene shows confetti only with a winner', async ({ page }) => {
     await selectScene(page, 'result')
-    await expect(page.locator('[data-result-label]')).toHaveText('Gewinner')
+    await expect(page.locator('[data-result-label]')).toHaveText('Herzlichen Glückwunsch.')
     await expect(page.locator('[data-confetti]')).toHaveCount(1)
 
     await page.getByRole('checkbox', { name: 'Unentschieden (kein Konfetti)' }).check()
     await expect(page.locator('[data-result-label]')).toHaveText('Unentschieden')
     await expect(page.locator('[data-confetti]')).toHaveCount(0)
+  })
+
+  /*
+   * THE CONGRATULATION IS ON THE STAGE, THE DRAW IS NOT. Both labels stand in
+   * the markup and both are read aloud; only the win is also meant to be seen,
+   * because the draw's label would repeat its own headline.
+   */
+  test('result scene shows the label on a win and hides it on a draw', async ({ page }) => {
+    await selectScene(page, 'result')
+    const label = page.locator('[data-result-label]')
+    await expect(label).toHaveAttribute('data-shown', 'true')
+    expect((await label.boundingBox())!.height).toBeGreaterThan(1)
+
+    await page.getByRole('checkbox', { name: 'Unentschieden (kein Konfetti)' }).check()
+    await expect(label).not.toHaveAttribute('data-shown', 'true')
+    expect((await label.boundingBox())!.height).toBeLessThanOrEqual(1)
   })
 })
 
