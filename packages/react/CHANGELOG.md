@@ -1,5 +1,27 @@
 # @hfroemmel/quiz-react
 
+## 0.29.4
+
+### Patch Changes
+
+- The motif on the brand board gets smaller and moves to its edge.
+  
+  It was two thirds again as wide (82 percent of the board) and centred in it.
+  It is 66 percent now and sits at the left edge, where the board's own padding
+  puts it - the title and the text under it stay centred, so the picture now
+  starts on the line the board starts on instead of floating between two equal
+  margins.
+  
+  Everything else about it is untouched: it is still the board's yielding
+  element, still the first thing to give way on a short window while the title
+  and the text stay put, and still inverted in the light variant.
+  
+  The line that called 82 percent "the same width as in the design" goes with
+  it. It was a claim about a drawing, and the drawing is no longer what this
+  says.
+- @hfroemmel/quiz-core@0.29.4
+  - @hfroemmel/quiz-themes@0.29.4
+
 ## 0.29.3
 
 ### Patch Changes
