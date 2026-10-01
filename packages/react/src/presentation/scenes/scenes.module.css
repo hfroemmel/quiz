@@ -301,7 +301,7 @@
    * its content width. A long translated category thereby wraps instead of
    * running out of the scene or getting cropped.
    */
-  min-width: 24cqw;
+  min-width: 23cqw;
   max-width: var(--kids-content-width);
   padding: 3.2cqw 4cqw;
   text-align: center;
