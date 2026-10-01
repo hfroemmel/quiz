@@ -889,10 +889,9 @@
 
 .brandVisual {
   flex: 1 1 auto;
-  align-self: center;
+  align-self: flex-start;
   min-height: 0;
-  /* The same width as in the design: the motif does not fill the board. */
-  width: 82%;
+  width: 66%;
   border-radius: 0.8438vw;
   object-fit: contain;
 }
