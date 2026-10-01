@@ -1,5 +1,28 @@
 # @hfroemmel/quiz-react
 
+## 0.29.5
+
+### Patch Changes
+
+- The organiser's logo takes more room, and the children's board starts a little
+  narrower.
+  
+  THE LOGO FROM THE CONTENT grows from 18 to 23 container units in the stage
+  header. That is the image a house hands over for its own brand, and at the old
+  width a lettering with margins built into the file arrived in the corner as a
+  small mark among the score cards rather than as the sender of the evening. The
+  bundled wordmark is untouched: it is one drawing with one known ratio and takes
+  its size from the header row, which is why the two no longer share a number -
+  one width cannot be right for both a known drawing and whatever an organiser
+  supplies.
+  
+  THE CHILDREN'S IN-BETWEEN BOARD starts at 23 container units instead of 24.
+  Both of its limits stay what they were: it grows with its content and never
+  gets wider than the content width of that world, so a long translated category
+  still wraps instead of running out of the scene.
+- @hfroemmel/quiz-core@0.29.5
+  - @hfroemmel/quiz-themes@0.29.5
+
 ## 0.29.4
 
 ### Patch Changes

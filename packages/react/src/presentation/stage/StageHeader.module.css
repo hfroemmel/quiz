@@ -46,9 +46,16 @@
 }
 
 /*
- * The logo from the content. It carries its own colours, hence no mask and
- * no fixed aspect ratio: the width comes from the same rules as the
- * wordmark, the height from the image.
+ * The logo from the content. It carries its own colours, hence no mask and no
+ * fixed aspect ratio: it names its WIDTH here and takes its height from the
+ * image, whatever proportion that image happens to have.
+ *
+ * AND THAT WIDTH IS ITS OWN, not the wordmark's. The bundled wordmark is one
+ * drawing with one known ratio and it takes its size from the header row; a
+ * logo from the content is whatever an organiser hands over - a tall emblem,
+ * a wide lettering, a block with margins built into the file. One number
+ * cannot be right for both, so this one is set for the logo and left to the
+ * layout for the wordmark.
  */
 .brandImage {
   position: absolute;
