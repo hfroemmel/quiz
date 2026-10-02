@@ -1,5 +1,26 @@
 # @hfroemmel/quiz-react
 
+## 0.29.6
+
+### Patch Changes
+
+- The score card on the touch device stops painting a ground behind its tiles.
+  
+  Two rules gave the card itself the quiet tile colour while its player was on
+  turn or locked. They were written against a host that coloured the card from
+  outside - the comment pointed at `@hfroemmel/quiz-kiosk`, a package this
+  repository no longer contains - and they were the only thing in the adults'
+  world that gave `.score` a background at all. What they painted was therefore
+  not a correction of someone else's colour but a square ground of its own,
+  behind two tiles that are rounded and already cover the card.
+  
+  The card is its two tiles now and nothing else. What marks the player on turn
+  is unchanged and sits where it always sat: on the tiles, which take the accent
+  (`.score[data-active='true'] .cellPlayer`, `.cellPoints`). The rule that gives
+  those tiles their type colour on this device stays as it was.
+- @hfroemmel/quiz-core@0.29.6
+  - @hfroemmel/quiz-themes@0.29.6
+
 ## 0.29.5
 
 ### Patch Changes
