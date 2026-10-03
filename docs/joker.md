@@ -167,6 +167,18 @@ coin flip:
 | Image recognition and other free-form questions | audience only | there are no answers to halve; asking the room is the only help there that means anything |
 | Choice question with too few open answers | nothing - not drawable | see below |
 
+What the table gives is then **intersected with what the house offers**. A
+package may narrow the pool (`rules.jokers.types`, see `docs/quizpaket.md`);
+the list is fixed when a game starts and travels with it on
+`GameState.jokerTypes`, so a package edited between two rounds cannot change
+what the joker in the running round may become. Narrowing never adds a variant -
+the engine knows these two and no more.
+
+The third row is the one line that shifts with a narrowed pool, and it shifts
+because its reason does: it exists so that nobody draws the lesser help by the
+accident of a short question. Where a house offers one variant there is no
+lesser help and no accident, so such a question is drawable like any other.
+
 With exactly one possibility, **the coin flip is skipped**: `drawJokerType` returns
 the single type and does not touch `random`. A flip could otherwise
 produce something the question cannot support. In that case the console tells

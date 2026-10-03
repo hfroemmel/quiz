@@ -317,6 +317,8 @@ export class QuizService {
       selfServiceTiming: rules.selfServiceTiming,
       scoring: rules.scoring,
       jokersEnabled: rules.jokersEnabled,
+      jokerTypes: rules.jokerTypes,
+      secondChance: rules.secondChance,
       newId: (prefix) => `${prefix}-${createRandomId()}`,
       questionSource: this.content.createQuestionSource(
         this.store.loadUsageHistory(this.eventDay.id),

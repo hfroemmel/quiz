@@ -1,5 +1,49 @@
 # @hfroemmel/quiz-core
 
+## 0.29.7
+
+### Patch Changes
+
+- Two rules a house can set: which jokers exist, and whether the opponent gets a
+  turn.
+  
+  `rules.jokers.types` NARROWS WHAT A DRAW CAN PRODUCE. The engine knows two
+  variants and no more, so this list never adds one - a house that wants the
+  audience joker alone writes `["audience"]`, and from then on every draw comes
+  out as that one. The desk learns it before the card turns (`onlyType`), exactly
+  as it already does on a picture question. An empty list is refused: a pool with
+  nothing in it is `jokers.enabled: false`, and one sentence per thing.
+  
+  The pool is pinned onto the GAME at its start (`GameState.jokerTypes`), like
+  the supply of jokers beside it. Two reasons. A package edited between two
+  rounds must not change what the joker in the running round can become - that is
+  the promise the supply already makes. And the preview of the allowed commands
+  decides with the state alone; a pool it could not see would offer the desk a
+  button the engine then refuses, which is the one thing that preview promises
+  never to do.
+  
+  ONE RULE SHIFTS WITH A NARROWED POOL, because its reason shifts. A choice
+  question with too few answers is not drawable while both variants exist: the
+  coin could hand a player the audience joker merely for having a short question,
+  which is luck deciding how much help somebody gets. Where a house offers one
+  variant there is no coin and no lesser help, so such a question is drawable
+  like any other.
+  
+  `rules.secondChance: false` SENDS A WRONG ANSWER STRAIGHT TO THE SOLUTION. The
+  question belongs to whoever buzzed first and is over when they are wrong; the
+  opponent is never asked. `scoring.secondChancePoints` is not switched off by
+  this - it simply never comes up again. The setting sits beside
+  `showDetailsAfterSolution` rather than among the scoring values, because those
+  say what an answer is worth and this says whether a phase of the game happens
+  at all.
+  
+  The image reveal keeps its own rule either way: there both players buzz again
+  until the picture stands, and that belongs to the question rather than to the
+  house.
+  
+  A package that sets neither plays exactly as before - that is what the defaults
+  are for, and what the tests pin down.
+
 ## 0.29.6
 
 ## 0.29.5

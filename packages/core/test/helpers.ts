@@ -189,6 +189,8 @@ export function createHarness(
       selfServiceTiming: rules.selfServiceTiming,
       scoring: rules.scoring,
       jokersEnabled: rules.jokersEnabled,
+      jokerTypes: rules.jokerTypes,
+      secondChance: rules.secondChance,
       ...(options.random === undefined ? {} : { random: options.random }),
     }
   }

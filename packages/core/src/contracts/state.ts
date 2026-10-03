@@ -6,7 +6,7 @@
  */
 import { z } from 'zod'
 import type { Question, QuestionPresentationType } from './content'
-import type { JokerSequence, PlayerJokerStates } from './joker'
+import type { JokerSequence, JokerType, PlayerJokerStates } from './joker'
 
 /**
  * Phases of the game flow.
@@ -267,6 +267,23 @@ export interface GameState {
    * else decides whether this game knows jokers.
    */
   jokerByPlayer?: PlayerJokerStates
+
+  /**
+   * The variants a draw of THIS game may produce (`config.rules.jokers.types`).
+   *
+   * IT STANDS ON THE GAME FOR THE SAME REASON THE SUPPLY DOES. A game carries
+   * what it was started with: the pool is fixed when the supply is created, so
+   * an evening whose package is edited between two rounds does not change what
+   * the joker in the current round can become. Absent means both - that is how
+   * every game played so far began, and a state saved before this field existed
+   * reads exactly that way.
+   *
+   * AND IT HAS TO BE HERE, not in the configuration, because the preview of the
+   * allowed commands (`allowedCommandsForRole`) decides with the state alone. A
+   * pool it could not see would offer the desk a button the engine then refuses
+   * - which is the one thing that file promises never to do.
+   */
+  jokerTypes?: readonly JokerType[]
 
   /**
    * The draw currently running - it belongs to the CURRENT QUESTION.

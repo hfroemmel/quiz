@@ -370,6 +370,10 @@ right.
 
 No template, fixed in the style shown; confirmed: visibly marked.
 
+A house may do without this phase (`rules.secondChance: false`,
+see `docs/quizpaket.md`). Then a wrong answer goes straight to the solution and
+this screen never appears - the question belongs to whoever buzzed first.
+
 - The stage area keeps the question layout.
 - The other player is marked `--accent` and is now up; the first player
   stays visible, their player tile sits in `--accent-quiet` with a lock

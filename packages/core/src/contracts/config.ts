@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { jokerTypes, type JokerType } from './joker'
 
 /**
  * Central, typed configuration of game rules and the timings that matter to the rules.
@@ -228,13 +229,44 @@ export const rulesConfigSchema = z
       })
       .optional(),
     /**
-     * Jokers in an operated game. `false` starts games without a joker supply,
-     * and then no view offers one.
+     * Jokers in an operated game. `enabled: false` starts games without a joker
+     * supply, and then no view offers one.
      *
      * A self-service game never has jokers - there is nobody at the desk to
      * draw one, and that is a property of the flow profile, not of the content.
+     *
+     * `types` NARROWS WHAT A DRAW CAN PRODUCE, it does not add anything: the
+     * engine knows these two and no more. A house that wants only the audience
+     * joker writes `['audience']`, and from then on every draw comes out as
+     * that one - the desk learns it in advance through `onlyType`, exactly as
+     * it does on a picture question, where the engine already narrows the pool
+     * by itself.
+     *
+     * WHY NOT AN EMPTY LIST: a pool with nothing in it is a game without
+     * jokers, and that sentence already exists one line above. Two ways to say
+     * the same thing is how two settings end up contradicting each other.
      */
-    jokers: z.object({ enabled: z.boolean() }).optional(),
+    jokers: z
+      .object({
+        enabled: z.boolean().optional(),
+        types: z.array(z.enum(jokerTypes)).min(1).optional(),
+      })
+      .optional(),
+    /**
+     * Does the opponent get the question after a wrong answer?
+     *
+     * `false` sends a wrong answer straight to the solution: the question
+     * belongs to whoever buzzed first, and it is over when they are wrong. The
+     * points for a second chance (`scoring.secondChancePoints`) then never come
+     * up - they are not switched off here, they simply have nothing to score.
+     *
+     * IT IS NOT A SCORING VALUE, which is why it does not sit among them: the
+     * numbers there say what an answer is worth, this says whether a phase of
+     * the game happens at all. An image reveal is untouched either way - there
+     * both players keep buzzing until the picture is up, and that is the
+     * question's own rule rather than this one.
+     */
+    secondChance: z.boolean().optional(),
     /**
      * Show the detail text of the explanation after the solution.
      *
@@ -252,6 +284,10 @@ export interface ResolvedRules {
   timing: GameTiming
   selfServiceTiming: SelfServiceTiming
   jokersEnabled: boolean
+  /** The variants a draw may produce - both, unless the package narrows them. */
+  jokerTypes: readonly JokerType[]
+  /** Does a wrong answer hand the question to the opponent? */
+  secondChance: boolean
   showDetailsAfterSolution: boolean
 }
 
@@ -268,6 +304,8 @@ export function resolveRules(rules: RulesConfig | undefined): ResolvedRules {
     timing: { ...gameTiming, ...pick(timing, Object.keys(gameTiming)) },
     selfServiceTiming: { ...selfServiceTiming, ...pick(timing, Object.keys(selfServiceTiming)) },
     jokersEnabled: rules?.jokers?.enabled ?? true,
+    jokerTypes: rules?.jokers?.types ?? jokerTypes,
+    secondChance: rules?.secondChance ?? true,
     showDetailsAfterSolution: rules?.showDetailsAfterSolution ?? false,
   }
 }

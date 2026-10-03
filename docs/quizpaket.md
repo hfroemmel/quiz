@@ -161,7 +161,8 @@ local files.
   "rules": {                             // optional; every value has today's constant as default
     "scoring": { "firstAnswerPoints": 100, "secondChancePoints": 50, "manualAdjustmentStep": 50 },
     "timing":  { "pauseScreenMs": 1500, "imageRevealDurationMs": 10000, "questionLeadInMs": 2500 },
-    "jokers":  { "enabled": true },
+    "jokers":  { "enabled": true, "types": ["fiftyFifty", "audience"] },
+    "secondChance": true,
     "showDetailsAfterSolution": false
   }
 }
@@ -182,6 +183,40 @@ are fairness, not taste.
 
 `showDetailsAfterSolution` reaches the clients through `catalog.rules`;
 everything else is read by the engine on the server.
+
+#### The joker pool
+
+`jokers.enabled` says whether a game has jokers at all; `jokers.types` says
+what a draw may produce. The engine knows two variants and no more, so this
+list only ever NARROWS: a house that wants the audience joker alone writes
+`["audience"]`, and from then on every draw comes out as that one. The desk
+learns it before the card turns (`onlyType` in the operator view), exactly as
+it already does on a picture question, where the engine narrows the pool by
+itself because there is nothing to halve. An empty list is refused - a pool
+with nothing in it is `enabled: false`, and one sentence for one thing.
+
+The pool is fixed when a game starts and travels with it, like the supply of
+jokers beside it: a package edited between two rounds does not change what the
+joker in the running round can become.
+
+One rule shifts with a narrowed pool, and it is the only one. A choice question
+with fewer than three answers is not drawable while both variants exist,
+because the coin could hand a player the audience joker merely for having a
+short question - luck deciding how much help somebody gets. Where the house
+offers one variant there is no coin and no lesser help, so such a question is
+drawable like any other.
+
+#### The second chance
+
+`secondChance` says whether a wrong answer hands the question to the opponent.
+Off, the question belongs to whoever buzzed first and ends when they are wrong:
+the solution follows at once, the opponent is never asked, and
+`scoring.secondChancePoints` simply never comes up - it is not switched off,
+it has nothing left to score.
+
+The image reveal keeps its own rule either way. There both players buzz again
+until the picture stands, and that is a property of the question, not of the
+house.
 
 There is no idle watch. A device used to carry `rules.idleTimeoutMs` and put the
 selection back up after that long without a touch; a question deliberately has

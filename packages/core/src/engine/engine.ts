@@ -23,6 +23,7 @@ import {
   isSelfServiceAnswerable,
   jokerRevealAtMs,
   jokerTypeLabel,
+  jokerTypes,
   playerIds,
   scoringRules,
   selfServiceTiming,
@@ -33,6 +34,7 @@ import {
   type FlowProfile,
   type GamePhase,
   type GameState,
+  type JokerType,
   type PlayerCount,
   type PlayerId,
   type PlayerState,
@@ -120,6 +122,25 @@ export interface EngineContext {
    * A self-service game never has them, whatever this says.
    */
   jokersEnabled?: boolean
+  /**
+   * Which joker variants an operated game of this package offers
+   * (`config.rules.jokers.types`). Without a statement both.
+   *
+   * It is read ONCE, when a game starts, and written onto the state from there
+   * (`GameState.jokerTypes`) - everything that asks later asks the game, not
+   * the configuration.
+   */
+  jokerTypes?: readonly JokerType[]
+  /**
+   * Does a wrong answer hand the question to the opponent?
+   * (`config.rules.secondChance`) Without a statement it does.
+   *
+   * Unlike the joker pool this is read per attempt rather than pinned onto the
+   * game, because it belongs with the scoring beside it: both say what an
+   * answer is worth and what follows it, and both come from the context the
+   * engine is called with.
+   */
+  secondChance?: boolean
   /** Global sound status a newly started game takes over. */
   initialSoundEnabled?: boolean
   /** Locale of the device a newly started game takes over. */
@@ -586,6 +607,11 @@ function startGame(
     ...(flowProfile === 'operated' && (work.ctx.jokersEnabled ?? true)
       ? {
           jokerByPlayer: createJokerStates(players.map((player) => player.id)),
+          /*
+           * The pool travels with the supply: it is fixed here, once, so the
+           * rest of the game asks the state and never the configuration.
+           */
+          jokerTypes: work.ctx.jokerTypes ?? jokerTypes,
           jokerSequence: { phase: 'idle' as const },
         }
       : {}),
@@ -1011,6 +1037,18 @@ function nextPhaseAfterAttempt(
   // Image reveal: the solution stays hidden, the reveal continues at the same
   // spot, both players may buzz again.
   if (imageReveal) return 'reveal-running'
+  /*
+   * A HOUSE MAY HAVE PUT THE SECOND CHANCE AWAY (`config.rules.secondChance`).
+   * Then the question belongs to whoever buzzed first and it is over when they
+   * are wrong - straight to the solution, with no opponent asked and no phase
+   * in between. The points for a second chance are not touched by this: they
+   * simply never come up again.
+   *
+   * It is asked AFTER the image reveal above, because that question carries its
+   * own rule - the picture keeps running and both players keep buzzing until it
+   * stands - and that rule is the question's, not the house's.
+   */
+  if (work.ctx.secondChance === false) return 'solution'
   // Normal question: after the first failed attempt the other player gets the
   // second chance; after the second failed attempt the solution follows.
   // In a solo game there is no other player - there the solution follows at once.

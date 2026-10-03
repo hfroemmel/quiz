@@ -254,6 +254,11 @@ export function evaluateJokerDraw(
  * type wrong - which is exactly how a 50:50 could be drawn on a question with
  * nothing to remove.
  *
+ * AND A PACKAGE MAY NARROW THE POOL (`config.rules.jokers.types`, pinned onto
+ * the game at its start). That is not a third rule beside the two above but a
+ * smaller set for them to work in: what this function returns is always what
+ * the QUESTION could carry, intersected with what the HOUSE offers.
+ *
  * A CHOICE QUESTION WITH TOO FEW OPEN ANSWERS gives nothing at all. Removing a
  * wrong answer from two would leave the correct one alone on screen, and an
  * audience joker on a question the 50:50 cannot serve would be a lottery on top
@@ -261,11 +266,39 @@ export function evaluateJokerDraw(
  * happened to be short. Such a question is not drawable - see
  * `evaluateFiftyFiftySuitability` for the sentence the operator reads.
  */
+/**
+ * Which variants this GAME offers at all - the house's pool, not the question's.
+ *
+ * Read from the state and never from a configuration, for the reason the whole
+ * supply is kept there (`gameHasJokers`): a running game keeps what it was
+ * started with. Absent means both, so a game from before this field existed
+ * plays exactly as it did.
+ */
+export function offeredJokerTypes(state: GameState | null): readonly JokerType[] {
+  return state?.jokerTypes ?? jokerTypes
+}
+
 export function drawableJokerTypes(state: GameState): JokerType[] {
   const question = state.currentQuestion?.question
   if (!question) return []
-  if (!isChoiceQuestion(question)) return ['audience']
-  if (evaluateFiftyFiftySuitability(state).allowed) return [...jokerTypes]
+  const offered = offeredJokerTypes(state)
+  const audience: JokerType[] = offered.includes('audience') ? ['audience'] : []
+  /*
+   * A HOUSE THAT HAS PUT THE 50:50 AWAY CHANGES WHAT THE REST OF THIS FUNCTION
+   * MEANS, so it is asked first.
+   *
+   * Everything below weighs one variant against the other: a picture question
+   * gets the audience joker because there is nothing to halve, and a short
+   * choice question gets NOTHING because the player would otherwise draw the
+   * lesser help by the accident of their question. Both sentences need two
+   * variants to be true. Where the package offers one, there is no lesser help
+   * and no accident - the joker is simply what this house has, on every
+   * question, and refusing it on a short one would take the joker away for a
+   * reason that no longer exists.
+   */
+  if (!offered.includes('fiftyFifty')) return audience
+  if (!isChoiceQuestion(question)) return audience
+  if (evaluateFiftyFiftySuitability(state).allowed) return [...offered]
   /*
    * A QUESTION THAT HAS BEEN WORN DOWN STILL CARRIES THE AUDIENCE JOKER.
    *
@@ -281,7 +314,7 @@ export function drawableJokerTypes(state: GameState): JokerType[] {
    * The count of the question decides which of the two cases this is - not the
    * open answers, which are what the play has made of them.
    */
-  return (question.options ?? []).length >= jokerRules.fiftyFiftyMinOptionCount ? ['audience'] : []
+  return (question.options ?? []).length >= jokerRules.fiftyFiftyMinOptionCount ? audience : []
 }
 
 /**
