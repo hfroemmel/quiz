@@ -243,23 +243,24 @@ No digital vote. The player asks the room, the application records
 that the joker is used. No invented percentages, no random
 audience result, no additional timer.
 
-After `CONTINUE_JOKER`, the question and **all** answers remain unchanged. The
-only thing that changes is the **marking of the active respondent**: in
-their score card, the group symbol replaces the
-player number, with a 200 ms crossfade. Score, colors, size, and the other
-player's card remain untouched.
+After `CONTINUE_JOKER`, the question and **all** answers remain unchanged - and
+so does everything else on the stage. **The drawn card is the whole of it:** the
+room watches it turn, reads what came out, and then the question stands as it
+stood. Nothing is marked afterwards.
 
-**Answer ownership is unaffected.** `buzzer.acceptedPlayerId`, the lock,
-and later the points still belong to the player who buzzed - it is
-a marking, not a reassignment. The symbol disappears as soon as the attempt
-is graded or the next question comes (the projection only emits an
-`applied` draw while the question is open).
+It was marked for a while. The score card of the player the joker belonged to
+swapped their number for the group symbol as long as the joker was in effect.
+The card has one job - to say whose points these are - and the player number is
+visible on the stage **only** there, so for the length of that marking the stage
+no longer said who was answering. A sign that costs the card its own statement
+costs more than it says.
 
-Note on the spec: the player number of the active respondent is visible
-on the stage **only** in their score card - there is no
-second display. "Scoreboards remain unchanged" is therefore implemented as
-follows: layout, colors, and scores remain, only the digit of the
-active player is swapped, and only for as long as the joker is in effect.
+**Answer ownership was never affected by it anyway.**
+`buzzer.acceptedPlayerId`, the lock, and later the points belong to the player
+who buzzed; the symbol was a marking and never a reassignment. Removing it
+therefore changes nothing in the state, in the projection or in the scoring -
+`jokerDraw` still reports the applied draw while the question is open, and a
+host is free to show it in its own frame.
 
 ## The Two Symbols
 
@@ -470,9 +471,8 @@ that looks available leads to a command the server accepts.
 | `packages/react/src/presentation/stage/jokerIcons.tsx`, `.module.css` | the two joker symbols, as a mask or as a drawing, along with their aspect ratios |
 | `packages/react/src/assets/joker-*-icon.svg` | the symbols themselves |
 | `packages/react/src/presentation/stage/AnswerList.tsx`, `.module.css`, `answerState.ts` | eliminated answers step back in place |
-| `packages/react/src/presentation/stage/Score.tsx`, `.module.css` | group symbol instead of player number, with crossfade |
-| `packages/react/src/presentation/stage/StageHeader.tsx`, `.module.css` | the `besidePlayer` slot and the derivation of the group symbol |
-| `packages/react/src/presentation/animationPresets.ts` | step-back, crossfade, fade-out as tokens |
+| `packages/react/src/presentation/stage/StageHeader.tsx`, `.module.css` | the `besidePlayer` slot a host hangs its own marks in |
+| `packages/react/src/presentation/animationPresets.ts` | step-back and fade-out as tokens |
 | `packages/react/src/presentation/texts.ts` | `stage.joker.*` |
 
 **`hfroemmel/quiz-live`**

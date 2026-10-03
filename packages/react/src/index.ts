@@ -20,8 +20,9 @@ export * from './presentation/stageTheme'
 export * from './presentation/stage/Counter'
 export * from './presentation/stage/Score'
 /*
- * The joker faces. Exported because the live quiz draws the back of its card
- * with the same shape the stage uses for the group marker - one look, not two.
+ * The joker faces. Exported because a host draws the back of the card it turns
+ * in the room, and it should be the drawing this package already carries - a
+ * second "audience" would drift away from the first.
  */
 export * from './presentation/stage/jokerIcons'
 export * from './presentation/stage/StageHeader'

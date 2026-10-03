@@ -63,8 +63,6 @@ export const presentationTiming = {
   jokerEliminateMs: 250,
   /** Offset with which several answers step back one after another. */
   jokerEliminateStaggerMs: 110,
-  /** Cross-fade between the player number and the group marker. */
-  jokerMarkerFadeMs: 200,
   /** Fading out the revealed card when the operator moves on. */
   jokerDismissMs: 200,
 } as const

@@ -24,49 +24,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/*
- * Player number and group icon in the same place.
- *
- * ONE cell, two contents stacked: with the audience joker, the display of
- * the active answerer switches from the number badge to the group icon,
- * without the card changing size. Both live in the same grid cell, so
- * nothing jumps and the cross-fade happens in one place.
- *
- * This changes nothing about the score or the answer's assignment - it is a
- * marker, not a re-booking.
- */
-.playerMark {
-  display: grid;
-  place-items: center;
-}
-.playerMark > * {
-  grid-area: 1 / 1;
-  transition: opacity var(--joker-marker-fade, 200ms) ease;
-}
-.playerMark[data-score-marker='number'] .groupMark,
-.playerMark[data-score-marker='audience'] .value {
-  opacity: 0;
-}
-
-/*
- * The group icon stands as tall as the digit beside it and carries its
- * colour - it replaces it, it does not add to it.
- *
- * Only the height is set: the width comes from the icon's own artwork
- * (`jokerIcons.module.css`). A square field would have squashed the three
- * figures down to 62 percent of the digit's height.
- */
-.groupMark {
-  height: 1em;
-  font-size: 2cqw;
-  color: var(--stage-inkOnStrong);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .playerMark > * {
-    transition-duration: 1ms;
-  }
-}
 /* The stars sit over the score cell without taking up space. */
 .cellPoints {
   position: relative;

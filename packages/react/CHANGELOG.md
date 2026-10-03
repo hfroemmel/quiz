@@ -1,5 +1,36 @@
 # @hfroemmel/quiz-react
 
+## 0.29.8
+
+### Patch Changes
+
+- The score card keeps its player number while an audience joker is in effect.
+  
+  It used to give way. For as long as the drawn audience joker belonged to a
+  player, their card swapped the number for the group symbol, crossfading over
+  200 ms. The card has one job - to say whose points these are - and the player
+  number appears on the stage in that one place and nowhere else, so for the
+  length of that marking the stage no longer said who was answering. A sign that
+  costs the card its own statement costs more than it says.
+  
+  The drawn card is the whole of it now: the room watches it turn, reads what came
+  out, and the question stands as it stood.
+  
+  NOTHING IN THE STATE CHANGES, because the marking never was state.
+  `buzzer.acceptedPlayerId`, the lock and the points always belonged to the player
+  who buzzed; `jokerDraw` still reports the applied draw for as long as the
+  question is open, so a host that wants a mark of its own can draw one in its own
+  frame - `besidePlayer` is the slot for it.
+  
+  Gone with it: the `audienceMarker` prop of `Score`, which no longer has anything
+  to switch, and `presentationTiming.jokerMarkerFadeMs`, a crossfade duration with
+  nothing left to fade. Both were public, and a host that passes them now gets a
+  compile error rather than a value that quietly does nothing. `JokerTypeIcon`
+  stays exactly as it was - it is the face of the card a host turns in the room,
+  and that was always its other use.
+- @hfroemmel/quiz-core@0.29.8
+  - @hfroemmel/quiz-themes@0.29.8
+
 ## 0.29.7
 
 ### Patch Changes

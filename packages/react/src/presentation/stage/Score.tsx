@@ -17,12 +17,11 @@
  * animation never produces its own value; if a new snapshot arrives mid-count,
  * it restarts from the currently displayed value.
  */
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { animationClips } from '../animationAssets'
 import { prefersReducedMotion, presentationTiming } from '../animationPresets'
 import { useSound } from '../SoundProvider'
 import { AnimationClip } from '../../ui/AnimationClip'
-import { JokerTypeIcon } from './jokerIcons'
 import styles from './Score.module.css'
 
 export type ScoreSize = 'header' | 'result'
@@ -46,20 +45,6 @@ interface ScoreProps {
   mirrored?: boolean
   size?: ScoreSize
   /**
-   * An audience joker is in effect for this player - show the group mark
-   * instead of the player number.
-   *
-   * THREE STATES, NOT TWO. `undefined` means "this game has no jokers": the
-   * card then renders exactly the markup it rendered before the feature
-   * existed, which is what keeps a kiosk pixel-identical. `false` means the
-   * game has jokers but none is in effect - the mark is in the DOM, invisible,
-   * so the change is a crossfade and not a swap.
-   *
-   * WHAT IT DOES NOT CHANGE: the score, the colours, the layout - and who the
-   * answer belongs to. The mark says "the room is being asked", nothing else.
-   */
-  audienceMarker?: boolean
-  /**
    * The points cell alone - no player cell beside it.
    *
    * It is the head of the kiosk layout with ONE player: there is nobody to
@@ -79,7 +64,6 @@ export function Score({
   size = 'header',
   playerText = 'Spieler',
   pointsText = 'Punkte',
-  audienceMarker,
   pointsOnly = false,
 }: ScoreProps) {
   // The stage shows no proper names, only the number from the label.
@@ -95,22 +79,13 @@ export function Score({
       <span className={styles.label} data-score-label="">
         {playerText}
       </span>
-      {audienceMarker === undefined ? (
-        numberValue
-      ) : (
-        /*
-         * Both marks sit in the SAME cell of a one-cell grid, so neither can
-         * move the other and the crossfade happens on the spot.
-         */
-        <span
-          className={styles.playerMark}
-          data-score-marker={audienceMarker ? 'audience' : 'number'}
-          style={{ '--joker-marker-fade': `${presentationTiming.jokerMarkerFadeMs}ms` } as CSSProperties}
-        >
-          {numberValue}
-          <JokerTypeIcon type="audience" className={styles.groupMark} />
-        </span>
-      )}
+      {/*
+        * THE NUMBER, ALWAYS. It used to give way to the group icon while an
+        * audience joker was in effect for this player. The card's one job is
+        * to say whose points these are, and a card that stops saying it is a
+        * card with a hole in it - whatever the icon in its place meant.
+        */}
+      {numberValue}
     </div>
   )
   const points = (

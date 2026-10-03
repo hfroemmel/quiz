@@ -8,10 +8,11 @@
  * 50:50 sign is lettered in near-black, so on the default stage it would be a
  * smudge. That is why the mask is the default and the artwork is asked for.
  *
- * The audience shape does double duty: it is the back of a drawn audience
- * joker, and it is the group marker that replaces the player number while that
- * joker is in effect. One file, one look - a second drawing of "the audience"
- * would drift away from the first.
+ * Both shapes have ONE job: they are the faces of the drawn card, in the hand
+ * that turns it and on the screen that shows it. The audience shape once also
+ * stood on a score card in place of the player number while that joker was in
+ * effect; the card says whose points these are and now says it without
+ * interruption, so the sign is only ever a card face.
  */
 import type { CSSProperties } from 'react'
 import type { JokerType } from '@hfroemmel/quiz-core'
@@ -29,8 +30,8 @@ const icons: Record<JokerType, string> = {
  * The proportions of the two drawings, straight from their `viewBox`.
  *
  * NEITHER SIGN IS SQUARE, and they are not shaped alike. Kept in a square box
- * they would sit in it at 62% resp. 78% of its height - beside a digit of the
- * same font size the group mark would look shrunk. So the box takes its width
+ * they would sit in it at 62% resp. 78% of its height - beside one another at
+ * the same font size one sign would look shrunk. So the box takes its width
  * from the file and its height from the outside; both signs then stand equally
  * tall wherever they appear together.
  *
@@ -47,9 +48,8 @@ const ratios: Record<JokerType, number> = {
  * How the sign is coloured.
  *
  * - `text` (default) - a mask over `currentColor`: the sign carries the colour
- *   of whatever it stands in, on a dark and on a light stage alike. This is
- *   what a group mark beside a player number needs, and what every stage that
- *   themes its own colours needs.
+ *   of whatever it stands in, on a dark and on a light stage alike. That is
+ *   what a stage theming its own colours needs.
  * - `art` - the drawing with its own colours. For a card face whose ground is
  *   known to be light; on the dark default stage the 50:50 lettering
  *   disappears into it.
