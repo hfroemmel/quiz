@@ -24,6 +24,52 @@
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * The score and the sign for the last answer, side by side.
+ *
+ * ONE ROW, so the sign cannot push the number out of the cell's middle: both
+ * sit in a row that is centred as a whole, and the cell grows with it - its
+ * width is a MINIMUM, not a size.
+ */
+.scoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6cqw;
+}
+/*
+ * The sign is as tall as the digits beside it, no taller.
+ *
+ * It is the drawn right/wrong mark the feedback scene shows large
+ * (`AnswerResultAnimation`) - one drawing in the system, asked at two sizes.
+ * The disc overshoots its box by six percent as it springs in, which is why it
+ * is allowed to draw outside: `overflow: visible` is on the drawing itself.
+ */
+.answerMark {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+/*
+ * AND ON THIS CARD THE WRONG MARK IS RED AGAIN.
+ *
+ * The red stage turns that mark around - white disc, red cross - because its
+ * GROUND is the wrong-answer red and a red disc would vanish into it. Here the
+ * mark does not sit on that ground: the marked card is a light surface, and on
+ * it a white disc is nothing at all - which is exactly what the room saw, a
+ * bare red cross with no disc around it. The reason for the swap is absent
+ * here, so the swap is too.
+ *
+ * IT HAS TO OUT-SPECIFY THAT SWAP, which names two stage classes, so this one
+ * names the card and the mark. The children's world is deliberately left to its
+ * own swap: its `incorrect` is the pale rose of the drawn frames, and that is
+ * weak on its chip as well as on its stage.
+ */
+:global(.stage--default) .score[data-last-answer] .answerMark[data-answer-result='wrong'] {
+  --mark-wrong-disc: var(--color-incorrect);
+  --mark-wrong-symbol: var(--stage-inkOnMotif);
+}
+
 /* The stars sit over the score cell without taking up space. */
 .cellPoints {
   position: relative;
@@ -70,9 +116,24 @@
   font-size: 2.7cqw;
   font-family: var(--font-heading);
 }
-/* The player whose turn it is carries the accent colour, a locked one the calm one. */
+/*
+ * THE MARKED CARD, and it is marked for two reasons that look the same.
+ *
+ * While the question runs it is the player ON TURN: the accent says whose
+ * answer the room is waiting for. When the solution stands nobody is on turn
+ * any more, and the card that stays marked is the one that gave the LAST
+ * answer - the room has just been told the correct answer and reads, beside
+ * it, who had said what. One look for both, because in both the sentence is
+ * "this card is the one being talked about"; a second colour would make the
+ * room look for a difference that is not there.
+ *
+ * It stands until the next question takes it away - `lastAnswer` belongs to
+ * the question on screen and is gone with it.
+ */
 :global(.stage--default) .score[data-active='true'] .cellPlayer,
-:global(.stage--default) .score[data-active='true'] .cellPoints {
+:global(.stage--default) .score[data-active='true'] .cellPoints,
+:global(.stage--default) .score[data-last-answer] .cellPlayer,
+:global(.stage--default) .score[data-last-answer] .cellPoints {
   background: var(--color-accent);
 }
 /* Butted together on the inside, rounded on the outside - the card reads as one block. */
@@ -239,6 +300,8 @@
  * while in the children's world it is a drawn chip that brings its own ink.
  */
 :global(.stage--default) .score[data-active='true'] .value,
-:global(.stage--default) .score[data-active='true'] .label {
+:global(.stage--default) .score[data-active='true'] .label,
+:global(.stage--default) .score[data-last-answer] .value,
+:global(.stage--default) .score[data-last-answer] .label {
   color: var(--stage-inkOnStrong);
 }

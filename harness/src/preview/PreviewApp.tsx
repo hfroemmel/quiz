@@ -488,6 +488,19 @@ function buildSampleView(input: {
           { id: 'o4', text: text(sample.answers[3]!, 3) },
         ],
         visibleSolution: { answerText: sample.answers[0]! },
+        /*
+         * NOBODY IS ON TURN HERE, and one card is marked all the same.
+         *
+         * The server clears the buzz when it resolves an attempt, so `active`
+         * is false for both while the solution stands. What stays marked is the
+         * card of whoever gave the LAST answer, with the sign for how it went -
+         * here player 1, who chose the answer this scene shows as
+         * `chosen-incorrect`.
+         */
+        playerScores: [
+          { ...scores[0]!, active: false, lastAnswer: 'incorrect' as const },
+          { ...scores[1]!, active: false },
+        ],
       }
     }
     case 'result':

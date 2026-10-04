@@ -139,6 +139,21 @@ export interface PublicScore {
   /** Locked for this question (the second chance lies with the other player). */
   locked: boolean
   /**
+   * How the LAST answer to the question on screen came out - and it is set on
+   * exactly one score, the one that gave it.
+   *
+   * WHILE THE SOLUTION STANDS, AND ONLY THEN. The room reads the correct answer
+   * and, beside it, who had said what: a question whose second chance also went
+   * wrong leaves the second player marked, not the first, because the second
+   * was the last word on it. It is cleared with the next question - it belongs
+   * to the question on screen, not to the game.
+   *
+   * `passed` and a question resolved without an answer leave it absent: nobody
+   * answered, so there is nothing to mark. A client that finds nothing here
+   * renders the card it rendered before this field existed.
+   */
+  lastAnswer?: 'correct' | 'incorrect'
+  /**
    * The joker of this player - ONLY in a game that has jokers.
    *
    * It sits on the score and not next to it because that is where it is shown:

@@ -19,15 +19,27 @@
 /*
  * Frame around ONE score card - the anchor for the `besidePlayer` slot.
  *
- * It takes up no space of its own: size and position still come from the
- * card inside it. Whoever absolutely positions something in the slot
- * thereby hangs it off this card, without widening the header.
- * `position: relative` without `z-index` deliberately stays without its own
- * stacking context - this way the slot's content itself decides whether it
- * sits in front of or behind the card, without falling out of the header.
+ * It takes up no space of its own: size and position still come from the card
+ * inside it. Whoever absolutely positions something in the slot thereby hangs
+ * it off this card, without widening the header.
+ *
+ * AND IT IS A STACKING CONTEXT OF ITS OWN, which is what finally makes the
+ * slot's choice a real choice. It used to be `position: relative` with no
+ * `z-index`, on the reasoning that the content should decide for itself
+ * whether it sits in front of or behind the card. Only one of the two was
+ * ever available: with no context here, a negative `z-index` does not land
+ * behind the score card, it lands behind the nearest ancestor that paints a
+ * background - the stage itself - and the thing disappears from the picture
+ * altogether. `isolation` draws the boundary at this group, so "behind" means
+ * behind the card and nothing further.
+ *
+ * It is `isolation` and not a `z-index` of its own: a number here would also
+ * order this group against the brand mark and the counter beside it, and
+ * those have no quarrel to settle.
  */
 .scoreGroup {
   position: relative;
+  isolation: isolate;
   display: flex;
   align-items: flex-start;
   border-radius: var(--stage-button-radius);

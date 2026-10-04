@@ -33,8 +33,10 @@ import {
   type QuizConfig,
   type Question,
   type QuestionPresentationType,
+  type AttemptOutcome,
   type GamePhase,
   type GameState,
+  type PlayerId,
   type PrivateSolution,
   type ActorRole,
   type PlayerQuizViewModel,
@@ -163,6 +165,27 @@ function sceneForPhaseOnly(phase: GamePhase): PublicScene {
   }
 }
 
+/**
+ * The last attempt of the question on screen that a player actually answered.
+ *
+ * `passed` and `no-answer` are skipped rather than reported: they are a
+ * resolution, not an answer, and a mark on a card would claim that somebody
+ * said something. An attempt without a player is skipped for the same reason -
+ * the operator resolved the question, nobody answered it.
+ *
+ * The attempts are in the order they were made, so the last one that qualifies
+ * is the last word on this question.
+ */
+function lastAnsweredAttempt(state: GameState): { playerId: PlayerId; outcome: AttemptOutcome } | undefined {
+  for (const attempt of [...attemptsForCurrentQuestion(state)].reverse()) {
+    if (!attempt.playerId) continue
+    if (attempt.outcome === 'correct' || attempt.outcome === 'incorrect') {
+      return { playerId: attempt.playerId, outcome: attempt.outcome }
+    }
+  }
+  return undefined
+}
+
 export function projectPublic(state: GameState | null, ctx: ProjectionContext): PublicQuizViewModel {
   const theme = resolveTheme(state, ctx)
   /*
@@ -213,12 +236,27 @@ export function projectPublic(state: GameState | null, ctx: ProjectionContext): 
       : undefined
 
   const hasJokers = gameHasJokers(state)
+  /*
+   * THE LAST WORD ON THIS QUESTION, while its solution stands.
+   *
+   * Only in the solution scene: before it the room is still answering, and
+   * afterwards the question is gone. It is ONE player - whoever answered last -
+   * so a question that went wrong twice marks the second player, who had the
+   * last word, and not the first.
+   *
+   * `passed` and a resolution without an answer produce nothing: there is no
+   * answer to report, and a mark would claim one.
+   */
+  const lastAnswer = scene === 'solution' ? lastAnsweredAttempt(state) : undefined
   const scores: PublicScore[] = state.players.map((player) => ({
     playerId: player.id,
     label: player.label,
     score: player.score,
     active: player.id === active,
     locked: player.lockedForCurrentQuestion,
+    ...(lastAnswer && lastAnswer.playerId === player.id
+      ? { lastAnswer: lastAnswer.outcome as 'correct' | 'incorrect' }
+      : {}),
     /*
      * Only in a game that has jokers - the field stays absent otherwise, so a
      * kiosk client sees no joker anywhere and nothing in its layout moves.

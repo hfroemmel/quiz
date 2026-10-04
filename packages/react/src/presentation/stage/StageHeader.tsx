@@ -141,6 +141,7 @@ export function StageHeader({
               locked={playerOne.locked}
               playerText={t('stage.player')}
               pointsText={t('stage.points')}
+              {...(playerOne.lastAnswer ? { lastAnswer: playerOne.lastAnswer } : {})}
               pointsOnly={kiosk && solo}
             />
           </div>
@@ -157,6 +158,7 @@ export function StageHeader({
               locked={playerTwo.locked}
               playerText={t('stage.player')}
               pointsText={t('stage.points')}
+              {...(playerTwo.lastAnswer ? { lastAnswer: playerTwo.lastAnswer } : {})}
               mirrored
             />
           </div>

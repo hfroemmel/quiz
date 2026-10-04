@@ -18,6 +18,7 @@
  * it restarts from the currently displayed value.
  */
 import { useEffect, useRef, useState } from 'react'
+import { AnswerResultAnimation } from '../../ui/AnswerResultAnimation'
 import { animationClips } from '../animationAssets'
 import { prefersReducedMotion, presentationTiming } from '../animationPresets'
 import { useSound } from '../SoundProvider'
@@ -45,6 +46,19 @@ interface ScoreProps {
   mirrored?: boolean
   size?: ScoreSize
   /**
+   * How this player's last answer to the question on screen came out.
+   *
+   * It does TWO things at once, and they belong together: the card stays
+   * marked - the same mark the player on turn carries, because the room is
+   * still looking at the same card - and a small sign stands beside the score
+   * saying how it went. Set only while the solution stands, and only on the
+   * player who gave that last answer (`PublicScore.lastAnswer`).
+   *
+   * Absent is the ordinary case: no answer of this player is being talked
+   * about, and the card renders exactly as it did before this existed.
+   */
+  lastAnswer?: 'correct' | 'incorrect'
+  /**
    * The points cell alone - no player cell beside it.
    *
    * It is the head of the kiosk layout with ONE player: there is nobody to
@@ -64,6 +78,7 @@ export function Score({
   size = 'header',
   playerText = 'Spieler',
   pointsText = 'Punkte',
+  lastAnswer,
   pointsOnly = false,
 }: ScoreProps) {
   // The stage shows no proper names, only the number from the label.
@@ -93,7 +108,22 @@ export function Score({
       <span className={styles.label} data-score-label="">
         {pointsText}
       </span>
-      <ScoreValue score={score} />
+      {/*
+        * THE SIGN STANDS BESIDE THE NUMBER, not over it: the score is the card's
+        * statement and has to stay readable while the answer is being reported.
+        * They are one row, so the cell grows by the sign rather than the number
+        * moving - which is what `min-width` on the cell is for.
+        */}
+      <span className={styles.scoreRow}>
+        <ScoreValue score={score} />
+        {lastAnswer && (
+          <AnswerResultAnimation
+            result={lastAnswer === 'correct' ? 'correct' : 'wrong'}
+            className={styles.answerMark}
+            restartKey={lastAnswer}
+          />
+        )}
+      </span>
     </div>
   )
 
@@ -109,6 +139,7 @@ export function Score({
       data-player={number}
       data-active={String(active)}
       data-locked={String(locked)}
+      {...(lastAnswer ? { 'data-last-answer': lastAnswer } : {})}
       {...(pointsOnly ? { 'data-points-only': '' } : {})}
     >
       {pointsOnly ? points : mirrored ? points : player}

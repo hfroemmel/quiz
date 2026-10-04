@@ -1,5 +1,49 @@
 # @hfroemmel/quiz-core
 
+## 0.29.9
+
+### Patch Changes
+
+- The card that gave the last answer stays marked while the solution stands, and
+  says how that answer went.
+  
+  THE MARK LASTED ONLY AS LONG AS THE BUZZ. The server clears it when it resolves
+  an attempt, so the moment the room was told the correct answer, nothing on the
+  head said any more who had just answered - the two cards stood side by side as
+  though nobody had.
+  
+  `PublicScore.lastAnswer` now says it, on exactly ONE score: the player who gave
+  the last answer to the question on screen, and how it came out. A question whose
+  second chance also went wrong therefore marks the second player - they had the
+  last word on it. `passed` and a resolution without an answer set nothing; there
+  is no answer to report, and a mark would claim one. It is cleared with the next
+  question, because it belongs to the question and not to the game.
+  
+  THE MARK IS THE ONE THE PLAYER ON TURN ALREADY CARRIES. In both cases the
+  sentence is "this card is the one being talked about", and a second colour for
+  the second case would send the room looking for a difference that is not there.
+  
+  BESIDE THE SCORE STANDS THE SIGN: the drawn right/wrong mark of the feedback
+  scene, small. It sits NEXT TO the number rather than over it - the score is the
+  card's statement and has to stay readable - and the cell grows with it, which
+  is what its width being a minimum is for.
+  
+  On the red stage that mark is normally turned around, white disc and red cross,
+  because that stage's GROUND is the wrong-answer red and a red disc would vanish
+  into it. On the marked card it does not stand on that ground but on a light
+  surface, where a white disc is nothing at all - a bare cross was exactly what
+  the room got. The swap is undone for this one placement; the children's world
+  keeps its own, whose reason is a different one.
+  
+  AND THE `besidePlayer` SLOT CAN FINALLY PUT SOMETHING BEHIND THE CARD.
+  `.scoreGroup` was deliberately left without a stacking context so that the
+  slot's content could decide for itself whether it sits in front or behind. Only
+  one of the two was ever available: with no context there, a negative `z-index`
+  does not land behind the score card but behind the stage's own ground, and the
+  thing disappears from the picture. The group is a stacking context of its own
+  now (`isolation`), so "behind" means behind the card and nothing further - which
+  is what a joker card leaning against a scoreboard needs.
+
 ## 0.29.8
 
 ## 0.29.7
